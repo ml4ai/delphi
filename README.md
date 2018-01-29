@@ -26,8 +26,10 @@ export PYTHONPATH=`pwd`:$PYTHONPATH
 Then, do
 
 ```
-FLASK_APP=webapp/app.py flask run
+cd webapp
+FLASK_APP=app.py flask run
 ```
+and navigate your browser to `http://127.0.0.1:5000/`.
 
 To build the Sphinx API documentation, do:
 
