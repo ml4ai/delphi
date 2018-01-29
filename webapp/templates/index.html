@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" 
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
+          crossorigin="anonymous">
+    <title>World Modelers Kickoff Demos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.8/cytoscape.js"> </script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cola/1.6.0/cola.js"> </script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cola/1.6.0/cytoscape-cola.js"> </script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.7.0/cytoscape-qtip.js"> </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" 
+      crossorigin="anonymous"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" 
+      crossorigin="anonymous"> </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" 
+      crossorigin="anonymous"> </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'> </script>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container"> 
+      <br>
+      <a class="navbar-brand" href='/' style="color:maroon;">
+        <h1> World Modelers Kickoff Demo</h1>
+      </a> <br>
+      <form action="/processText" method="GET">
+        <div class="form-group">
+          <textarea class="form-control" id="exampleFormControlTextarea1"
+                name="textToProcess" rows="3" placeholder="Input text to be processed here">
+          </textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" role="button">Submit</button>
+      </form>
+      <br> <h2> Causal Analysis Graph </h2> <br>
+      <div class="container border rounded" id="cy" style="height: 700px; width:
+        100%;"></div>
+      <script>
+        var cy = cytoscape({
+        container: document.getElementById('cy'),
+          elements: {{ apps.elementsJSONforJinja | safe }},
+          style: [
+                  { selector: 'node',
+                    style: { 
+                        'label': 'data(id)',
+                        'background-color': 'white',
+                        'border-color': 'maroon',
+                        'border-width': '3pt',
+                        'font-family': 'Arno Pro, Arial',
+                        'width':'30',
+                    } 
+                  }, { 
+                    selector: 'edge',
+                    style: { 
+                      'curve-style' : 'bezier',
+                      'line-color': 'maroon',
+                      'target-arrow-shape': 'circle',
+                      'target-arrow-color' : 'maroon',
+                      'line-style' : 'data(linestyle)'
+                    } 
+                  },
+              ],
+          layout: { name: 'cola' },                
+          maxZoom : 10,
+          minZoom : 0.1,
+        });
+      cy.width()=500;
+      </script>
+
+      {% if apps.histos_built %}
+      <div id="currentTimeStep"></div>
+      <button onclick="previousStep()" class="btn btn-primary"> Previous time step </button>
+      <button onclick="nextStep()" class="btn btn-primary"> Next time step </button>
+      <script>
+        total_timesteps = {{ apps.n_steps }}
+        timestep=0;
+        updateTimestepAndHistograms();
+
+        function updateTimestepAndHistograms() {
+          document.getElementById("currentTimeStep").innerHTML = 'Time step '+timestep;
+          cy.nodes().forEach(function(ele){
+            if (ele.data('simulable')) {
+              ele.style({ 
+                'shape' : 'roundrectangle',
+                'width' : '120',
+                'height' : '90',
+                'background-width' : '100%',
+                'background-height' : '100%'
+              });
+            ele.style('background-image',
+              'static/'+ele.id().replace(/ /g, '_')+'_'+timestep+'.png?v='+new Date().getTime());
+            };
+          });
+        };
+
+        function nextStep() {
+            timestep = Math.min(timestep+1, {{ apps.n_steps }}-1);
+            updateTimestepAndHistograms();
+        };
+
+        function previousStep() {
+            timestep = Math.max(timestep - 1, 0);
+            updateTimestepAndHistograms();
+        };
+      </script>
+      {% endif %}
+      <br>
+      {% if apps.s0 != None %}
+      <h2> Simulable Factors </h2>
+      <form action="runExperiment" method="POST">
+        {% for k, v in apps.s0.items() %}
+        <div class="row">
+          <div class="col"> 
+            <p>{{ k }}</p> 
+            {% if not k.startswith('∂') %}
+            <p>{{ 'σ'+k }}</p> 
+            {% endif %}
+          </div>
+          <div class="col">
+            <input class="form-control" name = "initialValue" type="number"
+                  placeholder="Set initial value" value = {{ v }}>
+            {% if not k.startswith('∂') %}
+            <input class="form-control" name = "sigma" type="number"
+                  placeholder="Set σ" value = {{ 1 }}>
+              {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        <br>
+        <div class="row">
+          <div class="col">
+            <label for="nsteps">Number of timesteps</label>
+            <input type="number" class="form-control" name="nsteps" id="nsteps"
+              placeholder="Number of timesteps" value= {{ apps.n_steps }}>
+          </div>
+          <div class="col">
+            <label for="nsamples">Number of sequences to sample</label>
+            <input type="number" class="form-control" name="nsamples"
+                                                      id="nsamples"
+            placeholder="Number of samples" value={{ apps.n_samples }}>
+          </div>
+          <div class="col">
+            <label for="Δt">Length of time step Δt</label>
+            <input type="number" class="form-control" name="Δt" id="Δt"
+            placeholder="Number of samples" value={{ apps.Δt }}>
+          </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary" role="button"> Submit </button>
+      </form>
+      {% endif %}
+    </div>
+  <br>
+  </body>
+</html>
