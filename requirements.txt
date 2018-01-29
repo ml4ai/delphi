@@ -1,0 +1,11 @@
+tqdm
+indra
+sphinxcontrib-bibtex
+sphinx-autodoc-typehints
+sphinx-reload
+networkx
+numpy
+pandas
+indra
+scipy
+flask
