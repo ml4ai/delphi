@@ -10,6 +10,8 @@ from delphi.types import GroupBy
 from indra.statements import Influence
 import networkx as nx
 import json
+import pkg_resources
+adjectiveData = pkg_resources.resource_filename('delphi', 'data/adjectiveData.tsv')
 
 Delta = Dict[str, int]
 np.set_printoptions(precision=4, linewidth=1000)
@@ -104,7 +106,7 @@ def export_to_cytoscapejs(G: nx.DiGraph):
             }
  
 def runExperiment(statements, s0, n_steps = 10, n_samples = 10, Δt = 1):
-    adjectiveData='data/adjectiveData.tsv' 
+    # adjectiveData='data/adjectiveData.tsv' 
     gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
     get_kde = compose(gaussian_kde, get_respdevs)
     rs = flatMap(lambda g: get_kde(g[1]).resample(5)[0].tolist(), gb)
