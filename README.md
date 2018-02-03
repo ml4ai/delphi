@@ -12,8 +12,10 @@ evidence.
 
 # Usage
 
-Install the requirements:
+Clone the directory, install the requirements:
 ```
+git clone https://github.com/ml4ai/delphi
+cd delphi
 pip install -r requirements.txt
 ```
 
