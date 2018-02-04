@@ -1,5 +1,5 @@
 import pandas as pd
-from delphi.helpers import *
+from delphi.utils import *
 import scipy
 from scipy.stats import gaussian_kde
 from itertools import *
@@ -34,11 +34,8 @@ def get_respdevs(gb: GroupBy) -> np.ndarray:
     """
     return gb['respdev']
 
-
-
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
     return s.subj_delta, s.obj_delta
-
 
 def get_agents(statements: List[Influence]) -> List[str]:
     """
@@ -56,55 +53,6 @@ def get_agents(statements: List[Influence]) -> List[str]:
     factors = set(flatMap(lambda x: (x.subj.name, x.obj.name), statements))
     return flatMap(lambda a: (a, f'∂({a})/∂t'), sorted(factors))
 
-def create_causal_analysis_graph(statements):
-    agents = get_agents(statements)
-    G = nx.MultiDiGraph() 
-
-    for agent in agents[::2]:
-        G.add_node(agent.capitalize(), simulable=False)
-    for s in statements:
-        subj, obj = s.subj.name.capitalize(), s.obj.name.capitalize()
-
-        if s.subj_delta['polarity'] != None and s.obj_delta['polarity'] != None:
-            G.nodes[subj]['simulable'] = True
-            G.nodes[obj]['simulable'] = True
-
-        key = G.add_edge(subj, obj,
-                    subj_polarity = s.subj_delta['polarity'],
-                    subj_adjectives = s.subj_delta['adjectives'],
-                    obj_polarity = s.obj_delta['polarity'],
-                    obj_adjectives = s.obj_delta['adjectives'],
-                    linestyle='dotted'
-                )
-        if s.subj_delta['polarity'] != None and s.obj_delta['polarity'] != None:
-            G[subj][obj][key]['linestyle']='solid'
-
-    return G
-
-def export_to_cytoscapejs(G: nx.DiGraph):
-    """ Export networkx to format readable by CytoscapeJS """
-    return {
-            'nodes':[{'data':{'id':f'{n[0]}', 'simulable': n[1]['simulable']}} for n in G.nodes(data=True)],
-            'edges':[
-                {
-                    'data':
-                    {
-                        'id'              : f'{e[0]}_{e[1]}',
-                        'source'          : f'{e[0]}',
-                        'target'          : f'{e[1]}',
-                        'linestyle'       : f'{e[3]["linestyle"]}',
-                        'subj_adjectives' : f'{e[3]["subj_adjectives"]}',
-                        'subj_polarity'   : f'{e[3]["subj_polarity"]}',
-                        'obj_adjectives' : f'{e[3]["obj_adjectives"]}',
-                        'obj_polarity'   : f'{e[3]["obj_polarity"]}',
-                        'simulable' : False if (e[3]['obj_polarity'] == None or
-                            e[3]['subj_polarity'] == None) else True
-                    }
-                } 
-                for e in G.edges(data=True, keys = True)
-                ]
-            }
- 
 def runExperiment(statements, s0, n_steps = 10, n_samples = 10, Δt = 1):
     # adjectiveData='data/adjectiveData.tsv' 
     gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
@@ -170,7 +118,7 @@ def runExperiment(statements, s0, n_steps = 10, n_samples = 10, Δt = 1):
 
     conditional_probabilities = {a1:{a2:get_kde(a1, a2) for a2 in agents} for a1 in agents}
 
-    # # Sample transition_matrix
+    # Sample transition_matrix
 
     def sample_transition_matrix():
         A = pd.DataFrame(np.identity(len(agents)), index = agents,
