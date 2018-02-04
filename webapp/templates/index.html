@@ -24,21 +24,29 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" 
       crossorigin="anonymous"> </script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'> </script>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="static/style.css">
   </head>
   <body>
     <div class="container"> 
-      <br>
+      <div class="row">
       <a class="navbar-brand" href='/' style="color:maroon;">
-        <h1> World Modelers Kickoff Demo</h1>
-      </a> <br>
+        <h1> UA-HMC World Modelers Kickoff Demo</h1>
+      </a> 
+      </div>
+          Welcome to the UA-HMC team's interactive assembly demo! This app
+          processes text with the Eidos machine reader, extracts factors and the
+          causal links between them, assembles an executable probabilistic
+          model, and generates distributions of the values of the factors over
+          multiple time steps.
       <form action="/processText" method="GET">
         <div class="form-group">
-          <textarea class="form-control" id="exampleFormControlTextarea1"
-                name="textToProcess" rows="3" placeholder="Input text to be processed here">
-          </textarea>
+          <textarea class="form-control" id="exampleFormControlTextarea1" 
+            name="textToProcess" rows="3" 
+            placeholder="Input text to be processed here">{{ state.inputText }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary" role="button">Submit</button>
+        <button type="submit" class="btn btn-outline-primary" role="button">
+          Process text with Eidos
+        </button>
       </form>
       <br> <h2> Causal Analysis Graph </h2> <br>
       <div class="container border rounded" id="cy" style="height: 700px; width:
@@ -46,7 +54,7 @@
       <script>
         var cy = cytoscape({
         container: document.getElementById('cy'),
-          elements: {{ apps.elementsJSONforJinja | safe }},
+          elements: {{ state.elementsJSONforJinja | safe }},
           style: [
                   { selector: 'node',
                     style: { 
@@ -68,24 +76,24 @@
                     } 
                   },
               ],
-          layout: { name: 'cola' },                
+          layout: { name: 'breadthfirst' },                
           maxZoom : 10,
           minZoom : 0.1,
         });
       cy.width()=500;
       </script>
 
-      {% if apps.histos_built %}
+      {% if state.histos_built %}
       <div id="currentTimeStep"></div>
-      <button onclick="previousStep()" class="btn btn-primary"> Previous time step </button>
-      <button onclick="nextStep()" class="btn btn-primary"> Next time step </button>
+      <button onclick="previousStep()" class="btn btn-outline-primary">Previous</button>
+      <button onclick="nextStep()" class="btn btn-outline-primary">Next</button>
       <script>
-        total_timesteps = {{ apps.n_steps }}
+        total_timesteps = {{ state.n_steps }}
         timestep=0;
         updateTimestepAndHistograms();
 
         function updateTimestepAndHistograms() {
-          document.getElementById("currentTimeStep").innerHTML = 'Time step '+timestep;
+          document.getElementById("currentTimeStep").innerHTML = '<h3> Time step '+timestep+'</h3>';
           cy.nodes().forEach(function(ele){
             if (ele.data('simulable')) {
               ele.style({ 
@@ -102,7 +110,7 @@
         };
 
         function nextStep() {
-            timestep = Math.min(timestep+1, {{ apps.n_steps }}-1);
+            timestep = Math.min(timestep+1, {{ state.n_steps }}-1);
             updateTimestepAndHistograms();
         };
 
@@ -113,10 +121,16 @@
       </script>
       {% endif %}
       <br>
-      {% if apps.s0 != None %}
+      {% if state.s0 != None %}
+      <br>
       <h2> Simulable Factors </h2>
+      <p> 
+        Enter the initial values for the factors, their time derivatives, and
+        their standard deviations here, along with the number of sequences to
+        sample and number of time steps to evolve the state over.
+      </p>
       <form action="runExperiment" method="POST">
-        {% for k, v in apps.s0.items() %}
+        {% for k, v in state.s0.items() %}
         <div class="row">
           <div class="col"> 
             <p>{{ k }}</p> 
@@ -139,22 +153,22 @@
           <div class="col">
             <label for="nsteps">Number of timesteps</label>
             <input type="number" class="form-control" name="nsteps" id="nsteps"
-              placeholder="Number of timesteps" value= {{ apps.n_steps }}>
+              placeholder="Number of timesteps" value= {{ state.n_steps }}>
           </div>
           <div class="col">
             <label for="nsamples">Number of sequences to sample</label>
             <input type="number" class="form-control" name="nsamples"
                                                       id="nsamples"
-            placeholder="Number of samples" value={{ apps.n_samples }}>
+            placeholder="Number of samples" value={{ state.n_samples }}>
           </div>
           <div class="col">
             <label for="Δt">Length of time step Δt</label>
             <input type="number" class="form-control" name="Δt" id="Δt"
-            placeholder="Number of samples" value={{ apps.Δt }}>
+            placeholder="Number of samples" value={{ state.Δt }}>
           </div>
         </div>
         <br>
-        <button type="submit" class="btn btn-primary" role="button"> Submit </button>
+        <button type="submit" class="btn btn-outline-primary" role="button">Execute model</button>
       </form>
       {% endif %}
     </div>
