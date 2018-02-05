@@ -1,19 +1,14 @@
 import os
-import sys
 import json
-import pandas as pd
-from itertools import cycle
 from delphi.core import *
-from delphi.utils import ltake, lfilter, compose, lmap
+from delphi.utils import ltake, lfilter, compose, lmap, lzip, repeat
 from typing import List, Optional, Dict
-from tqdm import trange
 import numpy as np
-import networkx as nx
 from flask import Flask, render_template, request, redirect, g
-import subprocess as sp
 from functools import partial
-from collections import namedtuple
 from glob import glob
+from pandas import Series
+from itertools import cycle
 
 from indra.statements import Influence
 from indra.sources import eidos
@@ -29,7 +24,6 @@ mpl.rcParams.update({
 })
 
 from matplotlib import pyplot as plt
-from matplotlib.animation import FuncAnimation
 import seaborn as sns
 plt.style.use('ggplot')
 
@@ -37,7 +31,7 @@ class State(object):
     """ Class to hold the global state of the application """
     CAG                  : Optional[Dict]            = None
     factors              : Optional[List[str]]       = None
-    s0                   : Optional[pd.Series]       = None
+    s0                   : Optional[Series]       = None
     s_index              : Optional[List[str]]       = None
     initialValues        : Optional[List[float]]     = None
     elementsJSON         : Optional[Dict]            = None
@@ -61,6 +55,7 @@ def show_index():
                            text = "Input text to be processed here",
                            state = state)
 
+
 @app.route("/processText")
 def process_text():
     """ Process the input text. """
@@ -73,8 +68,10 @@ def process_text():
     eidos.process_text(state.inputText)
     return redirect('/setupExperiment')
 
+
 @app.route("/setupExperiment")
 def setupExperiment():
+    """ Set up the experiment, get initial values of parameters. """
     state.statements = eidos.process_json_file('eidos_output.json').statements
     cag_assembler = CAGAssembler(state.statements)
     state.CAG = cag_assembler.make_model()
@@ -111,8 +108,8 @@ def make_histograms():
     state.n_steps   = int(request.form.get('nsteps'))
     state.n_samples = int(request.form.get('nsamples'))
     state.Δt = float(request.form.get('Δt'))
-    sampled_sequences = runExperiment(state.statements,
-            pd.Series(state.s0, index = state.s0.keys()),
+    sampled_sequences = sample_sequences(state.statements,
+            Series(state.s0, index = state.s0.keys()),
             n_steps = state.n_steps, n_samples = state.n_samples)
 
     fig, axes = plt.subplots()
