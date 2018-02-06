@@ -187,4 +187,6 @@ intersphinx_mapping = {
         'numpy': ('http://docs.scipy.org/doc/numpy/', None),
         'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
         'matplotlib': ('http://matplotlib.sourceforge.net/', None),
+        'networkx': ('https://networkx.github.io/documentation/stable/', None),
+        'indra': ('http://indra.readthedocs.io/en/latest/', None),
         }
