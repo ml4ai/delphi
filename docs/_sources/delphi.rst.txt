@@ -12,18 +12,18 @@ delphi\.core module
     :undoc-members:
     :show-inheritance:
 
-delphi\.helpers module
-----------------------
-
-.. automodule:: delphi.helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi\.types module
 --------------------
 
 .. automodule:: delphi.types
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi\.utils module
+--------------------
+
+.. automodule:: delphi.utils
     :members:
     :undoc-members:
     :show-inheritance:
