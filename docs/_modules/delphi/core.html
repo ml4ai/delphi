@@ -1,0 +1,309 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>delphi.core &#8212; delphi 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for delphi.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">permutations</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
+<span class="kn">from</span> <span class="nn">indra.statements</span> <span class="k">import</span> <span class="n">Influence</span>
+<span class="kn">from</span> <span class="nn">networkx</span> <span class="k">import</span> <span class="n">DiGraph</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">Series</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">read_csv</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">gaussian_kde</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">trange</span>
+
+<span class="kn">from</span> <span class="nn">delphi.types</span> <span class="k">import</span> <span class="n">GroupBy</span><span class="p">,</span> <span class="n">Delta</span>
+<span class="kn">from</span> <span class="nn">delphi.utils</span> <span class="k">import</span> <span class="n">flatMap</span><span class="p">,</span> <span class="n">lmap</span><span class="p">,</span> <span class="n">compose</span><span class="p">,</span> <span class="n">lfilter</span><span class="p">,</span> <span class="n">iterate</span><span class="p">,</span> <span class="n">ltake</span>
+
+<span class="c1"># Location of the CLULab gradable adjectives data.</span>
+<span class="n">adjectiveData</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;delphi&#39;</span><span class="p">,</span>
+                                                <span class="s1">&#39;data/adjectiveData.tsv&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_respdevs"><a class="viewcode-back" href="../../delphi.html#delphi.core.get_respdevs">[docs]</a><span class="k">def</span> <span class="nf">get_respdevs</span><span class="p">(</span><span class="n">gb</span><span class="p">:</span> <span class="n">GroupBy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gb:</span>
+<span class="sd">        Groupby object</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray:</span>
+<span class="sd">        An array of responses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gb</span><span class="p">[</span><span class="s1">&#39;respdev&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="deltas"><a class="viewcode-back" href="../../delphi.html#delphi.core.deltas">[docs]</a><span class="k">def</span> <span class="nf">deltas</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Influence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Delta</span><span class="p">,</span> <span class="n">Delta</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot; Returns the delta dicts of an Influence statement as a 2-tuple &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">subj_delta</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">obj_delta</span></div>
+
+
+<div class="viewcode-block" id="construct_CAG_skeleton"><a class="viewcode-back" href="../../delphi.html#delphi.core.construct_CAG_skeleton">[docs]</a><span class="k">def</span> <span class="nf">construct_CAG_skeleton</span><span class="p">(</span><span class="n">factors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">sts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Influence</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DiGraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    factors:</span>
+<span class="sd">        Factors that an analyst might query for.</span>
+<span class="sd">    sts:</span>
+<span class="sd">        List of available INDRA statements that might involve those factors.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DiGraph:</span>
+<span class="sd">        A networkx DiGraph object that contains the link structure information.</span>
+<span class="sd">        The nodes are the factors, and each edge contains the list of INDRA</span>
+<span class="sd">        statements that involve the two nodes that it connects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">DiGraph</span><span class="p">(</span><span class="n">lfilter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;InfluenceStatements&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
+                           <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span>
+                           <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;InfluenceStatements&#39;</span><span class="p">:</span> <span class="n">lfilter</span><span class="p">(</span>
+                               <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">subj</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                               <span class="n">sts</span><span class="p">)}),</span>
+                               <span class="n">permutations</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span></div>
+
+
+<div class="viewcode-block" id="add_conditional_probabilities"><a class="viewcode-back" href="../../delphi.html#delphi.core.add_conditional_probabilities">[docs]</a><span class="k">def</span> <span class="nf">add_conditional_probabilities</span><span class="p">(</span><span class="n">CAG</span><span class="p">:</span> <span class="n">DiGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiGraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        CAG: The causal analysis graph skeleton.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The causal analysis graph, but now with conditional probability</span>
+<span class="sd">        information encoded in the edges.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create a pandas GroupBy object</span>
+    <span class="n">gb</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">adjectiveData</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;adjective&#39;</span><span class="p">)</span>
+
+    <span class="n">responses_kde</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">gaussian_kde</span><span class="p">,</span> <span class="n">get_respdevs</span><span class="p">)</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">responses_kde</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="mi">5</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">gb</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_adjective</span><span class="p">(</span><span class="n">delta</span><span class="p">:</span> <span class="n">Delta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot; Get the first adjective from subj_delta or obj_delta &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="s1">&#39;adjectives&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="s1">&#39;adjectives&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="n">delta</span><span class="p">[</span><span class="s1">&#39;adjectives&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">adj</span> <span class="o">=</span> <span class="n">delta</span><span class="p">[</span><span class="s1">&#39;adjectives&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">adj</span> <span class="ow">in</span> <span class="n">gb</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">adj</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">get_adjectives</span><span class="p">(</span><span class="n">statement</span><span class="p">:</span> <span class="n">Influence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            statement: An INDRA Influence statement</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of adjectives (or None).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">lmap</span><span class="p">(</span><span class="n">get_adjective</span><span class="p">,</span> <span class="n">deltas</span><span class="p">(</span><span class="n">statement</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">CAG</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">simulableStatements</span> <span class="o">=</span> <span class="n">lfilter</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">subj_delta</span><span class="p">[</span><span class="s1">&#39;polarity&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                      <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">obj_delta</span><span class="p">[</span><span class="s1">&#39;polarity&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;InfluenceStatements&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">simulableStatements</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="c1"># Collect adjectives</span>
+            <span class="n">adjs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                              <span class="n">flatMap</span><span class="p">(</span><span class="n">get_adjectives</span><span class="p">,</span> <span class="n">simulableStatements</span><span class="p">)))</span>
+
+            <span class="c1"># Make a adjective-response dict.</span>
+            <span class="n">adjectiveResponses</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">get_respdevs</span><span class="p">(</span><span class="n">gb</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span>
+                                  <span class="n">adjs</span><span class="p">}</span>
+
+            <span class="k">def</span> <span class="nf">responses</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">adj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">rs</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">adjectiveResponses</span><span class="p">[</span><span class="n">adj</span><span class="p">]</span>
+
+            <span class="k">def</span> <span class="nf">delta_responses</span><span class="p">(</span><span class="n">delta</span><span class="p">:</span> <span class="n">Delta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">delta</span><span class="p">[</span><span class="s1">&#39;polarity&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="n">responses</span><span class="p">(</span><span class="n">get_adjective</span><span class="p">(</span><span class="n">delta</span><span class="p">)))</span>
+
+            <span class="n">response_tuples</span> <span class="o">=</span> <span class="n">lmap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="n">delta_responses</span><span class="p">,</span> <span class="n">deltas</span><span class="p">(</span><span class="n">s</span><span class="p">)),</span>
+                                   <span class="n">simulableStatements</span><span class="p">)</span>
+
+            <span class="n">rs_subj</span><span class="p">,</span> <span class="n">rs_obj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="n">response_tuples</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">xs1</span><span class="p">,</span> <span class="n">ys1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">rs_subj</span><span class="p">,</span> <span class="n">rs_obj</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">({</span><span class="n">s</span><span class="o">.</span><span class="n">subj_delta</span><span class="p">[</span><span class="s1">&#39;polarity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">obj_delta</span><span class="p">[</span><span class="s1">&#39;polarity&#39;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simulableStatements</span><span class="p">})</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">xs2</span><span class="p">,</span> <span class="n">ys2</span> <span class="o">=</span> <span class="o">-</span><span class="n">xs1</span><span class="p">,</span> <span class="o">-</span><span class="n">ys1</span>
+                <span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">ys1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">xs1</span><span class="o">.</span><span class="n">flatten</span><span class="p">()),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">ys2</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">xs2</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">ys1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">xs1</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+            <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">CAG</span></div>
+
+
+<div class="viewcode-block" id="sample_transition_function"><a class="viewcode-back" href="../../delphi.html#delphi.core.sample_transition_function">[docs]</a><span class="k">def</span> <span class="nf">sample_transition_function</span><span class="p">(</span><span class="n">CAG</span><span class="p">:</span> <span class="n">DiGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Series</span><span class="p">],</span> <span class="n">Series</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    CAG:</span>
+<span class="sd">        Causal analysis graph with conditional probabilities attached.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        The transition function that evolves the latent state in a dynamic</span>
+<span class="sd">        bayes net by one time step.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="n">CAG</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+    <span class="n">latent_state_components</span> <span class="o">=</span> <span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{a}</span><span class="s1">)/∂t&#39;</span><span class="p">),</span> <span class="n">factors</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">latent_state_components</span><span class="p">)),</span>
+                  <span class="n">index</span><span class="o">=</span><span class="n">latent_state_components</span><span class="p">,</span>
+                  <span class="n">columns</span><span class="o">=</span><span class="n">latent_state_components</span><span class="p">)</span>
+
+    <span class="c1"># Initialize certain off-diagonal elements to represent discretized PDE</span>
+    <span class="c1"># system update.</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">latent_state_components</span><span class="p">[::</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{c}</span><span class="s1">)/∂t&#39;</span><span class="p">][</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">Δt</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Sample coefficients from conditional probability data in CAGs</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">CAG</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">β</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="mi">50</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">A</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{e[0]}</span><span class="s1">)/∂t&#39;</span><span class="p">][</span><span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{e[1]}</span><span class="s1">)/∂t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">β</span> <span class="o">*</span> <span class="n">Δt</span>
+
+    <span class="k">def</span> <span class="nf">transition_function</span><span class="p">(</span><span class="n">latent_state</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<div class="viewcode-block" id="sample_sequences"><a class="viewcode-back" href="../../delphi.html#delphi.core.sample_sequences">[docs]</a>        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">transition_function</span></div>
+
+
+<span class="k">def</span> <span class="nf">sample_sequences</span><span class="p">(</span><span class="n">statements</span><span class="p">,</span> <span class="n">s0</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Sample a collection of sequences for a CAG &quot;&quot;&quot;</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">subj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">statements</span><span class="p">))</span>
+    <span class="n">CAG</span> <span class="o">=</span> <span class="n">add_conditional_probabilities</span><span class="p">(</span>
+        <span class="n">construct_CAG_skeleton</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="n">statements</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">sample_sequence</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Series</span><span class="p">]:</span>
+        <span class="n">transition_function</span> <span class="o">=</span> <span class="n">sample_transition_function</span><span class="p">(</span><span class="n">CAG</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ltake</span><span class="p">(</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">iterate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">transition_function</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">s0</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">sample_sequence</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">delphi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../delphi.html">delphi</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Adarsh Pyarelal.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

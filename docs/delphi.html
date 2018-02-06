@@ -1,0 +1,535 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>delphi package &#8212; delphi 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="delphi-package">
+<h1>delphi package<a class="headerlink" href="#delphi-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.core">
+<span id="delphi-core-module"></span><h2>delphi.core module<a class="headerlink" href="#module-delphi.core" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="delphi.core.add_conditional_probabilities">
+<code class="descclassname">delphi.core.</code><code class="descname">add_conditional_probabilities</code><span class="sig-paren">(</span><em>CAG</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#add_conditional_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.add_conditional_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> (<code class="xref py py-class docutils literal"><span class="pre">DiGraph</span></code>) – The causal analysis graph skeleton.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">DiGraph</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The causal analysis graph, but now with conditional probability
+information encoded in the edges.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.core.construct_CAG_skeleton">
+<code class="descclassname">delphi.core.</code><code class="descname">construct_CAG_skeleton</code><span class="sig-paren">(</span><em>factors</em>, <em>sts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#construct_CAG_skeleton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.construct_CAG_skeleton" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>factors</strong> (<code class="xref py py-class docutils literal"><span class="pre">List</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]) – Factors that an analyst might query for.</li>
+<li><strong>sts</strong> (<code class="xref py py-class docutils literal"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal"><span class="pre">Influence</span></code>]) – List of available INDRA statements that might involve those factors.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">DiGraph</span></code></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A networkx DiGraph object that contains the link structure information.
+The nodes are the factors, and each edge contains the list of INDRA
+statements that involve the two nodes that it connects.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DiGraph</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.core.deltas">
+<code class="descclassname">delphi.core.</code><code class="descname">deltas</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#deltas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.deltas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the delta dicts of an Influence statement as a 2-tuple</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>], <code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]], <code class="xref py py-class docutils literal"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>], <code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]]]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.core.get_respdevs">
+<code class="descclassname">delphi.core.</code><code class="descname">get_respdevs</code><span class="sig-paren">(</span><em>gb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#get_respdevs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.get_respdevs" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gb</strong> (<code class="xref py py-class docutils literal"><span class="pre">DataFrameGroupBy</span></code>) – Groupby object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">ndarray</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An array of responses.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.core.sample_sequences">
+<code class="descclassname">delphi.core.</code><code class="descname">sample_sequences</code><span class="sig-paren">(</span><em>statements</em>, <em>s0</em>, <em>n_steps</em>, <em>n_samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#sample_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.sample_sequences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a collection of sequences for a CAG</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.core.sample_transition_function">
+<code class="descclassname">delphi.core.</code><code class="descname">sample_transition_function</code><span class="sig-paren">(</span><em>CAG</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#sample_transition_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.sample_transition_function" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> (<code class="xref py py-class docutils literal"><span class="pre">DiGraph</span></code>) – Causal analysis graph with conditional probabilities attached.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-data docutils literal"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal"><span class="pre">Series</span></code>], <code class="xref py py-class docutils literal"><span class="pre">Series</span></code>]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>The transition function that evolves the latent state in a dynamic</em></li>
+<li><em>bayes net by one time step.</em></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-delphi.types">
+<span id="delphi-types-module"></span><h2>delphi.types module<a class="headerlink" href="#module-delphi.types" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.utils">
+<span id="delphi-utils-module"></span><h2>delphi.utils module<a class="headerlink" href="#module-delphi.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="delphi.utils.append">
+<code class="descclassname">delphi.utils.</code><code class="descname">append</code><span class="sig-paren">(</span><em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a value to an iterable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterator</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.compose">
+<code class="descclassname">delphi.utils.</code><code class="descname">compose</code><span class="sig-paren">(</span><em>*fs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#compose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.compose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compose functions from left to right.</p>
+<p>e.g. compose(f, g)(x) = f(g(x))</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-data docutils literal"><span class="pre">Callable</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.flatMap">
+<code class="descclassname">delphi.utils.</code><code class="descname">flatMap</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#flatMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map a function onto an iterable and flatten the result.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">List</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.flatten">
+<code class="descclassname">delphi.utils.</code><code class="descname">flatten</code><span class="sig-paren">(</span><em>l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatten" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterable</span></code>[+T_co]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.foldl">
+<code class="descclassname">delphi.utils.</code><code class="descname">foldl</code><span class="sig-paren">(</span><em>f</em>, <em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#foldl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">~T</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.foldl1">
+<code class="descclassname">delphi.utils.</code><code class="descname">foldl1</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#foldl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl1" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">~T</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.iterate">
+<code class="descclassname">delphi.utils.</code><code class="descname">iterate</code><span class="sig-paren">(</span><em>f</em>, <em>x0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.iterate" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterator</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.lfilter">
+<code class="descclassname">delphi.utils.</code><code class="descname">lfilter</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A non-lazy version of filter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">List</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.lmap">
+<code class="descclassname">delphi.utils.</code><code class="descname">lmap</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>A non-lazy version of map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">List</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.ltake">
+<code class="descclassname">delphi.utils.</code><code class="descname">ltake</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#ltake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ltake" title="Permalink to this definition">¶</a></dt>
+<dd><p>A non-lazy version of take.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">List</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.lzip">
+<code class="descclassname">delphi.utils.</code><code class="descname">lzip</code><span class="sig-paren">(</span><em>*xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lzip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lzip" title="Permalink to this definition">¶</a></dt>
+<dd><p>A non-lazy version of zip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal"><span class="pre">Iterable</span></code>[+T_co]]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.prepend">
+<code class="descclassname">delphi.utils.</code><code class="descname">prepend</code><span class="sig-paren">(</span><em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#prepend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.prepend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepend a value to an iterable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterator</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.ptake">
+<code class="descclassname">delphi.utils.</code><code class="descname">ptake</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#ptake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ptake" title="Permalink to this definition">¶</a></dt>
+<dd><p>take with a tqdm progress bar.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterable</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.scanl">
+<code class="descclassname">delphi.utils.</code><code class="descname">scanl</code><span class="sig-paren">(</span><em>f</em>, <em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#scanl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterator</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.scanl1">
+<code class="descclassname">delphi.utils.</code><code class="descname">scanl1</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#scanl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl1" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterator</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.utils.take">
+<code class="descclassname">delphi.utils.</code><code class="descname">take</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#take"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.take" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Iterable</span></code>[~T]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-delphi">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-delphi" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="delphi.State">
+<em class="property">class </em><code class="descclassname">delphi.</code><code class="descname">State</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Class to hold the global state of the application</p>
+<dl class="attribute">
+<dt id="delphi.State.CAG">
+<code class="descname">CAG</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.CAG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.elementsJSON">
+<code class="descname">elementsJSON</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.elementsJSON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.elementsJSONforJinja">
+<code class="descname">elementsJSONforJinja</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.elementsJSONforJinja" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.factors">
+<code class="descname">factors</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.factors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.histos_built">
+<code class="descname">histos_built</code><em class="property"> = False</em><a class="headerlink" href="#delphi.State.histos_built" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.initialValues">
+<code class="descname">initialValues</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.initialValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.inputText">
+<code class="descname">inputText</code><em class="property"> = ''</em><a class="headerlink" href="#delphi.State.inputText" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.n_samples">
+<code class="descname">n_samples</code><em class="property"> = 10000</em><a class="headerlink" href="#delphi.State.n_samples" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.n_steps">
+<code class="descname">n_steps</code><em class="property"> = 10</em><a class="headerlink" href="#delphi.State.n_steps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.s0">
+<code class="descname">s0</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.s0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.s_index">
+<code class="descname">s_index</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.s_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.statements">
+<code class="descname">statements</code><em class="property"> = None</em><a class="headerlink" href="#delphi.State.statements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="delphi.State.Δt">
+<code class="descname">Δt</code><em class="property"> = 1</em><a class="headerlink" href="#delphi.State.Δt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.make_histograms">
+<code class="descclassname">delphi.</code><code class="descname">make_histograms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#make_histograms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.make_histograms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make histograms</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.process_text">
+<code class="descclassname">delphi.</code><code class="descname">process_text</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#process_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.process_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the input text.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.setupExperiment">
+<code class="descclassname">delphi.</code><code class="descname">setupExperiment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#setupExperiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.setupExperiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the experiment, get initial values of parameters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.show_index">
+<code class="descclassname">delphi.</code><code class="descname">show_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#show_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.show_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the index page.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">delphi</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Adarsh Pyarelal.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/delphi.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
