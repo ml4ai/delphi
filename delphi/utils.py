@@ -6,6 +6,7 @@ from tqdm import tqdm
 from typing import TypeVar, Iterator, Tuple, Callable, Iterable, List, Any, Union
 
 T = TypeVar('T')
+U = TypeVar('U')
 
 
 def prepend(x: T, xs: Iterable[T]) -> Iterator[T]:
@@ -26,7 +27,7 @@ def prepend(x: T, xs: Iterable[T]) -> Iterator[T]:
     Examples
     --------
     
-    >>> from assembly.utils import prepend
+    >>> from delphi.utils import prepend
     >>> list(prepend(1, [2, 3]))
     [1, 2, 3]
 
@@ -52,7 +53,7 @@ def append(x: T, xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from assembly.utils import append
+    >>> from delphi.utils import append
     >>> list(append(1, [2, 3]))
     [2, 3, 1]
 
@@ -61,7 +62,7 @@ def append(x: T, xs: Iterable[T]) -> Iterator[T]:
     return chain(xs, [x])
 
 
-def scanl(f: Callable[[T, T], T], x: T, xs: Iterable[T]) -> Iterator[T]:
+def scanl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> Iterator[T]:
     """ Make an iterator that returns accumulated results of a binary function
     applied to elements of an iterable.
 
@@ -85,7 +86,7 @@ def scanl(f: Callable[[T, T], T], x: T, xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from assembly.utils import scanl
+    >>> from delphi.utils import scanl
     >>> list(scanl(lambda x, y: x + y, 10, range(5)))
     [10, 10, 11, 13, 16, 20]
 
@@ -116,7 +117,7 @@ def scanl1(f: Callable[[T, T], T], xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from assembly.utils import scanl1
+    >>> from delphi.utils import scanl1
     >>> list(scanl1(lambda x, y: x + y, range(5)))
     [0, 1, 3, 6, 10]
 
@@ -124,7 +125,7 @@ def scanl1(f: Callable[[T, T], T], xs: Iterable[T]) -> Iterator[T]:
     return accumulate(xs, f)
 
 
-def foldl(f: Callable[[T, T], T], x: T, xs: Iterable[T]) -> T:
+def foldl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> T:
     """ Returns the accumulated result of a binary function applied to elements
     of an iterable.
 
@@ -148,7 +149,7 @@ def foldl(f: Callable[[T, T], T], x: T, xs: Iterable[T]) -> T:
 
     Examples
     --------
-    >>> from assembly.utils import foldl
+    >>> from delphi.utils import foldl
     >>> foldl(lambda x, y: x + y, 10, range(5))
     20
 
@@ -178,7 +179,7 @@ def foldl1(f: Callable[[T, T], T], xs: Iterable[T]) -> T:
 
     Examples
     --------
-    >>> from assembly.utils import foldl1
+    >>> from delphi.utils import foldl1
     >>> foldl1(lambda x, y: x + y, range(5))
     10
     """
@@ -214,7 +215,7 @@ def iterate(f: Callable[[T], T], x: T) -> Iterator[T]:
 
     Examples
     --------
-    >>> from assembly.utils import iterate, take
+    >>> from delphi.utils import iterate, take
     >>> list(take(5, iterate(lambda x: x*2, 1)))
     [1, 2, 4, 8, 16]
     """
