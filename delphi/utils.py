@@ -132,20 +132,6 @@ def foldl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> T:
     .. math::
         foldl(f, x_0, [x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)
 
-    Parameters
-    ----------
-    f
-        A binary function of two arguments of type T.
-    x
-        An initializer element of type T.
-    xs
-        An iterable of elements of type T. 
-
-    Returns
-    -------
-    T
-        The accumulated result
-
 
     Examples
     --------
@@ -163,18 +149,6 @@ def foldl1(f: Callable[[T, T], T], xs: Iterable[T]) -> T:
 
     .. math::
         foldl1(f, [x_0, x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)
-
-    Parameters
-    ----------
-    f
-        A binary function of two arguments of type T.
-    xs
-        An iterable of elements of type T. 
-
-    Returns
-    -------
-    T
-        The accumulated result
 
 
     Examples
@@ -194,24 +168,11 @@ def flatten(xs: Union[List, Tuple]) -> List:
 
 
 def iterate(f: Callable[[T], T], x: T) -> Iterator[T]:
-    """ 
+    """ Makes infinite iterator that returns the result of successive
+    applications of a function to an element
 
     .. math::
         iterate(f, x) = [x, f(x), f(f(x)), f(f(f(x))), ...]
-
-    Parameters
-    ----------
-    f
-        A mapping: :math:`f:X\\rightarrow X`.
-    x
-        An element of :math:`X`.
-
-    Returns
-    -------
-    Iterator
-        An infinite iterator that returns the result of successive applications
-        of a function to an element
-
 
     Examples
     --------
