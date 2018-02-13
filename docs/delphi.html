@@ -39,19 +39,15 @@
 <span id="delphi-core-module"></span><h2>delphi.core module<a class="headerlink" href="#module-delphi.core" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="delphi.core.add_conditional_probabilities">
-<code class="descname">add_conditional_probabilities</code><span class="sig-paren">(</span><em>CAG</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#add_conditional_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.add_conditional_probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_conditional_probabilities</code><span class="sig-paren">(</span><em>CAG: networkx.classes.digraph.DiGraph</em><span class="sig-paren">)</span> &#x2192; networkx.classes.digraph.DiGraph<a class="reference internal" href="_modules/delphi/core.html#add_conditional_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.add_conditional_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code>) – The causal analysis graph skeleton.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> – The causal analysis graph skeleton.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The causal analysis graph, but now with conditional probability
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>DiGraph</em> – The causal analysis graph, but now with conditional probability
 information encoded in the edges.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">DiGraph</td>
 </tr>
 </tbody>
 </table>
@@ -59,26 +55,20 @@ information encoded in the edges.</td>
 
 <dl class="function">
 <dt id="delphi.core.construct_CAG_skeleton">
-<code class="descname">construct_CAG_skeleton</code><span class="sig-paren">(</span><em>factors</em>, <em>sts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#construct_CAG_skeleton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.construct_CAG_skeleton" title="Permalink to this definition">¶</a></dt>
+<code class="descname">construct_CAG_skeleton</code><span class="sig-paren">(</span><em>factors: List[str], sts: List[indra.statements.Influence]</em><span class="sig-paren">)</span> &#x2192; networkx.classes.digraph.DiGraph<a class="reference internal" href="_modules/delphi/core.html#construct_CAG_skeleton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.construct_CAG_skeleton" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>factors</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – Factors that an analyst might query for.</li>
-<li><strong>sts</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="http://indra.readthedocs.io/en/latest/modules/statements.html#indra.statements.Influence" title="(in INDRA v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Influence</span></code></a>]) – List of available INDRA statements that might involve those factors.</li>
+<li><strong>factors</strong> – Factors that an analyst might query for.</li>
+<li><strong>sts</strong> – List of available INDRA statements that might involve those factors.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A networkx DiGraph object that contains the link structure information.
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>DiGraph</em> – A networkx DiGraph object that contains the link structure information.
 The nodes are the factors, and each edge contains the list of INDRA
 statements that involve the two nodes that it connects.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">DiGraph</p>
 </td>
 </tr>
 </tbody>
@@ -87,32 +77,20 @@ statements that involve the two nodes that it connects.</p>
 
 <dl class="function">
 <dt id="delphi.core.deltas">
-<code class="descname">deltas</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#deltas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.deltas" title="Permalink to this definition">¶</a></dt>
+<code class="descname">deltas</code><span class="sig-paren">(</span><em>s: indra.statements.Influence</em><span class="sig-paren">)</span> &#x2192; Tuple[Dict[Union[str, NoneType], Union[int, NoneType]], Dict[Union[str, NoneType], Union[int, NoneType]]]<a class="reference internal" href="_modules/delphi/core.html#deltas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.deltas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the delta dicts of an Influence statement as a 2-tuple</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]]]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.core.get_respdevs">
-<code class="descname">get_respdevs</code><span class="sig-paren">(</span><em>gb</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#get_respdevs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.get_respdevs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_respdevs</code><span class="sig-paren">(</span><em>gb: pandas.core.groupby.DataFrameGroupBy</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/delphi/core.html#get_respdevs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.get_respdevs" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameGroupBy</span></code>) – Groupby object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gb</strong> – Groupby object</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An array of responses.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>np.ndarray</em> – An array of responses.</td>
 </tr>
 </tbody>
 </table>
@@ -126,16 +104,14 @@ statements that involve the two nodes that it connects.</p>
 
 <dl class="function">
 <dt id="delphi.core.sample_transition_function">
-<code class="descname">sample_transition_function</code><span class="sig-paren">(</span><em>CAG</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/core.html#sample_transition_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.sample_transition_function" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sample_transition_function</code><span class="sig-paren">(</span><em>CAG: networkx.classes.digraph.DiGraph</em><span class="sig-paren">)</span> &#x2192; Callable[pandas.core.series.Series, pandas.core.series.Series]<a class="reference internal" href="_modules/delphi/core.html#sample_transition_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.core.sample_transition_function" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DiGraph</span></code>) – Causal analysis graph with conditional probabilities attached.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>CAG</strong> – Causal analysis graph with conditional probabilities attached.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
 <li><em>The transition function that evolves the latent state in a dynamic</em></li>
 <li><em>bayes net by one time step.</em></li>
 </ul>
@@ -154,25 +130,19 @@ statements that involve the two nodes that it connects.</p>
 <p>Helper functions for functional programming.</p>
 <dl class="function">
 <dt id="delphi.utils.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.append" title="Permalink to this definition">¶</a></dt>
+<code class="descname">append</code><span class="sig-paren">(</span><em>x: T, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils.html#append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append a value to an iterable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>~T</em>) – An element of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]) – An iterable of elements of type T.</li>
+<li><strong>x</strong> – An element of type T.</li>
+<li><strong>xs</strong> – An iterable of elements of type T.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a>[~T]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An iterator that yields elements of <em>xs</em>, then yields <em>x</em>.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterator</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>Iterator</em> – An iterator that yields elements of <em>xs</em>, then yields <em>x</em>.</p>
 </td>
 </tr>
 </tbody>
@@ -187,76 +157,30 @@ statements that involve the two nodes that it connects.</p>
 
 <dl class="function">
 <dt id="delphi.utils.compose">
-<code class="descname">compose</code><span class="sig-paren">(</span><em>*fs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#compose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.compose" title="Permalink to this definition">¶</a></dt>
+<code class="descname">compose</code><span class="sig-paren">(</span><em>*fs</em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/delphi/utils.html#compose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.compose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compose functions from left to right.</p>
 <p>e.g. compose(f, g)(x) = f(g(x))</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.flatMap">
-<code class="descname">flatMap</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#flatMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatMap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flatMap</code><span class="sig-paren">(</span><em>f: Callable</em>, <em>xs: Iterable</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils.html#flatMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map a function onto an iterable and flatten the result.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.flatten">
-<code class="descname">flatten</code><span class="sig-paren">(</span><em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatten" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flatten</code><span class="sig-paren">(</span><em>xs: Union[typing.List, typing.Tuple]</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils.html#flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.flatten" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flatten a nested list or tuple.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.foldl">
-<code class="descname">foldl</code><span class="sig-paren">(</span><em>f</em>, <em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#foldl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl" title="Permalink to this definition">¶</a></dt>
+<code class="descname">foldl</code><span class="sig-paren">(</span><em>f: Callable[[T, U], T], x: T, xs: Iterable[U]</em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils.html#foldl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the accumulated result of a binary function applied to elements
 of an iterable.</p>
 <div class="math notranslate">
 \[foldl(f, x_0, [x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)\]</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[~T, ~U], ~T]) – A binary function of two arguments of type T.</li>
-<li><strong>x</strong> (<em>~T</em>) – An initializer element of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~U]) – An iterable of elements of type T.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">~T</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The accumulated result</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">T</p>
-</td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">delphi.utils</span> <span class="k">import</span> <span class="n">foldl</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">foldl</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
@@ -267,32 +191,11 @@ of an iterable.</p>
 
 <dl class="function">
 <dt id="delphi.utils.foldl1">
-<code class="descname">foldl1</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#foldl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">foldl1</code><span class="sig-paren">(</span><em>f: Callable[[T, T], T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils.html#foldl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.foldl1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the accumulated result of a binary function applied to elements
 of an iterable.</p>
 <div class="math notranslate">
 \[foldl1(f, [x_0, x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)\]</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[~T, ~T], ~T]) – A binary function of two arguments of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]) – An iterable of elements of type T.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">~T</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The accumulated result</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">T</p>
-</td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">delphi.utils</span> <span class="k">import</span> <span class="n">foldl1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">foldl1</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
@@ -303,31 +206,11 @@ of an iterable.</p>
 
 <dl class="function">
 <dt id="delphi.utils.iterate">
-<code class="descname">iterate</code><span class="sig-paren">(</span><em>f</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.iterate" title="Permalink to this definition">¶</a></dt>
-<dd><div class="math notranslate">
+<code class="descname">iterate</code><span class="sig-paren">(</span><em>f: Callable[T, T], x: T</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.iterate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes infinite iterator that returns the result of successive
+applications of a function to an element</p>
+<div class="math notranslate">
 \[iterate(f, x) = [x, f(x), f(f(x)), f(f(f(x))), ...]\]</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[~T], ~T]) – A mapping: <span class="math notranslate">\(f:X\rightarrow X\)</span>.</li>
-<li><strong>x</strong> (<em>~T</em>) – An element of <span class="math notranslate">\(X\)</span>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a>[~T]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An infinite iterator that returns the result of successive applications
-of a function to an element</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterator</p>
-</td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">delphi.utils</span> <span class="k">import</span> <span class="n">iterate</span><span class="p">,</span> <span class="n">take</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">take</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">iterate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
@@ -338,81 +221,43 @@ of a function to an element</p>
 
 <dl class="function">
 <dt id="delphi.utils.lfilter">
-<code class="descname">lfilter</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lfilter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lfilter</code><span class="sig-paren">(</span><em>f: Callable[T, T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; List[T]<a class="reference internal" href="_modules/delphi/utils.html#lfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>A non-lazy version of filter.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.lmap">
-<code class="descname">lmap</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lmap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lmap</code><span class="sig-paren">(</span><em>f: Callable[T, T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; List[T]<a class="reference internal" href="_modules/delphi/utils.html#lmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lmap" title="Permalink to this definition">¶</a></dt>
 <dd><p>A non-lazy version of map.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.ltake">
-<code class="descname">ltake</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#ltake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ltake" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ltake</code><span class="sig-paren">(</span><em>n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; List[T]<a class="reference internal" href="_modules/delphi/utils.html#ltake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ltake" title="Permalink to this definition">¶</a></dt>
 <dd><p>A non-lazy version of take.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.lzip">
-<code class="descname">lzip</code><span class="sig-paren">(</span><em>*xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#lzip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lzip" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lzip</code><span class="sig-paren">(</span><em>*xs</em><span class="sig-paren">)</span> &#x2192; List[Iterable]<a class="reference internal" href="_modules/delphi/utils.html#lzip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.lzip" title="Permalink to this definition">¶</a></dt>
 <dd><p>A non-lazy version of zip.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[+T_co]]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.prepend">
-<code class="descname">prepend</code><span class="sig-paren">(</span><em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#prepend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.prepend" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prepend</code><span class="sig-paren">(</span><em>x: T, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils.html#prepend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.prepend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepend a value to an iterable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>~T</em>) – An element of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]) – An iterable of elements of type T.</li>
+<li><strong>x</strong> – An element of type T.</li>
+<li><strong>xs</strong> – An iterable of elements of type T.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a>[~T]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An iterator that yields <em>x</em> followed by elements of <em>xs</em>.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterator</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>Iterator</em> – An iterator that yields <em>x</em> followed by elements of <em>xs</em>.</p>
 </td>
 </tr>
 </tbody>
@@ -427,21 +272,13 @@ of a function to an element</p>
 
 <dl class="function">
 <dt id="delphi.utils.ptake">
-<code class="descname">ptake</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#ptake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ptake" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ptake</code><span class="sig-paren">(</span><em>n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterable[T]<a class="reference internal" href="_modules/delphi/utils.html#ptake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.ptake" title="Permalink to this definition">¶</a></dt>
 <dd><p>take with a tqdm progress bar.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="delphi.utils.scanl">
-<code class="descname">scanl</code><span class="sig-paren">(</span><em>f</em>, <em>x</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#scanl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scanl</code><span class="sig-paren">(</span><em>f: Callable[[T, U], T], x: T, xs: Iterable[U]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils.html#scanl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an iterator that returns accumulated results of a binary function
 applied to elements of an iterable.</p>
 <div class="math notranslate">
@@ -451,19 +288,13 @@ applied to elements of an iterable.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[~T, ~U], ~T]) – A binary function of two arguments of type T.</li>
-<li><strong>x</strong> (<em>~T</em>) – An initializer element of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~U]) – An iterable of elements of type T.</li>
+<li><strong>f</strong> – A binary function of two arguments of type T.</li>
+<li><strong>x</strong> – An initializer element of type T.</li>
+<li><strong>xs</strong> – An iterable of elements of type T.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a>[~T]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The iterator of accumulated results.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterator</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>Iterator</em> – The iterator of accumulated results.</p>
 </td>
 </tr>
 </tbody>
@@ -478,7 +309,7 @@ applied to elements of an iterable.</p>
 
 <dl class="function">
 <dt id="delphi.utils.scanl1">
-<code class="descname">scanl1</code><span class="sig-paren">(</span><em>f</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#scanl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scanl1</code><span class="sig-paren">(</span><em>f: Callable[[T, T], T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils.html#scanl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.scanl1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an iterator that returns accumulated results of a binary function
 applied to elements of an iterable.</p>
 <div class="math notranslate">
@@ -488,18 +319,12 @@ applied to elements of an iterable.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.6)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[~T, ~T], ~T]) – A binary function of two arguments of type T.</li>
-<li><strong>xs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]) – An iterable of elements of type T.</li>
+<li><strong>f</strong> – A binary function of two arguments of type T.</li>
+<li><strong>xs</strong> – An iterable of elements of type T.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a>[~T]</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The iterator of accumulated results.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Iterator</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>Iterator</em> – The iterator of accumulated results.</p>
 </td>
 </tr>
 </tbody>
@@ -514,24 +339,16 @@ applied to elements of an iterable.</p>
 
 <dl class="function">
 <dt id="delphi.utils.take">
-<code class="descname">take</code><span class="sig-paren">(</span><em>n</em>, <em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils.html#take"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.take" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[~T]</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<code class="descname">take</code><span class="sig-paren">(</span><em>n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterable[T]<a class="reference internal" href="_modules/delphi/utils.html#take"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.take" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-delphi">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-delphi" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="delphi.State">
-<em class="property">class </em><code class="descname">State</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.State" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="descname">State</code><a class="reference internal" href="_modules/delphi.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.State" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class to hold the global state of the application</p>
 <dl class="attribute">
 <dt id="delphi.State.CAG">

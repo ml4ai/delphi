@@ -61,13 +61,13 @@
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray:</span>
 <span class="sd">        An array of responses.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">gb</span><span class="p">[</span><span class="s1">&#39;respdev&#39;</span><span class="p">]</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">gb</span><span class="p">[</span><span class="s1">&#39;respdev&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="deltas"><a class="viewcode-back" href="../../delphi.html#delphi.core.deltas">[docs]</a><span class="k">def</span> <span class="nf">deltas</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Influence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Delta</span><span class="p">,</span> <span class="n">Delta</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; Returns the delta dicts of an Influence statement as a 2-tuple &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">subj_delta</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">obj_delta</span></div>
+    <span class="sd">&quot;&quot;&quot; Returns the delta dicts of an Influence statement as a 2-tuple &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">subj_delta</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">obj_delta</span>
 
 
 <div class="viewcode-block" id="construct_CAG_skeleton"><a class="viewcode-back" href="../../delphi.html#delphi.core.construct_CAG_skeleton">[docs]</a><span class="k">def</span> <span class="nf">construct_CAG_skeleton</span><span class="p">(</span><span class="n">factors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">sts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Influence</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DiGraph</span><span class="p">:</span>
@@ -92,8 +92,8 @@
                            <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span>
                            <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;InfluenceStatements&#39;</span><span class="p">:</span> <span class="n">lfilter</span><span class="p">(</span>
                                <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">subj</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                               <span class="n">sts</span><span class="p">)}),</span>
-                               <span class="n">permutations</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span></div>
+                               <span class="n">sts</span><span class="p">)}),</span></div>
+                               <span class="n">permutations</span><span class="p">(</span><span class="n">factors</span><span class="p">,</span> <span class="mi">2</span><span class="p">))))</span>
 
 
 <div class="viewcode-block" id="add_conditional_probabilities"><a class="viewcode-back" href="../../delphi.html#delphi.core.add_conditional_probabilities">[docs]</a><span class="k">def</span> <span class="nf">add_conditional_probabilities</span><span class="p">(</span><span class="n">CAG</span><span class="p">:</span> <span class="n">DiGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiGraph</span><span class="p">:</span>
@@ -194,8 +194,8 @@
             <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">thetas</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;ConditionalProbability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">return</span> <span class="n">CAG</span></div>
+</div>
+    <span class="k">return</span> <span class="n">CAG</span>
 
 
 <div class="viewcode-block" id="sample_transition_function"><a class="viewcode-back" href="../../delphi.html#delphi.core.sample_transition_function">[docs]</a><span class="k">def</span> <span class="nf">sample_transition_function</span><span class="p">(</span><span class="n">CAG</span><span class="p">:</span> <span class="n">DiGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Series</span><span class="p">],</span> <span class="n">Series</span><span class="p">]:</span>
@@ -232,12 +232,12 @@
             <span class="n">A</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{e[0]}</span><span class="s1">)/∂t&#39;</span><span class="p">][</span><span class="n">f</span><span class="s1">&#39;∂(</span><span class="si">{e[1]}</span><span class="s1">)/∂t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">β</span> <span class="o">*</span> <span class="n">Δt</span>
 
     <span class="k">def</span> <span class="nf">transition_function</span><span class="p">(</span><span class="n">latent_state</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
-<div class="viewcode-block" id="sample_sequences"><a class="viewcode-back" href="../../delphi.html#delphi.core.sample_sequences">[docs]</a>        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">latent_state</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</div>
+    <span class="k">return</span> <span class="n">transition_function</span>
 
-    <span class="k">return</span> <span class="n">transition_function</span></div>
 
-
-<span class="k">def</span> <span class="nf">sample_sequences</span><span class="p">(</span><span class="n">statements</span><span class="p">,</span> <span class="n">s0</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+<div class="viewcode-block" id="sample_sequences"><a class="viewcode-back" href="../../delphi.html#delphi.core.sample_sequences">[docs]</a><span class="k">def</span> <span class="nf">sample_sequences</span><span class="p">(</span><span class="n">statements</span><span class="p">,</span> <span class="n">s0</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Sample a collection of sequences for a CAG &quot;&quot;&quot;</span>
     <span class="n">factors</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">subj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">statements</span><span class="p">))</span>
     <span class="n">CAG</span> <span class="o">=</span> <span class="n">add_conditional_probabilities</span><span class="p">(</span>
@@ -246,8 +246,8 @@
     <span class="k">def</span> <span class="nf">sample_sequence</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Series</span><span class="p">]:</span>
         <span class="n">transition_function</span> <span class="o">=</span> <span class="n">sample_transition_function</span><span class="p">(</span><span class="n">CAG</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ltake</span><span class="p">(</span><span class="n">n_steps</span><span class="p">,</span> <span class="n">iterate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">transition_function</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">s0</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="p">[</span><span class="n">sample_sequence</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)]</span></div>
+</div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">sample_sequence</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)]</span>
 </pre></div>
 
           </div>

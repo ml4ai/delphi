@@ -64,8 +64,8 @@
 <span class="sd">    &gt;&gt;&gt; list(prepend(1, [2, 3]))</span>
 <span class="sd">    [1, 2, 3]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">chain</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">xs</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">chain</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">xs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="append"><a class="viewcode-back" href="../../delphi.html#delphi.utils.append">[docs]</a><span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
@@ -91,8 +91,8 @@
 <span class="sd">    [2, 3, 1]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">chain</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">])</span></div>
+</div>
+    <span class="k">return</span> <span class="n">chain</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="scanl"><a class="viewcode-back" href="../../delphi.html#delphi.utils.scanl">[docs]</a><span class="k">def</span> <span class="nf">scanl</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">,</span> <span class="n">U</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">U</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
@@ -124,8 +124,8 @@
 <span class="sd">    [10, 10, 11, 13, 16, 20]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">prepend</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span></div>
+</div>
+    <span class="k">return</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">prepend</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="scanl1"><a class="viewcode-back" href="../../delphi.html#delphi.utils.scanl1">[docs]</a><span class="k">def</span> <span class="nf">scanl1</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
@@ -154,8 +154,8 @@
 <span class="sd">    &gt;&gt;&gt; list(scanl1(lambda x, y: x + y, range(5)))</span>
 <span class="sd">    [0, 1, 3, 6, 10]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="foldl"><a class="viewcode-back" href="../../delphi.html#delphi.utils.foldl">[docs]</a><span class="k">def</span> <span class="nf">foldl</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">,</span> <span class="n">U</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">U</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
@@ -165,20 +165,6 @@
 <span class="sd">    .. math::</span>
 <span class="sd">        foldl(f, x_0, [x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    f</span>
-<span class="sd">        A binary function of two arguments of type T.</span>
-<span class="sd">    x</span>
-<span class="sd">        An initializer element of type T.</span>
-<span class="sd">    xs</span>
-<span class="sd">        An iterable of elements of type T. </span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    T</span>
-<span class="sd">        The accumulated result</span>
-
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -186,8 +172,8 @@
 <span class="sd">    &gt;&gt;&gt; foldl(lambda x, y: x + y, 10, range(5))</span>
 <span class="sd">    20</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="foldl1"><a class="viewcode-back" href="../../delphi.html#delphi.utils.foldl1">[docs]</a><span class="k">def</span> <span class="nf">foldl1</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
@@ -197,18 +183,6 @@
 <span class="sd">    .. math::</span>
 <span class="sd">        foldl1(f, [x_0, x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    f</span>
-<span class="sd">        A binary function of two arguments of type T.</span>
-<span class="sd">    xs</span>
-<span class="sd">        An iterable of elements of type T. </span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    T</span>
-<span class="sd">        The accumulated result</span>
-
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -216,85 +190,72 @@
 <span class="sd">    &gt;&gt;&gt; foldl1(lambda x, y: x + y, range(5))</span>
 <span class="sd">    10</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span></div>
+</div>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../delphi.html#delphi.utils.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Flatten a nested list or tuple. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">flatten</span><span class="p">,</span> <span class="n">xs</span><span class="p">),[])</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> 
-                                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">xs</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">flatten</span><span class="p">,</span> <span class="n">xs</span><span class="p">),[])</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span><span class="nb">list</span><span class="p">)</span> </div>
+                                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">xs</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="iterate"><a class="viewcode-back" href="../../delphi.html#delphi.utils.iterate">[docs]</a><span class="k">def</span> <span class="nf">iterate</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">x</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; </span>
+    <span class="sd">&quot;&quot;&quot; Makes infinite iterator that returns the result of successive</span>
+<span class="sd">    applications of a function to an element</span>
 
 <span class="sd">    .. math::</span>
 <span class="sd">        iterate(f, x) = [x, f(x), f(f(x)), f(f(f(x))), ...]</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    f</span>
-<span class="sd">        A mapping: :math:`f:X\\rightarrow X`.</span>
-<span class="sd">    x</span>
-<span class="sd">        An element of :math:`X`.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Iterator</span>
-<span class="sd">        An infinite iterator that returns the result of successive applications</span>
-<span class="sd">        of a function to an element</span>
-
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from delphi.utils import iterate, take</span>
 <span class="sd">    &gt;&gt;&gt; list(take(5, iterate(lambda x: x*2, 1)))</span>
 <span class="sd">    [1, 2, 4, 8, 16]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">scanl</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">scanl</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="take"><a class="viewcode-back" href="../../delphi.html#delphi.utils.take">[docs]</a><span class="k">def</span> <span class="nf">take</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="k">return</span> <span class="n">islice</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
+<div class="viewcode-block" id="take"><a class="viewcode-back" href="../../delphi.html#delphi.utils.take">[docs]</a><span class="k">def</span> <span class="nf">take</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span></div>
+    <span class="k">return</span> <span class="n">islice</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ptake"><a class="viewcode-back" href="../../delphi.html#delphi.utils.ptake">[docs]</a><span class="k">def</span> <span class="nf">ptake</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; take with a tqdm progress bar. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">take</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">xs</span><span class="p">),</span> <span class="n">total</span> <span class="o">=</span> <span class="n">n</span><span class="p">)</span></div>
+    <span class="sd">&quot;&quot;&quot; take with a tqdm progress bar. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">take</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">xs</span><span class="p">),</span> <span class="n">total</span> <span class="o">=</span> <span class="n">n</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ltake"><a class="viewcode-back" href="../../delphi.html#delphi.utils.ltake">[docs]</a><span class="k">def</span> <span class="nf">ltake</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; A non-lazy version of take. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">take</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span></div>
+    <span class="sd">&quot;&quot;&quot; A non-lazy version of take. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">take</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="lmap"><a class="viewcode-back" href="../../delphi.html#delphi.utils.lmap">[docs]</a><span class="k">def</span> <span class="nf">lmap</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; A non-lazy version of map. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span></div>
+    <span class="sd">&quot;&quot;&quot; A non-lazy version of map. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="lfilter"><a class="viewcode-back" href="../../delphi.html#delphi.utils.lfilter">[docs]</a><span class="k">def</span> <span class="nf">lfilter</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; A non-lazy version of filter. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span></div>
+    <span class="sd">&quot;&quot;&quot; A non-lazy version of filter. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="lzip"><a class="viewcode-back" href="../../delphi.html#delphi.utils.lzip">[docs]</a><span class="k">def</span> <span class="nf">lzip</span><span class="p">(</span><span class="o">*</span><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">])</span><span class="o">-&gt;</span><span class="n">List</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot; A non-lazy version of zip. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">xs</span><span class="p">))</span></div>
+    <span class="sd">&quot;&quot;&quot; A non-lazy version of zip. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">xs</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="compose"><a class="viewcode-back" href="../../delphi.html#delphi.utils.compose">[docs]</a><span class="k">def</span> <span class="nf">compose</span><span class="p">(</span><span class="o">*</span><span class="n">fs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Compose functions from left to right.</span>
 
 <span class="sd">    e.g. compose(f, g)(x) = f(g(x))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">foldl1</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">fs</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">foldl1</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">fs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="flatMap"><a class="viewcode-back" href="../../delphi.html#delphi.utils.flatMap">[docs]</a><span class="k">def</span> <span class="nf">flatMap</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; Map a function onto an iterable and flatten the result. &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">lmap</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span></div>
+    <span class="sd">&quot;&quot;&quot; Map a function onto an iterable and flatten the result. &quot;&quot;&quot;</span></div>
+    <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">lmap</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
 </pre></div>
 
           </div>
