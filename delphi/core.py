@@ -40,12 +40,16 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
 def construct_CAG_skeleton(factors: List[str], sts: List[Influence]) -> DiGraph:
     """
 
-    Args:
-        factors: Factors that an analyst might query for.
-        sts: List of available INDRA statements that might involve those
-        factors.
+    Parameters
+    ----------
+    factors:
+        Factors that an analyst might query for.
+    sts:
+        List of available INDRA statements that might involve those factors.
 
-    Returns:
+    Returns
+    -------
+    DiGraph:
         A networkx DiGraph object that contains the link structure information.
         The nodes are the factors, and each edge contains the list of INDRA
         statements that involve the two nodes that it connects.
@@ -62,10 +66,14 @@ def construct_CAG_skeleton(factors: List[str], sts: List[Influence]) -> DiGraph:
 def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
     """
 
-    Args:
-        CAG: The causal analysis graph skeleton.
+    Parameters
+    ----------
+    CAG
+        The causal analysis graph skeleton.
 
-    Returns:
+    Returns
+    -------
+    DiGraph
         The causal analysis graph, but now with conditional probability
         information encoded in the edges.
 
@@ -95,11 +103,14 @@ def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
 
     def get_adjectives(statement: Influence) -> List[Optional[str]]:
         """
+        Parameters
+        ----------
+        statement
+            An INDRA Influence statement
 
-        Args:
-            statement: An INDRA Influence statement
-
-        Returns:
+        Returns
+        -------
+        List[Optional[str]]
             A list of adjectives (or None).
 
         """
@@ -155,7 +166,19 @@ def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
 
 
 def sample_transition_function(CAG: DiGraph) -> Callable[[Series], Series]:
-    """ Sample a transition function for the DBN created from the CAG """
+    """
+
+    Parameters
+    ----------
+    CAG:
+        Causal analysis graph with conditional probabilities attached.
+
+    Returns
+    -------
+        The transition function that evolves the latent state in a dynamic
+        bayes net by one time step.
+
+    """
     factors = CAG.nodes()
     latent_state_components = flatMap(lambda a: (a, f'∂({a})/∂t'), factors)
     A = DataFrame(np.identity(len(latent_state_components)),

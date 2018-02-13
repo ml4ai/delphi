@@ -4,7 +4,7 @@ from delphi.core import *
 from delphi.utils import ltake, lfilter, compose, lmap, lzip, repeat
 from typing import List, Optional, Dict
 import numpy as np
-from flask import Flask, render_template, request, redirect, g
+from flask import Flask, render_template, request, redirect
 from functools import partial
 from glob import glob
 from pandas import Series
