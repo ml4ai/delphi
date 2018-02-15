@@ -32,7 +32,51 @@
             
   <div class="section" id="welcome-to-delphi-s-documentation">
 <h1>Welcome to delphi’s documentation!<a class="headerlink" href="#welcome-to-delphi-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
+<p>Delphi is a framework for assembling and executing probabilistic models from textual
+evidence.</p>
+</div>
+<div class="section" id="requirements">
+<h1>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>The <a class="reference external" href="https://github.com/clulab/eidos">eidos reader</a></li>
+<li>The <a class="reference external" href="http://indra.readthedocs.io/en/latest/">INDRA package</a></li>
+<li>Eidos will be used as a fat JAR through INDRA, so you should do
+<code class="docutils literal notranslate"><span class="pre">sbt</span> <span class="pre">assembly</span></code> in the <code class="docutils literal notranslate"><span class="pre">eidos</span></code> folder, and follow the instructions
+<a class="reference external" href="https://gist.github.com/bgyori/37c55681bd1a6e1a2fb6634faf255d60">here</a>
+to get Eidos and INDRA to work together.</li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>Clone the directory, install the requirements:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ml4ai</span><span class="o">/</span><span class="n">delphi</span>
+<span class="n">cd</span> <span class="n">delphi</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Add this directory to your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PYTHONPATH=`pwd`:$PYTHONPATH
+</pre></div>
+</div>
+<p>Then, do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">webapp</span>
+<span class="n">FLASK_APP</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">py</span> <span class="n">flask</span> <span class="n">run</span>
+</pre></div>
+</div>
+<p>and navigate your browser to <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:5000/</span></code>.</p>
+<p>To build the Sphinx API documentation, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="disclaimer">
+<h1>Disclaimer:<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h1>
+<p>This project is in its early stages, so the documentation is a bit
+sparse. We are working on it :)
+.. toctree:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="n">maxdepth</span><span class="p">:</span> <span class="mi">2</span>
+<span class="p">:</span><span class="n">caption</span><span class="p">:</span> <span class="n">Contents</span><span class="p">:</span>
+</pre></div>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
