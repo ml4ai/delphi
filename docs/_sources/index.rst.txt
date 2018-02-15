@@ -56,6 +56,7 @@ Disclaimer:
 
 This project is in its early stages, so the documentation is a bit
 sparse. We are working on it :)
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
