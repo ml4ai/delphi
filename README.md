@@ -14,22 +14,13 @@ evidence.
 
 Clone the directory, install the requirements:
 ```
-git clone https://github.com/ml4ai/delphi
-cd delphi
-pip install -r requirements.txt
-```
-
-Add this directory to your `PYTHONPATH`
-
-```
-export PYTHONPATH=`pwd`:$PYTHONPATH
+pip install git+https://github.com/delphi.git
 ```
 
 Then, do
 
 ```
-cd webapp
-FLASK_APP=app.py flask run
+FLASK_APP=delphi python -m flask run
 ```
 and navigate your browser to `http://127.0.0.1:5000/`.
 
