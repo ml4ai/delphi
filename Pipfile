@@ -1,0 +1,27 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+tqdm = "*"
+indra = "*"
+sphinxcontrib-bibtex = "*"
+sphinxcontrib-trio = "*"
+sphinx-autodoc-typehints = "*"
+networkx = "*"
+numpy = "*"
+pandas = "*"
+scipy = "*"
+flask = "*"
+mypy = "*"
+pytest = "*"
+matplotlib = "*"
+seaborn = "*"
+
+
+[dev-packages]
+

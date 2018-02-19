@@ -1,0 +1,4 @@
+include LICENSE.txt
+graft delphi/data
+graft delphi/templates
+graft delphi/static
