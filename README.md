@@ -26,14 +26,3 @@ FLASK_APP=delphi flask run
 ```
 
 and navigate your browser to `http://127.0.0.1:5000/`.
-
-To build the Sphinx API documentation, do:
-
-```bash
-make
-```
-
-# Disclaimer:
-
-This project is in its early stages, so the documentation is a bit sparse. We
-are working on it :)
