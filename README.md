@@ -12,21 +12,24 @@ evidence.
 
 # Usage
 
-Clone the directory, install the requirements:
-```
-pip install git+https://github.com/delphi.git
+Clone the directory, install delphi:
+```bash
+git clone https://github.com/ml4ai/delphi
+cd delphi
+pip install -e .
 ```
 
-Then, do
+Then, while in the directory, do
 
+```bash
+FLASK_APP=delphi flask run
 ```
-FLASK_APP=delphi python -m flask run
-```
+
 and navigate your browser to `http://127.0.0.1:5000/`.
 
 To build the Sphinx API documentation, do:
 
-```
+```bash
 make
 ```
 
