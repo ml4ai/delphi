@@ -100,32 +100,34 @@
           minZoom : 1,
         });
       
-			var makeTippy = function(node, text){
-				return tippy( node.popperRef(), {
-					html: (function(){
-						var div = document.createElement('div');
-						div.innerHTML = text;
-						return div;
-					})(),
-					trigger: 'manual',
-					arrow: true,
-					placement: 'top',
-                    hideOnClick: false,
-                    interactive: true,
-					multiple: true,
-				}).tooltips[0];
-			};
-      cy.nodes().forEach(function(ele){
+      var makeTippy = function(node, text){
+          return tippy( node.popperRef(), {
+              html: (function(){
+                  var div = document.createElement('div');
+                  div.innerHTML = text;
+                  return div;
+              })(),
+              trigger: 'manual',
+              arrow: true,
+              placement: 'top',
+              hideOnClick: false,
+              interactive: true,
+              multiple: true,
+          }).tooltips[0];
+      };
+
+      cy.elements().forEach(function(ele){
         ele.data()['tip'] = makeTippy(ele, ele.id());
       });
-      cy.on('tap', 'node', function(evt){
+
+
+      cy.on('tap', function(evt){
         var ele = evt.target;
-          console.log();
-          if (ele.data()['tip']['state']['visible']){
-            ele.data()['tip'].hide();
-          } else {
-            ele.data()['tip'].show();
-          }
+        if (ele.data()['tip']['state']['visible']){
+          ele.data()['tip'].hide();
+        } else {
+          ele.data()['tip'].show();
+        }
       });
 
       </script>
