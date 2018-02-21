@@ -10,10 +10,28 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
           crossorigin="anonymous">
     <title>World Modelers Kickoff Demos</title>
+    <!-- Cytoscape -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.8/cytoscape.js"> </script>
+    <!-- Cola -->
     <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cola/1.6.0/cola.js"> </script>
+    <!-- Cytoscape-Cola -->
     <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-cola/1.6.0/cytoscape-cola.js"> </script>
-    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-qtip/2.7.0/cytoscape-qtip.js"> </script>
+    <!-- Popper -->
+    <script src="https://unpkg.com/popper.js"></script>
+    <!-- cytoscape-popper -->
+    <script src="static/cytoscape-popper.js"></script>
+
+    <!-- Tippy -->
+    <script src="https://unpkg.com/tippy.js@2.0.9/dist/tippy.all.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/tippy.js@2.0.9/dist/tippy.css" />
+    <style>
+		/* makes sticky faster; disable if you want animated tippies */
+		.tippy-popper {
+			transition: none !important;
+		}
+	</style>
+
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" 
       integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" 
       crossorigin="anonymous"> </script>
@@ -23,6 +41,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" 
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" 
       crossorigin="anonymous"> </script>
+    <!-- MathJax -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'> </script>
     <link rel="stylesheet" href="static/style.css">
   </head>
@@ -30,10 +49,10 @@
     <div class="container"> 
       <div class="row">
       <a class="navbar-brand" href='/' style="color:maroon;">
-        <h1> UA-HMC World Modelers Kickoff Demo</h1>
+        <h1>Delphi</h1>
       </a> 
       </div>
-          Welcome to the UA-HMC team's interactive assembly demo! This app
+          Welcome to the Delphi webapp! This app
           processes text with the Eidos machine reader, extracts factors and the
           causal links between them, assembles an executable probabilistic
           model, and generates distributions of the values of the factors over
@@ -78,8 +97,37 @@
               ],
           layout: { name: 'breadthfirst' },                
           maxZoom : 10,
-          minZoom : 0.1,
+          minZoom : 1,
         });
+      
+			var makeTippy = function(node, text){
+				return tippy( node.popperRef(), {
+					html: (function(){
+						var div = document.createElement('div');
+						div.innerHTML = text;
+						return div;
+					})(),
+					trigger: 'manual',
+					arrow: true,
+					placement: 'top',
+                    hideOnClick: false,
+                    interactive: true,
+					multiple: true,
+				}).tooltips[0];
+			};
+      cy.nodes().forEach(function(ele){
+        ele.data()['tip'] = makeTippy(ele, ele.id());
+      });
+      cy.on('tap', 'node', function(evt){
+        var ele = evt.target;
+          console.log();
+          if (ele.data()['tip']['state']['visible']){
+            ele.data()['tip'].hide();
+          } else {
+            ele.data()['tip'].show();
+          }
+      });
+
       </script>
 
       {% if state.histos_built %}
