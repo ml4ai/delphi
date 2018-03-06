@@ -65,7 +65,7 @@ setup(
     #   py_modules=["my_module"],
     #
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=[ 'flask', 'tqdm', 'indra', 'networkx', 'numpy', 'pandas',
+    install_requires=[ 'flask', 'tqdm', 'indra', 'networkx', 'numpy',
             'scipy', 'matplotlib', 'pandas'],
 
     python_requires='>=3.6',
