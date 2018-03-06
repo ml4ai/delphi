@@ -66,7 +66,7 @@ setup(
     #
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=[ 'flask', 'tqdm', 'indra', 'networkx', 'numpy',
-            'scipy', 'matplotlib', 'pandas'],
+            'scipy', 'matplotlib', 'pandas', 'seaborn'],
 
     python_requires='>=3.6',
     # List additional groups of dependencies here (e.g. development
