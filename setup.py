@@ -65,7 +65,7 @@ setup(
     #   py_modules=["my_module"],
     #
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=[ 'flask', 'tqdm', 'indra', 'networkx', 'numpy',
+    install_requires=[ 'flask', 'tqdm', 'networkx', 'numpy',
             'scipy', 'matplotlib', 'pandas', 'seaborn'],
 
     python_requires='>=3.6',
@@ -79,7 +79,7 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': ['check-manifest'],
-        'test': ['pytest'],
+        'test': ['pytest', 'mypy'],
         'docs' : [
             'sphinxcontrib-bibtex',
             'sphinxcontrib-trio',
@@ -87,6 +87,7 @@ setup(
             ]
     },
 
+    dependency_links=['git+https://github.com/sorgerlab/indra.git']
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # `pip` to create the appropriate form of executable for the target
