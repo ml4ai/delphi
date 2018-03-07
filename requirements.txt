@@ -5,8 +5,8 @@ sphinx-autodoc-typehints
 networkx
 numpy
 pandas
-indra
 scipy
 flask
 mypy
 pytest
+git+https://github.com/sorgerlab/indra.git
