@@ -21,9 +21,9 @@ mypy = "*"
 pytest = "*"
 matplotlib = "*"
 seaborn = "*"
-jnius-indra = "==1.1dev5"
 pygraphviz = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
+jnius-indra = "*"
 
 
 [dev-packages]
