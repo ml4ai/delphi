@@ -4,6 +4,16 @@ from indra.statements import Influence
 import networkx
 from flask import Flask
 from pandas import Series
+import json
+
+class Session(Flask):
+    def __init__(self, state):
+        self.state = state
+        super().__init__(__name__)
+
+    def set_statements(self, statements):
+        self.state.statements = statements
+        self.state.elementsJSONforJinja = json.dumps(self.state.elementsJSON) 
 
 class State(object):
     """ Class to hold the global state of the application """

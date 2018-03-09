@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block textentry %}
+Welcome to the Delphi webapp! This app
+processes text with the Eidos machine reader, extracts factors and the
+causal links between them, assembles an executable probabilistic
+model, and generates distributions of the values of the factors over
+multiple time steps.
+<form action="/processText" method="GET">
+  <div class="form-group">
+    <textarea class="form-control" 
+              id="exampleFormControlTextarea1" 
+              name="textToProcess" 
+              rows="3" 
+              placeholder="Input text to be processed here">
+      {{ state.inputText }}
+    </textarea>
+  </div>
+  <button type="submit" class="btn btn-outline-primary" role="button">
+    Process text with Eidos
+  </button>
+</form>
+{% endblock %}
