@@ -9,7 +9,6 @@ name = "pypi"
 
 delphi = "*"
 tqdm = "*"
-indra = {git = "https://github.com/sorgerlab/indra", editable=true}
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
@@ -17,13 +16,14 @@ networkx = "*"
 numpy = "*"
 pandas = "*"
 scipy = "*"
-flask = "*"
+Flask = "*"
 mypy = "*"
 pytest = "*"
 matplotlib = "*"
 seaborn = "*"
-jnius-indra = "*"
+jnius_indra = "*"
 pygraphviz = "*"
+indra = {git = "https://github.com/sorgerlab/indra.git"}
 
 
 [dev-packages]
