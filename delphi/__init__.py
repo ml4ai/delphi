@@ -1,7 +1,6 @@
-from flask import Flask
+from .types import Session, State
 from flask.cli import FlaskGroup
 import click
 
-app = Flask(__name__)
-
+app = Session(State())
 import delphi.views 

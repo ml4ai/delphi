@@ -1,5 +1,7 @@
-#cy {
-  width: 300px;
-  height: 300px;
-  display: block;
+/*#cy {*/
+  /*display: block;*/
+/*}*/
+
+html, body {
+  height: 100%;
 }
