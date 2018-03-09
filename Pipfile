@@ -21,7 +21,7 @@ mypy = "*"
 pytest = "*"
 matplotlib = "*"
 seaborn = "*"
-jnius_indra = "*"
+jnius-indra = "*"
 pygraphviz = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 
