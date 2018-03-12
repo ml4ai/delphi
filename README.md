@@ -28,4 +28,6 @@ Then, while in the directory, do
 where <filename> should be a JSON-LD file produced by Eidos - for an example,
 see (here)[https://raw.githubusercontent.com/clulab/eidos/master/example_output/example_mar6.jsonld].
 
+You can also do `./delphi.py -h` to view further options.
+
 and navigate your browser to `http://127.0.0.1:5000/`.
