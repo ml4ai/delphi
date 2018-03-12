@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+  {% include 'head.html' %}
+  <body>
+    <div class="container-fluid h-100"> 
+      <div class="row justify-content-center h-100">
+        <div class="col-3">
+          <a class="navbar-brand" href='/' style="color:maroon;">
+            <h1>Delphi</h1>
+          </a> 
+          Welcome to the Delphi webapp! This app
+          processes text with the Eidos machine reader, extracts factors and the
+          causal links between them, assembles an executable probabilistic
+          model, and generates distributions of the values of the factors over
+          multiple time steps.
+          <form action="/processText" method="GET">
+            <div class="form-group">
+              <textarea class="form-control" 
+                        id="exampleFormControlTextarea1" 
+                        name="textToProcess" 
+                        rows="3" 
+                        placeholder="Input text to be processed here">
+                {{ state.inputText }}
+              </textarea>
+            </div>
+            <button type="submit" class="btn btn-outline-primary" role="button">
+              Process text with Eidos
+            </button>
+          </form>
+        {% if state.s0 != None %}
+          <div class="row"><br>
+            <h2> Simulable Factors </h2>
+            <p> 
+              Enter the initial values for the factors, their time derivatives, and
+              their standard deviations here, along with the number of sequences to
+              sample and number of time steps to evolve the state over.
+            </p>
+            <form action="runExperiment" method="POST">
+              {% for k, v in state.s0.items() %}
+              <div class="row">
+                <div class="col"> 
+                  <p>{{ k }}</p> 
+                  {% if not k.startswith('∂') %}
+                  <p>{{ 'σ'+k }}</p> 
+                  {% endif %}
+                </div>
+                <div class="col">
+                  <input class="form-control" 
+                         name = "initialValue" 
+                         type="number"
+                         placeholder="Set initial value" 
+                         value = {{ v }}>
+                  {% if not k.startswith('∂') %}
+                  <input class="form-control" 
+                         name = "sigma" 
+                         type="number"
+                         placeholder="Set σ" 
+                         value = {{ 1 }}>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %} <br>
+              <div class="row">
+                {% macro input(name, description, value) -%}
+                <div class="col">
+                  <label for="{{ name }}"> {{ description }} </label>
+                  <input type="number" 
+                         class="form-control" 
+                         name="{{ name }}"
+                         id="{{ name }}"
+                         placeholder="Number of timesteps" 
+                        value= {{ value }}>
+                </div>
+                {%- endmacro %}
+
+                {{ input('nsteps', 'Number of timesteps', state.n_steps) }}
+                {{ input('nsamples', 'Number of sequences to sample',
+                         state.n_samples) }}
+                {{ input('Δt', 'Length of time step Δt', state.Δt) }}
+              </div> <br>
+              <button type="submit" 
+                      class="btn btn-outline-primary" 
+                      role="button">
+                Execute model
+              </button>
+            </form>
+          </div>
+        {% endif %}
+        </div>
+        <div class="col" id="cy" style="height:2000px;">
+        </div>
+        <script>
+          var cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: {{ state.elementsJSONforJinja | safe }},
+            style: [
+              { selector: 'node',
+                style: { 
+                  'label': 'data(id)',
+                    'background-color': 'white',
+                    'border-color': 'maroon',
+                    'border-width': '1px',
+                    'font-family': 'Arno Pro, Arial',
+                    'text-halign': 'center',
+                    'text-valign': 'center',
+                    'padding': 10,
+                    'width':'label',
+                    'shape': 'roundrectangle',
+                    'text-max-width': '80',
+                    'text-wrap': true,
+                } 
+              }, { 
+                selector: 'edge',
+                style: { 
+                  'curve-style' : 'bezier',
+                    'line-color': 'maroon',
+                    'target-arrow-shape': 'triangle',
+                    'target-arrow-color' : 'maroon',
+                    'line-style' : 'data(linestyle)',
+                    'width': '1'
+                } 
+              },
+            ],
+            layout: { 
+              name: 'cola',
+                flow: {'axis': 'x', 'minSeparation': 200},
+              nodeDimensionsIncludeLabels: true,
+            },                
+            maxZoom : 10,
+            minZoom : 0.1,
+          });
+          var makeTippy = function(node, text){
+            return tippy( node.popperRef(), {
+              html: (function(){
+                var div = document.createElement('div');
+                div.innerHTML = text;
+                return div;
+              })(),
+              trigger: 'manual',
+              arrow: true,
+              placement: 'top',
+              hideOnClick: false,
+              interactive: true,
+              multiple: true,
+            }).tooltips[0];
+          };
+
+          cy.elements().forEach(function(ele){
+            ele.data()['tip'] = makeTippy(ele, ele.id());
+          });
+
+
+          cy.on('tap', function(evt){
+            var ele = evt.target;
+            if (ele.data()['tip']['state']['visible']){
+              ele.data()['tip'].hide();
+            } else {
+              ele.data()['tip'].show();
+            }
+          });
+        </script>
+      {% if state.histos_built %}
+      <div id="currentTimeStep"></div>
+      <button onclick="previousStep()" 
+              class="btn btn-outline-primary">
+          Previous
+      </button>
+      <button onclick="nextStep()" 
+              class="btn btn-outline-primary">
+        Next
+      </button>
+      <script>
+        total_timesteps = {{ state.n_steps }}
+        timestep=0;
+        updateTimestepAndHistograms();
+
+        function updateTimestepAndHistograms() {
+          document.getElementById("currentTimeStep").innerHTML = '<h3> Time step '+timestep+'</h3>';
+          cy.nodes().forEach(function(ele){
+            if (ele.data('simulable')) {
+              ele.style({ 
+                'shape' : 'roundrectangle',
+                'width' : '120',
+                'height' : '90',
+                'background-width' : '100%',
+                'background-height' : '100%'
+              });
+              ele.style('background-image',
+                'static/'+ele.id().replace(/ /g, '_')+'_'+timestep+'.png?v='+new Date().getTime());
+            };
+          });
+        };
+
+        function nextStep() {
+          timestep = Math.min(timestep+1, {{ state.n_steps }}-1);
+          updateTimestepAndHistograms();
+        };
+
+        function previousStep() {
+          timestep = Math.max(timestep - 1, 0);
+          updateTimestepAndHistograms();
+        };
+      </script>
+      {% endif %} <br>
+      </div>
+    </div>
+  </body>
+</html>
