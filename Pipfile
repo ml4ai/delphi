@@ -12,7 +12,7 @@ tqdm = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
-networkx = "*"
+networkx = "==1.11"
 numpy = "*"
 pandas = "*"
 scipy = "*"
@@ -24,7 +24,9 @@ seaborn = "*"
 pygraphviz = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 jnius-indra = "*"
+docopt = "*"
 
 
 [dev-packages]
 
+neovim = "*"
