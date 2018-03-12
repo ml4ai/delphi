@@ -1,5 +1,5 @@
 # delphi
-Framework for assembling and executing probabilistic models from textual
+Framework for visualizing, assembling and executing probabilistic models from textual
 evidence.
 
 # Requirements
@@ -22,7 +22,10 @@ pip install -e .
 Then, while in the directory, do
 
 ```bash
-FLASK_APP=delphi flask run
+./delphi.py <filename>
 ```
+
+where <filename> should be a JSON-LD file produced by Eidos - for an example,
+see (here)[https://raw.githubusercontent.com/clulab/eidos/master/example_output/example_mar6.jsonld].
 
 and navigate your browser to `http://127.0.0.1:5000/`.
