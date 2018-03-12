@@ -36,8 +36,3 @@ and navigate your browser to `http://127.0.0.1:5000/`.
 March 12, 2018: The current version only works with the
 `adding_eidos_groundings` branch of [this fork of INDRA](https://github.com/adarshp/indra/tree/adding_eidos_groundings).
 We are actively working on integrating with the [main INDRA repo](https://github.com/sorgerlab/indra). We expect to be done in about a week.
-
-
-
-of INDRA, we are waiting on
-integration with INDRA
