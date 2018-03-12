@@ -9,4 +9,5 @@ scipy
 flask
 mypy
 pytest
-git+https://github.com/sorgerlab/indra.git
+git+https://github.com/sorgerlab/indra.git#egg=indra
+jnius-indra
