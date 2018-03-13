@@ -34,9 +34,9 @@
             selector: 'edge',
             style: { 
               'curve-style' : 'bezier',
-                'line-color': 'maroon',
-                'target-arrow-shape': 'triangle',
-                'target-arrow-color' : 'maroon',
+                'line-color': 'data(linecolor)',
+                'target-arrow-shape': 'data(targetArrowShape)',
+                'target-arrow-color' : 'data(linecolor)',
                 'line-style' : 'data(linestyle)',
                 'width': '1'
             } 
@@ -44,19 +44,22 @@
         ],
         layout: { 
           name: 'cola',
-            flow: {'axis': 'x', 'minSeparation': 200},
+            <!--flow: {'axis': 'x', 'minSeparation': 200},-->
           nodeDimensionsIncludeLabels: true,
         },                
         maxZoom : 10,
         minZoom : 0.1,
       });
-      var makeTippy = function(node, text){
-        return tippy( node.popperRef(), {
+      var makeTippy = function(ele, text){
+        return tippy( ele.popperRef(), {
           html: (function(){
             var div = document.createElement('div');
             div.innerHTML = text;
+            div.setAttribute(
+              "style", "max-width: 20em;  text-align: left;");
             return div;
           })(),
+          size: 'small',
           trigger: 'manual',
           arrow: true,
           placement: 'top',
@@ -66,8 +69,12 @@
         }).tooltips[0];
       };
 
-      cy.elements().forEach(function(ele){
-        ele.data()['tip'] = makeTippy(ele, ele.id());
+      cy.nodes().forEach(function(node){
+        node.data()['tip'] = makeTippy(node, node.data('tooltip'));
+      });
+
+      cy.edges().forEach(function(edge){
+        edge.data()['tip'] = makeTippy(edge, JSON.stringify(edge.data('tooltip'), null, '\t'));
       });
 
 
