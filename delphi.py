@@ -33,7 +33,7 @@ def add_statements(state: State, statements,
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
-    ep = eidos.process_json_ld_file('example_output.jsonld')
+    ep = eidos.process_json_ld_file(args['<filename>'])
     app.state = add_statements(app.state, ep.statements,
             grounding_threshold=float(args['--grounding_threshold']))
     app.run()
