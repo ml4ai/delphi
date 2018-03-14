@@ -10,38 +10,12 @@
 
     <div class="container border rounded" id="cy" style="height:100%;"> 
     </div>
+    <script src="/static/cyStyle.js"></script>
     <script>
       var cy = cytoscape({
         container: document.getElementById('cy'),
         elements: {{ state.elementsJSONforJinja | safe }},
-        style: [
-          { selector: 'node',
-            style: { 
-              'label': 'data(id)',
-                'background-color': 'white',
-                'border-color': 'maroon',
-                'border-width': '1px',
-                'font-family': 'Arno Pro, Arial',
-                'text-halign': 'center',
-                'text-valign': 'center',
-                'padding': 10,
-                'width':'label',
-                'shape': 'roundrectangle',
-                'text-max-width': '80',
-                'text-wrap': true,
-            } 
-          }, { 
-            selector: 'edge',
-            style: { 
-              'curve-style' : 'bezier',
-                'line-color': 'data(linecolor)',
-                'target-arrow-shape': 'data(targetArrowShape)',
-                'target-arrow-color' : 'data(linecolor)',
-                'line-style' : 'data(linestyle)',
-                'width': '1'
-            } 
-          },
-        ],
+        style: cyStyle,
         layout: { 
           name: 'cola',
             <!--flow: {'axis': 'x', 'minSeparation': 200},-->
@@ -50,6 +24,7 @@
         maxZoom : 10,
         minZoom : 0.1,
       });
+
       var makeTippy = function(ele, text){
         return tippy( ele.popperRef(), {
           html: (function(){
