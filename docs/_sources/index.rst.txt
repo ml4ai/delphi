@@ -19,29 +19,31 @@ Requirements
   `here <https://gist.github.com/bgyori/37c55681bd1a6e1a2fb6634faf255d60>`_
   to get Eidos and INDRA to work together.
 
+Installation
+============
 
-Usage
-=====
+Clone the directory, install delphi:
+```bash
+git clone https://github.com/ml4ai/delphi
+cd delphi
+pip install -e .
+```
 
-Clone the directory, install the requirements::
+# Usage
 
-    git clone https://github.com/ml4ai/delphi
-    cd delphi
-    pip install -r requirements.txt
+While in the directory, do
 
-Add this directory to your ``PYTHONPATH``::
+```bash
+./delphi.py <filename>
+```
 
-    export PYTHONPATH=`pwd`:$PYTHONPATH
+where `<filename>` should be a JSON-LD file produced by Eidos - for an example,
+see: [https://raw.githubusercontent.com/clulab/eidos/master/example_output/example_mar6.jsonld].
 
-Then, do::
+You can also do `./delphi.py -h` to view further options.
 
-    FLASK_APP=delphi flask run
+To view the CAG, navigate your browser to `http://127.0.0.1:5000/`.
 
-and navigate your browser to ``http://127.0.0.1:5000/``.
-
-To build the Sphinx API documentation, do::
-
-    make
 
 Disclaimer:
 ===========
