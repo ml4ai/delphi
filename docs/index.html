@@ -88,7 +88,7 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Welcome to delphi’s documentation!</a></li>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
-<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#disclaimer">Disclaimer:</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
@@ -170,27 +170,23 @@ evidence.</p>
 to get Eidos and INDRA to work together.</li>
 </ul>
 </div>
-<div class="section" id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>Clone the directory, install the requirements:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ml4ai</span><span class="o">/</span><span class="n">delphi</span>
-<span class="n">cd</span> <span class="n">delphi</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-</div>
-<p>Add this directory to your <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export PYTHONPATH=`pwd`:$PYTHONPATH
-</pre></div>
-</div>
-<p>Then, do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FLASK_APP</span><span class="o">=</span><span class="n">delphi</span> <span class="n">flask</span> <span class="n">run</span>
-</pre></div>
-</div>
-<p>and navigate your browser to <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:5000/</span></code>.</p>
-<p>To build the Sphinx API documentation, do:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span>
-</pre></div>
-</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Clone the directory, install delphi:
+<code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/ml4ai/delphi</span>
+<span class="pre">cd</span> <span class="pre">delphi</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span>
+<span class="pre">`</span></code></p>
+<p># Usage</p>
+<p>While in the directory, do</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">./delphi.py</span> <span class="pre">&lt;filename&gt;</span>
+<span class="pre">`</span></code></p>
+<p>where <cite>&lt;filename&gt;</cite> should be a JSON-LD file produced by Eidos - for an example,
+see: [<a class="reference external" href="https://raw.githubusercontent.com/clulab/eidos/master/example_output/example_mar6.jsonld">https://raw.githubusercontent.com/clulab/eidos/master/example_output/example_mar6.jsonld</a>].</p>
+<p>You can also do <cite>./delphi.py -h</cite> to view further options.</p>
+<p>To view the CAG, navigate your browser to <cite>http://127.0.0.1:5000/</cite>.</p>
 </div>
 <div class="section" id="disclaimer">
 <h1>Disclaimer:<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h1>
