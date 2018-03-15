@@ -27,6 +27,10 @@ cython = "*"
 pyjnius = "*"
 jnius-indra = "==1.1dev5"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
+future = "*"
+rdflib = "*"
+requests = "*"
+objectpath = "*"
 
 
 [dev-packages]
