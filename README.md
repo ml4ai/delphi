@@ -45,7 +45,10 @@ After creating this alias, you can invoke delphi as follows
 ```bash
 delphi <filename>
 ```
-where `<filename>` should be a JSON-LD file produced by Eidos.
+where `<filename>` should be a JSON-LD file produced by Eidos. The example used
+for the screenshot above can be found
+[here](https://raw.githubusercontent.com/ml4ai/delphi/master/delphi/data/10_Document_Eidos_CAG.jsonld).
+
 This starts up a local webserver, which you can access by navigating your
 web browser to `http://127.0.0.1:5000/`.
 
