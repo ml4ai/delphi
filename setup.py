@@ -65,8 +65,22 @@ setup(
     #   py_modules=["my_module"],
     #
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=[ 'flask', 'tqdm', 'networkx', 'numpy',
-            'scipy', 'matplotlib', 'pandas', 'seaborn'],
+    install_requires=[ 
+            'flask',
+            'tqdm',
+            'networkx',
+            'numpy',
+            'scipy',
+            'matplotlib',
+            'pandas',
+            'seaborn',
+            'objectpath',
+            'rdflib',
+            'requests',
+            'lxml',
+            'future',
+            'networkx',
+            ],
 
     python_requires='>=3.6',
     # List additional groups of dependencies here (e.g. development
