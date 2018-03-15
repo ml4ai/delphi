@@ -1,14 +1,26 @@
 # delphi
-Framework for visualizing, assembling and executing probabilistic models from textual
-evidence.
+Framework for visualizing Causal Analysis Graphs
+
+![alt text](/sphinx/delphi_screenshot.png?raw=True")
 
 # Requirements
-- The [eidos reader](https://github.com/clulab/eidos)
 - The [INDRA package](http://indra.readthedocs.io/en/latest/)
-- Eidos will be used as a fat JAR through INDRA, so you should do `sbt assembly`
-    in the `eidos` folder, and follow the instructions
-    [here](https://gist.github.com/bgyori/37c55681bd1a6e1a2fb6634faf255d60)
-    to get Eidos and INDRA to work together.
+
+You do not need any additional software if you are just processing JSON-LD
+files and visualizing the resulting CAGs. However, If you want to use Eidos to
+process text locally on your computer and produce the JSON-LD Eidos output, you
+need the following:
+
+- The [eidos reader](https://github.com/clulab/eidos)
+- Eidos will be used as a fat JAR through INDRA, so you should do the following:
+  - Run `sbt assembly` in the `eidos` folder.
+  - Set the environment variable $EIDOSPATH to point to the location of the
+      Eidos fat JAR (typically something like
+      `/eidos/target/scala-2.12/eidos-assembly-x.x.x-SNAPSHOT.jar`) where
+      `x.x.x` should be replaced by the correct version.
+  - Follow the instructions
+  [here](http://indra.readthedocs.io/en/latest/installation.html#pyjnius) to set
+  up the Pyjnius and `jnius-indra` packages.
 
 # Installation
 
