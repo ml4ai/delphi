@@ -22,7 +22,7 @@ The recommended way to install Delphi is to use the `pip` Python package
 manager:
 
 ```bash
-pip install -e git+https://github.com/ml4ai/delphi.git
+pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 ```
 
 To make it easier to invoke delphi, you can create an alias. On MacOS, you can
