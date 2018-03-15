@@ -25,6 +25,7 @@ pygraphviz = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 jnius-indra = "*"
 docopt = "*"
+pyjnius = "*"
 
 
 [dev-packages]
