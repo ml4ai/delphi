@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a2bca8ca049c4ea11bbdefd6e0589569152a923029e56c92949ecb0a458a518c"
+            "sha256": "ab7783114bfd80d0c5a0dae4027607e72d5216d28c31be378e6fe324c7e8fe61"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -175,9 +175,10 @@
             "version": "==1.0.0"
         },
         "indra": {
-            "editable": true,
-            "git": "https://github.com/sorgerlab/indra",
-            "ref": "4f00ac2ad4a487e4c37a33ca989b6252c2b13786"
+            "hashes": [
+                "sha256:a79572ee5751f6463014970099f0a246553f1ad7902e380e92474bebffaf987e"
+            ],
+            "version": "==1.5.0"
         },
         "ipython": {
             "hashes": [
