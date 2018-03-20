@@ -3,6 +3,7 @@
 from itertools import repeat, accumulate, islice, chain
 from functools import reduce
 from tqdm import tqdm
+from future.utils import lmap
 from typing import TypeVar, Iterator, Tuple, Callable, Iterable, List, Any, Union
 
 T = TypeVar('T')
@@ -195,21 +196,6 @@ def ptake(n: int, xs: Iterable[T]) -> Iterable[T]:
 def ltake(n: int, xs: Iterable[T]) -> List[T]:
     """ A non-lazy version of take. """
     return list(take(n, xs))
-
-
-def lmap(f: Callable[[T], T], xs: Iterable[T]) -> List[T]:
-    """ A non-lazy version of map. """
-    return list(map(f, xs))
-
-
-def lfilter(f: Callable[[T], T], xs: Iterable[T]) -> List[T]:
-    """ A non-lazy version of filter. """
-    return list(filter(f, xs))
-
-
-def lzip(*xs: Iterable[Iterable])->List[Iterable]:
-    """ A non-lazy version of zip. """
-    return list(zip(*xs))
 
 
 def compose(*fs: Any) -> Callable:
