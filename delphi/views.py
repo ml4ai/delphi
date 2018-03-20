@@ -4,9 +4,10 @@ import click
 import pathlib
 
 from delphi.core import *
-from delphi.utils import ltake, lfilter, compose, lmap, lzip, repeat
+from delphi.utils import ltake, compose, repeat
 from delphi import app
 
+from future.utils import lmap, lfilter, lzip
 from typing import List, Optional, Dict
 import numpy as np
 from delphi.types import State
