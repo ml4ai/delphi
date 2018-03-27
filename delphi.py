@@ -43,7 +43,7 @@ if __name__ == '__main__':
         statements = ep.statements
     elif os.path.isdir(filename):
         statements = flatMap(lambda f: eidos.process_json_ld_file(f).statements,
-                tqdm(glob(filename+'/*.jsonld')[0:2]))
+                tqdm(glob(filename+'/*.jsonld')))
     else:
         print('The first argument does not seem to be a regular file or directory.')
 
