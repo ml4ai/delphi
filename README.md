@@ -45,7 +45,8 @@ After creating this alias, you can invoke delphi as follows
 ```bash
 delphi <filename>
 ```
-where `<filename>` should be a JSON-LD file produced by Eidos. The example used
+where `<filename>` should be a JSON-LD file produced by Eidos, or a directory
+containing JSON-LD files (with the extension `.jsonld`). The example used
 for the screenshot above can be found
 [here](https://raw.githubusercontent.com/ml4ai/delphi/master/delphi/data/10_Document_Eidos_CAG.jsonld).
 
