@@ -7,7 +7,7 @@ Usage:
 
 Options:
     -h --help     Show this help message.
-    --grounding_threshold = <gt>  [default: 1.0]
+    --grounding_threshold = <gt>
 """
 
 import os
@@ -43,11 +43,14 @@ if __name__ == '__main__':
         statements = ep.statements
     elif os.path.isdir(filename):
         statements = flatMap(lambda f: eidos.process_json_ld_file(f).statements,
-                tqdm(glob(filename+'/*.jsonld')))
+                tqdm(glob(filename+'/*.jsonld')[0:2]))
     else:
         print('The first argument does not seem to be a regular file or directory.')
 
 
-    app.state = add_statements(app.state, statements,
-            grounding_threshold=float(args['--grounding_threshold']))
+    gt = args['--grounding_threshold']
+    if gt is not None:
+        gt = float(gt)
+
+    app.state = add_statements(app.state, statements, grounding_threshold=gt)
     app.run()
