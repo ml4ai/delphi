@@ -10,7 +10,7 @@
 
     <div class="container-fluid border rounded" id="cy" style="height:100%;"> 
     </div>
-    <script src="/static/cyStyle.js"></script>
+    <script src="/static/cystyle.js"></script>
     <script>
       var cy = cytoscape({
         container: document.getElementById('cy'),
@@ -19,8 +19,11 @@
         layout: { 
           name: 'cose',
             <!--flow: {'axis': 'x'},-->
+          <!--idealEdgeLength: function( edge ){ return 50; },-->
           nodeDimensionsIncludeLabels: true,
-            componentSpacing: 4,
+            componentSpacing: 1,
+            nodeOverlap: 1000,
+            nodeRepulsion: 500,
         },                
         maxZoom : 10,
         minZoom : 0.1,
