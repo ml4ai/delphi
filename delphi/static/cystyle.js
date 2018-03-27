@@ -9,8 +9,9 @@ cyStyle = [
                 "text-halign": "center",
                 "text-valign": "center",
                 "padding": 10,
-                "width":"label",
-                "shape": "roundrectangle",
+                "width": function( node ){ return 2*node.degree(); },
+                "height": function( node ){ return 2*node.degree(); },
+                "shape": "ellipse",
                 "text-max-width": 80,
                 "text-wrap": true
             } 
