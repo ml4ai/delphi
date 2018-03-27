@@ -48,7 +48,8 @@ setup(
             'lxml',
             'future',
             'networkx',
-            'indra'
+            'indra',
+            'docopt'
             ],
 
     python_requires='>=3.6',
