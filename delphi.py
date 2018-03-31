@@ -3,7 +3,7 @@
 
 Usage:
     delphi.py  -h | --help
-    delphi.py  <filename> [--grounding_threshold = <gt>]
+    delphi.py  <filename> [--grounding_threshold = <gt>] [--show_grounded_only]
 
 Options:
     -h --help     Show this help message.
@@ -13,11 +13,11 @@ Options:
 import os
 from delphi import app
 from typing import Optional
-from delphi.types import State
 from indra.sources import eidos
-from indra.statements import Influence, Agent
 from indra.assemblers import CAGAssembler
+from delphi.types import State
 from delphi.utils import flatMap
+from future.utils import lfilter
 from glob import glob
 from tqdm import tqdm
 import json
@@ -33,6 +33,12 @@ def add_statements(state: State, statements,
     state.elementsJSONforJinja = json.dumps(state.elementsJSON)
     return state
 
+def isGrounded(agent):
+    return len(agent.db_refs['EIDOS']) > 0
+
+def hasBothAgentsGrounded(statement):
+    return isGrounded(statement.subj) and isGrounded(statement.obj)
+
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
 
@@ -47,6 +53,9 @@ if __name__ == '__main__':
     else:
         print('The first argument does not seem to be a regular file or directory.')
 
+
+    if args['--show_grounded_only']:
+        statements = lfilter(lambda s: hasBothAgentsGrounded(s), statements)
 
     gt = args['--grounding_threshold']
     if gt is not None:
