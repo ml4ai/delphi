@@ -1,4 +1,5 @@
 # Delphi
+
 Delphi is a framework for visualizing causal analysis graphs (CAGs) for DARPA's
 World Modelers program. Here is an example of what it looks like:
 
