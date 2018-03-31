@@ -1,15 +1,15 @@
-from indra.statements import Influence, Agent
+from indra.statements import Influence, Concept
 from delphi.core import *
 
 statements = [Influence(
-        Agent('X'),
-        Agent('Y'),
+        Concept('X'),
+        Concept('Y'),
         {'adjectives': ["small"], 'polarity': 1},
         {'adjectives': ["large"], 'polarity': -1},
     ),
     Influence(
-        Agent('Y'),
-        Agent('Z'),
+        Concept('Y'),
+        Concept('Z'),
         {'adjectives': ["big"], 'polarity': 1},
         {'adjectives': ["huge"], 'polarity': 1},
     ),
