@@ -15,7 +15,6 @@ from delphi import app
 from typing import Optional
 from delphi.types import State
 from indra.sources import eidos
-from indra.statements import Influence, Agent
 from indra.assemblers import CAGAssembler
 from delphi.utils import flatMap
 from glob import glob
