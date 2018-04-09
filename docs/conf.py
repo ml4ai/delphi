@@ -19,6 +19,7 @@
 #
 import os
 import sys
+from unittest.mock import MagicMock
 sys.path.insert(0, os.path.abspath('../'))
 
 
@@ -195,3 +196,12 @@ intersphinx_mapping = {
         }
 
 add_module_names = False
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+MOCK_MODULES = ['numpy', 'pandas', 'cython']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
