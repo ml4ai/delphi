@@ -24,7 +24,6 @@ seaborn = "*"
 pygraphviz = "*"
 docopt = "*"
 cython = "*"
-pyjnius = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 future = "*"
 rdflib = "*"
@@ -34,4 +33,5 @@ objectpath = "*"
 
 [dev-packages]
 
+pyjnius = "*"
 neovim = "*"
