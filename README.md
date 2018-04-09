@@ -3,7 +3,7 @@
 Delphi is a framework for visualizing causal analysis graphs (CAGs) for DARPA's
 World Modelers program. Here is an example of what it looks like:
 
-![alt text](/sphinx/delphi_screenshot.png?raw=True")
+![alt text](/docs/delphi_screenshot.png?raw=True")
 
 The arrows show the direction of causal influences between entities. Circular
 arrowheads indicate a positive correlation, while tee arrowheads indicate an
