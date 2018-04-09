@@ -1,4 +1,4 @@
 docs:
-	cd sphinx; make html
+	cd docs; make html
 test:
-	cd sphinx; make doctest
+	cd docs; make doctest
