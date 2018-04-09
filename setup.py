@@ -35,6 +35,7 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=[
             'flask',
+            'cython',
             'tqdm',
             'networkx',
             'numpy',
@@ -49,6 +50,7 @@ setup(
             'future',
             'networkx',
             'indra',
+            'jnius-indra',
             'docopt'
             ],
 
