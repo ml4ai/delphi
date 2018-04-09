@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "59c06a7ebda05683529bf71b02f69a8f3a506e9a90dc9b851c217ac16ac021da"
+            "sha256": "1cf6b1237718eee635ce46e5430c53f8c229ed423efd7c58094e2d18bb1e89a6"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -188,12 +188,6 @@
                 "sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4"
             ],
             "version": "==2.10"
-        },
-        "jnius-indra": {
-            "hashes": [
-                "sha256:5e2cfaa7c0d08ab4715cf9e775bb82a84253287d5769287acae13d6b4a53a341"
-            ],
-            "version": "==1.1.dev5"
         },
         "kiwisolver": {
             "hashes": [
