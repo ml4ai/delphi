@@ -12,3 +12,4 @@ networkx
 indra
 docopt
 sphinx-autodoc-typehints
+sphinxcontrib-bibtex
