@@ -35,7 +35,6 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=[
             'flask',
-            'cython',
             'tqdm',
             'networkx',
             'numpy',
@@ -50,11 +49,11 @@ setup(
             'future',
             'networkx',
             'indra',
-            'jnius-indra',
             'docopt'
             ],
 
     python_requires='>=3.6',
+    setup_requires=['cython'],
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
     # syntax, for example:
