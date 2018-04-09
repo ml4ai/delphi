@@ -11,3 +11,4 @@ future
 networkx
 indra
 docopt
+sphinx-autodoc-typehints
