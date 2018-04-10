@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/delphi-framework/badge/?version=latest)](http://delphi-framework.readthedocs.io/en/latest/?badge=latest)
+
 # Delphi
 
 Delphi is a framework for visualizing causal analysis graphs (CAGs) for DARPA's
