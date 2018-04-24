@@ -203,7 +203,7 @@ def compose(*fs: Any) -> Callable:
 
     e.g. compose(f, g)(x) = f(g(x))
     """
-    return foldl1(lambda f, g: lambda x: f(g(x)), fs)
+    return foldl1(lambda f, g: lambda *x: f(g(*x)), fs)
 
 
 def flatMap(f: Callable, xs: Iterable) -> List:
