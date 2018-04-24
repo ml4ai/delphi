@@ -209,3 +209,8 @@ def compose(*fs: Any) -> Callable:
 def flatMap(f: Callable, xs: Iterable) -> List:
     """ Map a function onto an iterable and flatten the result. """
     return flatten(lmap(f, xs))
+
+
+def exists(x: Any) -> bool:
+    return True if x is not None else False
+
