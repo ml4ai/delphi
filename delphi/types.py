@@ -13,7 +13,7 @@ class Session(Flask):
 
     def set_statements(self, statements):
         self.state.statements = statements
-        self.state.elementsJSONforJinja = json.dumps(self.state.elementsJSON) 
+        self.state.elementsJSONforJinja = json.dumps(self.state.elementsJSON)
 
 class State(object):
     """ Class to hold the global state of the application """

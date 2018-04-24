@@ -40,29 +40,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 plt.style.use('ggplot')
 
-@app.route('/')
-def show_index():
-    """ Show the index page. """
-    if app.state.statements is None and pathlib.Path('eidos_output.json').exists():
-        return redirect('/setupExperiment')
-    elif app.state.statements is not None:
-        return render_template('layout.html', 
-                           text = "Input text to be processed here",
-                           state = app.state)
-
-
-@app.route("/processText")
-def process_text():
-    """ Process the input text. """
-
-    # Clean up old data.
-    for filename in glob('static/*.png')+glob('*.json'):
-        os.remove(filename)
-
-    app.state.inputText = request.args.get('textToProcess', '')
-    eidos.process_text(app.state.inputText)
-    return redirect('/setupExperiment')
-
 
 @app.route("/setupExperiment")
 def setupExperiment():
@@ -75,7 +52,7 @@ def setupExperiment():
         f.write(json.dumps(app.state.elementsJSON, indent=2))
 
     # Create keys for factors and their time derivatives
-    
+
     app.state.factors = lmap(lambda n: n['data']['id'],
             filter(lambda n: n['data']['simulable'], app.state.elementsJSON['nodes']))
     app.state.escapedFactorNames = lmap(lambda n: n.replace(' ', '_'), app.state.factors)
