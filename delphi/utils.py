@@ -27,7 +27,7 @@ def prepend(x: T, xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    
+
     >>> from delphi.utils import prepend
     >>> list(prepend(1, [2, 3]))
     [1, 2, 3]
