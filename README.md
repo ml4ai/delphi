@@ -44,6 +44,8 @@ dbn_model/
 
 The files are
 - `cag.json`: This contains the link structure of the causal analysis graph.
+    Here is an example JSON file representing a CAG with the link `rainfall ->
+    crop yield`. 
 
 ```json
  {
@@ -51,21 +53,36 @@ The files are
   "dateCreated": "2018-04-25 15:27:32.230457",
   "variables": [
     {
-      "name": "fishing community",
+      "name": "crop yield",
       "units": "units",
       "dtype": "real",
       "arguments": []
     },
     {
-      "name": "income",
+      "name": "crop yield",
       "units": "units",
       "dtype": "real",
       "arguments": [
-        "fishing community"
+        "rainfall"
       ]
     }
   ]
 } 
+```
+
+- `dressed_CAG.pkl`: This is a Python pickle object that can be used in Python
+    programs. It contains a networkx Digraph object, with conditional
+    probability distributions attached to the edges.
+- `variables.csv`: This CSV file contains the names and initial values of the
+    components of the latent state of the DBN, corresponding to the factors in
+    the CAG and their partial derivatives with respect to time.
+
+
+```csv
+rainfall,100.0
+∂(rainfall)/∂t,1.0
+crop yield,100.0
+∂(crop yield)/∂t,1.0
 ```
 
 To execute the model, do
