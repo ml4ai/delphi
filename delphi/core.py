@@ -1,5 +1,6 @@
 from itertools import permutations, cycle
-from typing import List, Tuple, Callable, Optional, Any, Dict, IO
+from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
+        NewType)
 
 import pickle
 import numpy as np
@@ -28,6 +29,13 @@ def construct_default_initial_state(s_index: List[str]) -> Series:
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
+    """
+    Args:
+        s: An INDRA Influence statement.
+    Returns:
+        A 2-tuple containing the subj_delta and obj_delta attributes of the
+        Influence statements.
+    """
     return s.subj_delta, s.obj_delta
 
 
@@ -169,7 +177,18 @@ def get_dtype(n: str) -> str:
     return "real"
 
 
-def export_node(CAG: DiGraph, n) -> Dict:
+def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
+    """ Return dict suitable for exporting to JSON.
+
+    Args:
+        CAG: The causal analysis graph
+        n: A dict representing the data in a networkx DiGraph node.
+
+    Returns:
+        The node dict with additional fields for name, units, dtype, and
+        arguments.
+
+    """
     n[1]['name'] = n[0]
     n[1]['units'] = get_units(n[0])
     n[1]['dtype'] = get_dtype(n[0])
