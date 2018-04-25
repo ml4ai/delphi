@@ -44,6 +44,7 @@ dbn_model/
 
 The files are
 - `cag.json`: This contains the link structure of the causal analysis graph.
+
   ```json
  {
   "name": "Dynamic Bayes Net Model",
