@@ -4,9 +4,9 @@ from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
 
 import pickle
 import numpy as np
-import pkg_resources
 from indra.statements import Influence
 from networkx import DiGraph
+from pathlib import Path, abspath
 from pandas import Series, DataFrame, read_csv
 from scipy.stats import gaussian_kde
 from tqdm import trange
@@ -20,9 +20,7 @@ from future.utils import lmap, lfilter, lzip
 from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
 
 # Location of the CLULab gradable adjectives data.
-adjectiveData = pkg_resources.resource_filename('delphi',
-                                                'data/adjectiveData.tsv')
-
+adjectiveData = Path(__file__).parents[0]/'data'/'adjectiveData.tsv'
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
