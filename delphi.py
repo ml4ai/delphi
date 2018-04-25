@@ -8,7 +8,7 @@ from pandas import read_csv
 from functools import partial
 from argparse import ArgumentParser, ArgumentTypeError
 
-def assemble_and_export_model():
+def create_model(args):
     from delphi.core import (isSimulable, add_conditional_probabilities,
                              construct_CAG_skeleton, export_to_ISI)
     with open('eval_indra_assembled.pkl', 'rb') as f:
@@ -82,6 +82,9 @@ if __name__ == '__main__':
             'dressedCAG.pkl')
 
     args = parser.parse_args()
+
+    if args.create_model:
+        create_model(args)
 
     if args.execute_model:
         execute_model(args)
