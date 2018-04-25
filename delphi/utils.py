@@ -1,6 +1,6 @@
 """ Helper functions for functional programming.  """
 
-from itertools import repeat, accumulate, islice, chain
+from itertools import repeat, accumulate, islice, chain, starmap
 from functools import reduce
 from tqdm import tqdm
 from future.utils import lmap
@@ -214,3 +214,9 @@ def flatMap(f: Callable, xs: Iterable) -> List:
 def exists(x: Any) -> bool:
     return True if x is not None else False
 
+def repeatfunc(func, *args):
+    """Repeat calls to func with specified arguments.
+
+    Example:  repeatfunc(random.random)
+    """
+    return starmap(func, repeat(args))
