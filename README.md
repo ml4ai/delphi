@@ -75,7 +75,8 @@ The files are
     probability distributions attached to the edges.
 - `variables.csv`: This CSV file contains the names and initial values of the
     components of the latent state of the DBN, corresponding to the factors in
-    the CAG and their partial derivatives with respect to time.
+    the CAG and their partial derivatives with respect to time. This is set with
+    some default values which can be edited prior to the execution of the model.
 
 
 ```csv
@@ -88,12 +89,28 @@ crop yield,100.0
 To execute the model, do
 
 ```bash
-./delphi.py --execute_model
+./delphi.py --execute_model <model_directory (default: 'dbn_model')>
 ```
 
-This creates 
+This creates an output file that looks like this: 
 
-# Features
+
+```csv
+seq_no,time_slice,rainfall,crop yield
+0,0,100.0,100.0
+0,1,102.60446042864127,102.27252764173306
+0,2,103.68597583717079,103.90533882812889
+1,0,100.0,100.0
+1,1,102.16123221277232,101.92000855752877
+1,2,103.60428897964772,101.7157053024733
+```
+
+- `seq_no` specifies the sampled sequence
+- `time_slice` denotes the time slice of the sequence
+- The labels of the other columns denote the factors in the CAG. By collecting
+    values from the same time slice over multiple sequences, one can create a
+    histogram distribution for a quantity of interest.
+
 
 # License 
 
