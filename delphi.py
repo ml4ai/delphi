@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import pickle
 from glob import glob
 from typing import Any
 from pandas import read_csv
 from functools import partial
-from argparse import ArgumentParser, ArgumentTypeError
+from delphi.utils import ltake
+from argparse import (ArgumentParser, ArgumentTypeError, FileType,
+                      ArgumentDefaultsHelpFormatter)
 
 def create_model(args):
     from delphi.core import (isSimulable, add_conditional_probabilities,
                              construct_CAG_skeleton, export_to_ISI)
-    with open('eval_indra_assembled.pkl', 'rb') as f:
-        sts = ltake(2, filter(isSimulable, pickle.load(f)))
-    CAG = add_conditional_probabilities(construct_CAG_skeleton(sts))
-    export_to_ISI(CAG)
+
+    with open(args.indra_statements, 'rb') as f:
+        export_to_ISI(add_conditional_probabilities(construct_CAG_skeleton(
+            ltake(5, filter(isSimulable, pickle.load(f))))))
+
 
 def execute_model(args):
     from delphi.core import (load_model, construct_default_initial_state,
@@ -28,9 +32,9 @@ def execute_model(args):
     else:
         s0 = read_csv(args.init_values, index_col=0, header=None)[1]
 
-    if args.execute_model:
-        seqs = sample_sequences(CAG, s0, args.steps, args.samples, args.dt)
-        write_sequences_to_file(CAG, seqs)
+    write_sequences_to_file(CAG, sample_sequences(CAG, s0, args.steps,
+        args.samples, args.dt), args.output)
+
 
 def positive_real(arg, x):
     try:
@@ -43,6 +47,7 @@ def positive_real(arg, x):
         raise ArgumentTypeError(
                 f"{arg} should be a positive real number (you entered {x}).")
     return x
+
 
 def positive_int(arg, x):
     try:
@@ -57,31 +62,46 @@ def positive_int(arg, x):
 
     return val
 
+
 if __name__ == '__main__':
-    parser = ArgumentParser(description='Dynamic Bayes Net Executable Model')
+    parser = ArgumentParser(description='Dynamic Bayes Net Executable Model',
+            formatter_class=ArgumentDefaultsHelpFormatter)
 
     def add_arg(arg: str, help: str, type: Any, default: Any) -> None:
-        parser.add_argument(arg, help=help, type=type, default=default)
+        parser.add_argument('--'+arg, help=help, type=type, default=default)
 
-    parser.add_argument('--execute_model',
-            help='Execute DBN and sample time evolution sequences',
+    parser.add_argument('--execute_model', help='Execute DBN and sample time '
+            'evolution sequences', action="store_true")
+
+    parser.add_argument('--create_model', help='Export the dressed CAG as a '
+            'pickled object, the variables with default initial values as a CSV'
+            ' file, and the link structure of the CAG as a JSON file.',
             action="store_true")
-    parser.add_argument('--create_model',
-            help='Export the dressed CAG as a pickled object, the variables with
-            'default initial values as a csv file, and the link structure of the
-            'CAG as a json file.', action="store_true")
 
-    add_arg('--dt', 'Time step size', partial(positive_real, 'dt'), 1.0)
-    add_arg('--steps', "Number of time stepsto take",
-            partial(positive_int, 'steps'), 10)
-    add_arg('--samples', "Number of sequences to sample",
+    add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
+            'delphi/data/eval_indra_assembled.pkl')
+
+    add_arg('dt', 'Time step size', partial(positive_real, 'dt'), 1.0)
+
+    add_arg('steps', "Number of time stepsto take",
+            partial(positive_int, 'steps'), 5)
+
+    add_arg('samples', "Number of sequences to sample",
             partial(positive_int, 'samples'), 100)
-    add_arg('--init_values',
-            "CSV file containing initial values of variables", str, None)
-    add_arg('--dressed_cag', 'Pickle file containing the dressed CAG', str,
-            'dressedCAG.pkl')
+
+    add_arg('init_values', "CSV file containing initial values of variables",
+            FileType('r'), 'variables.csv')
+
+    add_arg('dressed_cag', 'Pickle file containing the dressed CAG',
+            FileType('rb'), 'dressedCAG.pkl')
+
+    add_arg('output', 'Output file containing sampled sequences',
+            FileType('w', encoding='UTF-8'), 'output.csv')
 
     args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
 
     if args.create_model:
         create_model(args)
