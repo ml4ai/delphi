@@ -3,6 +3,7 @@
 import os
 import sys
 import pickle
+from pathlib import Path
 from glob import glob
 from typing import Any
 from pandas import read_csv
@@ -17,7 +18,7 @@ def create_model(args):
 
     with open(args.indra_statements, 'rb') as f:
         export_to_ISI(add_conditional_probabilities(construct_CAG_skeleton(
-            ltake(5, filter(isSimulable, pickle.load(f))))))
+            ltake(5, filter(isSimulable, pickle.load(f))))), args.model_dir)
 
 
 def execute_model(args):
@@ -25,12 +26,10 @@ def execute_model(args):
                              get_latent_state_components, sample_sequences,
                              write_sequences_to_file)
 
-    CAG = load_model(args.dressed_cag)
+    model_dir = Path(args.model_dir)
+    CAG = load_model(model_dir/'dressed_CAG.pkl')
 
-    if not args.init_values:
-        s0 = construct_default_initial_state(get_latent_state_components(CAG))
-    else:
-        s0 = read_csv(args.init_values, index_col=0, header=None)[1]
+    s0 = read_csv(model_dir/'variables.csv', index_col=0, header=None)[1]
 
     write_sequences_to_file(CAG, sample_sequences(CAG, s0, args.steps,
         args.samples, args.dt), args.output)
@@ -70,16 +69,16 @@ if __name__ == '__main__':
     def add_arg(arg: str, help: str, type: Any, default: Any) -> None:
         parser.add_argument('--'+arg, help=help, type=type, default=default)
 
-    parser.add_argument('--execute_model', help='Execute DBN and sample time '
-            'evolution sequences', action="store_true")
-
     parser.add_argument('--create_model', help='Export the dressed CAG as a '
             'pickled object, the variables with default initial values as a CSV'
             ' file, and the link structure of the CAG as a JSON file.',
             action="store_true")
 
     add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
-            'delphi/data/eval_indra_assembled.pkl')
+            Path(__file__).parents[0]/'data'/'eval_indra_assembled.pkl')
+
+    parser.add_argument('--execute_model', help='Execute DBN and sample time '
+            'evolution sequences', action="store_true")
 
     add_arg('dt', 'Time step size', partial(positive_real, 'dt'), 1.0)
 
@@ -89,14 +88,11 @@ if __name__ == '__main__':
     add_arg('samples', "Number of sequences to sample",
             partial(positive_int, 'samples'), 100)
 
-    add_arg('init_values', "CSV file containing initial values of variables",
-            FileType('r'), 'variables.csv')
 
-    add_arg('dressed_cag', 'Pickle file containing the dressed CAG',
-            FileType('rb'), 'dressedCAG.pkl')
+    add_arg('output', 'Output file containing sampled sequences', str,
+            'dbn_sampled_sequences.csv')
 
-    add_arg('output', 'Output file containing sampled sequences',
-            FileType('w', encoding='UTF-8'), 'output.csv')
+    add_arg('model_dir', 'Model directory', str, 'dbn_model')
 
     args = parser.parse_args()
 
