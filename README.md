@@ -20,6 +20,61 @@ pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 
 # Usage
 
+To see all the options and the help message, do:
+
+```bash
+./delphi.py
+```
+
+To create a model, do:
+
+```bash
+./delphi.py --create_model
+```
+
+This will create a directory called `dbn_model`, with the following contents. 
+
+
+```shell
+dbn_model/
+├── cag.json
+├── dressed_CAG.pkl
+└── variables.csv
+```
+
+The files are
+- `cag.json`: This contains the link structure of the causal analysis graph.
+  ```json
+ {
+  "name": "Dynamic Bayes Net Model",
+  "dateCreated": "2018-04-25 15:27:32.230457",
+  "variables": [
+    {
+      "name": "fishing community",
+      "units": "units",
+      "dtype": "real",
+      "arguments": []
+    },
+    {
+      "name": "income",
+      "units": "units",
+      "dtype": "real",
+      "arguments": [
+        "fishing community"
+      ]
+    }
+  ]
+} 
+  ```
+
+To execute the model, do
+
+```bash
+./delphi.py --execute_model
+```
+
+This creates 
+
 # Features
 
 # License 
