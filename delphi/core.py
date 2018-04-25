@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 from indra.statements import Influence
 from networkx import DiGraph
-from pathlib import Path, abspath
+from pathlib import Path
 from pandas import Series, DataFrame, read_csv
 from scipy.stats import gaussian_kde
 from tqdm import trange
@@ -20,7 +20,7 @@ from future.utils import lmap, lfilter, lzip
 from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
 
 # Location of the CLULab gradable adjectives data.
-adjectiveData = Path(__file__).parents[0]/'data'/'adjectiveData.tsv'
+adjectiveData = Path(__file__).parents[1]/'data'/'adjectiveData.tsv'
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
@@ -194,12 +194,14 @@ def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
     return n[1]
 
 
-def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl',
-                  json_filename = 'CAG.json') -> None:
+def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
 
-    s0.to_csv('variables.csv', index_label='variable')
+    model_dir = Path(model_dir)
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    s0.to_csv(model_dir/'variables.csv', index_label='variable')
 
     model = {
         'name' : 'Dynamic Bayes Net Model',
@@ -208,15 +210,20 @@ def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl',
         # 'edges' : list(dressed_CAG.edges(data = True)),
     }
 
-    with open(json_filename, 'w') as f:
+    with open(model_dir/'cag.json', 'w') as f:
         json.dump(model, f, indent=2)
 
-    with open(pkl_filename, 'wb') as f:
+    for e in CAG.edges(data = True):
+        del e[2]['InfluenceStatements']
+
+    with open(model_dir/'dressed_CAG.pkl', 'wb') as f:
         pickle.dump(CAG, f)
 
 
-def load_model(f: IO[bytes]) -> DiGraph:
-    return pickle.load(f)
+def load_model(filename: str) -> DiGraph:
+    with open(filename, 'rb') as f:
+        CAG = pickle.load(f)
+    return CAG
 
 
 def emission_function(x):
@@ -224,11 +231,12 @@ def emission_function(x):
 
 
 def write_sequences_to_file(CAG: DiGraph, seqs,
-        f: IO[str]) -> None:
+        output_filename: str) -> None:
 
-    f.write(','.join(['seq_no', 'time_slice',
-        *get_latent_state_components(CAG)[::2]])+'\n')
-    for n, s in enumerate(seqs):
-        for t, l in enumerate(s):
-            vs = ','.join([str(x) for x in l.T[0][::2]])
-            f.write(','.join([str(n), str(t), vs]) + '\n')
+    with open(output_filename, 'w') as f:
+        f.write(','.join(['seq_no', 'time_slice',
+            *get_latent_state_components(CAG)[::2]])+'\n')
+        for n, s in enumerate(seqs):
+            for t, l in enumerate(s):
+                vs = ','.join([str(x) for x in l.T[0][::2]])
+                f.write(','.join([str(n), str(t), vs]) + '\n')
