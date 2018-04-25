@@ -16,18 +16,14 @@ networkx = "==1.11"
 numpy = "*"
 pandas = "*"
 scipy = "*"
-flask = "*"
 mypy = "*"
 pytest = "*"
 matplotlib = "*"
-seaborn = "*"
 pygraphviz = "*"
-docopt = "*"
 cython = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 future = "*"
 rdflib = "*"
-requests = "*"
 objectpath = "*"
 
 
