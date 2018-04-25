@@ -28,14 +28,6 @@ delphi.utils module
     :undoc-members:
     :show-inheritance:
 
-delphi.views module
--------------------
-
-.. automodule:: delphi.views
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
