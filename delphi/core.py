@@ -177,8 +177,9 @@ def export_node(CAG: DiGraph, n) -> Dict:
     return n[1]
 
 
-def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl', json_filename =
-        'CAG.json') -> None:
+def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl',
+                  json_filename = 'CAG.json') -> None:
+
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
 
     s0.to_csv('variables.csv', index_label='variable')
@@ -197,10 +198,8 @@ def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl', json_filename =
         pickle.dump(CAG, f)
 
 
-def load_model(pkl_filename: str) -> DiGraph:
-    with open(pkl_filename, 'rb') as f:
-        CAG = pickle.load(f)
-    return CAG
+def load_model(f: IO[bytes]) -> DiGraph:
+    return pickle.load(f)
 
 
 def emission_function(x):
@@ -208,12 +207,11 @@ def emission_function(x):
 
 
 def write_sequences_to_file(CAG: DiGraph, seqs,
-                            filename: str = 'output.txt') -> None:
+        f: IO[str]) -> None:
 
-    with open(filename, 'w') as f:
-        f.write(','.join(['seq_no', 'time_slice',
-            *get_latent_state_components(CAG)[::2]])+'\n')
-        for n, s in enumerate(seqs):
-            for t, l in enumerate(s):
-                vs = ','.join([str(x) for x in l.T[0][::2]])
-                f.write(','.join([str(n), str(t), vs]) + '\n')
+    f.write(','.join(['seq_no', 'time_slice',
+        *get_latent_state_components(CAG)[::2]])+'\n')
+    for n, s in enumerate(seqs):
+        for t, l in enumerate(s):
+            vs = ','.join([str(x) for x in l.T[0][::2]])
+            f.write(','.join([str(n), str(t), vs]) + '\n')
