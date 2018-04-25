@@ -16,7 +16,7 @@ import datetime
 import json
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
-from delphi.utils import flatMap, compose, iterate, ltake, exists
+from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
 
 # Location of the CLULab gradable adjectives data.
 adjectiveData = pkg_resources.resource_filename('delphi',
@@ -24,11 +24,11 @@ adjectiveData = pkg_resources.resource_filename('delphi',
 
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
-    return Series(dict(lzip(s_index, ltake(len(s_index), cycle([100, 0])))))
+    return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
-    return (s.subj_delta, s.obj_delta)
+    return s.subj_delta, s.obj_delta
 
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
@@ -145,17 +145,16 @@ def sample_transition_matrix(CAG: DiGraph, Δt: float = 1.0) -> DataFrame:
 def sample_sequence(CAG: DiGraph, s0: np.ndarray,
                     n_steps: int, Δt: float = 1.0) -> List[np.ndarray]:
 
-    A = sample_transition_matrix(CAG, Δt).as_matrix()
-    return ltake(n_steps, iterate(lambda s: A @ s, s0))
+    A = sample_transition_matrix(CAG, Δt).values
+    return take(n_steps, iterate(lambda s: emission_function(A @ s), s0))
 
 
 def sample_sequences(CAG: DiGraph, s0: Series, steps: int, samples: int,
                      Δt: float = 1.0) -> List[Series]:
     """ Sample a collection of sequences for a CAG """
 
-    s0_array = s0.tolist()
-
-    return [sample_sequence(CAG, s0_array, steps, Δt) for x in trange(samples)]
+    s0 = s0.values[np.newaxis].T
+    return take(samples, repeatfunc(sample_sequence, CAG, s0, steps, Δt))
 
 
 def construct_executable_model(sts: List[Influence]) -> DiGraph:
@@ -178,23 +177,43 @@ def export_node(CAG: DiGraph, n) -> Dict:
     return n[1]
 
 
-def export_model(CAG: DiGraph, f: IO[bytes]) -> None:
-    lscs = get_latent_state_components(CAG)
-    s0 = construct_default_initial_state(lscs)
-    df = DataFrame(s0, columns = ['init_value'])
-    df.to_csv('variables.csv', index_label='variable')
-    # pickle.dump(CAG, f)
+def export_to_ISI(CAG: DiGraph, pkl_filename = 'dressedCAG.pkl', json_filename =
+        'CAG.json') -> None:
+    s0 = construct_default_initial_state(get_latent_state_components(CAG))
 
+    s0.to_csv('variables.csv', index_label='variable')
 
-def load_model(f: IO[bytes]) -> DiGraph:
-    return pickle.load(f)
-
-def export_model_to_json(CAG: DiGraph):
     model = {
         'name' : 'Dynamic Bayes Net Model',
         'dateCreated' : str(datetime.datetime.now()),
         'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True))
         # 'edges' : list(dressed_CAG.edges(data = True)),
     }
-    with open('cag.json', 'w') as f:
+
+    with open(json_filename, 'w') as f:
         json.dump(model, f, indent=2)
+
+    with open(pkl_filename, 'wb') as f:
+        pickle.dump(CAG, f)
+
+
+def load_model(pkl_filename: str) -> DiGraph:
+    with open(pkl_filename, 'rb') as f:
+        CAG = pickle.load(f)
+    return CAG
+
+
+def emission_function(x):
+    return np.random.normal(x, 0.01*abs(x))
+
+
+def write_sequences_to_file(CAG: DiGraph, seqs,
+                            filename: str = 'output.txt') -> None:
+
+    with open(filename, 'w') as f:
+        f.write(','.join(['seq_no', 'time_slice',
+            *get_latent_state_components(CAG)[::2]])+'\n')
+        for n, s in enumerate(seqs):
+            for t, l in enumerate(s):
+                vs = ','.join([str(x) for x in l.T[0][::2]])
+                f.write(','.join([str(n), str(t), vs]) + '\n')
