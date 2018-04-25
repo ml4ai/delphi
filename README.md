@@ -24,6 +24,31 @@ To see all the options and the help message, do:
 
 ```bash
 ./delphi.py
+usage: delphi.py [-h] [--create_model] [--indra_statements INDRA_STATEMENTS]
+                 [--execute_model] [--dt DT] [--steps STEPS]
+                 [--samples SAMPLES] [--output OUTPUT] [--model_dir MODEL_DIR]
+
+Dynamic Bayes Net Executable Model
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --create_model        Export the dressed CAG as a pickled object, the
+                        variables with default initial values as a CSV file,
+                        and the link structure of the CAG as a JSON file.
+                        (default: False)
+  --indra_statements INDRA_STATEMENTS
+                        Pickle file containing INDRA statements (default:
+                        data/eval_indra_assembled.pkl)
+  --execute_model       Execute DBN and sample time evolution sequences
+                        (default: False)
+  --dt DT               Time step size (default: 1.0)
+  --steps STEPS         Number of time stepsto take (default: 5)
+  --samples SAMPLES     Number of sequences to sample (default: 100)
+  --output OUTPUT       Output file containing sampled sequences (default:
+                        dbn_sampled_sequences.csv)
+  --model_dir MODEL_DIR
+                        Model directory (default: dbn_model)
+
 ```
 
 To create a model, do:
@@ -109,7 +134,9 @@ seq_no,time_slice,rainfall,crop yield
 - `time_slice` denotes the time slice of the sequence
 - The labels of the other columns denote the factors in the CAG. By collecting
     values from the same time slice over multiple sequences, one can create a
-    histogram distribution for a quantity of interest.
+    histogram for the value of a quantity of interest at a particular time
+    point. The spread of this histogram represents the uncertainty in our
+    estimate.
 
 
 # License 
