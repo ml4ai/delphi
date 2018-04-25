@@ -22,7 +22,7 @@ pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 
 To see all the options and the help message, do:
 
-```bash
+```
 ./delphi.py
 usage: delphi.py [-h] [--create_model] [--indra_statements INDRA_STATEMENTS]
                  [--execute_model] [--dt DT] [--steps STEPS]
