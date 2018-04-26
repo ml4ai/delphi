@@ -17,11 +17,9 @@ future
 matplotlib
 networkx
 numpy
-objectpath
 pandas
 pygraphviz
 pytest
-rdflib
 scipy
 sphinx-autodoc-typehints
 sphinxcontrib-bibtex
