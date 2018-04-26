@@ -17,7 +17,8 @@ set of INDRA statements included as a pickled python file in
 default this generates the `dbn_model/` directory and files, as
 described below.
 
-2. Execute a model.
+2. Execute a model. This produces a set of time evolution sequences that are
+   sampled stochastically.
 
 See Usage, below, for more details.
 
