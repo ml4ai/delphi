@@ -18,7 +18,7 @@ def create_model(args):
 
     with open(args.indra_statements, 'rb') as f:
         export_to_ISI(add_conditional_probabilities(construct_CAG_skeleton(
-            ltake(5, filter(isSimulable, pickle.load(f))))), args.model_dir)
+            ltake(args.n_statements, filter(isSimulable, pickle.load(f))))), args.model_dir)
 
 
 def execute_model(args):
@@ -75,14 +75,17 @@ if __name__ == '__main__':
             action="store_true")
 
     add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
-            Path(__file__).parents[0]/'data'/'eval_indra_assembled.pkl')
+            Path(__file__).parents[0]/'data'/'sample_indra_statements.pkl')
 
     parser.add_argument('--execute_model', help='Execute DBN and sample time '
             'evolution sequences', action="store_true")
 
     add_arg('dt', 'Time step size', partial(positive_real, 'dt'), 1.0)
 
-    add_arg('steps', "Number of time stepsto take",
+    add_arg('n_statements', 'Number of INDRA statements to take from the'
+            'pickled object containing them', partial(positive_int, 'n_statements'), 5)
+
+    add_arg('steps', "Number of time steps to take",
             partial(positive_int, 'steps'), 5)
 
     add_arg('samples', "Number of sequences to sample",
