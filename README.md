@@ -96,7 +96,7 @@ The files are
   "dateCreated": "2018-04-25 15:27:32.230457",
   "variables": [
     {
-      "name": "crop yield",
+      "name": "rainfall",
       "units": "units",
       "dtype": "real",
       "arguments": []
