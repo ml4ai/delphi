@@ -2,8 +2,24 @@
 
 # Delphi
 
-Delphi is a framework for executing causal analysis graphs (CAGs) for DARPA's
-World Modelers program. Here is an example of what it looks like:
+Delphi is a framework for assembling, exporting and executing executable DBN (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
+
+The followng instructions describe how to install, following by usage information.
+
+The general use case involves the following
+
+1. Create a model from a set of INDRA statements.  Use the
+`--create_model` flag to create the model.  Optionally combine this
+with the `--indra_statements` input parameter to specify the path to
+the INDRA statements.  By default, create_model will load a provided
+set of INDRA statements included as a pickled python file in
+`data/sample_indra_statements.pkl`.  This generates the model; by
+default this generates the `dbn_model/` directory and files, as
+described below.
+
+2. Execute a model.
+
+See Usage, below, for more details.
 
 # Installation
 
@@ -50,6 +66,8 @@ optional arguments:
                         Model directory (default: dbn_model)
 
 ```
+
+## Create model
 
 To create a model, do:
 
@@ -110,6 +128,8 @@ rainfall,100.0
 crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
+
+## Execute model
 
 To execute the model, do
 
