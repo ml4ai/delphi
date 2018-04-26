@@ -18,7 +18,6 @@ matplotlib
 networkx
 numpy
 pandas
-pygraphviz
 pytest
 scipy
 sphinx-autodoc-typehints
