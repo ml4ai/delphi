@@ -54,7 +54,7 @@ optional arguments:
                         (default: False)
   --indra_statements INDRA_STATEMENTS
                         Pickle file containing INDRA statements (default:
-                        data/eval_indra_assembled.pkl)
+                        data/sample_indra_statements.pkl)
   --execute_model       Execute DBN and sample time evolution sequences
                         (default: False)
   --dt DT               Time step size (default: 1.0)
