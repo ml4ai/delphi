@@ -1,5 +1,3 @@
 include LICENSE.txt
 include delphi.py
-graft delphi/data
-graft delphi/templates
-graft delphi/static
+graft data
