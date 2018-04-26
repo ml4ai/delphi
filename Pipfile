@@ -16,7 +16,6 @@ networkx = "==1.11"
 numpy = "*"
 pandas = "*"
 scipy = "*"
-mypy = "*"
 pytest = "*"
 matplotlib = "*"
 pygraphviz = "*"
@@ -29,6 +28,5 @@ objectpath = "*"
 
 [dev-packages]
 
-pyjnius = "*"
-neovim = "*"
+mypy = "*"
 pipenv-to-requirements = "*"
