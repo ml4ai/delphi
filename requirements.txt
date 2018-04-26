@@ -15,8 +15,7 @@ cython
 delphi
 future
 matplotlib
-mypy
-networkx==1.11
+networkx
 numpy
 objectpath
 pandas
