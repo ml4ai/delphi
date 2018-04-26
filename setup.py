@@ -34,19 +34,15 @@ setup(
     keywords='assembling models from text',
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     install_requires=[
-            'flask',
             'tqdm',
             'networkx',
             'numpy',
             'scipy',
             'matplotlib',
             'pandas',
-            'seaborn',
-            'requests',
             'future',
             'networkx',
             'indra',
-            'docopt'
             ],
 
     python_requires='>=3.6',
