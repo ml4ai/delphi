@@ -4,7 +4,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Visualization (deprecated since v2.0.0)](#visualization)
+- [Visualization (deprecated since v2.0.0)](#cag-visualization)
 - [License](#license)
 
 Delphi is a framework for assembling, exporting and executing executable DBN
