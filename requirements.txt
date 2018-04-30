@@ -12,7 +12,6 @@
 
 -e git+https://github.com/sorgerlab/indra.git#egg=indra
 cython
-delphi
 future
 matplotlib
 networkx
