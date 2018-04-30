@@ -51,6 +51,8 @@ optional arguments:
                         variables with default initial values as a CSV file,
                         and the link structure of the CAG as a JSON file.
                         (default: False)
+  --create_cra_cag      Export CAG in JSON format for Charles River Analytics
+                        (default: False)
   --indra_statements INDRA_STATEMENTS
                         Pickle file containing INDRA statements (default:
                         data/sample_indra_statements.pkl)
