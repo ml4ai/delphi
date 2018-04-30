@@ -2,6 +2,11 @@
 
 # Delphi
 
+- [Installation](#installation)
+- [Usage](#usage)
+- [Visualization (deprecated since v2.0.0)](#visualization)
+- [License](#license)
+
 Delphi is a framework for assembling, exporting and executing executable DBN
 (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
 
@@ -171,6 +176,13 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
+
+# CAG visualization
+
+Since version 2.0.0, Delphi no longer provides functionality for visualizing
+CAGs, instead, this functionality has been integrated into the INDRA framework.
+
+![alt text](/docs/delphi_example.png?raw=True")
 
 # License 
 
