@@ -136,7 +136,7 @@ def get_latent_state_components(CAG: DiGraph) -> List[str]:
     return flatMap(lambda a: (a, f'∂({a})/∂t'), CAG.nodes())
 
 
-def initialize_transition_matrix(cs: List[str], Δt = 1) -> DataFrame:
+def initialize_transition_matrix(cs: List[str], Δt: float = 1) -> DataFrame:
     A = DataFrame(np.identity(len(cs)), cs, cs)
     for c in cs[::2]: A[f'∂({c})/∂t'][f'{c}'] = Δt
     return A
@@ -236,12 +236,13 @@ def construct_CPT(e, res = 100):
     return {'beta': X.tolist(), 'P(beta)': Y.tolist()}
 
 
-def export_to_CRA(CAG:DiGraph):
+def export_to_CRA(CAG:DiGraph, Δt):
     with open('cra_cag.json', 'w') as f:
         json.dump({
             'name' : 'Dynamic Bayes Net Model',
             'dateCreated' : str(datetime.datetime.now()),
             'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True)),
+            'timeStep' : Δt,
             'CPTs' : lmap(lambda e: {'source': e[0], 'target': e[1], 'CPT':
                 construct_CPT(e)}, CAG.edges(data=True))
         }, f, indent = 2)
