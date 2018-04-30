@@ -7,24 +7,19 @@ name = "pypi"
 
 [packages]
 
-delphi = "*"
 tqdm = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
-networkx = "==1.11"
+networkx = "*"
 numpy = "*"
 pandas = "*"
 scipy = "*"
 pytest = "*"
 matplotlib = "*"
-pygraphviz = "*"
 cython = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable=true}
 future = "*"
-rdflib = "*"
-objectpath = "*"
-
 
 [dev-packages]
 
