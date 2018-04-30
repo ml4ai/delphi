@@ -128,6 +128,10 @@ def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
     return CAG
 
 
+def create_dressed_CAG(sts: List[Influence]) -> DiGraph:
+    return add_conditional_probabilities(construct_CAG_skeleton(sts))
+
+
 def get_latent_state_components(CAG: DiGraph) -> List[str]:
     return flatMap(lambda a: (a, f'∂({a})/∂t'), CAG.nodes())
 
@@ -198,6 +202,7 @@ def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
 def export_edge(CAG: DiGraph, e):
     return { 'source': e[0], 'target': e[1], 'CPT': e[2]['CPT'] }
 
+
 def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
@@ -223,7 +228,7 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
         pickle.dump(CAG, f)
 
 
-def construct_CPT(e):
+def construct_CPT(e, res = 100):
     kde = e[2]['ConditionalProbability']
     arr = np.squeeze(kde.dataset)
     X = np.linspace(min(arr), max(arr), res)
@@ -231,7 +236,7 @@ def construct_CPT(e):
     return {'beta': X.tolist(), 'P(beta)': Y.tolist()}
 
 
-def export_to_CRA(CAG:DiGraph, res: int = 100):
+def export_to_CRA(CAG:DiGraph):
     with open('cra_cag.json', 'w') as f:
         json.dump({
             'name' : 'Dynamic Bayes Net Model',
