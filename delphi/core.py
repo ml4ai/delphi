@@ -9,7 +9,7 @@ from networkx import DiGraph
 from pathlib import Path
 from pandas import Series, DataFrame, read_csv
 from scipy.stats import gaussian_kde
-from tqdm import trange
+from tqdm import trange, tqdm
 
 from functools import partial
 
@@ -118,8 +118,9 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
 def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
     # Create a pandas GroupBy object
     gb = read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
-    rs = flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
-                          .resample(20)[0].tolist(), gb)
+    rs = gaussian_kde(flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
+                          .resample(20)[0].tolist(),
+                          gb)).resample(100)[0].tolist()
 
     for e in CAG.edges(data=True):
         e[2]['ConditionalProbability'] = constructConditionalPDF(gb, rs, e)
@@ -194,6 +195,9 @@ def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
     return n[1]
 
 
+def export_edge(CAG: DiGraph, e):
+    return { 'source': e[0], 'target': e[1], 'CPT': e[2]['CPT'] }
+
 def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
@@ -207,7 +211,6 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
         'name' : 'Dynamic Bayes Net Model',
         'dateCreated' : str(datetime.datetime.now()),
         'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True))
-        # 'edges' : list(dressed_CAG.edges(data = True)),
     }
 
     with open(model_dir/'cag.json', 'w') as f:
@@ -218,6 +221,25 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     with open(model_dir/'dressed_CAG.pkl', 'wb') as f:
         pickle.dump(CAG, f)
+
+
+def construct_CPT(e):
+    kde = e[2]['ConditionalProbability']
+    arr = np.squeeze(kde.dataset)
+    X = np.linspace(min(arr), max(arr), res)
+    Y = kde.evaluate(X) * (X[1] - X[0])
+    return {'beta': X.tolist(), 'P(beta)': Y.tolist()}
+
+
+def export_to_CRA(CAG:DiGraph, res: int = 100):
+    with open('cra_cag.json', 'w') as f:
+        json.dump({
+            'name' : 'Dynamic Bayes Net Model',
+            'dateCreated' : str(datetime.datetime.now()),
+            'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True)),
+            'CPTs' : lmap(lambda e: {'source': e[0], 'target': e[1], 'CPT':
+                construct_CPT(e)}, CAG.edges(data=True))
+        }, f, indent = 2)
 
 
 def load_model(filename: str) -> DiGraph:
