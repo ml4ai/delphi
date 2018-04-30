@@ -80,7 +80,7 @@ if __name__ == '__main__':
             ' file, and the link structure of the CAG as a JSON file.',
             action="store_true")
 
-    parser.add_argument('--create_cra_cag', help='Export CAG in JSON format for'
+    parser.add_argument('--create_cra_cag', help='Export CAG in JSON format for '
             'Charles River Analytics', action="store_true")
 
     add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
