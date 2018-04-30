@@ -16,7 +16,7 @@ def create_CRA_CAG(args):
 
     with open(args.indra_statements, 'rb') as f:
         export_to_CRA(create_dressed_CAG(ltake(args.n_statements,
-            filter(isSimulable, pickle.load(f)))))
+            filter(isSimulable, pickle.load(f)))), args.dt)
 
 
 def create_model(args):
