@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='delphi',
-    version='2.0.1',
+    version='2.1.0',
     description='A framework for assembling probabilistic models from text.',
     url='https://ml4ai.github.io/delphi/',
     author='ML4AI',
