@@ -131,7 +131,7 @@ def foldl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> T:
     of an iterable.
 
     .. math::
-        foldl(f, x_0, [x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)
+        foldl(f, x_0, [x_1, x_2, x_3]) = f(f(f(f(x_0, x_1), x_2), x_3)
 
 
     Examples
@@ -149,7 +149,7 @@ def foldl1(f: Callable[[T, T], T], xs: Iterable[T]) -> T:
     of an iterable.
 
     .. math::
-        foldl1(f, [x_0, x_1, x_2, x_3]) = f(f(f(f(x_0), x_1), x_2), x_3)
+        foldl1(f, [x_0, x_1, x_2, x_3]) = f(f(f(f(x_0, x_1), x_2), x_3)
 
 
     Examples
