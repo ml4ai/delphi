@@ -24,7 +24,8 @@ def create_model(args):
 
     with open(args.indra_statements, 'rb') as f:
         export_to_ISI(create_dressed_CAG(ltake(args.n_statements,
-            filter(isSimulable, pickle.load(f)))), args.model_dir)
+            filter(isSimulable, pickle.load(f))), args.adjective_data),
+            args.model_dir)
 
 
 def execute_model(args):
@@ -86,6 +87,9 @@ if __name__ == '__main__':
     add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
             Path(__file__).parents[0]/'data'/'sample_indra_statements.pkl')
 
+    add_arg('adjective_data', 'Path to the gradable adjective data file.', str,
+            Path(__file__).parents[0]/'data'/'adjectiveData.tsv')
+
     parser.add_argument('--execute_model', help='Execute DBN and sample time '
             'evolution sequences', action="store_true")
 
@@ -99,7 +103,6 @@ if __name__ == '__main__':
 
     add_arg('samples', "Number of sequences to sample",
             partial(positive_int, 'samples'), 100)
-
 
     add_arg('output', 'Output file containing sampled sequences', str,
             'dbn_sampled_sequences.csv')
