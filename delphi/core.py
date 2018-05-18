@@ -19,8 +19,6 @@ from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
 
-# Location of the CLULab gradable adjectives data.
-adjectiveData = Path(__file__).parents[1]/'data'/'adjectiveData.tsv'
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
@@ -115,7 +113,7 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
         return gaussian_kde(thetas)
 
 
-def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
+def add_conditional_probabilities(CAG: DiGraph, adjectiveData: str) -> DiGraph:
     # Create a pandas GroupBy object
     gb = read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
     rs = gaussian_kde(flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
@@ -128,8 +126,9 @@ def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
     return CAG
 
 
-def create_dressed_CAG(sts: List[Influence]) -> DiGraph:
-    return add_conditional_probabilities(construct_CAG_skeleton(sts))
+def create_dressed_CAG(sts: List[Influence], adjectiveData: str) -> DiGraph:
+    return add_conditional_probabilities(construct_CAG_skeleton(sts),
+            adjectiveData)
 
 
 def get_latent_state_components(CAG: DiGraph) -> List[str]:
