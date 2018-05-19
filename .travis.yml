@@ -8,4 +8,8 @@ install:
   - pip install pipenv
   - pipenv install --dev
 
-script: make test
+script: 
+  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
+  - make test
+
+cache: pip

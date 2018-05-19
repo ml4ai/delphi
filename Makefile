@@ -1,5 +1,6 @@
 test:
 	cd docs; make doctest
+	pytest
 
 pypi_upload:
 	rm -rf dist
