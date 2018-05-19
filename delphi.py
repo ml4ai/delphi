@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python 
 
 import os
 import sys
@@ -12,13 +12,21 @@ from delphi.utils import ltake
 from argparse import (ArgumentParser, ArgumentTypeError, FileType,
                       ArgumentDefaultsHelpFormatter)
 
-def create_model(args):
-    from delphi.core import (isSimulable, add_conditional_probabilities,
-                             construct_CAG_skeleton, export_to_ISI)
+def create_CRA_CAG(args):
+    from delphi.core import (isSimulable, create_dressed_CAG, export_to_CRA)
 
     with open(args.indra_statements, 'rb') as f:
-        export_to_ISI(add_conditional_probabilities(construct_CAG_skeleton(
-            ltake(args.n_statements, filter(isSimulable, pickle.load(f))))), args.model_dir)
+        export_to_CRA(create_dressed_CAG(ltake(args.n_statements,
+            filter(isSimulable, pickle.load(f)))), args.dt)
+
+
+def create_model(args):
+    from delphi.core import (isSimulable, create_dressed_CAG, export_to_ISI)
+
+    with open(args.indra_statements, 'rb') as f:
+        export_to_ISI(create_dressed_CAG(ltake(args.n_statements,
+            filter(isSimulable, pickle.load(f))), args.adjective_data),
+            args.model_dir)
 
 
 def execute_model(args):
@@ -74,8 +82,14 @@ if __name__ == '__main__':
             ' file, and the link structure of the CAG as a JSON file.',
             action="store_true")
 
+    parser.add_argument('--create_cra_cag', help='Export CAG in JSON format for '
+            'Charles River Analytics', action="store_true")
+
     add_arg('indra_statements', 'Pickle file containing INDRA statements', str,
             Path(__file__).parents[0]/'data'/'sample_indra_statements.pkl')
+
+    add_arg('adjective_data', 'Path to the gradable adjective data file.', str,
+            Path(__file__).parents[0]/'data'/'adjectiveData.tsv')
 
     parser.add_argument('--execute_model', help='Execute DBN and sample time '
             'evolution sequences', action="store_true")
@@ -91,9 +105,9 @@ if __name__ == '__main__':
     add_arg('samples', "Number of sequences to sample",
             partial(positive_int, 'samples'), 100)
 
-
     add_arg('output', 'Output file containing sampled sequences', str,
             'dbn_sampled_sequences.csv')
+
 
     add_arg('model_dir', 'Model directory', str, 'dbn_model')
 
@@ -104,6 +118,9 @@ if __name__ == '__main__':
 
     if args.create_model:
         create_model(args)
+
+    if args.create_cra_cag:
+        create_CRA_CAG(args)
 
     if args.execute_model:
         execute_model(args)

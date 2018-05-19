@@ -2,25 +2,27 @@
 
 # Delphi
 
-Delphi is a framework for assembling, exporting and executing executable DBN (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
+- [Installation](#installation)
+- [Usage](#usage)
+- [Visualization (deprecated since v2.0.0)](#cag-visualization)
+- [License](#license)
 
-The followng instructions describe how to install, following by usage information.
+Delphi is a framework for assembling, exporting and executing executable DBN
+(dynamic Bayesian Network) models built for the DARPA World Modelers Program.
 
-The general use case involves the following
+The followng instructions describe how to install and use Delphi.
 
-1. Create a model from a set of INDRA statements.  Use the
-`--create_model` flag to create the model.  Optionally combine this
-with the `--indra_statements` input parameter to specify the path to
-the INDRA statements.  By default, create_model will load a provided
-set of INDRA statements included as a pickled python file in
-`data/sample_indra_statements.pkl`.  This generates the model; by
-default this generates the `dbn_model/` directory and files, as
-described below.
+The general use case involves the following steps:
 
-2. Execute a model. This produces a set of time evolution sequences that are
-   sampled stochastically.
+1. Creating a dynamic Bayes network model from a set of INDRA statements, which
+   are data structures that represent knowledge fragments about causal relations
+   that are extracted using machine reading software such as Eidos.
 
-See Usage, below, for more details.
+2. Executing the model. This produces a set of time evolution
+   sequences that are sampled stochastically from the conditional probability
+   distributions constructed in step 1.
+
+See the Usage section for more details.
 
 # Installation
 
@@ -37,13 +39,14 @@ pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 
 # Usage
 
-To see all the options and the help message, do:
+To see all the options and the help message, do `./delphi.py`, which produces
+the following output:
 
 ```
-./delphi.py
 usage: delphi.py [-h] [--create_model] [--indra_statements INDRA_STATEMENTS]
-                 [--execute_model] [--dt DT] [--steps STEPS]
-                 [--samples SAMPLES] [--output OUTPUT] [--model_dir MODEL_DIR]
+                 [--execute_model] [--dt DT] [--n_statements N_STATEMENTS]
+                 [--steps STEPS] [--samples SAMPLES] [--output OUTPUT]
+                 [--model_dir MODEL_DIR]
 
 Dynamic Bayes Net Executable Model
 
@@ -53,13 +56,18 @@ optional arguments:
                         variables with default initial values as a CSV file,
                         and the link structure of the CAG as a JSON file.
                         (default: False)
+  --create_cra_cag      Export CAG in JSON format for Charles River Analytics
+                        (default: False)
   --indra_statements INDRA_STATEMENTS
                         Pickle file containing INDRA statements (default:
                         data/sample_indra_statements.pkl)
   --execute_model       Execute DBN and sample time evolution sequences
                         (default: False)
   --dt DT               Time step size (default: 1.0)
-  --steps STEPS         Number of time stepsto take (default: 5)
+  --n_statements N_STATEMENTS
+                        Number of INDRA statements to take from thepickled
+                        object containing them (default: 5)
+  --steps STEPS         Number of time steps to take (default: 5)
   --samples SAMPLES     Number of sequences to sample (default: 100)
   --output OUTPUT       Output file containing sampled sequences (default:
                         dbn_sampled_sequences.csv)
@@ -68,18 +76,27 @@ optional arguments:
 
 ```
 
+In the following sections, we will go into more detail on model creation and
+execution.
+
 ## Create model
 
-To create a model, do:
+To create a model from a set of INDRA statements, use the invocation:
 
 ```bash
 ./delphi.py --create_model
 ```
 
+Optionally combine this with the `--indra_statements` input parameter to specify
+the path to the INDRA statements. By default, `--create_model` will load a
+provided set of INDRA statements included as a pickled python file in
+`data/sample_indra_statements.pkl`, and generate model files in a new directory
+that can be specified with the option `--model_dir` (default: `dbn_model`).
+
 This will create a directory called `dbn_model`, with the following contents. 
 
 
-```shell
+```
 dbn_model/
 ├── cag.json
 ├── dressed_CAG.pkl
@@ -159,6 +176,14 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
+
+# CAG visualization
+
+Since version 2.0.0, Delphi no longer provides functionality for visualizing
+CAGs, instead, this functionality has been integrated into the INDRA framework.
+See below for a complete example.
+
+![alt text](/docs/delphi_example.png?raw=True")
 
 # License 
 

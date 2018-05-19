@@ -9,7 +9,7 @@ from networkx import DiGraph
 from pathlib import Path
 from pandas import Series, DataFrame, read_csv
 from scipy.stats import gaussian_kde
-from tqdm import trange
+from tqdm import trange, tqdm
 
 from functools import partial
 
@@ -19,8 +19,6 @@ from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
 
-# Location of the CLULab gradable adjectives data.
-adjectiveData = Path(__file__).parents[1]/'data'/'adjectiveData.tsv'
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
@@ -115,11 +113,12 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
         return gaussian_kde(thetas)
 
 
-def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
+def add_conditional_probabilities(CAG: DiGraph, adjectiveData: str) -> DiGraph:
     # Create a pandas GroupBy object
     gb = read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
-    rs = flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
-                          .resample(20)[0].tolist(), gb)
+    rs = gaussian_kde(flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
+                          .resample(20)[0].tolist(),
+                          gb)).resample(100)[0].tolist()
 
     for e in CAG.edges(data=True):
         e[2]['ConditionalProbability'] = constructConditionalPDF(gb, rs, e)
@@ -127,11 +126,16 @@ def add_conditional_probabilities(CAG: DiGraph) -> DiGraph:
     return CAG
 
 
+def create_dressed_CAG(sts: List[Influence], adjectiveData: str) -> DiGraph:
+    return add_conditional_probabilities(construct_CAG_skeleton(sts),
+            adjectiveData)
+
+
 def get_latent_state_components(CAG: DiGraph) -> List[str]:
     return flatMap(lambda a: (a, f'∂({a})/∂t'), CAG.nodes())
 
 
-def initialize_transition_matrix(cs: List[str], Δt = 1) -> DataFrame:
+def initialize_transition_matrix(cs: List[str], Δt: float = 1) -> DataFrame:
     A = DataFrame(np.identity(len(cs)), cs, cs)
     for c in cs[::2]: A[f'∂({c})/∂t'][f'{c}'] = Δt
     return A
@@ -152,7 +156,7 @@ def sample_sequence(CAG: DiGraph, s0: np.ndarray,
                     n_steps: int, Δt: float = 1.0) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
-    return take(n_steps, iterate(lambda s: emission_function(A @ s), s0))
+    return take(n_steps, iterate(lambda s: A @ s, s0))
 
 
 def sample_sequences(CAG: DiGraph, s0: Series, steps: int, samples: int,
@@ -194,6 +198,10 @@ def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
     return n[1]
 
 
+def export_edge(CAG: DiGraph, e):
+    return { 'source': e[0], 'target': e[1], 'CPT': e[2]['CPT'] }
+
+
 def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
@@ -207,7 +215,6 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
         'name' : 'Dynamic Bayes Net Model',
         'dateCreated' : str(datetime.datetime.now()),
         'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True))
-        # 'edges' : list(dressed_CAG.edges(data = True)),
     }
 
     with open(model_dir/'cag.json', 'w') as f:
@@ -218,6 +225,26 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
 
     with open(model_dir/'dressed_CAG.pkl', 'wb') as f:
         pickle.dump(CAG, f)
+
+
+def construct_CPT(e, res = 100):
+    kde = e[2]['ConditionalProbability']
+    arr = np.squeeze(kde.dataset)
+    X = np.linspace(min(arr), max(arr), res)
+    Y = kde.evaluate(X) * (X[1] - X[0])
+    return {'beta': X.tolist(), 'P(beta)': Y.tolist()}
+
+
+def export_to_CRA(CAG:DiGraph, Δt):
+    with open('cra_cag.json', 'w') as f:
+        json.dump({
+            'name' : 'Dynamic Bayes Net Model',
+            'dateCreated' : str(datetime.datetime.now()),
+            'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True)),
+            'timeStep' : Δt,
+            'CPTs' : lmap(lambda e: {'source': e[0], 'target': e[1], 'CPT':
+                construct_CPT(e)}, CAG.edges(data=True))
+        }, f, indent = 2)
 
 
 def load_model(filename: str) -> DiGraph:
