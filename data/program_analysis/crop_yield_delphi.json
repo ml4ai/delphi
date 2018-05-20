@@ -90,7 +90,6 @@
           "function": "CROP_YIELD.assign_MAX_RAIN",
           "input": [],
           "output": "MAX_RAIN"
-          }
         },
         {
           "function": "CROP_YIELD.assign_CONSISTENCY",
@@ -136,7 +135,7 @@
       "sources": [
         "TOTAL_RAIN", "RAIN"
       ],
-      "target": "TOTAL_RAIN"
+      "target": "TOTAL_RAIN",
       "body": "lambda lineno=4"
     },
     {
@@ -144,7 +143,7 @@
       "type": "assign",
       "sources": [
         "TOTAL_RAIN"
-      ]
+      ],
       "target": "YIELD_EST",
       "body": "lambda lineop=[6, 9]"
     },
