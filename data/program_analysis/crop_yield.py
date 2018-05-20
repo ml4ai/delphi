@@ -3,7 +3,7 @@ from typing import Tuple
 def update_est(rain: float, total_rain: float,
         yield_est: float) -> Tuple[float, float]:
 
-    total_rain = total_rain + rain
+    total_rain += rain
 
     if(total_rain <= 40.):
         yield_est = -(total_rain - 40) ** 2 / 16 + 100
