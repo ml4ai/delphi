@@ -12,7 +12,8 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
     numbers and column offsets are not dumped by default.  If this is wanted,
     *include_attributes* can be set to True.
     :param node: ast.AST node
-    :param annotate_fields: flag for whether to include fields (when true, cannot execute AST)
+    :param annotate_fields: flag for whether to include fields (when true,
+    cannot execute AST)
     :param include_attributes: flag for whether to include attributes
     :param indent: tree indentation string
     :return:
@@ -40,7 +41,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
                 lines[-1] += ']'
             return '\n'.join(lines)
         return repr(node)
-    
+
     if not isinstance(node, ast.AST):
         raise TypeError('expected AST, got %r' % node.__class__.__name__)
 
