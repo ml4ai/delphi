@@ -28,7 +28,7 @@ def crop_yield():
         total_rain, yield_est = update_est(rain, total_rain, yield_est)
         print("Day " + str(day) + " Estimate: " + str(yield_est))
 
-    print("Crop Yield(%): " + str(yield_est))
+    print(f"Crop Yield(%): {yield_est}")
 
     return yield_est
 
