@@ -1,37 +1,37 @@
+def update_est(rain, total_rain, yield_est):
+    total_rain = total_rain + rain
 
-
-def UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST):
-    TOTAL_RAIN = TOTAL_RAIN + RAIN
-
-    if(TOTAL_RAIN <= 40):
-        YIELD_EST = -(TOTAL_RAIN - 40) ** 2 / 16 + 100
+    if(total_rain <= 40):
+        yield_est = -(total_rain - 40) ** 2 / 16 + 100
     else:
-        YIELD_EST = -TOTAL_RAIN + 140
+        yield_est = -total_rain + 140
 
-    return TOTAL_RAIN, YIELD_EST
+    return total_rain, yield_est
 
 
-def CROP_YIELD():
+def crop_yield():
     """
-    In here we have a doc string for crop_yield. Do we want to put the variable stuff in here? Note, it does not seem like you can attach a docstring to any arbitrary place.
+    In here we have a doc string for crop_yield. Do we want to put the variable
+    stuff in here? Note, it does not seem like you can attach a docstring to any
+    arbitrary place.
     """
-    MAX_RAIN = 4.0
-    CONSISTENCY = 64.0
-    ABSORPTION = 0.6
+    max_rain = 4.0
+    consistency = 64.0
+    absorption = 0.6
 
-    YIELD_EST = 0
-    TOTAL_RAIN = 0
+    yield_est = 0.0
+    total_rain = 0.0
 
-    for DAY in range(1,31+1):
-        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORPTION
+    for day in range(1,31+1):
+        rain = (-(day - 16) ** 2 / consistency + max_rain) * absorption
 
-        TOTAL_RAIN, YIELD_EST = UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST)
-        print("Day " + str(DAY) + " Estimate: " + str(YIELD_EST))
+        total_rain, yield_est = update_est(rain, total_rain, yield_est)
+        print("Day " + str(day) + " Estimate: " + str(yield_est))
 
-    print("Crop Yield(%): " + str(YIELD_EST))
+    print("Crop Yield(%): " + str(yield_est))
 
-    return YIELD_EST
+    return yield_est
 
 
 if __name__ == "__main__":
-    CROP_YIELD()
+    crop_yield()
