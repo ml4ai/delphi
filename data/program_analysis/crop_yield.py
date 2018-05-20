@@ -1,7 +1,11 @@
-def update_est(rain, total_rain, yield_est):
+from typing import Tuple
+
+def update_est(rain: float, total_rain: float,
+        yield_est: float) -> Tuple[float, float]:
+
     total_rain = total_rain + rain
 
-    if(total_rain <= 40):
+    if(total_rain <= 40.):
         yield_est = -(total_rain - 40) ** 2 / 16 + 100
     else:
         yield_est = -total_rain + 140
@@ -9,7 +13,7 @@ def update_est(rain, total_rain, yield_est):
     return total_rain, yield_est
 
 
-def crop_yield():
+def crop_yield() -> float:
     """
     In here we have a doc string for crop_yield. Do we want to put the variable
     stuff in here? Note, it does not seem like you can attach a docstring to any
