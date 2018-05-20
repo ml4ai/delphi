@@ -17,13 +17,13 @@ def CROP_YIELD():
     """
     MAX_RAIN = 4.0
     CONSISTENCY = 64.0
-    ABSORBTION = 0.6
+    ABSORPTION = 0.6
 
     YIELD_EST = 0
     TOTAL_RAIN = 0
 
     for DAY in range(1,31+1):
-        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORBTION
+        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORPTION
 
         TOTAL_RAIN, YIELD_EST = UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST)
         print("Day " + str(DAY) + " Estimate: " + str(YIELD_EST))

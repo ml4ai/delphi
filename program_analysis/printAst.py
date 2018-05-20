@@ -11,6 +11,11 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
     wanted *annotate_fields* must be set to False.  Attributes such as line
     numbers and column offsets are not dumped by default.  If this is wanted,
     *include_attributes* can be set to True.
+    :param node: ast.AST node
+    :param annotate_fields: flag for whether to include fields (when true, cannot execute AST)
+    :param include_attributes: flag for whether to include attributes
+    :param indent: tree indentation string
+    :return:
     """
     def _format(node, level=0):
         if isinstance(node, ast.AST):
