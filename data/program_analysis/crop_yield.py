@@ -19,6 +19,7 @@ def crop_yield() -> float:
     stuff in here? Note, it does not seem like you can attach a docstring to any
     arbitrary place.
     """
+
     max_rain = 4.0
     consistency = 64.0
     absorption = 0.6
@@ -26,11 +27,11 @@ def crop_yield() -> float:
     yield_est = 0.0
     total_rain = 0.0
 
-    for day in range(1,31+1):
+    for day in range(1, 31+1):
         rain = (-(day - 16) ** 2 / consistency + max_rain) * absorption
 
         total_rain, yield_est = update_est(rain, total_rain, yield_est)
-        print("Day " + str(day) + " Estimate: " + str(yield_est))
+        print(f"Day {day} Estimate: {yield_est}")
 
     print(f"Crop Yield(%): {yield_est}")
 
