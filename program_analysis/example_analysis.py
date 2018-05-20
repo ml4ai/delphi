@@ -12,4 +12,5 @@ def run_example():
     print(print(printAst.dump(tree, annotate_fields=True, include_attributes=True)))
 
 
-run_example()
+if __name__ == '__main__':
+    run_example()
