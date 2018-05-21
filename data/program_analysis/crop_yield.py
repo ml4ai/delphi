@@ -1,42 +1,42 @@
 from typing import Tuple
 
-def update_est(rain: float, total_rain: float,
-        yield_est: float) -> Tuple[float, float]:
+def UPDATE_EST(RAIN: float, TOTAL_RAIN: float,
+        YIELD_EST: float) -> Tuple[float, float]:
 
-    total_rain += rain
+    TOTAL_RAIN += RAIN
 
-    if(total_rain <= 40.):
-        yield_est = -(total_rain - 40) ** 2 / 16 + 100
+    if(TOTAL_RAIN <= 40.):
+        YIELD_EST = -(TOTAL_RAIN - 40) ** 2 / 16 + 100
     else:
-        yield_est = -total_rain + 140
+        YIELD_EST = -TOTAL_RAIN + 140
 
-    return total_rain, yield_est
+    return TOTAL_RAIN, YIELD_EST
 
 
-def crop_yield() -> float:
+def CROP_YIELD() -> float:
     """
     In here we have a doc string for crop_yield. Do we want to put the variable
     stuff in here? Note, it does not seem like you can attach a docstring to any
     arbitrary place.
     """
 
-    max_rain = 4.0
-    consistency = 64.0
-    absorption = 0.6
+    MAX_RAIN = 4.0
+    CONSISTENCY = 64.0
+    ABSORPTION = 0.6
 
-    yield_est = 0.0
-    total_rain = 0.0
+    YIELD_EST = 0.0
+    TOTAL_RAIN = 0.0
 
-    for day in range(1, 31+1):
-        rain = (-(day - 16) ** 2 / consistency + max_rain) * absorption
+    for DAY in range(1, 31+1):
+        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORPTION
 
-        total_rain, yield_est = update_est(rain, total_rain, yield_est)
-        print(f"Day {day} Estimate: {yield_est}")
+        TOTAL_RAIN, YIELD_EST = UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST)
+        print(f"Day {DAY} Estimate: {YIELD_EST}")
 
-    print(f"Crop Yield(%): {yield_est}")
+    print(f"Crop Yield(%): {YIELD_EST}")
 
-    return yield_est
+    return YIELD_EST
 
 
 if __name__ == "__main__":
-    crop_yield()
+    CROP_YIELD()
