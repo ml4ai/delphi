@@ -1,16 +1,23 @@
-import printAst
+from printAst import importAst, dump
 import os
 from pathlib import Path
 
 
-TARGET_PATH = (Path(__file__).parents[0]/'..'/'data'/'program_analysis'/
-    'crop_yield.py').resolve()
+def get_AST_str_rep(filepath: str) -> str:
+    """ Returns a string representation of the AST of a given Python source
+    file."""
 
+    try:
+        f = Path(filepath).resolve()
+    except FileNotFoundError:
+        pass
 
-def run_example():
-    tree = printAst.importAst(TARGET_PATH)
-    print(printAst.dump(tree, annotate_fields=True, include_attributes=True))
+    return dump(importAst(f), annotate_fields=True, include_attributes=True)
 
 
 if __name__ == '__main__':
-    run_example()
+    module_name = 'crop_yield.py'
+    filename = (Path(__file__).parents[0]/'..'/'data'/
+            'program_analysis'/module_name).resolve()
+
+    print(get_AST_str_rep(str(filename)))
