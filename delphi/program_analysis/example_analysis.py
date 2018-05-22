@@ -17,7 +17,7 @@ def get_AST_str_rep(filepath: str) -> str:
 
 if __name__ == '__main__':
     module_name = 'crop_yield.py'
-    filename = (Path(__file__).parents[0]/'..'/'data'/
+    filename = (Path(__file__).parents[1]/'..'/'data'/
             'program_analysis'/module_name).resolve()
 
     print(get_AST_str_rep(str(filename)))
