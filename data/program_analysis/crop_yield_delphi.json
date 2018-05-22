@@ -4,9 +4,9 @@
 //    Assign : assign
 //    Loop : loop_plate
 //    If :
-//      reify condition as a variable
-//      break into separate function for each assign to a separate variable
-//      if multiple assignments to same variables, then combine
+//      reify condition as function whose outcome is a boolean variable: <varname>.IF#
+//      break into separate function for each variable being assign'd
+//      if multiple assignments to same variables, then combine into single fn
 // other local function calls are just about wiring among variables
 //    including multiple-value return and assignment (e.g., line 28)
 
