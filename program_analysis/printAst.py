@@ -1,25 +1,32 @@
+from ast import AST, iter_fields
 import ast
 import sys
 import tokenize
+from typing import Union, List
 
 
-def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
+def dump(node: AST, annotate_fields: bool=True, include_attributes: bool=False,
+        indent='  ') -> str:
+    """ This is mainly useful for debugging purposes. The returned string will show
+    the names and the values for fields.  This makes the code impossible to
+    evaluate, so if evaluation is wanted, *annotate_fields* must be set to False.
+    Attributes such as line numbers and column offsets are not dumped by
+    default. If this is wanted, *include_attributes* can be set to True.
+
+    Args:
+        annotate_fields: flag for whether to include fields (when true,
+                         cannot execute AST)
+        include_attributes: flag for whether to include attributes
+        indent: tree indentation string
+    Returns:
+        A string representation of the AST node.
     """
-    Return a formatted dump of the tree in *node*.  This is mainly useful for
-    debugging purposes.  The returned string will show the names and the values
-    for fields.  This makes the code impossible to evaluate, so if evaluation is
-    wanted *annotate_fields* must be set to False.  Attributes such as line
-    numbers and column offsets are not dumped by default.  If this is wanted,
-    *include_attributes* can be set to True.
-    :param node: ast.AST node
-    :param annotate_fields: flag for whether to include fields (when true, cannot execute AST)
-    :param include_attributes: flag for whether to include attributes
-    :param indent: tree indentation string
-    :return:
-    """
-    def _format(node, level=0):
-        if isinstance(node, ast.AST):
-            fields = [(a, _format(b, level)) for a, b in ast.iter_fields(node)]
+    if not isinstance(node, AST):
+        raise TypeError('expected AST, got %r' % node.__class__.__name__)
+
+    def _format(node: Union[AST, List], level=0) -> str:
+        if isinstance(node, AST):
+            fields = [(a, _format(b, level)) for a, b in iter_fields(node)]
             if include_attributes and node._attributes:
                 fields.extend([(a, _format(getattr(node, a), level))
                                for a in node._attributes])
@@ -40,9 +47,6 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
                 lines[-1] += ']'
             return '\n'.join(lines)
         return repr(node)
-    
-    if not isinstance(node, ast.AST):
-        raise TypeError('expected AST, got %r' % node.__class__.__name__)
 
     return _format(node)
 
