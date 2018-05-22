@@ -3,7 +3,10 @@
 // AST functions -> DBN function:
 //    Assign : assign
 //    Loop : loop_plate
-//    If : assign (complex): "compress" Assigns
+//    If :
+//      reify condition as a variable
+//      break into separate function for each assign to a separate variable
+//      if multiple assignments to same variables, then combine
 // other local function calls are just about wiring among variables
 //    including multiple-value return and assignment (e.g., line 28)
 
@@ -18,23 +21,32 @@
   "variables": [
     {
       "name": "MAX_RAIN",
-      "dtype": "real",
+      "dtype": "real"
     },
     {
       "name": "CONSISTENCY",
-      "dtype": "real",
+      "dtype": "real"
     },
     {
       "name": "ABSORPTION",
-      "dtype": "real",
+      "dtype": "real"
     },
     {
       "name": "YIELD_EST",
-      "dtype": "real",
+      "dtype": "real"
     },
     {
       "name": "TOTAL_RAIN",
-      "dtype": "real",
+      "dtype": "real"
+    },
+    {
+      "name": "DAY",
+      "dtype": "integer",
+      "role": "loop_index"  // feels important, but not sure
+    },
+    {
+      "name": "UPDATE_EST.IF1",
+      "dtype": "boolean"
     }
   ],
 
@@ -44,35 +56,37 @@
 
     // initial setter functions - work like deterministic priors
     {
-      "name": "CROP_YIELD.assign_MAX_RAIN",
+      // 'Assign' type function name convention:
+      //   <context of function in source file, e.g. fn name>.<type=assign>.<variable-being-assigned>
+      "name": "CROP_YIELD.assign.MAX_RAIN",
       "type": "assign",
       "sources": [],
       "target": "MAX_RAIN",
       "body": ["set", "MAX_RAIN", 4.0]
     },
     {
-      "name": "CROP_YIELD.assign_CONSISTENCY",
+      "name": "CROP_YIELD.assign.CONSISTENCY",
       "type": "assign",
       "sources": [],
       "target": "CONSISTENCY",
       "body": ["set", "CONSISTENCY", 64.0]
     },
     {
-      "name": "CROP_YIELD.assign_ABSORPTION",
+      "name": "CROP_YIELD.assign.ABSORPTION",
       "type": "assign",
       "sources": [],
       "target": "ABSORPTION",
       "body": ["set", "ABSORPTION", 0.6]
     },
     {
-      "name": "CROP_YIELD.assign_YIELD_EST",
+      "name": "CROP_YIELD.assign.YIELD_EST",
       "type": "assign",
       "sources": [],
       "target": "YIELD_EST",
       "body": ["set", "YIELD_EST", 0]
     },
     {
-      "name": "CROP_YIELD.assign_TOTAL_RAIN",
+      "name": "CROP_YIELD.assign.TOTAL_RAIN",
       "type": "assign",
       "sources": [],
       "target": "TOTAL_RAIN",
@@ -87,32 +101,32 @@
       "target": [ "YIELD_EST" ],  // "return"
       "body": [  // specifies wiring
         {
-          "function": "CROP_YIELD.assign_MAX_RAIN",
+          "function": "CROP_YIELD.assign.MAX_RAIN",
           "input": [],
           "output": "MAX_RAIN"
         },
         {
-          "function": "CROP_YIELD.assign_CONSISTENCY",
+          "function": "CROP_YIELD.assign.CONSISTENCY",
           "input": [],
           "output": "CONSISTENCY"
         },
         {
-          "function": "CROP_YIELD.assign_ABSORPTION",
+          "function": "CROP_YIELD.assign.ABSORPTION",
           "input": [],
           "output": "ABSORPTION"
         },
         {
-          "function": "CROP_YIELD.assign_YIELD_EST",
+          "function": "CROP_YIELD.assign.YIELD_EST",
           "input": [],
           "output": "YIELD_EST"
         },
         {
-          "function": "CROP_YIELD.assign_TOTAL_RAIN",
+          "function": "CROP_YIELD.assign.TOTAL_RAIN",
           "input": [],
           "output": "TOTAL_RAIN"
         },
         {
-          "function": "CROP_YIELD_loop_1",
+          "function": "CROP_YIELD.loop_1",
           "input": [ "TOTAL_RAIN", "MAX_RAIN", "CONSISTENCY", "ABSORPTION" ],
           "output": ""  // None ?
         }
@@ -121,7 +135,7 @@
 
     // functions used in loop plate
     {
-      "name": "CROP_YIELD_loop_1.assign_RAIN",
+      "name": "CROP_YIELD_loop_1.assign.RAIN",
       "type": "assign",
       "sources": [
         "DAY", "CONSISTENCY", "MAX_RAIN", "ABSORPTION"
@@ -130,7 +144,7 @@
       "body": "lambda lineno=26"
     },
     {
-      "name": "UPDATE_EST.assign_TOTAL_RAIN",
+      "name": "UPDATE_EST.assign.TOTAL_RAIN",
       "type": "assign",
       "sources": [
         "TOTAL_RAIN", "RAIN"
@@ -139,18 +153,30 @@
       "body": "lambda lineno=4"
     },
     {
-      "name": "UPDATE_EST.assign_YIELD_EST",  // compiles 'if'
-      "type": "assign",
+      "name": "UPDATE_EST.IF1.condition",
+      "type": "condition",
       "sources": [
         "TOTAL_RAIN"
       ],
+      "target": "UPDATE_EST.IF1",
+      // OR, perhaps handle some conditions direclty:
+      //  ["<=", "TOTAL_RAIN", 40]
+      "body": "lambda lineop=6"
+    },
+    {
+      "name": "UPDATE_EST.assign.YIELD_EST",  // compiles 'if'
+      "type": "assign",
+      "sources": [
+        "UPDATE_EST.IF1",  // the condition variable
+        "TOTAL_RAIN"
+      ],
       "target": "YIELD_EST",
-      "body": "lambda lineop=[6, 9]"
+      "body": "lambda lineop=[7, 9]"
     },
 
     // loop plate
     {
-      "name": "CROP_YIELD_loop_1",
+      "name": "CROP_YIELD.loop_1",
       "type": "loop_plate",
       // was "sources", but seems more appropriate as "variables"
       // "variables" is the local environment for the loop plate
@@ -161,23 +187,20 @@
       "index_iteration_range": [ 1, ["+", 31, 1] ],  // needs work
       "body": [  // specifies wiring
         {
-          "function": "CROP_YIELD_loop_1.assign_RAIN",
+          "function": "CROP_YIELD.loop_1.assign.RAIN",
           "input": [
             {
               "variable": "DAY",
               "index": 0
             },
             {
-              "variable": "CONSISTENCY",
-              "index": -1
+              "variable": "CONSISTENCY"  // does not update, so no index
             },
             {
-              "variable": "MAX_RAIN",
-              "index": -1
+              "variable": "MAX_RAIN"  // does not update, so no index
             },
             {
-              "ABSORPTION": "ABSORPTION",
-              "index": -1
+              "ABSORPTION": "ABSORPTION"  // does not update, so no index
             }
           ],
           "output": {
@@ -186,10 +209,12 @@
           }
         },
         {
-          "function": "UPDATE_EST.assign_TOTAL_RAIN",
+          "function": "UPDATE_EST.assign.TOTAL_RAIN",
           "input": [
             {
               "variable": "TOTAL_RAIN",
+              // Indicates reference to previous state of TOTAL_RAIN;
+              // In initial state of unrolling, refers to "enviromental" var state
               "index": -1
             },
             {
@@ -203,8 +228,25 @@
           }
         },
         {
-          "function": "UPDATE_EST.assign_YIELD_EST",
+          "function": "UPDATE_EST.IF1.condition",
           "input": [
+            {
+              "variable": "TOTAL_RAIN",
+              "index": 0
+            }
+          ],
+          "output:": {
+            "variable": "UPDATE_EST.IF1",
+            "index": 0
+          }
+        },
+        {
+          "function": "UPDATE_EST.assign.YIELD_EST",
+          "input": [
+            {
+              "variable": "UPDATE_EST.IF1",
+              "index": 0
+            },
             {
               "variable": "TOTAL_RAIN",
               "index": 0
