@@ -1,24 +1,23 @@
-from itertools import permutations, cycle
-from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
-        NewType)
-
+import json
 import pickle
+import datetime
 import numpy as np
-from indra.statements import Influence
-from networkx import DiGraph
 from pathlib import Path
-from pandas import Series, DataFrame, read_csv
-from scipy.stats import gaussian_kde
+from networkx import DiGraph
 from tqdm import trange, tqdm
+from itertools import permutations, cycle
+from indra.statements import Influence
+from scipy.stats import gaussian_kde
+from pandas import Series, DataFrame, read_csv
 
 from functools import partial
-
-import datetime
-import json
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
-from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
+from delphi.utils import (flatMap, compose, iterate, ltake, exists, repeatfunc,
+                          take)
 
+from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
+                    NewType)
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
@@ -202,14 +201,11 @@ def export_edge(CAG: DiGraph, e):
     return { 'source': e[0], 'target': e[1], 'CPT': e[2]['CPT'] }
 
 
-def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
+def export_to_ISI(CAG: DiGraph, args) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
 
-    model_dir = Path(model_dir)
-    model_dir.mkdir(parents=True, exist_ok=True)
-
-    s0.to_csv(model_dir/'variables.csv', index_label='variable')
+    s0.to_csv(args.output_variables_path, index_label='variable')
 
     model = {
         'name' : 'Dynamic Bayes Net Model',
@@ -217,13 +213,13 @@ def export_to_ISI(CAG: DiGraph, model_dir: str) -> None:
         'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True))
     }
 
-    with open(model_dir/'cag.json', 'w') as f:
+    with open(args.output_cag_json, 'w') as f:
         json.dump(model, f, indent=2)
 
     for e in CAG.edges(data = True):
         del e[2]['InfluenceStatements']
 
-    with open(model_dir/'dressed_CAG.pkl', 'wb') as f:
+    with open(args.output_dressed_cag, 'wb') as f:
         pickle.dump(CAG, f)
 
 
