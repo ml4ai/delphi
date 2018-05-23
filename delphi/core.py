@@ -1,24 +1,23 @@
-from itertools import permutations, cycle
-from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
-        NewType)
-
+import json
 import pickle
+import datetime
 import numpy as np
-from indra.statements import Influence
-from networkx import DiGraph
 from pathlib import Path
-from pandas import Series, DataFrame, read_csv
-from scipy.stats import gaussian_kde
+from networkx import DiGraph
 from tqdm import trange, tqdm
+from itertools import permutations, cycle
+from indra.statements import Influence
+from scipy.stats import gaussian_kde
+from pandas import Series, DataFrame, read_csv
 
 from functools import partial
-
-import datetime
-import json
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
-from delphi.utils import flatMap, compose, iterate, ltake, exists, repeatfunc, take
+from delphi.utils import (flatMap, compose, iterate, ltake, exists, repeatfunc,
+                          take)
 
+from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
+                    NewType)
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
