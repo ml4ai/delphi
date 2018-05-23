@@ -26,7 +26,7 @@ def create_model(args):
     with open(args.indra_statements, 'rb') as f:
         export_to_ISI(create_dressed_CAG(ltake(args.n_statements,
             filter(isSimulable, pickle.load(f))), args.adjective_data),
-            args.model_dir)
+            args)
 
 
 def execute_model(args):
@@ -34,13 +34,12 @@ def execute_model(args):
                              get_latent_state_components, sample_sequences,
                              write_sequences_to_file)
 
-    model_dir = Path(args.model_dir)
-    CAG = load_model(model_dir/'dressed_CAG.pkl')
+    CAG = load_model(args.input_dressed_cag)
 
-    s0 = read_csv(model_dir/'variables.csv', index_col=0, header=None)[1]
+    s0 = read_csv(args.input_variables_path, index_col=0, header=None)[1]
 
     write_sequences_to_file(CAG, sample_sequences(CAG, s0, args.steps,
-        args.samples, args.dt), args.output)
+        args.samples, args.dt), args.output_sequences)
 
 
 def positive_real(arg, x):
@@ -96,8 +95,9 @@ if __name__ == '__main__':
 
     add_arg('dt', 'Time step size', partial(positive_real, 'dt'), 1.0)
 
-    add_arg('n_statements', 'Number of INDRA statements to take from the'
-            'pickled object containing them', partial(positive_int, 'n_statements'), 5)
+    add_arg('n_statements', 'Number of INDRA statements to take from the '
+            'pickled object containing them', partial(positive_int,
+                'n_statements'), 5)
 
     add_arg('steps', "Number of time steps to take",
             partial(positive_int, 'steps'), 5)
@@ -105,11 +105,25 @@ if __name__ == '__main__':
     add_arg('samples', "Number of sequences to sample",
             partial(positive_int, 'samples'), 100)
 
-    add_arg('output', 'Output file containing sampled sequences', str,
+    add_arg('output_sequences', 'Output file containing sampled sequences', str,
             'dbn_sampled_sequences.csv')
 
+    add_arg('output_cag_json', 'Path to the output CAG JSON file',
+            str, 'delphi_cag.json')
 
-    add_arg('model_dir', 'Model directory', str, 'dbn_model')
+    add_arg('input_variables_path',
+            'Path to the variables of the input dressed cag',
+            str, 'variables.csv')
+
+    add_arg('output_variables_path',
+            'Path to the variables of the output dressed cag',
+            str, 'variables.csv')
+
+    add_arg('input_dressed_cag', 'Path to the input dressed cag', str,
+            'dressed_CAG.pkl')
+
+    add_arg('output_dressed_cag', 'Path to the output dressed cag', str,
+            'dressed_CAG.pkl')
 
     args = parser.parse_args()
 
