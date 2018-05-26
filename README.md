@@ -43,10 +43,16 @@ To see all the options and the help message, do `./delphi.py`, which produces
 the following output:
 
 ```
-usage: delphi.py [-h] [--create_model] [--indra_statements INDRA_STATEMENTS]
-                 [--execute_model] [--dt DT] [--n_statements N_STATEMENTS]
-                 [--steps STEPS] [--samples SAMPLES] [--output OUTPUT]
-                 [--model_dir MODEL_DIR]
+usage: delphi.py [-h] [--create_model] [--create_cra_cag]
+                 [--indra_statements INDRA_STATEMENTS]
+                 [--adjective_data ADJECTIVE_DATA] [--execute_model] [--dt DT]
+                 [--n_statements N_STATEMENTS] [--steps STEPS]
+                 [--samples SAMPLES] [--output_sequences OUTPUT_SEQUENCES]
+                 [--output_cag_json OUTPUT_CAG_JSON]
+                 [--input_variables_path INPUT_VARIABLES_PATH]
+                 [--output_variables_path OUTPUT_VARIABLES_PATH]
+                 [--input_dressed_cag INPUT_DRESSED_CAG]
+                 [--output_dressed_cag OUTPUT_DRESSED_CAG]
 
 Dynamic Bayes Net Executable Model
 
@@ -61,18 +67,35 @@ optional arguments:
   --indra_statements INDRA_STATEMENTS
                         Pickle file containing INDRA statements (default:
                         data/sample_indra_statements.pkl)
+  --adjective_data ADJECTIVE_DATA
+                        Path to the gradable adjective data file. (default:
+                        data/adjectiveData.tsv)
   --execute_model       Execute DBN and sample time evolution sequences
                         (default: False)
   --dt DT               Time step size (default: 1.0)
   --n_statements N_STATEMENTS
-                        Number of INDRA statements to take from thepickled
+                        Number of INDRA statements to take from the pickled
                         object containing them (default: 5)
   --steps STEPS         Number of time steps to take (default: 5)
   --samples SAMPLES     Number of sequences to sample (default: 100)
-  --output OUTPUT       Output file containing sampled sequences (default:
+  --output_sequences OUTPUT_SEQUENCES
+                        Output file containing sampled sequences (default:
                         dbn_sampled_sequences.csv)
-  --model_dir MODEL_DIR
-                        Model directory (default: dbn_model)
+  --output_cag_json OUTPUT_CAG_JSON
+                        Path to the output CAG JSON file (default:
+                        delphi_cag.json)
+  --input_variables_path INPUT_VARIABLES_PATH
+                        Path to the variables of the input dressed cag
+                        (default: variables.csv)
+  --output_variables_path OUTPUT_VARIABLES_PATH
+                        Path to the variables of the output dressed cag
+                        (default: variables.csv)
+  --input_dressed_cag INPUT_DRESSED_CAG
+                        Path to the input dressed cag (default:
+                        dressed_CAG.pkl)
+  --output_dressed_cag OUTPUT_DRESSED_CAG
+                        Path to the output dressed cag (default:
+                        dressed_CAG.pkl)
 
 ```
 
@@ -90,14 +113,11 @@ To create a model from a set of INDRA statements, use the invocation:
 Optionally combine this with the `--indra_statements` input parameter to specify
 the path to the INDRA statements. By default, `--create_model` will load a
 provided set of INDRA statements included as a pickled python file in
-`data/sample_indra_statements.pkl`, and generate model files in a new directory
-that can be specified with the option `--model_dir` (default: `dbn_model`).
-
-This will create a directory called `dbn_model`, with the following contents. 
+`data/sample_indra_statements.pkl`, and generate the output files 
 
 
 ```
-dbn_model/
+./
 ├── cag.json
 ├── dressed_CAG.pkl
 └── variables.csv
@@ -105,7 +125,7 @@ dbn_model/
 
 The files are
 - `cag.json`: This contains the link structure of the causal analysis graph.
-    Here is an example JSON file representing a CAG with the link `rainfall ->
+    Here is an example JSON file representing a CAG with the link `rainfall →
     crop yield`. 
 
 ```json
@@ -152,10 +172,13 @@ crop yield,100.0
 To execute the model, do
 
 ```bash
-./delphi.py --execute_model <model_directory (default: 'dbn_model')>
+./delphi.py --execute_model
 ```
 
-This creates an output file that looks like this: 
+This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
+an output file `output_sequences.csv` (these are the default input and output
+filenames, but they can be changed with command line flags). that looks like
+this: 
 
 
 ```csv
