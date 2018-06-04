@@ -2,7 +2,6 @@ import pandas
 from typing import Dict, List, Optional, NewType
 from indra.statements import Influence
 import networkx
-from flask import Flask
 from pandas import Series
 import json
 
