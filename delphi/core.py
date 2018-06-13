@@ -5,12 +5,14 @@ import numpy as np
 from pathlib import Path
 from networkx import DiGraph
 from tqdm import trange, tqdm
-from itertools import permutations, cycle
-from indra.statements import Influence
+from itertools import permutations, cycle, chain
+from indra.statements import Influence, Concept
+from indra.sources import eidos
 from scipy.stats import gaussian_kde
 from pandas import Series, DataFrame, read_csv
+from glob import glob
 
-from functools import partial
+from functools import partial, lru_cache
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import (
@@ -31,6 +33,7 @@ from typing import (
     Any,
     Dict,
     IO,
+    Iterable,
     Union,
     NewType,
 )
@@ -53,6 +56,68 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
     return (s.subj.name, s.obj.name)
+
+
+def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
+    """ Returns a list of INDRA statements from a directory containing JSON-LD
+    output from Eidos. """
+    return chain.from_iterable(
+        map(
+            lambda ep: ep.statements,
+            map(eidos.process_json_ld_file, tqdm(glob(directory))),
+        )
+    )
+
+
+def is_grounded_concept(c: Concept, ontology="UN") -> bool:
+    return ontology in c.db_refs
+
+
+def top_grounding_score(c: Concept, ontology="UN") -> float:
+    return c.db_refs[ontology][0][1]
+
+
+def is_well_grounded_concept(
+    c: Concept, ontology="UN", cutoff: float = 0.7
+) -> bool:
+
+    return is_grounded_concept(c, ontology) and (
+        top_grounding_score(c, ontology) >= cutoff
+    )
+
+
+@lru_cache(maxsize=32)
+def is_well_grounded_statement(
+    s: Influence, ontology="UN", cutoff: float = 0.7
+) -> bool:
+    """ Returns true if both subj and obj are grounded to the specified
+    ontology"""
+
+    return all(
+            map(lambda s: is_well_grounded_concept(s, ontology, cutoff),
+                s.agent_list(),
+        )
+    )
+
+
+def is_grounded_to_name(c: Concept, name: str) -> bool:
+    return (
+        (c.db_refs["UN"][0][0].split("/")[-1] == name)
+        if is_grounded_concept(c, ontology="UN")
+        else False
+    )
+
+
+def contains_concept(s: Influence, concept_name: str) -> bool:
+    return any(
+        map(lambda c: is_grounded_to_name(c, concept_name), s.agent_list())
+    )
+
+
+def contains_relevant_concept(
+    s: Influence, relevant_concepts: List[str]
+) -> bool:
+    return any(map(lambda c: contains_concept(s, c), relevant_concepts))
 
 
 def construct_CAG_skeleton(sts: List[Influence]) -> DiGraph:
