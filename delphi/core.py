@@ -5,19 +5,39 @@ import numpy as np
 from pathlib import Path
 from networkx import DiGraph
 from tqdm import trange, tqdm
-from itertools import permutations, cycle
-from indra.statements import Influence
+from itertools import permutations, cycle, chain
+from indra.statements import Influence, Concept
+from indra.sources import eidos
 from scipy.stats import gaussian_kde
 from pandas import Series, DataFrame, read_csv
+from glob import glob
 
-from functools import partial
+from functools import partial, lru_cache
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
-from delphi.utils import (flatMap, compose, iterate, ltake, exists, repeatfunc,
-                          take)
+from delphi.utils import (
+    flatMap,
+    compose,
+    iterate,
+    ltake,
+    exists,
+    repeatfunc,
+    take,
+)
 
-from typing import (List, Tuple, Callable, Optional, Any, Dict, IO, Union,
-                    NewType)
+from typing import (
+    List,
+    Tuple,
+    Callable,
+    Optional,
+    Any,
+    Dict,
+    IO,
+    Iterable,
+    Union,
+    NewType,
+)
+
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
@@ -38,29 +58,102 @@ def nameTuple(s: Influence) -> Tuple[str, str]:
     return (s.subj.name, s.obj.name)
 
 
+def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
+    """ Returns a list of INDRA statements from a directory containing JSON-LD
+    output from Eidos. """
+    return chain.from_iterable(
+        map(
+            lambda ep: ep.statements,
+            map(eidos.process_json_ld_file, tqdm(glob(directory))),
+        )
+    )
+
+
+def is_grounded_concept(c: Concept, ontology="UN") -> bool:
+    return ontology in c.db_refs
+
+
+def top_grounding_score(c: Concept, ontology="UN") -> float:
+    return c.db_refs[ontology][0][1]
+
+
+def is_well_grounded_concept(
+    c: Concept, ontology="UN", cutoff: float = 0.7
+) -> bool:
+
+    return is_grounded_concept(c, ontology) and (
+        top_grounding_score(c, ontology) >= cutoff
+    )
+
+
+@lru_cache(maxsize=32)
+def is_well_grounded_statement(
+    s: Influence, ontology="UN", cutoff: float = 0.7
+) -> bool:
+    """ Returns true if both subj and obj are grounded to the specified
+    ontology"""
+
+    return all(
+            map(lambda s: is_well_grounded_concept(s, ontology, cutoff),
+                s.agent_list(),
+        )
+    )
+
+
+def is_grounded_to_name(c: Concept, name: str) -> bool:
+    return (
+        (c.db_refs["UN"][0][0].split("/")[-1] == name)
+        if is_grounded_concept(c, ontology="UN")
+        else False
+    )
+
+
+def contains_concept(s: Influence, concept_name: str) -> bool:
+    return any(
+        map(lambda c: is_grounded_to_name(c, concept_name), s.agent_list())
+    )
+
+
+def contains_relevant_concept(
+    s: Influence, relevant_concepts: List[str]
+) -> bool:
+    return any(map(lambda c: contains_concept(s, c), relevant_concepts))
+
+
 def construct_CAG_skeleton(sts: List[Influence]) -> DiGraph:
     def makeEdgeTuple(
-            p: Tuple[str, str]) -> Tuple[str, str, Dict[str, List[Influence]]]:
+        p: Tuple[str, str]
+    ) -> Tuple[str, str, Dict[str, List[Influence]]]:
 
-        return p[0], p[1], {'InfluenceStatements': lfilter(
-                        lambda s: (p[0], p[1]) == nameTuple(s), sts)}
+        return (
+            p[0],
+            p[1],
+            {
+                "InfluenceStatements": lfilter(
+                    lambda s: (p[0], p[1]) == nameTuple(s), sts
+                )
+            },
+        )
 
-    return DiGraph(lfilter(
-        lambda e: len(e[2]['InfluenceStatements']) != 0,
-        map(makeEdgeTuple, permutations(set(flatMap(nameTuple, sts)), 2))))
+    return DiGraph(
+        lfilter(
+            lambda e: len(e[2]["InfluenceStatements"]) != 0,
+            map(makeEdgeTuple, permutations(set(flatMap(nameTuple, sts)), 2)),
+        )
+    )
 
 
 def get_respdevs(gb: GroupBy) -> np.ndarray:
-    return gb['respdev']
+    return gb["respdev"]
 
 
 def isSimulable(s: Influence) -> bool:
-    return all(map(exists, map(lambda x: x['polarity'], deltas(s))))
+    return all(map(exists, map(lambda x: x["polarity"], deltas(s))))
 
 
 def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
 
-    simulableStatements = lfilter(isSimulable, e[2]['InfluenceStatements'])
+    simulableStatements = lfilter(isSimulable, e[2]["InfluenceStatements"])
 
     if not simulableStatements:
         return None
@@ -72,40 +165,63 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
         def get_adjective(d: Delta) -> Optional[str]:
             """ Get the first adjective from subj_delta or obj_delta """
 
-            if isinstance(d['adjectives'], list):
-                if d['adjectives']:
-                    adj = d['adjectives'][0]
+            if isinstance(d["adjectives"], list):
+                if d["adjectives"]:
+                    adj = d["adjectives"][0]
                 else:
                     adj = None
             else:
-                adj = d['adjectives']
+                adj = d["adjectives"]
 
             return adj if adj in gb.groups.keys() else None
 
-        adjectiveResponses = {a: get_respdevs(gb.get_group(a))
-                for a in set(filter(exists, flatMap(
-                    lambda s: lmap(get_adjective, deltas(s)),
-                    simulableStatements)))}
+        adjectiveResponses = {
+            a: get_respdevs(gb.get_group(a))
+            for a in set(
+                filter(
+                    exists,
+                    flatMap(
+                        lambda s: lmap(get_adjective, deltas(s)),
+                        simulableStatements,
+                    ),
+                )
+            )
+        }
 
         def responses(adj: Optional[str]) -> np.ndarray:
             return adjectiveResponses[adj] if exists(adj) else rs
 
+        rs_subj, rs_obj = list(
+            *zip(
+                lmap(
+                    lambda s: map(
+                        lambda d: d["polarity"]
+                        * np.array(responses(get_adjective(d))),
+                        deltas(s),
+                    ),
+                    simulableStatements,
+                )
+            )
+        )[0]
 
-        rs_subj, rs_obj = list(*zip(lmap(
-            lambda s: map(
-                lambda d: d['polarity'] * np.array(responses(get_adjective(d))),
-                deltas(s)),
-            simulableStatements)))[0]
+        xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
 
-        xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing='xy')
-
-        if len(lmap(
-            lambda s: s.subj_delta['polarity'] == s.obj_delta['polarity'],
-            simulableStatements)) == 1:
+        if (
+            len(
+                lmap(
+                    lambda s: s.subj_delta["polarity"]
+                    == s.obj_delta["polarity"],
+                    simulableStatements,
+                )
+            )
+            == 1
+        ):
 
             xs2, ys2 = -xs1, -ys1
-            thetas = np.append(np.arctan2(ys1.flatten(), xs1.flatten()),
-                               np.arctan2(ys2.flatten(), xs2.flatten()))
+            thetas = np.append(
+                np.arctan2(ys1.flatten(), xs1.flatten()),
+                np.arctan2(ys2.flatten(), xs2.flatten()),
+            )
         else:
             thetas = np.arctan2(ys1.flatten(), xs1.flatten())
 
@@ -114,29 +230,40 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
 
 def add_conditional_probabilities(CAG: DiGraph, adjectiveData: str) -> DiGraph:
     # Create a pandas GroupBy object
-    gb = read_csv(adjectiveData, delim_whitespace=True).groupby('adjective')
-    rs = gaussian_kde(flatMap(lambda g: gaussian_kde(get_respdevs(g[1]))
-                          .resample(20)[0].tolist(),
-                          gb)).resample(100)[0].tolist()
+    gb = read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
+    rs = (
+        gaussian_kde(
+            flatMap(
+                lambda g: gaussian_kde(get_respdevs(g[1]))
+                .resample(20)[0]
+                .tolist(),
+                gb,
+            )
+        )
+        .resample(100)[0]
+        .tolist()
+    )
 
     for e in CAG.edges(data=True):
-        e[2]['ConditionalProbability'] = constructConditionalPDF(gb, rs, e)
+        e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
 
     return CAG
 
 
 def create_dressed_CAG(sts: List[Influence], adjectiveData: str) -> DiGraph:
-    return add_conditional_probabilities(construct_CAG_skeleton(sts),
-            adjectiveData)
+    return add_conditional_probabilities(
+        construct_CAG_skeleton(sts), adjectiveData
+    )
 
 
 def get_latent_state_components(CAG: DiGraph) -> List[str]:
-    return flatMap(lambda a: (a, f'∂({a})/∂t'), CAG.nodes())
+    return flatMap(lambda a: (a, f"∂({a})/∂t"), CAG.nodes())
 
 
 def initialize_transition_matrix(cs: List[str], Δt: float = 1) -> DataFrame:
     A = DataFrame(np.identity(len(cs)), cs, cs)
-    for c in cs[::2]: A[f'∂({c})/∂t'][f'{c}'] = Δt
+    for c in cs[::2]:
+        A[f"∂({c})/∂t"][f"{c}"] = Δt
     return A
 
 
@@ -144,22 +271,24 @@ def sample_transition_matrix(CAG: DiGraph, Δt: float = 1.0) -> DataFrame:
     A = initialize_transition_matrix(get_latent_state_components(CAG))
 
     for e in CAG.edges(data=True):
-        if 'ConditionalProbability' in e[2].keys():
-            β = np.tan(e[2]['ConditionalProbability'].resample(1)[0][0])
-            A[f'∂({e[0]})/∂t'][f'∂({e[1]})/∂t'] = β * Δt
+        if "ConditionalProbability" in e[2].keys():
+            β = np.tan(e[2]["ConditionalProbability"].resample(1)[0][0])
+            A[f"∂({e[0]})/∂t"][f"∂({e[1]})/∂t"] = β * Δt
 
     return A
 
 
-def sample_sequence(CAG: DiGraph, s0: np.ndarray,
-                    n_steps: int, Δt: float = 1.0) -> List[np.ndarray]:
+def sample_sequence(
+    CAG: DiGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
+) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
     return take(n_steps, iterate(lambda s: A @ s, s0))
 
 
-def sample_sequences(CAG: DiGraph, s0: Series, steps: int, samples: int,
-                     Δt: float = 1.0) -> List[Series]:
+def sample_sequences(
+    CAG: DiGraph, s0: Series, steps: int, samples: int, Δt: float = 1.0
+) -> List[Series]:
     """ Sample a collection of sequences for a CAG """
 
     s0 = s0.values[np.newaxis].T
@@ -190,76 +319,91 @@ def export_node(CAG: DiGraph, n) -> Dict[str, Union[str, List[str]]]:
         arguments.
 
     """
-    n[1]['name'] = n[0]
-    n[1]['units'] = get_units(n[0])
-    n[1]['dtype'] = get_dtype(n[0])
-    n[1]['arguments'] = list(CAG.predecessors(n[0]))
+    n[1]["name"] = n[0]
+    n[1]["units"] = get_units(n[0])
+    n[1]["dtype"] = get_dtype(n[0])
+    n[1]["arguments"] = list(CAG.predecessors(n[0]))
     return n[1]
 
 
 def export_edge(CAG: DiGraph, e):
-    return { 'source': e[0], 'target': e[1], 'CPT': e[2]['CPT'] }
+    return {"source": e[0], "target": e[1], "CPT": e[2]["CPT"]}
 
 
 def export_to_ISI(CAG: DiGraph, args) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
 
-    s0.to_csv(args.output_variables_path, index_label='variable')
+    s0.to_csv(args.output_variables_path, index_label="variable")
 
     model = {
-        'name' : 'Dynamic Bayes Net Model',
-        'dateCreated' : str(datetime.datetime.now()),
-        'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True))
+        "name": "Dynamic Bayes Net Model",
+        "dateCreated": str(datetime.datetime.now()),
+        "variables": lmap(partial(export_node, CAG), CAG.nodes(data=True)),
     }
 
-    with open(args.output_cag_json, 'w') as f:
+    with open(args.output_cag_json, "w") as f:
         json.dump(model, f, indent=2)
 
-    for e in CAG.edges(data = True):
-        del e[2]['InfluenceStatements']
+    for e in CAG.edges(data=True):
+        del e[2]["InfluenceStatements"]
 
-    with open(args.output_dressed_cag, 'wb') as f:
+    with open(args.output_dressed_cag, "wb") as f:
         pickle.dump(CAG, f)
 
 
-def construct_CPT(e, res = 100):
-    kde = e[2]['ConditionalProbability']
+def construct_CPT(e, res=100):
+    kde = e[2]["ConditionalProbability"]
     arr = np.squeeze(kde.dataset)
     X = np.linspace(min(arr), max(arr), res)
     Y = kde.evaluate(X) * (X[1] - X[0])
-    return {'beta': X.tolist(), 'P(beta)': Y.tolist()}
+    return {"beta": X.tolist(), "P(beta)": Y.tolist()}
 
 
-def export_to_CRA(CAG:DiGraph, Δt):
-    with open('cra_cag.json', 'w') as f:
-        json.dump({
-            'name' : 'Dynamic Bayes Net Model',
-            'dateCreated' : str(datetime.datetime.now()),
-            'variables' : lmap(partial(export_node, CAG), CAG.nodes(data=True)),
-            'timeStep' : Δt,
-            'CPTs' : lmap(lambda e: {'source': e[0], 'target': e[1], 'CPT':
-                construct_CPT(e)}, CAG.edges(data=True))
-        }, f, indent = 2)
+def export_to_CRA(CAG: DiGraph, Δt):
+    with open("cra_cag.json", "w") as f:
+        json.dump(
+            {
+                "name": "Dynamic Bayes Net Model",
+                "dateCreated": str(datetime.datetime.now()),
+                "variables": lmap(
+                    partial(export_node, CAG), CAG.nodes(data=True)
+                ),
+                "timeStep": Δt,
+                "CPTs": lmap(
+                    lambda e: {
+                        "source": e[0],
+                        "target": e[1],
+                        "CPT": construct_CPT(e),
+                    },
+                    CAG.edges(data=True),
+                ),
+            },
+            f,
+            indent=2,
+        )
 
 
 def load_model(filename: str) -> DiGraph:
-    with open(filename, 'rb') as f:
+    with open(filename, "rb") as f:
         CAG = pickle.load(f)
     return CAG
 
 
 def emission_function(x):
-    return np.random.normal(x, 0.01*abs(x))
+    return np.random.normal(x, 0.01 * abs(x))
 
 
-def write_sequences_to_file(CAG: DiGraph, seqs,
-        output_filename: str) -> None:
+def write_sequences_to_file(CAG: DiGraph, seqs, output_filename: str) -> None:
 
-    with open(output_filename, 'w') as f:
-        f.write(','.join(['seq_no', 'time_slice',
-            *get_latent_state_components(CAG)[::2]])+'\n')
+    with open(output_filename, "w") as f:
+        f.write(
+            ",".join(
+                ["seq_no", "time_slice", *get_latent_state_components(CAG)[::2]]
+            )
+            + "\n"
+        )
         for n, s in enumerate(seqs):
             for t, l in enumerate(s):
-                vs = ','.join([str(x) for x in l.T[0][::2]])
-                f.write(','.join([str(n), str(t), vs]) + '\n')
+                vs = ",".join([str(x) for x in l.T[0][::2]])
+                f.write(",".join([str(n), str(t), vs]) + "\n")
