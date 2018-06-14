@@ -12,7 +12,7 @@ from scipy.stats import gaussian_kde
 from pandas import Series, DataFrame, read_csv
 from glob import glob
 
-from functools import partial, lru_cache
+from functools import partial, lru_cache, singledispatch
 from delphi.types import GroupBy, Delta
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import (
@@ -69,55 +69,66 @@ def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
     )
 
 
-def is_grounded_concept(c: Concept, ontology="UN") -> bool:
-    return ontology in c.db_refs
+@singledispatch
+def is_grounded(arg):
+    pass
+
+
+@is_grounded.register(Concept)
+def _(concept, ontology="UN"):
+    return ontology in concept.db_refs
+
+
+@is_grounded.register(Influence)
+def _(s: Influence, ontology: str = "UN"):
+    return is_grounded(s.subj) and is_grounded(s.obj)
 
 
 def top_grounding_score(c: Concept, ontology="UN") -> float:
     return c.db_refs[ontology][0][1]
 
 
-def is_well_grounded_concept(
-    c: Concept, ontology="UN", cutoff: float = 0.7
-) -> bool:
+@singledispatch
+def is_well_grounded(): pass
 
-    return is_grounded_concept(c, ontology) and (
+
+@is_well_grounded.register(Concept)
+def _(c, ontology="UN", cutoff: float = 0.7) -> bool:
+
+    return is_grounded(c, ontology) and (
         top_grounding_score(c, ontology) >= cutoff
     )
 
 
 @lru_cache(maxsize=32)
-def is_well_grounded_statement(
-    s: Influence, ontology="UN", cutoff: float = 0.7
-) -> bool:
+@is_well_grounded.register(Influence)
+def _(s, ontology="UN", cutoff: float = 0.7) -> bool:
     """ Returns true if both subj and obj are grounded to the specified
     ontology"""
 
     return all(
-            map(lambda s: is_well_grounded_concept(s, ontology, cutoff),
-                s.agent_list(),
-        )
+        map(lambda c: is_well_grounded(c, ontology, cutoff), s.agent_list())
     )
 
 
-def is_grounded_to_name(c: Concept, name: str) -> bool:
+def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
     return (
         (c.db_refs["UN"][0][0].split("/")[-1] == name)
-        if is_grounded_concept(c, ontology="UN")
+        if is_well_grounded(c, "UN", cutoff)
         else False
     )
 
 
-def contains_concept(s: Influence, concept_name: str) -> bool:
+def contains_concept(s: Influence, concept_name: str, cutoff=0.7) -> bool:
     return any(
-        map(lambda c: is_grounded_to_name(c, concept_name), s.agent_list())
+        map(lambda c: is_grounded_to_name(c, concept_name, cutoff), s.agent_list())
     )
 
 
 def contains_relevant_concept(
-    s: Influence, relevant_concepts: List[str]
+    s: Influence, relevant_concepts: List[str], cutoff=0.7
 ) -> bool:
-    return any(map(lambda c: contains_concept(s, c), relevant_concepts))
+    return any(map(lambda c: contains_concept(s, c, cutoff=cutoff), relevant_concepts))
 
 
 def construct_CAG_skeleton(sts: List[Influence]) -> DiGraph:
