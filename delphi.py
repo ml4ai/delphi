@@ -13,7 +13,8 @@ from argparse import (ArgumentParser, ArgumentTypeError, FileType,
                       ArgumentDefaultsHelpFormatter)
 
 def create_CRA_CAG(args):
-    from delphi.core import (isSimulable, create_dressed_CAG, export_to_CRA)
+    from delphi.core import (isSimulable, create_dressed_CAG)
+    from delphi.export import export_to_CRA
 
     with open(args.indra_statements, 'rb') as f:
         export_to_CRA(create_dressed_CAG(ltake(args.n_statements,
@@ -21,7 +22,8 @@ def create_CRA_CAG(args):
 
 
 def create_model(args):
-    from delphi.core import (isSimulable, create_dressed_CAG, export_to_ISI)
+    from delphi.core import (isSimulable, create_dressed_CAG)
+    from delphi.export import export_to_ISI
 
     with open(args.indra_statements, 'rb') as f:
         export_to_ISI(create_dressed_CAG(ltake(args.n_statements,
