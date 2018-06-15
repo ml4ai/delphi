@@ -3,7 +3,6 @@ import pickle
 import datetime
 import numpy as np
 from pathlib import Path
-from networkx import CausalAnalysisGraph
 from tqdm import trange, tqdm
 from itertools import permutations, cycle, chain
 from indra.statements import Influence, Concept
@@ -13,7 +12,7 @@ from pandas import Series, DataFrame, read_csv
 from glob import glob
 
 from functools import partial, lru_cache, singledispatch
-from delphi.types import GroupBy, Delta
+from delphi.types import GroupBy, Delta, CausalAnalysisGraph
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import (
     flatMap,
@@ -137,25 +136,26 @@ def contains_relevant_concept(
     )
 
 
-def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
-    def makeEdgeTuple(
-        p: Tuple[str, str]
-    ) -> Tuple[str, str, Dict[str, List[Influence]]]:
+def _make_edge(
+    p: Tuple[str, str]
+) -> Tuple[str, str, Dict[str, List[Influence]]]:
+    return (
+        p[0],
+        p[1],
+        {
+            "InfluenceStatements": lfilter(
+                lambda s: (p[0], p[1]) == nameTuple(s), sts
+            )
+        },
+    )
 
-        return (
-            p[0],
-            p[1],
-            {
-                "InfluenceStatements": lfilter(
-                    lambda s: (p[0], p[1]) == nameTuple(s), sts
-                )
-            },
-        )
+
+def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
 
     return CausalAnalysisGraph(
         lfilter(
             lambda e: len(e[2]["InfluenceStatements"]) != 0,
-            map(makeEdgeTuple, permutations(set(flatMap(nameTuple, sts)), 2)),
+            map(_make_edge, permutations(set(flatMap(nameTuple, sts)), 2)),
         )
     )
 
