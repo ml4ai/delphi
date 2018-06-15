@@ -1,8 +1,10 @@
+import sys
 import json
 import pickle
 import datetime
 import numpy as np
 from pathlib import Path
+from ruamel.yaml import YAML
 from tqdm import trange, tqdm
 from itertools import permutations, cycle, chain
 from indra.statements import Influence, Concept
@@ -154,7 +156,10 @@ def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
     return CausalAnalysisGraph(
         lfilter(
             lambda e: len(e[2]["InfluenceStatements"]) != 0,
-            map(partial(_make_edge, sts), permutations(set(flatMap(nameTuple, sts)), 2)),
+            map(
+                partial(_make_edge, sts),
+                permutations(set(flatMap(nameTuple, sts)), 2),
+            ),
         )
     )
 
@@ -352,3 +357,39 @@ def write_sequences_to_file(
             for t, l in enumerate(s):
                 vs = ",".join([str(x) for x in l.T[0][::2]])
                 f.write(",".join([str(n), str(t), vs]) + "\n")
+
+
+@singledispatch
+def get_indicators(arg):
+    pass
+
+
+@get_indicators.register(str)
+def _(concept: str, mapping: Dict = None) -> List[str]:
+    if mapping is None:
+        yaml = YAML()
+        with open("data/concept_to_indicator_mapping.yml", "r") as f:
+            mapping = yaml.load(f)
+
+    return (
+        mapping["concepts"][concept]["indicators"]
+        if concept in mapping["concepts"]
+        else None
+    )
+
+
+@get_indicators.register(CausalAnalysisGraph)
+def _(
+    G: CausalAnalysisGraph,
+    mapping: Dict = None,
+) -> CausalAnalysisGraph:
+    if mapping is None:
+        mapping_yaml_file: str = "data/concept_to_indicator_mapping.yml"
+        yaml = YAML()
+        with open(mapping_yaml_file, "r") as f:
+            mapping = yaml.load(f)
+
+    for n in G.nodes(data=True):
+        n[1]["indicators"] = get_indicators(n[0], mapping)
+
+    return G
