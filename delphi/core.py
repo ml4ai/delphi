@@ -137,7 +137,7 @@ def contains_relevant_concept(
 
 
 def _make_edge(
-    p: Tuple[str, str]
+    sts: List[Influence], p: Tuple[str, str]
 ) -> Tuple[str, str, Dict[str, List[Influence]]]:
     return (
         p[0],
@@ -151,11 +151,10 @@ def _make_edge(
 
 
 def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
-
     return CausalAnalysisGraph(
         lfilter(
             lambda e: len(e[2]["InfluenceStatements"]) != 0,
-            map(_make_edge, permutations(set(flatMap(nameTuple, sts)), 2)),
+            map(partial(_make_edge, sts), permutations(set(flatMap(nameTuple, sts)), 2)),
         )
     )
 
