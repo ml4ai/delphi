@@ -8,7 +8,6 @@ tqdm = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
-networkx = "*"
 numpy = "*"
 pandas = "*"
 scipy = "*"
@@ -18,6 +17,7 @@ indra = {git = "https://github.com/sorgerlab/indra.git", editable=true}
 future = "*"
 Cython = "*"
 "ruamel.yaml" = "*"
+networkx = "==2.1"
 
 [dev-packages]
 mypy = "*"
