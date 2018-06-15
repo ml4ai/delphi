@@ -359,13 +359,8 @@ def write_sequences_to_file(
                 f.write(",".join([str(n), str(t), vs]) + "\n")
 
 
-@singledispatch
-def get_indicators(arg):
-    pass
 
-
-@get_indicators.register(str)
-def _(concept: str, mapping: Dict = None) -> List[str]:
+def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
     if mapping is None:
         yaml = YAML()
         with open("data/concept_to_indicator_mapping.yml", "r") as f:
@@ -378,10 +373,8 @@ def _(concept: str, mapping: Dict = None) -> List[str]:
     )
 
 
-@get_indicators.register(CausalAnalysisGraph)
-def _(
-    G: CausalAnalysisGraph,
-    mapping: Dict = None,
+def set_indicators(
+    G: CausalAnalysisGraph, mapping: Dict = None
 ) -> CausalAnalysisGraph:
     if mapping is None:
         mapping_yaml_file: str = "data/concept_to_indicator_mapping.yml"

@@ -89,6 +89,7 @@ def test_get_indicators():
         list(get_indicators("food security", mapping).keys())[0]
         == "average dietary energy supply adequacy"
     )
-    CAG = create_dressed_CAG([statement1, statement2], 'data/adjectiveData.tsv')
-    indicators = get_indicators(CAG).nodes['food security']['indicators']
+    CAG = set_indicators(create_dressed_CAG([statement1, statement2],
+                        'data/adjectiveData.tsv'))
+    indicators = CAG.nodes['food security']['indicators']
     assert('average dietary energy supply adequacy' in indicators)
