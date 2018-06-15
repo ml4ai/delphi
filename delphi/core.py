@@ -3,7 +3,7 @@ import pickle
 import datetime
 import numpy as np
 from pathlib import Path
-from networkx import DiGraph
+from networkx import CausalAnalysisGraph
 from tqdm import trange, tqdm
 from itertools import permutations, cycle, chain
 from indra.statements import Influence, Concept
@@ -75,7 +75,7 @@ def is_grounded(arg):
 
 
 @is_grounded.register(Concept)
-def _(concept, ontology="UN"):
+def _(concept: Concept, ontology: str = "UN"):
     return ontology in concept.db_refs
 
 
@@ -84,7 +84,7 @@ def _(s: Influence, ontology: str = "UN"):
     return is_grounded(s.subj) and is_grounded(s.obj)
 
 
-def top_grounding_score(c: Concept, ontology="UN") -> float:
+def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
     return c.db_refs[ontology][0][1]
 
 
@@ -94,7 +94,7 @@ def is_well_grounded():
 
 
 @is_well_grounded.register(Concept)
-def _(c, ontology="UN", cutoff: float = 0.7) -> bool:
+def _(c: Concept, ontology: str = "UN", cutoff: float = 0.7) -> bool:
 
     return is_grounded(c, ontology) and (
         top_grounding_score(c, ontology) >= cutoff
@@ -103,7 +103,7 @@ def _(c, ontology="UN", cutoff: float = 0.7) -> bool:
 
 @lru_cache(maxsize=32)
 @is_well_grounded.register(Influence)
-def _(s, ontology="UN", cutoff: float = 0.7) -> bool:
+def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
     """ Returns true if both subj and obj are grounded to the specified
     ontology"""
 
@@ -122,17 +122,22 @@ def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
 
 def contains_concept(s: Influence, concept_name: str, cutoff=0.7) -> bool:
     return any(
-        map(lambda c: is_grounded_to_name(c, concept_name, cutoff), s.agent_list())
+        map(
+            lambda c: is_grounded_to_name(c, concept_name, cutoff),
+            s.agent_list(),
+        )
     )
 
 
 def contains_relevant_concept(
     s: Influence, relevant_concepts: List[str], cutoff=0.7
 ) -> bool:
-    return any(map(lambda c: contains_concept(s, c, cutoff=cutoff), relevant_concepts))
+    return any(
+        map(lambda c: contains_concept(s, c, cutoff=cutoff), relevant_concepts)
+    )
 
 
-def construct_CAG_skeleton(sts: List[Influence]) -> DiGraph:
+def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
     def makeEdgeTuple(
         p: Tuple[str, str]
     ) -> Tuple[str, str, Dict[str, List[Influence]]]:
@@ -147,7 +152,7 @@ def construct_CAG_skeleton(sts: List[Influence]) -> DiGraph:
             },
         )
 
-    return DiGraph(
+    return CausalAnalysisGraph(
         lfilter(
             lambda e: len(e[2]["InfluenceStatements"]) != 0,
             map(makeEdgeTuple, permutations(set(flatMap(nameTuple, sts)), 2)),
@@ -163,7 +168,9 @@ def isSimulable(s: Influence) -> bool:
     return all(map(exists, map(lambda x: x["polarity"], deltas(s))))
 
 
-def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
+def constructConditionalPDF(
+    gb: GroupBy, rs: np.ndarray, e: Tuple[str, str, Dict]
+) -> gaussian_kde:
 
     simulableStatements = lfilter(isSimulable, e[2]["InfluenceStatements"])
 
@@ -240,7 +247,9 @@ def constructConditionalPDF(gb: GroupBy, rs, e) -> gaussian_kde:
         return gaussian_kde(thetas)
 
 
-def add_conditional_probabilities(CAG: DiGraph, adjectiveData: str) -> DiGraph:
+def add_conditional_probabilities(
+    CAG: CausalAnalysisGraph, adjectiveData: str
+) -> CausalAnalysisGraph:
     # Create a pandas GroupBy object
     gb = read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
     rs = (
@@ -262,13 +271,15 @@ def add_conditional_probabilities(CAG: DiGraph, adjectiveData: str) -> DiGraph:
     return CAG
 
 
-def create_dressed_CAG(sts: List[Influence], adjectiveData: str) -> DiGraph:
+def create_dressed_CAG(
+    sts: List[Influence], adjectiveData: str
+) -> CausalAnalysisGraph:
     return add_conditional_probabilities(
         construct_CAG_skeleton(sts), adjectiveData
     )
 
 
-def get_latent_state_components(CAG: DiGraph) -> List[str]:
+def get_latent_state_components(CAG: CausalAnalysisGraph) -> List[str]:
     return flatMap(lambda a: (a, f"∂({a})/∂t"), CAG.nodes())
 
 
@@ -279,7 +290,9 @@ def initialize_transition_matrix(cs: List[str], Δt: float = 1) -> DataFrame:
     return A
 
 
-def sample_transition_matrix(CAG: DiGraph, Δt: float = 1.0) -> DataFrame:
+def sample_transition_matrix(
+    CAG: CausalAnalysisGraph, Δt: float = 1.0
+) -> DataFrame:
     A = initialize_transition_matrix(get_latent_state_components(CAG))
 
     for e in CAG.edges(data=True):
@@ -291,7 +304,7 @@ def sample_transition_matrix(CAG: DiGraph, Δt: float = 1.0) -> DataFrame:
 
 
 def sample_sequence(
-    CAG: DiGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
+    CAG: CausalAnalysisGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
@@ -299,7 +312,11 @@ def sample_sequence(
 
 
 def sample_sequences(
-    CAG: DiGraph, s0: Series, steps: int, samples: int, Δt: float = 1.0
+    CAG: CausalAnalysisGraph,
+    s0: Series,
+    steps: int,
+    samples: int,
+    Δt: float = 1.0,
 ) -> List[Series]:
     """ Sample a collection of sequences for a CAG """
 
@@ -307,12 +324,11 @@ def sample_sequences(
     return take(samples, repeatfunc(sample_sequence, CAG, s0, steps, Δt))
 
 
-
-def construct_executable_model(sts: List[Influence]) -> DiGraph:
+def construct_executable_model(sts: List[Influence]) -> CausalAnalysisGraph:
     return add_conditional_probabilities(construct_CAG_skeleton(sts))
 
 
-def load_model(filename: str) -> DiGraph:
+def load_model(filename: str) -> CausalAnalysisGraph:
     with open(filename, "rb") as f:
         CAG = pickle.load(f)
     return CAG
@@ -322,7 +338,9 @@ def emission_function(x):
     return np.random.normal(x, 0.01 * abs(x))
 
 
-def write_sequences_to_file(CAG: DiGraph, seqs, output_filename: str) -> None:
+def write_sequences_to_file(
+    CAG: CausalAnalysisGraph, seqs, output_filename: str
+) -> None:
 
     with open(output_filename, "w") as f:
         f.write(
