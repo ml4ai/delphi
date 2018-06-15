@@ -17,6 +17,7 @@ matplotlib = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable=true}
 future = "*"
 Cython = "*"
+"ruamel.yaml" = "*"
 
 [dev-packages]
 mypy = "*"
