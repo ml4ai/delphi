@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 tqdm = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
@@ -17,11 +14,10 @@ pandas = "*"
 scipy = "*"
 pytest = "*"
 matplotlib = "*"
-cython = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable=true}
 future = "*"
+Cython = "*"
 
 [dev-packages]
-
 mypy = "*"
 pipenv-to-requirements = "*"
