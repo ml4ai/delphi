@@ -11,3 +11,5 @@ install:
 script: 
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - make test
+
+cache: pip
