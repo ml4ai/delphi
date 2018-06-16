@@ -10,9 +10,9 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
--e git+https://github.com/sorgerlab/indra.git#egg=indra
 cython
 future
+fuzzywuzzy[speedup]
 matplotlib
 networkx==2.1
 numpy
