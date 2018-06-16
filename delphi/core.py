@@ -12,6 +12,7 @@ from indra.sources import eidos
 from scipy.stats import gaussian_kde
 from pandas import Series, DataFrame, read_csv
 from glob import glob
+from fuzzywuzzy import process
 
 from functools import partial, lru_cache, singledispatch
 from delphi.types import GroupBy, Delta, CausalAnalysisGraph
@@ -359,7 +360,6 @@ def write_sequences_to_file(
                 f.write(",".join([str(n), str(t), vs]) + "\n")
 
 
-
 def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
     if mapping is None:
         yaml = YAML()
@@ -386,3 +386,25 @@ def set_indicators(
         n[1]["indicators"] = get_indicators(n[0], mapping)
 
     return G
+
+
+def get_faostat_data(filename: str) -> DataFrame:
+    return read_csv(filename, sep="|")
+
+
+def get_best_match(indicator_name: str, items: Iterable[str]) -> str:
+    return process.extractOne(indicator_name, items)[0]
+
+
+def get_indicator_data(
+    indicator: str, df: DataFrame, year: str = None
+) -> DataFrame:
+
+    best_match = get_best_match(indicator, df["Item"].values)
+    return df[df.Item == best_match]
+
+
+def get_indicator_value(indicator_data: DataFrame, year: str) -> float:
+    return indicator_data[indicator_data.Year == year]['Value'].iloc[0]
+
+

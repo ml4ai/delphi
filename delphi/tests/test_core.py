@@ -27,13 +27,30 @@ c3 = Concept(
     },
 )
 
+concept_to_indicator_mapping="""\
+concepts:
+    food security:
+        indicators:
+            average dietary energy supply adequacy:
+                source: FAO
+                url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
+            average value of food production:
+                source: FAO
+                url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
+"""
+yaml = YAML()
+mapping = yaml.load(concept_to_indicator_mapping)
 
 relevant_concepts = ["food_security"]
 
 statement1 = Influence(c2, c3)
 statement2 = Influence(c1, c2)
+CAG = set_indicators(create_dressed_CAG([statement1, statement2],
+                    'data/adjectiveData.tsv'))
+indicators = CAG.nodes['food security']['indicators']
 s_index = ["A", "∂A/∂t"]
 
+faostat_data = get_faostat_data('data/south_sudan_data.csv')
 
 def test_construct_default_initial_state():
     series = construct_default_initial_state(s_index)
@@ -70,26 +87,14 @@ def test_contains_relevant_concept():
 
 
 def test_get_indicators():
-    yaml_string="""\
-    concepts:
-        food security:
-            indicators:
-                average dietary energy supply adequacy:
-                    source: FAO
-                    url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
-                average value of food production:
-                    source: FAO
-                    url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
-    """
-
-    yaml = YAML()
-    mapping = yaml.load(yaml_string)
-
     assert (
         list(get_indicators("food security", mapping).keys())[0]
         == "average dietary energy supply adequacy"
     )
-    CAG = set_indicators(create_dressed_CAG([statement1, statement2],
-                        'data/adjectiveData.tsv'))
-    indicators = CAG.nodes['food security']['indicators']
     assert('average dietary energy supply adequacy' in indicators)
+
+
+def test_get_indicator_data():
+    df = faostat_data
+    indicator_data = get_indicator_data('average value of food production', df)
+    assert get_indicator_value(indicator_data, '2010-2012') == 143.0
