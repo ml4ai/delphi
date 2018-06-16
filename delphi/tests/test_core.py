@@ -47,7 +47,7 @@ statement1 = Influence(c2, c3)
 statement2 = Influence(c1, c2)
 CAG = set_indicators(create_dressed_CAG([statement1, statement2],
                     'data/adjectiveData.tsv'))
-indicators = CAG.nodes()['food security']['indicators']
+indicators = CAG.node['food security']['indicators']
 s_index = ["A", "∂A/∂t"]
 
 faostat_data = get_faostat_data('data/south_sudan_data.csv')
