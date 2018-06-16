@@ -13,12 +13,14 @@ pandas = "*"
 scipy = "*"
 pytest = "*"
 matplotlib = "*"
-indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 future = "*"
 Cython = "*"
 "ruamel.yaml" = "*"
+fuzzywuzzy = {extras = ["speedup"]}
 networkx = "==2.1"
 
 [dev-packages]
+indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 mypy = "*"
 pipenv-to-requirements = "*"
+xlrd = "*"

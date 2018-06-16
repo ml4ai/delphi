@@ -6,7 +6,7 @@ python:
 # Using pipenv
 install:
   - pip install pipenv
-  - pipenv install --dev --skip-lock
+  - pipenv install
 
 script: 
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR

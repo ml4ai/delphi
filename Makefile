@@ -1,6 +1,6 @@
 test:
 	cd docs; make doctest
-	pytest
+	pipenv run pytest
 
 pypi_upload:
 	rm -rf dist
