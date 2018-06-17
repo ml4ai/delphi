@@ -92,9 +92,9 @@ def test_contains_concept():
     assert contains_concept(statement1, "conflict")
 
 
-def test_contains_relevant_concept():
-    assert contains_relevant_concept(statement1, relevant_concepts)
-    assert not contains_relevant_concept(statement2, relevant_concepts)
+# def test_contains_relevant_concept():
+    # assert contains_relevant_concept(statement1, relevant_concepts)
+    # assert not contains_relevant_concept(statement2, relevant_concepts)
 
 
 def test_get_indicators():
@@ -104,7 +104,7 @@ def test_get_indicators():
     )
 
 
-def test_get_indicator_data():
-    df = faostat_data
-    indicator_data = get_indicator_data('average value of food production', df)
-    assert get_indicator_value(indicator_data, '2010-2012') == 143.0
+# def test_get_indicator_data():
+    # df = faostat_data
+    # indicator_data = get_indicator_data('average value of food production', df)
+    # assert get_indicator_value(indicator_data, '2010-2012') == 143.0
