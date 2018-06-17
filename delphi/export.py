@@ -1,6 +1,7 @@
 import json
 import pickle
 import datetime
+import numpy as np
 from typing import List, Dict, Union
 from delphi.types import CausalAnalysisGraph
 from functools import partial
@@ -50,11 +51,14 @@ def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]
         arguments.
 
     """
-    n[1]["name"] = n[0]
-    n[1]["units"] = _get_units(n[0])
-    n[1]["dtype"] = _get_dtype(n[0])
-    n[1]["arguments"] = list(CAG.predecessors(n[0]))
-    return n[1]
+    node_dict = {
+        "name" : n[0],
+        "units" : _get_units(n[0]),
+        "dtype" : _get_dtype(n[0]),
+        "arguments" : list(CAG.predecessors(n[0])),
+        "indicators": [ind.__dict__ for ind in n[1]["indicators"]] if n[1]['indicators'] else None
+    }
+    return node_dict
 
 
 def _export_edge(CAG: CausalAnalysisGraph, e):
