@@ -17,6 +17,7 @@ class CausalAnalysisGraph(DiGraph):
 @dataclass
 class Indicator:
     name: str
+    source: str
     initial_value: float = None
 
 @dataclass(frozen=True)
