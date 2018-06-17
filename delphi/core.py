@@ -1,18 +1,23 @@
+import sys
 import json
 import pickle
 import datetime
 import numpy as np
 from pathlib import Path
+from ruamel.yaml import YAML
 from tqdm import trange, tqdm
 from itertools import permutations, cycle, chain
 from indra.statements import Influence, Concept
+from networkx import DiGraph
 from indra.sources import eidos
 from scipy.stats import gaussian_kde
-from pandas import Series, DataFrame, read_csv
+from pandas import Series, DataFrame, read_csv, isna
 from glob import glob
+from fuzzywuzzy import process, fuzz
 
 from functools import partial, lru_cache, singledispatch
-from delphi.types import GroupBy, Delta, CausalAnalysisGraph
+from delphi.types import GroupBy, Delta, CausalAnalysisGraph, Node, Indicator
+from delphi.paths import data_dir, concept_to_indicator_mapping
 from future.utils import lmap, lfilter, lzip
 from delphi.utils import (
     flatMap,
@@ -27,6 +32,7 @@ from delphi.utils import (
 from typing import (
     List,
     Tuple,
+    Set,
     Callable,
     Optional,
     Any,
@@ -53,8 +59,14 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
     return s.subj_delta, s.obj_delta
 
 
+def top_grounding(c: Concept, ontology="UN") -> str:
+    return c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
+
+
 def nameTuple(s: Influence) -> Tuple[str, str]:
-    return (s.subj.name, s.obj.name)
+    return _process_concept_name(top_grounding(s.subj)), _process_concept_name(
+        top_grounding(s.obj)
+    )
 
 
 def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
@@ -136,10 +148,22 @@ def contains_relevant_concept(
     )
 
 
+def get_concepts(sts: List[Influence]) -> Set[str]:
+    return set(flatMap(nameTuple, sts))
+
+
+def _process_concept_name(concept: str) -> str:
+    return concept.replace("_", " ")
+
+
+def _make_CAG_nodes(concepts: Set[str]) -> List[str]:
+    return [_process_concept_name(concept) for concept in concepts]
+
+
 def _make_edge(
     sts: List[Influence], p: Tuple[str, str]
 ) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    return (
+    edge = (
         p[0],
         p[1],
         {
@@ -148,13 +172,17 @@ def _make_edge(
             )
         },
     )
+    return edge
 
 
 def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
     return CausalAnalysisGraph(
         lfilter(
             lambda e: len(e[2]["InfluenceStatements"]) != 0,
-            map(partial(_make_edge, sts), permutations(set(flatMap(nameTuple, sts)), 2)),
+            lmap(
+                partial(_make_edge, sts),
+                permutations(_make_CAG_nodes(get_concepts(sts)), 2),
+            ),
         )
     )
 
@@ -352,3 +380,89 @@ def write_sequences_to_file(
             for t, l in enumerate(s):
                 vs = ",".join([str(x) for x in l.T[0][::2]])
                 f.write(",".join([str(n), str(t), vs]) + "\n")
+
+
+def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
+    if mapping is None:
+        yaml = YAML()
+        with open(concept_to_indicator_mapping, "r") as f:
+            mapping = yaml.load(f)
+
+    return (
+        [Indicator(x) for x in mapping["concepts"][concept]["indicators"]]
+        if concept in mapping["concepts"]
+        else None
+    )
+
+
+def set_indicators(
+    G: CausalAnalysisGraph, mapping: Optional[Dict] = None
+) -> CausalAnalysisGraph:
+    if mapping is None:
+        mapping_yaml_file = concept_to_indicator_mapping
+        yaml = YAML()
+        with open(mapping_yaml_file, "r") as f:
+            mapping = yaml.load(f)
+
+    for n in G.nodes(data=True):
+        n[1]["indicators"] = get_indicators(n[0], mapping)
+
+    return G
+
+
+def get_faostat_data(filename: str) -> DataFrame:
+    return read_csv(filename, sep="|")
+
+
+def get_best_match(indicator_name: str, items: Iterable[str]) -> str:
+    return process.extractOne(
+        indicator_name, items, scorer=fuzz.token_sort_ratio
+    )[0]
+
+
+def get_indicator_data(
+    indicator: str, df: DataFrame, year: str = None
+) -> DataFrame:
+
+    best_match = get_best_match(indicator, df["Item"].values)
+    return df[df.Item == best_match]
+
+
+def get_indicator_values(indicator_data: DataFrame) -> Optional[float]:
+    indicator_values = indicator_data["Value"]
+    if not indicator_values.empty:
+        return indicator_values
+    else:
+        return None
+
+
+def get_indicator_initial_value(
+    indicator_values: Optional[DataFrame], year: str
+) -> Optional[float]:
+    if indicator_values is not None:
+        initial_value = indicator_values.iloc[0]
+        return initial_value if not isna(initial_value) else None
+    else:
+        return None
+
+
+def set_indicator_initial_values(
+    CAG: CausalAnalysisGraph, year: str, df: DataFrame
+) -> CausalAnalysisGraph:
+
+    for n in CAG.nodes(data=True):
+        if n[1]["indicators"] is not None:
+            for indicator in n[1]["indicators"]:
+                indicator_data = get_indicator_data(indicator.name, df)
+                indicator_values = get_indicator_values(
+                    indicator_data[indicator_data.Year == year]
+                )
+                if indicator_values is not None:
+                    indicator.initial_value = get_indicator_initial_value(
+                        indicator_values, year
+                    )
+            n[1]["indicators"] = lfilter(
+                lambda ind: ind.initial_value, n[1]["indicators"]
+            )
+
+    return CAG

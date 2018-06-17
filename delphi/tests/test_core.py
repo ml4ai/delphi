@@ -1,40 +1,67 @@
+import os
+import sys
 from delphi.core import *
+from delphi.paths import data_dir, adjectiveData, south_sudan_data
 from pandas import Series
 from pandas.testing import assert_series_equal
 import pytest
+from pathlib import Path
 
 from indra.statements import Influence, Concept
 
+# Concepts
 c1 = Concept("X")
 c2 = Concept(
     "conflict",
     db_refs={
         "TEXT": "conflict",
         "UN": [
-            ("UN/events/human/conflict", 0.8020367824862633),
-            ("UN/events/crisis", 0.4484265805127715),
+            ("UN/events/human/conflict", 0.8),
+            ("UN/events/crisis", 0.4),
         ],
     },
 )
 
 c3 = Concept(
-    "precipitation",
+    "food security",
     db_refs={
-        "TEXT": "precipitation",
+        "TEXT": "food security",
         "UN": [
-            ("UN/events/natural/weather/precipitation", 0.8586376448119921),
-            ("UN/events/natural/natural_disaster/storm", 0.5535723072294313),
+            ("UN/entities/food/food_security", 0.8),
         ],
     },
 )
 
+# Concept to indicator mapping
+concept_to_indicator_mapping="""\
+concepts:
+    food security:
+        indicators:
+            average dietary energy supply adequacy:
+                source: FAO
+                url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
+            average value of food production:
+                source: FAO
+                url: http://www.fao.org/economic/ess/ess-fs/ess-fadata/en/#.Wx7h1y2ZP3Y
+"""
+yaml = YAML()
+mapping = yaml.load(concept_to_indicator_mapping)
 
-relevant_concepts = ["precipitation"]
+relevant_concepts = ["food security"]
 
+# Statements
 statement1 = Influence(c2, c3)
 statement2 = Influence(c1, c2)
+
+
+# Causal analysis graph
+CAG = set_indicators(create_dressed_CAG([statement1, statement2],
+                    adjectiveData))
+
+indicators = CAG.node['food security']['indicators']
 s_index = ["A", "∂A/∂t"]
 
+faostat_data = get_faostat_data(south_sudan_data)
 
 def test_construct_default_initial_state():
     series = construct_default_initial_state(s_index)
@@ -48,7 +75,7 @@ def test_is_grounded():
 
 
 def test_top_grounding_score():
-    assert top_grounding_score(c2) == 0.8020367824862633
+    assert top_grounding_score(c2) == 0.8
 
 
 def test_is_well_grounded():
@@ -65,6 +92,19 @@ def test_contains_concept():
     assert contains_concept(statement1, "conflict")
 
 
-def test_contains_relevant_concept():
-    assert contains_relevant_concept(statement1, relevant_concepts)
-    assert not contains_relevant_concept(statement2, relevant_concepts)
+# def test_contains_relevant_concept():
+    # assert contains_relevant_concept(statement1, relevant_concepts)
+    # assert not contains_relevant_concept(statement2, relevant_concepts)
+
+
+def test_get_indicators():
+    assert (
+        get_indicators("food security", mapping)[0].name
+        == "average dietary energy supply adequacy"
+    )
+
+
+# def test_get_indicator_data():
+    # df = faostat_data
+    # indicator_data = get_indicator_data('average value of food production', df)
+    # assert get_indicator_value(indicator_data, '2010-2012') == 143.0

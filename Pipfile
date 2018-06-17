@@ -1,27 +1,30 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-
 tqdm = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
-networkx = "*"
 numpy = "*"
 pandas = "*"
 scipy = "*"
 pytest = "*"
 matplotlib = "*"
-cython = "*"
-indra = {git = "https://github.com/sorgerlab/indra.git", editable=true}
 future = "*"
+Cython = "*"
+"ruamel.yaml" = "*"
+fuzzywuzzy = {extras = ["speedup"]}
+networkx = "==1.11"
+jupyterlab = "*"
+ipyparallel = "*"
+pygraphviz = "*"
+dataclasses = "*"
 
 [dev-packages]
-
+indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 mypy = "*"
 pipenv-to-requirements = "*"
+xlrd = "*"
