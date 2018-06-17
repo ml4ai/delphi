@@ -39,7 +39,7 @@ def create_CRA_CAG(args):
                         args.adjective_data,
                     )
                 ),
-                "2012",
+                args.year,
                 get_faostat_wdi_data(
                     "data/south_sudan_data.csv"
                 ),
@@ -227,6 +227,13 @@ if __name__ == "__main__":
         "Path to the YAML file containing the mapping between concepts and indicators.",
         str,
         "data/concept_to_indicator_mapping.yml",
+    )
+
+    add_arg(
+        "year",
+        "Year to get the indicator variable values for",
+        str,
+        "2015",
     )
 
     args = parser.parse_args()
