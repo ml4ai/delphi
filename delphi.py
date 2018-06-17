@@ -127,6 +127,11 @@ if __name__ == '__main__':
     add_arg('output_dressed_cag', 'Path to the output dressed cag', str,
             'dressed_CAG.pkl')
 
+    add_arg('concept_to_indicator_mapping',
+            'Path to the YAML file containing the mapping between concepts and indicators.',
+            str,
+            'data/concept_to_indicator_mapping.yml')
+
     args = parser.parse_args()
 
     if len(sys.argv) == 1:
