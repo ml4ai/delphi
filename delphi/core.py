@@ -389,7 +389,8 @@ def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
             mapping = yaml.load(f)
 
     return (
-        [Indicator(x) for x in mapping["concepts"][concept]["indicators"]]
+        [Indicator(x[0], x[1]['source']) for x in
+            mapping["concepts"][concept]["indicators"].items()]
         if concept in mapping["concepts"]
         else None
     )
@@ -410,8 +411,8 @@ def set_indicators(
     return G
 
 
-def get_faostat_data(filename: str) -> DataFrame:
-    return read_csv(filename, sep="|")
+def get_faostat_wdi_data(filename: str) -> DataFrame:
+    return read_csv(filename, sep="|", index_col='Indicator Name')
 
 
 def get_best_match(indicator_name: str, items: Iterable[str]) -> str:
@@ -419,31 +420,28 @@ def get_best_match(indicator_name: str, items: Iterable[str]) -> str:
         indicator_name, items, scorer=fuzz.token_sort_ratio
     )[0]
 
+def bind(x, f, *args):
+    return x if x is None else f(x, *args)
+
 
 def get_indicator_data(
-    indicator: str, df: DataFrame, year: str = None
+    indicator: Indicator, df: DataFrame, year: str = None
 ) -> DataFrame:
 
-    best_match = get_best_match(indicator, df["Item"].values)
-    return df[df.Item == best_match]
+    best_match = get_best_match(indicator.name, df.index)
+    return df.loc[best_match]
 
 
-def get_indicator_values(indicator_data: DataFrame) -> Optional[float]:
-    indicator_values = indicator_data["Value"]
-    if not indicator_values.empty:
-        return indicator_values
-    else:
-        return None
-
-
-def get_indicator_initial_value(
-    indicator_values: Optional[DataFrame], year: str
+def get_indicator_value_for_year(
+    indicator: Indicator, year: str, df
 ) -> Optional[float]:
-    if indicator_values is not None:
-        initial_value = indicator_values.iloc[0]
-        return initial_value if not isna(initial_value) else None
-    else:
+
+    if not year in df.columns:
         return None
+    else:
+        indicator_value = get_indicator_data(indicator, df)[year]
+
+    return indicator_value if not isna(indicator_value) else None
 
 
 def set_indicator_initial_values(
@@ -453,16 +451,9 @@ def set_indicator_initial_values(
     for n in CAG.nodes(data=True):
         if n[1]["indicators"] is not None:
             for indicator in n[1]["indicators"]:
-                indicator_data = get_indicator_data(indicator.name, df)
-                indicator_values = get_indicator_values(
-                    indicator_data[indicator_data.Year == year]
-                )
-                if indicator_values is not None:
-                    indicator.initial_value = get_indicator_initial_value(
-                        indicator_values, year
-                    )
+                indicator.initial_value = get_indicator_value_for_year(indicator, year, df)
             n[1]["indicators"] = lfilter(
-                lambda ind: ind.initial_value, n[1]["indicators"]
+                lambda ind: ind.initial_value is not None, n[1]["indicators"]
             )
 
     return CAG
