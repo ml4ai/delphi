@@ -17,7 +17,11 @@ future = "*"
 Cython = "*"
 "ruamel.yaml" = "*"
 fuzzywuzzy = {extras = ["speedup"]}
-networkx = "==2.1"
+networkx = "==1.11"
+jupyterlab = "*"
+ipyparallel = "*"
+pygraphviz = "*"
+dataclasses = "*"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
