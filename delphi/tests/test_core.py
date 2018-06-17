@@ -1,10 +1,15 @@
+import os
+import sys
 from delphi.core import *
+from delphi.paths import data_dir, adjectiveData, south_sudan_data
 from pandas import Series
 from pandas.testing import assert_series_equal
 import pytest
+from pathlib import Path
 
 from indra.statements import Influence, Concept
 
+# Concepts
 c1 = Concept("X")
 c2 = Concept(
     "conflict",
@@ -27,6 +32,7 @@ c3 = Concept(
     },
 )
 
+# Concept to indicator mapping
 concept_to_indicator_mapping="""\
 concepts:
     food security:
@@ -41,16 +47,21 @@ concepts:
 yaml = YAML()
 mapping = yaml.load(concept_to_indicator_mapping)
 
-relevant_concepts = ["food_security"]
+relevant_concepts = ["food security"]
 
+# Statements
 statement1 = Influence(c2, c3)
 statement2 = Influence(c1, c2)
+
+
+# Causal analysis graph
 CAG = set_indicators(create_dressed_CAG([statement1, statement2],
-                    'data/adjectiveData.tsv'))
+                    adjectiveData))
+
 indicators = CAG.node['food security']['indicators']
 s_index = ["A", "∂A/∂t"]
 
-faostat_data = get_faostat_data('data/south_sudan_data.csv')
+faostat_data = get_faostat_data(south_sudan_data)
 
 def test_construct_default_initial_state():
     series = construct_default_initial_state(s_index)
@@ -88,10 +99,9 @@ def test_contains_relevant_concept():
 
 def test_get_indicators():
     assert (
-        list(get_indicators("food security", mapping).keys())[0]
+        get_indicators("food security", mapping)[0].name
         == "average dietary energy supply adequacy"
     )
-    assert('average dietary energy supply adequacy' in indicators)
 
 
 def test_get_indicator_data():
