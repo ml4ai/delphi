@@ -7,10 +7,9 @@ import multiprocessing as mp
 from functools import partial
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as S
 from ruamel.yaml import YAML
-import urllib.request as request
 from delphi.paths import data_dir
+from delphi.utils import download_file, cd
 from pathlib import Path
-import requests
 import zipfile
 import subprocess as sp
 import contextlib
@@ -24,47 +23,6 @@ read_csv = partial(
         )
     ),
 )
-
-
-def tqdm_reporthook(t):
-    """Wraps tqdm instance.
-    Don't forget to close() or __exit__()
-    the tqdm instance once you're done with it (easiest using `with` syntax).
-    Example
-    -------
-    >>> with tqdm(...) as t:
-    ...     reporthook = my_hook(t)
-    ...     urllib.urlretrieve(..., reporthook=reporthook)
-    """
-    last_b = [0]
-
-    def update_to(b=1, bsize=1, tsize=None):
-        """
-        b  : int, optional
-            Number of blocks transferred so far [default: 1].
-        bsize  : int, optional
-            Size of each block (in tqdm units) [default: 1].
-        tsize  : int, optional
-            Total size (in tqdm units). If [default: None] remains unchanged.
-        """
-        if tsize is not None:
-            t.total = tsize
-        t.update((b - last_b[0]) * bsize)
-        last_b[0] = b
-
-    return update_to
-
-
-def download_file(url: str, filename: str):
-    print(f"Downloading {url} to {filename}")
-    with tqdm(
-        ncols=80,
-        unit="bytes",
-        unit_scale=True,
-        unit_divisor=1024,
-    ) as t:
-        reporthook = tqdm_reporthook(t)
-        request.urlretrieve(url, filename, reporthook)
 
 
 def download_FAOSTAT_data():
@@ -81,14 +39,6 @@ def extract_zipfile(file, dir):
     with zipfile.ZipFile(file) as zf:
         zf.extractall(dir)
 
-def _change_directory(destination_directory):
-    cwd = os.getcwd()
-    os.chdir(destination_directory)
-    try: yield
-    except: pass
-    finally: os.chdir(cwd)
-
-cd = contextlib.contextmanager(_change_directory)
 
 def sp_unzip(f):
     sp.call(['unzip', f])
@@ -144,7 +94,7 @@ def clean_FAOSTAT_data():
         df["filename"] = filename.split("/")[-1]
 
     df = pd.concat(dfs)
-    df.to_csv(str(Path(data_dir)/"south_sudan_data.csv"), index=False, sep="|")
+    df.to_csv(str(Path(data_dir)/"south_sudan_data_fao.csv"), index=False, sep="|")
 
 
 def process_variable_name(k, e):
@@ -161,7 +111,7 @@ def process_variable_name(k, e):
 
 
 def construct_FAO_ontology():
-    df = pd.read_csv("south_sudan_data.csv")
+    df = pd.read_csv("south_sudan_data_fao.csv")
     gb = df.groupby("Element")
 
     d = [

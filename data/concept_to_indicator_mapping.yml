@@ -58,3 +58,9 @@ concepts:
       Percentage of children under 5 years of age who are underweight:
         source: WHO/UNICEF/WB
         url: http://www.fao.org/fileadmin/templates/ess/foodsecurity/Food_Security_Indicators_25-10-2017.xlsx
+  conflict:
+    indicators:
+      Political stability and absence of violence/terrorism (index), Value:
+        source: WB
+        url: null
+
