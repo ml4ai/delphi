@@ -278,7 +278,7 @@ def add_conditional_probabilities(
     CAG: CausalAnalysisGraph, adjectiveData: str
 ) -> CausalAnalysisGraph:
     # Create a pandas GroupBy object
-    gb = read_csv(adjectiveData, delim_whitespace=True, error_bad_lines=False).groupby("adjective")
+    gb = read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
     rs = (
         gaussian_kde(
             flatMap(
@@ -412,34 +412,29 @@ def set_indicators(
 
 
 def get_faostat_wdi_data(filename: str) -> DataFrame:
-    return read_csv(filename, sep="|", index_col='Indicator Name', error_bad_lines=False)
+    return read_csv(filename, sep="|", index_col='Indicator Name')
 
 
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     return process.extractOne(
-        indicator.name, items, scorer=fuzz.token_sort_ratio
+        indicator.name, items
     )[0]
 
 def bind(x, f, *args):
     return x if x is None else f(x, *args)
 
 
-def get_indicator_data(
-    indicator: Indicator, df: DataFrame, year: str = None
-) -> DataFrame:
+def get_indicator_value_for_year(indicator: Indicator,
+                                 year: str,
+                                 df) -> Optional[float]:
 
     best_match = get_best_match(indicator, df.index)
-    return df.loc[best_match]
-
-
-def get_indicator_value_for_year(
-    indicator: Indicator, year: str, df
-) -> Optional[float]:
+    print(indicator.name, best_match, year)
 
     if not year in df.columns:
         return None
     else:
-        indicator_value = get_indicator_data(indicator, df)[year]
+        indicator_value = df[year][best_match]
 
     return indicator_value if not isna(indicator_value) else None
 
