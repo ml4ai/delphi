@@ -107,7 +107,8 @@ def test_get_indicators():
 def test_get_indicator_data():
     df = faostat_data
     indicator = Indicator('average value of food production', 'FAO')
-    assert get_indicator_value_for_year(indicator, '2012', df) == 143.0
+    assert get_indicator_value_for_year(indicator, '2010-2012', df) == 143.0
+
 
 def test_get_latent_state_components():
     assert set(get_latent_state_components(CAG)) == set(['X', '∂(X)/∂t', 'conflict',
