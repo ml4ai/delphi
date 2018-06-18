@@ -19,6 +19,7 @@ class Indicator:
     name: str
     source: str
     initial_value: float = None
+    stdev: float = None
 
 @dataclass(frozen=True)
 class Node:
