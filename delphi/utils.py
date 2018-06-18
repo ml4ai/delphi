@@ -230,9 +230,6 @@ def tqdm_reporthook(t):
     the tqdm instance once you're done with it (easiest using `with` syntax).
     Example
     -------
-    >>> with tqdm(...) as t:
-    ...     reporthook = my_hook(t)
-    ...     urllib.urlretrieve(..., reporthook=reporthook)
     """
     last_b = [0]
 
