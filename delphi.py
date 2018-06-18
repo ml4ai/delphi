@@ -40,23 +40,36 @@ def create_CRA_CAG(args):
                     )
                 ),
                 args.year,
-                get_faostat_wdi_data(
-                    "data/south_sudan_data.csv"
-                ),
+                get_faostat_wdi_data("data/south_sudan_data.csv"),
             ),
             args.dt,
         )
 
 
 def create_model(args):
-    from delphi.core import isSimulable, create_dressed_CAG
+    from delphi.core import (
+        isSimulable,
+        create_dressed_CAG,
+        set_indicator_initial_values,
+        set_indicators,
+        get_faostat_wdi_data,
+    )
     from delphi.export import export_to_ISI
 
     with open(args.indra_statements, "rb") as f:
         export_to_ISI(
-            create_dressed_CAG(
-                ltake(args.n_statements, filter(isSimulable, pickle.load(f))),
-                args.adjective_data,
+            set_indicator_initial_values(
+                set_indicators(
+                    create_dressed_CAG(
+                        ltake(
+                            args.n_statements,
+                            filter(isSimulable, pickle.load(f)),
+                        ),
+                        args.adjective_data,
+                    )
+                ),
+                args.year,
+                get_faostat_wdi_data("data/south_sudan_data.csv"),
             ),
             args,
         )
@@ -140,7 +153,7 @@ if __name__ == "__main__":
         "indra_statements",
         "Pickle file containing INDRA statements",
         str,
-        Path(__file__).parents[0] / "data" / "sample_indra_statements.pkl",
+        Path(__file__).parents[0] / "data" / "curated_statements.pkl",
     )
 
     add_arg(
@@ -230,10 +243,7 @@ if __name__ == "__main__":
     )
 
     add_arg(
-        "year",
-        "Year to get the indicator variable values for",
-        str,
-        "2015",
+        "year", "Year to get the indicator variable values for", str, "2012"
     )
 
     args = parser.parse_args()
