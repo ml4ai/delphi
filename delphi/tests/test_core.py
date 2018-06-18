@@ -61,7 +61,7 @@ CAG = set_indicators(create_dressed_CAG([statement1, statement2],
 indicators = CAG.node['food security']['indicators']
 s_index = ["A", "∂A/∂t"]
 
-faostat_data = get_faostat_data(south_sudan_data)
+faostat_data = get_faostat_wdi_data(south_sudan_data)
 
 def test_construct_default_initial_state():
     series = construct_default_initial_state(s_index)
@@ -92,9 +92,9 @@ def test_contains_concept():
     assert contains_concept(statement1, "conflict")
 
 
-# def test_contains_relevant_concept():
-    # assert contains_relevant_concept(statement1, relevant_concepts)
-    # assert not contains_relevant_concept(statement2, relevant_concepts)
+def test_contains_relevant_concept():
+    assert contains_relevant_concept(statement1, relevant_concepts)
+    assert not contains_relevant_concept(statement2, relevant_concepts)
 
 
 def test_get_indicators():
