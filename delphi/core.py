@@ -60,7 +60,7 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
 
 
 def top_grounding(c: Concept, ontology="UN") -> str:
-    return c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
+    return c.db_refs["UN"][0][0].split("/")[-1].replace('_', ' ') if "UN" in c.db_refs else c.name
 
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
@@ -125,7 +125,7 @@ def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
 
 def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
     return (
-        (c.db_refs["UN"][0][0].split("/")[-1] == name)
+        (top_grounding(c) == name)
         if is_well_grounded(c, "UN", cutoff)
         else False
     )
