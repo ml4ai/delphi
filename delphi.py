@@ -86,7 +86,7 @@ def execute_model(args):
 
     CAG = load_model(args.input_dressed_cag)
 
-    s0 = read_csv(args.input_variables_path, index_col=0, header=None)[1]
+    s0 = read_csv(args.input_variables_path, index_col=0, header=None, error_bad_lines=False)[1]
 
     write_sequences_to_file(
         CAG,

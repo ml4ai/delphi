@@ -278,7 +278,7 @@ def add_conditional_probabilities(
     CAG: CausalAnalysisGraph, adjectiveData: str
 ) -> CausalAnalysisGraph:
     # Create a pandas GroupBy object
-    gb = read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
+    gb = read_csv(adjectiveData, delim_whitespace=True, error_bad_lines=False).groupby("adjective")
     rs = (
         gaussian_kde(
             flatMap(
@@ -412,7 +412,7 @@ def set_indicators(
 
 
 def get_faostat_wdi_data(filename: str) -> DataFrame:
-    return read_csv(filename, sep="|", index_col='Indicator Name')
+    return read_csv(filename, sep="|", index_col='Indicator Name', error_bad_lines=False)
 
 
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
