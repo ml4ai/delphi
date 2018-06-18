@@ -8,11 +8,35 @@ from functools import partial
 from future.utils import lmap
 from delphi.core import construct_default_initial_state, get_latent_state_components
 
+def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
+    """ Return dict suitable for exporting to JSON.
+
+    Args:
+        CAG: The causal analysis graph
+        n: A dict representing the data in a networkx CausalAnalysisGraph node.
+
+    Returns:
+        The node dict with additional fields for name, units, dtype, and
+        arguments.
+
+    """
+    node_dict = {
+        "name" : n[0],
+        "units" : _get_units(n[0]),
+        "dtype" : _get_dtype(n[0]),
+        "arguments" : list(CAG.predecessors(n[0])),
+    }
+    if not n[1].get('indicators') is None:
+        node_dict['indicators'] = [ind.__dict__ for ind in n[1]["indicators"]]
+    else:
+        node_dict['indicators'] = None
+
+    return node_dict
+
 
 def export_to_ISI(CAG: CausalAnalysisGraph, args) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
-
     s0.to_csv(args.output_variables_path, index_label="variable")
 
     model = {
@@ -39,26 +63,6 @@ def _get_dtype(n: str) -> str:
     return "real"
 
 
-def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
-    """ Return dict suitable for exporting to JSON.
-
-    Args:
-        CAG: The causal analysis graph
-        n: A dict representing the data in a networkx CausalAnalysisGraph node.
-
-    Returns:
-        The node dict with additional fields for name, units, dtype, and
-        arguments.
-
-    """
-    node_dict = {
-        "name" : n[0],
-        "units" : _get_units(n[0]),
-        "dtype" : _get_dtype(n[0]),
-        "arguments" : list(CAG.predecessors(n[0])),
-        "indicators": [ind.__dict__ for ind in n[1]["indicators"]] if n[1]['indicators'] else None
-    }
-    return node_dict
 
 
 def _export_edge(CAG: CausalAnalysisGraph, e):
