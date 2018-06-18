@@ -415,9 +415,9 @@ def get_faostat_wdi_data(filename: str) -> DataFrame:
     return read_csv(filename, sep="|", index_col='Indicator Name')
 
 
-def get_best_match(indicator_name: str, items: Iterable[str]) -> str:
+def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     return process.extractOne(
-        indicator_name, items, scorer=fuzz.token_sort_ratio
+        indicator.name, items, scorer=fuzz.token_sort_ratio
     )[0]
 
 def bind(x, f, *args):
@@ -428,7 +428,7 @@ def get_indicator_data(
     indicator: Indicator, df: DataFrame, year: str = None
 ) -> DataFrame:
 
-    best_match = get_best_match(indicator.name, df.index)
+    best_match = get_best_match(indicator, df.index)
     return df.loc[best_match]
 
 
