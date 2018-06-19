@@ -426,7 +426,6 @@ def get_indicator_value_for_year(indicator: Indicator,
                                  df) -> Optional[float]:
 
     best_match = get_best_match(indicator, df.index)
-    print(indicator.name, best_match, year)
 
     if not year in df.columns:
         return None
