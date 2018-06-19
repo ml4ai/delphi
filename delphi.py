@@ -239,13 +239,13 @@ if __name__ == "__main__":
         "concept_to_indicator_mapping",
         "Path to the YAML file containing the mapping between concepts and indicators.",
         str,
-        "data/concept_to_indicator_mapping.yml",
+        Path(__file__).parents[0] / "data" / "concept_to_indicator_mapping.yml",
     )
     add_arg(
         "south_sudan_data",
         "Path to the file containing the data for FAO and WDI indicators for South Sudan",
         str,
-        "data/south_sudan_data.csv",
+        Path(__file__).parents[0] / "data" / "south_sudan_data.csv",
     )
 
     add_arg(
