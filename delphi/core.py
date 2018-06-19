@@ -45,7 +45,7 @@ from typing import (
 
 
 def construct_default_initial_state(s_index: List[str]) -> Series:
-    return Series(ltake(len(s_index), cycle([100.0, 1.0])), s_index)
+    return Series(ltake(len(s_index), cycle([1.0, 0.0])), s_index)
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
@@ -64,9 +64,8 @@ def top_grounding(c: Concept, ontology="UN") -> str:
 
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
-    return _process_concept_name(top_grounding(s.subj)), _process_concept_name(
-        top_grounding(s.obj)
-    )
+    return (_process_concept_name(top_grounding(s.subj)),
+            _process_concept_name(top_grounding(s.obj)))
 
 
 def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
@@ -327,12 +326,39 @@ def sample_transition_matrix(
     return A
 
 
-def sample_sequence(
+def sample_sequence_of_latent_states(
     CAG: CausalAnalysisGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
-    return take(n_steps, iterate(lambda s: emission_function(A @ s), s0))
+    return take(n_steps, iterate(lambda s: A @ s, s0))
+
+
+def sample_sequence_of_observed_states(CAG: CausalAnalysisGraph, latent_states: List[np.ndarray]) -> List[np.ndarray]:
+    return [get_observed_state(CAG, s) for s in latent_states]
+
+
+def get_observed_state(CAG, latent_state):
+    latent_state_components = get_latent_state_components(CAG)
+    observed_state = []
+    for i, s in enumerate(latent_state_components):
+        if i %2 == 0:
+            if CAG.nodes[s].get('indicators') is not None:
+                for ind in CAG.nodes[s]['indicators']:
+                    new_value = np.random.normal(latent_state[i]*ind.value, ind.stdev)
+                    # new_value = latent_state[i]*ind.value
+                    observed_state.append((ind.name, new_value))
+                    # if ind.name == 'HWAM':
+                        # print(ind.name, latent_state[i], new_value)
+            else:
+                o = np.random.normal(latent_state[i], 0.1)
+                observed_state.append((s, o))
+
+    series = Series({k:v for k, v in observed_state})
+    return series
+
+def emission_function_old(x):
+    return np.random.normal(x, 0.01 * abs(x))
 
 
 def sample_sequences(
@@ -345,7 +371,9 @@ def sample_sequences(
     """ Sample a collection of sequences for a CAG """
 
     s0 = s0.values[np.newaxis].T
-    return take(samples, repeatfunc(sample_sequence, CAG, s0, steps, Δt))
+    return sample_sequence_of_observed_states(
+            CAG, ltake(samples, repeatfunc(sample_sequence_of_latent_states, CAG, s0, steps, Δt))
+            )
 
 
 def construct_executable_model(sts: List[Influence]) -> CausalAnalysisGraph:
@@ -358,8 +386,6 @@ def load_model(filename: str) -> CausalAnalysisGraph:
     return CAG
 
 
-def emission_function(x):
-    return np.random.normal(x, 0.01 * abs(x))
 
 
 def write_sequences_to_file(

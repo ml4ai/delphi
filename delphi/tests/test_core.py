@@ -66,7 +66,7 @@ faostat_data = get_faostat_wdi_data(south_sudan_data)
 
 def test_construct_default_initial_state():
     series = construct_default_initial_state(s_index)
-    assert_series_equal(series, Series({"A": 100, "∂A/∂t": 1.0}))
+    assert_series_equal(series, Series({"A": 1.0, "∂A/∂t": 0.0}))
 
 
 def test_is_grounded():
