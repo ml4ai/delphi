@@ -427,6 +427,7 @@ def get_indicator_value(indicator: Indicator,
     best_match = get_best_match(indicator, df.index)
 
     col = str(date.year)
+
     if not col in df.columns:
         return None
     else:
@@ -443,8 +444,9 @@ def set_indicator_values(
         if n[1]["indicators"] is not None:
             for indicator in n[1]["indicators"]:
                 indicator.value = get_indicator_value(indicator, time, df)
-            n[1]["indicators"] = lfilter(
-                lambda ind: ind.value is not None, n[1]["indicators"]
-            )
+                if not indicator.value is None:
+                    indicator.stdev = 0.1*indicator.value
+            n[1]["indicators"] = [ind for ind in n[1]['indicators']
+                                  if ind.value is not None]
 
     return CAG
