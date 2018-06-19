@@ -1,7 +1,7 @@
 import sys
 import json
 import pickle
-import datetime
+from datetime import datetime
 import numpy as np
 from pathlib import Path
 from ruamel.yaml import YAML
@@ -421,30 +421,30 @@ def bind(x, f, *args):
     return x if x is None else f(x, *args)
 
 
-def get_indicator_value_for_year(indicator: Indicator,
-                                 year: str,
-                                 df) -> Optional[float]:
+def get_indicator_value(indicator: Indicator,
+        date: datetime, df: DataFrame) -> Optional[float]:
 
     best_match = get_best_match(indicator, df.index)
 
-    if not year in df.columns:
+    col = str(date.year)
+    if not col in df.columns:
         return None
     else:
-        indicator_value = df[year][best_match]
+        indicator_value = df[col][best_match]
 
     return indicator_value if not isna(indicator_value) else None
 
 
-def set_indicator_initial_values(
-    CAG: CausalAnalysisGraph, year: str, df: DataFrame
+def set_indicator_values(
+        CAG: CausalAnalysisGraph, time: datetime, df: DataFrame
 ) -> CausalAnalysisGraph:
 
     for n in CAG.nodes(data=True):
         if n[1]["indicators"] is not None:
             for indicator in n[1]["indicators"]:
-                indicator.initial_value = get_indicator_value_for_year(indicator, year, df)
+                indicator.value = get_indicator_value(indicator, year, df)
             n[1]["indicators"] = lfilter(
-                lambda ind: ind.initial_value is not None, n[1]["indicators"]
+                lambda ind: ind.value is not None, n[1]["indicators"]
             )
 
     return CAG
