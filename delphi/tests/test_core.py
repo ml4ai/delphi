@@ -2,6 +2,7 @@ import os
 import sys
 from delphi.core import *
 from delphi.paths import data_dir, adjectiveData, south_sudan_data
+from datetime import datetime
 from pandas import Series
 from pandas.testing import assert_series_equal
 import pytest
@@ -105,9 +106,10 @@ def test_get_indicators():
 
 
 def test_get_indicator_data():
-    df = faostat_data
-    indicator = Indicator('average value of food production', 'FAO')
-    assert get_indicator_value_for_year(indicator, '2010-2012', df) == 143.0
+    indicator = Indicator('Political stability and absence of violence/terrorism (index), Value',
+            'FAO')
+    t = datetime(2012, 1, 1)
+    assert get_indicator_value(indicator, t, faostat_data) == -1.2
 
 
 def test_get_latent_state_components():
