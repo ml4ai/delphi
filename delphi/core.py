@@ -237,18 +237,15 @@ def constructConditionalPDF(
         def responses(adj: Optional[str]) -> np.ndarray:
             return adjectiveResponses[adj] if exists(adj) else rs
 
-        rs_subj, rs_obj = list(
-            *zip(
-                lmap(
-                    lambda s: map(
-                        lambda d: d["polarity"]
-                        * np.array(responses(get_adjective(d))),
-                        deltas(s),
-                    ),
-                    simulableStatements,
-                )
-            )
-        )[0]
+        rs_subj=[]
+        rs_obj=[]
+
+        for s in simulableStatements:
+            rs_subj.append(s.subj_delta['polarity']*np.array(responses(get_adjective(s.subj_delta))))
+            rs_obj.append(s.obj_delta['polarity']*np.array(responses(get_adjective(s.obj_delta))))
+
+        rs_subj=np.concatenate(rs_subj)
+        rs_obj=np.concatenate(rs_obj)
 
         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
 
