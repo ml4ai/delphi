@@ -1,4 +1,5 @@
 import pandas
+from datetime import datetime
 from typing import Dict, List, Optional, NewType
 from indra.statements import Influence
 import networkx
@@ -13,12 +14,11 @@ DiGraph = networkx.classes.digraph.DiGraph
 class CausalAnalysisGraph(DiGraph):
     pass
 
-
 @dataclass
 class Indicator:
     name: str
     source: str
-    initial_value: float = None
+    value: float = None
     stdev: float = None
 
 @dataclass(frozen=True)
