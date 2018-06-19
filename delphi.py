@@ -40,7 +40,7 @@ def create_CRA_CAG(args):
                     )
                 ),
                 args.year,
-                get_faostat_wdi_data("data/south_sudan_data.csv"),
+                get_faostat_wdi_data(args.south_sudan_data),
             ),
             args.dt,
         )
@@ -69,7 +69,7 @@ def create_model(args):
                     )
                 ),
                 args.year,
-                get_faostat_wdi_data("data/south_sudan_data.csv"),
+                get_faostat_wdi_data(args.south_sudan_data),
             ),
             args,
         )
@@ -240,6 +240,12 @@ if __name__ == "__main__":
         "Path to the YAML file containing the mapping between concepts and indicators.",
         str,
         "data/concept_to_indicator_mapping.yml",
+    )
+    add_arg(
+        "south_sudan_data",
+        "Path to the file containing the data for FAO and WDI indicators for South Sudan",
+        str,
+        "data/south_sudan_data.csv",
     )
 
     add_arg(
