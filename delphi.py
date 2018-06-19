@@ -5,6 +5,7 @@ import sys
 import pickle
 from pathlib import Path
 from glob import glob
+from datetime import datetime
 from typing import Any
 from pandas import read_csv
 from functools import partial
@@ -21,7 +22,7 @@ def create_CRA_CAG(args):
     from delphi.core import (
         isSimulable,
         create_dressed_CAG,
-        set_indicator_initial_values,
+        set_indicator_values,
         set_indicators,
         get_faostat_wdi_data,
     )
@@ -29,7 +30,7 @@ def create_CRA_CAG(args):
 
     with open(args.indra_statements, "rb") as f:
         export_to_CRA(
-            set_indicator_initial_values(
+            set_indicator_values(
                 set_indicators(
                     create_dressed_CAG(
                         ltake(
@@ -39,7 +40,7 @@ def create_CRA_CAG(args):
                         args.adjective_data,
                     )
                 ),
-                args.year,
+                datetime(2012, 1,1),
                 get_faostat_wdi_data(args.south_sudan_data),
             ),
             args.dt,
@@ -50,7 +51,7 @@ def create_model(args):
     from delphi.core import (
         isSimulable,
         create_dressed_CAG,
-        set_indicator_initial_values,
+        set_indicator_values,
         set_indicators,
         get_faostat_wdi_data,
     )
@@ -58,7 +59,7 @@ def create_model(args):
 
     with open(args.indra_statements, "rb") as f:
         export_to_ISI(
-            set_indicator_initial_values(
+            set_indicator_values(
                 set_indicators(
                     create_dressed_CAG(
                         ltake(
@@ -68,7 +69,7 @@ def create_model(args):
                         args.adjective_data,
                     )
                 ),
-                args.year,
+                datetime(2012, 1,1),
                 get_faostat_wdi_data(args.south_sudan_data),
             ),
             args,
