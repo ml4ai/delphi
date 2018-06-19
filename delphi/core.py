@@ -442,7 +442,7 @@ def set_indicator_values(
     for n in CAG.nodes(data=True):
         if n[1]["indicators"] is not None:
             for indicator in n[1]["indicators"]:
-                indicator.value = get_indicator_value(indicator, year, df)
+                indicator.value = get_indicator_value(indicator, time, df)
             n[1]["indicators"] = lfilter(
                 lambda ind: ind.value is not None, n[1]["indicators"]
             )
