@@ -445,7 +445,7 @@ def set_indicator_values(
             for indicator in n[1]["indicators"]:
                 indicator.value = get_indicator_value(indicator, time, df)
                 if not indicator.value is None:
-                    indicator.stdev = 0.1*indicator.value
+                    indicator.stdev = 0.1*abs(indicator.value)
             n[1]["indicators"] = [ind for ind in n[1]['indicators']
                                   if ind.value is not None]
 
