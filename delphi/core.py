@@ -332,7 +332,7 @@ def sample_sequence(
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
-    return take(n_steps, iterate(lambda s: A @ s, s0))
+    return take(n_steps, iterate(lambda s: emission_function(A @ s), s0))
 
 
 def sample_sequences(
