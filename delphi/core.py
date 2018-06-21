@@ -158,32 +158,21 @@ def _process_concept_name(concept: str) -> str:
 def _make_CAG_nodes(concepts: Set[str]) -> List[str]:
     return [_process_concept_name(concept) for concept in concepts]
 
-
 def _make_edge(
     sts: List[Influence], p: Tuple[str, str]
 ) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (
-        p[0],
-        p[1],
-        {
-            "InfluenceStatements": lfilter(
-                lambda s: (p[0], p[1]) == nameTuple(s), sts
-            )
+    edge = (p[0], p[1], {
+        "InfluenceStatements": [s for s in sts if (p[0], p[1]) == nameTuple(s)]
         },
     )
     return edge
 
-
 def construct_CAG_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
-    return CausalAnalysisGraph(
-        lfilter(
-            lambda e: len(e[2]["InfluenceStatements"]) != 0,
-            lmap(
-                partial(_make_edge, sts),
-                permutations(_make_CAG_nodes(get_concepts(sts)), 2),
-            ),
-        )
-    )
+    node_permutations = permutations(_make_CAG_nodes(get_concepts(sts)), 2)
+    edges = [e for e in [_make_edge(sts, p) for p in node_permutations]
+             if len(e[2]["InfluenceStatements"]) != 0]
+
+    return CausalAnalysisGraph(edges)
 
 
 def get_respdevs(gb: GroupBy) -> np.ndarray:
