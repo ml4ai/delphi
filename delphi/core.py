@@ -11,7 +11,7 @@ from indra.statements import Influence, Concept
 from networkx import DiGraph
 from indra.sources import eidos
 from scipy.stats import gaussian_kde
-from pandas import Series, DataFrame, read_csv, isna
+from pandas import Series, DataFrame, read_csv, isna, read_table
 from glob import glob
 from fuzzywuzzy import process, fuzz
 
@@ -401,24 +401,33 @@ def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
             mapping = yaml.load(f)
 
     return (
-        [Indicator(x[0], x[1]['source']) for x in
-            mapping["concepts"][concept]["indicators"].items()]
-        if concept in mapping["concepts"]
-        else None
+        [Indicator(x, None) for x in mapping[concept]]
+        if concept in mapping else None
     )
 
 
+def construct_concept_to_indicator_mapping(
+        mapping_file: str = concept_to_indicator_mapping,
+        n: int = 2) -> Dict[str, List[str]]:
+    """ Create a dictionary mapping high-level concepts to low-level indicators """
+    df = read_table(concept_to_indicator_mapping, usecols = [1, 3, 4],
+            names=['Concept Grounding', 'Indicator Grounding', 'Score'])
+    gb = df.groupby('Concept Grounding')
+
+    construct_variable_name = lambda x: x.split('/')[-1]+' '+x.split('/')[-2]
+    return {k.split('/')[-1]:[construct_variable_name(x)
+            for x in v['Indicator Grounding'].values[0:n]]
+            for k, v in gb}
+
+
 def set_indicators(
-    G: CausalAnalysisGraph, mapping: Optional[Dict] = None
+        G: CausalAnalysisGraph, mapping: Optional[Dict] = None, n: int = 2
 ) -> CausalAnalysisGraph:
     if mapping is None:
-        mapping_yaml_file = concept_to_indicator_mapping
-        yaml = YAML()
-        with open(mapping_yaml_file, "r") as f:
-            mapping = yaml.load(f)
+        mapping = construct_concept_to_indicator_mapping(n = n)
 
     for n in G.nodes(data=True):
-        n[1]["indicators"] = get_indicators(n[0], mapping)
+        n[1]["indicators"] = get_indicators(n[0].lower().replace(' ', '_'), mapping)
 
     return G
 
