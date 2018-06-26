@@ -9,3 +9,7 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
+
+pkg_lock:
+	pipenv lock
+	pipenv run pipenv_to_requirements
