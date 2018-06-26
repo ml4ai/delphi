@@ -1,5 +1,7 @@
 """ Helper functions. """
 
+from indra.statements import Influence
+from indra.sources import eidos
 from itertools import repeat, accumulate, islice, chain, starmap
 from functools import reduce
 from tqdm import tqdm
@@ -7,6 +9,7 @@ from future.utils import lmap
 from typing import TypeVar, Iterator, Tuple, Callable, Iterable, List, Any, Union
 import urllib.request as request
 import contextlib
+from glob import glob
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -268,4 +271,14 @@ def _change_directory(destination_directory):
     finally: os.chdir(cwd)
 
 cd = contextlib.contextmanager(_change_directory)
+
+def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
+    """ Returns a list of INDRA statements from a directory containing JSON-LD
+    output from Eidos. """
+    return chain.from_iterable(
+        map(
+            lambda ep: ep.statements,
+            map(eidos.process_json_ld_file, tqdm(glob(directory))),
+        )
+    )
 
