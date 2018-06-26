@@ -1,6 +1,6 @@
 test:
 	cd docs; make doctest
-	pipenv run pytest
+	pipenv run pytest delphi/tests
 
 pypi_upload:
 	rm -rf dist
