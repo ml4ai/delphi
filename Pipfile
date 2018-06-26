@@ -24,6 +24,7 @@ pygraphviz = "*"
 dataclasses = "*"
 
 [dev-packages]
+pytest-cov = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 mypy = "*"
 pipenv-to-requirements = "*"
