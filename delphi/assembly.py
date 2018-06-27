@@ -58,24 +58,7 @@ def make_cag_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
 
 
 def filter_statements(sts: List[Influence]) -> List[Influence]:
-
     return [s for s in sts if is_well_grounded(s) and is_simulable(s)]
-
-
-def make_model(sts: List[Influence], adjectiveData: str,
-        relevant_concepts = Optional[List[str]]) -> CausalAnalysisGraph:
-    """ Construct a Delphi model from INDRA statements """
-
-    filtered_statements = filter_statements(sts)
-
-    if relevant_concepts is not None:
-        processed_relevant_concepts = [c.replace(' ', '_') for c in relevant_concepts]
-        filtered_statements = [s for s in filtered_statements
-                if contains_relevant_concept(s, processed_relevant_concepts)]
-
-    cag_skeleton = make_cag_skeleton(filtered_statements)
-    cag_with_pdfs = add_conditional_probabilities(cag_skeleton, adjectiveData)
-    return cag_with_pdfs
 
 
 def add_conditional_probabilities(

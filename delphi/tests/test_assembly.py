@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from indra.statements import Concept, Influence
+from delphi.api import *
 from delphi.assembly import *
 from delphi.paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
@@ -70,15 +71,11 @@ def test_make_cag_skeleton():
     assert set(cag.edges()) == set([("conflict", "food_security"), ("precipitation", "food_security")])
 
 
-# make_model not tested
+model = assemble(sts, adjectiveData, ['conflict', 'food security', 'precipitation'])
 
-filtered_sts = filter_statements(sts)
-model = make_model(filtered_sts, adjectiveData, ['conflict', 'food security', 'precipitation'])
-
-def test_make_model():
+def test_assemble():
     assert set(model.nodes()) == set(["conflict", "food_security"])
     assert set(model.edges()) == set([("conflict", "food_security")])
-
 
 # Testing preassembly functions
 

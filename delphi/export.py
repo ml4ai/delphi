@@ -77,7 +77,7 @@ def _construct_CPT(e, res=100):
     return {"beta": X.tolist(), "P(beta)": Y.tolist()}
 
 
-def export_to_CRA(CAG: CausalAnalysisGraph, Δt):
+def export_to_CRA(CAG: CausalAnalysisGraph, Δt: float = 1.0):
     with open("cra_cag.json", "w") as f:
         json.dump(
             {
@@ -86,7 +86,7 @@ def export_to_CRA(CAG: CausalAnalysisGraph, Δt):
                 "variables": lmap(
                     partial(_export_node, CAG), CAG.nodes(data=True)
                 ),
-                "timeStep": Δt,
+                "timeStep": str(Δt),
                 "CPTs": lmap(
                     lambda e: {
                         "source": e[0],
