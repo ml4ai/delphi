@@ -90,13 +90,12 @@ def to_json(CAG: CausalAnalysisGraph, Δt: float = 1.0):
                     partial(_export_node, CAG), CAG.nodes(data=True)
                 ),
                 "timeStep": str(Δt),
-                "P(theta)_polyfits": [_get_polynomial_fit(e) for e in
-                    CAG.edges(data=True)],
-                "CPTs": lmap(
+                "edge_data": lmap(
                     lambda e: {
                         "source": e[0],
                         "target": e[1],
                         "CPT": _construct_CPT(e),
+                        "polyfit": _get_polynomial_fit(e),
                     },
                     CAG.edges(data=True),
                 ),
