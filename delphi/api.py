@@ -6,7 +6,7 @@ from .assembly import (filter_statements, contains_relevant_concept,
                        set_indicators)
 from .paths import adjectiveData
 from .viz import to_agraph
-from .export import export_to_cra
+from .export import to_json
 
 def assemble(sts: List[Influence], adj_data: str = adjectiveData,
         relevant_concepts: Optional[List[str]] = None) -> CausalAnalysisGraph:
@@ -40,7 +40,7 @@ def export(cag: CausalAnalysisGraph, format='pkl', pkl_filename = 'delphi_model.
         with open(pkl_filename, 'wb') as f:
             pickle.dump(cag, f)
     elif format == 'cra':
-        export_to_cra(cag)
+        to_json(cag)
 
 
 def visualize(cag: CausalAnalysisGraph, format = 'agraph'):

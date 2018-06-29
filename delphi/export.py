@@ -64,21 +64,24 @@ def _get_dtype(n: str) -> str:
 
 
 
-
-def _export_edge(CAG: CausalAnalysisGraph, e):
-    return {"source": e[0], "target": e[1], "CPT": e[2]["CPT"]}
-
-
 def _construct_CPT(e, res=100):
     kde = e[2]["ConditionalProbability"]
     arr = np.squeeze(kde.dataset)
     X = np.linspace(min(arr), max(arr), res)
     Y = kde.evaluate(X) * (X[1] - X[0])
-    return {"beta": X.tolist(), "P(beta)": Y.tolist()}
+    return {"theta": X.tolist(), "P(theta)": Y.tolist()}
 
 
-def export_to_CRA(CAG: CausalAnalysisGraph, Δt: float = 1.0):
-    with open("cra_cag.json", "w") as f:
+def _get_polynomial_fit(e, deg = 3, res = 100):
+    kde = e[2]["ConditionalProbability"]
+    arr = np.squeeze(kde.dataset)
+    X = np.linspace(min(arr), max(arr), res)
+    Y = kde.evaluate(X) * (X[1] - X[0])
+    coefs = np.polynomial.polynomial.polyfit(X, Y, deg=deg)
+    return {"degree": deg, "coefficients" : list(coefs)}
+
+def to_json(CAG: CausalAnalysisGraph, Δt: float = 1.0):
+    with open("cag.json", "w") as f:
         json.dump(
             {
                 "name": "Dynamic Bayes Net Model",
@@ -87,6 +90,8 @@ def export_to_CRA(CAG: CausalAnalysisGraph, Δt: float = 1.0):
                     partial(_export_node, CAG), CAG.nodes(data=True)
                 ),
                 "timeStep": str(Δt),
+                "P(theta)_polyfits": [_get_polynomial_fit(e) for e in
+                    CAG.edges(data=True)],
                 "CPTs": lmap(
                     lambda e: {
                         "source": e[0],

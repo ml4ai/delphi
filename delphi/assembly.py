@@ -257,7 +257,7 @@ def construct_concept_to_indicator_mapping(
         mapping_file: str = concept_to_indicator_mapping,
         n: int = 2) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
-    df = read_table(concept_to_indicator_mapping, usecols = [1, 3, 4],
+    df = pd.read_table(concept_to_indicator_mapping, usecols = [1, 3, 4],
             names=['Concept Grounding', 'Indicator Grounding', 'Score'])
     gb = df.groupby('Concept Grounding')
 
