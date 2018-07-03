@@ -1,3 +1,6 @@
+docs:
+	cd docs; make html
+
 test:
 	cd docs; make doctest
 	pipenv run pytest delphi/tests
