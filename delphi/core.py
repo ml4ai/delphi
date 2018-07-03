@@ -75,7 +75,7 @@ def get_observed_state(CAG, latent_state):
     observed_state = []
     for i, s in enumerate(latent_state_components):
         if i %2 == 0:
-            if CAG.nodes[s].get('indicators') is not None:
+            if CAG.node[s].get('indicators') is not None:
                 for ind in CAG.nodes[s]['indicators']:
                     new_value = np.random.normal(latent_state[i]*ind.value, ind.stdev)
                     # new_value = latent_state[i]*ind.value
