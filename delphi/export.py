@@ -7,6 +7,13 @@ from delphi.types import CausalAnalysisGraph
 from functools import partial
 from future.utils import lmap
 from delphi.core import construct_default_initial_state, get_latent_state_components
+from delphi.types import Indicator
+from typing import Dict
+
+def _process_datetime(indicator_dict: Dict):
+    time = indicator_dict.get('time')
+    indicator_dict['time'] = str(time)
+    return indicator_dict
 
 def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     """ Return dict suitable for exporting to JSON.
@@ -27,11 +34,16 @@ def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]
         "arguments" : list(CAG.predecessors(n[0])),
     }
     if not n[1].get('indicators') is None:
-        node_dict['indicators'] = [ind.__dict__ for ind in n[1]["indicators"]]
+        node_dict['indicators'] = [_process_datetime(ind.__dict__) for ind in n[1]["indicators"]]
     else:
         node_dict['indicators'] = None
 
     return node_dict
+
+
+def _export_edge(e):
+    return { "source": e[0], "target": e[1], "CPT": _construct_CPT(e),
+            "polyfit": _get_polynomial_fit(e), }
 
 
 def export_to_ISI(CAG: CausalAnalysisGraph, args) -> None:
@@ -63,7 +75,6 @@ def _get_dtype(n: str) -> str:
     return "real"
 
 
-
 def _construct_CPT(e, res=100):
     kde = e[2]["ConditionalProbability"]
     arr = np.squeeze(kde.dataset)
@@ -72,13 +83,14 @@ def _construct_CPT(e, res=100):
     return {"theta": X.tolist(), "P(theta)": Y.tolist()}
 
 
-def _get_polynomial_fit(e, deg = 3, res = 100):
+def _get_polynomial_fit(e, deg = 7, res = 100):
     kde = e[2]["ConditionalProbability"]
     arr = np.squeeze(kde.dataset)
     X = np.linspace(min(arr), max(arr), res)
     Y = kde.evaluate(X) * (X[1] - X[0])
     coefs = np.polynomial.polynomial.polyfit(X, Y, deg=deg)
     return {"degree": deg, "coefficients" : list(coefs)}
+
 
 def to_json(CAG: CausalAnalysisGraph, Δt: float = 1.0):
     with open("cag.json", "w") as f:
@@ -90,14 +102,7 @@ def to_json(CAG: CausalAnalysisGraph, Δt: float = 1.0):
                     partial(_export_node, CAG), CAG.nodes(data=True)
                 ),
                 "timeStep": str(Δt),
-                "edge_data": lmap(
-                    lambda e: {
-                        "source": e[0],
-                        "target": e[1],
-                        "CPT": _construct_CPT(e),
-                        "polyfit": _get_polynomial_fit(e),
-                    },
-                    CAG.edges(data=True),
+                "edge_data": lmap(_export_edge, CAG.edges(data=True),
                 ),
             },
             f,
