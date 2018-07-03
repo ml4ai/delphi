@@ -320,7 +320,7 @@ def sample_sequence_of_latent_states(
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
-    return take(n_steps, iterate(lambda s: A @ s, s0))
+    return take(n_steps, iterate(lambda s: A @ s, s0.values))
 
 
 def sample_sequence_of_observed_states(CAG: CausalAnalysisGraph, latent_states: List[np.ndarray]) -> List[np.ndarray]:
@@ -388,10 +388,11 @@ def write_sequences_to_file(
             )
             + "\n"
         )
-        for n, s in enumerate(seqs):
-            for t, l in enumerate(s):
-                vs = ",".join([str(x) for x in l.T[0][::2]])
-                f.write(",".join([str(n), str(t), vs]) + "\n")
+        for seq_no, seq in enumerate(seqs):
+            for time_slice, latent_state in enumerate(seq):
+                print(latent_state)
+                vs = ",".join([str(x) for x in latent_state[::2]])
+                f.write(",".join([str(seq_no), str(time_slice), vs]) + "\n")
 
 
 def get_indicators(concept: str, mapping: Dict = None) -> List[str]:

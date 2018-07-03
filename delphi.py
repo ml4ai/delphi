@@ -16,6 +16,8 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
+import delphi
+import delphi.core
 
 
 def create_CRA_CAG(args):
@@ -77,21 +79,17 @@ def create_model(args):
 
 
 def execute_model(args):
-    from delphi.core import (
-        load_model,
-        construct_default_initial_state,
-        get_latent_state_components,
-        sample_sequences,
-        write_sequences_to_file,
-    )
 
-    CAG = load_model(args.input_dressed_cag)
+    CAG = delphi.core.load_model(args.input_dressed_cag)
 
     s0 = read_csv(args.input_variables_path, index_col=0, header=None, error_bad_lines=False)[1]
 
-    write_sequences_to_file(
+    latent_states = [delphi.core.sample_sequence_of_latent_states(CAG, s0,
+        args.steps, args.dt) for n in range(args.samples)]
+    # observed_states = delphi.core.sample_sequence_of_observed_states(CAG, latent_states)
+    delphi.core.write_sequences_to_file(
         CAG,
-        sample_sequences(CAG, s0, args.steps, args.samples, args.dt),
+        latent_states,
         args.output_sequences,
     )
 
