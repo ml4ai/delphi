@@ -333,7 +333,7 @@ def get_observed_state(CAG, latent_state):
     for i, s in enumerate(latent_state_components):
         if i %2 == 0:
             if CAG.node[s].get('indicators') is not None:
-                for ind in CAG.nodes[s]['indicators']:
+                for ind in CAG.node[s]['indicators']:
                     new_value = np.random.normal(latent_state[i]*ind.value, ind.stdev)
                     # new_value = latent_state[i]*ind.value
                     observed_state.append((ind.name, new_value))
