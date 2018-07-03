@@ -19,29 +19,16 @@ from argparse import (
 
 
 def create_CRA_CAG(args):
-    from delphi.api import assemble
+    from delphi.api import parameterize
     from delphi.export import to_json
+    from delphi.assembly import get_faostat_wdi_data, assemble_model
 
     with open(args.indra_statements, "rb") as f:
         sts = pickle.load(f)
-        cag = assemble(sts, args.adjective_data)
+        time = datetime(2012, 1,1)
+        df = get_faostat_wdi_data("data/south_sudan_data.csv")
+        cag = parameterize(assemble_model(sts, args.adjective_data), time, df)
         to_json(cag)
-        # export_to_cra(
-            # set_indicator_values(
-                # set_indicators(
-                    # create_dressed_CAG(
-                        # ltake(
-                            # args.n_statements,
-                            # filter(isSimulable, pickle.load(f)),
-                        # ),
-                        # args.adjective_data,
-                    # )
-                # ),
-                # datetime(2012, 1,1),
-                # get_faostat_wdi_data(args.south_sudan_data),
-            # ),
-            # args.dt,
-        # )
 
 
 def create_model(args):
