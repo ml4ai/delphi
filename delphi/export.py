@@ -3,7 +3,7 @@ import pickle
 import datetime
 import numpy as np
 from typing import List, Dict, Union
-from delphi.types import CausalAnalysisGraph
+from delphi.types import AnalysisGraph
 from functools import partial
 from future.utils import lmap
 from delphi.core import construct_default_initial_state, get_latent_state_components
@@ -15,12 +15,12 @@ def _process_datetime(indicator_dict: Dict):
     indicator_dict['time'] = str(time)
     return indicator_dict
 
-def _export_node(CAG: CausalAnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
+def _export_node(CAG: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     """ Return dict suitable for exporting to JSON.
 
     Args:
         CAG: The causal analysis graph
-        n: A dict representing the data in a networkx CausalAnalysisGraph node.
+        n: A dict representing the data in a networkx AnalysisGraph node.
 
     Returns:
         The node dict with additional fields for name, units, dtype, and
@@ -46,7 +46,7 @@ def _export_edge(e):
             "polyfit": _get_polynomial_fit(e), }
 
 
-def export_to_ISI(CAG: CausalAnalysisGraph, args) -> None:
+def export_to_ISI(CAG: AnalysisGraph, args) -> None:
 
     s0 = construct_default_initial_state(get_latent_state_components(CAG))
     s0.to_csv(args.output_variables_path, index_label="variable")
@@ -92,7 +92,7 @@ def _get_polynomial_fit(e, deg = 7, res = 100):
     return {"degree": deg, "coefficients" : list(coefs)}
 
 
-def to_json(CAG: CausalAnalysisGraph, Δt: float = 1.0):
+def to_json(CAG: AnalysisGraph, Δt: float = 1.0):
     with open("cag.json", "w") as f:
         json.dump(
             {

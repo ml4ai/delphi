@@ -16,48 +16,23 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
+from delphi.api import *
 
-
-def create_CRA_CAG(args):
+def create_model(args):
     from delphi.api import parameterize
     from delphi.export import to_json
     from delphi.assembly import get_faostat_wdi_data, assemble_model
 
     with open(args.indra_statements, "rb") as f:
         sts = pickle.load(f)
+        sts = get_valid_statements(sts)
         time = datetime(2012, 1,1)
         df = get_faostat_wdi_data("data/south_sudan_data.csv")
-        cag = parameterize(assemble_model(sts, args.adjective_data), time, df)
-        to_json(cag)
-
-
-def create_model(args):
-    from delphi.core import (
-        isSimulable,
-        create_dressed_CAG,
-        set_indicator_values,
-        set_indicators,
-        get_faostat_wdi_data,
-    )
-    from delphi.export import export_to_ISI
-
-    with open(args.indra_statements, "rb") as f:
-        export_to_ISI(
-            set_indicator_values(
-                set_indicators(
-                    create_dressed_CAG(
-                        ltake(
-                            args.n_statements,
-                            filter(isSimulable, pickle.load(f)),
-                        ),
-                        args.adjective_data,
-                    )
-                ),
-                datetime(2012, 1,1),
-                get_faostat_wdi_data(args.south_sudan_data),
-            ),
-            args,
-        )
+        cag = create_qualitative_analysis_graph(sts)
+        cag = add_transition_model(cag, args.adjective_data)
+        cag = add_indicators(cag)
+        cag = parameterize(cag, time, df)
+    return cag
 
 
 def execute_model(args):
@@ -243,10 +218,10 @@ if __name__ == "__main__":
         parser.print_help()
 
     if args.create_model:
-        create_model(args)
-
-    if args.create_cra_cag:
-        create_CRA_CAG(args)
+        cag = create_model(args)
+        with open(args.output_dressed_cag, "wb") as f:
+            pickle.dump(cag, f)
+        to_json(cag)
 
     if args.execute_model:
         execute_model(args)

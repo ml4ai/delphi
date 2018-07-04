@@ -1,16 +1,16 @@
 from .utils import exists, flatMap
-from .types import CausalAnalysisGraph, GroupBy, Delta, Indicator
+from .types import AnalysisGraph, GroupBy, Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
-from fuzzywuzzy import process as fuzzywuzzy_process
+from fuzzywuzzy import process
 from datetime import datetime
 from functools import singledispatch, lru_cache
-from scipy.stats import gaussian_kde
 from itertools import permutations
 import pandas as pd
 import numpy as np
 from future.utils import lfilter, lmap
-from .paths import concept_to_indicator_mapping
+from .paths import concept_to_indicator_mapping, adjectiveData
+from scipy.stats import gaussian_kde
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
     return s.subj_delta, s.obj_delta
@@ -18,6 +18,7 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
 
 def get_respdevs(gb: GroupBy):
     return gb["respdev"]
+
 
 def make_edge(
     sts: List[Influence], p: Tuple[str, str]
@@ -49,41 +50,16 @@ def process_concept_name(name: str) -> str:
     return name.replace("_", " ")
 
 
-def make_cag_skeleton(sts: List[Influence]) -> CausalAnalysisGraph:
+def make_cag_skeleton(sts: List[Influence]) -> AnalysisGraph:
     node_permutations = permutations(get_concepts(sts), 2)
     edges = [e for e in [make_edge(sts, p) for p in node_permutations]
              if len(e[2]["InfluenceStatements"]) != 0]
 
-    return CausalAnalysisGraph(edges)
+    return AnalysisGraph(edges)
 
 
 def filter_statements(sts: List[Influence]) -> List[Influence]:
     return [s for s in sts if is_well_grounded(s) and is_simulable(s)]
-
-
-def add_conditional_probabilities(
-    CAG: CausalAnalysisGraph, adjectiveData: str
-) -> CausalAnalysisGraph:
-    # Create a pandas GroupBy object
-    gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
-    rs = (
-        gaussian_kde(
-            flatMap(
-                lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(20)[0]
-                .tolist(),
-                gb,
-            )
-        )
-        .resample(100)[0]
-        .tolist()
-    )
-
-    for e in CAG.edges(data=True):
-        e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
-
-    return CAG
-
 
 
 def constructConditionalPDF(
@@ -153,16 +129,19 @@ def is_simulable(s: Influence) -> bool:
 
 @singledispatch
 def is_grounded(arg):
+    """ Generic function to check grounding """
     pass
 
 
 @is_grounded.register(Concept)
 def _(concept: Concept, ontology: str = "UN"):
+    """ Check if a concept is grounded """
     return ontology in concept.db_refs
 
 
 @is_grounded.register(Influence)
 def _(s: Influence, ontology: str = "UN"):
+    """ Check if an Influence statement is grounded """
     return is_grounded(s.subj) and is_grounded(s.obj)
 
 
@@ -231,13 +210,14 @@ def get_indicator_value(indicator: Indicator,
 
 
 def set_indicator_values(
-        CAG: CausalAnalysisGraph, time: datetime, df: pd.DataFrame
-) -> CausalAnalysisGraph:
+        CAG: AnalysisGraph, time: datetime, df: pd.DataFrame
+) -> AnalysisGraph:
 
     for n in CAG.nodes(data=True):
         if n[1]["indicators"] is not None:
             for indicator in n[1]["indicators"]:
                 indicator.value = get_indicator_value(indicator, time, df)
+                indicator.time = time
                 if not indicator.value is None:
                     indicator.stdev = 0.1*abs(indicator.value)
             n[1]["indicators"] = [ind for ind in n[1]['indicators']
@@ -247,11 +227,13 @@ def set_indicator_values(
 
 
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
-    return fuzzywuzzy_process.extractOne(indicator.name, items)[0]
+    return process.extractOne(indicator.name, items)[0]
 
 
 def get_faostat_wdi_data(filename: str) -> pd.DataFrame:
-    return pd.read_csv(filename, sep="|", index_col='Indicator Name')
+    df= pd.read_csv(filename, sep="|", index_col='Indicator Name')
+    return df
+
 
 def construct_concept_to_indicator_mapping(
         mapping_file: str = concept_to_indicator_mapping,
@@ -266,6 +248,7 @@ def construct_concept_to_indicator_mapping(
             for x in v['Indicator Grounding'].values[0:n]]
             for k, v in gb}
 
+
 def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
     if mapping is None:
         yaml = YAML()
@@ -277,10 +260,31 @@ def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
         if concept in mapping else None
     )
 
+def add_conditional_probabilities(cag: AnalysisGraph, adjectiveData: str) -> AnalysisGraph:
+    # Create a pandas GroupBy object
+    gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
+    rs = (
+        gaussian_kde(
+            flatMap(
+                lambda g: gaussian_kde(get_respdevs(g[1]))
+                .resample(20)[0]
+                .tolist(),
+                gb,
+            )
+        )
+        .resample(100)[0]
+        .tolist()
+    )
+
+    for e in cag.edges(data=True):
+        e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
+
+    return cag
 
 def set_indicators(
-        G: CausalAnalysisGraph, mapping: Optional[Dict] = None, n: int = 2
-) -> CausalAnalysisGraph:
+        G: AnalysisGraph, mapping: Optional[Dict] = None, n: int = 2
+) -> AnalysisGraph:
+    """ Map concepts to indicators. """
     if mapping is None:
         mapping = construct_concept_to_indicator_mapping(n = n)
 
@@ -288,3 +292,24 @@ def set_indicators(
         n[1]["indicators"] = get_indicators(n[0].lower().replace(' ', '_'), mapping)
 
     return G
+
+
+def assemble_model(
+    sts: List[Influence],
+    adj_data: str,
+) -> AnalysisGraph:
+    """ Construct a Delphi model from INDRA statements
+
+    Args:
+        sts: A list of INDRA statements.
+        adj_data: Path to the data file containing gradable adjective survey
+                  data.
+        relevant_concepts: A list of relevant concepts that the model should
+                           focus on.
+    """
+
+    filtered_statements = filter_statements(sts)
+
+    cag_skeleton = make_cag_skeleton(filtered_statements)
+    cag_with_pdfs = add_conditional_probabilities(cag_skeleton, adjectiveData)
+    return cag_with_pdfs

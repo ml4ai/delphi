@@ -11,12 +11,8 @@ from indra.statements import Influence, Concept
 from networkx import DiGraph
 from indra.sources import eidos
 from pandas import Series, DataFrame, read_csv, isna, read_table
-from glob import glob
 
-from functools import partial, lru_cache, singledispatch
-from delphi.types import GroupBy, Delta, CausalAnalysisGraph, Node, Indicator
-from delphi.paths import data_dir, concept_to_indicator_mapping
-from future.utils import lmap, lfilter, lzip
+from delphi.types import GroupBy, Delta, AnalysisGraph, Node, Indicator
 from delphi.utils import (
     flatMap,
     compose,
@@ -34,7 +30,7 @@ def construct_default_initial_state(s_index: List[str]) -> Series:
     return Series(ltake(len(s_index), cycle([1.0, 0.0])), s_index)
 
 
-def get_latent_state_components(CAG: CausalAnalysisGraph) -> List[str]:
+def get_latent_state_components(CAG: AnalysisGraph) -> List[str]:
     return flatMap(lambda a: (a, f"∂({a})/∂t"), CAG.nodes())
 
 
@@ -46,7 +42,7 @@ def initialize_transition_matrix(cs: List[str], Δt: float = 1) -> DataFrame:
 
 
 def sample_transition_matrix(
-    CAG: CausalAnalysisGraph, Δt: float = 1.0
+    CAG: AnalysisGraph, Δt: float = 1.0
 ) -> DataFrame:
     A = initialize_transition_matrix(get_latent_state_components(CAG))
 
@@ -59,29 +55,26 @@ def sample_transition_matrix(
 
 
 def sample_sequence_of_latent_states(
-    CAG: CausalAnalysisGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
+    CAG: AnalysisGraph, s0: np.ndarray, n_steps: int, Δt: float = 1.0
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
     return take(n_steps, iterate(lambda s: A @ s, s0))
 
 
-def sample_sequence_of_observed_states(CAG: CausalAnalysisGraph, latent_states: List[np.ndarray]) -> List[np.ndarray]:
+def sample_sequence_of_observed_states(CAG: AnalysisGraph, latent_states: List[np.ndarray]) -> List[np.ndarray]:
     return [get_observed_state(CAG, s) for s in latent_states]
 
 
-def get_observed_state(CAG, latent_state):
+def get_observed_state(CAG: AnalysisGraph, latent_state: object) -> object:
     latent_state_components = get_latent_state_components(CAG)
     observed_state = []
     for i, s in enumerate(latent_state_components):
-        if i %2 == 0:
+        if i % 2 == 0:
             if CAG.node[s].get('indicators') is not None:
-                for ind in CAG.nodes[s]['indicators']:
+                for ind in CAG.node[s]['indicators']:
                     new_value = np.random.normal(latent_state[i]*ind.value, ind.stdev)
-                    # new_value = latent_state[i]*ind.value
                     observed_state.append((ind.name, new_value))
-                    # if ind.name == 'HWAM':
-                        # print(ind.name, latent_state[i], new_value)
             else:
                 o = np.random.normal(latent_state[i], 0.1)
                 observed_state.append((s, o))
@@ -91,7 +84,7 @@ def get_observed_state(CAG, latent_state):
 
 
 def sample_sequences(
-    CAG: CausalAnalysisGraph,
+    CAG: AnalysisGraph,
     s0: Series,
     steps: int,
     samples: int,
@@ -105,14 +98,14 @@ def sample_sequences(
             )
 
 
-def load_model(filename: str) -> CausalAnalysisGraph:
+def load_model(filename: str) -> AnalysisGraph:
     with open(filename, "rb") as f:
         CAG = pickle.load(f)
     return CAG
 
 
 def write_sequences_to_file(
-    CAG: CausalAnalysisGraph, seqs, output_filename: str
+    CAG: AnalysisGraph, seqs, output_filename: str
 ) -> None:
 
     with open(output_filename, "w") as f:

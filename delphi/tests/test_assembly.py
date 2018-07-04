@@ -65,17 +65,11 @@ def test_process_concept_name():
     assert process_concept_name("food_security") == "food security"
 
 
-cag = make_cag_skeleton(sts)
-def test_make_cag_skeleton():
+cag = create_qualitative_analysis_graph(sts)
+def test_create_qualitative_analysis_graph():
     assert set(cag.nodes()) == set(["conflict", "food_security", "precipitation"])
     assert set(cag.edges()) == set([("conflict", "food_security"), ("precipitation", "food_security")])
 
-
-model = assemble(sts, adjectiveData, ['conflict', 'food security', 'precipitation'])
-
-def test_assemble():
-    assert set(model.nodes()) == set(["conflict", "food_security"])
-    assert set(model.edges()) == set([("conflict", "food_security")])
 
 # Testing preassembly functions
 
