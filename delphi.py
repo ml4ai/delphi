@@ -12,6 +12,8 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
+import delphi
+import delphi.core
 
 
 def create_model(args):
@@ -79,6 +81,7 @@ def execute_model(args):
         for n in range(args.samples)
     ]
     write_sequences_to_file(CAG, latent_states, args.output_sequences)
+
 
 
 def positive_real(arg, x):

@@ -59,7 +59,7 @@ def sample_sequence_of_latent_states(
 ) -> List[np.ndarray]:
 
     A = sample_transition_matrix(CAG, Δt).values
-    return take(n_steps, iterate(lambda s: A @ s, s0))
+    return take(n_steps, iterate(lambda s: A @ s, s0.values))
 
 
 def sample_sequence_of_observed_states(CAG: AnalysisGraph, latent_states: List[np.ndarray]) -> List[np.ndarray]:

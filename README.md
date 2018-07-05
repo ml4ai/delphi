@@ -38,6 +38,20 @@ manager:
 pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 ```
 
+## Mac Homebrew and pipenv install notes
+
+If brew installing graphviz, then to pip install pygraphviz:
+
+```bash
+pip install --install-option="--include-path=/usr/local/include/" --install-option="--library-path=/usr/local/lib" pygraphviz
+```
+
+Then pip install pipenv and do:
+
+```bash
+pipenv install -d --ignore-pipfile
+```
+
 # Usage
 
 ## Command line usage
