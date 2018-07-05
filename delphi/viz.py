@@ -1,13 +1,17 @@
 import networkx as nx
 from .types import AnalysisGraph
 from typing import List, Optional
+from itertools import permutations
 
 def _insert_line_breaks(label: str, n: int = 80) -> str:
     words = label.split(' ')
     l = len(words)
     n = l // 3
-    return ' '.join(words[0:n])+'\n'+ ' '.join(words[n:2*n])\
-            +'\n'+ ' '.join(words[2*n:-1])
+    if len(label.split()) != 1:
+        return ' '.join(words[0:n])+'\n'+ ' '.join(words[n:2*n])\
+                +'\n'+ ' '.join(words[2*n:-1])
+    else:
+        return label
 
 def to_agraph(cag:AnalysisGraph, *args, **kwargs):
 
@@ -36,7 +40,7 @@ def to_agraph(cag:AnalysisGraph, *args, **kwargs):
                     if ind.value is not None:
                         node_label = str(ind.value)
                         A.add_node(node_label, style='rounded, filled',
-                                fillcolor = 'white', color = "#fffff")
+                                fillcolor = 'white', color = "royalblue")
                         A.add_edge(_insert_line_breaks(ind.name), node_label)
 
     if kwargs.get('nodes_to_highlight') is not None:
