@@ -1,6 +1,9 @@
+docs:
+	cd docs; make html
+
 test:
 	cd docs; make doctest
-	pipenv run pytest
+	pipenv run pytest delphi/tests
 
 pypi_upload:
 	rm -rf dist
@@ -9,3 +12,7 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
+
+pkg_lock:
+	pipenv lock
+	pipenv run pipenv_to_requirements

@@ -1,4 +1,4 @@
-from printAst import importAst, dump
+from .printAst import importAst, dump
 import os
 from pathlib import Path
 
