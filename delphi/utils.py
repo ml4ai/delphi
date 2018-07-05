@@ -210,6 +210,13 @@ def compose(*fs: Any) -> Callable:
     """
     return foldl1(lambda f, g: lambda *x: f(g(*x)), fs)
 
+def rcompose(*fs: Any) -> Callable:
+    """ Compose functions from left to right.
+
+    e.g. compose(f, g)(x) = f(g(x))
+    """
+    return foldl1(lambda f, g: lambda *x: g(f(*x)), fs)
+
 
 def flatMap(f: Callable, xs: Iterable) -> List:
     """ Map a function onto an iterable and flatten the result. """

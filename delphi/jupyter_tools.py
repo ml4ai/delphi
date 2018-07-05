@@ -26,7 +26,8 @@ def create_statement_inspection_table(sts: List[Influence]):
 
 
 def visualize(cag: AnalysisGraph, *args, **kwargs):
-    return Image(to_agraph(cag, *args, **kwargs).draw(format='png', prog=kwargs.get('prog', 'dot')))
+    return Image(to_agraph(cag, *args, **kwargs).draw(format='png',
+        prog=kwargs.get('prog', 'dot')))
 
 
 def inspect_edge(source, target, cag: AnalysisGraph, **kwargs):

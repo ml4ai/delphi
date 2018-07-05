@@ -40,118 +40,39 @@ pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
 
 # Usage
 
-To see all the options and the help message, do `./delphi.py`, which produces
-the following output:
+## Command line usage
 
-```
-usage: delphi.py [-h] [--create_model] [--create_cra_cag]
-                 [--indra_statements INDRA_STATEMENTS]
-                 [--adjective_data ADJECTIVE_DATA] [--execute_model] [--dt DT]
-                 [--n_statements N_STATEMENTS] [--steps STEPS]
-                 [--samples SAMPLES] [--output_sequences OUTPUT_SEQUENCES]
-                 [--output_cag_json OUTPUT_CAG_JSON]
-                 [--input_variables_path INPUT_VARIABLES_PATH]
-                 [--output_variables_path OUTPUT_VARIABLES_PATH]
-                 [--input_dressed_cag INPUT_DRESSED_CAG]
-                 [--output_dressed_cag OUTPUT_DRESSED_CAG]
-
-Dynamic Bayes Net Executable Model
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --create_model        Export the dressed CAG as a pickled object, the
-                        variables with default initial values as a CSV file,
-                        and the link structure of the CAG as a JSON file.
-                        (default: False)
-  --create_cra_cag      Export CAG in JSON format for Charles River Analytics
-                        (default: False)
-  --indra_statements INDRA_STATEMENTS
-                        Pickle file containing INDRA statements (default:
-                        data/sample_indra_statements.pkl)
-  --adjective_data ADJECTIVE_DATA
-                        Path to the gradable adjective data file. (default:
-                        data/adjectiveData.tsv)
-  --execute_model       Execute DBN and sample time evolution sequences
-                        (default: False)
-  --dt DT               Time step size (default: 1.0)
-  --n_statements N_STATEMENTS
-                        Number of INDRA statements to take from the pickled
-                        object containing them (default: 5)
-  --steps STEPS         Number of time steps to take (default: 5)
-  --samples SAMPLES     Number of sequences to sample (default: 100)
-  --output_sequences OUTPUT_SEQUENCES
-                        Output file containing sampled sequences (default:
-                        dbn_sampled_sequences.csv)
-  --output_cag_json OUTPUT_CAG_JSON
-                        Path to the output CAG JSON file (default:
-                        delphi_cag.json)
-  --input_variables_path INPUT_VARIABLES_PATH
-                        Path to the variables of the input dressed cag
-                        (default: variables.csv)
-  --output_variables_path OUTPUT_VARIABLES_PATH
-                        Path to the variables of the output dressed cag
-                        (default: variables.csv)
-  --input_dressed_cag INPUT_DRESSED_CAG
-                        Path to the input dressed cag (default:
-                        dressed_CAG.pkl)
-  --output_dressed_cag OUTPUT_DRESSED_CAG
-                        Path to the output dressed cag (default:
-                        dressed_CAG.pkl)
-
-```
 
 In the following sections, we will go into more detail on model creation and
 execution.
 
-## Create model
+### Create model
 
-To create a model from a set of INDRA statements, use the invocation:
+To create a model from a set of INDRA statements, use the flag `--create` (or
+`-c` for short).
 
 ```bash
-./delphi.py --create_model
+./delphi.py -c
 ```
 
 Optionally combine this with the `--indra_statements` input parameter to specify
 the path to the INDRA statements. By default, `--create_model` will load a
 provided set of INDRA statements included as a pickled python file in
-`data/sample_indra_statements.pkl`, and generate the output files 
+`data/curated_statements.pkl`, and generate the output files 
 
 
 ```
 ./
-├── cag.json
+├── delphi_cag.json
 ├── dressed_CAG.pkl
 └── variables.csv
 ```
 
 The files are
-- `cag.json`: This contains the link structure of the causal analysis graph.
-    Here is an example JSON file representing a CAG with the link `rainfall →
-    crop yield`. 
-
-```json
- {
-  "name": "Dynamic Bayes Net Model",
-  "dateCreated": "2018-04-25 15:27:32.230457",
-  "variables": [
-    {
-      "name": "rainfall",
-      "units": "units",
-      "dtype": "real",
-      "arguments": []
-    },
-    {
-      "name": "crop yield",
-      "units": "units",
-      "dtype": "real",
-      "arguments": [
-        "rainfall"
-      ]
-    }
-  ]
-} 
-```
-
+- `delphi_cag.json`: This contains the link structure of the causal analysis
+- graph, along with conditional probability tables, indicators for the latent
+    variables represented by the CAG nodes, and initial values for the
+    indicators when available.
 - `dressed_CAG.pkl`: This is a Python pickle object that can be used in Python
     programs. It contains a networkx Digraph object, with conditional
     probability distributions attached to the edges.
@@ -168,12 +89,12 @@ crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
 
-## Execute model
+### Execute model
 
-To execute the model, do
+To execute the model, use the flag `--execute`, or `-x` for short.
 
 ```bash
-./delphi.py --execute_model
+./delphi.py -x
 ```
 
 This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
@@ -200,6 +121,7 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
+To see all the command line options and the help message, do `./delphi.py`.
 
 # CAG visualization
 

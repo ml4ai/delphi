@@ -46,6 +46,9 @@ extensions = [
     'sphinx.ext.githubpages'
 ]
 
+# Don't sort members alphabetically
+autodoc_member_order = "bysource"
+
 # Napoleon options
 napoleon_use_rtype=False
 # Add any paths that contain templates here, relative to this directory.

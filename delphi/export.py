@@ -15,11 +15,12 @@ def _process_datetime(indicator_dict: Dict):
     indicator_dict['time'] = str(time)
     return indicator_dict
 
-def _export_node(CAG: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
+
+def _export_node(cag: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     """ Return dict suitable for exporting to JSON.
 
     Args:
-        CAG: The causal analysis graph
+        cag: The causal analysis graph
         n: A dict representing the data in a networkx AnalysisGraph node.
 
     Returns:
@@ -31,7 +32,7 @@ def _export_node(CAG: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
         "name" : n[0],
         "units" : _get_units(n[0]),
         "dtype" : _get_dtype(n[0]),
-        "arguments" : list(CAG.predecessors(n[0])),
+        "arguments" : list(cag.predecessors(n[0])),
     }
     if not n[1].get('indicators') is None:
         node_dict['indicators'] = [_process_datetime(ind.__dict__) for ind in n[1]["indicators"]]
@@ -46,25 +47,9 @@ def _export_edge(e):
             "polyfit": _get_polynomial_fit(e), }
 
 
-def export_to_ISI(CAG: AnalysisGraph, args) -> None:
-
-    s0 = construct_default_initial_state(get_latent_state_components(CAG))
+def export_default_variables(cag, args):
+    s0 = construct_default_initial_state(get_latent_state_components(cag))
     s0.to_csv(args.output_variables_path, index_label="variable")
-
-    model = {
-        "name": "Dynamic Bayes Net Model",
-        "dateCreated": str(datetime.datetime.now()),
-        "variables": lmap(partial(_export_node, CAG), CAG.nodes(data=True)),
-    }
-
-    with open(args.output_cag_json, "w") as f:
-        json.dump(model, f, indent=2)
-
-    for e in CAG.edges(data=True):
-        del e[2]["InfluenceStatements"]
-
-    with open(args.output_dressed_cag, "wb") as f:
-        pickle.dump(CAG, f)
 
 
 def _get_units(n: str) -> str:
@@ -92,17 +77,17 @@ def _get_polynomial_fit(e, deg = 7, res = 100):
     return {"degree": deg, "coefficients" : list(coefs)}
 
 
-def to_json(CAG: AnalysisGraph, Δt: float = 1.0):
-    with open("cag.json", "w") as f:
+def to_json(cag: AnalysisGraph, filename: str = 'cag.json', Δt: float = 1.0):
+    with open(filename, "w") as f:
         json.dump(
             {
                 "name": "Dynamic Bayes Net Model",
                 "dateCreated": str(datetime.datetime.now()),
                 "variables": lmap(
-                    partial(_export_node, CAG), CAG.nodes(data=True)
+                    partial(_export_node, cag), cag.nodes(data=True)
                 ),
                 "timeStep": str(Δt),
-                "edge_data": lmap(_export_edge, CAG.edges(data=True),
+                "edge_data": lmap(_export_edge, cag.edges(data=True),
                 ),
             },
             f,

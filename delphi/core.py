@@ -98,16 +98,10 @@ def sample_sequences(
             )
 
 
-def load_model(filename: str) -> AnalysisGraph:
-    with open(filename, "rb") as f:
-        CAG = pickle.load(f)
-    return CAG
-
 
 def write_sequences_to_file(
     CAG: AnalysisGraph, seqs, output_filename: str
 ) -> None:
-
     with open(output_filename, "w") as f:
         f.write(
             ",".join(
@@ -115,7 +109,7 @@ def write_sequences_to_file(
             )
             + "\n"
         )
-        for n, s in enumerate(seqs):
-            for t, l in enumerate(s):
-                vs = ",".join([str(x) for x in l.T[0][::2]])
-                f.write(",".join([str(n), str(t), vs]) + "\n")
+        for seq_no, seq in enumerate(seqs):
+            for time_slice, latent_state in enumerate(seq):
+                vs = ",".join([str(x) for x in latent_state[::2]])
+                f.write(",".join([str(seq_no), str(time_slice), vs]) + "\n")

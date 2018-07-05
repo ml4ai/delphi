@@ -11,14 +11,6 @@ Subpackages
 Submodules
 ----------
 
-delphi.api module
------------------
-
-.. automodule:: delphi.api
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.assembly module
 ----------------------
 
