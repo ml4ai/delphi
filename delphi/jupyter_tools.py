@@ -8,6 +8,13 @@ from .assembly import top_grounding_score
 import json
 
 def create_statement_inspection_table(sts: List[Influence]):
+    """ Display an HTML representation of a table with INDRA statements to
+    manually inspect for validity.
+
+    Args:
+        sts: A list of INDRA statements to be manually inspected for validity.
+    """
+
     columns = [ 'subj text', 'Canonical name (subj)', 'UN (subj)', 'obj text',
                 'Canonical Name (obj)', 'UN (obj)', 'Sentence', ]
 
@@ -22,22 +29,34 @@ def create_statement_inspection_table(sts: List[Influence]):
                         s[1].evidence[0].text.replace('\n',' ')
                     ) for s in list(enumerate(sts))
             ], columns=columns)
+
     return HTML(df.to_html())
 
 
 def visualize(cag: AnalysisGraph, *args, **kwargs):
+    """ Visualize the analysis graph in a Jupyter notebook cell. """
+
     return Image(to_agraph(cag, *args, **kwargs).draw(format='png',
         prog=kwargs.get('prog', 'dot')))
 
 
 def inspect_edge(source, target, cag: AnalysisGraph, **kwargs):
+    """ 'Drill down' into an edge in the analysis graph and inspect its
+    provenance. This function prints the provenance."""
+
     print_full_edge_provenance(source, target, cag)
 
 
 def get_edge_sentences(source: str, target: str, cag: AnalysisGraph) -> List[str]:
-    for s in cag.edges[source, target]['InfluenceStatements']:
-        for e in s.evidence:
-            print(repr(e.text))
+    """ Return the sentences that led to the construction of a specified edge.
+
+    Args:
+        source: The source of the edge.
+        target: The target of the edge.
+        cag: The analysis graph.
+    """
+    return [[repr(e.text) for e in s.evidence]
+            for s in cag.edges[source, target]['InfluenceStatements']]
 
 
 def print_full_edge_provenance(source, target, cag):
