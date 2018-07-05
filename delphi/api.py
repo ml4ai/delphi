@@ -34,7 +34,8 @@ def create_qualitative_analysis_graph(sts: List[Influence]) -> AnalysisGraph:
     return make_cag_skeleton(sts)
 
 
-def get_subgraph_for_concept(concept: str, cag: AnalysisGraph, depth_limit = 2) -> AnalysisGraph:
+def get_subgraph_for_concept(concept: str, cag: AnalysisGraph,
+                             depth_limit = None) -> AnalysisGraph:
     """ Get a subgraph of the analysis graph for a single concept.
 
     Args:
@@ -42,8 +43,9 @@ def get_subgraph_for_concept(concept: str, cag: AnalysisGraph, depth_limit = 2) 
         cag
         depth_limit
     """
-    pred = nx.dfs_predecessors(cag, concept, depth_limit = depth_limit)
-    return cag.subgraph(list(pred.keys())+[concept])
+    rev = cag.reverse()
+    dfs_edges = nx.dfs_edges(rev, concept, depth_limit = depth_limit)
+    return cag.subgraph(chain.from_iterable(dfs_edges))
 
 
 def get_subgraph_for_concept_pair(source: str, target: str,
