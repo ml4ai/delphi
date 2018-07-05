@@ -3,13 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to delphi's documentation!
+Welcome to Delphi's documentation!
 ==================================
 
 Delphi is a framework for assembling and executing probabilistic models from
 textual evidence.
-
-
 
 
 .. toctree::
@@ -18,12 +16,14 @@ textual evidence.
 
    model
    api
+   jupyter_tools
 
 
 License
 =======
 
 Delphi is licensed under the Apache License 2.0.
+
 
 Indices and tables
 ==================
