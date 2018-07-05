@@ -139,9 +139,7 @@ To see all the command line options and the help message, do `./delphi.py`.
 
 # CAG visualization
 
-Since version 2.0.0, Delphi no longer provides functionality for visualizing
-CAGs, instead, this functionality has been integrated into the INDRA framework.
-See below for a complete example.
+Delphi provides some tools to visualize analysis graphs using Jupyter notebooks.
 
 ![alt text](/docs/delphi_example.png?raw=True")
 
