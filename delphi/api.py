@@ -114,7 +114,7 @@ def parameterize(
         df
         cag
     """
-    return set_indicator_values(set_indicators(cag), time, df)
+    return set_indicator_values(cag, time, df)
 
 
 
