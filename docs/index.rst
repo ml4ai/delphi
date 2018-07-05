@@ -6,21 +6,24 @@
 Welcome to delphi's documentation!
 ==================================
 
-Delphi is a framework for assembling and executing probabilistic models from textual
-evidence.
+Delphi is a framework for assembling and executing probabilistic models from
+textual evidence.
 
 
-License
-=======
-
-Delphi is licensed under the Apache License 2.0.
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   model
+   api
 
+
+License
+=======
+
+Delphi is licensed under the Apache License 2.0.
 
 Indices and tables
 ==================
