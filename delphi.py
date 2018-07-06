@@ -32,7 +32,7 @@ def create_model(args):
     parameterize_for_south_sudan = partial(
         parameterize,
         datetime(2012, 1, 1),
-        get_faostat_wdi_data("data/south_sudan_data.csv"),
+        get_faostat_wdi_data(str(Path(__file__).parents[0]) + "/data/south_sudan_data.csv"),
     )
 
     create_cag = rcompose(
