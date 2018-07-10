@@ -1,9 +1,9 @@
 def UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST):  # UPDATE_EST
-  TOTAL_RAIN[0] = (TOTAL_RAIN[0] + RAIN[0])  # UPDATE_EST__assign___CROP_YIELD__TOTAL_RAIN
+  TOTAL_RAIN[0] = (TOTAL_RAIN[0] + RAIN[0])  # UPDATE_EST__assign___TOTAL_RAIN
   if (TOTAL_RAIN[0] <= 40):
-    YIELD_EST[0] = (-((((TOTAL_RAIN[0] - 40) ** 2) / 16)) + 100)  # UPDATE_EST__assign___CROP_YIELD__YIELD_EST_1
+    YIELD_EST[0] = (-((((TOTAL_RAIN[0] - 40) ** 2) / 16)) + 100)  # UPDATE_EST__assign___YIELD_EST_1
   else:
-    YIELD_EST[0] = (-(TOTAL_RAIN[0]) + 140)  # UPDATE_EST__assign___CROP_YIELD__YIELD_EST_2
+    YIELD_EST[0] = (-(TOTAL_RAIN[0]) + 140)  # UPDATE_EST__assign___YIELD_EST_2
 def CROP_YIELD():  # CROP_YIELD
   DAY = [0]
   RAIN = [0.0]
