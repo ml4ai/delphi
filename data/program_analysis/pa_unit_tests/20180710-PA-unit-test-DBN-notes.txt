@@ -1,0 +1,7 @@
+20180710 - PA unit test DBN thoughts
+
+<delphi_root>/data/program_analysis/pa_unit_tests/unit_tests_DBNs.graffle
+
+() Should we care about states of variables that don't get "returned" or "saved"?
+	Look at how they're used in DSSAT-csm
+
