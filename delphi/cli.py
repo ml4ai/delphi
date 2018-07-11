@@ -12,40 +12,50 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
-import delphi
-import delphi.core
 
 
-def create_model(args):
+def create(args):
+    print("Creating model")
     from delphi.assembly import get_data
-    from delphi.api import (
-        create_qualitative_analysis_graph,
-        get_valid_statements_for_modeling,
-    )
     from datetime import datetime
+    from delphi import AnalysisGraph
 
     with open(args.indra_statements, "rb") as f:
-        sts = get_valid_statements_for_modeling(pickle.load(f))
+        sts = pickle.load(f)
 
-    G = create_qualitative_analysis_graph(sts)
-    G.add_transition_model(args.adjective_data)
-    G.add_indicators()
-    G.parameterize(datetime(args.year, 1, 1), get_faostat_wdi_data(args.data))
+    G = AnalysisGraph.from_statements(sts)
+    G.infer_transition_model(args.adjective_data)
+    G.map_concepts_to_indicators()
+    G.parameterize(datetime(args.year, 1, 1), get_data(args.data))
+    G.export(
+        format="full",
+        json_file=args.output_cag_json,
+        pickle_file=args.output_dressed_cag,
+        variables_file=args.output_variables
+    )
 
-    return G
 
-
-def execute_model(args):
-    from delphi.api import load
+def execute(args):
     from pandas import read_csv
+    from delphi import AnalysisGraph
+    print("Executing model")
+    G = AnalysisGraph.from_pickle(args.input_dressed_cag)
+    G.initialize(args.input_variables)
+    with open(args.output_sequences, "w") as f:
+        f.write(
+            ",".join(
+                [
+                    "seq_no",
+                    "time_slice",
+                    *G.get_latent_state_components()[::2],
+                ]
+            )
+            + "\n"
+        )
 
-    G = load(args.input_dressed_cag)
-    G.initialize(args.input_variables_path)
-    latent_states = [
-        G.sample_sequence_of_latent_states(s0, args.steps, args.dt)
-        for n in range(args.samples)
-    ]
-    G._write_sequences_to_file(latent_states, args.output_sequences)
+        for t in range(args.steps):
+            G.update()
+            G._write_latent_state(f)
 
 
 def positive_real(arg, x):
@@ -79,8 +89,8 @@ def positive_int(arg, x):
     return val
 
 
-if __name__ == "__main__":
-    data_dir = Path(__file__).parents[0] / "data"
+def main():
+    data_dir = Path(__file__).parents[1] / "data"
 
     parser = ArgumentParser(
         description="Dynamic Bayes Net Executable Model",
@@ -96,7 +106,10 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers()
 
     parser_create = subparsers.add_parser("create", help="Model creation")
+    parser_create.set_defaults(func=create)
+
     parser_execute = subparsers.add_parser("execute", help="Model execution")
+    parser_execute.set_defaults(func=execute)
 
     #==========================================================================
     # Model creation options
@@ -163,7 +176,7 @@ if __name__ == "__main__":
     #==========================================================================
 
     parser_execute.add_argument(
-        "input_dressed_cag",
+        "--input_dressed_cag",
         help="Path to the input dressed cag",
         type=str,
         default="dressed_CAG.pkl",
@@ -190,7 +203,7 @@ if __name__ == "__main__":
         default="dbn_sampled_sequences.csv",
     )
 
-    parser_execute.add_argument(
+    parser_create.add_argument(
         "--output_cag_json",
         help="Path to the output CAG JSON file",
         type=str,
@@ -210,14 +223,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         parser.print_help()
 
-    if args.create:
-        G = create_model(args)
-        G.export(
-            format="full",
-            json_file=args.output_cag_json,
-            pickle_file=args.output_dressed_cag,
-            variables_file=args.output_variables_path,
-        )
-
-    if args.execute:
-        execute_model(args)
+    args.func(args)
