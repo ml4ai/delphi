@@ -15,6 +15,8 @@ Constructor
     :toctree: generated/
 
     AnalysisGraph.__init__
+    AnalysisGraph.from_statements
+    AnalysisGraph.from_pickle
 
 Subgraphs
 ---------
@@ -41,14 +43,18 @@ Export
     AnalysisGraph.export
 
 
-Execution
----------
+Basic Model Interface
+---------------------
 .. autosummary::
     :toctree: generated/
 
-    AnalysisGraph.sample_transition_matrix
-    AnalysisGraph.sample_sequence_of_latent_states
-    AnalysisGraph.sample_sequence_of_observed_states
+    AnalysisGraph.initialize
+    AnalysisGraph.update
+    AnalysisGraph.get_input_var_names
+    AnalysisGraph.get_output_var_names
+    AnalysisGraph.get_time_step
+    AnalysisGraph.get_time_units
+    AnalysisGraph.get_current_time
 
 Inspection
 ----------

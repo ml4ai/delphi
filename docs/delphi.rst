@@ -11,6 +11,15 @@ Subpackages
 Submodules
 ----------
 
+delphi.AnalysisGraph module
+---------------------------
+
+.. automodule:: delphi.AnalysisGraph
+    :noindex:
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 delphi.assembly module
 ----------------------
 
@@ -19,10 +28,10 @@ delphi.assembly module
     :undoc-members:
     :show-inheritance:
 
-delphi.core module
-------------------
+delphi.cli module
+-----------------
 
-.. automodule:: delphi.core
+.. automodule:: delphi.cli
     :members:
     :undoc-members:
     :show-inheritance:
@@ -31,6 +40,14 @@ delphi.export module
 --------------------
 
 .. automodule:: delphi.export
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.jupyter\_tools module
+----------------------------
+
+.. automodule:: delphi.jupyter_tools
     :members:
     :undoc-members:
     :show-inheritance:
@@ -55,14 +72,6 @@ delphi.utils module
 -------------------
 
 .. automodule:: delphi.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.viz module
------------------
-
-.. automodule:: delphi.viz
     :members:
     :undoc-members:
     :show-inheritance:
