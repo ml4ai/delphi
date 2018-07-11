@@ -352,17 +352,6 @@ class AnalysisGraph(nx.DiGraph):
 
         return partial(self.transition_function, A)
 
-    def sample_sequence_of_latent_states(
-        self, s0: np.ndarray, n_steps: int, Δt: float = 1.0
-    ) -> List[np.ndarray]:
-        A = self.sample_transition_matrix(Δt).values
-        return take(n_steps, iterate(lambda s: A @ s, s0.values))
-
-    def sample_sequence_of_observed_states(
-        self, latent_state_sequence: List[np.ndarray]
-    ) -> List[np.ndarray]:
-        return [self.emission_function(s) for s in latent_state_sequence]
-
     def emission_function(self, latent_state):
         latent_state_components = self.get_latent_state_components()
         observed_state = []
@@ -563,19 +552,22 @@ class AnalysisGraph(nx.DiGraph):
         self.t += self.Δt
 
     def get_input_var_names():
-        """ TODO: Add indicators (and time step size)?"""
+        """ Returns the input variable names """
         return self.get_latent_state_components()
 
     def get_output_var_names():
-        """ TODO: Add indicators (and time step size)?"""
+        """ Returns the output variable names. """
         return self.get_latent_state_components()
 
     def get_time_step(self):
+        """ Returns the time step size """
         return self.Δt
 
     def get_time_units(self):
+        """ Returns the time unit. """
         return self.time_unit
 
     def get_current_time(self):
+        """ Returns the current time in the execution of the model. """
         return self.t
 
