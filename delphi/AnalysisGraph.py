@@ -384,6 +384,11 @@ class AnalysisGraph(nx.DiGraph):
     def get_latent_state_components(self) -> List[str]:
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
 
+    def _write_latent_state(self, f):
+        for i, s in enumerate(self.latent_state.dataset):
+            f.write(str(i)+','+str(self.get_current_time())+',')
+            f.write(','.join([str(v) for v in s.values[::2]])+'\n')
+
     def _write_sequences_to_file(self, seqs, output_filename: str) -> None:
         with open(output_filename, "w") as f:
             f.write(
@@ -570,4 +575,7 @@ class AnalysisGraph(nx.DiGraph):
 
     def get_time_units(self):
         return self.time_unit
+
+    def get_current_time(self):
+        return self.t
 
