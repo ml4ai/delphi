@@ -11,8 +11,8 @@
 
 () Possible conventions:
 	() Always assume variable states are worth representing
-	() First: identity based on name
+	() First: identity variable based on name
 	() Identity inference
 		() automated: when no additional state change
 		() NLP hints
-		() WHen change seems small, ask human
+		() When change seems small, ask human
