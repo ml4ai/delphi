@@ -16,7 +16,7 @@ textual evidence.
 
    model
    api
-   jupyter_tools
+   AnalysisGraph
 
 
 License
