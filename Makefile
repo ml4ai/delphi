@@ -12,6 +12,7 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
+	rm *.json *.pkl *.csv
 
 pkg_lock:
 	pipenv lock
