@@ -43,18 +43,21 @@ def test_deltas():
 
 # Not testing get_respdevs
 
+
 def test_nameTuple():
     assert nameTuple(s1) == ("conflict", "food_security")
+
 
 def test_make_edge():
     assert make_edge(sts, ("conflict", "food_security")) == ("conflict", "food_security", {"InfluenceStatements": [s1]})
 
+
 def test_top_grounding():
     assert top_grounding(c1) == "conflict"
 
+
 def test_top_grounding_score():
     assert top_grounding_score(c1) == 0.8
-
 
 
 def test_get_concepts():
@@ -66,6 +69,7 @@ def test_process_concept_name():
 
 
 cag = create_qualitative_analysis_graph(sts)
+
 def test_create_qualitative_analysis_graph():
     assert set(cag.nodes()) == set(["conflict", "food_security", "precipitation"])
     assert set(cag.edges()) == set([("conflict", "food_security"), ("precipitation", "food_security")])
