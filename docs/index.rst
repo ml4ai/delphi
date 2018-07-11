@@ -15,8 +15,9 @@ textual evidence.
    :caption: Contents:
 
    model
-   api
    AnalysisGraph
+   jupyter_tools
+   modules
 
 
 License
