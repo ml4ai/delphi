@@ -79,10 +79,8 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     @classmethod
-    def from_statements(cls, sts, filter_statements=False):
-        if filter_statements:
-            sts = get_valid_statements_for_modeling(sts)
-
+    def from_statements(cls, sts):
+        sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = [
             e
