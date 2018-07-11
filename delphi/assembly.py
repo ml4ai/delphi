@@ -1,37 +1,60 @@
+from datetime import datetime
+from delphi.paths import concept_to_indicator_mapping
 from .utils import exists, flatMap
-from .types import AnalysisGraph, GroupBy, Delta, Indicator
+from .types import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
 from fuzzywuzzy import process
-from datetime import datetime
 from functools import singledispatch, lru_cache
 from itertools import permutations
 import pandas as pd
 import numpy as np
-from future.utils import lfilter, lmap
-from .paths import concept_to_indicator_mapping, adjectiveData
+from future.utils import lmap
 from scipy.stats import gaussian_kde
+
+
+def get_valid_statements_for_modeling(sts: List[Influence]) -> List[Influence]:
+    """ Select INDRA statements that can be used to construct a Delphi model
+    from a given list of statements. """
+
+    return [
+        s
+        for s in sts
+        if is_grounded(s)
+        and (s.subj_delta["polarity"] is not None)
+        and (s.obj_delta["polarity"] is not None)
+    ]
+
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
     return s.subj_delta, s.obj_delta
 
 
-def get_respdevs(gb: GroupBy):
+def get_respdevs(gb):
     return gb["respdev"]
 
 
 def make_edge(
     sts: List[Influence], p: Tuple[str, str]
 ) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (p[0], p[1], {
-        "InfluenceStatements": [s for s in sts if (p[0], p[1]) == nameTuple(s)]
+    edge = (
+        p[0],
+        p[1],
+        {
+            "InfluenceStatements": [
+                s for s in sts if (p[0], p[1]) == nameTuple(s)
+            ]
         },
     )
     return edge
 
 
 def top_grounding(c: Concept, ontology="UN") -> str:
-    return c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
+    return (
+        c.db_refs[ontology][0][0].split("/")[-1]
+        if ontology in c.db_refs
+        else c.name
+    )
 
 
 def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
@@ -50,20 +73,12 @@ def process_concept_name(name: str) -> str:
     return name.replace("_", " ")
 
 
-def make_cag_skeleton(sts: List[Influence]) -> AnalysisGraph:
-    node_permutations = permutations(get_concepts(sts), 2)
-    edges = [e for e in [make_edge(sts, p) for p in node_permutations]
-             if len(e[2]["InfluenceStatements"]) != 0]
-
-    return AnalysisGraph(edges)
-
-
 def filter_statements(sts: List[Influence]) -> List[Influence]:
     return [s for s in sts if is_well_grounded(s) and is_simulable(s)]
 
 
 def constructConditionalPDF(
-    gb: GroupBy, rs: np.ndarray, e: Tuple[str, str, Dict]
+    gb, rs: np.ndarray, e: Tuple[str, str, Dict]
 ) -> gaussian_kde:
 
     sts = e[2]["InfluenceStatements"]
@@ -87,11 +102,7 @@ def constructConditionalPDF(
         a: get_respdevs(gb.get_group(a))
         for a in set(
             filter(
-                exists,
-                flatMap(
-                    lambda s: lmap(get_adjective, deltas(s)),
-                    sts,
-                ),
+                exists, flatMap(lambda s: lmap(get_adjective, deltas(s)), sts)
             )
         )
     }
@@ -99,20 +110,34 @@ def constructConditionalPDF(
     def responses(adj: Optional[str]) -> np.ndarray:
         return adjectiveResponses[adj] if exists(adj) else rs
 
-    rs_subj=[]
-    rs_obj=[]
+    rs_subj = []
+    rs_obj = []
 
     for s in sts:
-        rs_subj.append(s.subj_delta['polarity']*np.array(responses(get_adjective(s.subj_delta))))
-        rs_obj.append(s.obj_delta['polarity']*np.array(responses(get_adjective(s.obj_delta))))
+        rs_subj.append(
+            s.subj_delta["polarity"]
+            * np.array(responses(get_adjective(s.subj_delta)))
+        )
+        rs_obj.append(
+            s.obj_delta["polarity"]
+            * np.array(responses(get_adjective(s.obj_delta)))
+        )
 
-    rs_subj=np.concatenate(rs_subj)
-    rs_obj=np.concatenate(rs_obj)
+    rs_subj = np.concatenate(rs_subj)
+    rs_obj = np.concatenate(rs_obj)
 
     xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
 
-    if len([s for s in sts
-        if s.subj_delta['polarity'] == s.obj_delta['polarity']]) == 1:
+    if (
+        len(
+            [
+                s
+                for s in sts
+                if s.subj_delta["polarity"] == s.obj_delta["polarity"]
+            ]
+        )
+        == 1
+    ):
 
         xs2, ys2 = -xs1, -ys1
         thetas = np.append(
@@ -124,8 +149,10 @@ def constructConditionalPDF(
 
     return gaussian_kde(thetas)
 
+
 def is_simulable(s: Influence) -> bool:
     return all(map(exists, map(lambda x: x["polarity"], deltas(s))))
+
 
 @singledispatch
 def is_grounded(arg):
@@ -134,9 +161,12 @@ def is_grounded(arg):
 
 
 @is_grounded.register(Concept)
-def _(concept: Concept, ontology: str = "UN"):
+def _(c: Concept, ontology: str = "UN"):
     """ Check if a concept is grounded """
-    return ontology in concept.db_refs
+    return (
+        ontology in c.db_refs
+        and c.db_refs[ontology][0][0].split('/')[1] != "properties"
+    )
 
 
 @is_grounded.register(Influence)
@@ -194,122 +224,79 @@ def contains_relevant_concept(
     )
 
 
-def get_indicator_value(indicator: Indicator,
-        date: datetime, df: pd.DataFrame) -> Optional[float]:
-
-    best_match = get_best_match(indicator, df.index)
-
-    col = str(date.year)
-
-    if not col in df.columns:
-        return None
-    else:
-        indicator_value = df[col][best_match]
-
-    return indicator_value if not pd.isna(indicator_value) else None
-
-
-def set_indicator_values(
-        CAG: AnalysisGraph, time: datetime, df: pd.DataFrame
-) -> AnalysisGraph:
-
-    for n in CAG.nodes(data=True):
-        if n[1]["indicators"] is not None:
-            for indicator in n[1]["indicators"]:
-                indicator.value = get_indicator_value(indicator, time, df)
-                indicator.time = time
-                if not indicator.value is None:
-                    indicator.stdev = 0.1*abs(indicator.value)
-            n[1]["indicators"] = [ind for ind in n[1]['indicators']
-                                  if ind.value is not None]
-
-    return CAG
-
-
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
-    return process.extractOne(indicator.name, items)[0]
+    best_match = process.extractOne(indicator.name, items)[0]
+    return best_match
 
 
-def get_faostat_wdi_data(filename: str) -> pd.DataFrame:
-    df= pd.read_csv(filename, sep="|", index_col='Indicator Name')
+def get_data(filename: str) -> pd.DataFrame:
+    df = pd.read_csv(filename, sep="|", index_col="Indicator Name")
     return df
 
 
-def construct_concept_to_indicator_mapping(
-        mapping_file: str = concept_to_indicator_mapping,
-        n: int = 2) -> Dict[str, List[str]]:
+def get_mean_precipitation(year: int, cycles_output='weather.dat'):
+    df = pd.read_table(cycles_output)
+    df.columns = df.columns.str.strip()
+    df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
+    df.drop([0], axis=0, inplace=True)
+    df['DATE (YYYY-MM-DD)'] = pd.to_datetime(df['DATE (YYYY-MM-DD)'], format='%Y-%m-%d')
+    return (df.loc[(datetime(year, 1, 1) < df['DATE (YYYY-MM-DD)']) 
+                 & (df['DATE (YYYY-MM-DD)'] < datetime(year, 12, 31))]
+            ['PRECIPITATION (mm)'].values.astype(float).mean())
+
+def get_indicator_value(
+    indicator: Indicator, date: datetime, df: pd.DataFrame
+) -> Optional[float]:
+
+    if indicator.source == 'FAO/WDI':
+        best_match = get_best_match(indicator, df.index)
+
+        year = str(date.year)
+        if not year in df.columns:
+            return None
+        else:
+            indicator_value = df[year][best_match]
+            indicator_units = df.loc[best_match]['Unit']
+
+        return ((indicator_value, indicator_units)
+                if not pd.isna(indicator_value) else (None, indicator_units))
+
+    elif indicator.source == 'CYCLES':
+        return get_mean_precipitation(date.year), 'mm'
+
+
+def process_variable_name(x: str):
+    xs = x.replace("\/", "|").split("/")
+    xs = [x.replace("|", "/") for x in xs]
+    xs.reverse()
+    return " ".join(xs[0:2])
+
+
+def construct_concept_to_indicator_mapping(n: int = 2) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
-    df = pd.read_table(concept_to_indicator_mapping, usecols = [1, 3, 4],
-            names=['Concept Grounding', 'Indicator Grounding', 'Score'])
-    gb = df.groupby('Concept Grounding')
 
-    construct_variable_name = lambda x: x.split('/')[-1]+' '+x.split('/')[-2]
-    return {k.split('/')[-1]:[construct_variable_name(x)
-            for x in v['Indicator Grounding'].values[0:n]]
-            for k, v in gb}
+    df = pd.read_table(
+        concept_to_indicator_mapping,
+        usecols=[1, 3, 4],
+        names=["Concept Grounding", "Indicator Grounding", "Score"],
+    )
+    gb = df.groupby("Concept Grounding")
+
+    construct_variable_name = (
+        lambda x: x.split("/")[-1] + " " + x.split("/")[-2]
+    )
+    return {
+        k.split("/")[-1]: [
+            process_variable_name(x)
+            for x in v["Indicator Grounding"].values[0:n]
+        ]
+        for k, v in gb
+    }
 
 
-def get_indicators(concept: str, mapping: Dict = None) -> List[str]:
-    if mapping is None:
-        yaml = YAML()
-        with open(concept_to_indicator_mapping, "r") as f:
-            mapping = yaml.load(f)
-
+def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
     return (
-        [Indicator(x, None) for x in mapping[concept]]
-        if concept in mapping else None
+        [Indicator(x, 'FAO/WDI') for x in mapping[concept]]
+        if concept in mapping
+        else None
     )
-
-def add_conditional_probabilities(cag: AnalysisGraph, adjectiveData: str) -> AnalysisGraph:
-    # Create a pandas GroupBy object
-    gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
-    rs = (
-        gaussian_kde(
-            flatMap(
-                lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(20)[0]
-                .tolist(),
-                gb,
-            )
-        )
-        .resample(100)[0]
-        .tolist()
-    )
-
-    for e in cag.edges(data=True):
-        e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
-
-    return cag
-
-def set_indicators(
-        G: AnalysisGraph, mapping: Optional[Dict] = None, n: int = 2
-) -> AnalysisGraph:
-    """ Map concepts to indicators. """
-    if mapping is None:
-        mapping = construct_concept_to_indicator_mapping(n = n)
-
-    for n in G.nodes(data=True):
-        n[1]["indicators"] = get_indicators(n[0].lower().replace(' ', '_'), mapping)
-
-    return G
-
-
-def assemble_model(
-    sts: List[Influence],
-    adj_data: str,
-) -> AnalysisGraph:
-    """ Construct a Delphi model from INDRA statements
-
-    Args:
-        sts: A list of INDRA statements.
-        adj_data: Path to the data file containing gradable adjective survey
-                  data.
-        relevant_concepts: A list of relevant concepts that the model should
-                           focus on.
-    """
-
-    filtered_statements = filter_statements(sts)
-
-    cag_skeleton = make_cag_skeleton(filtered_statements)
-    cag_with_pdfs = add_conditional_probabilities(cag_skeleton, adjectiveData)
-    return cag_with_pdfs
