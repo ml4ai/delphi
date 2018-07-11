@@ -6,7 +6,8 @@ python:
 # Using pipenv
 install:
   - pip install pipenv
-  - pipenv install -d --ignore-pipfile
+  - pipenv install -d
+  - pipenv install networkx==2.1 --skip-lock
 
 script: 
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
