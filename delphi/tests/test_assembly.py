@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from indra.statements import Concept, Influence
-from delphi.api import *
 from delphi.assembly import *
 from delphi.paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
@@ -68,12 +67,6 @@ def test_process_concept_name():
     assert process_concept_name("food_security") == "food security"
 
 
-cag = create_qualitative_analysis_graph(sts)
-
-def test_create_qualitative_analysis_graph():
-    assert set(cag.nodes()) == set(["conflict", "food_security", "precipitation"])
-    assert set(cag.edges()) == set([("conflict", "food_security"), ("precipitation", "food_security")])
-
 
 # Testing preassembly functions
 
@@ -104,7 +97,7 @@ def test_contains_relevant_concept():
     assert contains_relevant_concept(s1, relevant_concepts)
     assert not contains_relevant_concept(s3, relevant_concepts)
 
-faostat_data = get_faostat_wdi_data(south_sudan_data)
+faostat_data = get_data(south_sudan_data)
 
 @pytest.mark.skip(reason="Broken by changes for EC Hackathon - won't break other things")
 def test_get_indicators():
@@ -116,6 +109,6 @@ def test_get_indicators():
 
 def test_get_indicator_data():
     indicator = Indicator('Political stability and absence of violence/terrorism (index), Value',
-            'FAO')
+            'FAO/WDI')
     t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t, faostat_data) == -1.2
+    assert get_indicator_value(indicator, t, faostat_data)[0] == -1.2
