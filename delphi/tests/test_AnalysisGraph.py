@@ -35,13 +35,13 @@ G = AnalysisGraph.from_statements(sts)
 def test_get_subgraph_for_concept():
     concept_of_interest = "food_security"
     sg = G.get_subgraph_for_concept(concept_of_interest)
-    assert set(sg.nodes) == set(["conflict", "food_security"])
+    assert set(sg.nodes()) == set(["conflict", "food_security"])
 
 
 def test_get_subgraph_for_concept_pair():
     concept_pair = ("conflict", "food_security")
     sg = G.get_subgraph_for_concept_pair(*concept_pair)
-    assert set(sg.nodes) == set(concept_pair)
+    assert set(sg.nodes()) == set(concept_pair)
 
 
 def test_map_concepts_to_indicators():
@@ -53,7 +53,7 @@ def test_map_concepts_to_indicators():
         stdev=None,
         time=None,
     )
-    assert G.node["food_security"]["indicators"][0] == indicator
+    assert G.nodes["food_security"]["indicators"][0] == indicator
 
 
 def test_infer_transition_model():
