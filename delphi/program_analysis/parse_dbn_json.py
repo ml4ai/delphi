@@ -1,10 +1,47 @@
-import json
-import pprint
-import pathlib
-from typing import Dict
-import os
-
+from os.path import join, normpath
 from pygraphviz import AGraph
+from typing import Dict
+import pprint
+import json
+
+import scopes as scp
+
+
+def main():
+    example_source_file = "crop_yield_DBN.json"
+    filepath = "../../data/program_analysis/pa_crop_yield_v0.2/"
+    dbn_json_source_file = normpath(join(filepath, example_source_file))
+    data = read_dbn_from_json(dbn_json_source_file)
+
+    # print('DBN_JSON:')
+    # pprint.pprint(data)
+
+    scopes = build_scopes(data)
+    scope_names = list(scopes.keys())
+
+    for scope in scopes.values():
+        scope.remove_non_scope_children(scope_names)
+
+    root = find_outermost_scope(scopes, scope_names)
+    root.build_scope_tree(scopes)
+
+    A = AGraph(directed=True)
+    A.node_attr["shape"] = "rectangle"
+    A.graph_attr["rankdir"] = "LR"
+    A.node_attr["fontname"] = "Gill Sans"
+
+    root.build_linked_graph(A)
+
+    A.draw("linked_graph.png", prog="dot")
+
+    B = AGraph(directed=True)
+    B.node_attr["shape"] = "rectangle"
+    B.graph_attr["rankdir"] = "LR"
+    B.node_attr["fontname"] = "Gill Sans"
+
+    root.build_containment_graph(B)
+
+    B.draw("nested_graph.png", prog="dot")
 
 
 def read_dbn_from_json(dbn_json_source_file: str) -> Dict:
@@ -20,50 +57,35 @@ def read_dbn_from_json(dbn_json_source_file: str) -> Dict:
     return dbn_json
 
 
+def build_scopes(json_data: Dict) -> Dict:
+    """
+    Using input data from JSON find all function and loop_plate objects. Build
+    a new scope object for each of these appropriately. Index the new scope
+    into a dictionary of scopes using the name of the scope as the key.
+
+    :param json_data: input data from JSON that contains scope definitions
+    :return: A dictionary of all discovered scopes
+    """
+    result = dict()
+    for f in json_data["functions"]:
+        if f["type"] == "container":
+            result[f["name"]] = scp.FuncScopeNode(f["name"], f)
+        elif f["type"] == "loop_plate":
+            result[f["name"]] = scp.LoopScopeNode(f["name"], f)
+
+    return result
+
+
+def find_outermost_scope(scopes: Dict, scope_names: list) -> scp.ScopeNode:
+    for name in scope_names:
+        dependent = False
+        for c1 in scopes.values():
+            if name in c1.child_names:
+                dependent = True
+                break
+        if not dependent:
+            return scopes[name]
+
+
 if __name__ == "__main__":
-    example_source_file = "crop_yield_DBN.json"
-    filepath = (
-        pathlib.Path(__file__).parent
-        / ".."
-        / ".."
-        / "data"
-        / "program_analysis"
-        / "pa_crop_yield_v0.2"
-    ).resolve()
-    dbn_json_source_file = os.path.join(filepath, example_source_file)
-    data = read_dbn_from_json(dbn_json_source_file)
-    A = AGraph(directed=True)
-    A.node_attr["shape"] = "rectangle"
-
-    for f in data["functions"]:
-        if f["type"] in ["container", "loop_plate"]:
-            for part in f["body"]:
-                if part.get("input") is not None:
-                    inputs = part["input"]
-                    for i in inputs:
-                        if i.get("variable") is not None:
-                            iname = i["variable"]# + "_" + i["index"]
-                            A.add_node(iname, shape="ellipse")
-                            A.add_edge(iname, f["name"])
-
-                output = part["output"]
-                if output.get("variable") is not None:
-                    oname = output["variable"]# + "_" + output["index"]
-
-                A.add_node(oname, shape='ellipse')
-
-                A.add_edge(f["name"], oname)
-
-        # if k.get('sources') is not None:
-            # for s in k['sources']:
-            # A.add_node(s, shape='ellipse')
-            # A.add_edge(s, k['name'])
-            # if k.get('target') is not None:
-            # A.add_node(k['target'], shape='ellipse')
-            # A.add_edge(k['name'], k['target'])
-
-    A.graph_attr["rankdir"] = "LR"
-    A.node_attr["fontname"] = "Gill Sans"
-    A.draw("graph_collapsed.png", prog="dot")
-    # print('DBN_JSON:')
-    # pprint.pprint(data)
+    main()
