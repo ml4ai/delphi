@@ -13,7 +13,7 @@ install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv
   - pipenv install -d --skip-lock
-  - pipenv install networkx==2.1 --skip-lock
+  - pipenv install --selective-upgrade networkx --skip-lock
   - pipenv graph
 
 script: pipenv run pytest
