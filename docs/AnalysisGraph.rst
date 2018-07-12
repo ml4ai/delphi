@@ -11,9 +11,12 @@ The AnalysisGraph is the central data structure for Delphi.
 Constructor
 -----------
 
-.. automethod:: AnalysisGraph.__init__
-.. automethod:: AnalysisGraph.from_statements
-.. automethod:: AnalysisGraph.from_pickle
+.. autosummary:: 
+    :toctree: generated/
+
+    AnalysisGraph.__init__
+    AnalysisGraph.from_statements
+    AnalysisGraph.from_pickle
 
 Subgraphs
 ---------
