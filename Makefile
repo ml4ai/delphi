@@ -3,7 +3,7 @@ docs:
 
 test:
 	cd docs; make doctest
-	pipenv run pytest delphi/tests
+	pipenv run pytest
 
 pypi_upload:
 	rm -rf dist
@@ -12,6 +12,7 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
+	rm *.json *.pkl *.csv
 
 pkg_lock:
 	pipenv lock
