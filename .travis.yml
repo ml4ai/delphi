@@ -7,14 +7,11 @@ env:
   global:
     - PIPENV_VENV_IN_PROJECT=1
     - PIPENV_IGNORE_VIRTUALENVS=1
-      #
+
 # Using pipenv
 install:
-  - pip install pipenv
-  - pipenv install -d --skip-lock
-  - pipenv install --selective-upgrade networkx --skip-lock
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
 
-script: 
-  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - make test
-
+script: pytest
+cache: pip
