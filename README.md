@@ -62,11 +62,10 @@ execution.
 
 ### Create model
 
-To create a model from a set of INDRA statements, use the flag `--create` (or
-`-c` for short).
+To create a model from a set of INDRA statements, do
 
 ```bash
-./delphi.py -c
+delphi create
 ```
 
 Optionally combine this with the `--indra_statements` input parameter to specify
@@ -105,10 +104,10 @@ crop yield,100.0
 
 ### Execute model
 
-To execute the model, use the flag `--execute`, or `-x` for short.
+To execute the model, do:
 
 ```bash
-./delphi.py -x
+delphi execute
 ```
 
 This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
