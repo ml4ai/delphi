@@ -3,13 +3,16 @@ language: python
 python:
   - "3.6"
 
+env:
+  global:
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
+
 # Using pipenv
 install:
-  - pip install pipenv
-  - pipenv install -d --ignore-pipfile
-
-script: 
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - make test
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
 
+script: pytest
 cache: pip
