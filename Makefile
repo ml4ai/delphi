@@ -3,7 +3,7 @@ docs:
 
 test:
 	cd docs; make doctest
-	pipenv run pytest delphi/tests
+	pipenv run pytest
 
 pypi_upload:
 	rm -rf dist
