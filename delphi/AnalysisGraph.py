@@ -80,7 +80,8 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     @classmethod
-    def from_statements(cls, sts):
+    def from_statements(cls, sts: List[Influence]):
+        """ Construct an AnalysisGraph object from a list of INDRA statements. """
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = [
@@ -92,8 +93,9 @@ class AnalysisGraph(nx.DiGraph):
         return cls(edges)
 
     @staticmethod
-    def from_pickle(pickle_file):
-        with open(pickle_file, "rb") as f:
+    def from_pickle(pkl_file: str):
+        """ Load an AnalysisGraph object from a pickle file. """
+        with open(pkl_file, "rb") as f:
             G = pickle.load(f)
 
         return G
@@ -526,10 +528,11 @@ class AnalysisGraph(nx.DiGraph):
     # Basic Modeling Interface (BMI)
     # ==========================================================================
 
-    def initialize(self, filename=None):
-        if filename is not None:
+    def initialize(self, cfg: str=None):
+        """ Initialize the executable AnalysisGraph with a config file. """
+        if cfg is not None:
             self.s0 = pd.read_csv(
-                filename, index_col=0, header=None, error_bad_lines=False
+                cfg, index_col=0, header=None, error_bad_lines=False
             )[1]
         else:
             self.s0 = self.construct_default_initial_state()
@@ -540,6 +543,7 @@ class AnalysisGraph(nx.DiGraph):
         )
 
     def update(self):
+        """ Advance the model by one time step. """
         self.latent_state.dataset = [
             f(s)
             for f, s in lzip(
