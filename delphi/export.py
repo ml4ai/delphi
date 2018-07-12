@@ -4,39 +4,10 @@ import networkx as nx
 from .utils import _insert_line_breaks
 from pygraphviz import AGraph
 
-
 def _process_datetime(indicator_dict: Dict):
     time = indicator_dict.get("time")
     indicator_dict["time"] = str(time)
     return indicator_dict
-
-
-def _export_node(cag: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
-    """ Return dict suitable for exporting to JSON.
-
-    Args:
-        cag: The causal analysis graph
-        n: A dict representing the data in a networkx AnalysisGraph node.
-
-    Returns:
-        The node dict with additional fields for name, units, dtype, and
-        arguments.
-
-    """
-    node_dict = {
-        "name": n[0],
-        "units": _get_units(n[0]),
-        "dtype": _get_dtype(n[0]),
-        "arguments": list(cag.predecessors(n[0])),
-    }
-    if not n[1].get("indicators") is None:
-        node_dict["indicators"] = [
-            _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
-        ]
-    else:
-        node_dict["indicators"] = None
-
-    return node_dict
 
 
 def _export_edge(e):
