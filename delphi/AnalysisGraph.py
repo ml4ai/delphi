@@ -67,6 +67,7 @@ class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
     def __init__(self, edges):
+        """ Default constructor, accepts a list of edge tuples. """
         super().__init__(edges)
         self.t = 0.0
         self.Δt = 1.0
