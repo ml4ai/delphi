@@ -16,9 +16,9 @@ from argparse import (
 
 def create(args):
     print("Creating model")
-    from delphi.assembly import get_data
+    from .assembly import get_data
     from datetime import datetime
-    from delphi import AnalysisGraph
+    from . import AnalysisGraph
 
     with open(args.indra_statements, "rb") as f:
         sts = pickle.load(f)
@@ -37,7 +37,7 @@ def create(args):
 
 def execute(args):
     from pandas import read_csv
-    from delphi import AnalysisGraph
+    from . import AnalysisGraph
     print("Executing model")
     G = AnalysisGraph.from_pickle(args.input_dressed_cag)
     G.initialize(args.input_variables)

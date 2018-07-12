@@ -110,7 +110,7 @@ class AnalysisGraph(nx.DiGraph):
             depth_limit
         """
         rev = self.reverse()
-        dfs_edges = nx.dfs_edges(rev, concept, depth_limit=depth_limit)
+        dfs_edges = nx.dfs_edges(rev, concept, depth_limit)
         return AnalysisGraph(
             self.subgraph(chain.from_iterable(dfs_edges)).copy()
         )
