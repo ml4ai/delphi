@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from indra.statements import Concept, Influence
-from delphi.assembly import *
-from delphi.paths import adjectiveData, south_sudan_data
+from .assembly import *
+from .paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
 import pytest
 
