@@ -53,7 +53,7 @@ def test_map_concepts_to_indicators():
         stdev=None,
         time=None,
     )
-    assert G.nodes["food_security"]["indicators"][0] == indicator
+    assert G.node["food_security"]["indicators"][0] == indicator
 
 
 def test_infer_transition_model():
