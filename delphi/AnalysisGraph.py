@@ -40,7 +40,7 @@ from scipy.stats import gaussian_kde
 from itertools import chain, permutations, cycle
 from indra.statements import Influence
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('agg')
 from matplotlib import pyplot as plt
 from IPython.display import set_matplotlib_formats
 from functools import partial
