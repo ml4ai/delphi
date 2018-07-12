@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export CLASSPATH="${CLASSPATH}:"$(pwd)/$(dirname ${BASH_SOURCE[0]})"/bin/*"
+pyFiles=""
+
+for file in "$@"; do
+    base=$(basename "$file")
+    base=${base%.*}
+    astFile="$base".xml
+    ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$file" > "$astFile")
+    pyFile="$base".py
+    ( set -x; python3.6 scripts/translate.py -f "$astFile" -g "$pyFile")
+    pyFiles+=" $pyFile"
+done
+
+( set -x; python3.6 scripts/genPGM.py -f$pyFiles -p pgm.out -l lambdas.py)
