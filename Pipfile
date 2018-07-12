@@ -17,13 +17,12 @@ future = "*"
 Cython = "*"
 "ruamel.yaml" = "*"
 fuzzywuzzy = {extras = ["speedup"]}
-jupyterlab = "*"
-ipyparallel = "*"
 pygraphviz = "*"
 dataclasses = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 seaborn = "*"
 networkx = "==2.1"
+jupyter = "*"
 
 [dev-packages]
 pytest-cov = "*"

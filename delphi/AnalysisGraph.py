@@ -66,9 +66,9 @@ class ObservedState(object):
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
-    def __init__(self, edges):
+    def __init__(self, *args, **kwargs):
         """ Default constructor, accepts a list of edge tuples. """
-        super().__init__(edges)
+        super().__init__(*args, **kwargs)
         self.t = 0.0
         self.Δt = 1.0
         self.time_unit = "Placeholder time unit"
