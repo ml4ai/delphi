@@ -1,6 +1,6 @@
 from indra.statements import Influence, Concept
-from delphi.types import Indicator
-from delphi.AnalysisGraph import AnalysisGraph
+from ..types import Indicator
+from ..AnalysisGraph import AnalysisGraph
 
 conflict = Concept(
     "conflict",
