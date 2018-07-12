@@ -20,7 +20,9 @@
 import os
 import sys
 from unittest.mock import MagicMock
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- General configuration ------------------------------------------------
@@ -33,6 +35,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autosummary',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
@@ -45,6 +48,10 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx.ext.githubpages'
 ]
+
+
+# Generate autosummary pages
+autosummary_generate=True
 
 # Don't sort members alphabetically
 autodoc_member_order = "bysource"
@@ -90,7 +97,7 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'friendly'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True

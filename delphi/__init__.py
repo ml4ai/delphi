@@ -1,1 +1,1 @@
-from .api import *
+from delphi.AnalysisGraph import AnalysisGraph

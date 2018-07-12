@@ -2,7 +2,7 @@
 
 from indra.statements import Influence
 from indra.sources import eidos
-from itertools import repeat, accumulate, islice, chain, starmap
+from itertools import repeat, accumulate, islice, chain, starmap, zip_longest
 from functools import reduce
 from tqdm import tqdm
 from future.utils import lmap
@@ -289,3 +289,18 @@ def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
         )
     )
 
+
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
+
+def _insert_line_breaks(label: str, max_str_length=20) -> str:
+    words = label.split()
+    if len(label) > max_str_length:
+        n_groups = len(label)//max_str_length
+        n = len(words)// n_groups
+        return '\n'.join([' '.join(word_group) for word_group in grouper(words, n, '')])
+    else:
+        return label

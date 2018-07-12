@@ -11,12 +11,12 @@ textual evidence.
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :maxdepth: 2
+  :caption: Contents:
 
-   model
-   api
-   jupyter_tools
+  self
+  model
+  AnalysisGraph
 
 
 License
