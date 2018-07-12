@@ -5,7 +5,7 @@ AnalysisGraph Class
 
 The AnalysisGraph is the central data structure for Delphi.
 
-.. currentmodule:: delphi.AnalysisGraph
+.. currentmodule:: delphi
 .. autoclass:: AnalysisGraph
 
 
