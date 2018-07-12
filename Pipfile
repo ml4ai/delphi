@@ -21,8 +21,8 @@ pygraphviz = "*"
 dataclasses = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 seaborn = "*"
-networkx = "==2.1"
 jupyter = "*"
+networkx = "==2.1"
 
 [dev-packages]
 pytest-cov = "*"
