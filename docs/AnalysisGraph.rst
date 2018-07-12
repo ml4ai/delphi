@@ -10,6 +10,7 @@ The AnalysisGraph is the central data structure for Delphi.
 
 Constructor
 -----------
+
 .. autosummary:: 
     :toctree: generated/
 
@@ -44,6 +45,9 @@ Export
 
 Basic Model Interface
 ---------------------
+
+These methods implement the `Basic Modeling Interface (BMI) <http://bmi-spec.readthedocs.io/en/latest/>`_.
+
 .. autosummary::
     :toctree: generated/
 
