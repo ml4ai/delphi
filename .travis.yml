@@ -11,6 +11,7 @@ env:
 # Using pipenv
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
+  - pip install pipenv
   - pipenv install -d --skip-lock --sequential
 
 script: pipenv run pytest
