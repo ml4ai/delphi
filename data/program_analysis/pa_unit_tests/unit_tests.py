@@ -12,7 +12,7 @@ x = y + 2
 
 
 # ------------------------------------------------
-# [unit 3] conditional 1: single var condition
+# [unit 3] conditional: single var condition
 
 if x:
     y = 1
@@ -21,7 +21,7 @@ else:
 
 
 # ------------------------------------------------
-# [unit 4] conditional 2: inline condition, no var
+# [unit 4] conditional: inline condition, no var
 
 if x < 3:
     y = 1
@@ -30,7 +30,7 @@ else:
 
 
 # ------------------------------------------------
-# [unit 5] conditional 3: inline condition, with var
+# [unit 5] conditional: inline condition, with var
 
 if x < y + 2:
     y = 1
@@ -39,76 +39,84 @@ else:
 
 
 # ------------------------------------------------
-# [unit 6] loop 1:
+# [unit 6] loop: contains assign fn that references loop-index
 
 for x in range(0, 2):
     y = x
 
 
 # ------------------------------------------------
-# [unit 7] container 1: simple, no arg, no return
+# [unit 7] container: simple, no arg, no return
 
-def fn7():
+def fn():
     x = 1
 
 
 # ------------------------------------------------
-# [unit 8] container 2: simple, arg, no return
+# [unit 8] container: simple, arg, no return
 # NOTE: from DBN perspective, y is same as x
 
-def fn8(x):
+def fn(x):
     y = x
 
 
 # ------------------------------------------------
-# [unit 9] container 3: simple, no arg, return
+# [unit 9] container: simple, no arg, return var
 
-def fn9():
+def fn():
     y = 3
     return y
 
 
 # ------------------------------------------------
-# [unit 10] container calling container, no return
+# [unit 10] container: simple, no arg, return with assign
 
-def fn10_1(x):
-    y = x
-
-
-def fn10_2():
-    fn10_1(3)
+def fn():
+    y = 3
+    return y + 3
 
 
 # ------------------------------------------------
-# [unit 11] container calling container, with return and assign
+# [unit 11] container calling container, no return
+
+def fn_a(x):
+    y = x
+
+
+def fn_b():
+    fn_a(3)
+
+
+# ------------------------------------------------
+# [unit 12] container calling container, with return and assign
 # NOTE: this is ultimately just an assignment of a literal to z -- should that be identified?
 
-def fn11_1(x):
+def fn_a(x):
     y = x
     return y
 
 
-def fn11_2():
-    z = fn11_1(3)
+def fn_b():
+    z = fn_a(3)
 
 
 # ------------------------------------------------
-# [unit 12] container with loop calling container, with return and assing
+# [unit 13] container with loop calling container, with return and assing
 
-def fn12_1(x):
+def fn_a(x):
     y = x
     return y
 
 
-def fn12_2():
+def fn_b():
     for d in range(4):
-        y = fn12_1(d)
+        y = fn_a(d)
 
 
 # ------------------------------------------------
-# [unit 13] container with conditional return
+# [unit 14] container with conditional return
 
-def fn13(x):
+def fn(x):
     if x < 3:
         return 2
     else:
@@ -116,33 +124,33 @@ def fn13(x):
 
 
 # ------------------------------------------------
-# [unit 14] container calling container with conditional return and assignment
+# [unit 15] container calling container with conditional return and assignment
 
-def fn14_1(x):
+def fn_a(x):
     if x < 3:
         return 2
     else:
         return 4
 
 
-def fn14_2():
-    y = fn14_1(3)
+def fn_b():
+    y = fn_a(3)
 
 
 # ------------------------------------------------
-# [unit 15] container with multiple value return
+# [unit 16] container with multiple value return
 
-def fn15():
+def fn():
     return 2, 3
 
 
 # ------------------------------------------------
-# [unit 16] container calling container with multiple value return and assignment
+# [unit 17] container calling container with multiple value return and assignment
 
-def fn16_1():
+def fn_a():
     return 2, 3
 
 
-def fn16_2():
-    x, y = fn16_1()
+def fn_b():
+    x, y = fn_a()
 
