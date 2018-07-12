@@ -8,8 +8,8 @@ The AnalysisGraph is the central data structure for Delphi.
 .. currentmodule:: delphi.AnalysisGraph
 
 
-Constructor
------------
+Constructors
+------------
 
 .. autosummary:: 
     :toctree: generated/
