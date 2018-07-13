@@ -50,7 +50,7 @@ def setup_directed_graph():
     A.node_attr["shape"] = "rectangle"
     A.graph_attr["rankdir"] = "LR"
     A.node_attr["fontname"] = "Gill Sans"
-    A.graph_attr["size"] = "4,4"
+    A.graph_attr["size"] = "10,12"
     return A
 
 
