@@ -3,16 +3,11 @@ language: python
 python:
   - "3.6"
 
-env:
-  global:
-    - PIPENV_VENV_IN_PROJECT=1
-    - PIPENV_IGNORE_VIRTUALENVS=1
-
-# Using pipenv
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - pip install pipenv
+  - pipenv install --dev
+  - pipenv install networkx==2.1
 
-script: pytest
+script: pipenv run pytest
 cache: pip
