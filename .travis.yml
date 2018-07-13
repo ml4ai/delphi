@@ -6,6 +6,7 @@ python:
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install -U pipenv
-  - pipenv install -d --ignore-pipfile
+  - pipenv install -d --ignore-pipfile --system
 
 script: pipenv run pytest
+cache: pip
