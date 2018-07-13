@@ -19,14 +19,14 @@ Cython = "*"
 fuzzywuzzy = {extras = ["speedup"]}
 pygraphviz = "*"
 dataclasses = "*"
-indra = {git = "https://github.com/sorgerlab/indra.git", editable = true}
 seaborn = "*"
 jupyter = "*"
 networkx = "==2.1"
 
 [dev-packages]
+indra = {git = "https://github.com/sorgerlab/indra.git"}
 pytest-cov = "*"
 mypy = "*"
 pipenv-to-requirements = "*"
 xlrd = "*"
-sphinx-rtd-theme = "*"
+sphinx_rtd_theme = "*"
