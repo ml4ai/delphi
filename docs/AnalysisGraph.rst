@@ -14,7 +14,6 @@ Constructors
 .. autosummary:: 
     :toctree: generated/
 
-    AnalysisGraph.__init__
     AnalysisGraph.from_statements
     AnalysisGraph.from_pickle
 
