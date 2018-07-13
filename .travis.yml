@@ -3,13 +3,11 @@ language: python
 python:
   - "3.6"
 
-# Using pipenv
 install:
-  - pip install pipenv
-  - pipenv install -d --ignore-pipfile
-
-script: 
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - make test
+  - pip install pipenv
+  - pipenv install --dev
+  - pipenv install networkx==2.1
 
+script: pipenv run pytest
 cache: pip

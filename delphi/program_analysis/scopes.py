@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from typing import Dict
 
 
 class ScopeNode(metaclass=ABCMeta):
@@ -77,7 +78,7 @@ class ScopeNode(metaclass=ABCMeta):
                     self.node_pairs.append((instruction, oname))
 
     @abstractmethod
-    def build_containment_graph(self, graph, border_clr):
+    def containment_graph(self, graph, border_clr):
         sub = graph.add_subgraph(name="cluster_{}".format(self.name),
                                  color=border_clr)
         sub.graph_attr["label"] = self.name
@@ -94,10 +95,10 @@ class ScopeNode(metaclass=ABCMeta):
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
-            child.build_containment_graph(sub)
+            child.containment_graph(sub)
 
     @abstractmethod
-    def build_linked_graph(self, graph):
+    def linked_graph(self, graph):
         return NotImplemented
 
 
@@ -116,19 +117,15 @@ class LoopScopeNode(ScopeNode):
 
         super().setup_from_json(data)
 
-    def build_containment_graph(self, graph):
-        super().build_containment_graph(graph, self.edge_color)
+    def containment_graph(self, graph):
+        super().containment_graph(graph, self.edge_color)
 
-    def build_linked_graph(self, graph):
+    def linked_graph(self, graph):
         sub = graph.add_subgraph(name="cluster_{}".format(self.name),
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
 
         def get_node_name(node):
-            # if self.node_types[node] == "factor":
-            #     return "{}\n{}".format(node, self.name)
-            # else:
-            #     return "{}\n{}".format(node, self.parent_scope.name)
             return "{}\n{}".format(node, self.parent_scope.name)
 
         for node, n_type in self.node_types.items():
@@ -143,7 +140,7 @@ class LoopScopeNode(ScopeNode):
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
-            child.build_linked_graph(sub)
+            child.linked_graph(sub)
 
 
 class FuncScopeNode(ScopeNode):
@@ -161,10 +158,10 @@ class FuncScopeNode(ScopeNode):
 
         super().setup_from_json(data)
 
-    def build_containment_graph(self, graph):
-        super().build_containment_graph(graph, self.edge_color)
+    def containment_graph(self, graph):
+        super().containment_graph(graph, self.edge_color)
 
-    def build_linked_graph(self, graph):
+    def linked_graph(self, graph):
         sub = graph.add_subgraph(name="cluster_{}".format(self.name),
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
@@ -194,4 +191,49 @@ class FuncScopeNode(ScopeNode):
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
-            child.build_linked_graph(sub)
+            child.linked_graph(sub)
+
+
+def scope_tree_from_json(json_data: Dict) -> ScopeNode:
+    """
+    Parses through a dictionary of data from a JSON spec of a FORTRAN program
+    and returns a tree of ScopeNode objects that represent the properly nested
+    scopes found in the JSON data.
+
+    :param json_data: A dict of all data found when parsing the FORTRAN program
+    :return: A ScopeNode that serves as the root of a tree of ScopeNodes
+    """
+
+    # Build a new scope object for each function and loop_plate object. Index
+    # scopes into a dict by (scope_name |-> scope)
+    scopes = dict()
+    for f in json_data["functions"]:
+        if f["type"] == "container":
+            scopes[f["name"]] = FuncScopeNode(f["name"], f)
+        elif f["type"] == "loop_plate":
+            scopes[f["name"]] = LoopScopeNode(f["name"], f)
+
+    # Make a list of all scopes by scope names
+    scope_names = list(scopes.keys())
+
+    # Remove pseudo-scopes we wish to not display (such as print)
+    for scope in scopes.values():
+        scope.remove_non_scope_children(scope_names)
+
+    # Find the root scope to properly nest scopes in a tree. NOTE: This will no
+    # longer work when we have functions with the same name at different scope
+    # levels. Not sure if this is possible in FORTRAN but we should be prepared.
+    root = None
+    for name in scope_names:
+        dependent = False
+        for c1 in scopes.values():
+            if name in c1.child_names:
+                dependent = True
+                break
+        if not dependent:
+            root = scopes[name]
+            break
+
+    # Build the nested tree of scopes using recursion
+    root.build_scope_tree(scopes)
+    return root

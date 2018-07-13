@@ -10,23 +10,8 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
--e git+https://github.com/sorgerlab/indra.git#egg=indra
-cython
-dataclasses
-future
-fuzzywuzzy[speedup]
-jupyter
-matplotlib
-networkx==2.1
-numpy
-pandas
-pygraphviz
-pytest
-ruamel.yaml
-scipy
-seaborn
-sphinx-autodoc-typehints
-sphinxcontrib-bibtex
-sphinxcontrib-trio
-tqdm
-seaborn
+mypy
+pipenv-to-requirements
+pytest-cov
+sphinx-rtd-theme
+xlrd

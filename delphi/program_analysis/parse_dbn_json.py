@@ -16,32 +16,15 @@ def main():
     # print('DBN_JSON:')
     # pprint.pprint(data)
 
-    scopes = build_scopes(data)
-    scope_names = list(scopes.keys())
+    scope_tree = scp.scope_tree_from_json(data)
 
-    for scope in scopes.values():
-        scope.remove_non_scope_children(scope_names)
+    g1 = setup_directed_graph()
+    scope_tree.linked_graph(g1)
+    g1.write("linked_graph.dot")
 
-    root = find_outermost_scope(scopes, scope_names)
-    root.build_scope_tree(scopes)
-
-    A = AGraph(directed=True)
-    A.node_attr["shape"] = "rectangle"
-    A.graph_attr["rankdir"] = "LR"
-    A.node_attr["fontname"] = "Gill Sans"
-
-    root.build_linked_graph(A)
-
-    A.draw("linked_graph.png", prog="dot")
-
-    B = AGraph(directed=True)
-    B.node_attr["shape"] = "rectangle"
-    B.graph_attr["rankdir"] = "LR"
-    B.node_attr["fontname"] = "Gill Sans"
-
-    root.build_containment_graph(B)
-
-    B.draw("nested_graph.png", prog="dot")
+    g2 = setup_directed_graph()
+    scope_tree.containment_graph(g2)
+    g2.write("nested_graph.dot")
 
 
 def read_dbn_from_json(dbn_json_source_file: str) -> Dict:
@@ -57,34 +40,18 @@ def read_dbn_from_json(dbn_json_source_file: str) -> Dict:
     return dbn_json
 
 
-def build_scopes(json_data: Dict) -> Dict:
+def setup_directed_graph():
     """
-    Using input data from JSON find all function and loop_plate objects. Build
-    a new scope object for each of these appropriately. Index the new scope
-    into a dictionary of scopes using the name of the scope as the key.
+    Creates a Graph instance with our desired configuration
 
-    :param json_data: input data from JSON that contains scope definitions
-    :return: A dictionary of all discovered scopes
+    :return: The Graph object
     """
-    result = dict()
-    for f in json_data["functions"]:
-        if f["type"] == "container":
-            result[f["name"]] = scp.FuncScopeNode(f["name"], f)
-        elif f["type"] == "loop_plate":
-            result[f["name"]] = scp.LoopScopeNode(f["name"], f)
-
-    return result
-
-
-def find_outermost_scope(scopes: Dict, scope_names: list) -> scp.ScopeNode:
-    for name in scope_names:
-        dependent = False
-        for c1 in scopes.values():
-            if name in c1.child_names:
-                dependent = True
-                break
-        if not dependent:
-            return scopes[name]
+    A = AGraph(directed=True)
+    A.node_attr["shape"] = "rectangle"
+    A.graph_attr["rankdir"] = "LR"
+    A.node_attr["fontname"] = "Gill Sans"
+    # A.graph_attr["size"] = "12,14"
+    return A
 
 
 if __name__ == "__main__":
