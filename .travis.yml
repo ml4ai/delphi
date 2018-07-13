@@ -7,8 +7,8 @@ env:
   global:
     - PIPENV_VENV_IN_PROJECT=1
     - PIPENV_IGNORE_VIRTUALENVS=1
+    - PIPENV_DONT_USE_PYENV=1
 
-# Using pipenv
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv
