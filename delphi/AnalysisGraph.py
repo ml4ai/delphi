@@ -194,7 +194,8 @@ class AnalysisGraph(nx.DiGraph):
         )
 
     def merge_nodes(self, n1, n2, same_polarity=True):
-        """ Merge node n1 into n2, where n1 and n2 have opposite polarities. """
+        """ Merge node n1 into node n2, with the option to specify relative
+        polarity.. """
 
         for p in self.predecessors(n1):
             for st in self[p][n1]["InfluenceStatements"]:
@@ -555,6 +556,20 @@ class AnalysisGraph(nx.DiGraph):
             self.emission_function(s) for s in self.latent_state.dataset
         ]
         self.t += self.Δt
+
+    def update_until(self, t_final):
+        """ Updates the model to a particular time t_final """
+        while self.t < t_final:
+            self.update()
+
+    def finalize(self):
+        pass
+
+    # Model information
+
+    def get_component_name():
+        """ Return the name of the model. """
+        return "DelphiModel"
 
     def get_input_var_names():
         """ Returns the input variable names """
