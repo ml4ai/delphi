@@ -4,8 +4,8 @@ The Delphi model
 ================
 
 We model abstract concepts such as food security and conflict as real-valued
-\emph{latent} variables, and indicators corresponding to these concepts as
-\emph{observed} variables. An indicator is a measurable quantity that correlates
+*latent* variables, and indicators corresponding to these concepts as
+*observed* variables. An indicator is a measurable quantity that correlates
 with the intuitive, natural language interpretation of the abstract concept. For
 example, *average dietary energy supply adequacy* is one among many indicators
 for the concept of *food security*.
@@ -27,7 +27,7 @@ data about how humans quantitatively interpret gradable adjectives such as
 uncertainty in the model itself, since there is no precise model for many
 abstract concepts such as food security and conflict that we expect to encounter
 in machine reading. Finally, we use the following emission model - let
-:math:`nᵢⱼ` be the value of the :math:`j^{th}` indicator for the :math:`i^{th}`
+:math:`n_{ij}` be the value of the :math:`j^{th}` indicator for the :math:`i^{th}`
 component of a latent state vector :math:`\mathbf{s}`. We then define
 probability distribution for the value of the indicator as
 
