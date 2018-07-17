@@ -176,8 +176,11 @@ def scope_tree_from_json(json_data: Dict) -> ScopeNode:
     and returns a tree of ScopeNode objects that represent the properly nested
     scopes found in the JSON data.
 
-    :param json_data: A dict of all data found when parsing the FORTRAN program
-    :return: A ScopeNode that serves as the root of a tree of ScopeNodes
+    Args:
+        json_data: A dict of all data found when parsing the FORTRAN program
+
+    Returns:
+        A ScopeNode that serves as the root of a tree of ScopeNodes
     """
 
     # Build a new scope object for each function and loop_plate object. Index
