@@ -34,28 +34,12 @@ def get_respdevs(gb):
     return gb["respdev"]
 
 
-def make_edge(
-    sts: List[Influence], p: Tuple[str, str]
-) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (
-        p[0],
-        p[1],
-        {
-            "InfluenceStatements": [
-                s for s in sts if (p[0], p[1]) == nameTuple(s)
-            ]
-        },
-    )
-    return edge
-
-
 def top_grounding(c: Concept, ontology="UN") -> str:
     return (
         c.db_refs[ontology][0][0].split("/")[-1]
         if ontology in c.db_refs
         else c.name
     )
-
 
 def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
     return c.db_refs[ontology][0][1]

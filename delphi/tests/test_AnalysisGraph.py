@@ -1,6 +1,6 @@
 from indra.statements import Influence, Concept
 from delphi.types import Indicator
-from delphi.AnalysisGraph import AnalysisGraph
+from delphi.AnalysisGraph import *
 
 conflict = Concept(
     "conflict",
@@ -31,6 +31,8 @@ s3 = Influence(precipitation, flooding)
 sts = [s1, s2, s3]
 G = AnalysisGraph.from_statements(sts)
 
+def test_make_edge():
+    assert make_edge(sts, ("conflict", "food_security")) == ("conflict", "food_security", {"InfluenceStatements": [s1]})
 
 def test_get_subgraph_for_concept():
     concept_of_interest = "food_security"
@@ -49,11 +51,11 @@ def test_map_concepts_to_indicators():
     indicator = Indicator(
         name="Number of severely food insecure people Value",
         source="FAO/WDI",
-        value=None,
+        mean=None,
         stdev=None,
         time=None,
     )
-    assert G.nodes["food_security"]["indicators"][0] == indicator
+    assert G.nodes["food_security"]["indicators"][0].name == indicator.name
 
 
 def test_infer_transition_model():

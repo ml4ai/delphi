@@ -47,8 +47,6 @@ def test_nameTuple():
     assert nameTuple(s1) == ("conflict", "food_security")
 
 
-def test_make_edge():
-    assert make_edge(sts, ("conflict", "food_security")) == ("conflict", "food_security", {"InfluenceStatements": [s1]})
 
 
 def test_top_grounding():

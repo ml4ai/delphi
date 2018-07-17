@@ -1,4 +1,5 @@
-from typing import Dict, List, Optional, Union, Callable
+from typing import Dict, List, Optional, Union, Callable, Tuple
+import random
 import json
 import pickle
 from dataclasses import dataclass
@@ -18,49 +19,54 @@ from future.utils import lmap, lzip
 from delphi.assembly import (
     constructConditionalPDF,
     get_concepts,
-    make_edge,
     get_valid_statements_for_modeling,
+    nameTuple,
 )
 
-from .export import (
-    _process_datetime,
-    _get_dtype,
-    _get_units,
-    _export_edge,
-)
+from .export import (_process_datetime, _get_dtype, _get_units, _export_edge,
+        to_agraph)
 
 from .jupyter_tools import (
     print_full_edge_provenance,
     create_statement_inspection_table,
 )
 from .utils import flatMap, iterate, take, ltake, _insert_line_breaks, compose
+from .types import RV, LatentVar, Indicator
 from .paths import adjectiveData, south_sudan_data
 from datetime import datetime
 from scipy.stats import gaussian_kde
 from itertools import chain, permutations, cycle
 from indra.statements import Influence
 import matplotlib
-matplotlib.use('agg')
+matplotlib.use("agg")
 from matplotlib import pyplot as plt
+from tqdm import tqdm, trange
+import seaborn as sns
 from IPython.display import set_matplotlib_formats
 from functools import partial
 
 set_matplotlib_formats("retina")
-import seaborn as sns
-
 plt.style.use("ggplot")
-from tqdm import tqdm, trange
-
-
-class LatentState(object):
-    def __init__(self, states: List[pd.Series]):
-        self.dataset = states
-
 
 class ObservedState(object):
     def __init__(self, dataset=None):
         if dataset is not None:
             self.dataset = dataset
+
+
+def make_edge(
+    sts: List[Influence], p: Tuple[str, str]
+) -> Tuple[str, str, Dict[str, List[Influence]]]:
+    edge = (
+        p[0],
+        p[1],
+        {
+            "InfluenceStatements": [
+                s for s in sts if (p[0], p[1]) == nameTuple(s)
+            ]
+        },
+    )
+    return edge
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -113,6 +119,7 @@ class AnalysisGraph(nx.DiGraph):
         """
         rev = self.reverse()
         dfs_edges = nx.dfs_edges(rev, concept, depth_limit)
+
         return AnalysisGraph(
             self.subgraph(chain.from_iterable(dfs_edges)).copy()
         )
@@ -282,14 +289,14 @@ class AnalysisGraph(nx.DiGraph):
 
         for n in nodes_with_indicators:
             for indicator in n[1]["indicators"]:
-                indicator.value, indicator.unit = get_indicator_value(
+                indicator.mean, indicator.unit = get_indicator_value(
                     indicator, time, self.data
                 )
                 indicator.time = time
-                if not indicator.value is None:
-                    indicator.stdev = 0.1 * abs(indicator.value)
+                if not indicator.mean is None:
+                    indicator.stdev = 0.1 * abs(indicator.mean)
             n[1]["indicators"] = [
-                ind for ind in n[1]["indicators"] if ind.value is not None
+                ind for ind in n[1]["indicators"] if ind.mean is not None
             ]
 
     def infer_transition_model(
@@ -308,8 +315,9 @@ class AnalysisGraph(nx.DiGraph):
         if adjective_data is None:
             adjective_data = adjectiveData
 
-        gb = (pd.read_csv(adjectiveData, delim_whitespace=True)
-                .groupby("adjective"))
+        gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby(
+            "adjective"
+        )
         rs = (
             gaussian_kde(
                 flatMap(
@@ -325,62 +333,26 @@ class AnalysisGraph(nx.DiGraph):
 
         for e in self.edges(data=True):
             e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
+            e[2]["betas"] = np.tan(
+                e[2]["ConditionalProbability"].resample(self.res)[0]
+            )
 
-        self.transition_functions = [
-            self.sample_transition_function() for _ in range(res)
-        ]
 
     # ==========================================================================
     # Execution
     # ==========================================================================
 
-    def initialize_transition_matrix(self) -> pd.DataFrame:
-        cs = self.get_latent_state_components()
-        A = pd.DataFrame(np.identity(len(cs)), cs, cs)
-        for c in cs[::2]:
-            A[f"∂({c})/∂t"][f"{c}"] = self.Δt
-        return A
 
-
-    def transition_function(self, A, s):
-        return pd.Series(A.values @ s.values, index=self.latent_state_components)
-
-    def sample_transition_function(self) -> Callable:
-        A = self.initialize_transition_matrix()
-
-        for e in self.edges(data=True):
-            if "ConditionalProbability" in e[2].keys():
-                β = np.tan(e[2]["ConditionalProbability"].resample(1)[0][0])
-                A[f"∂({e[0]})/∂t"][f"∂({e[1]})/∂t"] = β * self.Δt
-
-
-        return partial(self.transition_function, A)
-
-    def emission_function(self, latent_state):
-        latent_state_components = self.get_latent_state_components()
-        observed_state = []
-        for i, s in enumerate(latent_state_components):
-            if i % 2 == 0:
-                if self.node[s].get("indicators") is not None:
-                    for ind in self.node[s]["indicators"]:
-                        new_value = np.random.normal(
-                            latent_state[i] * ind.value, ind.stdev
-                        )
-                        observed_state.append((ind.name, new_value))
-                else:
-                    o = np.random.normal(latent_state[i], 0.1)
-                    observed_state.append((s, o))
-
-        series = pd.Series({k: v for k, v in observed_state})
-        return series
+    def emission_function(self, s_i, mu_ij, sigma_ij):
+        return np.random.normal(s_i*mu_ij, sigma_ij)
 
     def get_latent_state_components(self) -> List[str]:
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
 
     def _write_latent_state(self, f):
         for i, s in enumerate(self.latent_state.dataset):
-            f.write(str(i)+','+str(self.get_current_time())+',')
-            f.write(','.join([str(v) for v in s.values[::2]])+'\n')
+            f.write(str(i) + "," + str(self.get_current_time()) + ",")
+            f.write(",".join([str(v) for v in s.values[::2]]) + "\n")
 
     def _write_sequences_to_file(self, seqs, output_filename: str) -> None:
         with open(output_filename, "w") as f:
@@ -399,7 +371,6 @@ class AnalysisGraph(nx.DiGraph):
                     vs = ",".join([str(x) for x in latent_state[::2]])
                     f.write(",".join([str(seq_no), str(time_slice), vs]) + "\n")
 
-
     def construct_default_initial_state(self) -> pd.Series:
         return pd.Series(
             ltake(len(self.latent_state_components), cycle([1.0, 0.0])),
@@ -410,44 +381,49 @@ class AnalysisGraph(nx.DiGraph):
     # Visualization
     # ==========================================================================
 
+    def _repr_png_(self, *args, **kwargs):
+        return to_agraph(self, *args, **kwargs).draw(
+                format="png", prog=kwargs.get("prog", "dot")
+            )
+
     def visualize(self, *args, **kwargs):
         """ Visualize the analysis graph in a Jupyter notebook cell. """
-
         from IPython.core.display import Image
+
         return Image(
-            self.to_agraph(self, *args, **kwargs).draw(
+            to_agraph(self, *args, **kwargs).draw(
                 format="png", prog=kwargs.get("prog", "dot")
             ),
-            retina=True
+            retina=True,
         )
 
-
     def plot_distribution_of_latent_variable(
-        self, latent_variable, ax, xlim = None, **kwargs
+        self, latent_variable, ax, xlim=None, **kwargs
     ):
-        displayName = kwargs.get('displayName',
-                _insert_line_breaks(latent_variable, 30))
+        displayName = kwargs.get(
+            "displayName", _insert_line_breaks(latent_variable, 30)
+        )
         vals = [s[latent_variable] for s in self.latent_state.dataset]
         if xlim is not None:
             ax.set_xlim(*xlim)
             vals = [v for v in vals if ((v > xlim[0]) and (v < xlim[1]))]
-        sns.distplot(vals, ax=ax, kde=kwargs.get('kde', True), norm_hist=True)
+        sns.distplot(vals, ax=ax, kde=kwargs.get("kde", True), norm_hist=True)
         ax.set_xlabel(displayName)
         ax.set_ylabel(_insert_line_breaks(f"p({displayName})"))
-
 
     def plot_distribution_of_observed_variable(
         self, observed_variable, ax, xlim=None, **kwargs
     ):
-        displayName = kwargs.get('displayName',
-                _insert_line_breaks(observed_variable, 30))
+        displayName = kwargs.get(
+            "displayName", _insert_line_breaks(observed_variable, 30)
+        )
 
         vals = [s[observed_variable] for s in self.observed_state.dataset]
         if xlim is not None:
             ax.set_xlim(*xlim)
             vals = [v for v in vals if (v > xlim[0]) and (v < xlim[1])]
         plt.style.use("ggplot")
-        sns.distplot(vals, ax=ax, kde=kwargs.get('kde', True), norm_hist=True)
+        sns.distplot(vals, ax=ax, kde=kwargs.get("kde", True), norm_hist=True)
         ax.set_xlabel(displayName)
         ax.set_ylabel(_insert_line_breaks(f"p({displayName})"))
 
@@ -481,7 +457,6 @@ class AnalysisGraph(nx.DiGraph):
 
         return node_dict
 
-
     def export(
         self,
         format="full",
@@ -497,7 +472,7 @@ class AnalysisGraph(nx.DiGraph):
             self.export_default_initial_values(variables_file)
 
         if format == "agraph":
-            return self.to_graph()
+            return to_agraph(self)
 
         if format == "json":
             self._to_json(json_file)
@@ -529,32 +504,54 @@ class AnalysisGraph(nx.DiGraph):
     # Basic Modeling Interface (BMI)
     # ==========================================================================
 
-    def initialize(self, cfg: str=None):
+    def initialize(self, cfg: str = None):
         """ Initialize the executable AnalysisGraph with a config file. """
         if cfg is not None:
             self.s0 = pd.read_csv(
                 cfg, index_col=0, header=None, error_bad_lines=False
             )[1]
-        else:
-            self.s0 = self.construct_default_initial_state()
+            for n in self.nodes(data=True):
+                n[1]["rv"] = LatentVar(n[0])
+                n[1]["update_function"] = self.default_update_function
+                node = n[1]["rv"]
+                node.dataset = [self.s0[n[0]] for _ in range(self.res)]
+                node.partial_t = self.s0[f'∂({n[0]})/∂t']
+                if n[1].get('indicators') is not None:
+                    for ind in n[1]['indicators']:
+                        ind.dataset = np.ones(self.res)*ind.mean
 
-        self.latent_state = LatentState([self.s0 for _ in range(self.res)])
-        self.observed_state = ObservedState(
-            [self.emission_function(s) for s in self.latent_state.dataset]
-        )
+    def default_update_function(self, n):
+        rv = n[1]["rv"]
+        return [
+                rv.dataset[i]
+                + (
+                    rv.partial_t
+                    + sum(
+                        self[p][n[0]]["betas"][i] * self.nodes[p]["rv"].partial_t
+                        for p in self.pred[n[0]]
+                    )
+                )
+                * self.Δt
+                for i in range(self.res)
+            ]
 
     def update(self):
         """ Advance the model by one time step. """
-        self.latent_state.dataset = [
-            f(s)
-            for f, s in lzip(
-                self.transition_functions, self.latent_state.dataset
-            )
-        ]
 
-        self.observed_state.dataset = [
-            self.emission_function(s) for s in self.latent_state.dataset
-        ]
+        next_state = {}
+
+        for n in self.nodes(data=True):
+            next_state[n[0]] = n[1]['update_function'](n)
+
+        for n in self.nodes(data=True):
+            n[1]["rv"].dataset = next_state[n[0]]
+            if n[1].get('indicators') is not None:
+                ind = n[1]['indicators'][0]
+                ind.dataset = [
+                        self.emission_function(x, ind.mean, ind.stdev)
+                        for x in n[1]['rv'].dataset
+                    ]
+
         self.t += self.Δt
 
     def update_until(self, t_final):
@@ -590,4 +587,3 @@ class AnalysisGraph(nx.DiGraph):
     def get_current_time(self):
         """ Returns the current time in the execution of the model. """
         return self.t
-
