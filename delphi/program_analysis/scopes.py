@@ -38,11 +38,10 @@ class ScopeNode(metaclass=ABCMeta):
     def find_child_calls(self, data):
         for expr in data["body"]:
             if expr.get("function") is not None:
-                name = expr["function"]
-                variables = list()
-                for inp_obj in expr["input"]:
-                    variables.append(f"{inp_obj['variable']}_{inp_obj['index']}")
-                self.calls[name] = variables
+                self.calls[expr["function"]] = [
+                    f"{inp_obj['variable']}_{inp_obj['index']}"
+                    for inp_obj in expr["input"]
+                ]
 
     def build_scope_tree(self, all_scopes):
         for name in self.child_names:
@@ -52,12 +51,7 @@ class ScopeNode(metaclass=ABCMeta):
             self.child_nodes.append(new_scope)
 
     def remove_non_scope_children(self, scopes):
-        saved_children = list()
-        for child in self.child_names:
-            if child in scopes:
-                saved_children.append(child)
-
-        self.child_names = saved_children
+        self.child_names = [c for c in self.child_names if c in scopes]
 
     @abstractmethod
     def setup_from_json(self, data):
@@ -79,17 +73,22 @@ class ScopeNode(metaclass=ABCMeta):
                     self.node_types[oname] = "variable"
                     self.node_pairs.append((instruction, oname))
 
+    def get_node_name(self, node):
+        return f"{node}\n{self.name}"
+
+    def add_nodes(self, sub):
+        for node, n_type in self.node_types.items():
+            clr =  "black" if n_type == "factor" else rv_maroon
+            shape = "rectangle" if n_type == "factor" else "ellipse"
+            name = self.get_node_name(node)
+            sub.add_node(name, shape=shape, color=clr)
+
     @abstractmethod
     def containment_graph(self, graph, border_clr):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=border_clr)
         sub.graph_attr["label"] = self.name
-
-        for node, n_type in self.node_types.items():
-            clr =  "black" if n_type == "factor" else rv_maroon
-            shape = "rectangle" if n_type == "factor" else "ellipse"
-            name = f"{node}\n{self.name}"
-            sub.add_node(name, shape=shape, color=clr)
+        self.add_nodes(sub)
 
         for src, dst in self.node_pairs:
             src_name = f"{src}\n{self.name}"
@@ -122,23 +121,19 @@ class LoopScopeNode(ScopeNode):
     def containment_graph(self, graph):
         super().containment_graph(graph, self.edge_color)
 
+    def get_node_name(self, node):
+        return f"{node}\n{self.parent_scope.name}"
+
     def linked_graph(self, graph):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
 
-        def get_node_name(node):
-            return f"{node}\n{self.parent_scope.name}"
-
-        for node, n_type in self.node_types.items():
-            clr = "black" if n_type == "factor" else rv_maroon
-            shape = "rectangle" if n_type == "factor" else "ellipse"
-            name = get_node_name(node)
-            sub.add_node(name, shape=shape, color=clr)
+        self.add_nodes(sub)
 
         for src, dst in self.node_pairs:
-            src_name = get_node_name(src)
-            dst_name = get_node_name(dst)
+            src_name = self.get_node_name(src)
+            dst_name = self.get_node_name(dst)
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
@@ -163,33 +158,30 @@ class FuncScopeNode(ScopeNode):
     def containment_graph(self, graph):
         super().containment_graph(graph, self.edge_color)
 
+    def get_node_name(self, node):
+        if node.endswith("0") and self.parent_scope is not None:
+            possible_vars = self.parent_scope.calls[self.name]
+            for var in possible_vars:
+                prefix = var[:var.rindex("_")]
+                if node.startswith(prefix):
+                    if prefix in self.parent_scope.variables:
+                        return f"{var}\n{self.parent_scope.name}"
+                    else:
+                        return f"{var}\n{self.parent_scope.parent_scope.name}"
+
+        return f"{node}\n{self.name}"
+
     def linked_graph(self, graph):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
 
-        def get_node_name(node):
-            if node.endswith("0") and self.parent_scope is not None:
-                possible_vars = self.parent_scope.calls[self.name]
-                for var in possible_vars:
-                    prefix = var[:var.rindex("_")]
-                    if node.startswith(prefix):
-                        if prefix in self.parent_scope.variables:
-                            return f"{var}\n{self.parent_scope.name}"
-                        else:
-                            return f"{var}\n{self.parent_scope.parent_scope.name}"
 
-            return f"{node}\n{self.name}"
-
-        for node, n_type in self.node_types.items():
-            clr = "black" if n_type == "factor" else rv_maroon
-            shape = "rectangle" if n_type == "factor" else "ellipse"
-            name = get_node_name(node)
-            sub.add_node(name, shape=shape, color=clr)
+        self.add_nodes(sub)
 
         for src, dst in self.node_pairs:
-            src_name = get_node_name(src)
-            dst_name = get_node_name(dst)
+            src_name = self.get_node_name(src)
+            dst_name = self.get_node_name(dst)
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
