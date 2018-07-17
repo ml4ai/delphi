@@ -98,9 +98,22 @@ class ScopeNode(metaclass=ABCMeta):
         for child in self.child_nodes:
             child.containment_graph(sub)
 
-    @abstractmethod
     def linked_graph(self, graph):
-        return NotImplemented
+        sub = graph.add_subgraph(name=f"cluster_{self.name}",
+                                 color=self.edge_color)
+        sub.graph_attr["label"] = self.name
+
+
+        self.add_nodes(sub)
+
+        for src, dst in self.node_pairs:
+            src_name = self.get_node_name(src)
+            dst_name = self.get_node_name(dst)
+            sub.add_edge(src_name, dst_name)
+
+        for child in self.child_nodes:
+            child.linked_graph(sub)
+
 
 
 class LoopScopeNode(ScopeNode):
@@ -123,21 +136,6 @@ class LoopScopeNode(ScopeNode):
 
     def get_node_name(self, node):
         return f"{node}\n{self.parent_scope.name}"
-
-    def linked_graph(self, graph):
-        sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=self.edge_color)
-        sub.graph_attr["label"] = self.name
-
-        self.add_nodes(sub)
-
-        for src, dst in self.node_pairs:
-            src_name = self.get_node_name(src)
-            dst_name = self.get_node_name(dst)
-            sub.add_edge(src_name, dst_name)
-
-        for child in self.child_nodes:
-            child.linked_graph(sub)
 
 
 class FuncScopeNode(ScopeNode):
@@ -170,22 +168,6 @@ class FuncScopeNode(ScopeNode):
                         return f"{var}\n{self.parent_scope.parent_scope.name}"
 
         return f"{node}\n{self.name}"
-
-    def linked_graph(self, graph):
-        sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=self.edge_color)
-        sub.graph_attr["label"] = self.name
-
-
-        self.add_nodes(sub)
-
-        for src, dst in self.node_pairs:
-            src_name = self.get_node_name(src)
-            dst_name = self.get_node_name(dst)
-            sub.add_edge(src_name, dst_name)
-
-        for child in self.child_nodes:
-            child.linked_graph(sub)
 
 
 def scope_tree_from_json(json_data: Dict) -> ScopeNode:
