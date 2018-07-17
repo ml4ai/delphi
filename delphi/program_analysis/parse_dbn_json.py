@@ -49,7 +49,8 @@ def setup_directed_graph():
     A = AGraph(directed=True)
     A.node_attr["shape"] = "rectangle"
     A.graph_attr["rankdir"] = "LR"
-    A.node_attr["fontname"] = "Gill Sans"
+    A.node_attr["fontname"] = "Menlo"
+    A.graph_attr["fontname"] = "Menlo"
     # A.graph_attr["size"] = "12,14"
     return A
 

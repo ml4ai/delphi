@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractmethod
 from typing import Dict
 
 
+rv_maroon = "#650021"
+
 class ScopeNode(metaclass=ABCMeta):
     def __init__(self, name, data):
         self.name = name
@@ -24,7 +26,7 @@ class ScopeNode(metaclass=ABCMeta):
 
     def __str__(self):
         root = "(R) " if self.is_root else ""
-        return "{}{}: {}".format(root, self.name, self.child_names)
+        return f"{root}{self.name}: {self.child_names}"
 
     def build_child_names(self, data):
         for expr in data["body"]:
@@ -39,7 +41,7 @@ class ScopeNode(metaclass=ABCMeta):
                 name = expr["function"]
                 variables = list()
                 for inp_obj in expr["input"]:
-                    variables.append("{}_{}".format(inp_obj["variable"], inp_obj["index"]))
+                    variables.append(f"{inp_obj['variable']}_{inp_obj['index']}")
                 self.calls[name] = variables
 
     def build_scope_tree(self, all_scopes):
@@ -67,31 +69,31 @@ class ScopeNode(metaclass=ABCMeta):
                 if expr.get("input") is not None:
                     for i in expr["input"]:
                         if i.get("variable") is not None:
-                            iname = "{}_{}".format(i["variable"], i["index"])
+                            iname = f"{i['variable']}_{i['index']}"
                             self.node_types[iname] = "variable"
                             self.node_pairs.append((iname, instruction))
 
                 output = expr["output"]
                 if output.get("variable") is not None:
-                    oname = "{}_{}".format(output["variable"], output["index"])
+                    oname = f"{output['variable']}_{output['index']}"
                     self.node_types[oname] = "variable"
                     self.node_pairs.append((instruction, oname))
 
     @abstractmethod
     def containment_graph(self, graph, border_clr):
-        sub = graph.add_subgraph(name="cluster_{}".format(self.name),
+        sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=border_clr)
         sub.graph_attr["label"] = self.name
 
         for node, n_type in self.node_types.items():
-            clr = "red" if n_type == "factor" else "black"
+            clr =  "black" if n_type == "factor" else rv_maroon
             shape = "rectangle" if n_type == "factor" else "ellipse"
-            name = "{}\n{}".format(node, self.name)
+            name = f"{node}\n{self.name}"
             sub.add_node(name, shape=shape, color=clr)
 
         for src, dst in self.node_pairs:
-            src_name = "{}\n{}".format(src, self.name)
-            dst_name = "{}\n{}".format(dst, self.name)
+            src_name = f"{src}\n{self.name}"
+            dst_name = f"{dst}\n{self.name}"
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
@@ -121,15 +123,15 @@ class LoopScopeNode(ScopeNode):
         super().containment_graph(graph, self.edge_color)
 
     def linked_graph(self, graph):
-        sub = graph.add_subgraph(name="cluster_{}".format(self.name),
+        sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
 
         def get_node_name(node):
-            return "{}\n{}".format(node, self.parent_scope.name)
+            return f"{node}\n{self.parent_scope.name}"
 
         for node, n_type in self.node_types.items():
-            clr = "red" if n_type == "factor" else "black"
+            clr = "black" if n_type == "factor" else rv_maroon
             shape = "rectangle" if n_type == "factor" else "ellipse"
             name = get_node_name(node)
             sub.add_node(name, shape=shape, color=clr)
@@ -146,7 +148,7 @@ class LoopScopeNode(ScopeNode):
 class FuncScopeNode(ScopeNode):
     def __init__(self, name, json_data):
         super().__init__(name, json_data)
-        self.edge_color = "green"
+        self.edge_color = "royalblue1"
         self.setup_from_json(json_data)
 
     def setup_from_json(self, data):
@@ -162,7 +164,7 @@ class FuncScopeNode(ScopeNode):
         super().containment_graph(graph, self.edge_color)
 
     def linked_graph(self, graph):
-        sub = graph.add_subgraph(name="cluster_{}".format(self.name),
+        sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=self.edge_color)
         sub.graph_attr["label"] = self.name
 
@@ -173,14 +175,14 @@ class FuncScopeNode(ScopeNode):
                     prefix = var[:var.rindex("_")]
                     if node.startswith(prefix):
                         if prefix in self.parent_scope.variables:
-                            return "{}\n{}".format(var, self.parent_scope.name)
+                            return f"{var}\n{self.parent_scope.name}"
                         else:
-                            return "{}\n{}".format(var, self.parent_scope.parent_scope.name)
+                            return f"{var}\n{self.parent_scope.parent_scope.name}"
 
-            return "{}\n{}".format(node, self.name)
+            return f"{node}\n{self.name}"
 
         for node, n_type in self.node_types.items():
-            clr = "red" if n_type == "factor" else "black"
+            clr = "black" if n_type == "factor" else rv_maroon
             shape = "rectangle" if n_type == "factor" else "ellipse"
             name = get_node_name(node)
             sub.add_node(name, shape=shape, color=clr)
