@@ -13,21 +13,23 @@ from argparse import (
     ArgumentDefaultsHelpFormatter,
 )
 
-
 def create(args):
     print("Creating model")
     from .assembly import get_data
+    from .parameterization import parameterize
+    from .quantification import map_concepts_to_indicators
     from datetime import datetime
-    from . import AnalysisGraph
+    from .AnalysisGraph import AnalysisGraph
+    from .export import export
 
     with open(args.indra_statements, "rb") as f:
         sts = pickle.load(f)
 
     G = AnalysisGraph.from_statements(sts)
     G.infer_transition_model(args.adjective_data)
-    G.map_concepts_to_indicators()
-    G.parameterize(datetime(args.year, 1, 1), get_data(args.data))
-    G.export(
+    G = map_concepts_to_indicators(G)
+    G = parameterize(G, datetime(args.year, 1, 1), get_data(args.data))
+    export(G,
         format="full",
         json_file=args.output_cag_json,
         pickle_file=args.output_dressed_cag,
@@ -37,25 +39,27 @@ def create(args):
 
 def execute(args):
     from pandas import read_csv
-    from . import AnalysisGraph
+    from .AnalysisGraph import AnalysisGraph
+    from .execution import _write_latent_state, get_latent_state_components
+    from .bmi import initialize, update
     print("Executing model")
     G = AnalysisGraph.from_pickle(args.input_dressed_cag)
-    G.initialize(args.input_variables)
+    initialize(G, args.input_variables)
     with open(args.output_sequences, "w") as f:
         f.write(
             ",".join(
                 [
                     "seq_no",
                     "time_slice",
-                    *G.get_latent_state_components()[::2],
+                    *get_latent_state_components(G)[::2],
                 ]
             )
             + "\n"
         )
 
         for t in range(args.steps):
-            G.update()
-            G._write_latent_state(f)
+            update(G)
+            _write_latent_state(G, f)
 
 
 def positive_real(arg, x):
