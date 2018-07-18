@@ -37,6 +37,7 @@ from indra.statements import Influence
 from tqdm import tqdm, trange
 from IPython.display import set_matplotlib_formats
 from functools import partial
+from .export import to_agraph
 
 
 
