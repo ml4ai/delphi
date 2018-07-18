@@ -144,7 +144,6 @@ def is_grounded(): pass
 @is_grounded.register(Concept)
 def _(c: Concept, ontology: str = "UN") -> bool:
     """ Check if a concept is grounded """
-    print(type(c))
     return (
         ontology in c.db_refs
         and c.db_refs[ontology][0][0].split('/')[1] != "properties"
