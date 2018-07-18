@@ -48,11 +48,6 @@ from functools import partial
 set_matplotlib_formats("retina")
 plt.style.use("ggplot")
 
-class ObservedState(object):
-    def __init__(self, dataset=None):
-        if dataset is not None:
-            self.dataset = dataset
-
 
 def make_edge(
     sts: List[Influence], p: Tuple[str, str]
