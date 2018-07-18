@@ -100,7 +100,7 @@ class ScopeNode(metaclass=ABCMeta):
 
     def linked_graph(self, graph):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=self.edge_color)
+                                 color=self.edge_color, style='bold, rounded')
         sub.graph_attr["label"] = self.name
 
 
@@ -141,7 +141,7 @@ class LoopScopeNode(ScopeNode):
 class FuncScopeNode(ScopeNode):
     def __init__(self, name, json_data):
         super().__init__(name, json_data)
-        self.edge_color = "royalblue1"
+        self.edge_color = "forestgreen"
         self.setup_from_json(json_data)
 
     def setup_from_json(self, data):
