@@ -51,6 +51,7 @@ Methods to edit the AnalysisGraph.
 
     merge_nodes
 
+
 Quantification
 --------------
 .. currentmodule:: delphi.quantification
