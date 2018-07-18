@@ -19,11 +19,11 @@ def main():
     scope_tree = scp.scope_tree_from_json(data)
 
     g1 = setup_directed_graph()
-    scope_tree.linked_graph(g1)
+    scope_tree.build_linked_graph(g1)
     g1.write("linked_graph.dot")
 
     g2 = setup_directed_graph()
-    scope_tree.containment_graph(g2)
+    scope_tree.build_containment_graph(g2)
     g2.write("nested_graph.dot")
 
 

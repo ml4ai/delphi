@@ -4,6 +4,7 @@ from typing import Dict
 
 rv_maroon = "#650021"
 
+
 class ScopeNode(metaclass=ABCMeta):
     def __init__(self, name, data):
         self.name = name
@@ -78,13 +79,13 @@ class ScopeNode(metaclass=ABCMeta):
 
     def add_nodes(self, sub):
         for node, n_type in self.node_types.items():
-            clr =  "black" if n_type == "factor" else rv_maroon
+            clr = "black" if n_type == "factor" else rv_maroon
             shape = "rectangle" if n_type == "factor" else "ellipse"
             name = self.get_node_name(node)
             sub.add_node(name, shape=shape, color=clr)
 
     @abstractmethod
-    def containment_graph(self, graph, border_clr):
+    def build_containment_graph(self, graph, border_clr):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=border_clr)
         sub.graph_attr["label"] = self.name
@@ -96,14 +97,13 @@ class ScopeNode(metaclass=ABCMeta):
             sub.add_edge(src_name, dst_name)
 
         for child in self.child_nodes:
-            child.containment_graph(sub)
+            child.build_containment_graph(sub)
 
-    def linked_graph(self, graph):
+    def build_linked_graph(self, graph):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
                                  color=self.edge_color,
                                  style='bold, rounded',
                                  label=self.name)
-
 
         self.add_nodes(sub)
         edges = [(self.get_node_name(src), self.get_node_name(dst))
@@ -112,8 +112,7 @@ class ScopeNode(metaclass=ABCMeta):
         sub.add_edges_from(edges)
 
         for child in self.child_nodes:
-            child.linked_graph(sub)
-
+            child.build_linked_graph(sub)
 
 
 class LoopScopeNode(ScopeNode):
@@ -131,8 +130,8 @@ class LoopScopeNode(ScopeNode):
 
         super().setup_from_json(data)
 
-    def containment_graph(self, graph):
-        super().containment_graph(graph, self.edge_color)
+    def build_containment_graph(self, graph):
+        super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
         return f"{node}\n{self.parent_scope.name}"
@@ -153,8 +152,8 @@ class FuncScopeNode(ScopeNode):
 
         super().setup_from_json(data)
 
-    def containment_graph(self, graph):
-        super().containment_graph(graph, self.edge_color)
+    def build_containment_graph(self, graph):
+        super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
         if node.endswith("0") and self.parent_scope is not None:
@@ -191,7 +190,6 @@ def scope_tree_from_json(json_data: Dict) -> ScopeNode:
     scopes = {f['name']: scope_types_dict[f['type']](f['name'], f)
               for f in json_data['functions']
               if f['type'] in scope_types_dict}
-
 
     # Make a list of all scopes by scope names
     scope_names = list(scopes.keys())
