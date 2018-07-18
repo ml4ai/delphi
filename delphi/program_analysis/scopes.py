@@ -100,16 +100,16 @@ class ScopeNode(metaclass=ABCMeta):
 
     def linked_graph(self, graph):
         sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=self.edge_color, style='bold, rounded')
-        sub.graph_attr["label"] = self.name
+                                 color=self.edge_color,
+                                 style='bold, rounded',
+                                 label=self.name)
 
 
         self.add_nodes(sub)
+        edges = [(self.get_node_name(src), self.get_node_name(dst))
+                 for src, dst in self.node_pairs]
 
-        for src, dst in self.node_pairs:
-            src_name = self.get_node_name(src)
-            dst_name = self.get_node_name(dst)
-            sub.add_edge(src_name, dst_name)
+        sub.add_edges_from(edges)
 
         for child in self.child_nodes:
             child.linked_graph(sub)
