@@ -40,6 +40,7 @@ delphi.export module
 --------------------
 
 .. automodule:: delphi.export
+    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
