@@ -34,28 +34,12 @@ def get_respdevs(gb):
     return gb["respdev"]
 
 
-def make_edge(
-    sts: List[Influence], p: Tuple[str, str]
-) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (
-        p[0],
-        p[1],
-        {
-            "InfluenceStatements": [
-                s for s in sts if (p[0], p[1]) == nameTuple(s)
-            ]
-        },
-    )
-    return edge
-
-
 def top_grounding(c: Concept, ontology="UN") -> str:
     return (
         c.db_refs[ontology][0][0].split("/")[-1]
         if ontology in c.db_refs
         else c.name
     )
-
 
 def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
     return c.db_refs[ontology][0][1]
@@ -155,13 +139,10 @@ def is_simulable(s: Influence) -> bool:
 
 
 @singledispatch
-def is_grounded(arg):
-    """ Generic function to check grounding """
-    pass
-
+def is_grounded(): pass
 
 @is_grounded.register(Concept)
-def _(c: Concept, ontology: str = "UN"):
+def _(c: Concept, ontology: str = "UN") -> bool:
     """ Check if a concept is grounded """
     return (
         ontology in c.db_refs
@@ -170,14 +151,13 @@ def _(c: Concept, ontology: str = "UN"):
 
 
 @is_grounded.register(Influence)
-def _(s: Influence, ontology: str = "UN"):
+def _(s: Influence, ontology: str = "UN") -> bool:
     """ Check if an Influence statement is grounded """
     return is_grounded(s.subj) and is_grounded(s.obj)
 
 
 @singledispatch
-def is_well_grounded():
-    pass
+def is_well_grounded(): pass
 
 
 @is_well_grounded.register(Concept)
@@ -188,7 +168,6 @@ def _(c: Concept, ontology: str = "UN", cutoff: float = 0.7) -> bool:
     )
 
 
-@lru_cache(maxsize=32)
 @is_well_grounded.register(Influence)
 def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
     """ Returns true if both subj and obj are grounded to the specified
