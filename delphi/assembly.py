@@ -139,14 +139,12 @@ def is_simulable(s: Influence) -> bool:
 
 
 @singledispatch
-def is_grounded(arg):
-    """ Generic function to check grounding """
-    pass
-
+def is_grounded(): pass
 
 @is_grounded.register(Concept)
-def _(c: Concept, ontology: str = "UN"):
+def _(c: Concept, ontology: str = "UN") -> bool:
     """ Check if a concept is grounded """
+    print(type(c))
     return (
         ontology in c.db_refs
         and c.db_refs[ontology][0][0].split('/')[1] != "properties"
@@ -154,14 +152,13 @@ def _(c: Concept, ontology: str = "UN"):
 
 
 @is_grounded.register(Influence)
-def _(s: Influence, ontology: str = "UN"):
+def _(s: Influence, ontology: str = "UN") -> bool:
     """ Check if an Influence statement is grounded """
     return is_grounded(s.subj) and is_grounded(s.obj)
 
 
 @singledispatch
-def is_well_grounded():
-    pass
+def is_well_grounded(): pass
 
 
 @is_well_grounded.register(Concept)
@@ -172,7 +169,6 @@ def _(c: Concept, ontology: str = "UN", cutoff: float = 0.7) -> bool:
     )
 
 
-@lru_cache(maxsize=32)
 @is_well_grounded.register(Influence)
 def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
     """ Returns true if both subj and obj are grounded to the specified

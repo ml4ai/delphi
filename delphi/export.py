@@ -1,8 +1,17 @@
+import json
+from typing import Dict, Union, List
 import numpy as np
-from typing import Dict
 import networkx as nx
 from .utils import _insert_line_breaks
+from .AnalysisGraph import AnalysisGraph
+from networkx import DiGraph
 from pygraphviz import AGraph
+import pickle
+from .execution import construct_default_initial_state
+
+# ==========================================================================
+# Export
+# ==========================================================================
 
 def _process_datetime(indicator_dict: Dict):
     time = indicator_dict.get("time")
@@ -43,7 +52,16 @@ def _get_polynomial_fit(e, deg=7, res=100):
     coefs = np.polynomial.polynomial.polyfit(X, Y, deg=deg)
     return {"degree": deg, "coefficients": list(coefs)}
 
-def to_agraph(G, *args, **kwargs):
+def to_agraph(G: DiGraph, *args, **kwargs) -> AGraph:
+    """ Exports AnalysisGraph to pygraphviz AGraph
+
+    Args:
+        G
+        kwargs
+
+    Returns:
+        AGraph
+    """
 
     A = AGraph(directed=True)
 
@@ -134,3 +152,81 @@ def to_agraph(G, *args, **kwargs):
         A.graph_attr['label'] = kwargs['graph_label']
 
     return A
+
+
+def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
+    """ Return dict suitable for exporting to JSON.
+
+    Args:
+        n: A dict representing the data in a networkx AnalysisGraph node.
+
+    Returns:
+        The node dict with additional fields for name, units, dtype, and
+        arguments.
+
+    """
+    node_dict = {
+        "name": n[0],
+        "units": _get_units(n[0]),
+        "dtype": _get_dtype(n[0]),
+        "arguments": list(G.predecessors(n[0])),
+    }
+    if not n[1].get("indicators") is None:
+        node_dict["indicators"] = [
+            _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
+        ]
+    else:
+        node_dict["indicators"] = None
+
+    return node_dict
+
+def export(
+    G: AnalysisGraph,
+    format="full",
+    json_file="delphi_cag.json",
+    pickle_file="delphi_cag.pkl",
+    variables_file="variables.csv",
+):
+    """ Export the model in various formats.
+
+    Args:
+        G
+        format
+        json_file
+        pickle_file
+        variables_file
+    """
+
+    if format == "full":
+        _to_json(G, json_file)
+        _pickle(G, pickle_file)
+        export_default_initial_values(G, variables_file)
+
+    if format == "agraph":
+        return to_agraph(G)
+
+    if format == "json":
+        _to_json(G, json_file)
+
+def _pickle(G: AnalysisGraph, filename: str):
+    with open(filename, "wb") as f:
+        pickle.dump(G, f)
+
+def _to_json(G: AnalysisGraph, filename: str):
+    """ Export the CAG to JSON """
+    with open(filename, "w") as f:
+        json.dump(
+            {
+                "name": G.name,
+                "dateCreated": str(datetime.now()),
+                "variables": lmap(partial(export_node, G), G.nodes(data=True)),
+                "timeStep": str(G.Δt),
+                "edge_data": lmap(_export_edge, G.edges(data=True)),
+            },
+            f,
+            indent=2,
+        )
+
+def export_default_initial_values(G: AnalysisGraph, variables_file: str):
+    s0 = construct_default_initial_state(G)
+    s0.to_csv(variables_file, index_label="variable")

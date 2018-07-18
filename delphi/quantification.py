@@ -1,5 +1,6 @@
 from typing import Optional
-from .assembly import construct_concept_to_indicator_mapping
+from .assembly import (construct_concept_to_indicator_mapping, get_indicators)
+from .AnalysisGraph import AnalysisGraph
 
 # ==========================================================================
 # Quantification
@@ -7,7 +8,7 @@ from .assembly import construct_concept_to_indicator_mapping
 
 
 def map_concepts_to_indicators(
-    G: self, n: int = 1, manual_mapping: Optional[dict] = None
+    G: AnalysisGraph, n: int = 1, manual_mapping: Optional[dict] = None
 ) -> AnalysisGraph:
     """ Add indicators to the analysis graph.
 

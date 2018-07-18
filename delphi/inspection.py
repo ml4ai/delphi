@@ -1,19 +1,35 @@
 from .jupyter_tools import create_statement_inspection_table
 from indra.statements import Influence
 from itertools import chain
+from .utils import compose
 from .AnalysisGraph import AnalysisGraph
+from typing import List, Iterable
 
 # ==========================================================================
 # Inspection
 # ==========================================================================
 
+def inspect_edge(G: AnalysisGraph, source: str, target: str):
+    """ 'Drill down' into an edge in the analysis graph and inspect its
+    provenance. This function prints the provenance.
+
+    Args:
+        G
+        source
+        target
+    """
+
+    return create_statement_inspection_table(
+        G[source][target]["InfluenceStatements"]
+    )
+
 def _get_edge_sentences(G: AnalysisGraph, source: str, target: str) -> List[str]:
     """ Return the sentences that led to the construction of a specified edge.
 
     Args:
+        G
         source: The source of the edge.
         target: The target of the edge.
-        cag: The analysis graph.
     """
 
     return chain.from_iterable(
@@ -23,15 +39,8 @@ def _get_edge_sentences(G: AnalysisGraph, source: str, target: str) -> List[str]
         ]
     )
 
-def inspect_edge(G: AnalysisGraph, source: str, target: str):
-    """ 'Drill down' into an edge in the analysis graph and inspect its
-    provenance. This function prints the provenance."""
-    return create_statement_inspection_table(
-        G[source][target]["InfluenceStatements"]
-    )
 
 
-@property
 def statements(G: AnalysisGraph) -> Iterable[Influence]:
     chainMap = compose(chain.from_iterable, map)
     sts = chainMap(
@@ -44,4 +53,3 @@ def statements(G: AnalysisGraph) -> Iterable[Influence]:
             + s.obj.db_refs["UN"][0][0].split("/")[-1]
         ),
     )
-

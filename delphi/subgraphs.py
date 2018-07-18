@@ -1,5 +1,6 @@
-import networkx as nx
+from typing import Optional, List
 from itertools import chain
+import networkx as nx
 from .AnalysisGraph import AnalysisGraph
 
 # ==========================================================================
