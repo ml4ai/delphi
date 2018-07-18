@@ -185,12 +185,13 @@ def scope_tree_from_json(json_data: Dict) -> ScopeNode:
 
     # Build a new scope object for each function and loop_plate object. Index
     # scopes into a dict by (scope_name |-> scope)
-    scopes = dict()
-    for f in json_data["functions"]:
-        if f["type"] == "container":
-            scopes[f["name"]] = FuncScopeNode(f["name"], f)
-        elif f["type"] == "loop_plate":
-            scopes[f["name"]] = LoopScopeNode(f["name"], f)
+
+    scope_types_dict = {'container': FuncScopeNode, 'loop_plate': LoopScopeNode}
+
+    scopes = {f['name']: scope_types_dict[f['type']](f['name'], f)
+              for f in json_data['functions']
+              if f['type'] in scope_types_dict}
+
 
     # Make a list of all scopes by scope names
     scope_names = list(scopes.keys())
