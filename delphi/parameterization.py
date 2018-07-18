@@ -1,5 +1,9 @@
 import pandas as pd
 from .AnalysisGraph import AnalysisGraph
+from datetime import datetime
+from typing import Optional
+from .assembly import get_indicator_value, get_data
+
 
 def parameterize(
     G: AnalysisGraph, time: datetime, data: Optional[pd.DataFrame] = None
@@ -35,3 +39,4 @@ def parameterize(
         n[1]["indicators"] = [
             ind for ind in n[1]["indicators"] if ind.mean is not None
     ]
+    return G
