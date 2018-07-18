@@ -51,28 +51,6 @@ Methods to edit the AnalysisGraph.
 
     merge_nodes
 
-Inspection
-----------
-
-Methods for detailed inspection of the AnalysisGraph.
-
-.. autosummary::
-    :toctree: generated/
-
-    AnalysisGraph.visualize
-    AnalysisGraph.inspect_edge
-
-Manipulation
-------------
-
-Methods to edit the AnalysisGraph.
-
-
-.. autosummary:: 
-    :toctree: generated/
-
-    AnalysisGraph.merge_nodes
-
 Quantification
 --------------
 .. currentmodule:: delphi.quantification
