@@ -37,8 +37,7 @@ from indra.statements import Influence
 from tqdm import tqdm, trange
 from IPython.display import set_matplotlib_formats
 from functools import partial
-from .export import to_agraph
-
+from pygraphviz import AGraph
 
 
 def make_edge(
@@ -136,6 +135,99 @@ class AnalysisGraph(nx.DiGraph):
 
 
     def _repr_png_(self, *args, **kwargs):
-        return to_agraph(self, *args, **kwargs).draw(
+        return self.to_agraph(self, *args, **kwargs).draw(
                 format="png", prog=kwargs.get("prog", "dot")
             )
+
+    def to_agraph(self, *args, **kwargs) -> AGraph:
+        """ Exports AnalysisGraph to pygraphviz AGraph
+
+        Args:
+            args
+            kwargs
+
+        Returns:
+            AGraph
+        """
+
+        A = AGraph(directed=True)
+
+        A.graph_attr.update(
+            {
+                "dpi": 227,
+                "fontsize": 20,
+                "rankdir": kwargs.get("rankdir", "TB"),
+                "fontname": "Gill Sans",
+            }
+        )
+
+        A.node_attr.update(
+            {
+                "shape": "rectangle",
+                "color": "#650021",
+                "style": "rounded",
+                "fontname": "Gill Sans",
+            }
+        )
+
+        nodes_with_indicators = [
+            n for n in G.nodes(data=True) if n[1].get("indicators") is not None
+        ]
+
+        n_max = 0
+        for e in G.edges(data=True):
+            n = len(e[2]["InfluenceStatements"])
+            if n > n_max:
+                n_max = n
+
+        color_str = "#650021"
+        for e in G.edges(data=True):
+            opacity = len(e[2]["InfluenceStatements"]) / n_max
+            h = (opacity * 255).hex()
+            c_str = color_str + h[4:6]
+            A.add_edge(
+                e[0].capitalize(), e[1].capitalize(), color=c_str, arrowsize=0.5
+            )
+
+        # Drawing indicator variables
+
+        if kwargs.get("indicators"):
+            for n in nodes_with_indicators:
+                for ind in n[1]["indicators"]:
+                    node_label = _insert_line_breaks(ind.name)
+                    A.add_node(
+                        node_label, style="rounded, filled", fillcolor="lightblue"
+                    )
+                    A.add_edge(n[0].capitalize(), node_label, color="royalblue4")
+
+        # Drawing indicator values
+        if kwargs.get("indicator_values"):
+            for n in nodes_with_indicators:
+                indicators = [i for i in n[1]["indicators"] if i.value is not None]
+                for ind in indicators:
+                    if ind.unit is not None:
+                        units = f" {ind.unit}"
+                    else:
+                        units = ""
+                    ind_label = _insert_line_breaks(ind.name)
+
+                    node_label = "{:.2f}".format(ind.value) + units
+                    A.add_node(
+                        node_label,
+                        shape="plain",
+                        # style="rounded, filled",
+                        fillcolor="white",
+                        color="royalblue",
+                    )
+                    A.add_edge(
+                        ind_label, node_label, color="lightblue", arrowhead="none"
+                    )
+
+        if kwargs.get("nodes_to_highlight") is not None:
+            for n in kwargs["nodes_to_highlight"]:
+                A.add_node(n.capitalize(), fontcolor="royalblue")
+
+        if kwargs.get("graph_label") is not None:
+            A.graph_attr["label"] = kwargs["graph_label"]
+
+        return A
