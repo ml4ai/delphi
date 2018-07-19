@@ -75,6 +75,16 @@ class ScopeNode(metaclass=ABCMeta):
                     self.node_pairs.append((instruction, oname))
 
     def get_node_name(self, node):
+        if '__assign__' in node:
+            blocks = node.split('__assign__')
+            node = '\n__assign__\n'.join(blocks)
+        if '__condition__' in node:
+            blocks = node.split('__condition__')
+            node = '\n__condition__\n'.join(blocks)
+        if '__decision__' in node:
+            blocks = node.split('__decision__')
+            node = '\n__decision__\n'.join(blocks)
+
         return f"{node}\n{self.name}"
 
     def add_nodes(self, sub):
@@ -134,6 +144,16 @@ class LoopScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
+        if '__assign__' in node:
+            blocks = node.split('__assign__')
+            node = '\n__assign__\n'.join(blocks)
+        if '__condition__' in node:
+            blocks = node.split('__condition__')
+            node = '\n__condition__\n'.join(blocks)
+        if '__decision__' in node:
+            blocks = node.split('__decision__')
+            node = '\n__decision__\n'.join(blocks)
+
         return f"{node}\n{self.parent_scope.name}"
 
 
@@ -165,6 +185,16 @@ class FuncScopeNode(ScopeNode):
                         return f"{var}\n{self.parent_scope.name}"
                     else:
                         return f"{var}\n{self.parent_scope.parent_scope.name}"
+
+        if '__assign__' in node:
+            blocks = node.split('__assign__')
+            node = '\n__assign__\n'.join(blocks)
+        if '__condition__' in node:
+            blocks = node.split('__condition__')
+            node = '\n__condition__\n'.join(blocks)
+        if '__decision__' in node:
+            blocks = node.split('__decision__')
+            node = '\n__decision__\n'.join(blocks)
 
         return f"{node}\n{self.name}"
 
