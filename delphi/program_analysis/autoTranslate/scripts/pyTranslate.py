@@ -6,7 +6,7 @@ printFn = {}
 class PrintState:
     def __init__(self, sep=None, add=None, printFirst=True, definedVars=None, globalVars=None, indexRef=True, varTypes = None):
         self.sep = sep if sep != None else '\n'
-        self.add = add if add != None else '  '
+        self.add = add if add != None else '    '
         self.printFirst = printFirst
         self.definedVars = definedVars if definedVars != None else []
         self.globalVars = globalVars if globalVars != None else []
