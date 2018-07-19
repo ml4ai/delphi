@@ -4,7 +4,7 @@ import sys
 class PrintState:
     def __init__(self, sep=None, add=None):
         self.sep = sep if sep != None else '\n'
-        self.add = add if add != None else '  '
+        self.add = add if add != None else '    '
 
     def copy(self, sep=None, add=None):
         return PrintState(
