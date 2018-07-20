@@ -9,8 +9,17 @@ import argparse
 from functools import *
 from genCode import *
 
+
 class PGMState:
-    def __init__(self, lambdaFile, lastDefs=None, nextDefs=None, lastDefDefault=None, fnName=None, varTypes=None):
+    def __init__(
+        self,
+        lambdaFile,
+        lastDefs=None,
+        nextDefs=None,
+        lastDefDefault=None,
+        fnName=None,
+        varTypes=None,
+    ):
         self.lastDefs = lastDefs if lastDefs != None else {}
         self.nextDefs = nextDefs if nextDefs != None else {}
         self.lastDefDefault = lastDefDefault if lastDefDefault != None else 0
@@ -18,16 +27,26 @@ class PGMState:
         self.varTypes = varTypes if varTypes != None else {}
         self.lambdaFile = lambdaFile
 
-    def copy(self, lastDefs=None, nextDefs=None, lastDefDefault=None, fnName=None, varTypes=None, lambdaFile=None):
+    def copy(
+        self,
+        lastDefs=None,
+        nextDefs=None,
+        lastDefDefault=None,
+        fnName=None,
+        varTypes=None,
+        lambdaFile=None,
+    ):
         return PGMState(
             self.lambdaFile if lambdaFile == None else lambdaFile,
             self.lastDefs if lastDefs == None else lastDefs,
             self.nextDefs if nextDefs == None else nextDefs,
             self.lastDefDefault if lastDefDefault == None else lastDefDefault,
             self.fnName if fnName == None else fnName,
-            self.varTypes if varTypes == None else varTypes)
+            self.varTypes if varTypes == None else varTypes,
+        )
 
-def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
+
+def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
@@ -36,37 +55,52 @@ def dump(node, annotate_fields=True, include_attributes=False, indent='  '):
     numbers and column offsets are not dumped by default.  If this is wanted,
     *include_attributes* can be set to True.
     """
+
     def _format(node, level=0):
         if isinstance(node, ast.AST):
             fields = [(a, _format(b, level)) for a, b in ast.iter_fields(node)]
             if include_attributes and node._attributes:
-                fields.extend([(a, _format(getattr(node, a), level))
-                               for a in node._attributes])
-            return ''.join([
-                node.__class__.__name__,
-                '(',
-                ', '.join(('%s=%s' % field for field in fields)
-                           if annotate_fields else
-                           (b for a, b in fields)),
-                ')'])
+                fields.extend(
+                    [
+                        (a, _format(getattr(node, a), level))
+                        for a in node._attributes
+                    ]
+                )
+            return "".join(
+                [
+                    node.__class__.__name__,
+                    "(",
+                    ", ".join(
+                        ("%s=%s" % field for field in fields)
+                        if annotate_fields
+                        else (b for a, b in fields)
+                    ),
+                    ")",
+                ]
+            )
         elif isinstance(node, list):
-            lines = ['[']
-            lines.extend((indent * (level + 2) + _format(x, level + 2) + ','
-                         for x in node))
+            lines = ["["]
+            lines.extend(
+                (
+                    indent * (level + 2) + _format(x, level + 2) + ","
+                    for x in node
+                )
+            )
             if len(lines) > 1:
-                lines.append(indent * (level + 1) + ']')
+                lines.append(indent * (level + 1) + "]")
             else:
-                lines[-1] += ']'
-            return '\n'.join(lines)
+                lines[-1] += "]"
+            return "\n".join(lines)
         return repr(node)
 
     if not isinstance(node, ast.AST):
-        raise TypeError('expected AST, got %r' % node.__class__.__name__)
+        raise TypeError("expected AST, got %r" % node.__class__.__name__)
     return _format(node)
+
 
 def dict2str(d, indent, level):
     if not d:
-        return '{}'
+        return "{}"
 
     dictStrs = []
     fields = sorted(d.keys())
@@ -80,11 +114,18 @@ def dict2str(d, indent, level):
             dictStr += '"{0}"'.format(d[field])
         dictStrs.append(dictStr)
 
-    return '{0}\n{1}{2}\n{3}{4}'.format('{', indent * (level + 1), ',\n{0}'.format(indent * (level + 1)).join(dictStrs), indent * level, '}')
+    return "{0}\n{1}{2}\n{3}{4}".format(
+        "{",
+        indent * (level + 1),
+        ",\n{0}".format(indent * (level + 1)).join(dictStrs),
+        indent * level,
+        "}",
+    )
+
 
 def list2str(l, indent, level):
     if not l:
-        return '[]'
+        return "[]"
 
     listStrs = []
     for item in l:
@@ -95,23 +136,30 @@ def list2str(l, indent, level):
         else:
             listStrs.append('"{0}"'.format(item))
 
-    return '[\n{0}{1}\n{2}]'.format(indent * (level + 1), ',\n{0}'.format(indent * (level + 1)).join(listStrs), indent * level)
-            
+    return "[\n{0}{1}\n{2}]".format(
+        indent * (level + 1),
+        ",\n{0}".format(indent * (level + 1)).join(listStrs),
+        indent * level,
+    )
+
+
 def printPgm(pgmFile, pgm):
-    pgmFile.write(dict2str(pgm, '  ', 0) + '\n')
+    pgmFile.write(dict2str(pgm, "  ", 0) + "\n")
+
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write('def {0}({1}):\n  '.format(fnName, ', '.join(inputs)))
-    code = genCode(node, PrintState('\n  '))
-    if(returnVal):
+    fnFile.write("def {0}({1}):\n  ".format(fnName, ", ".join(inputs)))
+    code = genCode(node, PrintState("\n  "))
+    if returnVal:
         fnFile.write(code)
-        fnFile.write('\n  return {0}'.format(returnVal))
+        fnFile.write("\n  return {0}".format(returnVal))
     else:
-        lines = code.split('\n')
-        indent = re.search('[^ ]', lines[-1]).start()
-        lines[-1] = lines[-1][:indent] + 'return ' + lines[-1][indent:]
-        fnFile.write('\n'.join(lines))
-    fnFile.write('\n\n')
+        lines = code.split("\n")
+        indent = re.search("[^ ]", lines[-1]).start()
+        lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
+        fnFile.write("\n".join(lines))
+    fnFile.write("\n\n")
+
 
 def mergeDicts(dicts):
     fields = set()
@@ -136,12 +184,16 @@ def mergeDicts(dicts):
 
     return out
 
+
 fnNames = {}
+
+
 def getFnName(basename):
     fnId = fnNames.get(basename, 0)
-    fnName = '{0}_{1}'.format(basename, fnId)
+    fnName = "{0}_{1}".format(basename, fnId)
     fnNames[basename] = fnId + 1
     return fnName
+
 
 def getLastDef(var, lastDefs, lastDefDefault):
     index = lastDefDefault
@@ -151,438 +203,701 @@ def getLastDef(var, lastDefs, lastDefDefault):
         lastDefs[var] = index
     return index
 
+
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
     index = nextDefs.get(var, lastDefDefault + 1)
     nextDefs[var] = index + 1
     lastDefs[var] = index
     return index
 
+
 def getVarType(annNode):
-    #wrapped in list
+    # wrapped in list
     try:
         dType = annNode.slice.value.id
-        if dType == 'float':
-            return 'real'
-        if dType == 'int':
-            return 'integer'
+        if dType == "float":
+            return "real"
+        if dType == "int":
+            return "integer"
         else:
-            sys.stderr.write('Unsupported type\n')
+            sys.stderr.write("Unsupported type\n")
     except:
-        sys.stderr.write('Unsupported type\n')
+        sys.stderr.write("Unsupported type\n")
     sys.exit(1)
 
+
 def getDType(val):
-    if(isinstance(val, int)):
-        dtype = 'integer'
-    elif(isinstance(val, float)):
-        dtype = 'real'
+    if isinstance(val, int):
+        dtype = "integer"
+    elif isinstance(val, float):
+        dtype = "real"
     else:
-        sys.stderr.write('num: {0}\n'.format(type(node.n)))
+        sys.stderr.write("num: {0}\n".format(type(node.n)))
         sys.exit(1)
     return dtype
 
+
 def genPgm(node, state):
-    if(state.fnName == None and not isinstance(node, ast.Module) and not isinstance(node, list) and not isinstance(node, ast.FunctionDef)):
-        if(isinstance(node, ast.Call)):
-            return [{'start': node.func.id}]
-        elif(isinstance(node, ast.Expr)):
+    if (
+        state.fnName == None
+        and not isinstance(node, ast.Module)
+        and not isinstance(node, list)
+        and not isinstance(node, ast.FunctionDef)
+    ):
+        if isinstance(node, ast.Call):
+            return [{"start": node.func.id}]
+        elif isinstance(node, ast.Expr):
             return genPgm(node.value, state)
-        elif(isinstance(node, ast.If)):
+        elif isinstance(node, ast.If):
             return genPgm(node.body, state)
         else:
             return []
-            
-    if(isinstance(node, list)):
+
+    if isinstance(node, list):
         result = []
         for cur in node:
             result += genPgm(cur, state)
         return result
 
-    #Function: name, args, body, decorator_list, returns
-    elif(isinstance(node, ast.FunctionDef)):
+    # Function: name, args, body, decorator_list, returns
+    elif isinstance(node, ast.FunctionDef):
         localDefs = state.lastDefs.copy()
         localNext = state.nextDefs.copy()
         localTypes = state.varTypes.copy()
-        fnState = state.copy(lastDefs=localDefs, nextDefs=localNext, fnName = node.name, varTypes = localTypes)
+        fnState = state.copy(
+            lastDefs=localDefs,
+            nextDefs=localNext,
+            fnName=node.name,
+            varTypes=localTypes,
+        )
         args = genPgm(node.args, fnState)
         bodyPgm = genPgm(node.body, fnState)
 
         body = []
         fns = []
         for stmt in bodyPgm:
-            body += stmt['body']
-            fns += stmt['fns']
+            body += stmt["body"]
+            fns += stmt["fns"]
 
         variables = list(localDefs.keys())
 
-        fnDef = {'name': node.name, 'type': 'container', 'input': [{'name': arg, 'domain': localTypes[arg]} for arg in args], 'variables': [{'name': var, 'domain': localTypes[var]} for var in variables], 'body': body}
+        fnDef = {
+            "name": node.name,
+            "type": "container",
+            "input": [{"name": arg, "domain": localTypes[arg]} for arg in args],
+            "variables": [
+                {"name": var, "domain": localTypes[var]} for var in variables
+            ],
+            "body": body,
+        }
 
         fns.append(fnDef)
 
-        pgm = {'fns': fns}
+        pgm = {"fns": fns}
 
         return [pgm]
 
-    #arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
-    elif(isinstance(node, ast.arguments)):
+    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
+    elif isinstance(node, ast.arguments):
         return [genPgm(arg, state) for arg in node.args]
 
-    #arg: ('arg', 'annotation')
-    elif(isinstance(node, ast.arg)):
+    # arg: ('arg', 'annotation')
+    elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
         return node.arg
 
-    #Load: ()
-    elif(isinstance(node, ast.Load)):
-        sys.stderr.write('Found ast.Load, which should not happen\n')
+    # Load: ()
+    elif isinstance(node, ast.Load):
+        sys.stderr.write("Found ast.Load, which should not happen\n")
         sys.exit(1)
 
-    #Store: ()
-    elif(isinstance(node, ast.Store)):
-        sys.stderr.write('Found ast.Store, which should not happen\n')
+    # Store: ()
+    elif isinstance(node, ast.Store):
+        sys.stderr.write("Found ast.Store, which should not happen\n")
         sys.exit(1)
 
-    #Index: ('value',)
-    elif(isinstance(node, ast.Index)):
+    # Index: ('value',)
+    elif isinstance(node, ast.Index):
         genPgm(node.value, state)
 
-    #Num: ('n',)
-    elif(isinstance(node, ast.Num)):
-        return [{'type': 'literal', 'dtype': getDType(node.n), 'value': node.n}]
+    # Num: ('n',)
+    elif isinstance(node, ast.Num):
+        return [{"type": "literal", "dtype": getDType(node.n), "value": node.n}]
 
-    #List: ('elts', 'ctx')
-    elif(isinstance(node, ast.List)):
-        elements = reduce((lambda x, y: x.append(y)), [genPgm(elmt, state) for elmt in node.elts])
-        return elements if len(elements) == 1 else {'list': elements}
+    # List: ('elts', 'ctx')
+    elif isinstance(node, ast.List):
+        elements = reduce(
+            (lambda x, y: x.append(y)),
+            [genPgm(elmt, state) for elmt in node.elts],
+        )
+        return elements if len(elements) == 1 else {"list": elements}
 
-    #Str: ('s',)
-    elif(isinstance(node, ast.Str)):
-        return [{'type': 'literal', 'dtype': 'string', 'value': node.s}]
+    # Str: ('s',)
+    elif isinstance(node, ast.Str):
+        return [{"type": "literal", "dtype": "string", "value": node.s}]
 
-    #For: ('target', 'iter', 'body', 'orelse')
-    elif(isinstance(node, ast.For)):
+    # For: ('target', 'iter', 'body', 'orelse')
+    elif isinstance(node, ast.For):
         if genPgm(node.orelse, state):
-            sys.stderr.write('For/Else in for not supported\n')
+            sys.stderr.write("For/Else in for not supported\n")
             sys.exit(1)
 
         indexVar = genPgm(node.target, state)
-        if len(indexVar) != 1 or 'var' not in indexVar[0]:
-            sys.stderr.write('Only one index variable is supported\n')
+        if len(indexVar) != 1 or "var" not in indexVar[0]:
+            sys.stderr.write("Only one index variable is supported\n")
             sys.exit(1)
-        indexName = indexVar[0]['var']['variable']
+        indexName = indexVar[0]["var"]["variable"]
 
         loopIter = genPgm(node.iter, state)
-        if len(loopIter) != 1 or 'call' not in loopIter[0] or loopIter[0]['call']['function'] != 'range':
-            sys.stderr.write('Can only iterate over a range\n')
-            sys.exit(1)
-        
-        rangeCall = loopIter[0]['call']
-        if len(rangeCall['inputs']) != 2 or len(rangeCall['inputs'][0]) != 1 or len(rangeCall['inputs'][1]) != 1 or ('type' in rangeCall['inputs'][0] and rangeCall['inputs'][0]['type'] == 'literal') or ('type' in rangeCall['inputs'][1] and rangeCall['inputs'][1]['type'] == 'literal'):
-            sys.stderr.write('Can only iterate over a constant range\n')
+        if (
+            len(loopIter) != 1
+            or "call" not in loopIter[0]
+            or loopIter[0]["call"]["function"] != "range"
+        ):
+            sys.stderr.write("Can only iterate over a range\n")
             sys.exit(1)
 
-        iterationRange = {'start': rangeCall['inputs'][0][0], 'end': rangeCall['inputs'][1][0]}
+        rangeCall = loopIter[0]["call"]
+        if (
+            len(rangeCall["inputs"]) != 2
+            or len(rangeCall["inputs"][0]) != 1
+            or len(rangeCall["inputs"][1]) != 1
+            or (
+                "type" in rangeCall["inputs"][0]
+                and rangeCall["inputs"][0]["type"] == "literal"
+            )
+            or (
+                "type" in rangeCall["inputs"][1]
+                and rangeCall["inputs"][1]["type"] == "literal"
+            )
+        ):
+            sys.stderr.write("Can only iterate over a constant range\n")
+            sys.exit(1)
+
+        iterationRange = {
+            "start": rangeCall["inputs"][0][0],
+            "end": rangeCall["inputs"][1][0],
+        }
 
         loopLastDef = {}
-        loopState = state.copy(lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1)
+        loopState = state.copy(
+            lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
+        )
         loop = genPgm(node.body, state)
         loopBody = []
         loopFns = []
         for stmt in loop:
-            loopBody += stmt['body']
-            loopFns += stmt['fns']
+            loopBody += stmt["body"]
+            loopFns += stmt["fns"]
 
         variables = list(filter(lambda x: x != indexName, loopLastDef.keys()))
 
-        #variables: see what changes?
-        loopName = getFnName('{0}__loop_plate__{1}'.format(state.fnName, indexName))
-        loopFn = {'name': loopName, 'type': 'loop_plate', 'variables': variables, 'index_variable': indexName, 'index_iteration_range': iterationRange, 'body': loopBody}
-        loopCall = {'name': loopName, 'inputs': variables, 'output': {}}
+        # variables: see what changes?
+        loopName = getFnName(
+            "{0}__loop_plate__{1}".format(state.fnName, indexName)
+        )
+        loopFn = {
+            "name": loopName,
+            "type": "loop_plate",
+            "variables": variables,
+            "index_variable": indexName,
+            "index_iteration_range": iterationRange,
+            "body": loopBody,
+        }
+        loopCall = {"name": loopName, "inputs": variables, "output": {}}
 
-        pgm = {'fns': loopFns + [loopFn], 'body': [loopCall]}
+        pgm = {"fns": loopFns + [loopFn], "body": [loopCall]}
 
         return [pgm]
 
-    #If: ('test', 'body', 'orelse')
-    elif(isinstance(node, ast.If)):
-        pgm = {'fns': [], 'body': []}
+    # If: ('test', 'body', 'orelse')
+    elif isinstance(node, ast.If):
+        pgm = {"fns": [], "body": []}
 
         condSrcs = genPgm(node.test, state)
 
-        condNum = state.nextDefs.get('#cond', state.lastDefDefault + 1)
-        state.nextDefs['#cond'] = condNum + 1
+        condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
+        state.nextDefs["#cond"] = condNum + 1
 
-        condName = 'IF_{0}'.format(condNum)
-        state.varTypes[condName] = 'boolean'
+        condName = "IF_{0}".format(condNum)
+        state.varTypes[condName] = "boolean"
         state.lastDefs[condName] = 0
-        fnName = getFnName('{0}__condition__{1}'.format(state.fnName, condName))
-        condOutput = {'variable': condName, 'index': 0}
+        fnName = getFnName("{0}__condition__{1}".format(state.fnName, condName))
+        condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName('{0}__lambda__{1}'.format(state.fnName, condName))
-        fn = {'name': fnName, 'type': 'assign', 'target': condName, 'sources': [src['var']['variable'] for src in condSrcs if 'var' in src], 'body': [{'type': 'lambda', 'name': lambdaName, 'reference': node.lineno}]}
-        body = {'name': fnName, 'output': condOutput, 'input': [src['var'] for src in condSrcs if 'var' in src]}
-        pgm['fns'].append(fn)
-        pgm['body'].append(body)
-        genFn(state.lambdaFile, node.test, lambdaName, None, [src['var']['variable'] for src in condSrcs if 'var' in src])
-        
+        lambdaName = getFnName(
+            "{0}__lambda__{1}".format(state.fnName, condName)
+        )
+        fn = {
+            "name": fnName,
+            "type": "assign",
+            "target": condName,
+            "sources": [
+                src["var"]["variable"] for src in condSrcs if "var" in src
+            ],
+            "body": [
+                {"type": "lambda", "name": lambdaName, "reference": node.lineno}
+            ],
+        }
+        body = {
+            "name": fnName,
+            "output": condOutput,
+            "input": [src["var"] for src in condSrcs if "var" in src],
+        }
+        pgm["fns"].append(fn)
+        pgm["body"].append(body)
+        genFn(
+            state.lambdaFile,
+            node.test,
+            lambdaName,
+            None,
+            [src["var"]["variable"] for src in condSrcs if "var" in src],
+        )
+
         startDefs = state.lastDefs.copy()
         ifDefs = startDefs.copy()
         elseDefs = startDefs.copy()
-        ifState=state.copy(lastDefs=ifDefs)
-        elseState=state.copy(lastDefs=elseDefs)
+        ifState = state.copy(lastDefs=ifDefs)
+        elseState = state.copy(lastDefs=elseDefs)
         ifPgm = genPgm(node.body, ifState)
         elsePgm = genPgm(node.orelse, elseState)
 
-        pgm['fns'] += reduce((lambda x, y: x + y['fns']), [[]] + ifPgm) + reduce((lambda x, y: x + y['fns']), [[]] + elsePgm)
-        pgm['body'] += reduce((lambda x, y: x + y['body']), [[]] + ifPgm) + reduce((lambda x, y: x + y['body']), [[]] + elsePgm)
+        pgm["fns"] += reduce(
+            (lambda x, y: x + y["fns"]), [[]] + ifPgm
+        ) + reduce((lambda x, y: x + y["fns"]), [[]] + elsePgm)
+        pgm["body"] += reduce(
+            (lambda x, y: x + y["body"]), [[]] + ifPgm
+        ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
 
-        updatedDefs = [var for var in set(startDefs.keys()).union(ifDefs.keys()).union(elseDefs.keys()) if var not in startDefs or ifDefs[var] != startDefs[var] or elseDefs[var] != startDefs[var]]
+        updatedDefs = [
+            var
+            for var in set(startDefs.keys())
+            .union(ifDefs.keys())
+            .union(elseDefs.keys())
+            if var not in startDefs
+            or ifDefs[var] != startDefs[var]
+            or elseDefs[var] != startDefs[var]
+        ]
 
-        defVersions = {key: [version for version in [startDefs.get(key, None), ifDefs.get(key, None), elseDefs.get(key, None)] if version != None] for key in updatedDefs}
+        defVersions = {
+            key: [
+                version
+                for version in [
+                    startDefs.get(key, None),
+                    ifDefs.get(key, None),
+                    elseDefs.get(key, None),
+                ]
+                if version != None
+            ]
+            for key in updatedDefs
+        }
 
         for updatedDef in defVersions:
             name = "test1"
             versions = defVersions[updatedDef]
-            inputs = [condOutput, {'variable': updatedDef, 'index': versions[-1]}, {'variable': updatedDef, 'index': versions[-2]}] if len(versions) > 1 else [condOutput, {'variable': updatedDef, 'index': versions[0]}]
+            inputs = (
+                [
+                    condOutput,
+                    {"variable": updatedDef, "index": versions[-1]},
+                    {"variable": updatedDef, "index": versions[-2]},
+                ]
+                if len(versions) > 1
+                else [
+                    condOutput,
+                    {"variable": updatedDef, "index": versions[0]},
+                ]
+            )
 
-            output = {'variable': updatedDef, 'index': getNextDef(updatedDef, state.lastDefs, state.nextDefs, state.lastDefDefault)}
+            output = {
+                "variable": updatedDef,
+                "index": getNextDef(
+                    updatedDef,
+                    state.lastDefs,
+                    state.nextDefs,
+                    state.lastDefDefault,
+                ),
+            }
 
-            fnName = getFnName('{0}__decision__{1}'.format(state.fnName, updatedDef))
-            fn = {'name': fnName, 'type': 'assign', 'target': updatedDef, 'sources': ['{0}_{1}'.format(var['variable'], var['index']) for var in inputs]}
+            fnName = getFnName(
+                "{0}__decision__{1}".format(state.fnName, updatedDef)
+            )
+            fn = {
+                "name": fnName,
+                "type": "assign",
+                "target": updatedDef,
+                "sources": [
+                    "{0}_{1}".format(var["variable"], var["index"])
+                    for var in inputs
+                ],
+            }
 
-            body = {'name': fnName, 'output': output, 'input': inputs}
+            body = {"name": fnName, "output": output, "input": inputs}
 
-                
-            pgm['fns'].append(fn)
-            pgm['body'].append(body)
+            pgm["fns"].append(fn)
+            pgm["body"].append(body)
 
         return [pgm]
 
-    #UnaryOp: ('op', 'operand')
-    elif(isinstance(node, ast.UnaryOp)):
+    # UnaryOp: ('op', 'operand')
+    elif isinstance(node, ast.UnaryOp):
         return genPgm(node.operand, state)
 
-    #BinOp: ('left', 'op', 'right')
-    elif(isinstance(node, ast.BinOp)):
+    # BinOp: ('left', 'op', 'right')
+    elif isinstance(node, ast.BinOp):
         if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
-            if(isinstance(node.op, ast.Mult)):
+            if isinstance(node.op, ast.Mult):
                 val = node.left.n * node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #Add: ()
-            elif(isinstance(node.op, ast.Add)):
+            # Add: ()
+            elif isinstance(node.op, ast.Add):
                 val = node.left.n + node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #Sub: ()
-            elif(isinstance(node.op, ast.Sub)):
+            # Sub: ()
+            elif isinstance(node.op, ast.Sub):
                 val = node.left.n - node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #Pow: ()
-            elif(isinstance(node.op, ast.Pow)):
+            # Pow: ()
+            elif isinstance(node.op, ast.Pow):
                 val = node.left.n ** node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #Div: ()
-            elif(isinstance(node.op, ast.Div)):
+            # Div: ()
+            elif isinstance(node.op, ast.Div):
                 val = node.left.n / node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #Eq: ()
-            elif(isinstance(node.op, ast.Eq)):
+            # Eq: ()
+            elif isinstance(node.op, ast.Eq):
                 val = node.left.n == node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
-            #LtE: ()
-            elif(isinstance(node.op, ast.LtE)):
+            # LtE: ()
+            elif isinstance(node.op, ast.LtE):
                 val = node.left.n <= node.right.n
-                return [{'value': val, 'dtype': getDType(val), 'type': 'literal'}]
+                return [
+                    {"value": val, "dtype": getDType(val), "type": "literal"}
+                ]
 
         return genPgm(node.left, state) + genPgm(node.right, state)
 
-    #Mult: ()
-    elif(isinstance(node, ast.Mult)):
-        sys.stderr.write('Found ast.Mult, which should be unnecessary\n')
+    # Mult: ()
+    elif isinstance(node, ast.Mult):
+        sys.stderr.write("Found ast.Mult, which should be unnecessary\n")
 
-    #Add: ()
-    elif(isinstance(node, ast.Add)):
-        sys.stderr.write('Found ast.Add, which should be unnecessary\n')
+    # Add: ()
+    elif isinstance(node, ast.Add):
+        sys.stderr.write("Found ast.Add, which should be unnecessary\n")
 
-    #Sub: ()
-    elif(isinstance(node, ast.Sub)):
-        sys.stderr.write('Found ast.Sub, which should be unnecessary\n')
+    # Sub: ()
+    elif isinstance(node, ast.Sub):
+        sys.stderr.write("Found ast.Sub, which should be unnecessary\n")
 
-    #Pow: ()
-    elif(isinstance(node, ast.Pow)):
-        sys.stderr.write('Found ast.Pow, which should be unnecessary\n')
+    # Pow: ()
+    elif isinstance(node, ast.Pow):
+        sys.stderr.write("Found ast.Pow, which should be unnecessary\n")
 
-    #Div: ()
-    elif(isinstance(node, ast.Div)):
-        sys.stderr.write('Found ast.Div, which should be unnecessary\n')
+    # Div: ()
+    elif isinstance(node, ast.Div):
+        sys.stderr.write("Found ast.Div, which should be unnecessary\n")
 
-    #USub: ()
-    elif(isinstance(node, ast.USub)):
-        sys.stderr.write('Found ast.USub, which should be unnecessary\n')
+    # USub: ()
+    elif isinstance(node, ast.USub):
+        sys.stderr.write("Found ast.USub, which should be unnecessary\n")
 
-    #Eq: ()
-    elif(isinstance(node, ast.Eq)):
-        sys.stderr.write('Found ast.Eq, which should be unnecessary\n')
+    # Eq: ()
+    elif isinstance(node, ast.Eq):
+        sys.stderr.write("Found ast.Eq, which should be unnecessary\n")
 
-    #LtE: ()
-    elif(isinstance(node, ast.LtE)):
-        sys.stderr.write('Found ast.LtE, which should be unnecessary\n')
+    # LtE: ()
+    elif isinstance(node, ast.LtE):
+        sys.stderr.write("Found ast.LtE, which should be unnecessary\n")
 
-    #Expr: ('value',)
-    elif(isinstance(node, ast.Expr)):
+    # Expr: ('value',)
+    elif isinstance(node, ast.Expr):
         exprs = genPgm(node.value, state)
-        pgm = {'fns': [], 'body': []}
+        pgm = {"fns": [], "body": []}
         for expr in exprs:
-            if 'call' in expr:
-                call = expr['call']
-                body = {'function': call['function'], 'output': {}, 'input': []}
-                for arg in call['inputs']:
+            if "call" in expr:
+                call = expr["call"]
+                body = {"function": call["function"], "output": {}, "input": []}
+                for arg in call["inputs"]:
                     if len(arg) == 1:
-                        if 'var' in arg[0]:
-                            body['input'].append(arg[0]['var'])
+                        if "var" in arg[0]:
+                            body["input"].append(arg[0]["var"])
                     else:
-                        sys.stderr.write('Only 1 input per argument supported right now\n')
+                        sys.stderr.write(
+                            "Only 1 input per argument supported right now\n"
+                        )
                         sys.exit(1)
-                pgm['body'].append(body)
+                pgm["body"].append(body)
             else:
-                sys.stderr.write('Unsupported expr: {0}\n'.format(expr))
+                sys.stderr.write("Unsupported expr: {0}\n".format(expr))
                 sys.exit(1)
         return [pgm]
-    
-    #Compare: ('left', 'ops', 'comparators')   
-    elif(isinstance(node, ast.Compare)): 
+
+    # Compare: ('left', 'ops', 'comparators')
+    elif isinstance(node, ast.Compare):
         return genPgm(node.left, state) + genPgm(node.comparators, state)
-        
-    #Subscript: ('value', 'slice', 'ctx')
-    elif(isinstance(node, ast.Subscript)):
-        if(not isinstance(node.slice.value, ast.Num)):
+
+    # Subscript: ('value', 'slice', 'ctx')
+    elif isinstance(node, ast.Subscript):
+        if not isinstance(node.slice.value, ast.Num):
             sys.stderr.write("can't handle arrays right now\n")
             sys.exit(1)
 
         val = genPgm(node.value, state)
 
-        if(isinstance(node.ctx, ast.Store)):
-            val[0]['var']['index'] = getNextDef(val[0]['var']['variable'], state.lastDefs, state.nextDefs, state.lastDefDefault)
+        if isinstance(node.ctx, ast.Store):
+            val[0]["var"]["index"] = getNextDef(
+                val[0]["var"]["variable"],
+                state.lastDefs,
+                state.nextDefs,
+                state.lastDefDefault,
+            )
 
         return val
 
-    #Name: ('id', 'ctx')
-    elif(isinstance(node, ast.Name)):
+    # Name: ('id', 'ctx')
+    elif isinstance(node, ast.Name):
         lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
-        if(isinstance(node.ctx, ast.Store)):
-            lastDef = getNextDef(node.id, state.lastDefs, state.nextDefs, state.lastDefDefault)
+        if isinstance(node.ctx, ast.Store):
+            lastDef = getNextDef(
+                node.id, state.lastDefs, state.nextDefs, state.lastDefDefault
+            )
 
-        return [{'var': {'variable': node.id, 'index': lastDef}}]
+        return [{"var": {"variable": node.id, "index": lastDef}}]
 
-    #AnnAssign: ('target', 'annotation', 'value', 'simple')
-    elif(isinstance(node, ast.AnnAssign)):
-        
+    # AnnAssign: ('target', 'annotation', 'value', 'simple')
+    elif isinstance(node, ast.AnnAssign):
+
         sources = genPgm(node.value, state)
         targets = genPgm(node.target, state)
 
-        pgm = {'fns': [], 'body': []}
+        pgm = {"fns": [], "body": []}
 
         for target in targets:
-            state.varTypes[target['var']['variable']] = getVarType(node.annotation)
-            name = getFnName('{0}__assign__{1}'.format(state.fnName, target['var']['variable']))
-            lambdaName = getFnName('{0}__lambda__{1}'.format(state.fnName, target['var']['variable']))
-            fn = {'name': name, 'type': 'assign', 'target': target['var']['variable'], 'sources': [src['var']['variable'] for src in sources if 'var' in src], 'body': [{'type': 'lambda', 'name': lambdaName, 'reference': node.lineno}]}
+            state.varTypes[target["var"]["variable"]] = getVarType(
+                node.annotation
+            )
+            name = getFnName(
+                "{0}__assign__{1}".format(
+                    state.fnName, target["var"]["variable"]
+                )
+            )
+            lambdaName = getFnName(
+                "{0}__lambda__{1}".format(
+                    state.fnName, target["var"]["variable"]
+                )
+            )
+            fn = {
+                "name": name,
+                "type": "assign",
+                "target": target["var"]["variable"],
+                "sources": [
+                    src["var"]["variable"] for src in sources if "var" in src
+                ],
+                "body": [
+                    {
+                        "type": "lambda",
+                        "name": lambdaName,
+                        "reference": node.lineno,
+                    }
+                ],
+            }
 
-            body = {'name': name, 'output': target['var'], 'input': [src['var'] for src in sources if 'var' in src]}
-            genFn(state.lambdaFile, node, lambdaName, target['var']['variable'], [src['var']['variable'] for src in sources if 'var' in src])
+            body = {
+                "name": name,
+                "output": target["var"],
+                "input": [src["var"] for src in sources if "var" in src],
+            }
+            genFn(
+                state.lambdaFile,
+                node,
+                lambdaName,
+                target["var"]["variable"],
+                [src["var"]["variable"] for src in sources if "var" in src],
+            )
 
-            if not fn['sources'] and len(sources) == 1:
-                fn['body'] = {'type': 'literal', 'dtype': sources[0]['dtype'], 'value': '{0}'.format(sources[0]['value'])}
-                
-            pgm['fns'].append(fn)
-            pgm['body'].append(body)
+            if not fn["sources"] and len(sources) == 1:
+                fn["body"] = {
+                    "type": "literal",
+                    "dtype": sources[0]["dtype"],
+                    "value": "{0}".format(sources[0]["value"]),
+                }
+
+            pgm["fns"].append(fn)
+            pgm["body"].append(body)
 
         return [pgm]
 
-    #Assign: ('targets', 'value')
-    elif(isinstance(node, ast.Assign)):
+    # Assign: ('targets', 'value')
+    elif isinstance(node, ast.Assign):
         sources = genPgm(node.value, state)
-        targets = reduce((lambda x, y: x.append(y)), [genPgm(target, state) for target in node.targets])
+        targets = reduce(
+            (lambda x, y: x.append(y)),
+            [genPgm(target, state) for target in node.targets],
+        )
 
-        pgm = {'fns': [], 'body': []}
+        pgm = {"fns": [], "body": []}
 
         for target in targets:
-            name = getFnName('{0}__assign__{1}'.format(state.fnName, target['var']['variable']))
-            lambdaName = getFnName('{0}__lambda__{1}'.format(state.fnName, target['var']['variable']))
-            fn = {'name': name, 'type': 'assign', 'target': target['var']['variable'], 'sources': [src['var']['variable'] for src in sources if 'var' in src], 'body': [{'type': 'lambda', 'name': lambdaName, 'reference': node.lineno}]}
+            name = getFnName(
+                "{0}__assign__{1}".format(
+                    state.fnName, target["var"]["variable"]
+                )
+            )
+            lambdaName = getFnName(
+                "{0}__lambda__{1}".format(
+                    state.fnName, target["var"]["variable"]
+                )
+            )
+            fn = {
+                "name": name,
+                "type": "assign",
+                "target": target["var"]["variable"],
+                "sources": [
+                    src["var"]["variable"] for src in sources if "var" in src
+                ],
+                "body": [
+                    {
+                        "type": "lambda",
+                        "name": lambdaName,
+                        "reference": node.lineno,
+                    }
+                ],
+            }
 
-            body = {'name': name, 'output': target['var'], 'input': [src['var'] for src in sources if 'var' in src]}
-            genFn(state.lambdaFile, node, lambdaName, target['var']['variable'], [src['var']['variable'] for src in sources if 'var' in src])
+            body = {
+                "name": name,
+                "output": target["var"],
+                "input": [src["var"] for src in sources if "var" in src],
+            }
+            genFn(
+                state.lambdaFile,
+                node,
+                lambdaName,
+                target["var"]["variable"],
+                [src["var"]["variable"] for src in sources if "var" in src],
+            )
 
-            if not fn['sources'] and len(sources) == 1:
-                fn['body'] = {'type': 'literal', 'dtype': sources[0]['dtype'], 'value': '{0}'.format(sources[0]['value'])}
-                
-            pgm['fns'].append(fn)
-            pgm['body'].append(body)
+            if not fn["sources"] and len(sources) == 1:
+                fn["body"] = {
+                    "type": "literal",
+                    "dtype": sources[0]["dtype"],
+                    "value": "{0}".format(sources[0]["value"]),
+                }
+
+            pgm["fns"].append(fn)
+            pgm["body"].append(body)
 
         return [pgm]
-            
-    #Call: ('func', 'args', 'keywords')
-    elif(isinstance(node, ast.Call)):
+
+    # Call: ('func', 'args', 'keywords')
+    elif isinstance(node, ast.Call):
         fnName = node.func.id
         inputs = []
 
         for arg in node.args:
             arg = genPgm(arg, state)
             inputs.append(arg)
-        
-        call = {'call': {'function': fnName, 'inputs': inputs}}
-    
+
+        call = {"call": {"function": fnName, "inputs": inputs}}
+
         return [call]
-        
-    #Module: body
-    elif(isinstance(node, ast.Module)):
+
+    # Module: body
+    elif isinstance(node, ast.Module):
         pgms = []
         for cur in node.body:
             pgm = genPgm(cur, state)
             pgms += pgm
         return [mergeDicts(pgms)]
 
-    elif(isinstance(node, ast.AST)):
-        sys.stderr.write('No handler for AST.{0} in genPgm, fields: {1}\n'.format(node.__class__.__name__, node._fields))
+    elif isinstance(node, ast.AST):
+        sys.stderr.write(
+            "No handler for AST.{0} in genPgm, fields: {1}\n".format(
+                node.__class__.__name__, node._fields
+            )
+        )
 
     else:
-        sys.stderr.write('No handler for {0} in genPgm, value: {1}\n'.format(node.__class__.__name__, str(node)))
+        sys.stderr.write(
+            "No handler for {0} in genPgm, value: {1}\n".format(
+                node.__class__.__name__, str(node)
+            )
+        )
 
     return []
+
 
 def importAst(filename):
     return ast.parse(tokenize.open(filename).read())
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--files', nargs='+', required=True, help='A list of python files to generate a PGM for')
-    parser.add_argument('-p', '--PGMFile', nargs=1, required=True, help='Filename for the output PGM')
-    parser.add_argument('-l', '--lambdaFile', nargs=1, required=True, help='Filename for output lambda functions')
-    parser.add_argument('-a', '--printAst', action='store_true', required=False, help='Print ASTs')
+    parser.add_argument(
+        "-f",
+        "--files",
+        nargs="+",
+        required=True,
+        help="A list of python files to generate a PGM for",
+    )
+    parser.add_argument(
+        "-p",
+        "--PGMFile",
+        nargs=1,
+        required=True,
+        help="Filename for the output PGM",
+    )
+    parser.add_argument(
+        "-l",
+        "--lambdaFile",
+        nargs=1,
+        required=True,
+        help="Filename for output lambda functions",
+    )
+    parser.add_argument(
+        "-a",
+        "--printAst",
+        action="store_true",
+        required=False,
+        help="Print ASTs",
+    )
     args = parser.parse_args(sys.argv[1:])
 
     asts = []
     for f in args.files:
         asts.append(importAst(f))
-        if(args.printAst):
+        if args.printAst:
             print(dump(asts[-1]))
 
-    lambdaFile = open(args.lambdaFile[0], "w") 
+    lambdaFile = open(args.lambdaFile[0], "w")
     state = PGMState(lambdaFile)
     pgm = genPgm(asts, state)[0]
-    pgm['functions'] = pgm.pop('fns')
-    pgm['start'] = pgm['start'][0]
-    pgm['name'] = args.PGMFile[0]
-    pgm['dateCreated'] =  '{0}'.format(datetime.datetime.today().strftime('%Y-%m-%d'))
+    pgm["functions"] = pgm.pop("fns")
+    pgm["start"] = pgm["start"][0]
+    pgm["name"] = args.PGMFile[0]
+    pgm["dateCreated"] = "{0}".format(
+        datetime.datetime.today().strftime("%Y-%m-%d")
+    )
     lambdaFile.close()
 
-    PGMFile = open(args.PGMFile[0], "w") 
+    PGMFile = open(args.PGMFile[0], "w")
     printPgm(PGMFile, pgm)
     PGMFile.close()
-
