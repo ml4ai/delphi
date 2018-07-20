@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Usage: ./autoTranslate <fortran files>
+
 export CLASSPATH="${CLASSPATH}:"$(pwd)/$(dirname ${BASH_SOURCE[0]})"/bin/*"
 pyFiles=""
 
