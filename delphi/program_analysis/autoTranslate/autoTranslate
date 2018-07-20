@@ -15,4 +15,4 @@ for file in "$@"; do
     pyFiles+=" $pyFile"
 done
 
-( set -x; python3.6 scripts/genPGM.py -f$pyFiles -p pgm.out -l lambdas.py)
+( set -x; python3.6 scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)

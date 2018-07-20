@@ -383,7 +383,7 @@ def genPgm(node, state):
         loopState = state.copy(
             lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
         )
-        loop = genPgm(node.body, state)
+        loop = genPgm(node.body, loopState)
         loopBody = []
         loopFns = []
         for stmt in loop:
@@ -399,7 +399,7 @@ def genPgm(node, state):
         loopFn = {
             "name": loopName,
             "type": "loop_plate",
-            "variables": variables,
+            "input": variables,
             "index_variable": indexName,
             "index_iteration_range": iterationRange,
             "body": loopBody,
@@ -684,6 +684,13 @@ def genPgm(node, state):
 
     # AnnAssign: ('target', 'annotation', 'value', 'simple')
     elif isinstance(node, ast.AnnAssign):
+        if(isinstance(node.value, ast.List)):
+            targets = genPgm(node.target, state)
+            for target in targets:
+                state.varTypes[target["var"]["variable"]] = getVarType(
+                    node.annotation
+                )
+            return []
 
         sources = genPgm(node.value, state)
         targets = genPgm(node.target, state)
