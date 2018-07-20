@@ -4,6 +4,20 @@ from typing import Dict
 
 rv_maroon = "#650021"
 
+def remove_index(node):
+    return node[:-2]
+
+def insert_line_breaks(node):
+    if '__assign__' in node:
+        blocks = node.split('__assign__')
+        node = '\n__assign__\n'.join(blocks)
+    if '__condition__' in node:
+        blocks = node.split('__condition__')
+        node = '\n__condition__\n'.join(blocks)
+    if '__decision__' in node:
+        blocks = node.split('__decision__')
+        node = '\n__decision__\n'.join(blocks)
+    return node
 
 class ScopeNode(metaclass=ABCMeta):
     def __init__(self, name, data):
@@ -75,16 +89,7 @@ class ScopeNode(metaclass=ABCMeta):
                     self.node_pairs.append((instruction, oname))
 
     def get_node_name(self, node):
-        if '__assign__' in node:
-            blocks = node.split('__assign__')
-            node = '\n__assign__\n'.join(blocks)
-        if '__condition__' in node:
-            blocks = node.split('__condition__')
-            node = '\n__condition__\n'.join(blocks)
-        if '__decision__' in node:
-            blocks = node.split('__decision__')
-            node = '\n__decision__\n'.join(blocks)
-
+        # return remove_index(node)
         return f"{node}\n{self.name}"
 
     def add_nodes(self, sub):
@@ -93,36 +98,25 @@ class ScopeNode(metaclass=ABCMeta):
             shape = "rectangle" if n_type == "factor" else "ellipse"
             name = self.get_node_name(node)
             sub.add_node(name, shape=shape, color=clr)
+            sub.add_node(name, shape=shape, color=clr, label=insert_line_breaks(node))
 
-    @abstractmethod
-    def build_containment_graph(self, graph, border_clr):
-        sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=border_clr)
-        sub.graph_attr["label"] = self.name
-        self.add_nodes(sub)
-
-        for src, dst in self.node_pairs:
-            src_name = f"{src}\n{self.name}"
-            dst_name = f"{dst}\n{self.name}"
-            sub.add_edge(src_name, dst_name)
-
-        for child in self.child_nodes:
-            child.build_containment_graph(sub)
-
-    def build_linked_graph(self, graph):
-        sub = graph.add_subgraph(name=f"cluster_{self.name}",
-                                 color=self.edge_color,
-                                 style='bold, rounded',
-                                 label=self.name)
-
-        self.add_nodes(sub)
+    def add_edges(self, sub):
         edges = [(self.get_node_name(src), self.get_node_name(dst))
                  for src, dst in self.node_pairs]
 
         sub.add_edges_from(edges)
 
+    @abstractmethod
+    def build_containment_graph(self, graph, border_clr):
+        sub = graph.add_subgraph(name=f"cluster_{self.name}",
+                                 style='bold, rounded',
+                                 color=border_clr)
+
+        sub.graph_attr["label"] = self.name
+        self.add_nodes(sub)
+        self.add_edges(sub)
         for child in self.child_nodes:
-            child.build_linked_graph(sub)
+            child.build_containment_graph(sub)
 
 
 class LoopScopeNode(ScopeNode):
@@ -144,16 +138,7 @@ class LoopScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
-        if '__assign__' in node:
-            blocks = node.split('__assign__')
-            node = '\n__assign__\n'.join(blocks)
-        if '__condition__' in node:
-            blocks = node.split('__condition__')
-            node = '\n__condition__\n'.join(blocks)
-        if '__decision__' in node:
-            blocks = node.split('__decision__')
-            node = '\n__decision__\n'.join(blocks)
-
+        # return remove_index(node)
         return f"{node}\n{self.parent_scope.name}"
 
 
@@ -176,6 +161,7 @@ class FuncScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
+        # return insert_line_breaks(remove_index(node))
         if node.endswith("0") and self.parent_scope is not None:
             possible_vars = self.parent_scope.calls[self.name]
             for var in possible_vars:
@@ -186,16 +172,7 @@ class FuncScopeNode(ScopeNode):
                     else:
                         return f"{var}\n{self.parent_scope.parent_scope.name}"
 
-        if '__assign__' in node:
-            blocks = node.split('__assign__')
-            node = '\n__assign__\n'.join(blocks)
-        if '__condition__' in node:
-            blocks = node.split('__condition__')
-            node = '\n__condition__\n'.join(blocks)
-        if '__decision__' in node:
-            blocks = node.split('__decision__')
-            node = '\n__decision__\n'.join(blocks)
-
+        # node=insert_line_breaks(node)
         return f"{node}\n{self.name}"
 
 
