@@ -148,11 +148,11 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write("def {0}({1}):\n  ".format(fnName, ", ".join(inputs)))
-    code = genCode(node, PrintState("\n  "))
+    fnFile.write("def {0}({1}):\n    ".format(fnName, ", ".join(inputs)))
+    code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(code)
-        fnFile.write("\n  return {0}".format(returnVal))
+        fnFile.write("\n    return {0}".format(returnVal))
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
