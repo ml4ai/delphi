@@ -167,13 +167,7 @@ class AnalysisGraph(nx.DiGraph):
             n for n in G.nodes(data=True) if n[1].get("indicators") is not None
         ]
 
-        n_max = 0
-
-         = max([len(e[2]["InfluenceStatements"]) for e in G.edges(data=True)])
-        for e in G.edges(data=True):
-            n = len(e[2]["InfluenceStatements"])
-            if n > n_max:
-                n_max = n
+        n_max= max([len(e[2]["InfluenceStatements"]) for e in G.edges(data=True)])
 
         color_str = "#650021"
         for e in G.edges(data=True):
