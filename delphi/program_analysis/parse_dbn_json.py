@@ -4,7 +4,7 @@ from typing import Dict
 import pprint
 import json
 
-import scopes as scp
+import delphi.program_analysis.scopes as scp
 
 
 def main():
