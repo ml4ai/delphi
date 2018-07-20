@@ -33,7 +33,7 @@
 *     VARIABLES
 *     
 *     INPUT MAX_RAIN   = The maximum rain for the month
-*     INPUT CONSITENCY = The consistency of the rainfall 
+*     INPUT CONSISTENCY = The consistency of the rainfall 
 *       (higher = more consistent)
 *     INPUT ABSORBTION = Estimates the % of rainfall absorbed into the
 *       soil (i.e. % lost due to evaporation, runoff)
