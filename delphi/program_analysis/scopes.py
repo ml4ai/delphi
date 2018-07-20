@@ -89,16 +89,18 @@ class ScopeNode(metaclass=ABCMeta):
                     self.node_pairs.append((instruction, oname))
 
     def get_node_name(self, node):
-        # return remove_index(node)
         return f"{node}\n{self.name}"
+
+    def get_node_label(self, node):
+        return insert_line_breaks(node)
 
     def add_nodes(self, sub):
         for node, n_type in self.node_types.items():
             clr = "black" if n_type == "factor" else rv_maroon
             shape = "rectangle" if n_type == "factor" else "ellipse"
             name = self.get_node_name(node)
-            sub.add_node(name, shape=shape, color=clr)
-            sub.add_node(name, shape=shape, color=clr, label=insert_line_breaks(node))
+            label = self.get_node_label(node)
+            sub.add_node(name, shape=shape, color=clr, label=label)
 
     def add_edges(self, sub):
         edges = [(self.get_node_name(src), self.get_node_name(dst))
@@ -138,7 +140,6 @@ class LoopScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
-        # return remove_index(node)
         return f"{node}\n{self.parent_scope.name}"
 
 
@@ -161,7 +162,6 @@ class FuncScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
-        # return insert_line_breaks(remove_index(node))
         if node.endswith("0") and self.parent_scope is not None:
             possible_vars = self.parent_scope.calls[self.name]
             for var in possible_vars:
@@ -172,7 +172,6 @@ class FuncScopeNode(ScopeNode):
                     else:
                         return f"{var}\n{self.parent_scope.parent_scope.name}"
 
-        # node=insert_line_breaks(node)
         return f"{node}\n{self.name}"
 
 
