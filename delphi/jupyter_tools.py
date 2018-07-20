@@ -64,12 +64,13 @@ def print_full_edge_provenance(cag, source, target):
         for e in s.evidence:
             print("\t obj_delta:", json.dumps(e.to_json(), indent=2))
 
-def display(file: str, language: Optional[str] = None):
-    if file.split('.')[-1] == 'json': language = 'json'
-    elif file.split('.')[-1] == 'f': language = 'fortran'
-    elif file.split('.')[-1] == 'py': language = 'python'
-    else: language = language
+def display(file: str):
+    lexer = pygments.lexers.get_lexer_for_filename(file)
+
     with open(file, 'r') as f:
         code = f.read()
 
-    return Code(code, language=language)
+    formatter = pygments.formatters.HtmlFormatter(linenos='inline')
+    html = pygments.highlight(code, lexer, formatter)
+
+    return HTML(html)
