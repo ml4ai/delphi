@@ -66,7 +66,7 @@ Export
 .. autosummary::
     :toctree: generated/
 
-    to_agraph
+    export
 
 
 Basic Model Interface
