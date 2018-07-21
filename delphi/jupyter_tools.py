@@ -70,7 +70,9 @@ def display(file: str):
     with open(file, 'r') as f:
         code = f.read()
 
-    formatter = pygments.formatters.HtmlFormatter(linenos='inline')
-    html = pygments.highlight(code, lexer, formatter)
+    formatter = pygments.formatters.HtmlFormatter(linenos='inline', cssclass='pygments')
+    html_code = pygments.highlight(code, lexer, formatter)
+    css = formatter.get_style_defs('.pygments')
+    html = f"<style>{css}</style>{html_code}"
 
     return HTML(html)
