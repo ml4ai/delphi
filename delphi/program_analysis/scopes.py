@@ -131,8 +131,9 @@ class LoopScopeNode(ScopeNode):
         self.inputs.append(data["index_variable"])
         self.variables.append(data["index_variable"])
 
-        for var in data["variables"]:
-            self.variables.append(var["name"])
+        if data.get('variables') is not None:
+            for var in data["variables"]:
+                self.variables.append(var["name"])
 
         super().setup_from_json(data)
 
