@@ -98,7 +98,7 @@ def printArg(pyFile, node, printState):
     else:
         print("unrecognized type {0}".format(node["type"]))
         sys.exit(1)
-    pyFile.write("{0}:typing.List[{1}]".format(node["name"], varType))
+    pyFile.write("{0}: List[{1}]".format(node["name"], varType))
     printState.definedVars += [node["name"]]
 
 
@@ -118,7 +118,7 @@ def printVariable(pyFile, node, printState):
             print("unrecognized type {0}".format(node["type"]))
             sys.exit(1)
         pyFile.write(
-            "{0}:typing.List[{1}] = [{2}]".format(
+            "{0}: List[{1}] = [{2}]".format(
                 node["name"], varType, initVal
             )
         )
@@ -291,6 +291,6 @@ def printAst(pyFile, root, printState):
 
 
 def printPython(pyFile, root):
-    pyFile.write("import typing\n\n")
+    pyFile.write("from typing import List\n\n")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
