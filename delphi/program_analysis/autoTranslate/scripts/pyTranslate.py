@@ -45,7 +45,7 @@ class PrintState:
 
 
 def printSubroutine(pyFile, node, printState):
-    pyFile.write("def {0}(".format(node["name"]))
+    pyFile.write("\ndef {0}(".format(node["name"]))
     args = []
     printAst(
         pyFile,
@@ -291,6 +291,6 @@ def printAst(pyFile, root, printState):
 
 
 def printPython(pyFile, root):
-    pyFile.write("from typing import List\n\n")
+    pyFile.write("from typing import List")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
