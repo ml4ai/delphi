@@ -6,6 +6,7 @@ from .execution import (default_update_function, emission_function,
 import pandas as pd
 import numpy as np
 
+
 # ==========================================================================
 # Basic Modeling Interface (BMI)
 # ==========================================================================
@@ -63,6 +64,7 @@ def update(G: AnalysisGraph) -> AnalysisGraph:
     G.t += G.Δt
     return G
 
+
 def update_until(G: AnalysisGraph, t_final: float) -> AnalysisGraph:
     """ Updates the model to a particular time t_final """
     while G.t < t_final:
@@ -70,8 +72,10 @@ def update_until(G: AnalysisGraph, t_final: float) -> AnalysisGraph:
 
     return G
 
+
 def finalize(G: AnalysisGraph):
     pass
+
 
 # Model information
 
@@ -79,21 +83,26 @@ def get_component_name(G: AnalysisGraph) -> str:
     """ Return the name of the model. """
     return G.name
 
+
 def get_input_var_names(G: AnalysisGraph) -> List[str]:
     """ Returns the input variable names """
     return get_latent_state_components(G)
+
 
 def get_output_var_names(G: AnalysisGraph) -> List[str]:
     """ Returns the output variable names. """
     return get_latent_state_components(G)
 
+
 def get_time_step(G: AnalysisGraph) -> float:
     """ Returns the time step size """
     return G.Δt
 
+
 def get_time_units(G: AnalysisGraph) -> str:
     """ Returns the time unit. """
     return G.time_unit
+
 
 def get_current_time(G: AnalysisGraph) -> float:
     """ Returns the current time in the execution of the model. """
