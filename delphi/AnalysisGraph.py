@@ -28,7 +28,7 @@ from .jupyter_tools import (
     create_statement_inspection_table,
 )
 from .utils import flatMap, iterate, take, ltake, _insert_line_breaks, compose
-from .types import RV, LatentVar, Indicator
+from .random_variables import RV, LatentVar, Indicator
 from .paths import adjectiveData, south_sudan_data
 from datetime import datetime
 from scipy.stats import gaussian_kde

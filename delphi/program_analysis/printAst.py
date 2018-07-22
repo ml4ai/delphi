@@ -65,4 +65,3 @@ if __name__ == "__main__":
 
     for tree in asts:
         print(dump(tree, annotate_fields=True, include_attributes=True))
-

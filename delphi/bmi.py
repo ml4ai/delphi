@@ -1,6 +1,6 @@
 from typing import Tuple, List
 from .AnalysisGraph import AnalysisGraph
-from .types import LatentVar
+from .random_variables import LatentVar
 from .execution import (default_update_function, emission_function,
                         get_latent_state_components)
 import pandas as pd
