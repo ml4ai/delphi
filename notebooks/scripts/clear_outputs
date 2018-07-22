@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Clear the outputs of a Jupyter notebook. Useful for version control.
+# Usage: ./clear_outputs <notebook>
+
+jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace "$1"
