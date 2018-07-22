@@ -8,6 +8,7 @@ import re
 import argparse
 from functools import *
 from genCode import *
+import json
 
 
 class PGMState:
@@ -98,53 +99,8 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
-def dict2str(d, indent, level):
-    if not d:
-        return "{}"
-
-    dictStrs = []
-    fields = sorted(d.keys())
-    for field in fields:
-        dictStr = '"{0}": '.format(field)
-        if isinstance(d[field], dict):
-            dictStr += dict2str(d[field], indent, level + 1)
-        elif isinstance(d[field], list):
-            dictStr += list2str(d[field], indent, level + 1)
-        else:
-            dictStr += '"{0}"'.format(d[field])
-        dictStrs.append(dictStr)
-
-    return "{0}\n{1}{2}\n{3}{4}".format(
-        "{",
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(dictStrs),
-        indent * level,
-        "}",
-    )
-
-
-def list2str(l, indent, level):
-    if not l:
-        return "[]"
-
-    listStrs = []
-    for item in l:
-        if isinstance(item, dict):
-            listStrs.append(dict2str(item, indent, level + 1))
-        elif isinstance(item, list):
-            listStrs.append(list2str(item, indent, level + 1))
-        else:
-            listStrs.append('"{0}"'.format(item))
-
-    return "[\n{0}{1}\n{2}]".format(
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(listStrs),
-        indent * level,
-    )
-
-
 def printPgm(pgmFile, pgm):
-    pgmFile.write(dict2str(pgm, "  ", 0) + "\n")
+    pgmFile.write(json.dumps(pgm, indent=2))
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
