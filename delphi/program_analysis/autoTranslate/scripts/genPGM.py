@@ -855,18 +855,26 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def create_pgm_dict(lambdaFile: str, asts: List) -> Dict:
+def create_pgm_dict(lambdaFile: str, asts: List, pgm_file = 'pgm.json') -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
         state = PGMState(f)
         pgm = genPgm(asts, state)[0]
         pgm["start"] = pgm["start"][0]
-        pgm["name"] = args.PGMFile[0]
+        pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 
     return pgm
 
+def get_asts_from_files(files: List[str], printAst = False):
+    asts = []
+    for f in files:
+        asts.append(importAst(f))
+        if printAst:
+            print(dump(asts[-1]))
+
+    return asts
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -898,15 +906,8 @@ if __name__ == "__main__":
         help="Print ASTs",
     )
     args = parser.parse_args(sys.argv[1:])
-
-    asts = []
-    for f in args.files:
-        asts.append(importAst(f))
-        if args.printAst:
-            print(dump(asts[-1]))
-
-    lambdaFile = args.lambdaFile[0]
-    pgm_dict = create_pgm_dict(lambdaFile, asts)
+    asts = get_asts_from_files(args.files, args.printAst)
+    pgm_dict = create_pgm_dict(args.lambdaFile[0], asts, args.PGMFile[0])
 
     with open(args.PGMFile[0], 'w') as f:
         printPgm(f, pgm_dict)
