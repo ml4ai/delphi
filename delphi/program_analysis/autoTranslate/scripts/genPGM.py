@@ -899,7 +899,7 @@ if __name__ == "__main__":
         pgm = genPgm(asts, state)[0]
         pgm["start"] = pgm["start"][0]
         pgm["name"] = args.PGMFile[0]
-        pgm["dateCreated"] = f"{datetime.today().strftime("%Y-%m-%d")}"
+        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 
     with open(args.PGMFile[0], 'w') as f:
         printPgm(f, pgm)
