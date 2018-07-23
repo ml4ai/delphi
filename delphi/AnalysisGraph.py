@@ -28,7 +28,7 @@ from .jupyter_tools import (
     create_statement_inspection_table,
 )
 from .utils import flatMap, iterate, take, ltake, _insert_line_breaks, compose
-from .types import RV, LatentVar, Indicator
+from .random_variables import RV, LatentVar, Indicator
 from .paths import adjectiveData, south_sudan_data
 from datetime import datetime
 from scipy.stats import gaussian_kde
@@ -43,15 +43,7 @@ from pygraphviz import AGraph
 def make_edge(
     sts: List[Influence], p: Tuple[str, str]
 ) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (
-        p[0],
-        p[1],
-        {
-            "InfluenceStatements": [
-                s for s in sts if (p[0], p[1]) == nameTuple(s)
-            ]
-        },
-    )
+    edge = (*p, {"InfluenceStatements": [s for s in sts if nameTuple(s) == p]})
     return edge
 
 
@@ -61,11 +53,11 @@ class AnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         """ Default constructor, accepts a list of edge tuples. """
         super().__init__(*args, **kwargs)
-        self.t = 0.0
-        self.Δt = 1.0
-        self.time_unit = "Placeholder time unit"
+        self.t: float = 0.0
+        self.Δt: float = 1.0
+        self.time_unit: str = "Placeholder time unit"
         self.data = None
-        self.name="Linear Dynamical System with Stochastic Transition Model"
+        self.name: str = "Linear Dynamical System with Stochastic Transition Model"
 
     # ==========================================================================
     # Constructors
@@ -84,17 +76,18 @@ class AnalysisGraph(nx.DiGraph):
 
         return cls(edges)
 
-    @staticmethod
-    def from_pickle(pkl_file: str):
+    @classmethod
+    def from_pickle(cls, file: str):
         """ Load an AnalysisGraph object from a pickle file. """
-        with open(pkl_file, "rb") as f:
+        with open(file, "rb") as f:
             G = pickle.load(f)
 
         if not isinstance(G, cls):
-            raise TypeError(f"The pickled object in {pkl_file} is not an instance of AnalysisGraph")
+            raise TypeError(
+                f"The pickled object in {file} is not an instance of AnalysisGraph"
+            )
         else:
             return G
-
 
     def infer_transition_model(
         self, adjective_data: str = None, res: int = 100
@@ -114,6 +107,7 @@ class AnalysisGraph(nx.DiGraph):
         gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby(
             "adjective"
         )
+
         rs = (
             gaussian_kde(
                 flatMap(
@@ -133,11 +127,10 @@ class AnalysisGraph(nx.DiGraph):
                 e[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
-
     def _repr_png_(self, *args, **kwargs):
         return self.to_agraph(self, *args, **kwargs).draw(
-                format="png", prog=kwargs.get("prog", "dot")
-            )
+            format="png", prog=kwargs.get("prog", "dot")
+        )
 
     def to_agraph(self, *args, **kwargs) -> AGraph:
         """ Exports AnalysisGraph to pygraphviz AGraph
@@ -171,17 +164,13 @@ class AnalysisGraph(nx.DiGraph):
         )
 
         nodes_with_indicators = [
-            n for n in G.nodes(data=True) if n[1].get("indicators") is not None
+            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
         ]
 
-        n_max = 0
-        for e in G.edges(data=True):
-            n = len(e[2]["InfluenceStatements"])
-            if n > n_max:
-                n_max = n
+        n_max= max([len(e[2]["InfluenceStatements"]) for e in self.edges(data=True)])
 
         color_str = "#650021"
-        for e in G.edges(data=True):
+        for e in self.edges(data=True):
             opacity = len(e[2]["InfluenceStatements"]) / n_max
             h = (opacity * 255).hex()
             c_str = color_str + h[4:6]
@@ -196,14 +185,20 @@ class AnalysisGraph(nx.DiGraph):
                 for ind in n[1]["indicators"]:
                     node_label = _insert_line_breaks(ind.name)
                     A.add_node(
-                        node_label, style="rounded, filled", fillcolor="lightblue"
+                        node_label,
+                        style="rounded, filled",
+                        fillcolor="lightblue",
                     )
-                    A.add_edge(n[0].capitalize(), node_label, color="royalblue4")
+                    A.add_edge(
+                        n[0].capitalize(), node_label, color="royalblue4"
+                    )
 
         # Drawing indicator values
         if kwargs.get("indicator_values"):
             for n in nodes_with_indicators:
-                indicators = [i for i in n[1]["indicators"] if i.value is not None]
+                indicators = [
+                    i for i in n[1]["indicators"] if i.value is not None
+                ]
                 for ind in indicators:
                     if ind.unit is not None:
                         units = f" {ind.unit}"
@@ -220,7 +215,10 @@ class AnalysisGraph(nx.DiGraph):
                         color="royalblue",
                     )
                     A.add_edge(
-                        ind_label, node_label, color="lightblue", arrowhead="none"
+                        ind_label,
+                        node_label,
+                        color="lightblue",
+                        arrowhead="none",
                     )
 
         if kwargs.get("nodes_to_highlight") is not None:

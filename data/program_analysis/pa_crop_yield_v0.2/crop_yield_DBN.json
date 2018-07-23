@@ -18,6 +18,7 @@
       "type": "assign"
     },
     {
+      "COMMENT": "TODO: (1) need to add lambda reference in body; (2) change type to conditional",
       "name": "UPDATE_EST__condition__IF_1_0",
       "sources": [
         "TOTAL_RAIN"

@@ -1,7 +1,7 @@
 from datetime import datetime
 from delphi.paths import concept_to_indicator_mapping
 from .utils import exists, flatMap
-from .types import Delta, Indicator
+from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
 from fuzzywuzzy import process
