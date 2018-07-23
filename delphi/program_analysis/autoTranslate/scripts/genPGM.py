@@ -3,12 +3,15 @@
 import ast
 import sys
 import tokenize
-import datetime
+from datetime import datetime
 import re
 import argparse
 from functools import *
-from genCode import *
-
+import json
+from delphi.program_analysis.autoTranslate.scripts.genCode import *
+from typing import List, Dict
+from itertools import chain
+import operator
 
 class PGMState:
     def __init__(
@@ -98,61 +101,16 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
-def dict2str(d, indent, level):
-    if not d:
-        return "{}"
-
-    dictStrs = []
-    fields = sorted(d.keys())
-    for field in fields:
-        dictStr = '"{0}": '.format(field)
-        if isinstance(d[field], dict):
-            dictStr += dict2str(d[field], indent, level + 1)
-        elif isinstance(d[field], list):
-            dictStr += list2str(d[field], indent, level + 1)
-        else:
-            dictStr += '"{0}"'.format(d[field])
-        dictStrs.append(dictStr)
-
-    return "{0}\n{1}{2}\n{3}{4}".format(
-        "{",
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(dictStrs),
-        indent * level,
-        "}",
-    )
-
-
-def list2str(l, indent, level):
-    if not l:
-        return "[]"
-
-    listStrs = []
-    for item in l:
-        if isinstance(item, dict):
-            listStrs.append(dict2str(item, indent, level + 1))
-        elif isinstance(item, list):
-            listStrs.append(list2str(item, indent, level + 1))
-        else:
-            listStrs.append('"{0}"'.format(item))
-
-    return "[\n{0}{1}\n{2}]".format(
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(listStrs),
-        indent * level,
-    )
-
-
 def printPgm(pgmFile, pgm):
-    pgmFile.write(dict2str(pgm, "  ", 0) + "\n")
+    pgmFile.write(json.dumps(pgm, indent=2))
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write("def {0}({1}):\n    ".format(fnName, ", ".join(inputs)))
+    fnFile.write(f"def {fnName}({', '.join(inputs)}):\n    ")
     code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(code)
-        fnFile.write("\n    return {0}".format(returnVal))
+        fnFile.write(f"\n    return {returnVal}")
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
@@ -190,7 +148,7 @@ fnNames = {}
 
 def getFnName(basename):
     fnId = fnNames.get(basename, 0)
-    fnName = "{0}_{1}".format(basename, fnId)
+    fnName = f"{basename}_{fnId}"
     fnNames[basename] = fnId + 1
     return fnName
 
@@ -232,17 +190,50 @@ def getDType(val):
     elif isinstance(val, float):
         dtype = "real"
     else:
-        sys.stderr.write("num: {0}\n".format(type(node.n)))
+        sys.stderr.write(f"num: {type(node.n)}\n")
         sys.exit(1)
     return dtype
 
 
+def get_body_and_functions(pgm):
+    body = list(chain.from_iterable(stmt['body'] for stmt in pgm))
+    fns = list(chain.from_iterable(stmt['functions'] for stmt in pgm))
+    return body, fns
+
+def make_fn_dict(name, target, sources, lambdaName, node):
+    fn = {
+        "name": name,
+        "type": "assign",
+        "target": target["var"]["variable"],
+        "sources": [
+            src["var"]["variable"] for src in sources if "var" in src
+        ],
+        "body": [
+            {
+                "type": "lambda",
+                "name": lambdaName,
+                "reference": node.lineno,
+            }
+        ],
+    }
+    return fn
+
+def make_body_dict(name, target, sources):
+    body = {
+        "name": name,
+        "output": target["var"],
+        "input": [src["var"] for src in sources if "var" in src],
+    }
+    return body
+
 def genPgm(node, state):
+    types = (list, ast.Module, ast.FunctionDef)
+    unnecessary_types = (ast.Mult, ast.Add, ast.Sub, ast.Pow, ast.Div, ast.USub,
+            ast.Eq, ast.LtE)
+
     if (
-        state.fnName == None
-        and not isinstance(node, ast.Module)
-        and not isinstance(node, list)
-        and not isinstance(node, ast.FunctionDef)
+        state.fnName is None
+        and not any(isinstance(node, t) for t in types)
     ):
         if isinstance(node, ast.Call):
             return [{"start": node.func.id}]
@@ -254,10 +245,7 @@ def genPgm(node, state):
             return []
 
     if isinstance(node, list):
-        result = []
-        for cur in node:
-            result += genPgm(cur, state)
-        return result
+        return list(chain.from_iterable([genPgm(cur, state) for cur in node]))
 
     # Function: name, args, body, decorator_list, returns
     elif isinstance(node, ast.FunctionDef):
@@ -273,11 +261,7 @@ def genPgm(node, state):
         args = genPgm(node.args, fnState)
         bodyPgm = genPgm(node.body, fnState)
 
-        body = []
-        fns = []
-        for stmt in bodyPgm:
-            body += stmt["body"]
-            fns += stmt["fns"]
+        body, fns = get_body_and_functions(bodyPgm)
 
         variables = list(localDefs.keys())
 
@@ -293,7 +277,7 @@ def genPgm(node, state):
 
         fns.append(fnDef)
 
-        pgm = {"fns": fns}
+        pgm = {"functions": fns}
 
         return [pgm]
 
@@ -384,18 +368,12 @@ def genPgm(node, state):
             lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
         )
         loop = genPgm(node.body, loopState)
-        loopBody = []
-        loopFns = []
-        for stmt in loop:
-            loopBody += stmt["body"]
-            loopFns += stmt["fns"]
+        loopBody, loopFns = get_body_and_functions(loop)
 
-        variables = list(filter(lambda x: x != indexName, loopLastDef.keys()))
+        variables = [x for x in loopLastDef if x != indexName]
 
         # variables: see what changes?
-        loopName = getFnName(
-            "{0}__loop_plate__{1}".format(state.fnName, indexName)
-        )
+        loopName = getFnName(f"{state.fnName}__loop_plate__{indexName}")
         loopFn = {
             "name": loopName,
             "type": "loop_plate",
@@ -404,30 +382,28 @@ def genPgm(node, state):
             "index_iteration_range": iterationRange,
             "body": loopBody,
         }
-        loopCall = {"name": loopName, "inputs": variables, "output": {}}
 
-        pgm = {"fns": loopFns + [loopFn], "body": [loopCall]}
+        loopCall = {"name": loopName, "inputs": variables, "output": {}}
+        pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
 
         return [pgm]
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         condSrcs = genPgm(node.test, state)
 
         condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
         state.nextDefs["#cond"] = condNum + 1
 
-        condName = "IF_{0}".format(condNum)
+        condName = f"IF_{condNum}"
         state.varTypes[condName] = "boolean"
         state.lastDefs[condName] = 0
-        fnName = getFnName("{0}__condition__{1}".format(state.fnName, condName))
+        fnName = getFnName(f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(
-            "{0}__lambda__{1}".format(state.fnName, condName)
-        )
+        lambdaName = getFnName(f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
             "type": "assign",
@@ -444,7 +420,7 @@ def genPgm(node, state):
             "output": condOutput,
             "input": [src["var"] for src in condSrcs if "var" in src],
         }
-        pgm["fns"].append(fn)
+        pgm["functions"].append(fn)
         pgm["body"].append(body)
         genFn(
             state.lambdaFile,
@@ -462,9 +438,10 @@ def genPgm(node, state):
         ifPgm = genPgm(node.body, ifState)
         elsePgm = genPgm(node.orelse, elseState)
 
-        pgm["fns"] += reduce(
-            (lambda x, y: x + y["fns"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["fns"]), [[]] + elsePgm)
+        pgm["functions"] += reduce(
+            (lambda x, y: x + y["functions"]), [[]] + ifPgm
+        ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
+
         pgm["body"] += reduce(
             (lambda x, y: x + y["body"]), [[]] + ifPgm
         ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
@@ -483,11 +460,11 @@ def genPgm(node, state):
             key: [
                 version
                 for version in [
-                    startDefs.get(key, None),
-                    ifDefs.get(key, None),
-                    elseDefs.get(key, None),
+                    startDefs.get(key),
+                    ifDefs.get(key),
+                    elseDefs.get(key),
                 ]
-                if version != None
+                if version is not None
             ]
             for key in updatedDefs
         }
@@ -519,21 +496,21 @@ def genPgm(node, state):
             }
 
             fnName = getFnName(
-                "{0}__decision__{1}".format(state.fnName, updatedDef)
+                f"{state.fnName}__decision__{updatedDef}"
             )
             fn = {
                 "name": fnName,
                 "type": "assign",
                 "target": updatedDef,
                 "sources": [
-                    "{0}_{1}".format(var["variable"], var["index"])
+                    f"{var['variable']}_{var['index']}"
                     for var in inputs
                 ],
             }
 
             body = {"name": fnName, "output": output, "input": inputs}
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -544,93 +521,37 @@ def genPgm(node, state):
 
     # BinOp: ('left', 'op', 'right')
     elif isinstance(node, ast.BinOp):
+        binops = {
+            ast.Add: operator.add,
+            ast.Sub: operator.sub,
+            ast.Mult: operator.mul,
+            ast.Div: operator.truediv,
+            ast.Pow: operator.pow,
+            ast.Eq: operator.eq,
+            ast.LtE: operator.le,
+        }
         if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
-            if isinstance(node.op, ast.Mult):
-                val = node.left.n * node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # Add: ()
-            elif isinstance(node.op, ast.Add):
-                val = node.left.n + node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # Sub: ()
-            elif isinstance(node.op, ast.Sub):
-                val = node.left.n - node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # Pow: ()
-            elif isinstance(node.op, ast.Pow):
-                val = node.left.n ** node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # Div: ()
-            elif isinstance(node.op, ast.Div):
-                val = node.left.n / node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # Eq: ()
-            elif isinstance(node.op, ast.Eq):
-                val = node.left.n == node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
-
-            # LtE: ()
-            elif isinstance(node.op, ast.LtE):
-                val = node.left.n <= node.right.n
-                return [
-                    {"value": val, "dtype": getDType(val), "type": "literal"}
-                ]
+            for op in binops:
+                if isinstance(node.op, op):
+                    val = binops[type(node.op)](node.left.n, node.right.n)
+                    return [
+                        {"value": val,
+                            "dtype": getDType(val), "type": "literal"}
+                    ]
 
         return genPgm(node.left, state) + genPgm(node.right, state)
 
     # Mult: ()
-    elif isinstance(node, ast.Mult):
-        sys.stderr.write("Found ast.Mult, which should be unnecessary\n")
 
-    # Add: ()
-    elif isinstance(node, ast.Add):
-        sys.stderr.write("Found ast.Add, which should be unnecessary\n")
 
-    # Sub: ()
-    elif isinstance(node, ast.Sub):
-        sys.stderr.write("Found ast.Sub, which should be unnecessary\n")
-
-    # Pow: ()
-    elif isinstance(node, ast.Pow):
-        sys.stderr.write("Found ast.Pow, which should be unnecessary\n")
-
-    # Div: ()
-    elif isinstance(node, ast.Div):
-        sys.stderr.write("Found ast.Div, which should be unnecessary\n")
-
-    # USub: ()
-    elif isinstance(node, ast.USub):
-        sys.stderr.write("Found ast.USub, which should be unnecessary\n")
-
-    # Eq: ()
-    elif isinstance(node, ast.Eq):
-        sys.stderr.write("Found ast.Eq, which should be unnecessary\n")
-
-    # LtE: ()
-    elif isinstance(node, ast.LtE):
-        sys.stderr.write("Found ast.LtE, which should be unnecessary\n")
+    elif any(isinstance(node, nodetype) for nodetype in unnecessary_types):
+        t = node.__repr__().split()[0][2:]
+        sys.stdout.write(f"Found {t}, which should be unnecessary\n")
 
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
         exprs = genPgm(node.value, state)
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
         for expr in exprs:
             if "call" in expr:
                 call = expr["call"]
@@ -646,7 +567,7 @@ def genPgm(node, state):
                         sys.exit(1)
                 pgm["body"].append(body)
             else:
-                sys.stderr.write("Unsupported expr: {0}\n".format(expr))
+                sys.stderr.write(f"Unsupported expr: {expr}\n")
                 sys.exit(1)
         return [pgm]
 
@@ -695,43 +616,21 @@ def genPgm(node, state):
         sources = genPgm(node.value, state)
         targets = genPgm(node.target, state)
 
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         for target in targets:
             state.varTypes[target["var"]["variable"]] = getVarType(
                 node.annotation
             )
             name = getFnName(
-                "{0}__assign__{1}".format(
-                    state.fnName, target["var"]["variable"]
+                f"{state.fnName}__assign__{target['var']['variable']}"
                 )
-            )
             lambdaName = getFnName(
-                "{0}__lambda__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
+                f"{state.fnName}__lambda__{target['var']['variable']}"
             )
-            fn = {
-                "name": name,
-                "type": "assign",
-                "target": target["var"]["variable"],
-                "sources": [
-                    src["var"]["variable"] for src in sources if "var" in src
-                ],
-                "body": [
-                    {
-                        "type": "lambda",
-                        "name": lambdaName,
-                        "reference": node.lineno,
-                    }
-                ],
-            }
+            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            body = make_body_dict(name, target, sources)
 
-            body = {
-                "name": name,
-                "output": target["var"],
-                "input": [src["var"] for src in sources if "var" in src],
-            }
             genFn(
                 state.lambdaFile,
                 node,
@@ -744,10 +643,10 @@ def genPgm(node, state):
                 fn["body"] = {
                     "type": "literal",
                     "dtype": sources[0]["dtype"],
-                    "value": "{0}".format(sources[0]["value"]),
+                    "value": f"{sources[0]['value']}"
                 }
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -760,40 +659,15 @@ def genPgm(node, state):
             [genPgm(target, state) for target in node.targets],
         )
 
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         for target in targets:
             name = getFnName(
-                "{0}__assign__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
+                f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                "{0}__lambda__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
-            )
-            fn = {
-                "name": name,
-                "type": "assign",
-                "target": target["var"]["variable"],
-                "sources": [
-                    src["var"]["variable"] for src in sources if "var" in src
-                ],
-                "body": [
-                    {
-                        "type": "lambda",
-                        "name": lambdaName,
-                        "reference": node.lineno,
-                    }
-                ],
-            }
-
-            body = {
-                "name": name,
-                "output": target["var"],
-                "input": [src["var"] for src in sources if "var" in src],
-            }
+            lambdaName = getFnName(f"{state.fnName}__lambda__{target['var']['variable']}")
+            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            body = make_body_dict(name, target, sources)
             genFn(
                 state.lambdaFile,
                 node,
@@ -806,10 +680,10 @@ def genPgm(node, state):
                 fn["body"] = {
                     "type": "literal",
                     "dtype": sources[0]["dtype"],
-                    "value": "{0}".format(sources[0]["value"]),
+                    "value": f"{sources[0]['value']}",
                 }
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -836,26 +710,38 @@ def genPgm(node, state):
         return [mergeDicts(pgms)]
 
     elif isinstance(node, ast.AST):
-        sys.stderr.write(
-            "No handler for AST.{0} in genPgm, fields: {1}\n".format(
-                node.__class__.__name__, node._fields
-            )
-        )
+        sys.stderr.write(f"No handler for AST.{node.__class__.__name__} in genPgm, fields: {node._fields}\n")
 
     else:
-        sys.stderr.write(
-            "No handler for {0} in genPgm, value: {1}\n".format(
-                node.__class__.__name__, str(node)
-            )
-        )
+        sys.stderr.write(f"No handler for {node.__class__.__name__} in genPgm, value: {str(node)}\n")
 
     return []
 
 
-def importAst(filename):
+def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
+def create_pgm_dict(lambdaFile: str, asts: List, pgm_file = 'pgm.json') -> Dict:
+    """ Create a Python dict representing the PGM, with additional metadata for
+    JSON output. """
+    with open(lambdaFile, "w") as f:
+        state = PGMState(f)
+        pgm = genPgm(asts, state)[0]
+        pgm["start"] = pgm["start"][0]
+        pgm["name"] = pgm_file
+        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+
+    return pgm
+
+def get_asts_from_files(files: List[str], printAst = False):
+    asts = []
+    for f in files:
+        asts.append(importAst(f))
+        if printAst:
+            print(dump(asts[-1]))
+
+    return asts
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -887,24 +773,8 @@ if __name__ == "__main__":
         help="Print ASTs",
     )
     args = parser.parse_args(sys.argv[1:])
+    asts = get_asts_from_files(args.files, args.printAst)
+    pgm_dict = create_pgm_dict(args.lambdaFile[0], asts, args.PGMFile[0])
 
-    asts = []
-    for f in args.files:
-        asts.append(importAst(f))
-        if args.printAst:
-            print(dump(asts[-1]))
-
-    lambdaFile = open(args.lambdaFile[0], "w")
-    state = PGMState(lambdaFile)
-    pgm = genPgm(asts, state)[0]
-    pgm["functions"] = pgm.pop("fns")
-    pgm["start"] = pgm["start"][0]
-    pgm["name"] = args.PGMFile[0]
-    pgm["dateCreated"] = "{0}".format(
-        datetime.datetime.today().strftime("%Y-%m-%d")
-    )
-    lambdaFile.close()
-
-    PGMFile = open(args.PGMFile[0], "w")
-    printPgm(PGMFile, pgm)
-    PGMFile.close()
+    with open(args.PGMFile[0], 'w') as f:
+        printPgm(f, pgm_dict)
