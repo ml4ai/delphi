@@ -8,6 +8,7 @@ import re
 import argparse
 from functools import *
 from genCode import *
+from typing import List, Dict
 
 
 class PGMState:
@@ -425,9 +426,7 @@ def genPgm(node, state):
         fnName = getFnName("{0}__condition__{1}".format(state.fnName, condName))
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(
-            "{0}__lambda__{1}".format(state.fnName, condName)
-        )
+        lambdaName = getFnName(f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
             "type": "assign",
@@ -856,6 +855,18 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
+def create_pgm_dict(lambdaFile: str, asts: List) -> Dict:
+    """ Create a Python dict representing the PGM, with additional metadata for
+    JSON output. """
+    with open(lambdaFile, "w") as f:
+        state = PGMState(f)
+        pgm = genPgm(asts, state)[0]
+        pgm["start"] = pgm["start"][0]
+        pgm["name"] = args.PGMFile[0]
+        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+
+    return pgm
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -894,12 +905,8 @@ if __name__ == "__main__":
         if args.printAst:
             print(dump(asts[-1]))
 
-    with open(args.lambdaFile[0], "w") as lambdaFile:
-        state = PGMState(lambdaFile)
-        pgm = genPgm(asts, state)[0]
-        pgm["start"] = pgm["start"][0]
-        pgm["name"] = args.PGMFile[0]
-        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+    lambdaFile = args.lambdaFile[0]
+    pgm_dict = create_pgm_dict(lambdaFile, asts)
 
     with open(args.PGMFile[0], 'w') as f:
-        printPgm(f, pgm)
+        printPgm(f, pgm_dict)
