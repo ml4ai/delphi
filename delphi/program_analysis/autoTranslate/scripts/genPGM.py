@@ -104,11 +104,11 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write("def {0}({1}):\n    ".format(fnName, ", ".join(inputs)))
+    fnFile.write(f"def {fnName}({', '.join(inputs)}):\n    ")
     code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(code)
-        fnFile.write("\n    return {0}".format(returnVal))
+        fnFile.write(f"\n    return {returnVal}")
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
@@ -146,7 +146,7 @@ fnNames = {}
 
 def getFnName(basename):
     fnId = fnNames.get(basename, 0)
-    fnName = "{0}_{1}".format(basename, fnId)
+    fnName = f"{basename}_{fnId}"
     fnNames[basename] = fnId + 1
     return fnName
 
@@ -188,7 +188,7 @@ def getDType(val):
     elif isinstance(val, float):
         dtype = "real"
     else:
-        sys.stderr.write("num: {0}\n".format(type(node.n)))
+        sys.stderr.write(f"num: {type(node.n)}\n")
         sys.exit(1)
     return dtype
 
@@ -349,9 +349,7 @@ def genPgm(node, state):
         variables = list(filter(lambda x: x != indexName, loopLastDef.keys()))
 
         # variables: see what changes?
-        loopName = getFnName(
-            "{0}__loop_plate__{1}".format(state.fnName, indexName)
-        )
+        loopName = getFnName(f"{state.fnName}__loop_plate__{indexName}")
         loopFn = {
             "name": loopName,
             "type": "loop_plate",
@@ -716,11 +714,7 @@ def genPgm(node, state):
             name = getFnName(
                 f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                "{0}__lambda__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
-            )
+            lambdaName = getFnName(f"{state.fnName}__lambda__{target['var']['variable']}")
             fn = {
                 "name": name,
                 "type": "assign",
@@ -754,7 +748,7 @@ def genPgm(node, state):
                 fn["body"] = {
                     "type": "literal",
                     "dtype": sources[0]["dtype"],
-                    "value": "{0}".format(sources[0]["value"]),
+                    "value": f"{sources[0]['value']}",
                 }
 
             pgm["functions"].append(fn)
@@ -784,18 +778,10 @@ def genPgm(node, state):
         return [mergeDicts(pgms)]
 
     elif isinstance(node, ast.AST):
-        sys.stderr.write(
-            "No handler for AST.{0} in genPgm, fields: {1}\n".format(
-                node.__class__.__name__, node._fields
-            )
-        )
+        sys.stderr.write(f"No handler for AST.{node.__class__.__name__} in genPgm, fields: {node._fields}\n")
 
     else:
-        sys.stderr.write(
-            "No handler for {0} in genPgm, value: {1}\n".format(
-                node.__class__.__name__, str(node)
-            )
-        )
+        sys.stderr.write(f"No handler for {node.__class__.__name__} in genPgm, value: {str(node)}\n")
 
     return []
 
