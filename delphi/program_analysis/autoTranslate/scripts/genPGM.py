@@ -277,7 +277,7 @@ def genPgm(node, state):
         fns = []
         for stmt in bodyPgm:
             body += stmt["body"]
-            fns += stmt["fns"]
+            fns += stmt["functions"]
 
         variables = list(localDefs.keys())
 
@@ -293,7 +293,7 @@ def genPgm(node, state):
 
         fns.append(fnDef)
 
-        pgm = {"fns": fns}
+        pgm = {"functions": fns}
 
         return [pgm]
 
@@ -388,7 +388,7 @@ def genPgm(node, state):
         loopFns = []
         for stmt in loop:
             loopBody += stmt["body"]
-            loopFns += stmt["fns"]
+            loopFns += stmt["functions"]
 
         variables = list(filter(lambda x: x != indexName, loopLastDef.keys()))
 
@@ -406,13 +406,13 @@ def genPgm(node, state):
         }
         loopCall = {"name": loopName, "inputs": variables, "output": {}}
 
-        pgm = {"fns": loopFns + [loopFn], "body": [loopCall]}
+        pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
 
         return [pgm]
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         condSrcs = genPgm(node.test, state)
 
@@ -444,7 +444,7 @@ def genPgm(node, state):
             "output": condOutput,
             "input": [src["var"] for src in condSrcs if "var" in src],
         }
-        pgm["fns"].append(fn)
+        pgm["functions"].append(fn)
         pgm["body"].append(body)
         genFn(
             state.lambdaFile,
@@ -462,9 +462,9 @@ def genPgm(node, state):
         ifPgm = genPgm(node.body, ifState)
         elsePgm = genPgm(node.orelse, elseState)
 
-        pgm["fns"] += reduce(
-            (lambda x, y: x + y["fns"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["fns"]), [[]] + elsePgm)
+        pgm["functions"] += reduce(
+            (lambda x, y: x + y["functions"]), [[]] + ifPgm
+        ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
         pgm["body"] += reduce(
             (lambda x, y: x + y["body"]), [[]] + ifPgm
         ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
@@ -533,7 +533,7 @@ def genPgm(node, state):
 
             body = {"name": fnName, "output": output, "input": inputs}
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -630,7 +630,7 @@ def genPgm(node, state):
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
         exprs = genPgm(node.value, state)
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
         for expr in exprs:
             if "call" in expr:
                 call = expr["call"]
@@ -695,7 +695,7 @@ def genPgm(node, state):
         sources = genPgm(node.value, state)
         targets = genPgm(node.target, state)
 
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         for target in targets:
             state.varTypes[target["var"]["variable"]] = getVarType(
@@ -747,7 +747,7 @@ def genPgm(node, state):
                     "value": "{0}".format(sources[0]["value"]),
                 }
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -760,7 +760,7 @@ def genPgm(node, state):
             [genPgm(target, state) for target in node.targets],
         )
 
-        pgm = {"fns": [], "body": []}
+        pgm = {"functions": [], "body": []}
 
         for target in targets:
             name = getFnName(
@@ -809,7 +809,7 @@ def genPgm(node, state):
                     "value": "{0}".format(sources[0]["value"]),
                 }
 
-            pgm["fns"].append(fn)
+            pgm["functions"].append(fn)
             pgm["body"].append(body)
 
         return [pgm]
@@ -897,7 +897,6 @@ if __name__ == "__main__":
     with open(args.lambdaFile[0], "w") as lambdaFile:
         state = PGMState(lambdaFile)
         pgm = genPgm(asts, state)[0]
-        pgm["functions"] = pgm.pop("fns")
         pgm["start"] = pgm["start"][0]
         pgm["name"] = args.PGMFile[0]
         pgm["dateCreated"] = "{0}".format(
