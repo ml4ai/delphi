@@ -7,7 +7,7 @@ from datetime import datetime
 import re
 import argparse
 from functools import *
-from genCode import *
+from delphi.program_analysis.autoTranslate.scripts.genCode import *
 from typing import List, Dict
 
 
