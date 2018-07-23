@@ -894,17 +894,15 @@ if __name__ == "__main__":
         if args.printAst:
             print(dump(asts[-1]))
 
-    lambdaFile = open(args.lambdaFile[0], "w")
-    state = PGMState(lambdaFile)
-    pgm = genPgm(asts, state)[0]
-    pgm["functions"] = pgm.pop("fns")
-    pgm["start"] = pgm["start"][0]
-    pgm["name"] = args.PGMFile[0]
-    pgm["dateCreated"] = "{0}".format(
-        datetime.datetime.today().strftime("%Y-%m-%d")
-    )
-    lambdaFile.close()
+    with open(args.lambdaFile[0], "w") as lambdaFile:
+        state = PGMState(lambdaFile)
+        pgm = genPgm(asts, state)[0]
+        pgm["functions"] = pgm.pop("fns")
+        pgm["start"] = pgm["start"][0]
+        pgm["name"] = args.PGMFile[0]
+        pgm["dateCreated"] = "{0}".format(
+            datetime.datetime.today().strftime("%Y-%m-%d")
+        )
 
-    PGMFile = open(args.PGMFile[0], "w")
-    printPgm(PGMFile, pgm)
-    PGMFile.close()
+    with open(args.PGMFile[0], 'w') as f:
+        printPgm(f, pgm)
