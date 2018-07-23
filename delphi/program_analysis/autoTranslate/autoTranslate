@@ -11,7 +11,7 @@ checkVersion() {
 
     IFS=' ' read -r -a versionStr <<< "$versionStr"
 
-    versionStr=${versionStr[-1]}
+    versionStr=${versionStr[${#versionStr[@]}-1]}
 
     IFS='. ' read -r -a version <<< "$versionStr"
 
