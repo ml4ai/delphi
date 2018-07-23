@@ -852,7 +852,7 @@ def genPgm(node, state):
     return []
 
 
-def importAst(filename):
+def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
