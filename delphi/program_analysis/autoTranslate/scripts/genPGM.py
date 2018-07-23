@@ -7,9 +7,9 @@ from datetime import datetime
 import re
 import argparse
 from functools import *
+import json
 from delphi.program_analysis.autoTranslate.scripts.genCode import *
 from typing import List, Dict
-
 
 class PGMState:
     def __init__(
@@ -99,53 +99,8 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
-def dict2str(d, indent, level):
-    if not d:
-        return "{}"
-
-    dictStrs = []
-    fields = sorted(d.keys())
-    for field in fields:
-        dictStr = '"{0}": '.format(field)
-        if isinstance(d[field], dict):
-            dictStr += dict2str(d[field], indent, level + 1)
-        elif isinstance(d[field], list):
-            dictStr += list2str(d[field], indent, level + 1)
-        else:
-            dictStr += '"{0}"'.format(d[field])
-        dictStrs.append(dictStr)
-
-    return "{0}\n{1}{2}\n{3}{4}".format(
-        "{",
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(dictStrs),
-        indent * level,
-        "}",
-    )
-
-
-def list2str(l, indent, level):
-    if not l:
-        return "[]"
-
-    listStrs = []
-    for item in l:
-        if isinstance(item, dict):
-            listStrs.append(dict2str(item, indent, level + 1))
-        elif isinstance(item, list):
-            listStrs.append(list2str(item, indent, level + 1))
-        else:
-            listStrs.append('"{0}"'.format(item))
-
-    return "[\n{0}{1}\n{2}]".format(
-        indent * (level + 1),
-        ",\n{0}".format(indent * (level + 1)).join(listStrs),
-        indent * level,
-    )
-
-
 def printPgm(pgmFile, pgm):
-    pgmFile.write(dict2str(pgm, "  ", 0) + "\n")
+    pgmFile.write(json.dumps(pgm, indent=2))
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
@@ -420,10 +375,10 @@ def genPgm(node, state):
         condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
         state.nextDefs["#cond"] = condNum + 1
 
-        condName = "IF_{0}".format(condNum)
+        condName = f"IF_{condNum}"
         state.varTypes[condName] = "boolean"
         state.lastDefs[condName] = 0
-        fnName = getFnName("{0}__condition__{1}".format(state.fnName, condName))
+        fnName = getFnName(f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
         lambdaName = getFnName(f"{state.fnName}__lambda__{condName}")
@@ -518,14 +473,14 @@ def genPgm(node, state):
             }
 
             fnName = getFnName(
-                "{0}__decision__{1}".format(state.fnName, updatedDef)
+                f"{state.fnName}__decision__{updatedDef}"
             )
             fn = {
                 "name": fnName,
                 "type": "assign",
                 "target": updatedDef,
                 "sources": [
-                    "{0}_{1}".format(var["variable"], var["index"])
+                    f"{var['variable']}_{var['index']}"
                     for var in inputs
                 ],
             }
@@ -645,7 +600,7 @@ def genPgm(node, state):
                         sys.exit(1)
                 pgm["body"].append(body)
             else:
-                sys.stderr.write("Unsupported expr: {0}\n".format(expr))
+                sys.stderr.write(f"Unsupported expr: {expr}\n")
                 sys.exit(1)
         return [pgm]
 
@@ -701,14 +656,10 @@ def genPgm(node, state):
                 node.annotation
             )
             name = getFnName(
-                "{0}__assign__{1}".format(
-                    state.fnName, target["var"]["variable"]
+                f"{state.fnName}__assign__{target['var']['variable']}"
                 )
-            )
             lambdaName = getFnName(
-                "{0}__lambda__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
+                f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = {
                 "name": name,
@@ -743,7 +694,7 @@ def genPgm(node, state):
                 fn["body"] = {
                     "type": "literal",
                     "dtype": sources[0]["dtype"],
-                    "value": "{0}".format(sources[0]["value"]),
+                    "value": f"{sources[0]['value']}"
                 }
 
             pgm["functions"].append(fn)
@@ -763,9 +714,7 @@ def genPgm(node, state):
 
         for target in targets:
             name = getFnName(
-                "{0}__assign__{1}".format(
-                    state.fnName, target["var"]["variable"]
-                )
+                f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
                 "{0}__lambda__{1}".format(
