@@ -3,7 +3,7 @@
 import ast
 import sys
 import tokenize
-import datetime
+from datetime import datetime
 import re
 import argparse
 from functools import *
@@ -899,9 +899,7 @@ if __name__ == "__main__":
         pgm = genPgm(asts, state)[0]
         pgm["start"] = pgm["start"][0]
         pgm["name"] = args.PGMFile[0]
-        pgm["dateCreated"] = "{0}".format(
-            datetime.datetime.today().strftime("%Y-%m-%d")
-        )
+        pgm["dateCreated"] = f"{datetime.today().strftime("%Y-%m-%d")}"
 
     with open(args.PGMFile[0], 'w') as f:
         printPgm(f, pgm)
