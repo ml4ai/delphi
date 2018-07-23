@@ -76,8 +76,8 @@ class AnalysisGraph(nx.DiGraph):
 
         return cls(edges)
 
-    @staticmethod
-    def from_pickle(file: str):
+    @classmethod
+    def from_pickle(cls, file: str):
         """ Load an AnalysisGraph object from a pickle file. """
         with open(file, "rb") as f:
             G = pickle.load(f)
@@ -164,13 +164,13 @@ class AnalysisGraph(nx.DiGraph):
         )
 
         nodes_with_indicators = [
-            n for n in G.nodes(data=True) if n[1].get("indicators") is not None
+            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
         ]
 
-        n_max= max([len(e[2]["InfluenceStatements"]) for e in G.edges(data=True)])
+        n_max= max([len(e[2]["InfluenceStatements"]) for e in self.edges(data=True)])
 
         color_str = "#650021"
-        for e in G.edges(data=True):
+        for e in self.edges(data=True):
             opacity = len(e[2]["InfluenceStatements"]) / n_max
             h = (opacity * 255).hex()
             c_str = color_str + h[4:6]
