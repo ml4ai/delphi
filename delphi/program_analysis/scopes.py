@@ -5,7 +5,7 @@ from typing import Dict
 rv_maroon = "#650021"
 
 def remove_index(node):
-    return node[:-2]
+    return node[:node.rfind("_")]
 
 def insert_line_breaks(node):
     if '__assign__' in node:
@@ -74,7 +74,7 @@ class ScopeNode(metaclass=ABCMeta):
             if expr.get("name") is not None:
                 instruction = expr["name"]
                 if len(expr.get("output")) > 0:
-                    self.node_types[instruction] = "factor"
+                    self.node_types[instruction] = "action"
                 if expr.get("input") is not None:
                     for i in expr["input"]:
                         if i.get("variable") is not None:
@@ -96,8 +96,8 @@ class ScopeNode(metaclass=ABCMeta):
 
     def add_nodes(self, sub):
         for node, n_type in self.node_types.items():
-            clr = "black" if n_type == "factor" else rv_maroon
-            shape = "rectangle" if n_type == "factor" else "ellipse"
+            clr = "black" if n_type == "action" else rv_maroon
+            shape = "rectangle" if n_type == "action" else "ellipse"
             name = self.get_node_name(node)
             label = self.get_node_label(node)
             sub.add_node(name, shape=shape, color=clr, label=label)
@@ -131,9 +131,12 @@ class LoopScopeNode(ScopeNode):
         self.inputs.append(data["index_variable"])
         self.variables.append(data["index_variable"])
 
-        if data.get('variables') is not None:
-            for var in data["variables"]:
-                self.variables.append(var["name"])
+        self.inputs += data["input"]
+        self.variables += data["input"]
+
+        # if data.get('variables') is not None:
+        #     for var in data["variables"]:
+        #         self.variables.append(var["name"])
 
         super().setup_from_json(data)
 
@@ -141,6 +144,7 @@ class LoopScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
+        # node = remove_index(node)
         return f"{node}\n{self.parent_scope.name}"
 
 
@@ -151,11 +155,10 @@ class FuncScopeNode(ScopeNode):
         self.setup_from_json(json_data)
 
     def setup_from_json(self, data):
-        for input_obj in data["input"]:
-            self.inputs.append(input_obj["name"])
+        self.inputs += data["input"]
 
-        for var in data["variables"]:
-            self.variables.append(var["name"])
+        self.variables += data["variables"]
+        self.variables += data["input"]
 
         super().setup_from_json(data)
 
@@ -163,16 +166,18 @@ class FuncScopeNode(ScopeNode):
         super().build_containment_graph(graph, self.edge_color)
 
     def get_node_name(self, node):
-        if node.endswith("0") and self.parent_scope is not None:
+        if node in self.inputs and self.parent_scope is not None:
             possible_vars = self.parent_scope.calls[self.name]
             for var in possible_vars:
                 prefix = var[:var.rindex("_")]
+                # var = remove_index(var)
                 if node.startswith(prefix):
                     if prefix in self.parent_scope.variables:
                         return f"{var}\n{self.parent_scope.name}"
                     else:
                         return f"{var}\n{self.parent_scope.parent_scope.name}"
 
+        # node = remove_index(node)
         return f"{node}\n{self.name}"
 
 
@@ -205,20 +210,7 @@ def scope_tree_from_json(json_data: Dict) -> ScopeNode:
     for scope in scopes.values():
         scope.remove_non_scope_children(scope_names)
 
-    # Find the root scope to properly nest scopes in a tree. NOTE: This will no
-    # longer work when we have functions with the same name at different scope
-    # levels. Not sure if this is possible in FORTRAN but we should be prepared.
-    root = None
-    for name in scope_names:
-        dependent = False
-        for c1 in scopes.values():
-            if name in c1.child_names:
-                dependent = True
-                break
-        if not dependent:
-            root = scopes[name]
-            break
-
     # Build the nested tree of scopes using recursion
+    root = scopes[json_data["start"]]
     root.build_scope_tree(scopes)
     return root
