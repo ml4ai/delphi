@@ -164,19 +164,33 @@ class AnalysisGraph(nx.DiGraph):
         )
 
         nodes_with_indicators = [
-            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
+            n
+            for n in self.nodes(data=True)
+            if n[1].get("indicators") is not None
         ]
 
-        n_max= max([len(e[2]["InfluenceStatements"]) for e in self.edges(data=True)])
-
         color_str = "#650021"
-        for e in self.edges(data=True):
-            opacity = len(e[2]["InfluenceStatements"]) / n_max
-            h = (opacity * 255).hex()
-            c_str = color_str + h[4:6]
-            A.add_edge(
-                e[0].capitalize(), e[1].capitalize(), color=c_str, arrowsize=0.5
-            )
+
+        edges = list(self.edges(data=True))
+
+        if edges[0][2].get("InfluenceStatements") is not None:
+            n_max = max([len(e[2]["InfluenceStatements"]) for e in edges])
+
+            color_str = "#650021"
+            for e in edges:
+                opacity = len(e[2]["InfluenceStatements"]) / n_max
+                h = (opacity * 255).hex()
+                c_str = color_str + h[4:6]
+                A.add_edge(
+                    e[0].capitalize(),
+                    e[1].capitalize(),
+                    color=c_str,
+                    arrowsize=0.5,
+                )
+        else:
+            for e in edges:
+                c_str = color_str
+                A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
         # Drawing indicator variables
 
