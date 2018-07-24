@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from typing import Dict
+import json
 
 
 rv_maroon = "#650021"
-
 
 class Scope(metaclass=ABCMeta):
     def __init__(self, name, data):
@@ -25,6 +25,31 @@ class Scope(metaclass=ABCMeta):
         self.edge_color = "red"
 
         self.build_child_names()
+
+    @classmethod
+    def from_json(self, file: str):
+        with open(file, 'r') as f:
+            data = json.load(f)
+        scope_types_dict = {'container': FuncScope,
+                            'loop_plate': LoopScope}
+
+        scopes = {f['name']: scope_types_dict[f['type']](f['name'], f)
+                for f in data['functions']
+                if f['type'] in scope_types_dict}
+
+        # Make a list of all scopes by scope names
+        scope_names = list(scopes.keys())
+
+        # Remove pseudo-scopes we wish to not display (such as print)
+        for scope in scopes.values():
+            scope.remove_non_scope_children(scope_names)
+
+        # Build the nested tree of scopes using recursion
+        root = scopes[data["start"]]
+        root.build_scope_tree(scopes)
+        root.setup_from_json()
+        return root
+
 
     def __repr__(self):
         return self.__str__()
