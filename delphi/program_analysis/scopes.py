@@ -159,7 +159,9 @@ class Scope(metaclass=ABCMeta):
             shape = "rectangle" if isinstance(node, ActionNode) else "ellipse"
             name = node.unique_name()
             label = node.get_label()
-            sub.add_node(name, shape=shape, color=clr, label=label)
+            sub.add_node(
+                name, shape=shape, color=clr, label=label, type=type(node)
+            )
 
     def add_edges(self, sub):
         edges = [
