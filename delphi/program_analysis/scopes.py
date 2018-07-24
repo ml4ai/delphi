@@ -168,13 +168,12 @@ class Scope(metaclass=ABCMeta):
 
         sub.add_edges_from(edges)
 
-    @abstractmethod
-    def build_containment_graph(self, graph, border_clr):
+    def build_containment_graph(self, graph):
         sub = graph.add_subgraph(
             name=f"cluster_{self.name}",
             label=self.name,
             style="bold, rounded",
-            color=border_clr,
+            color=self.edge_color,
         )
 
         self.add_nodes(sub)
@@ -204,9 +203,6 @@ class LoopScope(Scope):
         for child, vars in zip(self.child_nodes, self.child_vars):
             child.setup_from_json(vars)
 
-    def build_containment_graph(self, graph):
-        super().build_containment_graph(graph, self.edge_color)
-
 
 class FuncScope(Scope):
     def __init__(self, name, json_data):
@@ -221,9 +217,6 @@ class FuncScope(Scope):
 
         for child, vars in zip(self.child_nodes, self.child_vars):
             child.setup_from_json(vars)
-
-    def build_containment_graph(self, graph):
-        super().build_containment_graph(graph, self.edge_color)
 
 
 class Node(metaclass=ABCMeta):
