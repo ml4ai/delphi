@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from typing import Dict
 import json
+from pygraphviz import AGraph
+import platform
 
 
 rv_maroon = "#650021"
@@ -57,6 +59,26 @@ class Scope(metaclass=ABCMeta):
     def __str__(self):
         root = "(R) " if self.parent_scope is None else ""
         return f"{root}{self.name}: {self.child_names}"
+
+    def to_agraph(self):
+        A = AGraph(directed=True)
+        A.node_attr["shape"] = "rectangle"
+        A.graph_attr["rankdir"] = "LR"
+
+        operating_system = platform.system()
+
+        if operating_system == 'Darwin':
+            font = "Menlo"
+        elif operating_system == 'Windows':
+            font = "Consolas"
+        else:
+            font = "Courier"
+
+        A.node_attr["fontname"] = font
+        A.graph_attr["fontname"] = font
+
+        self.build_containment_graph(A)
+        return A
 
     def build_child_names(self):
         for expr in self.json["body"]:
