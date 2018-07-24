@@ -11,19 +11,19 @@ import numpy as np
 # Basic Modeling Interface (BMI)
 # ==========================================================================
 
-def initialize(G: AnalysisGraph, cfg: str = None) -> AnalysisGraph:
+def initialize(G: AnalysisGraph, config_file: str = None) -> AnalysisGraph:
     """ Initialize the executable AnalysisGraph with a config file.
 
     Args:
         G
-        cfg
+        config_file
 
     Returns:
         AnalysisGraph
     """
-    if cfg is not None:
+    if config_file is not None:
         G.s0 = pd.read_csv(
-            cfg, index_col=0, header=None, error_bad_lines=False
+            config_file, index_col=0, header=None, error_bad_lines=False
         )[1]
         for n in G.nodes(data=True):
             n[1]["rv"] = LatentVar(n[0])
