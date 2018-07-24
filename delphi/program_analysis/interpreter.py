@@ -1,3 +1,4 @@
+import platform
 from os.path import normpath
 from pygraphviz import AGraph
 from typing import Dict
@@ -5,8 +6,9 @@ import json
 
 import delphi.program_analysis.scopes as scp
 
-def main():
-    dbn_json = json.load(open(normpath("autoTranslate/pgm.json")))
+def make_agraph_from_dbn_json(file: str) -> AGraph:
+    with open(normpath(file), 'r') as f:
+        dbn_json = json.load(f)
 
     scope_types_dict = {'container': scp.FuncScope, 'loop_plate': scp.LoopScope}
 
@@ -29,13 +31,25 @@ def main():
     A = AGraph(directed=True)
     A.node_attr["shape"] = "rectangle"
     A.graph_attr["rankdir"] = "LR"
-    A.node_attr["fontname"] = "Menlo"
-    A.graph_attr["fontname"] = "Menlo"
+
+    operating_system = platform.system()
+
+    if operating_system == 'Darwin':
+        font = "Menlo"
+    elif operating_system == 'Windows':
+        font = "Consolas"
+    else:
+        font = "Courier"
+
+    A.node_attr["fontname"] = font
+    A.graph_attr["fontname"] = font
 
     root.build_containment_graph(A)
-    A.write("nested_graph.dot")
-    A.draw("nested_graph.png", prog="dot")
+    return A
 
 
 if __name__ == '__main__':
-    main()
+    dbn_json_file = "autoTranslate/pgm.json"
+    A = make_agraph_from_dbn_json(dbn_json_file)
+    A.write("nested_graph.dot")
+    A.draw("nested_graph.png", prog="dot")
