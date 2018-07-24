@@ -10,7 +10,7 @@ class Scope(metaclass=ABCMeta):
         self.name = name
         self.parent_scope = None
         self.child_names = list()
-        self.child_nodes = list()
+        self.child_scopes = list()
         self.child_vars = list()
 
         self.inputs = list()
@@ -45,7 +45,7 @@ class Scope(metaclass=ABCMeta):
             new_scope = all_scopes[name]
             new_scope.parent_scope = self
             new_scope.build_scope_tree(all_scopes)
-            self.child_nodes.append(new_scope)
+            self.child_scopes.append(new_scope)
 
     def is_in_loop(self):
         if isinstance(self, LoopScope):
@@ -127,7 +127,7 @@ class Scope(metaclass=ABCMeta):
                     # This is a loop_plate node
                     plate_vars = list()
                     plate_index = len(self.child_vars)
-                    loop_scope = self.child_nodes[plate_index]
+                    loop_scope = self.child_scopes[plate_index]
                     for var in expr["inputs"]:
                         # NOTE: cheating for now
                         new_var = self.make_var_node(var, "2", self.name,
@@ -206,7 +206,7 @@ class Scope(metaclass=ABCMeta):
         self.add_nodes(sub)
         self.add_edges(sub)
 
-        for child in self.child_nodes:
+        for child in self.child_scopes:
             child.build_containment_graph(sub)
 
 
@@ -227,7 +227,7 @@ class LoopScope(Scope):
 
         super().setup_from_json(vars)
 
-        for child, vars in zip(self.child_nodes, self.child_vars):
+        for child, vars in zip(self.child_scopes, self.child_vars):
             child.setup_from_json(vars)
 
 
@@ -242,7 +242,7 @@ class FuncScope(Scope):
 
         super().setup_from_json(vars)
 
-        for child, vars in zip(self.child_nodes, self.child_vars):
+        for child, vars in zip(self.child_scopes, self.child_vars):
             child.setup_from_json(vars)
 
 
@@ -271,6 +271,7 @@ class Node(metaclass=ABCMeta):
 
 class FuncVariableNode(Node):
     def __init__(self, name="", idx="", scp=""):
+        self.value = None
         super().__init__(name=name, idx=idx, scp=scp)
 
     def get_label(self):
