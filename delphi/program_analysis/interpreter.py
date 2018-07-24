@@ -6,8 +6,9 @@ import json
 
 import delphi.program_analysis.scopes as scp
 
-def main():
-    dbn_json = json.load(open(normpath("autoTranslate/pgm.json")))
+def make_agraph_from_dbn_json(file: str) -> AGraph:
+    with open(normpath(file), 'r') as f:
+        dbn_json = json.load(f)
 
     scope_types_dict = {'container': scp.FuncScope, 'loop_plate': scp.LoopScope}
 
@@ -44,9 +45,11 @@ def main():
     A.graph_attr["fontname"] = font
 
     root.build_containment_graph(A)
-    A.write("nested_graph.dot")
-    A.draw("nested_graph.png", prog="dot")
+    return A
 
 
 if __name__ == '__main__':
-    main()
+    dbn_json_file = "autoTranslate/pgm.json"
+    A = make_agraph_from_dbn_json(dbn_json_file)
+    A.write("nested_graph.dot")
+    A.draw("nested_graph.png", prog="dot")
