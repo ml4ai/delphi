@@ -1,3 +1,4 @@
+import platform
 from os.path import normpath
 from pygraphviz import AGraph
 from typing import Dict
@@ -29,8 +30,18 @@ def main():
     A = AGraph(directed=True)
     A.node_attr["shape"] = "rectangle"
     A.graph_attr["rankdir"] = "LR"
-    A.node_attr["fontname"] = "Menlo"
-    A.graph_attr["fontname"] = "Menlo"
+
+    operating_system = platform.system()
+
+    if operating_system == 'Darwin':
+        font = "Menlo"
+    elif operating_system == 'Windows':
+        font = "Consolas"
+    else:
+        font = "Courier"
+
+    A.node_attr["fontname"] = font
+    A.graph_attr["fontname"] = font
 
     root.build_containment_graph(A)
     A.write("nested_graph.dot")
