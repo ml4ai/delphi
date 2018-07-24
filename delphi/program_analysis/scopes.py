@@ -78,7 +78,7 @@ class Scope(metaclass=ABCMeta):
         else:
             return FuncVariableNode(name=name, idx=idx, scp=scp)
 
-    def add_action_node(self, name):
+    def make_action_node(self, name):
         cut = name.rfind("_")
         inst_name = name[:cut]
         index = name[cut + 1 :]
@@ -94,7 +94,7 @@ class Scope(metaclass=ABCMeta):
                 # Do this for regular assignment/decision/condition operations and loop_plate(s)
                 instruction = expr["name"]
                 if len(expr.get("output")) > 0:
-                    action_node = self.add_action_node(instruction)
+                    action_node = self.make_action_node(instruction)
                     self.nodes.append(action_node)
                 if expr.get("input") is not None:
                     # This is a regular operation node
