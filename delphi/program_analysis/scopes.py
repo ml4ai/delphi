@@ -160,7 +160,8 @@ class Scope(metaclass=ABCMeta):
             name = node.unique_name()
             label = node.get_label()
             sub.add_node(
-                name, shape=shape, color=clr, label=label, type=type(node)
+                name, shape=shape, color=clr, label=label, type=type(node),
+                cag_label=node.get_cag_label()
             )
 
     def add_edges(self, sub):
@@ -239,6 +240,9 @@ class Node(metaclass=ABCMeta):
     @abstractmethod
     def get_label(self):
         return NotImplemented
+
+    def get_cag_label(self):
+        return self.name
 
 
 class FuncVariableNode(Node):
