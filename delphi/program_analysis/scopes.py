@@ -239,7 +239,7 @@ class Node(metaclass=ABCMeta):
         return self.unique_name()
 
     def unique_name(self):
-        return "{}_{}__{}".format(self.name, self.index, self.scope)
+        return f"{self.name}_{self.index}__{self.scope}"
 
     @abstractmethod
     def get_label(self):
@@ -278,9 +278,7 @@ class LoopVariableNode(Node):
 
     def get_label(self):
         if not self.is_index:
-            return "{}\n@{}={}".format(
-                self.name, self.loop_var, self.loop_index
-            )
+            return f"{self.name}\n@{self.loop_var}={self.loop_index}"
         else:
             return self.name
 
