@@ -47,17 +47,36 @@ class Scope(metaclass=ABCMeta):
             new_scope.build_scope_tree(all_scopes)
             self.child_nodes.append(new_scope)
 
-    def make_var_node(self, name, idx, scp):
-        if isinstance(self, FuncScope):
-            return FuncVariableNode(name=name, idx=idx, scp=scp)
+    def is_in_loop(self):
+        if isinstance(self, LoopScope):
+            return self
+        elif self.parent_scope is not None:
+            return self.parent_scope.is_in_loop()
         else:
-            if name == self.index_var.name:
+            return None
+
+    def make_var_node(self, name, idx, scp, inp_node=False, child_loop=None):
+        if child_loop is not None:
+            loop_scope =  child_loop
+        else:
+            loop_scope = self.is_in_loop()
+
+        if loop_scope is not None:
+            if name == loop_scope.index_var.name:
                 return LoopVariableNode(
                     name=name, idx=idx, scp=scp, is_index=True
                 )
+
+            if inp_node:
+                return LoopVariableNode(
+                    name=name, idx=idx, scp=scp, l_index=-1,
+                    loop_var=loop_scope.index_var.name
+                )
             return LoopVariableNode(
-                name=name, idx=idx, scp=scp, loop_var=self.index_var.name
+                name=name, idx=idx, scp=scp, loop_var=loop_scope.index_var.name
             )
+        else:
+            return FuncVariableNode(name=name, idx=idx, scp=scp)
 
     def make_action_node(self, name):
         cut = name.rfind("_")
@@ -107,9 +126,13 @@ class Scope(metaclass=ABCMeta):
                 elif expr.get("inputs") is not None:
                     # This is a loop_plate node
                     plate_vars = list()
+                    plate_index = len(self.child_vars)
+                    loop_scope = self.child_nodes[plate_index]
                     for var in expr["inputs"]:
                         # NOTE: cheating for now
-                        new_var = self.make_var_node(var, "2", self.name)
+                        new_var = self.make_var_node(var, "2", self.name,
+                                                     inp_node=True,
+                                                     child_loop=loop_scope)
                         plate_vars.append(new_var)
                     self.child_vars.append(plate_vars)
 
@@ -149,7 +172,8 @@ class Scope(metaclass=ABCMeta):
 
                     # NOTE: cheating for now
                     idx = "2" if int(var["index"]) == -1 else "0"
-                    inp_node = self.make_var_node(var["variable"], idx, scope)
+                    inode = int(var["index"]) == -1
+                    inp_node = self.make_var_node(var["variable"], idx, scope, inp_node=inode)
                     call_vars.append(inp_node)
                     self.child_vars.append(call_vars)
 
@@ -265,15 +289,12 @@ class ActionNode(Node):
 
 
 class LoopVariableNode(Node):
-    def __init__(self, name="", idx="", scp="", is_index=False, loop_var=""):
+    def __init__(self, name="", idx="", scp="", is_index=False, loop_var="", l_index=0):
         super().__init__(name=name, idx=idx, scp=scp)
         self.is_index = is_index
         if not self.is_index:
             self.loop_var = loop_var
-            if int(idx) < 0:
-                self.loop_index = -1
-            else:
-                self.loop_index = 0
+            self.loop_index = l_index
 
     def get_label(self):
         if not self.is_index:
