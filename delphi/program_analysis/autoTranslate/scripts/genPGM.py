@@ -500,7 +500,7 @@ def genPgm(node, state):
             )
             fn = {
                 "name": fnName,
-                "type": "assign",
+                "type": "decision",
                 "target": updatedDef,
                 "sources": [
                     f"{var['variable']}_{var['index']}"
