@@ -22,6 +22,7 @@ dataclasses = "*"
 seaborn = "*"
 jupyter = "*"
 networkx = "==2.1"
+tangent = "*"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git"}
