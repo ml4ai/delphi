@@ -39,7 +39,7 @@ class Scope(metaclass=ABCMeta):
 
     @classmethod
     def from_dict(self, data: Dict):
-        scope_types_dict = {"container": FuncScope, "loop_plate": LoopScope}
+        scope_types_dict = {"container": ContainerScope, "loop_plate": LoopScope}
 
         scopes = {
             f["name"]: scope_types_dict[f["type"]](f["name"], f)
@@ -161,7 +161,7 @@ class Scope(metaclass=ABCMeta):
                                 isinstance(self, LoopScope)
                                 and int(i["index"]) == -1
                             ) or (
-                                isinstance(self, FuncScope)
+                                isinstance(self, ContainerScope)
                                 and int(i["index"]) == 0
                             ):
                                 found = False
@@ -304,7 +304,7 @@ class LoopScope(Scope):
             child.setup_from_json(vars)
 
 
-class FuncScope(Scope):
+class ContainerScope(Scope):
     def __init__(self, name, json_data):
         super().__init__(name, json_data)
         self.edge_color = "forestgreen"
@@ -404,7 +404,7 @@ def scope_tree_from_json(json_data: Dict) -> Scope:
     # Build a new scope object for each function and loop_plate object. Index
     # scopes into a dict by (scope_name |-> scope)
 
-    scope_types_dict = {"container": FuncScope, "loop_plate": LoopScope}
+    scope_types_dict = {"container": ContainerScope, "loop_plate": LoopScope}
 
     scopes = {
         f["name"]: scope_types_dict[f["type"]](f["name"], f)
