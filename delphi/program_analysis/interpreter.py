@@ -1,4 +1,3 @@
-import platform
 from os.path import normpath
 from pygraphviz import AGraph
 from typing import Dict
@@ -6,50 +5,9 @@ import json
 
 import delphi.program_analysis.scopes as scp
 
-def make_agraph_from_dbn_json(file: str) -> AGraph:
-    with open(normpath(file), 'r') as f:
-        dbn_json = json.load(f)
-
-    scope_types_dict = {'container': scp.FuncScope, 'loop_plate': scp.LoopScope}
-
-    scopes = {f['name']: scope_types_dict[f['type']](f['name'], f)
-              for f in dbn_json['functions']
-              if f['type'] in scope_types_dict}
-
-    # Make a list of all scopes by scope names
-    scope_names = list(scopes.keys())
-
-    # Remove pseudo-scopes we wish to not display (such as print)
-    for scope in scopes.values():
-        scope.remove_non_scope_children(scope_names)
-
-    # Build the nested tree of scopes using recursion
-    root = scopes[dbn_json["start"]]
-    root.build_scope_tree(scopes)
-    root.setup_from_json()
-
-    A = AGraph(directed=True)
-    A.node_attr["shape"] = "rectangle"
-    A.graph_attr["rankdir"] = "LR"
-
-    operating_system = platform.system()
-
-    if operating_system == 'Darwin':
-        font = "Menlo"
-    elif operating_system == 'Windows':
-        font = "Consolas"
-    else:
-        font = "Courier"
-
-    A.node_attr["fontname"] = font
-    A.graph_attr["fontname"] = font
-
-    root.build_containment_graph(A)
-    return A
-
-
 if __name__ == '__main__':
     dbn_json_file = "autoTranslate/pgm.json"
-    A = make_agraph_from_dbn_json(dbn_json_file)
+    scope = scp.Scope.from_json(normpath(dbn_json_file))
+    A = scope.to_agraph()
     A.write("nested_graph.dot")
     A.draw("nested_graph.png", prog="dot")
