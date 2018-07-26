@@ -7,7 +7,7 @@
 *     
 *     INPUT RAIN      = Additional rainfall
 *
-*     INOUT YIELD_EST = Crop yield to update
+*     INPUT YIELD_EST = Crop yield to update
 *
 ************************************************************************
       SUBROUTINE UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST)
@@ -35,7 +35,7 @@
 *     INPUT MAX_RAIN   = The maximum rain for the month
 *     INPUT CONSISTENCY = The consistency of the rainfall 
 *       (higher = more consistent)
-*     INPUT ABSORBTION = Estimates the % of rainfall absorbed into the
+*     INPUT ABSORPTION = Estimates the % of rainfall absorbed into the
 *       soil (i.e. % lost due to evaporation, runoff)
 *
 *     OUTPUT YIELD_EST = The estimated yield of magic beans
@@ -49,18 +49,18 @@
 
       INTEGER DAY
       DOUBLE PRECISION RAIN, YIELD_EST, TOTAL_RAIN
-      DOUBLE PRECISION MAX_RAIN, CONSISTENCY, ABSORBTION
+      DOUBLE PRECISION MAX_RAIN, CONSISTENCY, ABSORPTION
 
       MAX_RAIN = 4.0
       CONSISTENCY = 64.0
-      ABSORBTION = 0.6
+      ABSORPTION = 0.6
       
       YIELD_EST = 0
       TOTAL_RAIN = 0
  
       DO 20 DAY=1,31
 *       Compute rainfall for the current day
-        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORBTION
+        RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORPTION
 
 *       Update rainfall estimate
         CALL UPDATE_EST(RAIN, TOTAL_RAIN, YIELD_EST)
