@@ -3,9 +3,12 @@ from typing import Dict
 import json
 from pygraphviz import AGraph
 import platform
+from typing import Dict
+from IPython.display import Image
 
 
 rv_maroon = "#650021"
+
 
 class Scope(metaclass=ABCMeta):
     def __init__(self, name, data):
@@ -30,14 +33,20 @@ class Scope(metaclass=ABCMeta):
 
     @classmethod
     def from_json(self, file: str):
-        with open(file, 'r') as f:
+        with open(file, "r") as f:
             data = json.load(f)
-        scope_types_dict = {'container': FuncScope,
-                            'loop_plate': LoopScope}
 
-        scopes = {f['name']: scope_types_dict[f['type']](f['name'], f)
-                for f in data['functions']
-                if f['type'] in scope_types_dict}
+        return self.from_dict(data)
+
+    @classmethod
+    def from_dict(self, data: Dict):
+        scope_types_dict = {"container": FuncScope, "loop_plate": LoopScope}
+
+        scopes = {
+            f["name"]: scope_types_dict[f["type"]](f["name"], f)
+            for f in data["functions"]
+            if f["type"] in scope_types_dict
+        }
 
         # Make a list of all scopes by scope names
         scope_names = list(scopes.keys())
@@ -51,7 +60,6 @@ class Scope(metaclass=ABCMeta):
         root.build_scope_tree(scopes)
         root.setup_from_json()
         return root
-
 
     def __repr__(self):
         return self.__str__()
@@ -67,9 +75,9 @@ class Scope(metaclass=ABCMeta):
 
         operating_system = platform.system()
 
-        if operating_system == 'Darwin':
+        if operating_system == "Darwin":
             font = "Menlo"
-        elif operating_system == 'Windows':
+        elif operating_system == "Windows":
             font = "Consolas"
         else:
             font = "Courier"
@@ -104,7 +112,7 @@ class Scope(metaclass=ABCMeta):
 
     def make_var_node(self, name, idx, scp, inp_node=False, child_loop=None):
         if child_loop is not None:
-            loop_scope =  child_loop
+            loop_scope = child_loop
         else:
             loop_scope = self.is_in_loop()
 
@@ -116,8 +124,11 @@ class Scope(metaclass=ABCMeta):
 
             if inp_node:
                 return LoopVariableNode(
-                    name=name, idx=idx, scp=scp, l_index=-1,
-                    loop_var=loop_scope.index_var.name
+                    name=name,
+                    idx=idx,
+                    scp=scp,
+                    l_index=-1,
+                    loop_var=loop_scope.index_var.name,
                 )
             return LoopVariableNode(
                 name=name, idx=idx, scp=scp, loop_var=loop_scope.index_var.name
@@ -170,6 +181,7 @@ class Scope(metaclass=ABCMeta):
                                 )
                             self.nodes.append(inp_node)
                             self.edges.append((inp_node, action_node))
+                            action_node.inputs.append(inp_node)
                 elif expr.get("inputs") is not None:
                     # This is a loop_plate node
                     plate_vars = list()
@@ -177,9 +189,13 @@ class Scope(metaclass=ABCMeta):
                     loop_scope = self.child_scopes[plate_index]
                     for var in expr["inputs"]:
                         # NOTE: cheating for now
-                        new_var = self.make_var_node(var, "2", self.name,
-                                                     inp_node=True,
-                                                     child_loop=loop_scope)
+                        new_var = self.make_var_node(
+                            var,
+                            "2",
+                            self.name,
+                            inp_node=True,
+                            child_loop=loop_scope,
+                        )
                         plate_vars.append(new_var)
                     self.child_vars.append(plate_vars)
 
@@ -205,6 +221,7 @@ class Scope(metaclass=ABCMeta):
                     )
                     self.nodes.append(out_node)
                     self.edges.append((action_node, out_node))
+                    action_node.output = out_node
             elif (
                 expr.get("function") is not None
                 and expr["function"] in self.child_names
@@ -220,7 +237,9 @@ class Scope(metaclass=ABCMeta):
                     # NOTE: cheating for now
                     idx = "2" if int(var["index"]) == -1 else "0"
                     inode = int(var["index"]) == -1
-                    inp_node = self.make_var_node(var["variable"], idx, scope, inp_node=inode)
+                    inp_node = self.make_var_node(
+                        var["variable"], idx, scope, inp_node=inode
+                    )
                     call_vars.append(inp_node)
                     self.child_vars.append(call_vars)
 
@@ -230,9 +249,17 @@ class Scope(metaclass=ABCMeta):
             shape = "rectangle" if isinstance(node, ActionNode) else "ellipse"
             name = node.unique_name()
             label = node.get_label()
+            is_index = getattr(node, "is_index", None)
             sub.add_node(
-                name, shape=shape, color=clr, label=label, type=type(node),
-                cag_label=node.get_cag_label()
+                name,
+                shape=shape,
+                color=clr,
+                node_type=node.node_type,
+                lambda_fn=getattr(node, "lambda_fn", None),
+                label=label,
+                is_index=is_index,
+                value=int(getattr(node, "index", None)),
+                cag_label=node.get_cag_label(),
             )
 
     def add_edges(self, sub):
@@ -318,8 +345,8 @@ class Node(metaclass=ABCMeta):
 
 class FuncVariableNode(Node):
     def __init__(self, name="", idx="", scp=""):
-        self.value = None
         super().__init__(name=name, idx=idx, scp=scp)
+        self.node_type = "FuncVariableNode"
 
     def get_label(self):
         return self.name
@@ -331,18 +358,29 @@ class ActionNode(Node):
         start = name.find("__")
         end = name.rfind("__")
         self.action = name[start : end + 2]
+        self.inputs: List = []
+        self.output = None
+        self.node_type: str = "ActionNode"
+        self.lambda_fn = (
+            "_".join((name, idx))
+            .replace("assign", "lambda")
+            .replace("condition", "lambda")
+        )
 
     def get_label(self):
         return self.action
 
 
 class LoopVariableNode(Node):
-    def __init__(self, name="", idx="", scp="", is_index=False, loop_var="", l_index=0):
+    def __init__(
+        self, name="", idx="", scp="", is_index=False, loop_var="", l_index=0
+    ):
         super().__init__(name=name, idx=idx, scp=scp)
         self.is_index = is_index
         if not self.is_index:
             self.loop_var = loop_var
             self.loop_index = l_index
+        self.node_type = "LoopVariableNode"
 
     def get_label(self):
         if not self.is_index:
