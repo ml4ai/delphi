@@ -4,7 +4,6 @@ import json
 from pygraphviz import AGraph
 import platform
 from typing import Dict
-from IPython.display import Image
 
 
 rv_maroon = "#650021"
