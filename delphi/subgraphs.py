@@ -1,5 +1,5 @@
 from typing import Optional, List
-from itertools import chain
+from itertools import chain, permutations
 import networkx as nx
 from .AnalysisGraph import AnalysisGraph
 

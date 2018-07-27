@@ -1,5 +1,5 @@
 from datetime import datetime
-from delphi.paths import concept_to_indicator_mapping
+from delphi.paths import concept_to_indicator_mapping, data_dir
 from .utils import exists, flatMap
 from .random_variables import Delta, Indicator
 from typing import *
@@ -213,7 +213,7 @@ def get_data(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_mean_precipitation(year: int, cycles_output='weather.dat'):
+def get_mean_precipitation(year: int, cycles_output=data_dir+'/weather.dat'):
     df = pd.read_table(cycles_output)
     df.columns = df.columns.str.strip()
     df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]

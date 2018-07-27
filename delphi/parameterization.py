@@ -3,6 +3,7 @@ from .AnalysisGraph import AnalysisGraph
 from datetime import datetime
 from typing import Optional
 from .assembly import get_indicator_value, get_data
+from .paths import south_sudan_data
 
 
 def parameterize(
