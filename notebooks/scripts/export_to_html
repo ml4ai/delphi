@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Script to convert Jupyter notebook to HTML.
+# Usage: ./export_to_html <jupyter notebook>
+
+jupyter nbconvert --template demo.tpl "$1"
