@@ -1,0 +1,5 @@
+#!/bin/bash
+
+notedown --strip "$1" -o --to markdown
+git add "$1"
+git commit -m "$2"
