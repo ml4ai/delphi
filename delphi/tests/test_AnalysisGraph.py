@@ -1,5 +1,5 @@
 from indra.statements import Influence, Concept
-from delphi.types import Indicator
+from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import *
 from delphi.quantification import *
 from delphi.subgraphs import get_subgraph_for_concept, get_subgraph_for_concept_pair

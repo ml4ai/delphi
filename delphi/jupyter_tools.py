@@ -1,10 +1,10 @@
 import pandas as pd
-from typing import List
+from typing import List, Dict, Optional
 from indra.statements import Influence
-from IPython.display import HTML
+from IPython.display import HTML, Code
 from .assembly import top_grounding_score
 import json
-
+import pygments
 
 def create_statement_inspection_table(sts: List[Influence]):
     """ Display an HTML representation of a table with INDRA statements to
@@ -63,3 +63,16 @@ def print_full_edge_provenance(cag, source, target):
         print("\t obj_delta:", s.obj_delta)
         for e in s.evidence:
             print("\t obj_delta:", json.dumps(e.to_json(), indent=2))
+
+def display(file: str):
+    lexer = pygments.lexers.get_lexer_for_filename(file)
+
+    with open(file, 'r') as f:
+        code = f.read()
+
+    formatter = pygments.formatters.HtmlFormatter(linenos='inline', cssclass='pygments')
+    html_code = pygments.highlight(code, lexer, formatter)
+    css = formatter.get_style_defs('.pygments')
+    html = f"<style>{css}</style>{html_code}"
+
+    return HTML(html)

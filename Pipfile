@@ -19,9 +19,8 @@ Cython = "*"
 fuzzywuzzy = {extras = ["speedup"]}
 pygraphviz = "*"
 dataclasses = "*"
-seaborn = "*"
+seaborn = ">=0.9.0"
 jupyter = "*"
-networkx = "==2.1"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git"}

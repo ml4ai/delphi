@@ -62,10 +62,10 @@ delphi.paths module
     :undoc-members:
     :show-inheritance:
 
-delphi.types module
+delphi.random_variables module
 -------------------
 
-.. automodule:: delphi.types
+.. automodule:: delphi.random_variables
     :members:
     :undoc-members:
     :show-inheritance:

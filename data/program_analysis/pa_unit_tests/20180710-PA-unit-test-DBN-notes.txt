@@ -1,0 +1,18 @@
+20180710 - PA unit test DBN thoughts
+
+<delphi_root>/data/program_analysis/pa_unit_tests/unit_tests_DBNs.graffle
+
+() In any presentation of PA, start with this distinction:
+	() Computation - of procedure, where variables represent computation state
+	() Representation - of a system, where variables represent system state
+
+() Should we care about states of variables that don't get "returned" or "saved"?
+	Look at how they're used in DSSAT-csm
+
+() Possible conventions:
+	() Always assume variable states are worth representing
+	() First: identity variable based on name
+	() Identity inference
+		() automated: when no additional state change
+		() NLP hints
+		() When change seems small, ask human
