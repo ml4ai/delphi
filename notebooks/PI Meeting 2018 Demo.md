@@ -2,10 +2,9 @@
 
 *July 30, 2018*
 
-This is a
-Jupyter
-notebook created to showcase the design and capabilities of the Delphi
-package.
+This is a Jupyter
+notebook created to showcase the design and capabilities of
+the Delphi package.
 In this demo, we will 
 
 - create a qualitative causal analysis graph
