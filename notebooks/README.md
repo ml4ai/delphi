@@ -4,3 +4,17 @@ exporting.
 
 The file `custom.css` is a custom CSS file that you can copy to
 `~/.jupyter/custom` in order to get some nice formatting.
+
+The script `clean_and_commit` can be used to clean and commit the Markdown
+notebook in one fell swoop. Usage:
+
+```bash
+./clean_and_commit example_notebook.md "Example commit message"
+```
+
+The script `clean` just cleans the notebook without committing it.
+Usage:
+
+```bash
+./clean example_notebook.md
+```
