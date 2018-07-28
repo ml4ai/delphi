@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# This script takes a markdown file corresponding to 
+# a Jupyter notebook and cleans the outputs.
+# Usage: ./clean <notebook>.md
+
+notedown --strip "$1" -o --to markdown
