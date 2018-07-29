@@ -1,8 +1,11 @@
 from typing import Tuple, List
 from .AnalysisGraph import AnalysisGraph
 from .random_variables import LatentVar
-from .execution import (default_update_function, emission_function,
-                        get_latent_state_components)
+from .execution import (
+    default_update_function,
+    emission_function,
+    get_latent_state_components,
+)
 import pandas as pd
 import numpy as np
 
@@ -11,7 +14,8 @@ import numpy as np
 # Basic Modeling Interface (BMI)
 # ==========================================================================
 
-def initialize(G: AnalysisGraph, config_file: str = None) -> AnalysisGraph:
+
+def initialize(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
     """ Initialize the executable AnalysisGraph with a config file.
 
     Args:
@@ -21,19 +25,18 @@ def initialize(G: AnalysisGraph, config_file: str = None) -> AnalysisGraph:
     Returns:
         AnalysisGraph
     """
-    if config_file is not None:
-        G.s0 = pd.read_csv(
-            config_file, index_col=0, header=None, error_bad_lines=False
-        )[1]
-        for n in G.nodes(data=True):
-            n[1]["rv"] = LatentVar(n[0])
-            n[1]["update_function"] = default_update_function
-            node = n[1]["rv"]
-            node.dataset = [G.s0[n[0]] for _ in range(G.res)]
-            node.partial_t = G.s0[f'∂({n[0]})/∂t']
-            if n[1].get('indicators') is not None:
-                for ind in n[1]['indicators']:
-                    ind.dataset = np.ones(G.res)*ind.mean
+    G.s0 = pd.read_csv(
+        config_file, index_col=0, header=None, error_bad_lines=False
+    )[1]
+    for n in G.nodes(data=True):
+        n[1]["rv"] = LatentVar(n[0])
+        n[1]["update_function"] = default_update_function
+        node = n[1]["rv"]
+        node.dataset = [G.s0[n[0]] for _ in range(G.res)]
+        node.partial_t = G.s0[f"∂({n[0]})/∂t"]
+        if n[1].get("indicators") is not None:
+            for ind in n[1]["indicators"]:
+                ind.dataset = np.ones(G.res) * ind.mean
     return G
 
 
@@ -50,16 +53,16 @@ def update(G: AnalysisGraph) -> AnalysisGraph:
     next_state = {}
 
     for n in G.nodes(data=True):
-        next_state[n[0]] = n[1]['update_function'](G, n)
+        next_state[n[0]] = n[1]["update_function"](G, n)
 
     for n in G.nodes(data=True):
         n[1]["rv"].dataset = next_state[n[0]]
-        if n[1].get('indicators') is not None:
-            ind = n[1]['indicators'][0]
+        if n[1].get("indicators") is not None:
+            ind = n[1]["indicators"][0]
             ind.dataset = [
-                    emission_function(x, ind.mean, ind.stdev)
-                    for x in n[1]['rv'].dataset
-                ]
+                emission_function(x, ind.mean, ind.stdev)
+                for x in n[1]["rv"].dataset
+            ]
 
     G.t += G.Δt
     return G
@@ -78,6 +81,7 @@ def finalize(G: AnalysisGraph):
 
 
 # Model information
+
 
 def get_component_name(G: AnalysisGraph) -> str:
     """ Return the name of the model. """
