@@ -59,7 +59,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
 
     color_str = "#650021"
     for n in G.nodes():
-        A.add_node(n, label=n.capitalize())
+        A.add_node(n, label=n.capitalize().replace("_", " "))
 
     for e in G.edges(data=True):
         opacity = (
@@ -78,7 +78,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                 A.add_node(
                     node_label, style="rounded, filled", fillcolor="lightblue"
                 )
-                A.add_edge(n[0].capitalize(), node_label, color="royalblue4")
+                A.add_edge(n[0], node_label, color="royalblue4")
 
     # Drawing indicator values
     if kwargs.get("indicator_values"):
@@ -104,8 +104,14 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                 )
 
     if kwargs.get("nodes_to_highlight") is not None:
-        for n in kwargs["nodes_to_highlight"]:
-            A.add_node(n.capitalize(), fontcolor="royalblue")
+        nodes = kwargs.pop("nodes_to_highlight")
+        if isinstance(nodes, list):
+            for n in nodes:
+                if n in A.nodes():
+                    A.add_node(n, fontcolor="royalblue")
+        elif isinstance(nodes, str):
+            if n in A.nodes():
+                A.add_node(nodes, fontcolor="royalblue")
 
     if kwargs.get("graph_label") is not None:
         A.graph_attr["label"] = kwargs["graph_label"]
