@@ -13,6 +13,7 @@ from argparse import (
     ArgumentDefaultsHelpFormatter,
 )
 
+
 def create(args):
     print("Creating model")
     from .assembly import get_data
@@ -29,11 +30,12 @@ def create(args):
     G.infer_transition_model(args.adjective_data)
     G = map_concepts_to_indicators(G)
     G = parameterize(G, datetime(args.year, 1, 1), get_data(args.data))
-    export(G,
+    export(
+        G,
         format="full",
         json_file=args.output_cag_json,
         pickle_file=args.output_dressed_cag,
-        variables_file=args.output_variables
+        variables_file=args.output_variables,
     )
 
 
@@ -42,17 +44,14 @@ def execute(args):
     from .AnalysisGraph import AnalysisGraph
     from .execution import _write_latent_state, get_latent_state_components
     from .bmi import initialize, update
+
     print("Executing model")
     G = AnalysisGraph.from_pickle(args.input_dressed_cag)
     initialize(G, args.input_variables)
     with open(args.output_sequences, "w") as f:
         f.write(
             ",".join(
-                [
-                    "seq_no",
-                    "time_slice",
-                    *get_latent_state_components(G)[::2],
-                ]
+                ["seq_no", "time_slice", *get_latent_state_components(G)[::2]]
             )
             + "\n"
         )
@@ -101,7 +100,6 @@ def main():
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
 
-
     def add_flag(short_arg: str, long_arg: str, help: str):
         parser.add_argument(
             "-" + short_arg, "--" + long_arg, help=help, action="store_true"
@@ -115,9 +113,9 @@ def main():
     parser_execute = subparsers.add_parser("execute", help="Model execution")
     parser_execute.set_defaults(func=execute)
 
-    #==========================================================================
+    # ==========================================================================
     # Model creation options
-    #==========================================================================
+    # ==========================================================================
 
     parser_create.add_argument(
         "--output_dressed_cag",
@@ -156,7 +154,7 @@ def main():
 
     parser_create.add_argument(
         "--concept_to_indicator_mapping",
-        help = "Path to the file containing the mapping between concepts and indicators.",
+        help="Path to the file containing the mapping between concepts and indicators.",
         type=str,
         default=data_dir / "concept_to_indicator_mapping.yml",
     )
@@ -175,9 +173,9 @@ def main():
         default=2012,
     )
 
-    #==========================================================================
+    # ==========================================================================
     # Model execution options
-    #==========================================================================
+    # ==========================================================================
 
     parser_execute.add_argument(
         "--input_dressed_cag",
@@ -220,7 +218,6 @@ def main():
         type=str,
         default="variables.csv",
     )
-
 
     args = parser.parse_args()
 

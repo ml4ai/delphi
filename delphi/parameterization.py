@@ -39,5 +39,5 @@ def parameterize(
                 indicator.stdev = 0.1 * abs(indicator.mean)
         n[1]["indicators"] = [
             ind for ind in n[1]["indicators"] if ind.mean is not None
-    ]
+        ]
     return G

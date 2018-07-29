@@ -4,6 +4,7 @@ from .AnalysisGraph import AnalysisGraph
 # Manipulation
 # ==========================================================================
 
+
 def merge_nodes(
     G: AnalysisGraph, n1: str, n2: str, same_polarity: bool = True
 ) -> AnalysisGraph:
