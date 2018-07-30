@@ -28,7 +28,7 @@ def create(args):
 
     G = AnalysisGraph.from_statements(sts)
     G.infer_transition_model(args.adjective_data)
-    G = map_concepts_to_indicators(G)
+    G = map_concepts_to_indicators(G, 2)
     G = parameterize(G, datetime(args.year, 1, 1), get_data(args.data))
     export(
         G,
@@ -47,11 +47,12 @@ def execute(args):
 
     print("Executing model")
     G = AnalysisGraph.from_pickle(args.input_dressed_cag)
+
     initialize(G, args.input_variables)
     with open(args.output_sequences, "w") as f:
         f.write(
             ",".join(
-                ["seq_no", "time_slice", *get_latent_state_components(G)[::2]]
+                ["seq_no", "variable"]+[f"sample_{str(i)}" for i in range(1,G.res+1)]
             )
             + "\n"
         )
@@ -121,7 +122,7 @@ def main():
         "--output_dressed_cag",
         help="Path to the output dressed cag",
         type=str,
-        default="dressed_CAG.pkl",
+        default="delphi_cag.pkl",
     )
 
     parser_create.add_argument(
@@ -181,7 +182,7 @@ def main():
         "--input_dressed_cag",
         help="Path to the input dressed cag",
         type=str,
-        default="dressed_CAG.pkl",
+        default="delphi_cag.pkl",
     )
 
     parser_execute.add_argument(
