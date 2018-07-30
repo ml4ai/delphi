@@ -64,6 +64,16 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     @classmethod
+    def from_statements_file(cls, file: str):
+        """ Construct an AnalysisGraph object from a pickle file containing a
+        list of INDRA statements. """
+
+        with open(file, "rb") as f:
+            sts = pickle.load(f)
+
+        return cls.from_statements(sts)
+
+    @classmethod
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements. """
         sts = get_valid_statements_for_modeling(sts)
@@ -112,7 +122,7 @@ class AnalysisGraph(nx.DiGraph):
             gaussian_kde(
                 flatMap(
                     lambda g: gaussian_kde(get_respdevs(g[1]))
-                    .resample(20)[0]
+                    .resample(100)[0]
                     .tolist(),
                     gb,
                 )
