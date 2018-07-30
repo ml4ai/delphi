@@ -24,7 +24,9 @@ class ParseState:
         )
 
     def copy(self, subroutine=None):
-        return ParseState(self.subroutine if subroutine == None else subroutine)
+        return ParseState(
+            self.subroutine if subroutine == None else subroutine
+        )
 
 
 def parseTree(root, state):
@@ -306,7 +308,14 @@ def printPython1(
             # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high']))
             pyFile.write("{0}[0] in range(".format(node["name"]))
             printPython(
-                pyFile, node["low"], "", "", True, definedVars, globalVars, True
+                pyFile,
+                node["low"],
+                "",
+                "",
+                True,
+                definedVars,
+                globalVars,
+                True,
             )
             pyFile.write(", ")
             printPython(

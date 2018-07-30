@@ -1,10 +1,12 @@
+from pprint import pprint
 import pandas as pd
 from typing import List, Dict, Optional
 from indra.statements import Influence
-from IPython.display import HTML, Code
+from IPython.display import HTML, Code, Image
 from .assembly import top_grounding_score
 import json
 import pygments
+
 
 def create_statement_inspection_table(sts: List[Influence]):
     """ Display an HTML representation of a table with INDRA statements to
@@ -15,43 +17,46 @@ def create_statement_inspection_table(sts: List[Influence]):
     """
 
     columns = [
-        'subj',
-        "UN (subj)",
-        'subj_polarity',
-        'subj_adjectives',
-        'obj',
-        "UN (obj)",
-        'obj_polarity',
-        'obj_adjectives',
+        "un_groundings",
+        "subj_polarity",
+        "obj_polarity",
         "Sentence",
+        "Source API",
     ]
 
-    to_str = lambda x: '+' if x == 1 else '-' if x == -1 else 'None'
-    df = pd.DataFrame(
-        [
-            (
-                s[1].subj,
+    polarity_to_str = lambda x: "+" if x == 1 else "-" if x == -1 else "None"
+    l = []
+    for s in sts:
+        subj_un_grounding = s.subj.db_refs["UN"][0][0].split("/")[-1]
+        obj_un_grounding = s.obj.db_refs["UN"][0][0].split("/")[-1]
+        subj_polarity = s.subj_delta["polarity"]
+        obj_polarity = s.obj_delta["polarity"]
+        subj_adjectives = s.subj_delta["adjectives"]
+        for e in s.evidence:
+            # sent = [e.text for e in s.evidence]
+            l.append(
                 (
-                    s[1].subj.db_refs["UN"][0][0].split("/")[-1],
-                    f"{top_grounding_score(s[1].subj):.2f}",
-                ),
-                to_str(s[1].subj_delta.get('polarity')),
-                to_str(s[1].subj_delta.get('adjectives')),
-                s[1].obj,
-                (
-                    s[1].obj.db_refs["UN"][0][0].split("/")[-1],
-                    f"{top_grounding_score(s[1].obj):.2f}",
-                ),
-                to_str(s[1].obj_delta.get('polarity')),
-                to_str(s[1].obj_delta.get('adjectives')),
-                s[1].evidence[0].text.replace("\n", " "),
+                    (subj_un_grounding, obj_un_grounding),
+                    subj_polarity,
+                    obj_polarity,
+                    e.text,
+                    e.source_api,
+                )
             )
-            for s in list(enumerate(sts))
-        ],
-        columns=columns,
-    )
 
-    return HTML(df.to_html())
+    df = pd.DataFrame(l, columns=columns)
+    df = df.pivot_table(index=["un_groundings", "Source API", "Sentence"])
+
+    def hover(hover_color="#ffff99"):
+        return dict(selector="tr:hover",
+                props=[("background-color", "%s" % hover_color)])
+
+    styles = [
+        hover(),
+        dict(props=[("font-size", "100%"), ('font-family', 'Gill Sans')]),
+    ]
+
+    return (df.style.set_table_styles(styles))
 
 
 def print_full_edge_provenance(cag, source, target):
@@ -64,15 +69,22 @@ def print_full_edge_provenance(cag, source, target):
         for e in s.evidence:
             print("\t obj_delta:", json.dumps(e.to_json(), indent=2))
 
+
 def display(file: str):
     lexer = pygments.lexers.get_lexer_for_filename(file)
 
-    with open(file, 'r') as f:
+    with open(file, "r") as f:
         code = f.read()
 
-    formatter = pygments.formatters.HtmlFormatter(linenos='inline', cssclass='pygments')
+    formatter = pygments.formatters.HtmlFormatter(
+        linenos="inline", cssclass="pygments"
+    )
     html_code = pygments.highlight(code, lexer, formatter)
-    css = formatter.get_style_defs('.pygments')
+    css = formatter.get_style_defs(".pygments")
     html = f"<style>{css}</style>{html_code}"
 
     return HTML(html)
+
+
+def display_image(file: str):
+    return Image(file, retina=True)

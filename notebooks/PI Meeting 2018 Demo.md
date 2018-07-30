@@ -8,7 +8,7 @@ the Delphi package.
 This demo has been tested with the version of Delphi corresponding to the commit
 hash below.
 
-```{.python .input}
+```python
 !git rev-parse HEAD
 ```
 
@@ -23,7 +23,7 @@ in the model.
 First, we briefly discuss our text-to-model approach. See the
 slide below for a high-level overview.
 
-```{.python .input}
+```python
 from IPython.display import Image; Image('images/delphi_model.png', retina=True)
 ```
 
@@ -48,7 +48,7 @@ INDRA belief score for the statement is at least 0.8, roughly
 a requirement of two independent sources of evidence per
   statement.
 
-```{.python .input}
+```python
 %load_ext autoreload
 %autoreload 2
 from indra.tools.assemble_corpus import load_statements
@@ -68,7 +68,7 @@ code block, we instantiate an AnalysisGraph object using the INDRA
 statements
 from Demo #1.
 
-```{.python .input}
+```python
 from delphi.AnalysisGraph import AnalysisGraph
 G = AnalysisGraph.from_statements(statements)
 ```
@@ -76,7 +76,7 @@ G = AnalysisGraph.from_statements(statements)
 Let us visualize this graph, highlighting a particular concept of interest to
 us: food insecurity.
 
-```{.python .input}
+```python
 from delphi.visualization import visualize
 concept_of_interest='food_insecurity'
 visualize(G, nodes_to_highlight=['food_insecurity'])
@@ -92,7 +92,7 @@ normalization, merging them, with
 appropriate polarity flipping of the relevant
 INDRA statements.
 
-```{.python .input}
+```python
 from delphi.manipulation import merge_nodes
 merge_nodes(G, 'food_security', concept_of_interest, same_polarity=False)
 visualize(G, nodes_to_highlight=[concept_of_interest], rankdir='TB')
@@ -110,7 +110,7 @@ we execute a command that visualizes the subgraph consisting of the
 ancestors of
 the food security node.
 
-```{.python .input}
+```python
 from delphi.subgraphs import get_subgraph_for_concept
 visualize(get_subgraph_for_concept(G, concept_of_interest),
   nodes_to_highlight=[concept_of_interest], rankdir='LR')
@@ -132,7 +132,7 @@ the paths between three particular nodes of interest: *food
 insecurity*,
 *conflict*, and *precipitation*.
 
-```{.python .input}
+```python
 from delphi.subgraphs import get_subgraph_for_concept_pairs
 concepts_of_interest = [concept_of_interest, 'conflict', 'precipitation']
 G = get_subgraph_for_concept_pairs(G, concepts_of_interest)
@@ -155,7 +155,7 @@ the CAG. For example, let us take a look at the statements
 associated with the
 edge from *intervention* to *conflict*.
 
-```{.python .input}
+```python
 import pandas as pd
 from delphi.inspection import inspect_edge
 pd.options.display.max_colwidth=1000
@@ -173,21 +173,21 @@ DiGraph](https://networkx.github.io/documentation/stable/reference/classes/digra
 class, it inherits all its convenient graph accession and manipulation
 interfaces.  Let's go ahead and delete the offending statement.
 
-```{.python .input}
+```python
 # Delete individual statements after inspecting edge
 del G['intervention']['conflict']['InfluenceStatements'][1]
 ```
 
 Let's take a look at another edge, this time between *crisis* and *conflict*.
 
-```{.python .input}
+```python
 inspect_edge(G, 'crisis', 'conflict')
 ```
 
 As it turns out, the sole statement that creates this is not so good after all -
 let's get rid of the edge altogether.
 
-```{.python .input}
+```python
 # Remove single edge
 G.remove_edge('crisis', 'conflict')
 ```
@@ -196,7 +196,7 @@ We can scale this up - let's take a look at all the statements in this
 AnalysisGraph - this will certainly be impractical for very large graphs, but
 this is just to demonstrate bulk edge deletion.
 
-```{.python .input}
+```python
 # Set up viewing options for the notebook
 
 from delphi.jupyter_tools import create_statement_inspection_table
@@ -209,7 +209,7 @@ particularly ones that indicate causal relations between socio-economic and
 weather phenomena (not that such an influence would be impossible, just very
 unlikely on the sub-annual time scales that we will concern ourselves with).
 
-```{.python .input}
+```python
 # Remove multiple edges
 G.remove_edges_from([
     ('food_insecurity', 'precipitation'),
@@ -223,7 +223,7 @@ Let us further refine this collection of statements. First, let us get rid of
 the statements that are incorrectly grounded, or at least not with the
 specificity required for quantitative modeling.
 
-```{.python .input}
+```python
 incorrectly_grounded_stmt_indices=[0, 1, 4, 7, 9, 10, 12, 16, 18, 20]
 sts = list(statements(G))
 sts = [sts[i] for i in range(len(sts)) if i not in incorrectly_grounded_stmt_indices]
@@ -233,7 +233,7 @@ create_statement_inspection_table(sts)
 Let us now fix up the statements that have the right grounding, but the wrong
 causal direction.
 
-```{.python .input}
+```python
 reverse_causal_direction_indices= [8]
 
 def reverse_causal_direction(s):
@@ -252,7 +252,7 @@ careful in doing so, since the `food_security` node is now merged into the
 `food_insecurity` node. In addition, we will choose to interpret 'worsening'
 conflict as 'increasing' conflict.
 
-```{.python .input}
+```python
 flip_subj_polarity_indices = []
 flip_obj_polarity_indices = [0, 8, 10]
 
@@ -268,7 +268,7 @@ create_statement_inspection_table(sts)
 Let us create a fresh AnalysisGraph object using this manually curated set of
 statements.
 
-```{.python .input}
+```python
 G = AnalysisGraph.from_statements(sts)
 visualize(G, rankdir='LR', nodes_to_highlight=concepts_of_interest)
 ```
@@ -316,7 +316,7 @@ code block below, we map concepts to indicators, and visualize the
 indicators as
 blue nodes.
 
-```{.python .input}
+```python
 from delphi.quantification import map_concepts_to_indicators
 map_concepts_to_indicators(G, 2);  visualize(G, indicators=True)
 ```
@@ -337,8 +337,8 @@ indicator,
 source as
 output from the`CYCLES` crop model .
 
-```{.python .input}
-from delphi.types import Indicator
+```python
+from delphi.random_variables import Indicator
 G.nodes['conflict']['indicators'] = G.nodes['conflict']['indicators'][1:]
 G.nodes['inflation']['indicators'] = G.nodes['inflation']['indicators'][1:]
 G.nodes['intervention']['indicators'] = G.nodes['intervention']['indicators'][1:]
@@ -354,7 +354,7 @@ has been constructed using data from the FAOSTAT and WDI databases, as well as
 output data from the `CYCLES` crop model. If no data is found for an indicator,
 it is discarded from the analysis graph.
 
-```{.python .input}
+```python
 from datetime import datetime
 from delphi.parameterization import parameterize
 date = datetime(2014, 1, 1)
@@ -364,7 +364,7 @@ parameterize(G, date)
 We visualize the parameterized analysis graph, with the values of the indicators
 for the specified year (in this case, 2014).
 
-```{.python .input}
+```python
 visualize(G, indicators=True, indicator_values = True,
             graph_label=f'Causal Analysis Graph for South Sudan, {date.year}')
 ```
@@ -378,7 +378,7 @@ quantification data,
 thereby converting our analysis graph into a probabilistic
 model.
 
-```{.python .input}
+```python
 G.infer_transition_model(res =3000)
 ```
 
@@ -405,7 +405,7 @@ written to the JSON
 kernel density estimator is
   exported in the JSON file.
 
-```{.python .input}
+```python
 from delphi.export import *
 export_default_initial_values(G, variables_file='variables.csv')
 ```
@@ -457,18 +457,18 @@ by modifying the
 by initializing
 the model using the modified file.
 
-```{.python .input}
+```python
 s0 = pd.read_csv('variables.csv', index_col=0, header=None,
                  error_bad_lines=False)[1]
 s0.loc['∂(precipitation)/∂t'] = 0.1
 s0.to_csv('variables.csv')
 ```
 
-```{.python .input}
+```python
 s0
 ```
 
-```{.python .input}
+```python
 from delphi.bmi import *
 initialize('variables.csv')
 ```
@@ -481,19 +481,19 @@ We see that in general, increasing rainfall reduces food insecurity.
 But do the
 results make sense? Let's 'drill down' to find out.
 
-```{.python .input}
+```python
 inspect_edge(G, 'precipitation', 'food_insecurity')
 ```
 
-```{.python .input}
+```python
 inspect_edge(G, 'precipitation', 'intervention')
 ```
 
-```{.python .input}
+```python
 inspect_edge(G, 'intervention', 'conflict')
 ```
 
-```{.python .input}
+```python
 inspect_edge(G, 'conflict', 'food_insecurity')
 ```
 
@@ -517,7 +517,7 @@ of Delphi's graph inspection methods to
 explore the causal patterns in the
 graph.
 
-```{.python .input}
+```python
 full_statements = load_statements('../data/eval_stmts_grounding_filtered.pkl')
 G_full = AnalysisGraph.from_statements(full_statements)
 visualize(G_full)
@@ -531,7 +531,7 @@ be important.
 As before, we will merge the node `food_security` into the node
 `food_insecurity`.
 
-```{.python .input}
+```python
 merge_nodes(G_full, 'food_security', 'food_insecurity', same_polarity=False)
 visualize(G_full)
 ```
@@ -541,7 +541,7 @@ This reduces the graph complexity a bit, as expected.
 Next, we visualize the
 subgraph consisting of the immediate ancestors of food insecurity.
 
-```{.python .input}
+```python
 n = 'food_insecurity'
 visualize(get_subgraph_for_concept(G_full, n, depth_limit=1), nodes_to_highlight=[n])
 ```
@@ -549,7 +549,7 @@ visualize(get_subgraph_for_concept(G_full, n, depth_limit=1), nodes_to_highlight
 We can also expand our search to the next-to-immediate ancestors of food
 insecurity (i.e. nodes that have a directed path to food insecurity)
 
-```{.python .input}
+```python
 visualize(get_subgraph_for_concept(G_full, n, depth_limit=2), nodes_to_highlight=[n])
 ```
 
@@ -565,7 +565,7 @@ of length *n* paths between a specified pair of
 concepts, with *n* set by the
 `cutoff` parameter.
 
-```{.python .input}
+```python
 concept_pair = ('conflict', 'food_insecurity')
 from delphi.subgraphs import *
 visualize(get_subgraph_for_concept_pair(G, *concept_pair, cutoff=1),
@@ -574,7 +574,7 @@ visualize(get_subgraph_for_concept_pair(G, *concept_pair, cutoff=1),
 
 If we wanted to look at length-2 paths instead, we could do the following:
 
-```{.python .input}
+```python
 visualize(get_subgraph_for_concept_pair(G, *concept_pair, cutoff=2),
   nodes_to_highlight=concept_pair, rankdir='LR')
 ```
@@ -589,14 +589,14 @@ following command shows all the length-1 paths between food
 security,
 precipitation, and conflict.
 
-```{.python .input}
+```python
 visualize(get_subgraph_for_concept_pairs(G, concepts_of_interest, cutoff=1),
        nodes_to_highlight=concepts_of_interest, rankdir='LR')
 ```
 
 The next command shows all the length-2 paths.
 
-```{.python .input}
+```python
 visualize(get_subgraph_for_concept_pairs(G, concepts_of_interest, cutoff=2),
           nodes_to_highlight=concepts_of_interest, rankdir='TB')
 ```
@@ -897,6 +897,7 @@ def make_plots(n_samples, deterministic = True):
 First, we show the results of running the program deterministically.
 
 ```python
+%matplotlib inline
 make_plots(1)
 ```
 

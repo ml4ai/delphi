@@ -1,6 +1,6 @@
 from datetime import datetime
 from delphi.paths import concept_to_indicator_mapping, data_dir
-from .utils import exists, flatMap
+from .utils import exists, flatMap, flatten
 from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
@@ -41,6 +41,7 @@ def top_grounding(c: Concept, ontology="UN") -> str:
         else c.name
     )
 
+
 def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
     return c.db_refs[ontology][0][1]
 
@@ -69,7 +70,7 @@ def constructConditionalPDF(
 
     # Make a adjective-response dict.
 
-    def get_adjective(d: Delta) -> Optional[str]:
+    def get_adjectives(d: Delta) -> List[str]:
         """ Get the first adjective from subj_delta or obj_delta """
 
         if isinstance(d["adjectives"], list):
@@ -80,19 +81,31 @@ def constructConditionalPDF(
         else:
             adj = d["adjectives"]
 
-        return adj if adj in gb.groups.keys() else None
+        return d["adjectives"]
+
+    all_adjs = flatten(
+        [
+            [
+                a
+                for a in (
+                    s.subj_delta["adjectives"],
+                    s.obj_delta["adjectives"],
+                )
+            ]
+            for s in sts
+        ]
+    )
 
     adjectiveResponses = {
-        a: get_respdevs(gb.get_group(a))
-        for a in set(
-            filter(
-                exists, flatMap(lambda s: lmap(get_adjective, deltas(s)), sts)
-            )
-        )
+        a: get_respdevs(gb.get_group(a)) for a in set(all_adjs) if a in gb
     }
 
-    def responses(adj: Optional[str]) -> np.ndarray:
-        return adjectiveResponses[adj] if exists(adj) else rs
+    def responses(adjs: Optional[List[str]]) -> np.ndarray:
+        return (
+            flatten([adjectiveResponses.get(a, rs) for a in adjs])
+            if adjs != []
+            else rs
+        )
 
     rs_subj = []
     rs_obj = []
@@ -100,11 +113,11 @@ def constructConditionalPDF(
     for s in sts:
         rs_subj.append(
             s.subj_delta["polarity"]
-            * np.array(responses(get_adjective(s.subj_delta)))
+            * np.array(responses(get_adjectives(s.subj_delta)))
         )
         rs_obj.append(
             s.obj_delta["polarity"]
-            * np.array(responses(get_adjective(s.obj_delta)))
+            * np.array(responses(get_adjectives(s.obj_delta)))
         )
 
     rs_subj = np.concatenate(rs_subj)
@@ -139,14 +152,16 @@ def is_simulable(s: Influence) -> bool:
 
 
 @singledispatch
-def is_grounded(): pass
+def is_grounded():
+    pass
+
 
 @is_grounded.register(Concept)
 def _(c: Concept, ontology: str = "UN") -> bool:
     """ Check if a concept is grounded """
     return (
         ontology in c.db_refs
-        and c.db_refs[ontology][0][0].split('/')[1] != "properties"
+        and c.db_refs[ontology][0][0].split("/")[1] != "properties"
     )
 
 
@@ -157,7 +172,8 @@ def _(s: Influence, ontology: str = "UN") -> bool:
 
 
 @singledispatch
-def is_well_grounded(): pass
+def is_well_grounded():
+    pass
 
 
 @is_well_grounded.register(Concept)
@@ -213,21 +229,29 @@ def get_data(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_mean_precipitation(year: int, cycles_output=data_dir+'/weather.dat'):
+def get_mean_precipitation(year: int, cycles_output=data_dir + "/weather.dat"):
     df = pd.read_table(cycles_output)
     df.columns = df.columns.str.strip()
     df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
     df.drop([0], axis=0, inplace=True)
-    df['DATE (YYYY-MM-DD)'] = pd.to_datetime(df['DATE (YYYY-MM-DD)'], format='%Y-%m-%d')
-    return (df.loc[(datetime(year, 1, 1) < df['DATE (YYYY-MM-DD)']) 
-                 & (df['DATE (YYYY-MM-DD)'] < datetime(year, 12, 31))]
-            ['PRECIPITATION (mm)'].values.astype(float).mean())
+    df["DATE (YYYY-MM-DD)"] = pd.to_datetime(
+        df["DATE (YYYY-MM-DD)"], format="%Y-%m-%d"
+    )
+    return (
+        df.loc[
+            (datetime(year, 1, 1) < df["DATE (YYYY-MM-DD)"])
+            & (df["DATE (YYYY-MM-DD)"] < datetime(year, 12, 31))
+        ]["PRECIPITATION (mm)"]
+        .values.astype(float)
+        .mean()
+    )
+
 
 def get_indicator_value(
     indicator: Indicator, date: datetime, df: pd.DataFrame
 ) -> Optional[float]:
 
-    if indicator.source == 'FAO/WDI':
+    if indicator.source == "FAO/WDI":
         best_match = get_best_match(indicator, df.index)
 
         year = str(date.year)
@@ -235,13 +259,16 @@ def get_indicator_value(
             return None
         else:
             indicator_value = df[year][best_match]
-            indicator_units = df.loc[best_match]['Unit']
+            indicator_units = df.loc[best_match]["Unit"]
 
-        return ((indicator_value, indicator_units)
-                if not pd.isna(indicator_value) else (None, indicator_units))
+        return (
+            (indicator_value, indicator_units)
+            if not pd.isna(indicator_value)
+            else (None, indicator_units)
+        )
 
-    elif indicator.source == 'CYCLES':
-        return get_mean_precipitation(date.year), 'mm'
+    elif indicator.source == "CYCLES":
+        return get_mean_precipitation(date.year), "mm"
 
 
 def process_variable_name(x: str):
@@ -275,7 +302,7 @@ def construct_concept_to_indicator_mapping(n: int = 2) -> Dict[str, List[str]]:
 
 def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
     return (
-        [Indicator(x, 'FAO/WDI') for x in mapping[concept]]
+        [Indicator(x, "FAO/WDI") for x in mapping[concept]]
         if concept in mapping
         else None
     )

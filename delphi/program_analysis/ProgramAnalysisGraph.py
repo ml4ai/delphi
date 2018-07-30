@@ -8,35 +8,7 @@ from functools import partial
 from inspect import signature
 
 
-def initialize(G):
-    """ Initialize the value of nodes that don't have a predecessor in the
-    CAG."""
-    for n in G.nodes(data=True):
-        if n[1].get("init_fn") is not None:
-            n[1]["value"] = n[1]["init_fn"]()
-
-
-def update_node(G, n):
-    """ Update the value of node n. """
-    if G.nodes[n].get("update_fn") is not None:
-        for i in G.predecessors(n):
-            if G.nodes[i]["value"] is None:
-                if G.nodes[i].get("init_fn") is not None:
-                    G.nodes[i]["value"] = G.nodes[i]["init_fn"]()
-                else:
-                    update_node(G, i)
-            v = G.nodes[i]["value"]
-        update_fn = G.nodes[n]["update_fn"]
-        ivals = {i: float(G.nodes[i]["value"]) for i in G.predecessors(n)}
-        G.nodes[n]["value"] = update_fn(**ivals)
-
-
-def update(G):
-    for n in G.nodes():
-        update_node(G, n)
-
-
-class ProgramAnalysisCAG(nx.DiGraph):
+class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

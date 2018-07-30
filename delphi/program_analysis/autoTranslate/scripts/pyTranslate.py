@@ -51,7 +51,11 @@ def printSubroutine(pyFile, node, printState):
         pyFile,
         node["args"],
         printState.copy(
-            sep=", ", add="", printFirst=False, definedVars=args, indexRef=False
+            sep=", ",
+            add="",
+            printFirst=False,
+            definedVars=args,
+            indexRef=False,
         ),
     )
     pyFile.write("):")
@@ -118,9 +122,7 @@ def printVariable(pyFile, node, printState):
             print("unrecognized type {0}".format(node["type"]))
             sys.exit(1)
         pyFile.write(
-            "{0}: List[{1}] = [{2}]".format(
-                node["name"], varType, initVal
-            )
+            "{0}: List[{1}] = [{2}]".format(node["name"], varType, initVal)
         )
     else:
         printState.printFirst = False

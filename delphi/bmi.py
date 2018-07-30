@@ -1,17 +1,53 @@
 from typing import Tuple, List
 from .AnalysisGraph import AnalysisGraph
 from .random_variables import LatentVar
-from .execution import (default_update_function, emission_function,
-                        get_latent_state_components)
+from functools import singledispatch
+from .execution import (
+    default_update_function,
+    emission_function,
+    get_latent_state_components,
+)
 import pandas as pd
 import numpy as np
-
+from .program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 
 # ==========================================================================
 # Basic Modeling Interface (BMI)
 # ==========================================================================
 
-def initialize(G: AnalysisGraph, config_file: str = None) -> AnalysisGraph:
+
+@singledispatch
+def initialize():
+    pass
+
+
+def update_node(G: ProgramAnalysisGraph, n: str):
+    """ Update the value of node n. """
+    if G.nodes[n].get("update_fn") is not None:
+        for i in G.predecessors(n):
+            if G.nodes[i]["value"] is None:
+                if G.nodes[i].get("init_fn") is not None:
+                    G.nodes[i]["value"] = G.nodes[i]["init_fn"]()
+                else:
+                    update_node(G, i)
+            v = G.nodes[i]["value"]
+        update_fn = G.nodes[n]["update_fn"]
+        ivals = {i: float(G.nodes[i]["value"]) for i in G.predecessors(n)}
+        G.nodes[n]["value"] = update_fn(**ivals)
+
+
+@initialize.register(ProgramAnalysisGraph)
+def _(G: ProgramAnalysisGraph) -> ProgramAnalysisGraph:
+    """ Initialize the value of nodes that don't have a predecessor in the
+    CAG."""
+    for n in G.nodes(data=True):
+        if n[1].get("init_fn") is not None:
+            n[1]["value"] = n[1]["init_fn"]()
+    return G
+
+
+@initialize.register(AnalysisGraph)
+def _(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
     """ Initialize the executable AnalysisGraph with a config file.
 
     Args:
@@ -21,23 +57,34 @@ def initialize(G: AnalysisGraph, config_file: str = None) -> AnalysisGraph:
     Returns:
         AnalysisGraph
     """
-    if config_file is not None:
-        G.s0 = pd.read_csv(
-            config_file, index_col=0, header=None, error_bad_lines=False
-        )[1]
-        for n in G.nodes(data=True):
-            n[1]["rv"] = LatentVar(n[0])
-            n[1]["update_function"] = default_update_function
-            node = n[1]["rv"]
-            node.dataset = [G.s0[n[0]] for _ in range(G.res)]
-            node.partial_t = G.s0[f'∂({n[0]})/∂t']
-            if n[1].get('indicators') is not None:
-                for ind in n[1]['indicators']:
-                    ind.dataset = np.ones(G.res)*ind.mean
+    G.s0 = pd.read_csv(
+        config_file, index_col=0, header=None, error_bad_lines=False
+    )[1]
+    for n in G.nodes(data=True):
+        n[1]["rv"] = LatentVar(n[0])
+        n[1]["update_function"] = default_update_function
+        node = n[1]["rv"]
+        node.dataset = [G.s0[n[0]] for _ in range(G.res)]
+        node.partial_t = G.s0[f"∂({n[0]})/∂t"]
+        if n[1].get("indicators") is not None:
+            for ind in n[1]["indicators"]:
+                ind.dataset = np.ones(G.res) * ind.mean
     return G
 
 
-def update(G: AnalysisGraph) -> AnalysisGraph:
+@singledispatch
+def update():
+    pass
+
+
+@update.register(ProgramAnalysisGraph)
+def _(G: ProgramAnalysisGraph):
+    for n in G.nodes():
+        update_node(G, n)
+
+
+@update.register(AnalysisGraph)
+def _(G: AnalysisGraph) -> AnalysisGraph:
     """ Advance the model by one time step.
 
     Args:
@@ -50,16 +97,16 @@ def update(G: AnalysisGraph) -> AnalysisGraph:
     next_state = {}
 
     for n in G.nodes(data=True):
-        next_state[n[0]] = n[1]['update_function'](G, n)
+        next_state[n[0]] = n[1]["update_function"](G, n)
 
     for n in G.nodes(data=True):
         n[1]["rv"].dataset = next_state[n[0]]
-        if n[1].get('indicators') is not None:
-            ind = n[1]['indicators'][0]
+        if n[1].get("indicators") is not None:
+            ind = n[1]["indicators"][0]
             ind.dataset = [
-                    emission_function(x, ind.mean, ind.stdev)
-                    for x in n[1]['rv'].dataset
-                ]
+                emission_function(x, ind.mean, ind.stdev)
+                for x in n[1]["rv"].dataset
+            ]
 
     G.t += G.Δt
     return G
@@ -78,6 +125,7 @@ def finalize(G: AnalysisGraph):
 
 
 # Model information
+
 
 def get_component_name(G: AnalysisGraph) -> str:
     """ Return the name of the model. """

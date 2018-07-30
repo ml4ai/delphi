@@ -12885,4 +12885,8 @@ div#notebook {
 #notebook_name {
     font-weight: 200;
 }
+div.pygments {
+  max-height: 600px;
+  overflow: scroll;
+}
 

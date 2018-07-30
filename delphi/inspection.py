@@ -9,6 +9,7 @@ from typing import List, Iterable
 # Inspection
 # ==========================================================================
 
+
 def inspect_edge(G: AnalysisGraph, source: str, target: str):
     """ 'Drill down' into an edge in the analysis graph and inspect its
     provenance. This function prints the provenance.
@@ -23,7 +24,10 @@ def inspect_edge(G: AnalysisGraph, source: str, target: str):
         G[source][target]["InfluenceStatements"]
     )
 
-def _get_edge_sentences(G: AnalysisGraph, source: str, target: str) -> List[str]:
+
+def _get_edge_sentences(
+    G: AnalysisGraph, source: str, target: str
+) -> List[str]:
     """ Return the sentences that led to the construction of a specified edge.
 
     Args:
@@ -40,12 +44,9 @@ def _get_edge_sentences(G: AnalysisGraph, source: str, target: str) -> List[str]
     )
 
 
-
 def statements(G: AnalysisGraph) -> Iterable[Influence]:
     chainMap = compose(chain.from_iterable, map)
-    sts = chainMap(
-        lambda e: e[2]["InfluenceStatements"], G.edges(data=True)
-    )
+    sts = chainMap(lambda e: e[2]["InfluenceStatements"], G.edges(data=True))
     return sorted(
         sts,
         key=lambda s: (

@@ -18,16 +18,17 @@ class LatentVar(RV):
         super().__init__(name)
         self.partial_t = None
 
+
 class Indicator(RV):
     def __init__(
-            self,
-            name,
-            source: str = None,
-            unit: str = None,
-            mean: float = None,
-            stdev: float = None,
-            time: datetime = None,
-            ):
+        self,
+        name,
+        source: str = None,
+        unit: str = None,
+        mean: float = None,
+        stdev: float = None,
+        time: datetime = None,
+    ):
         super().__init__(name)
         self.source = source
         self.unit = unit

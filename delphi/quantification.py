@@ -1,5 +1,5 @@
 from typing import Optional
-from .assembly import (construct_concept_to_indicator_mapping, get_indicators)
+from .assembly import construct_concept_to_indicator_mapping, get_indicators
 from .AnalysisGraph import AnalysisGraph
 
 # ==========================================================================

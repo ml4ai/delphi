@@ -50,20 +50,24 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         n for n in G.nodes(data=True) if n[1].get("indicators") is not None
     ]
 
-    n_max = 0
-    for e in G.edges(data=True):
-        n = len(e[2]["InfluenceStatements"])
-        if n > n_max:
-            n_max = n
+    n_max = max(
+        [
+            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
+            for e in G.edges(data=True)
+        ]
+    )
 
     color_str = "#650021"
+    for n in G.nodes():
+        A.add_node(n, label=n.capitalize().replace("_", " "))
+
     for e in G.edges(data=True):
-        opacity = len(e[2]["InfluenceStatements"]) / n_max
+        opacity = (
+            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]]) / n_max
+        )
         h = (opacity * 255).hex()
         c_str = color_str + h[4:6]
-        A.add_edge(
-            e[0].capitalize(), e[1].capitalize(), color=c_str, arrowsize=0.5
-        )
+        A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
     # Drawing indicator variables
 
@@ -74,7 +78,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                 A.add_node(
                     node_label, style="rounded, filled", fillcolor="lightblue"
                 )
-                A.add_edge(n[0].capitalize(), node_label, color="royalblue4")
+                A.add_edge(n[0], node_label, color="royalblue4")
 
     # Drawing indicator values
     if kwargs.get("indicator_values"):
@@ -100,13 +104,20 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                 )
 
     if kwargs.get("nodes_to_highlight") is not None:
-        for n in kwargs["nodes_to_highlight"]:
-            A.add_node(n.capitalize(), fontcolor="royalblue")
+        nodes = kwargs.pop("nodes_to_highlight")
+        if isinstance(nodes, list):
+            for n in nodes:
+                if n in A.nodes():
+                    A.add_node(n, fontcolor="royalblue")
+        elif isinstance(nodes, str):
+            if n in A.nodes():
+                A.add_node(nodes, fontcolor="royalblue")
 
     if kwargs.get("graph_label") is not None:
         A.graph_attr["label"] = kwargs["graph_label"]
 
     return A
+
 
 def _process_datetime(indicator_dict: Dict):
     time = indicator_dict.get("time")
@@ -149,8 +160,6 @@ def _get_polynomial_fit(e, deg=7, res=100):
     Y = kde.evaluate(X) * (X[1] - X[0])
     coefs = np.polynomial.polynomial.polyfit(X, Y, deg=deg)
     return {"degree": deg, "coefficients": list(coefs)}
-
-
 
 
 def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:

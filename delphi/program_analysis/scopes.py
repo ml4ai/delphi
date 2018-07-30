@@ -39,7 +39,10 @@ class Scope(metaclass=ABCMeta):
 
     @classmethod
     def from_dict(self, data: Dict):
-        scope_types_dict = {"container": ContainerScope, "loop_plate": LoopScope}
+        scope_types_dict = {
+            "container": ContainerScope,
+            "loop_plate": LoopScope,
+        }
 
         scopes = {
             f["name"]: scope_types_dict[f["type"]](f["name"], f)
