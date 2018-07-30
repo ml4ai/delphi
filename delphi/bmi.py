@@ -1,6 +1,7 @@
 from typing import Tuple, List
 from .AnalysisGraph import AnalysisGraph
 from .random_variables import LatentVar
+from functools import singledispatch
 from .execution import (
     default_update_function,
     emission_function,
@@ -8,14 +9,45 @@ from .execution import (
 )
 import pandas as pd
 import numpy as np
-
+from .program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 
 # ==========================================================================
 # Basic Modeling Interface (BMI)
 # ==========================================================================
 
 
-def initialize(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
+@singledispatch
+def initialize():
+    pass
+
+
+def update_node(G: ProgramAnalysisGraph, n: str):
+    """ Update the value of node n. """
+    if G.nodes[n].get("update_fn") is not None:
+        for i in G.predecessors(n):
+            if G.nodes[i]["value"] is None:
+                if G.nodes[i].get("init_fn") is not None:
+                    G.nodes[i]["value"] = G.nodes[i]["init_fn"]()
+                else:
+                    update_node(G, i)
+            v = G.nodes[i]["value"]
+        update_fn = G.nodes[n]["update_fn"]
+        ivals = {i: float(G.nodes[i]["value"]) for i in G.predecessors(n)}
+        G.nodes[n]["value"] = update_fn(**ivals)
+
+
+@initialize.register(ProgramAnalysisGraph)
+def _(G: ProgramAnalysisGraph) -> ProgramAnalysisGraph:
+    """ Initialize the value of nodes that don't have a predecessor in the
+    CAG."""
+    for n in G.nodes(data=True):
+        if n[1].get("init_fn") is not None:
+            n[1]["value"] = n[1]["init_fn"]()
+    return G
+
+
+@initialize.register(AnalysisGraph)
+def _(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
     """ Initialize the executable AnalysisGraph with a config file.
 
     Args:
@@ -40,7 +72,19 @@ def initialize(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
     return G
 
 
-def update(G: AnalysisGraph) -> AnalysisGraph:
+@singledispatch
+def update():
+    pass
+
+
+@update.register(ProgramAnalysisGraph)
+def _(G: ProgramAnalysisGraph):
+    for n in G.nodes():
+        update_node(G, n)
+
+
+@update.register(AnalysisGraph)
+def _(G: AnalysisGraph) -> AnalysisGraph:
     """ Advance the model by one time step.
 
     Args:
