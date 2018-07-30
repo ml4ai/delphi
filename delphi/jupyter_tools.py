@@ -24,7 +24,7 @@ def create_statement_inspection_table(sts: List[Influence]):
         "Source API",
     ]
 
-    to_str = lambda x: "+" if x == 1 else "-" if x == -1 else "None"
+    polarity_to_str = lambda x: "+" if x == 1 else "-" if x == -1 else "None"
     l = []
     for s in sts:
         subj_un_grounding = s.subj.db_refs["UN"][0][0].split("/")[-1]
@@ -47,7 +47,16 @@ def create_statement_inspection_table(sts: List[Influence]):
     df = pd.DataFrame(l, columns=columns)
     df = df.pivot_table(index=["un_groundings", "Source API", "Sentence"])
 
-    return HTML(df.to_html())
+    def hover(hover_color="#ffff99"):
+        return dict(selector="tr:hover",
+                props=[("background-color", "%s" % hover_color)])
+
+    styles = [
+        hover(),
+        dict(props=[("font-size", "100%"), ('font-family', 'Gill Sans')]),
+    ]
+
+    return (df.style.set_table_styles(styles))
 
 
 def print_full_edge_provenance(cag, source, target):
