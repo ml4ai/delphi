@@ -101,7 +101,9 @@ def _(G: AnalysisGraph) -> AnalysisGraph:
 
     for n in G.nodes(data=True):
         n[1]["rv"].dataset = next_state[n[0]]
-        if n[1].get("indicators") is not None:
+        indicators=n[1].get("indicators")
+        if (indicators is not None) and (indicators != []):
+            print(n[1]['indicators'])
             ind = n[1]["indicators"][0]
             ind.dataset = [
                 emission_function(x, ind.mean, ind.stdev)
