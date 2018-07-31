@@ -9,6 +9,8 @@ from delphi.subgraphs import (
 import pytest
 from delphi.tests.conftest import *
 
+# Testing constructors
+
 
 def test_make_edge():
     assert make_edge(sts, ("conflict", "food_security")) == (
@@ -16,6 +18,19 @@ def test_make_edge():
         "food_security",
         {"InfluenceStatements": [sts[0]]},
     )
+
+
+def test_from_statements():
+    G = AnalysisGraph.from_statements(sts)
+    assert set(G.nodes()) == set(["conflict", "food_security"])
+    assert set(G.edges()) == set([("conflict", "food_security")])
+
+def test_from_statements_file():
+    with open(test_statements_file(), 'rb') as f:
+        sts_from_file = pickle.load(f)
+    G = AnalysisGraph.from_statements(sts_from_file)
+    assert set(G.nodes()) == set(["conflict", "food_security"])
+    assert set(G.edges()) == set([("conflict", "food_security")])
 
 
 def test_get_subgraph_for_concept(G):

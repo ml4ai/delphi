@@ -1,5 +1,6 @@
-from indra.statements import Concept, Influence
+import pickle
 import pytest
+from indra.statements import Concept, Influence
 from delphi.AnalysisGraph import AnalysisGraph
 
 conflict = Concept(
@@ -33,6 +34,13 @@ s2 = Influence(precipitation, food_security)
 s3 = Influence(precipitation, flooding)
 
 sts = [s1, s2, s3]
+
+@pytest.fixture(scope="session")
+def test_statements_file():
+    return 'test_statements.pkl'
+
+with open(test_statements_file(), 'wb') as f:
+    pickle.dump(sts, f)
 
 
 @pytest.fixture(scope="session")
