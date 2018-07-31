@@ -63,7 +63,7 @@ delphi.paths module
     :show-inheritance:
 
 delphi.random_variables module
--------------------
+------------------------------
 
 .. automodule:: delphi.random_variables
     :members:

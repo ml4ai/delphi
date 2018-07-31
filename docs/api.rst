@@ -16,6 +16,7 @@ Constructors
     :toctree: generated/
 
     AnalysisGraph.from_statements
+    AnalysisGraph.from_statements_file
     AnalysisGraph.from_pickle
 
 Subgraphs
@@ -54,11 +55,12 @@ Methods to edit the AnalysisGraph.
 
 Quantification
 --------------
-.. currentmodule:: delphi.quantification
+.. currentmodule:: delphi
 .. autosummary::
     :toctree: generated/
 
-    map_concepts_to_indicators
+    delphi.quantification.map_concepts_to_indicators
+    delphi.AnalysisGraph.AnalysisGraph.infer_transition_model
 
 Export
 ------
