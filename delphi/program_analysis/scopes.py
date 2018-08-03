@@ -82,7 +82,7 @@ class Scope(metaclass=ABCMeta):
         elif operating_system == "Windows":
             font = "Consolas"
         else:
-            font = "Courier"
+            font = "Ubuntu Mono"
 
         A.node_attr["fontname"] = font
         A.graph_attr["fontname"] = font
