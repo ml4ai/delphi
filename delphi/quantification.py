@@ -17,7 +17,7 @@ def map_concepts_to_indicators(
         n
         manual_mapping
     """
-    mapping = construct_concept_to_indicator_mapping(n=n, mapping_file)
+    mapping = construct_concept_to_indicator_mapping(n, mapping_file)
 
     for n in G.nodes(data=True):
         n[1]["indicators"] = get_indicators(
