@@ -278,11 +278,12 @@ def process_variable_name(x: str):
     return " ".join(xs[0:2])
 
 
-def construct_concept_to_indicator_mapping(n: int = 2) -> Dict[str, List[str]]:
+def construct_concept_to_indicator_mapping(n: int = 2,
+        mapping=concept_to_indicator_mapping) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
     df = pd.read_table(
-        concept_to_indicator_mapping,
+        mapping,
         usecols=[1, 3, 4],
         names=["Concept Grounding", "Indicator Grounding", "Score"],
     )
