@@ -30,3 +30,4 @@ sphinxcontrib-bibtex
 sphinxcontrib-trio
 tqdm
 seaborn
+ipython
