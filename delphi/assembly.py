@@ -1,6 +1,6 @@
 from datetime import datetime
 from delphi.paths import concept_to_indicator_mapping, data_dir
-from .utils import exists, flatMap, flatten
+from .utils import exists, flatMap, flatten, get_data_from_url
 from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
@@ -229,8 +229,9 @@ def get_data(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_mean_precipitation(year: int, cycles_output=data_dir + "/weather.dat"):
-    df = pd.read_table(cycles_output)
+def get_mean_precipitation(year: int):
+    url="http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
+    df = pd.read_table(get_data_from_url(url))
     df.columns = df.columns.str.strip()
     df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
     df.drop([0], axis=0, inplace=True)
