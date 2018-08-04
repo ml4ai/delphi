@@ -10,6 +10,16 @@ from pygraphviz import AGraph
 import pickle
 from .execution import construct_default_initial_state
 from datetime import datetime
+import platform
+
+operating_system = platform.system()
+
+if operating_system == "Darwin":
+    font = "Gill Sans"
+elif operating_system == "Windows":
+    font = "Candara"
+else:
+    font = "Ubuntu"
 
 # ==========================================================================
 # Export
@@ -33,7 +43,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "dpi": 227,
             "fontsize": 20,
             "rankdir": kwargs.get("rankdir", "TB"),
-            "fontname": "Gill Sans",
+            "fontname": font,
         }
     )
 
@@ -42,7 +52,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "shape": "rectangle",
             "color": "#650021",
             "style": "rounded",
-            "fontname": "Gill Sans",
+            "fontname": font,
         }
     )
 

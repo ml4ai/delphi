@@ -8,7 +8,7 @@ from .AnalysisGraph import AnalysisGraph
 
 
 def map_concepts_to_indicators(
-    G: AnalysisGraph, n: int = 1, manual_mapping: Optional[dict] = None
+        G: AnalysisGraph, n: int = 1, mapping_file: Optional[str] = None
 ) -> AnalysisGraph:
     """ Add indicators to the analysis graph.
 
@@ -17,14 +17,11 @@ def map_concepts_to_indicators(
         n
         manual_mapping
     """
-    mapping = construct_concept_to_indicator_mapping(n=n)
+    mapping = construct_concept_to_indicator_mapping(n, mapping_file)
 
     for n in G.nodes(data=True):
         n[1]["indicators"] = get_indicators(
             n[0].lower().replace(" ", "_"), mapping
         )
-        if manual_mapping is not None:
-            if n[0] in manual_mapping:
-                n[1]["indicators"] = manual_mapping[n[0]]
 
     return G
