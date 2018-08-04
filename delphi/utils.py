@@ -281,6 +281,10 @@ def download_file(url: str, filename: str):
         request.urlretrieve(url, filename, reporthook)
 
 
+def get_data_from_url(url: str):
+    return request.urlopen(url)
+
+
 def _change_directory(destination_directory):
     cwd = os.getcwd()
     os.chdir(destination_directory)

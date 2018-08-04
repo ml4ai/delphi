@@ -7,23 +7,17 @@ from .paths import south_sudan_data
 
 
 def parameterize(
-    G: AnalysisGraph, time: datetime, data: Optional[pd.DataFrame] = None
+        G: AnalysisGraph, time: datetime, data = south_sudan_data
 ) -> AnalysisGraph:
     """ Parameterize the analysis graph.
 
     Args:
         G
         time
-        data
+        datafile
     """
 
-    if data is not None:
-        G.data = data
-    else:
-        if G.data is None:
-            G.data = get_data(south_sudan_data)
-        else:
-            pass
+    G.data = get_data(data)
 
     nodes_with_indicators = [
         n for n in G.nodes(data=True) if n[1]["indicators"] is not None

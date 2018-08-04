@@ -114,7 +114,7 @@ class AnalysisGraph(nx.DiGraph):
         if adjective_data is None:
             adjective_data = adjectiveData
 
-        gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby(
+        gb = pd.read_csv(adjective_data, delim_whitespace=True).groupby(
             "adjective"
         )
 
