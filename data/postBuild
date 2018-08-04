@@ -1,0 +1,7 @@
+jupyter contrib nbextension install --user
+jupyter nbextension enable --py widgetsnbextension
+jupyter nbextension enable toc2/main
+
+# Notebooks w/ extensions that auto-run code must be "trusted" to work the first
+# time
+jupyter trust notebooks/*.ipynb
