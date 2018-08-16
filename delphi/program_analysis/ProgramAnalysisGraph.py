@@ -18,6 +18,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_agraph(cls, A: AGraph, lambdas):
+        """ Construct a ProgramAnalysisGraph from an AGraph """
         G = nx.DiGraph()
         variable_nodes = [
             n for n in A.nodes() if n.attr["node_type"] != "ActionNode"
