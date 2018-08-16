@@ -151,7 +151,8 @@ class Scope(metaclass=ABCMeta):
     def setup_from_json(self, input_vars=[]):
         for expr in self.json["body"]:
             if expr.get("name") is not None:
-                # Do this for regular assignment/decision/condition operations and loop_plate(s)
+                # Do this for regular assignment/decision/condition operations
+                # and loop_plate(s)
                 instruction = expr["name"]
                 if len(expr.get("output")) > 0:
                     action_node = self.make_action_node(instruction)
@@ -247,19 +248,14 @@ class Scope(metaclass=ABCMeta):
 
     def add_nodes(self, sub):
         for node in self.nodes:
-            clr = "black" if isinstance(node, ActionNode) else rv_maroon
-            shape = "rectangle" if isinstance(node, ActionNode) else "ellipse"
-            name = node.unique_name()
-            label = node.get_label()
-            is_index = getattr(node, "is_index", None)
             sub.add_node(
-                name,
-                shape=shape,
-                color=clr,
-                node_type=node.node_type,
+                node.unique_name(),
+                shape=node.shape,
+                color=node.color,
+                node_type=type(node).__name__,
                 lambda_fn=getattr(node, "lambda_fn", None),
-                label=label,
-                is_index=is_index,
+                label=node.get_label(),
+                is_index=getattr(node, "is_index", None),
                 value=int(getattr(node, "index", None)),
                 cag_label=node.get_cag_label(),
             )
@@ -327,6 +323,8 @@ class Node(metaclass=ABCMeta):
         self.name = name
         self.index = idx
         self.scope = scp
+        self.color = rv_maroon
+        self.shape="ellipse"
 
     def __repr__(self):
         return self.__str__()
@@ -348,7 +346,6 @@ class Node(metaclass=ABCMeta):
 class FuncVariableNode(Node):
     def __init__(self, name="", idx="", scp=""):
         super().__init__(name=name, idx=idx, scp=scp)
-        self.node_type = "FuncVariableNode"
 
     def get_label(self):
         return self.name
@@ -362,7 +359,8 @@ class ActionNode(Node):
         self.action = name[start : end + 2]
         self.inputs: List = []
         self.output = None
-        self.node_type: str = "ActionNode"
+        self.color='black'
+        self.shape='rectangle'
         self.lambda_fn = (
             "_".join((name, idx))
             .replace("assign", "lambda")
@@ -382,7 +380,6 @@ class LoopVariableNode(Node):
         if not self.is_index:
             self.loop_var = loop_var
             self.loop_index = l_index
-        self.node_type = "LoopVariableNode"
 
     def get_label(self):
         if not self.is_index:
