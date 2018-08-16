@@ -34,12 +34,10 @@ class ProgramAnalysisGraph(nx.DiGraph):
     def from_agraph(cls, A: AGraph, lambdas):
         """ Construct a ProgramAnalysisGraph from an AGraph """
         G = nx.DiGraph()
-        variable_nodes = [
-            n for n in A.nodes() if n.attr["node_type"] != "ActionNode"
-        ]
 
-        for n in variable_nodes:
-            add_variable_node(G, n)
+        for n in A.nodes()
+            if n.attr['node_type'] != "ActionNode":
+                add_variable_node(G, n)
 
         function_nodes = [n for n in A.nodes() if n not in variable_nodes]
 
@@ -63,8 +61,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
                     == "__condition__"
                 ]
                 condition_fn, = A.predecessors(if_var)
-                cut = condition_fn.rfind("__")
-                condition_fn = condition_fn[:cut]
+                condition_fn = condition_fn[:condition_fn.rfind("__")]
                 condition_lambda = condition_fn.replace("condition", "lambda")
                 G.nodes[oname]["condition_fn"] = getattr(
                     lambdas, condition_lambda
