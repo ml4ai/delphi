@@ -8,6 +8,20 @@ from functools import partial
 from inspect import signature
 
 
+def add_variable_node(G, n):
+    name = n.attr["cag_label"]
+    G.add_node(name, value=None, pred_fns=[], agraph_name=n)
+
+    # If the node is a loop index, set special initialization
+    # and update functions.
+    if n.attr["is_index"] == "True":
+        G.nodes[name]["init_fn"] = lambda: 1
+        G.nodes[name]["update_fn"] = (
+            lambda **kwargs: int(kwargs.pop(list(kwargs.keys())[0])) + 1
+        )
+        G.add_edge(name, name)
+
+
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,15 +39,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         ]
 
         for n in variable_nodes:
-            name = n.attr["cag_label"]
-            G.add_node(name, value=None, pred_fns=[], agraph_name=n)
-            if n.attr["is_index"] == "True":
-                G.nodes[name]["init_fn"] = lambda: 1
-                G.nodes[name]["update_fn"] = (
-                    lambda **kwargs: int(kwargs.pop(list(kwargs.keys())[0]))
-                    + 1
-                )
-                G.add_edge(name, name)
+            add_variable_node(G, n)
 
         function_nodes = [n for n in A.nodes() if n not in variable_nodes]
 
@@ -46,6 +52,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
                 G.nodes[oname]["init_fn"] = getattr(
                     lambdas, f.attr["lambda_fn"]
                 )
+
             # Otherwise append the predecessor function list
             elif f.attr["label"] == "__decision__":
                 preds = A.predecessors(f)
