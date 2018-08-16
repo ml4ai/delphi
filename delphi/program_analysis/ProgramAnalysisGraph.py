@@ -9,7 +9,8 @@ from inspect import signature
 
 
 def add_variable_node(G, n):
-    name = n.attr["cag_label"]
+    """ Add a variable node to the CAG. """
+    name = n.attr["label"]
     G.add_node(name, value=None, pred_fns=[], agraph_name=n)
 
     # If the node is a loop index, set special initialization
@@ -22,60 +23,55 @@ def add_variable_node(G, n):
         G.add_edge(name, name)
 
 
+def add_action_node(A: Agraph, G: nx.DiGraph, lambdas, n):
+    """ Add an action node to the CAG. """
+    output, = A.successors(n)
+    oname = output.attr["label"]
+
+    # Check if it is an initialization function
+    if len(A.predecessors(n)) == 0:
+        G.nodes[oname]["init_fn"] = getattr(lambdas, n.attr["lambda_fn"])
+
+    # Otherwise append the predecessor function list
+    elif n.attr["label"] == "__decision__":
+        preds = A.predecessors(n)
+        if_var, = [
+            n
+            for n in preds
+            if list(A.predecessors(n))[0].attr["label"] == "__condition__"
+        ]
+        condition_fn, = A.predecessors(if_var)
+        condition_fn = condition_fn[: condition_fn.rfind("__")]
+        condition_lambda = condition_fn.replace("condition", "lambda")
+        G.nodes[oname]["condition_fn"] = getattr(lambdas, condition_lambda)
+    else:
+        G.nodes[oname]["pred_fns"].append(
+            getattr(lambdas, n.attr["lambda_fn"])
+        )
+
+    # If the type of the function is assign, then add an edge in the CAG
+    if n.attr["label"] == "__assign__":
+        for i in A.predecessors(n):
+            iname = i.attr["label"]
+            G.add_edge(iname, oname)
+
+
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    @classmethod
-    def from_dict(cls, data: Dict):
-        return None
 
     @classmethod
     def from_agraph(cls, A: AGraph, lambdas):
         """ Construct a ProgramAnalysisGraph from an AGraph """
         G = nx.DiGraph()
 
-        for n in A.nodes()
-            if n.attr['node_type'] != "ActionNode":
+        for n in A.nodes():
+            if n.attr["node_type"] != "ActionNode":
                 add_variable_node(G, n)
 
-        function_nodes = [n for n in A.nodes() if n not in variable_nodes]
-
-        for f in function_nodes:
-            output, = A.successors(f)
-            oname = output.attr["cag_label"]
-
-            # Check if it is an initialization function
-            if len(A.predecessors(f)) == 0:
-                G.nodes[oname]["init_fn"] = getattr(
-                    lambdas, f.attr["lambda_fn"]
-                )
-
-            # Otherwise append the predecessor function list
-            elif f.attr["label"] == "__decision__":
-                preds = A.predecessors(f)
-                if_var, = [
-                    n
-                    for n in preds
-                    if list(A.predecessors(n))[0].attr["label"]
-                    == "__condition__"
-                ]
-                condition_fn, = A.predecessors(if_var)
-                condition_fn = condition_fn[:condition_fn.rfind("__")]
-                condition_lambda = condition_fn.replace("condition", "lambda")
-                G.nodes[oname]["condition_fn"] = getattr(
-                    lambdas, condition_lambda
-                )
-            else:
-                G.nodes[oname]["pred_fns"].append(
-                    getattr(lambdas, f.attr["lambda_fn"])
-                )
-
-            # If the type of the function is assign, then add an edge in the CAG
-            if f.attr["label"] == "__assign__":
-                for i in A.predecessors(f):
-                    iname = i.attr["cag_label"]
-                    G.add_edge(iname, oname)
+        for n in A.nodes():
+            if n.attr["node_type"] == "ActionNode":
+                add_action_node(A, G, lambdas, n)
 
         for n in G.nodes(data=True):
             n_preds = len(n[1]["pred_fns"])
@@ -101,8 +97,10 @@ class ProgramAnalysisGraph(nx.DiGraph):
             for n in G.nodes()
             if len(list(G.predecessors(n))) == len(list(G.successors(n))) == 0
         ]
+
         for n in isolated_nodes:
             G.remove_node(n)
+
         return cls(G)
 
     def visualize(self, show_values=False):
