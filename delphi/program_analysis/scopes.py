@@ -129,7 +129,7 @@ class Scope(metaclass=ABCMeta):
                     name=name,
                     idx=idx,
                     scp=scp,
-                    l_index=-1,
+                    loop_index=-1,
                     loop_var=loop_scope.index_var.name,
                 )
             return LoopVariableNode(
@@ -257,7 +257,6 @@ class Scope(metaclass=ABCMeta):
                 label=node.get_label(),
                 is_index=getattr(node, "is_index", None),
                 value=int(getattr(node, "index", None)),
-                cag_label=node.get_cag_label(),
             )
 
     def add_edges(self, sub):
@@ -324,7 +323,7 @@ class Node(metaclass=ABCMeta):
         self.index = idx
         self.scope = scp
         self.color = rv_maroon
-        self.shape="ellipse"
+        self.shape = "ellipse"
 
     def __repr__(self):
         return self.__str__()
@@ -335,20 +334,13 @@ class Node(metaclass=ABCMeta):
     def unique_name(self):
         return f"{self.name}_{self.index}__{self.scope}"
 
-    @abstractmethod
     def get_label(self):
-        return NotImplemented
-
-    def get_cag_label(self):
         return self.name
 
 
 class FuncVariableNode(Node):
     def __init__(self, name="", idx="", scp=""):
         super().__init__(name=name, idx=idx, scp=scp)
-
-    def get_label(self):
-        return self.name
 
 
 class ActionNode(Node):
@@ -359,8 +351,8 @@ class ActionNode(Node):
         self.action = name[start : end + 2]
         self.inputs: List = []
         self.output = None
-        self.color='black'
-        self.shape='rectangle'
+        self.color = "black"
+        self.shape = "rectangle"
         self.lambda_fn = (
             "_".join((name, idx))
             .replace("assign", "lambda")
@@ -373,13 +365,19 @@ class ActionNode(Node):
 
 class LoopVariableNode(Node):
     def __init__(
-        self, name="", idx="", scp="", is_index=False, loop_var="", l_index=0
+        self,
+        name="",
+        idx="",
+        scp="",
+        is_index=False,
+        loop_var="",
+        loop_index=0,
     ):
         super().__init__(name=name, idx=idx, scp=scp)
         self.is_index = is_index
         if not self.is_index:
             self.loop_var = loop_var
-            self.loop_index = l_index
+            self.loop_index = loop_index
 
     def get_label(self):
         if not self.is_index:
