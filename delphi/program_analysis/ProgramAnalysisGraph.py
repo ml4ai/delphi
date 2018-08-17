@@ -10,23 +10,33 @@ from inspect import signature
 
 def add_variable_node(G, n):
     """ Add a variable node to the CAG. """
-    name = n.attr["label"]
-    G.add_node(name, value=None, pred_fns=[], agraph_name=n)
+    name = n.attr["cag_label"]
+    G.add_node(
+        name,
+        value=None,
+        pred_fns=[],
+        agraph_name=n,
+        index=n.attr["index"],
+        node_type=n.attr["node_type"],
+        start=n.attr['start'],
+        end=n.attr['end'],
+    )
 
     # If the node is a loop index, set special initialization
     # and update functions.
     if n.attr["is_index"] == "True":
-        G.nodes[name]["init_fn"] = lambda: 1
+        G.nodes[name]["is_index"] = True
+        G.nodes[name]["init_fn"] = lambda: int(n.attr['start'])
         G.nodes[name]["update_fn"] = (
             lambda **kwargs: int(kwargs.pop(list(kwargs.keys())[0])) + 1
         )
         G.add_edge(name, name)
 
 
-def add_action_node(A: Agraph, G: nx.DiGraph, lambdas, n):
+def add_action_node(A: AGraph, G: nx.DiGraph, lambdas, n):
     """ Add an action node to the CAG. """
     output, = A.successors(n)
-    oname = output.attr["label"]
+    oname = output.attr["cag_label"]
 
     # Check if it is an initialization function
     if len(A.predecessors(n)) == 0:
@@ -52,13 +62,21 @@ def add_action_node(A: Agraph, G: nx.DiGraph, lambdas, n):
     # If the type of the function is assign, then add an edge in the CAG
     if n.attr["label"] == "__assign__":
         for i in A.predecessors(n):
-            iname = i.attr["label"]
+            iname = i.attr["cag_label"]
             G.add_edge(iname, oname)
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.loop_index,=[n[0] for n in self.nodes(data=True) if n[1].get('is_index')]
+        self.sorted_nodes = [
+            x[0]
+            for x in sorted(
+                list(self.out_degree()), key=lambda x: x[1],reverse=True
+            )
+        ]
+        print(self.sorted_nodes)
 
     @classmethod
     def from_agraph(cls, A: AGraph, lambdas):
