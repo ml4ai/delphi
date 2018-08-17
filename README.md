@@ -11,6 +11,10 @@
 Delphi is a framework for assembling, exporting and executing executable DBN
 (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
 
+For a detailed description of our procedure to conver text to models, see 
+[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
+
+
 The followng instructions describe how to install and use Delphi.
 
 The general use case involves the following steps:
