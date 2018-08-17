@@ -121,7 +121,10 @@ class Scope(metaclass=ABCMeta):
         if loop_scope is not None:
             if name == loop_scope.index_var.name:
                 return LoopVariableNode(
-                    name=name, idx=idx, scp=scp, is_index=True,
+                    name=name,
+                    idx=idx,
+                    scp=scp,
+                    is_index=True,
                     start=loop_scope.index_var.start,
                     end=loop_scope.index_var.end,
                 )
@@ -258,9 +261,10 @@ class Scope(metaclass=ABCMeta):
                 lambda_fn=getattr(node, "lambda_fn", None),
                 label=node.get_label(),
                 cag_label=node.name,
+                index_var=getattr(node, "loop_var", None),
                 is_index=getattr(node, "is_index", None),
-                start=getattr(node, 'start', None),
-                end=getattr(node, 'end', None),
+                start=getattr(node, "start", None),
+                end=getattr(node, "end", None),
                 index=int(getattr(node, "index", None)),
             )
 
@@ -296,8 +300,8 @@ class LoopScope(Scope):
             idx="0",
             scp=self.name,
             is_index=True,
-            start=self.json['index_iteration_range']['start']['value'],
-            end=self.json['index_iteration_range']['end']['value'],
+            start=self.json["index_iteration_range"]["start"]["value"],
+            end=self.json["index_iteration_range"]["end"]["value"],
         )
 
     def setup_from_json(self, vars=[]):
@@ -385,8 +389,8 @@ class LoopVariableNode(Node):
 
         super().__init__(name=name, idx=idx, scp=scp)
 
-        self.start=start
-        self.end=end
+        self.start = start
+        self.end = end
         self.is_index = is_index
         if not self.is_index:
             self.loop_var = loop_var

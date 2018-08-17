@@ -22,27 +22,25 @@ def initialize():
 
 
 def update_node(G: ProgramAnalysisGraph, n: str):
-    """ Update the value of node n. """
-    if G.nodes[n].get("update_fn") is not None:
-        for i in G.predecessors(n):
-            if G.nodes[i]["value"] is None:
-                if G.nodes[i].get("init_fn") is not None:
-                    G.nodes[i]["value"] = G.nodes[i]["init_fn"]()
-                else:
-                    update_node(G, i)
-            v = G.nodes[i]["value"]
-        update_fn = G.nodes[n]["update_fn"]
-        ivals = {i: float(G.nodes[i]["value"]) for i in G.predecessors(n)}
-        G.nodes[n]["value"] = update_fn(**ivals)
+    """ Update the value of node n, recursively visiting its ancestors. """
+    node = G.nodes[n]
+    if node.get("update_fn") is not None and not node["visited"]:
+        node["visited"] = True
+        for p in G.predecessors(n):
+            update_node(G, p)
+        ivals = {i: G.nodes[i]["value"] for i in G.predecessors(n)}
+        node["value"] = node["update_fn"](**ivals)
 
 
 @initialize.register(ProgramAnalysisGraph)
 def _(G: ProgramAnalysisGraph) -> ProgramAnalysisGraph:
     """ Initialize the value of nodes that don't have a predecessor in the
     CAG."""
-    for n in G.nodes(data=True):
-        if n[1].get("init_fn") is not None:
-            n[1]["value"] = n[1]["init_fn"]()
+
+    for n in G.nodes():
+        if G.nodes[n].get("init_fn") is not None:
+            G.nodes[n]["value"] = G.nodes[n]["init_fn"]()
+    update(G)
     return G
 
 
@@ -79,8 +77,12 @@ def update():
 
 @update.register(ProgramAnalysisGraph)
 def _(G: ProgramAnalysisGraph):
+
     for n in G.nodes():
         update_node(G, n)
+
+    for n in G.nodes(data=True):
+        n[1]["visited"] = False
 
 
 @update.register(AnalysisGraph)
@@ -101,7 +103,7 @@ def _(G: AnalysisGraph) -> AnalysisGraph:
 
     for n in G.nodes(data=True):
         n[1]["rv"].dataset = next_state[n[0]]
-        indicators=n[1].get("indicators")
+        indicators = n[1].get("indicators")
         if (indicators is not None) and (indicators != []):
             ind = n[1]["indicators"][0]
             ind.dataset = [
