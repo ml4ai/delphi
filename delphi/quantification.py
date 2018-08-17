@@ -8,7 +8,7 @@ from .AnalysisGraph import AnalysisGraph
 
 
 def map_concepts_to_indicators(
-        G: AnalysisGraph, n: int = 1, mapping_file: Optional[str] = None
+    G: AnalysisGraph, n: int = 1, mapping_file: Optional[str] = None
 ) -> AnalysisGraph:
     """ Add indicators to the analysis graph.
 

@@ -40,7 +40,7 @@ def get_latent_state_components(G) -> List[str]:
 def _write_latent_state(G, f):
     for n in G.nodes(data=True):
         f.write(f"{str(G.t)},")
-        f.write(",".join([n[0]]+[str(v) for v in n[1]['rv'].dataset]) + "\n")
+        f.write(",".join([n[0]] + [str(v) for v in n[1]["rv"].dataset]) + "\n")
 
 
 def _write_sequences_to_file(
