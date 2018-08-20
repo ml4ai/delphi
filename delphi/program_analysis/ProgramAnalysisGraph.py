@@ -36,7 +36,7 @@ def add_variable_node(G, n):
         G.add_edge(name, name)
 
 
-def add_action_node(A: AGraph, G: nx.DiGraph, λs, n):
+def add_action_node(A: AGraph, G: nx.DiGraph, lambdas, n):
     """ Add an action node to the CAG. """
     output, = A.successors(n)
 
@@ -47,7 +47,7 @@ def add_action_node(A: AGraph, G: nx.DiGraph, λs, n):
 
         # Check if it is an initialization function
         if len(A.predecessors(n)) == 0:
-            onode["init_fn"] = getattr(λs, n.attr["lambda_fn"])
+            onode["init_fn"] = getattr(lambdas, n.attr["lambda_fn"])
 
         # Otherwise append the predecessor function list
         elif n.attr["label"] == "__decision__":
@@ -59,10 +59,10 @@ def add_action_node(A: AGraph, G: nx.DiGraph, λs, n):
             ]
             condition_fn, = A.predecessors(if_var)
             condition_fn = condition_fn[: condition_fn.rfind("__")]
-            condition_λ = condition_fn.replace("condition", "lambda")
-            onode["condition_fn"] = getattr(λs, condition_λ)
+            condition_lambda = condition_fn.replace("condition", "lambda")
+            onode["condition_fn"] = getattr(lambdas, condition_lambda)
         else:
-            onode["pred_fns"].append(getattr(λs, n.attr["lambda_fn"]))
+            onode["pred_fns"].append(getattr(lambdas, n.attr["lambda_fn"]))
 
         # If the type of the function is assign, then add an edge in the CAG
         if n.attr["label"] == "__assign__":
@@ -79,7 +79,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         ]
 
     @classmethod
-    def from_agraph(cls, A: AGraph, λs):
+    def from_agraph(cls, A: AGraph, lambdas):
         """ Construct a ProgramAnalysisGraph from an AGraph """
         G = nx.DiGraph()
 
@@ -89,7 +89,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
         for n in A.nodes():
             if n.attr["node_type"] == "ActionNode":
-                add_action_node(A, G, λs, n)
+                add_action_node(A, G, lambdas, n)
 
         for n in G.nodes(data=True):
             n_preds = len(n[1]["pred_fns"])
