@@ -20,7 +20,10 @@ from pygraphviz import AGraph
 
 
 @singledispatch
-def visualize(G: DiGraph, *args, **kwargs):
+def visualize(): pass
+
+@visualize.register(AnalysisGraph)
+def _(G: AnalysisGraph, *args, **kwargs):
     """ Visualize the analysis graph in a Jupyter notebook cell. """
 
     return Image(
@@ -32,7 +35,7 @@ def visualize(G: DiGraph, *args, **kwargs):
 
 
 @visualize.register(ProgramAnalysisGraph)
-def visualize(G: ProgramAnalysisGraph, show_values=False):
+def _(G: ProgramAnalysisGraph, show_values=False):
     """ Exports AnalysisGraph to pygraphviz AGraph
 
     Args:
