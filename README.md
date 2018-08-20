@@ -61,6 +61,15 @@ pipenv install networkx==2.1  # overrides NetworkX 1.11 (a dependency of INDRA)
 
 # Usage
 
+## Jupyter notebook workflow
+
+Please see `notebooks/PI Meeting 2018 Demo.ipynb` for an example analysis
+workflow using a Jupyter notebook.
+
+You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/master)
+to try out the Jupyter notebook demo without having to install Delphi locally. 
+
+
 ## Command line usage
 
 
