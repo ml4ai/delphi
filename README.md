@@ -5,7 +5,6 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Visualization (deprecated since v2.0.0)](#cag-visualization)
 - [License](#license)
 
 Delphi is a framework for assembling, exporting and executing executable DBN
@@ -151,12 +150,6 @@ seq_no,time_slice,rainfall,crop yield
     estimate.
 
 To see all the command line options and the help message, do `./delphi.py`.
-
-# CAG visualization
-
-Delphi provides some tools to visualize analysis graphs using Jupyter notebooks.
-
-![alt text](/docs/delphi_example.png?raw=True")
 
 # License 
 
