@@ -52,7 +52,8 @@ def execute(args):
     with open(args.output_sequences, "w") as f:
         f.write(
             ",".join(
-                ["seq_no", "variable"]+[f"sample_{str(i)}" for i in range(1,G.res+1)]
+                ["seq_no", "variable"]
+                + [f"sample_{str(i)}" for i in range(1, G.res + 1)]
             )
             + "\n"
         )

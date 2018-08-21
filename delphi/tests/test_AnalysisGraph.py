@@ -25,8 +25,9 @@ def test_from_statements():
     assert set(G.nodes()) == set(["conflict", "food_security"])
     assert set(G.edges()) == set([("conflict", "food_security")])
 
+
 def test_from_statements_file():
-    with open(test_statements_file(), 'rb') as f:
+    with open(test_statements_file(), "rb") as f:
         sts_from_file = pickle.load(f)
     G = AnalysisGraph.from_statements(sts_from_file)
     assert set(G.nodes()) == set(["conflict", "food_security"])

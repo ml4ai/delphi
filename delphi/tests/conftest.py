@@ -35,11 +35,13 @@ s3 = Influence(precipitation, flooding)
 
 sts = [s1, s2, s3]
 
+
 @pytest.fixture(scope="session")
 def test_statements_file():
-    return 'test_statements.pkl'
+    return "test_statements.pkl"
 
-with open(test_statements_file(), 'wb') as f:
+
+with open(test_statements_file(), "wb") as f:
     pickle.dump(sts, f)
 
 
