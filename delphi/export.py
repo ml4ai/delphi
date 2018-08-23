@@ -189,7 +189,9 @@ def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
         "dtype": _get_dtype(n[0]),
         "arguments": list(G.predecessors(n[0])),
     }
+
     if not n[1].get("indicators") is None:
+        if 'dataset' in ind.__dict__: del ind.__dict__['dataset']
         node_dict["indicators"] = [
             _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
         ]
