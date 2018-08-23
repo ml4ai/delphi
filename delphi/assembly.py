@@ -230,7 +230,7 @@ def get_data(filename: str) -> pd.DataFrame:
 
 
 def get_mean_precipitation(year: int):
-    url="http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
+    url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
     df = pd.read_table(get_data_from_url(url))
     df.columns = df.columns.str.strip()
     df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
@@ -279,8 +279,9 @@ def process_variable_name(x: str):
     return " ".join(xs[0:2])
 
 
-def construct_concept_to_indicator_mapping(n: int = 2,
-        mapping=concept_to_indicator_mapping) -> Dict[str, List[str]]:
+def construct_concept_to_indicator_mapping(
+    n: int = 2, mapping=concept_to_indicator_mapping
+) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
     df = pd.read_table(

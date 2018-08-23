@@ -7,7 +7,7 @@ from .paths import south_sudan_data
 
 
 def parameterize(
-        G: AnalysisGraph, time: datetime, data = south_sudan_data
+    G: AnalysisGraph, time: datetime, data=south_sudan_data
 ) -> AnalysisGraph:
     """ Parameterize the analysis graph.
 

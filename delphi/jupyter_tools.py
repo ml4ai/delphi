@@ -48,15 +48,17 @@ def create_statement_inspection_table(sts: List[Influence]):
     df = df.pivot_table(index=["un_groundings", "Source API", "Sentence"])
 
     def hover(hover_color="#ffff99"):
-        return dict(selector="tr:hover",
-                props=[("background-color", "%s" % hover_color)])
+        return dict(
+            selector="tr:hover",
+            props=[("background-color", "%s" % hover_color)],
+        )
 
     styles = [
         hover(),
-        dict(props=[("font-size", "100%"), ('font-family', 'Gill Sans')]),
+        dict(props=[("font-size", "100%"), ("font-family", "Gill Sans")]),
     ]
 
-    return (df.style.set_table_styles(styles))
+    return df.style.set_table_styles(styles)
 
 
 def print_full_edge_provenance(cag, source, target):
