@@ -55,7 +55,6 @@ Then pip install pipenv and do:
 
 ```bash
 pipenv install -d
-pipenv install networkx==2.1  # overrides NetworkX 1.11 (a dependency of INDRA)
 ```
 
 # Usage
