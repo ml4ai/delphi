@@ -13,6 +13,8 @@ Delphi is a framework for assembling, exporting and executing executable DBN
 For a detailed description of our procedure to convert text to models, see 
 [this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
 
+For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+
 
 The followng instructions describe how to install and use Delphi.
 
