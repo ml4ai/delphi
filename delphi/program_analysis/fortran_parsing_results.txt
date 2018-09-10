@@ -1,0 +1,2520 @@
+Num parsed: 1
+Num failed: 549
+
+
+RECORDED ERRORS FOR: SPAM.ROOTWU
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: SPAM.PET
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PET.py'
+
+RECORDED ERRORS FOR: SPAM.OpStemp
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpStemp.py'
+
+RECORDED ERRORS FOR: SPAM.OPETPHOT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPETPHOT.py'
+
+RECORDED ERRORS FOR: SPAM.STEMP_EPIC
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'STEMP_EPIC.py'
+
+RECORDED ERRORS FOR: SPAM.ESR_SoilEvap
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ESR_SoilEvap.py'
+
+RECORDED ERRORS FOR: SPAM.SPSUBS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SPSUBS.py'
+
+RECORDED ERRORS FOR: SPAM.SOILEV
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: SPAM.TRANS
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: SPAM.STEMP
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'STEMP.py'
+
+RECORDED ERRORS FOR: SPAM.ETPHR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: SPAM.ETPHOT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/SPAM/ETPHOT.for line 821:44 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/SPAM/ETPHOT.for line 822:5 no viable alternative at input '+'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ETPHOT.py'
+
+RECORDED ERRORS FOR: SPAM.SAL_Stemp
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 125:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SAL_Stemp.py'
+
+RECORDED ERRORS FOR: SPAM.SPAM
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SPAM.py'
+
+RECORDED ERRORS FOR: Plant.plant
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 176:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'plant.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Sugarbeet/BS_PHENOL.for line 157:60 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Sugarbeet/BS_PHENOL.for line 158:5 no viable alternative at input '%'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Sugarbeet/BS_PHENOL.for line 264:6 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_NUPTAK
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_OPGROW
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 611:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_NFACTO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_NFACTO.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_OPNIT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_OPNIT.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_ROOTS
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_ROOTS.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sugarbeet.BS_CERES
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 208:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'BS_CERES.py'
+
+RECORDED ERRORS FOR: Plant.CERES-SweetCorn.SW_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 609:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SW_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-SweetCorn.SW_FreshWt
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SW_FreshWt.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_CERES
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 219:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_CERES.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_OPNIT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_OPNIT.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_KUPTAK
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_ROOTS
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_ROOTS.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_NFACTO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_NFACTO.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 617:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_OPGROW
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Maize/MZ_PHENOL.for line 156:60 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Maize/MZ_PHENOL.for line 157:5 no viable alternative at input '%'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Maize/MZ_PHENOL.for line 263:6 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Maize.MZ_NUPTAK
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.INCOMP
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.PlantNBal
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PlantNBal.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.PODS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PODS.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.CROPGRO
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CROPGRO.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.NFIX
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'NFIX.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.DEMAND
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'DEMAND.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.VEGGR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'VEGGR.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.ROOTS
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.IPPLNT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CROPGRO/IPPLNT.for line 19:16 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPPLNT.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.RESPIR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.PHOTO
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PHOTO.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.CANOPY
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.FREEZE
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.PODDET
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.MOBIL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.SENES
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SENES.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.SDCOMP
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.Opgrow
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Opgrow.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.NUPTAK
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CROPGRO.FreshWt
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'FreshWt.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.GROW
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CROPGRO/GROW.for line 387:15 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'GROW.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.RStages
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RStages.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.HRes_CGRO
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'HRes_CGRO.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.PHENOL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CROPGRO.Ipphenol
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Ipphenol.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ipplnt
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_ipplnt.for line 17:16 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_ipplnt.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_demand
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_vegdm
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ippest
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_seeddm
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_lindm
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_veggr
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_roots
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_dormancy
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_dormancy.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_opmob
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opmob.for line 44:1091 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opmob.for line 50:1276 no viable alternative at input '.2'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_opmob.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_opview
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_opview.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_incomp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_grow
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 473:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 492:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 504:16 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 512:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 640:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 652:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 664:16 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 672:15 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_grow.for line 932:41 no viable alternative at input '' days after planting.''
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_grow.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_photo
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_photo.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_canopy
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_hres_cgro
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_hres_cgro.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_opharv
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_opharv.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ipprog
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_ipprog.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_oppest
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 53:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_oppest.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ch2oref
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_ch2oref.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ipphenol
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_ipphenol.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_respir
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_pods
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_pods.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_opgrow
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 78:361 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 89:133 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 100:126 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 111:99 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 122:351 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/FORAGE/for_opgrow.for line 161:549 no viable alternative at input 'X'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_opgrow.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_rootdm
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_rootdm.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_asmdm
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_sdcomp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_mobil
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_harv
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_harv.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_rstages
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_rstages.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_pestcp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_poddet
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_freeze
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.forage
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 183:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'forage.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_nfix
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_pest
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_pest.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_plantnbal
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_plantnbal.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_phenol
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'for_phenol.py'
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_senmob
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_ipparm
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.FORAGE.for_nuptak
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_KUPTAK
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Tillsub
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RICE
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RICE.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Nfacto
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Opharv
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Opharv.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Grosub
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Rice/RI_Grosub.for line 760:32 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Grosub.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_GNURSE
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Opgrow
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Opgrow.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Ipcrop
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Rootgr
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Rootgr.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Transpl_p
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Transpl_g
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Phenol
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Rice/RI_Phenol.for line 500:28 no viable alternative at character ' '
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Rice/RI_Phenol.for line 500:36 mismatched character ' ' expecting '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Rice/RI_Phenol.for line 500:25 no viable alternative at input 'AND'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Rice/RI_Phenol.for line 502:6 no viable alternative at input 'ENDIF'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Phenol.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Nuptak
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RI_Nuptak.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Rice.RI_Calcshk
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_IPPLNT
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_CGRO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 93:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'P_CGRO.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.RootSoilVol
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RootSoilVol.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.PPlantSubs
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_Plant
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'P_Plant.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.OpPlantP
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpPlantP.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_CERES
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 107:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'P_CERES.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_Uptake
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'P_Uptake.py'
+
+RECORDED ERRORS FOR: Plant.Generic-PlantP.P_CASUPRO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 95:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'P_CASUPRO.py'
+
+RECORDED ERRORS FOR: Plant.CSYCA-Cassava.CSYCA_Interface
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSYCA_Interface.py'
+
+RECORDED ERRORS FOR: Plant.CERES-SharedFiles.SLigCeres
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SLigCeres.py'
+
+RECORDED ERRORS FOR: Plant.CERES-SharedFiles.HResCeres
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'HResCeres.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCERES_Interface
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCERES_Interface.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCRP
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CSCER_CSCRP_CSCAS/CSCRP.for line 6866:76 mismatched character ' ' expecting '.'
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCRP.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCAS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CSCER_CSCRP_CSCAS/CSCAS.for line 5093:76 mismatched character ' ' expecting '.'
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 5227:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCAS.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCRP_Interface
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCRP_Interface.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSREADS
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'id'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSREADS.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCAS_Interface
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCAS_Interface.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSDISEASE
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSDISEASE.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSUTS
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'id'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSUTS.py'
+
+RECORDED ERRORS FOR: Plant.CSCER_CSCRP_CSCAS.CSCER
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 3995:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSCER.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_PINE
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_PINE.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_NFACTO
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_GROSUB
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 579:24 no viable alternative at character ' '
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 579:29 mismatched character ' ' expecting '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 234:5 no viable alternative at input '1'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 237:11 no viable alternative at input 'ENDIF'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 243:5 no viable alternative at input '1'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_GROSUB.for line 246:12 no viable alternative at input 'ENDIF'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_ROOTGR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_ROOTGR.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ALOHA-Pineapple/Aloha_PHENOL.for line 244:5 no viable alternative at input '1'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.ALOHA-Pineapple.Aloha_NUPTAK
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Aloha_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_PHENOL.for line 528:98 no viable alternative at input ','
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_PHENOL.for line 539:111 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_NUPTAK
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_INCOMP_OUT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_INCOMP_OUT.for line 9:16 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_INCOMP_OUT.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_GROW_CANE
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_GROW_CANE.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_OPGROW
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_OPGROW.for line 545:55 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_SENES
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_SENES.for line 265:68 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_SENES.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_MOBIL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_GROW
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_GROW.for line 313:15 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_GROW.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_CANOPY
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_CANOPY.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_INPHENOL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_RESPIR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_RESPIR.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_IPPHENOL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_IPPHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_HRes
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_HRes.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_PHOTO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_PHOTO.for line 314:124 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_PHOTO.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_ROOTS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_ROOTS.for line 61:50 mismatched input '.' expecting T_RPAREN
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_ROOTS.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_VEGGR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_VEGGR.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_CASUPRO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 136:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_CASUPRO.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_DEMAND
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_DEMAND.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_IPPLNT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CASUPRO-Sugarcane/CSP_IPPLNT.for line 17:19 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSP_IPPLNT.py'
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_INCOMP
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CASUPRO-Sugarcane.CSP_IPDMND_OUT
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_OPGROW
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_COLD
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_COLD.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/NWHEAT/WH_PHENOL.for line 751:38 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_SW_SUBS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/NWHEAT/WH_SW_SUBS.for line 69:22 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/NWHEAT/WH_SW_SUBS.for line 276:59 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/NWHEAT/WH_SW_SUBS.for line 277:5 no viable alternative at input ':'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_SW_SUBS.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_NUPTAK
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/NWHEAT/WH_NUPTAK.for line 40:10 mismatched input 'SUBROUTINE' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_temp
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 47:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_temp.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_APSIM
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_APSIM.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_KUPTAK
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_ROOTS
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 372:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_ROOTS.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_OPNIT
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 46:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_OPNIT.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_NFACTO
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_NFACTO.py'
+
+RECORDED ERRORS FOR: Plant.NWHEAT.WH_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'WH_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.VEGDM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.LINDM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.IPPEST
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.SEEDDM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.PEST
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PEST.py'
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.OPPEST
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 45:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPPEST.py'
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.IPPROG
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPPROG.py'
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.ASMDM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.PESTCP
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.ROOTDM
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ROOTDM.py'
+
+RECORDED ERRORS FOR: Plant.Generic-Pest.IPPARM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_NFACT
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_OPHARV
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SG_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Sorghum/SG_PHENOL.for line 139:38 missing T_IDENT at '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Sorghum/SG_PHENOL.for line 140:5 no viable alternative at input '+'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SG_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_PHASEI
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_NUPTAK
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SG_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 191:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SG_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_CERES
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 495:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SG_CERES.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Sorghum.SG_ROOTGR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.OR_Opharv
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/OR_Opharv.for line 49:159 no viable alternative at input '\n'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OR_Opharv.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdin
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinqr
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 11:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdinqr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinit
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdinit.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrstim
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfdor
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfdor.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsinr
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 16:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsinr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.fopens
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdre
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmrea
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmrea.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdftim
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdftim.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdarea
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdarea.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.istart
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/istart.for line 14:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/istart.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/istart.for' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'istart.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.sortch
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/sortch.for line 40:8 no viable alternative at input 'ENDIF'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'sortch.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsets
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsets.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdalog
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdalog.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmlog
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmlog.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsctb
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 136:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsctb.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entddo
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfcha
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfcha.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.INSW
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.warning_OR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsint
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsint.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.reanor
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdarer
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdarer.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfdou
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfdou.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdindt
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.lint
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/lint.for line 15:5 no viable alternative at input '$'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/lint.for line 17:5 no viable alternative at input '$'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'lint.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrscha
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entint
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtdpar
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpar.for line 17:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpar.for line 17:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpar.for line 19:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpar.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpar.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'dtdpar.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrsdou
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.lowerc
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/lowerc.for line 11:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/lowerc.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/lowerc.for' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'lowerc.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addstf
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsrea
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsrea.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entyno
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.words
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/words.for line 31:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/words.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/words.for' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'words.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dectim
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdslog
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdslog.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinne
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 17:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdinne.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.LINT2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/LINT2.for line 28:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/LINT2.for line 28:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/LINT2.for line 48:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/LINT2.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/LINT2.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'LINT2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.copfl2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/copfl2.for line 36:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'copfl2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wratim
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addstr
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdainr
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdainr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entrea
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.parsword
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.movavr
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for line 18:6 no viable alternative at input 'ELSE'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for line 37:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for line 37:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for line 39:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/movavr.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'movavr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.notnul
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdch
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wracha
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfrom
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 17:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfrom.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.remove
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtardp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rddtmp
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 11:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rddtmp.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wradou
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmint
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmint.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.outplt
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 57:16 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 57:18 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 109:9 no viable alternative at input 'ELSE'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 118:13 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 118:15 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 175:22 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 175:24 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for line 212:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outplt.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'outplt.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.ifindi
+	SyntaxError: invalid syntax
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rderr
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rderr.for line 19:5 no viable alternative at input '$'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rderr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rderri
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.sfindg
+	KeyError: 'id'
+	FileNotFoundError: [Errno 2] No such file or directory: 'sfindg.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdaint
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdaint.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.decdou
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.sortin
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/sortin.for line 39:8 no viable alternative at input 'ENDIF'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'sortin.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsrer
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 16:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsrer.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.delfil
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtdpst
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpst.for line 131:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpst.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtdpst.for' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'dtdpst.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdtmp2
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdtmp2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addref
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrinit
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdstim
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdstim.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.getun
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/getun.for line 15:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'getun.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.ttuver
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.getrec
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/getrec.for line 15:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'getrec.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.ambusy
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.decrea
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdtmp1
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 29:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 29:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 38:47 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 65:37 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 105:5 no viable alternative at input '$'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdtmp1.for line 108:15 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdtmp1.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.decrec
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/decrec.for line 39:5 no viable alternative at input '$'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'decrec.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinqr3
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.swpi4
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/swpi4.for line 39:13 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/swpi4.for line 39:15 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/swpi4.for line 65:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/swpi4.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/swpi4.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'swpi4.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsdor
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 16:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsdor.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmdef
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 10:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmdef.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrarea
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfinr
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfinr.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.iunifl
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/iunifl.for line 12:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'iunifl.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtsys
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtsys.for line 100:6 no viable alternative at input 'ELSE'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/dtsys.for line 160:6 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'dtsys.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wralog
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.enthlp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinqr2
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.usedun
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rchrsrc
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rchrsrc.for line 15:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rchrsrc.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.enttim
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdou
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.TIMER2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/TIMER2.for line 88:12 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'TIMER2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.messwrt
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.getun2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/getun2.for line 32:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'getun2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrsint
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.decchk
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtleap
+	AttributeError: 'Attribute' object has no attribute 'id'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.outcom
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outcom.for line 21:13 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outcom.for line 21:15 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outcom.for line 36:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outcom.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outcom.for' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'outcom.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.reaand
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdyn
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinar
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entdti
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addrea
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.entcha
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/entcha.for line 14:5 no viable alternative at input '$'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/entcha.for line 17:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'entcha.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdscha
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdscha.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rddata
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rddata.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfint
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfint.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.unifl
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.extens
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/extens.for line 26:57 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/extens.for line 27:5 no viable alternative at input '$'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'extens.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdsdou
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdsdou.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdinlv
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.str_copy
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtfsedp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.flname
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdador
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdador.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrsrea
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wrslog
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addint
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdatim
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdatim.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfrea
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfrea.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmtim
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmtim.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdflog
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdflog.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdindx
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdindx.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdpars
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdpars.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.ver4_23
+	AttributeError: 'Attribute' object has no attribute 'id'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdacha
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 13:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdacha.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmcha
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 11:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmcha.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.dtfsecmp
+	SyntaxError: invalid syntax
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdmdou
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 12:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdmdou.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdfrer
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 18:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdfrer.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdadou
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 14:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdadou.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.decint
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.INTGRL
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.outar2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outar2.for line 18:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outar2.for line 18:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outar2.for line 55:9 mismatched input '/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outar2.for:/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/outar2.for' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'outar2.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.rdlex
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 54:19 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 54:21 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 62:16 mismatched input 'DO' expecting T_IF
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 93:9 no viable alternative at input 'ELSE'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 227:10 mismatched input 'IF' expecting T_DO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 227:12 mismatched input '\n' expecting T_LPAREN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 238:9 missing T_IF at '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/ORYZA/ttutil/rdlex.for line 239:6 no viable alternative at input 'SUBROUTINE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'rdlex.py'
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.wraint
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.addinf
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.ORYZA.ttutil.flexist
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Nfacto
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Opharv
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/AROIDS/TR_Opharv.for line 50:18 no viable alternative at input '\n'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Opharv.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Calcshk
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Transpl_p
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Transpl_g
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Transpl_g.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Nuptak
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/AROIDS/TR_Nuptak.for line 177:14 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/AROIDS/TR_Nuptak.for line 179:14 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Nuptak.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_SUBSTOR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_SUBSTOR.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Tillsub
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Phenol
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Phenol.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Rootgr
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Rootgr.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Ipcrop
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_Grosub
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_Grosub.py'
+
+RECORDED ERRORS FOR: Plant.AROIDS.TR_OPGROW
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TR_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 691:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_IX_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_KNUMBER
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_RADABS
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-IXIM-Maize/MZ_IX_PHENOL.for line 157:60 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-IXIM-Maize/MZ_IX_PHENOL.for line 158:5 no viable alternative at input '%'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-IXIM-Maize/MZ_IX_PHENOL.for line 265:6 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_IX_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_PHOTSYNT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_IX_PHOTSYNT.py'
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_NUPTAK
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MZ_IX_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_LEAFAREA
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_PLANTG
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-IXIM-Maize.MZ_IX_RESPIR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_TILLSUB
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_NFACT
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_opharv
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_opharv.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_rootgr
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_OPGROW
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_GROSUB
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 528:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_NUPTAK
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_CERES
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_CERES.py'
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_PHASEI
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CERES-Millet.ML_PHENOL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Millet/ML_PHENOL.for line 151:38 missing T_IDENT at '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CERES-Millet/ML_PHENOL.for line 152:5 no viable alternative at input '+'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ML_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_SUBSTOR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PT_SUBSTOR.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_OPHARV
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/SUBSTOR-Potato/PT_OPHARV.for line 52:60 no viable alternative at input '\n'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/SUBSTOR-Potato/PT_OPHARV.for line 53:5 no viable alternative at input '1'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'PT_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_NFACTO
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_ROOTGR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_GROSUB
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PT_GROSUB.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_OPGROW
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'PT_OPGROW.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_THTIME
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_PHASEI
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_NUPTAK
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 113:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'PT_NUPTAK.py'
+
+RECORDED ERRORS FOR: Plant.SUBSTOR-Potato.PT_PHENOL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_Poplt3
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 129:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_Poplt3.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_PHENOL
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_PHENOL.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_CNG_mods
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CANEGRO-Sugarcane/SC_CNG_mods.for line 255:5 no viable alternative at input '1'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_CNG_mods.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_Canop3
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_Canop3.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_PARTIT
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_PARTIT.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_COEFFS
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_COEFFS.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_CNGRO
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_CNGRO.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_ROOTG
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_ROOTG.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_OUTPUT
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_OUTPUT.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_GTP_SHOOTS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_GTP_SHOOTS.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_CCOUT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_CCOUT.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_OPHARV
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 94:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_OPHARV.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_ETOUT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_ETOUT.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_PHOTOS
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 1:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_PHOTOS.py'
+
+RECORDED ERRORS FOR: Plant.CANEGRO-Sugarcane.SC_UM_WSTRESS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Plant/CANEGRO-Sugarcane/SC_UM_WSTRESS.for line 142:32 no viable alternative at input '-'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SC_UM_WSTRESS.py'
+
+RECORDED ERRORS FOR: Management.MgmtOps
+	Error: Whitespace within real constant at {line:col}: 109:44
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MgmtOps.py'
+
+RECORDED ERRORS FOR: Management.OM_Place
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OM_Place.py'
+
+RECORDED ERRORS FOR: Management.CHEMICAL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CHEMICAL.py'
+
+RECORDED ERRORS FOR: Management.OpFlood
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/OpFlood.for line 45:19 no viable alternative at character ' '
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/OpFlood.for line 45:17 no viable alternative at input 'NE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpFlood.py'
+
+RECORDED ERRORS FOR: Management.Paddy_Mgmt
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Paddy_Mgmt.py'
+
+RECORDED ERRORS FOR: Management.Tillage
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Tillage.py'
+
+RECORDED ERRORS FOR: Management.Fert_Place
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/Fert_Place.for line 247:15 no viable alternative at input '('
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'Fert_Place.py'
+
+RECORDED ERRORS FOR: Management.TillEvent
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TillEvent.py'
+
+RECORDED ERRORS FOR: Management.AUTPLT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/AUTPLT.for line 126:56 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/AUTPLT.for line 181:80 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'AUTPLT.py'
+
+RECORDED ERRORS FOR: Management.AUTHAR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'AUTHAR.py'
+
+RECORDED ERRORS FOR: Management.IRRIG
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IRRIG.py'
+
+RECORDED ERRORS FOR: Management.Flood_Irrig
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Management/Flood_Irrig.for line 120:15 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'Flood_Irrig.py'
+
+RECORDED ERRORS FOR: Utilities.OPVIEW
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 205:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPVIEW.py'
+
+RECORDED ERRORS FOR: Utilities.UTILS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'UTILS.py'
+
+RECORDED ERRORS FOR: Utilities.OSDefsWINDOWS
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Utilities.READS
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Utilities.ModuleDefs
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ModuleDefs.py'
+
+RECORDED ERRORS FOR: Utilities.CSMVersion
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSMVersion.py'
+
+RECORDED ERRORS FOR: Utilities.ERROR
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'ERROR.py'
+
+RECORDED ERRORS FOR: Utilities.OPSUM
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPSUM.py'
+
+RECORDED ERRORS FOR: Utilities.RunList
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RunList.py'
+
+RECORDED ERRORS FOR: Utilities.IPIBS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPIBS.py'
+
+RECORDED ERRORS FOR: Utilities.Warning
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Warning.py'
+
+RECORDED ERRORS FOR: Utilities.DATES
+	SyntaxError: invalid syntax
+
+RECORDED ERRORS FOR: Utilities.Info
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Info.py'
+
+RECORDED ERRORS FOR: Utilities.OPSTRESS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Utilities/OPSTRESS.for line 169:99 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPSTRESS.py'
+
+RECORDED ERRORS FOR: Utilities.OPGeneric
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPGeneric.py'
+
+RECORDED ERRORS FOR: Utilities.OSDefsLINUX
+	KeyError: 'start'
+
+RECORDED ERRORS FOR: Soil.SOIL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOIL.py'
+
+RECORDED ERRORS FOR: Soil.GHG.N2O_mod
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'N2O_mod.py'
+
+RECORDED ERRORS FOR: Soil.GHG.diffusiv
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'diffusiv.py'
+
+RECORDED ERRORS FOR: Soil.GHG.Denit_DayCent
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Denit_DayCent.py'
+
+RECORDED ERRORS FOR: Soil.GHG.Denit_Ceres
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Denit_Ceres.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.WBSUBS
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'WBSUBS.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.WBAL
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 105:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WBAL.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.WATBAL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'WATBAL.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.RETC_VG
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 586:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'RETC_VG.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.OPWBAL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPWBAL.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.SATFLO
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.SoilWater.RNOFF
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RNOFF.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.TILEDRAIN
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TILEDRAIN.py'
+
+RECORDED ERRORS FOR: Soil.SoilWater.INFIL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilWater/INFIL.for line 43:22 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilWater/INFIL.for line 46:14 no viable alternative at input 'ENDDO'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilWater/INFIL.for line 49:10 no viable alternative at input 'ENDIF'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilWater/INFIL.for line 51:8 no viable alternative at input 'ELSE'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'INFIL.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.EQUIL2
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_N/EQUIL2.for line 198:32 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'EQUIL2.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.OPSOILNI
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPSOILNI.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.SoilNi_init
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNi_init.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.NCHECK_inorg
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'NCHECK_inorg.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.NFLUX
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.SoilNiBal
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_N/SoilNiBal.for line 132:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNiBal.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.OXLAYER
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_N/OXLAYER.for line 164:14 no viable alternative at input '.'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_N/OXLAYER.for line 284:6 no viable alternative at input 'END'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OXLAYER.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_N.SOILNI
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOILNI.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilPBalSum
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPBalSum.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.IPSOIL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPSOIL.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.TextureClass
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilUtilities/TextureClass.for line 43:60 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'TextureClass.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilNBalSum
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNBalSum.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilPoBal
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilUtilities/SoilPoBal.for line 116:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPoBal.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilNoPoBal
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilUtilities/SoilNoPoBal.for line 189:12 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNoPoBal.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.LMATCH
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilMixing
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SOILDYN
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 486:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOILDYN.py'
+
+RECORDED ERRORS FOR: Soil.SoilUtilities.SoilNoBal
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/SoilUtilities/SoilNoBal.for line 116:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNoBal.py'
+
+RECORDED ERRORS FOR: Soil.FloodN.OPFLOODN
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPFLOODN.py'
+
+RECORDED ERRORS FOR: Soil.FloodN.FCHEM
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'FCHEM.py'
+
+RECORDED ERRORS FOR: Soil.FloodN.FLOODI
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'FLOODI.py'
+
+RECORDED ERRORS FOR: Soil.FloodN.Flood_Chem
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'Flood_Chem.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.EFLOW_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SOMINIT_c
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SOMINIT_c.for line 146:65 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOMINIT_c.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SOMFIX_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOMFIX_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.RPLACE_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'RPLACE_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.IPHedley_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPHedley_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SoilCNPinit_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilCNPinit_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.OPSOMLIT_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/OPSOMLIT_C.for line 308:11 no viable alternative at input ''!''
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPSOMLIT_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.INCORPOR_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SOMLITPRINT_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SOMLITPRINT_C.for line 42:145 no viable alternative at input '3'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SOMLITPRINT_C.for line 45:202 no viable alternative at input '3'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SOMLITPRINT_C.for line 57:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SOMLITPRINT_C.for line 58:64 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SOMLITPRINT_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SOMDEC_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.CENTURY
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/CENTURY.for line 47:16 no viable alternative at input '('
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CENTURY.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.PARTIT_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.IMMOBLIMIT_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.DECRAT_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'DECRAT_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SoilPoBal_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SoilPoBal_C.for line 125:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPoBal_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.TSOMLIT_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'TSOMLIT_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SENESADD_C
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SENESADD_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SoilCBal_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SoilCBal_C.for line 60:13 no viable alternative at input '('
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SoilCBal_C.for line 84:453 no viable alternative at input '.2'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SoilCBal_C.for line 89:10 mismatched input 'SUBROUTINE' expecting T_IF
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilCBal_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.LITDEC_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.SoilNoBal_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/SoilNoBal_C.for line 125:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilNoBal_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.NCHECK_C
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 22:13 no viable alternative at input '' residue''
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 70:77 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 98:45 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 102:45 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 118:45 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/CENTURY_OrganicMatter/NCHECK_C.for line 122:45 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'NCHECK_C.py'
+
+RECORDED ERRORS FOR: Soil.CENTURY_OrganicMatter.CE_RATIO_C
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Soil.Inorganic_K.SoilKi
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilKi.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_K.OpSoilKi
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpSoilKi.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_K.SoilK_init
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilK_init.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_P.SoilPi_init
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPi_init.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_P.OpSoilPi
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpSoilPi.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_P.IPHedley_inorg
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPHedley_inorg.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_P.SoilPi
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_P/SoilPi.for line 472:17 no viable alternative at input '.'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPi.py'
+
+RECORDED ERRORS FOR: Soil.Inorganic_P.SoilPiBal
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Soil/Inorganic_P/SoilPiBal.for line 104:29 no viable alternative at input '/'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilPiBal.py'
+
+RECORDED ERRORS FOR: Soil.CERES_OrganicMatter.SoilOrg_init
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilOrg_init.py'
+
+RECORDED ERRORS FOR: Soil.CERES_OrganicMatter.OpSoilOrg
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OpSoilOrg.py'
+
+RECORDED ERRORS FOR: Soil.CERES_OrganicMatter.NCHECK_organic
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'NCHECK_organic.py'
+
+RECORDED ERRORS FOR: Soil.CERES_OrganicMatter.SoilOrg
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'SoilOrg.py'
+
+RECORDED ERRORS FOR: Soil.Mulch.MULCHLAYER
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MULCHLAYER.py'
+
+RECORDED ERRORS FOR: Soil.Mulch.OPMULCH
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPMULCH.py'
+
+RECORDED ERRORS FOR: Soil.Mulch.MULCHEVAP
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MULCHEVAP.py'
+
+RECORDED ERRORS FOR: Soil.Mulch.MULCHWAT
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'MULCHWAT.py'
+
+RECORDED ERRORS FOR: InputModule.SETIME
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 125:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 126:121 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 128:121 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 129:113 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 130:113 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SETIME.for line 132:119 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SETIME.py'
+
+RECORDED ERRORS FOR: InputModule.IPSLIN
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPSLIN.py'
+
+RECORDED ERRORS FOR: InputModule.OPHEAD
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPHEAD.py'
+
+RECORDED ERRORS FOR: InputModule.IPTILL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.SEIRR
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 124:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 126:100 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 127:125 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 171:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 210:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 211:102 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 213:101 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 381:77 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 382:140 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 383:104 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 384:99 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 385:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 386:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 388:117 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 390:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 391:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEIRR.for line 392:296 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEIRR.py'
+
+RECORDED ERRORS FOR: InputModule.INSOIL
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.SENS
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SENS.for line 220:605 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SENS.for line 223:55 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SENS.py'
+
+RECORDED ERRORS FOR: InputModule.SEINIT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 109:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 110:161 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 111:128 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 112:128 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 113:116 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 115:125 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 116:128 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 117:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 118:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 119:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEINIT.for line 120:129 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEINIT.py'
+
+RECORDED ERRORS FOR: InputModule.INSTGE
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.INVAR
+	Error: matchClosingParen(): Missing closing paren (or bracket) on line 503:
+	xml.etree.ElementTree.ParseError: not well-formed (invalid token): line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'INVAR.py'
+
+RECORDED ERRORS FOR: InputModule.optempy2k
+	KeyError: 'type'
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.SEVAR
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEVAR.for line 92:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEVAR.for line 151:120 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEVAR.py'
+
+RECORDED ERRORS FOR: InputModule.IPSIM
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPSIM.py'
+
+RECORDED ERRORS FOR: InputModule.IPCHEM
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.OPGEN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/OPGEN.for line 38:60 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPGEN.py'
+
+RECORDED ERRORS FOR: InputModule.SESIM
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 152:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 230:103 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 267:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 298:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 337:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 381:117 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 419:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESIM.for line 457:117 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SESIM.py'
+
+RECORDED ERRORS FOR: InputModule.IPVAR
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/IPVAR.for line 174:86 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPVAR.py'
+
+RECORDED ERRORS FOR: InputModule.SEPLT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 133:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 134:107 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 136:99 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 138:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 139:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 140:129 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 141:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 142:130 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 143:116 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 144:132 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 169:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 202:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 335:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 336:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 338:108 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 339:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 340:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 341:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 342:115 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 343:116 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 344:117 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPLT.for line 345:117 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEPLT.py'
+
+RECORDED ERRORS FOR: InputModule.IPENV
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.SECROP
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECROP.for line 35:55 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECROP.for line 121:46 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECROP.for line 179:120 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SECROP.py'
+
+RECORDED ERRORS FOR: InputModule.SECLI
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECLI.for line 143:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECLI.for line 144:136 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECLI.for line 145:136 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECLI.for line 146:145 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SECLI.for line 176:111 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SECLI.py'
+
+RECORDED ERRORS FOR: InputModule.WTHSET
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.IPSOIL_Inp
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/IPSOIL_Inp.for line 414:90 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPSOIL_Inp.py'
+
+RECORDED ERRORS FOR: InputModule.PATH
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.ipexp
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/ipexp.for line 458:50 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/ipexp.for line 459:92 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/ipexp.for line 469:90 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'ipexp.py'
+
+RECORDED ERRORS FOR: InputModule.INTRO
+	xml.etree.ElementTree.ParseError: reference to invalid character number: line 595, column 75
+	FileNotFoundError: [Errno 2] No such file or directory: 'INTRO.py'
+
+RECORDED ERRORS FOR: InputModule.IPECO
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/IPECO.for line 114:86 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPECO.py'
+
+RECORDED ERRORS FOR: InputModule.IPMAN
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:635)
+		at fortran.ofp.XMLPrinterBase.cleanUpAfterError(XMLPrinterBase.java:641)
+	KeyError: 'id'
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPMAN.py'
+
+RECORDED ERRORS FOR: InputModule.SESOIL
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 117:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 118:133 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 191:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 255:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 259:122 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 315:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 319:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 386:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 387:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 388:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 389:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 390:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 391:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SESOIL.for line 392:149 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SESOIL.py'
+
+RECORDED ERRORS FOR: InputModule.input_sub
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/input_sub.for line 124:175 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/input_sub.for line 125:58 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'input_sub.py'
+
+RECORDED ERRORS FOR: InputModule.SEFERT
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 143:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 183:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 241:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 242:145 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 244:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 245:116 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 246:186 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 280:117 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 320:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 321:145 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 323:145 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 511:77 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 512:142 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 513:102 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 514:99 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 515:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 516:124 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 518:120 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 520:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 521:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 522:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 524:296 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFERT.for line 525:252 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEFERT.py'
+
+RECORDED ERRORS FOR: InputModule.SEPEST
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEPEST.for line 37:57 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEPEST.py'
+
+RECORDED ERRORS FOR: InputModule.SEFREQ
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFREQ.for line 119:56 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFREQ.for line 120:97 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFREQ.for line 123:166 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEFREQ.py'
+
+RECORDED ERRORS FOR: InputModule.SEHARV
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 133:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 137:113 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 138:110 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 139:118 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 140:118 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 141:120 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 172:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 245:61 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 246:106 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 249:113 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 250:110 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 251:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 252:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEHARV.for line 278:106 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEHARV.py'
+
+RECORDED ERRORS FOR: InputModule.OPTEMPXY2K
+	KeyError: 'type'
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.WEATHR_Inp
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: InputModule.SEWTH
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEWTH.for line 128:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEWTH.for line 129:136 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEWTH.for line 130:136 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEWTH.for line 267:94 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEWTH.py'
+
+RECORDED ERRORS FOR: InputModule.SEFLD
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFLD.for line 52:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFLD.for line 53:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFLD.for line 54:119 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFLD.for line 55:123 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SEFLD.for line 56:123 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SEFLD.py'
+
+RECORDED ERRORS FOR: InputModule.SERES
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 80:57 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 120:109 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 342:77 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 343:137 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 344:99 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 345:96 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 346:118 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 347:118 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 349:116 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 351:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 352:59 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 353:112 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 354:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 355:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 356:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 357:111 no viable alternative at input ')'
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/InputModule/SERES.for line 358:309 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'SERES.py'
+
+RECORDED ERRORS FOR: Weather.HMET
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Weather.IPWTH_alt
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Weather/IPWTH_alt.for line 23:15 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'IPWTH_alt.py'
+
+RECORDED ERRORS FOR: Weather.CO2VAL
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'CO2VAL.py'
+
+RECORDED ERRORS FOR: Weather.SOLAR
+	SyntaxError: unexpected EOF while parsing
+
+RECORDED ERRORS FOR: Weather.WTHMOD
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'WTHMOD.py'
+
+RECORDED ERRORS FOR: Weather.weathr
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Weather/weathr.for line 14:14 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'weathr.py'
+
+RECORDED ERRORS FOR: Weather.OPWEATH
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Weather/OPWEATH.for line 12:16 no viable alternative at input ','
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'OPWEATH.py'
+
+RECORDED ERRORS FOR: Weather.WGEN
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/Weather/WGEN.for line 483:10 mismatched input 'FUNCTION' expecting T_DO
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'WGEN.py'
+
+RECORDED ERRORS FOR: CSM_Main.CSM
+	/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/CSM_Main/CSM.for line 283:100 no viable alternative at input ')'
+	xml.etree.ElementTree.ParseError: no element found: line 1, column 0
+	FileNotFoundError: [Errno 2] No such file or directory: 'CSM.py'
+
+RECORDED ERRORS FOR: CSM_Main.LAND
+	KeyError: 'name'
+	FileNotFoundError: [Errno 2] No such file or directory: 'LAND.py'
