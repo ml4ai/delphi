@@ -59,6 +59,12 @@ Then pip install pipenv and do:
 pipenv install -d
 ```
 
+## Ubuntu installation notes
+To install graphviz on Ubuntu, do 
+
+```bash 
+sudo apt-get install graphviz libgraphviz-dev pkg-config
+```
 # Usage
 
 ## Jupyter notebook workflow

@@ -23,7 +23,7 @@ checkVersion() {
 }
 
 findExec() {
-    for p in $(compgen -c python); do 
+    for p in $(compgen -c python); do
         checkVersion $p
 
         if [ $cmp -eq 1 ]; then
