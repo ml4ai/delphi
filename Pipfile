@@ -21,6 +21,8 @@ pygraphviz = "*"
 dataclasses = "*"
 seaborn = ">=0.9.0"
 jupyter = "*"
+django = "*"
+djangorestframework = "*"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git"}
