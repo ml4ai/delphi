@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import networkx as nx
 import pandas as pd
 import numpy as np
+import uuid
 
 from .assembly import (
     get_data,
@@ -58,6 +59,7 @@ class AnalysisGraph(nx.DiGraph):
         self.time_unit: str = "Placeholder time unit"
         self.data = None
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
+        self.id = uuid.uuid1()
 
     # ==========================================================================
     # Constructors
