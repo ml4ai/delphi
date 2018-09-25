@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from api.models import DelphiModel
+from api.models import ICMMetadata
 
-class DelphiModelSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=200)
-    dateCreated = serializers.DateTimeField()
-    delta_t = serializers.FloatField()
+class ICMMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ICMMetadata
+        fields = '__all__'

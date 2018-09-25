@@ -1,8 +1,9 @@
+import uuid
 from django.db import models
 
-class DelphiModel(models.Model):
-    created=models.DateTimeField(auto_now_add=True)
-    title=models.CharField(max_length=100, blank=True, default='')
-
-    class Meta:
-        ordering = ('created',)
+class ICMMetadata(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    icmProvider = models.CharField(max_length=100, default="DUMMY")
+    title = models.CharField(max_length=100, default="DelphiModel")
+    version = models.IntegerField()
+    created = models.DateTimeField(auto_now=True)
