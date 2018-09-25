@@ -15,6 +15,7 @@ def main():
     num_parsed = 0
     num_failed = 0
     failed_modules = dict()
+    parsed_modules = list()
     p = Pool(cpu_count())
     res = list(tqdm(p.imap(attempt_parse, fortran_files), total=len(fortran_files)))
     for (ecode, errors, mod_name) in res:
@@ -23,10 +24,16 @@ def main():
             failed_modules[mod_name] = errors
         else:
             num_parsed += 1
+            parsed_modules.append(mod_name)
 
     with open("fortran_parsing_results.txt", "w+") as outfile:
         outfile.write("Num parsed: {}\nNum failed: {}\n\n"
                       .format(num_parsed, num_failed))
+
+        outfile.write("CORRECTLY PARSED MODULES:\n\n")
+        for mod_name in parsed_modules:
+            outfile.write("\t{}\n".format(mod_name))
+        outfile.write("\n")
 
         for mod_name, errors in failed_modules.items():
             outfile.write("\nRECORDED ERRORS FOR: {}\n".format(mod_name))

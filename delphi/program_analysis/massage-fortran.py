@@ -6,6 +6,9 @@ from tqdm import tqdm
 
 def process(fname):
     lines = list()
+    total_comments = 0
+    total_code = 0
+    total_inline_comments = 0
     with open(fname, "rb") as infile:
         for line in infile.readlines():
             ascii_line = line.decode("ascii", errors="replace")
@@ -18,6 +21,8 @@ def process(fname):
             # remove lines that are entirely comments
             if trimmed_line.startswith(" ") or trimmed_line.startswith("\t"):
                 lines.append(trimmed_line)
+            else:
+                total_comments += 1
 
     # remove partial-line comments
     for i in range(len(lines)):
@@ -27,6 +32,7 @@ def process(fname):
         quote_idx = line.rfind('"')
         if ex_idx >= 0:
             if ex_idx > apos_idx and ex_idx > quote_idx:
+                total_inline_comments += 1
                 lines[i] = line[:ex_idx]
 
     lines = [line for line in lines if len(line.lstrip()) > 0]
@@ -51,6 +57,8 @@ def process(fname):
                 lines.pop(i)
                 chg = True
 
+    total_code = len(lines)
+    return (total_code, total_comments, total_inline_comments)
     outline = '\n'.join(lines)
     new_fortran_path = "/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/"
 
@@ -69,10 +77,22 @@ def main():
     files = [os.path.join(root, elm)
              for root, dirs, files in os.walk(codebase_path) for elm in files]
 
-    fortran_files = [x for x in files if x.endswith(".for")]
+    fortran_files = [x for x in files if x.endswith(".for") or x.endswith(".f90")]
 
+    tot_code = 0
+    tot_comm = 0
+    tot_in_comm = 0
     for fname in tqdm(fortran_files, desc="Processing Fortran"):
-        process(fname)
+        (code, comm, in_comm) = process(fname)
+        tot_code += code
+        tot_comm += comm
+        tot_in_comm += in_comm
+
+    print("Resultant counts:")
+    print("Total lines of code: {}".format(tot_code))
+    print("Total lines of comment: {}".format(tot_comm))
+    print("Total # of inline comments: {}".format(tot_in_comm))
+    print("Total lines of code w/o comment (tCode - tInLineComm): {}".format(tot_code - tot_in_comm))
 
 
 if __name__ == '__main__':
