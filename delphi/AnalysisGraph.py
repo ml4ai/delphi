@@ -3,6 +3,7 @@ import random
 import json
 import pickle
 from dataclasses import dataclass
+from datetime import datetime
 import networkx as nx
 import pandas as pd
 import numpy as np
@@ -57,6 +58,7 @@ class AnalysisGraph(nx.DiGraph):
         self.t: float = 0.0
         self.Δt: float = 1.0
         self.time_unit: str = "Placeholder time unit"
+        self.dateCreated = datetime.now()
         self.data = None
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
         self.id = uuid.uuid1()

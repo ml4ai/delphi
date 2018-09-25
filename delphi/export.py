@@ -244,7 +244,7 @@ def to_json_dict(G: AnalysisGraph):
     """ Export the CAG to JSON """
     return {
         "name": G.name,
-        "dateCreated": str(datetime.now()),
+        "dateCreated": str(G.dateCreated),
         "variables": lmap(partial(export_node, G), G.nodes(data=True)),
         "timeStep": str(G.Δt),
         "edge_data": lmap(_export_edge, G.edges(data=True)),
