@@ -59,6 +59,12 @@ Then pip install pipenv and do:
 pipenv install -d
 ```
 
+## Ubuntu installation notes
+To install graphviz on Ubuntu, do 
+
+```bash 
+sudo apt-get install graphviz libgraphviz-dev pkg-config
+```
 # Usage
 
 ## Jupyter notebook workflow
@@ -68,6 +74,9 @@ workflow using a Jupyter notebook.
 
 You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 to try out the Jupyter notebook demo without having to install Delphi locally. 
+
+You can see a prerendered HTML version of the notebook at
+[http://vision.cs.arizona.edu/adarsh/export/delphi_demo_wm_pi_meeting_2018.html](http://vision.cs.arizona.edu/adarsh/export/delphi_demo_wm_pi_meeting_2018.html)
 
 
 ## Command line usage
