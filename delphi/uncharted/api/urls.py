@@ -1,22 +1,16 @@
-from django.urls import path
+from django.urls import path, re_path, include
+from rest_framework.routers import DefaultRouter
+
 
 from . import views
 
+router=DefaultRouter()
+router.register(r'icm', views.icm)
+
 urlpatterns = [
-
-    # <server_address> as per above, on localhost via port 8080 
-
-    path('icm/', views.icm),
-    path('icm/<uuid>/', views.icm_uuid),
-    path('icm/<uuid>/primitive', views.icm_uuid_primitive),
-    # this would call the function get_Delphi_model_ids defined in views.py
-    # output would be available at http://<server_address>/icm
-
-    # path(r'^icm/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{' r'12})/primitive', name="DelphiPrimitives"),
-    # example of more realistic path as per ICM API, with regex for a legitimate model uuid
-    # path would be: http://<server_address>/icm/<uuid>/primitive
-
-    # path(r'^model/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{'
-        # r'12})/some_other_model_function', name="SomethingeElse")
-
+    re_path(r'^', include(router.urls)),
+    # path('icm/', views.icm.as_view({'get':'list'})),
+    # path('icm/<uuid>/', views.icm_uuid.as_view),
+    # path('icm/<uuid>/primitive', views.ICM_UUID),
+    # path('icm/<uuid>/primitive', views.icm_uuid_primitive),
 ]
