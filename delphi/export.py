@@ -222,7 +222,7 @@ def export(
     """
 
     if format == "full":
-        to_json(G, json_file)
+        write_to_json_file(G, json_file)
         _pickle(G, pickle_file)
         export_default_initial_values(G, variables_file)
 
@@ -230,7 +230,7 @@ def export(
         return to_agraph(G)
 
     if format == "json":
-        to_json(G, json_file)
+        write_to_json_file(G, json_file)
 
 
 def _pickle(G: AnalysisGraph, filename: str):
@@ -238,12 +238,12 @@ def _pickle(G: AnalysisGraph, filename: str):
         pickle.dump(G, f)
 
 
-def to_json(G: AnalysisGraph, filename: str):
+def write_to_json_file(G: AnalysisGraph, filename: str):
     with open(filename, "w") as f:
-        json.dump(to_json_dict(G), f, indent=2)
+        json.dump(to_dict(G), f, indent=2)
 
 
-def to_json_dict(G: AnalysisGraph):
+def to_dict(G: AnalysisGraph) -> Dict:
     """ Export the CAG to JSON """
     return {
         "name": G.name,
