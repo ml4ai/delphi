@@ -3,7 +3,7 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1436914.svg)](https://doi.org/10.5281/zenodo.1436914)
 
-# Delphi
+<img src="https://raw.githubusercontent.com/ml4ai/delphi/master/docs/delphi_logo.png" width="48">
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -17,8 +17,17 @@ For a detailed description of our procedure to convert text to models, see
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
 
+# Citing
 
-The followng instructions describe how to install and use Delphi.
+If you use Delphi, please cite the following:
+
+```latex
+@misc{Delphi,
+	Author = {Adarsh Pyarelal and Paul Hein and Clayton Morrison},
+    Title = {Delphi: A Framework for Assembling Causal Probabilistic Models from Text and Software.},
+    doi={10.5281/zenodo.1436915},
+}
+```
 
 The general use case involves the following steps:
 
