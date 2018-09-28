@@ -1,6 +1,8 @@
 [![Documentation Status](https://readthedocs.org/projects/delphi-framework/badge/?version=latest)](http://delphi-framework.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/ml4ai/delphi.svg?branch=master)](https://travis-ci.org/ml4ai/delphi)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ml4ai/delphi/master)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1436915.svg)](https://doi.org/10.5281/zenodo.1436915)
+
 # Delphi
 
 - [Installation](#installation)
