@@ -3,7 +3,7 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1436914.svg)](https://doi.org/10.5281/zenodo.1436914)
 
-<img src="https://raw.githubusercontent.com/ml4ai/delphi/master/docs/delphi_logo.png" width="48">
+<img src="https://raw.githubusercontent.com/ml4ai/delphi/master/docs/delphi_logo.png" width="150">
 
 - [Installation](#installation)
 - [Usage](#usage)
