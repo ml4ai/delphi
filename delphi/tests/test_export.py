@@ -1,8 +1,8 @@
 from delphi.export import *
 
 
-def test_to_json_dict(G):
-    d = to_json_dict(G)
+def test_to_dict(G):
+    d = to_dict(G)
     assert (
         d["name"] == "Linear Dynamical System with Stochastic Transition Model"
     )
