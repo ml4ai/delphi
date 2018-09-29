@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from delphi.AnalysisGraph import AnalysisGraph
 from rest_framework.serializers import ListSerializer, BaseSerializer
-from delphi.export import to_json_dict
+from delphi.export import to_dict
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.serializers import *
