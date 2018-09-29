@@ -41,6 +41,11 @@ def test_statements_file():
     return "test_statements.pkl"
 
 
+@pytest.fixture(scope="session")
+def test_model_file():
+    return "test_model.pkl"
+
+
 with open(test_statements_file(), "wb") as f:
     pickle.dump(sts, f)
 

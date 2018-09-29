@@ -34,15 +34,18 @@ def test_from_statements_file():
     G = AnalysisGraph.from_statements(sts_from_file)
     assert set(G.nodes()) == set(["conflict", "food_security"])
     assert set(G.edges()) == set([("conflict", "food_security")])
+    os.remove(test_statements_file())
+
 
 def test_from_pickle():
-    G = AnalysisGraph.from_statements(sts)
-    with open('TestModel.pkl', 'wb') as f:
-        pickle.dump(G, f)
-    G = AnalysisGraph.from_pickle('TestModel.pkl')
-    assert set(G.nodes()) == set(["conflict", "food_security"])
-    assert set(G.edges()) == set([("conflict", "food_security")])
-    os.remove('TestModel.pkl')
+    with open(test_model_file(), "wb") as f:
+        pickle.dump(G(), f)
+    with open(test_model_file(), "rb") as f:
+        M = pickle.load(f)
+    assert set(M.nodes()) == set(["conflict", "food_security"])
+    assert set(M.edges()) == set([("conflict", "food_security")])
+    os.remove(test_model_file())
+
 
 def test_get_subgraph_for_concept(G):
     concept_of_interest = "food_security"
