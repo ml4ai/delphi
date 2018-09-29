@@ -19,7 +19,9 @@ from pygraphviz import AGraph
 
 
 @singledispatch
-def visualize(): pass
+def visualize():
+    pass
+
 
 @visualize.register(AnalysisGraph)
 def _(G: AnalysisGraph, *args, **kwargs):
