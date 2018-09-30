@@ -24,6 +24,7 @@ jupyter = "*"
 django = "*"
 djangorestframework = "*"
 networkx= "*"
+flask-restful = "*"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git"}
