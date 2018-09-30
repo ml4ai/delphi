@@ -7,61 +7,96 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+
 @dataclass
 class ICMMetadata:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    icmProvider: Optional[str] = 'UAZ'
+    icmProvider: Optional[str] = "UAZ"
     title: Optional[str] = "Delphi Model"
+    estimatedNumberOfPrimitives: Optional[int] = 0
     version: Optional[int] = 1
-    created: Optional[str] = field(default_factory=lambda:str(datetime.now()))
+    created: Optional[str] = field(default_factory=lambda: str(datetime.now()))
     createdByUser: Optional[str] = None
+
 
 @dataclass
 class CausalPrimitive:
-    label: str
+    """ Top level object that contains common properties that would apply to any
+        causal primitive (variable, relationship, etc.) """
+
+    id: str
+    editable: bool = True
+    baseType: str = "string"
+
+
+@dataclass
+class Range:
+    """Top level range object used in a CausalVariable. """
+
+    baseType: str = "string"
+
 
 @dataclass
 class CausalVariable(CausalPrimitive):
     """ API definition of a causal variable. """
-    label: str="CausalVariable"
+
+    range: Range = Range()
+
 
 @dataclass
 class CausalRelationship(CausalPrimitive):
     """ API definition of a causal relationship. """
+
     source: str = "source"
     target: str = "target"
-    label:str ="CausalRelationship"
 
-@dataclass
-class ICM:
-    metadata: ICMMetadata
-    primitives: List[CausalPrimitive]
 
-metadatas = {str(x):ICMMetadata(id=str(x)) for x in range(5)}
+with open("delphi_cag.pkl", "rb") as f:
+    model = pickle.load(f)
 
-A = [CausalVariable(label="X"), CausalVariable(label="Y"),
-        CausalRelationship(source="X", target="Y")]
+models = {str(model.id): model}
 
-@app.route('/icm')
-def icm():
+
+@app.route("/icm")
+def listAllICMs():
     """ List all ICMs """
-    return jsonify(list(metadatas.keys()))
-
-@app.route('/icm/<string:uuid>', methods=["GET", "DELETE"])
-def icm_uuid(uuid):
-    if request.method == "GET":
-        return jsonify(asdict(metadatas[uuid]))
-    elif request.method == "DELETE":
-        if uuid in metadatas:
-            del metadatas[uuid]
-
-@app.route('/icm/<string:uuid>/primitive', methods=["GET", "POST"])
-def icm_uuid_primitive(uuid):
-    if request.method == "POST":
-        pass
-    else:
-        return jsonify([asdict(x) for x in A])
+    return jsonify(list(models.keys()))
 
 
-if __name__ == '__main__':
+@app.route("/icm/<string:uuid>", methods=["GET"])
+def getICMByUUID(uuid):
+    """ Returns the metadata associated with an ICM. """
+    if uuid in models:
+        model = models[uuid]
+        return jsonify(
+            asdict(
+                ICMMetadata(
+                    id=uuid,
+                    estimatedNumberOfPrimitives=len(model)
+                    + len(model.edges()),
+                )
+            )
+        )
+
+
+@app.route("/icm/<string:uuid>", methods=["DELETE"])
+def deleteICM(uuid):
+    """ Delete an ICM by UUID. """
+    if uuid in models:
+        del models[uuid]
+
+
+@app.route("/icm/<string:uuid>/primitive")
+def getICMPrimitives(uuid):
+    """returns all ICM primitives (TODO - needs filter support)"""
+    model = models[uuid]
+    nodes = [CausalVariable(id=n) for n in model.nodes()]
+    edges = [
+        CausalRelationship(id="__".join(e), source=e[0], target=e[1])
+        for e in model.edges()
+    ]
+    return jsonify([asdict(x) for x in nodes + edges])
+
+
+if __name__ == "__main__":
     app.run(debug=True)
