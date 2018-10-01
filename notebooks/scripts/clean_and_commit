@@ -1,0 +1,9 @@
+#!/bin/bash
+
+nbfile="$1"
+mdfile="${nbfile%.ipynb}.md"
+notedown $nbfile > $mdfile 
+
+git add $mdfile
+git commit -m "$2"
+git push
