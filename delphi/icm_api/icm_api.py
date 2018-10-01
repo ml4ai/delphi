@@ -42,6 +42,16 @@ class CausalVariable(CausalPrimitive):
 
     range: Range = Range()
 
+@dataclass
+class Evidence:
+    """Object that holds a reference to evidence 
+    (either KO from TA1 or human provided)."""
+    
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    link: str
+    description: str = "description placeholder"
+    category: str
+    rank: int
 
 @dataclass
 class CausalRelationship(CausalPrimitive):
