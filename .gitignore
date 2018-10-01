@@ -108,3 +108,27 @@ ENV/
 
 eidos_output.json
 elements.json
+
+# Some outputs from Delphi for git to ignore
+delphi/program_analysis/autoTranslate/crop_yield.py
+delphi/program_analysis/autoTranslate/crop_yield.xml
+delphi/program_analysis/autoTranslate/lambdas.py
+delphi/program_analysis/autoTranslate/pgm.json
+delphi/stubs
+delphi/tests/*.pkl
+delphi_cag.json
+docs/generated
+dbn_sampled_sequences.csv
+scratch
+scripts/*.json
+variables.csv
+notebooks/season.dat
+
+# Data to ignore
+data/WDI
+data/FAOSTAT
+data/SS_x3085y0535_nasa.weather
+data/UN_stmt_jsons
+data/curated_cag.pkl
+data/eval_stmts_grounding_filtered.pkl
+data/Data_Extract_From_World_Development_Indicators
