@@ -5,9 +5,6 @@ name = "pypi"
 
 [packages]
 tqdm = "*"
-sphinxcontrib-bibtex = "*"
-sphinxcontrib-trio = "*"
-sphinx-autodoc-typehints = "*"
 numpy = "*"
 pandas = "*"
 scipy = "*"
@@ -25,6 +22,9 @@ networkx= "*"
 flask = "*"
 
 [dev-packages]
+sphinxcontrib-bibtex = "*"
+sphinxcontrib-trio = "*"
+sphinx-autodoc-typehints = "*"
 indra = {git = "https://github.com/sorgerlab/indra.git"}
 pytest-cov = "*"
 mypy = "*"
