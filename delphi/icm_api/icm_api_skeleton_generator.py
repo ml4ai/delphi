@@ -128,7 +128,7 @@ def write_views(yml):
                 "from datetime import datetime",
                 "from typing import Optional, List",
                 "from flask import Flask, jsonify, request",
-                "from delphi.icm_api.models import *
+                "from delphi.icm_api.models import *",
                 "app = Flask(__name__)",
             ]
         )
@@ -153,5 +153,5 @@ if __name__ == "__main__":
     with open("icm_api.yml", "r") as f:
         yml = yaml.load(f)
 
-    # write_views(yml, True)
+    write_views(yml)
     write_models(yml)
