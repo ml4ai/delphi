@@ -88,19 +88,8 @@ for url, metadata in paths.items():
         lines.append(
             f"\n\n@app.route('{modified_path}', methods=['{http_method.upper()}'])"
         )
-        if parameters is not None:
-            args = ",".join(
-                [
-                    x
-                    for x in [
-                        parameter.get("$ref", "").split("/")[-1]
-                        for parameter in parameters
-                    ]
-                    if x != ""
-                ]
-            )
-        else:
-            args = ""
+        args = ', '.join([part[1:-1]+": str" for part in url.split('/') if
+            part.startswith('{')])
         lines.append(f"def {metadata[http_method]['operationId']}({args}):")
         lines.append(
             '    """' + f" {metadata[http_method]['summary']}" + '"""'
