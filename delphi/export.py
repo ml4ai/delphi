@@ -191,8 +191,10 @@ def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     }
 
     if not n[1].get("indicators") is None:
-        if "dataset" in ind.__dict__:
-            del ind.__dict__["dataset"]
+        for ind in n[1]['indicators']:
+            if 'dataset' in ind.__dict__:
+                del ind.__dict__['dataset']
+
         node_dict["indicators"] = [
             _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
         ]
@@ -245,7 +247,7 @@ def to_dict(G: AnalysisGraph) -> Dict:
     """ Export the CAG to JSON """
     return {
         "name": G.name,
-        "dateCreated": str(datetime.now()),
+        "dateCreated": str(G.dateCreated),
         "variables": lmap(partial(export_node, G), G.nodes(data=True)),
         "timeStep": str(G.Δt),
         "edge_data": lmap(_export_edge, G.edges(data=True)),
