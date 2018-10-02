@@ -23,6 +23,7 @@ seaborn = ">=0.9.0"
 jupyter = "*"
 networkx= "*"
 flask = "*"
+ruamel.yaml = "*"
 
 [dev-packages]
 indra = {git = "https://github.com/sorgerlab/indra.git"}
