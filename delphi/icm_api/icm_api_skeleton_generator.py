@@ -88,7 +88,7 @@ from dataclasses import dataclass, field, asdict"""
             class_lines.append("\n\n@unique")
             class_lines.append(f"class {schema_name}(Enum):")
             for option in schema["enum"]:
-                class_lines.append(f"    {option} = '{option}'")
+                class_lines.append(f'    {option} = "{option}"')
         schema_lines_dict[schema_name] = class_lines
         if schema_name not in global_schema_list:
             global_schema_list.append(schema_name)
