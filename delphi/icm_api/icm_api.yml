@@ -3,7 +3,7 @@ servers:
   - url: 'https://icm.causeex.twosixlabs.com/icm'
 info:
   description: Causal Exploration ICM API
-  version: 3.3.3
+  version: 4.0.0-RC1
   title: Causal Exploration ICM API
   contact:
     email: causeex-help@twosixlabs.com
@@ -199,7 +199,7 @@ paths:
                   - $ref: '#/components/schemas/Relationship'
                   - $ref: '#/components/schemas/CausalRelationship'
                   - $ref: '#/components/schemas/ConfigurationVariable'
-                  - $ref: '#/components/schemas/CausalVariable'       
+                  - $ref: '#/components/schemas/CausalVariable'
         '400':
           description: Invalid UUID supplied
         '404':
@@ -211,12 +211,7 @@ paths:
   '/icm/{uuid}/primitive/{prim_id}':
     parameters:
       - $ref: '#/components/parameters/uuid'
-      - name: prim_id
-        in: path
-        description: ID of ICM primitive (ICM specific ID)
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/prim_id'
     get:
       tags:
         - icm
@@ -297,12 +292,7 @@ paths:
   '/icm/{uuid}/primitive/{prim_id}/evidence':
     parameters:
       - $ref: '#/components/parameters/uuid'
-      - name: prim_id
-        in: path
-        description: ID of causal primitive to retrieve evidence (ICM specific ID)
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/prim_id'
     get:
       parameters:
         - $ref: '#/components/parameters/offset'
@@ -541,19 +531,21 @@ paths:
               type: string
         description: the SPARQL / SPARQL Update query
         required: true
-  '/icm/{uuid}/experiment/forwardProjection':
+  '/icm/{uuid}/experiment':
     parameters:
       - $ref: '#/components/parameters/uuid'
     post:
       tags:
         - icmOp
-      summary: Execute a "what if" projection over the model
-      operationId: forwardProjection
+      summary: Execute an experiment over the model
+      operationId: createExperiment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Intervention'
+              oneOf:
+                - $ref: '#/components/schemas/ForwardProjection'
+                - $ref: '#/components/schemas/SensitivityAnalysis'
         required: true
         description: Description of experiment to perform
       responses:
@@ -573,12 +565,10 @@ paths:
           description: Unsupported operation
         '429':
           description: Too many requests
-  '/icm/{uuid}/experiment':
-    parameters:
-      - $ref: '#/components/parameters/uuid'
-      - $ref: '#/components/parameters/offset'
-      - $ref: '#/components/parameters/limit'
     get:
+      parameters:
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
       tags:
         - icmOp
       summary: list active (running or completed) experiments
@@ -592,7 +582,8 @@ paths:
                 type: array
                 items:
                   oneOf:
-                    - $ref: '#/components/schemas/Intervention'
+                    - $ref: '#/components/schemas/ForwardProjection'
+                    - $ref: '#/components/schemas/SensitivityAnalysis'
         '400':
           description: Invalid UUID supplied
         '404':
@@ -621,7 +612,8 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/InterventionResult'
+                  - $ref: '#/components/schemas/ForwardProjectionResult'
+                  - $ref: '#/components/schemas/SensitivityAnalysisResult'
         '202':
           description: Experiment running
         '400':
@@ -642,6 +634,39 @@ paths:
           description: Invalid UUID supplied
         '404':
           description: ICM / Experiment not found
+        '415':
+          description: Unsupported operation
+  '/icm/{uuid}/traverse/{prim_id}':
+    parameters:
+      - $ref: '#/components/parameters/uuid'
+      - $ref: '#/components/parameters/prim_id'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+    post:
+      tags:
+        - icmOp
+      summary: traverse through the ICM using a breadth-first search
+      operationId: traverse
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Traversal'
+        required: true
+        description: parameters for performing the traversal
+      responses:
+        '200':
+          description: Results of the traversal
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CausalPrimitive'
+        '400':
+          description: Invalid UUID supplied
+        '404':
+          description: ICM not found
         '415':
           description: Unsupported operation
   /version:
@@ -681,6 +706,14 @@ components:
       name: uuid
       in: path
       description: UUID of ICM
+      required: true
+      schema:
+        type: string
+        format: uuid
+    prim_id:
+      name: prim_id
+      in: path
+      description: ID of causal primitive
       required: true
       schema:
         type: string
@@ -876,12 +909,25 @@ components:
       allOf:
         - $ref: '#/components/schemas/Range'
         - type: object
-          description: The range of values an enumeration value may equal
+          description: The values of an enumeration
           properties:
             range:
-              description: >-
-                The range of possible enumeration values ordered from smallest
-                to largest
+              description: The possible enumeration values
+              type: array
+              items:
+                type: string
+              example:
+                - RED
+                - YELLOW
+                - GREEN
+    DistributionEnumRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: The range of classifications that can be reported in a DistributionEnumValue
+          properties:
+            range:
+              description: The possible classifications
               type: array
               items:
                 type: string
@@ -933,25 +979,28 @@ components:
       allOf:
         - $ref: '#/components/schemas/Value'
         - type: object
-          description: An enumeration value
+          description: An enumeration value defined in the EnumRange for the CausalVariable
           properties:
             value:
               type: string
-    DistributionValue:
+    DistributionEnumValue:
       allOf:
         - $ref: '#/components/schemas/Value'
         - type: object
-          description: A distribution of numeric values ordered from smallest to largest
+          description: >-
+            A distribution of classifications with non-zero probabilities. The classifications
+            must be defined in the DistributionEnumRange of the CausalVariable and the
+            probabilities must add to 1.0.
           properties:
             value:
-              type: array
-              items:
+              type: object
+              additionalProperties:
                 type: number
                 format: double
               example:
-                - 0.1
-                - 0.2
-                - 0.7
+                "HIGH": 0.1
+                "MED": 0.2
+                "LOW": 0.7
     TimeSeriesState:
       type: string
       description: Indication of the state of a variable at a given time
@@ -959,25 +1008,33 @@ components:
         - ACTIVE
         - INACTIVE
         - UNKNOWN
+    TimeSeriesTrend:
+      type: string
+      description: Describes the trend of a variable at a given time
+      enum:
+        - LARGE_INCREASE
+        - SMALL_INCREASE
+        - NO_CHANGE
+        - SMALL_DECREASE
+        - LARGE_DECREASE
     TimeSeriesValue:
       type: object
       description: Time series value at a particular time
       required:
-        - timestep
+        - time
         - value
       properties:
         active:
           $ref: '#/components/schemas/TimeSeriesState'
+        trend:
+          $ref: '#/components/schemas/TimeSeriesTrend'
         time:
           type: string
           format: date-time
-          description: the value of a variable at this particular time
-        timestep:
-          type: integer
-          description: the value at a particular time step
+          description: the time that corresponds to the reported value
         value:
-          description: the value of a variable
           $ref: '#/components/schemas/Value'
+          description: the value of a variable
     CausalPrimitive:
       type: object
       description: >-
@@ -994,14 +1051,12 @@ components:
             object type - used for inheritance. See
             https://swagger.io/specification/#discriminatorObject
         namespaces:
-          type: array
+          type: object
+          additionalProperties:
+            type: string
           description: (JSON-LD @context) key/value pairs
-          items:
-            type: object
-            additionalProperties:
-              type: string
-            example:
-              actor: 'http://example.com/actor#'
+          example:
+            "actor": "http://example.com/actor#"
         types:
           type: array
           description: (JSON-LD @text) classification of the ODP individual
@@ -1023,6 +1078,7 @@ components:
             difficult management of side-effects and rollback
         id:
           type: string
+          format: uuid
           description: used to uniquely identify the causal primitive within in the ICM
         label:
           type: string
@@ -1057,11 +1113,13 @@ components:
             units:
               type: string
               description: user friendly unit label for this variable (e.g. barrels/day)
-            backingEntity:
-              type: string
-              description: >
-                context to resolve the causal variable - should be the ID of an
+            backingEntities:
+              type: array
+              description: >-
+                Context to resolve the causal variable - should be the ID of an
                 Entity in the ICM graph
+              items:
+                type: string
             lastKnownValue:
               $ref: '#/components/schemas/TimeSeriesValue'
             confidence:
@@ -1080,8 +1138,13 @@ components:
             Account for pieces of the causal graph that may help interpretation
             or expose "knobs" that might be editable by the user.
           properties:
+            units:
+              type: string
+              description: user friendly unit label for this variable (e.g. barrels/day)
             lastKnownValue:
               $ref: '#/components/schemas/TimeSeriesValue'
+            range:
+              $ref: '#/components/schemas/Range'
     CausalRelationship:
       allOf:
         - $ref: '#/components/schemas/CausalPrimitive'
@@ -1094,11 +1157,25 @@ components:
             - target
           properties:
             source:
-              type: string
-              description: ID of source variable in the relationship
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of source variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the source variable
             target:
-              type: string
-              description: ID of target variable in the relationship
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of target variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the target variable
             confidence:
               type: number
               format: float
@@ -1128,11 +1205,25 @@ components:
             - target
           properties:
             source:
-              type: string
-              description: ID of source variable in the relationship
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of source variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the source variable
             target:
-              type: string
-              description: ID target variable in the relationship
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of target variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the target variable
             confidence:
               type: number
               format: float
@@ -1151,7 +1242,9 @@ components:
           description: used to uniquely identify the evidence within in the ICM
         link:
           type: string
-          description: optional IRI link to evidence in the KO
+          description: >-
+            Optional IRI link to evidence in the KO. This should NOT be a prefixed IRI
+            since there is no namespaces property.
         description:
           type: string
           description: >-
@@ -1159,7 +1252,9 @@ components:
             the data
         category:
           type: string
-          description: where was the data sourced from (TODO - make enumeration?)
+          description: >-
+            where was the data sourced from
+            (TODO - Enum to distinguish user input, or backing entity, time series or event?)
         rank:
           type: integer
           format: int32
@@ -1168,14 +1263,21 @@ components:
           description: some TA2 ranking on the significance of this evidence
     Projection:
       type: object
+      required:
+        - numSteps
+        - stepSize
       properties:
+        startTime:
+          type: string
+          format: date-time
+          description: specifies the beginning of the projection time window
         numSteps:
           type: integer
           format: int32
         stepSize:
           type: string
           description: some TBD format that needs to be flushed out.
-    Intervention:
+    Experiment:
       type: object
       description: structure used for experimentation
       properties:
@@ -1185,19 +1287,7 @@ components:
           description: UUID of this experiment (provided by server)
         label:
           type: string
-          description: user friendly description/label for this intervention
-        interventions:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: ID of the ICM primitive under experiment
-              values:
-                $ref: '#/components/schemas/TimeSeriesValue'
-        projection:
-          $ref: '#/components/schemas/Projection'
+          description: user friendly description/label for this experiment
         options:
           type: object
           properties:
@@ -1205,7 +1295,38 @@ components:
               type: integer
               format: int32
               description: experimentation timeout (in seconds)
-    InterventionResult:
+    ForwardProjection:
+      allOf:
+        - $ref: '#/components/schemas/Experiment'
+        - type: object
+          description: a foward projection experiment
+          properties:
+            interventions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM primitive under experiment
+                  values:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+            projection:
+              $ref: '#/components/schemas/Projection'
+    SensitivityAnalysis:
+      allOf:
+        - $ref: '#/components/schemas/Experiment'
+        - type: object
+          description: a sensitivity analysis experiment
+          properties:
+            variables:
+              type: array
+              items:
+                type: string
+                format: uuid
+                description: ID of the ICM causal variable under experiment
+    ExperimentResult:
       type: object
       description: Notional model of experiment results
       properties:
@@ -1213,20 +1334,51 @@ components:
           type: string
           format: uuid
           description: UUID of this intervention
-        projection:
-          $ref: '#/components/schemas/Projection'
-        results:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                description: ID of the ICM primitive under experiment
-              baseline:
-                $ref: '#/components/schemas/TimeSeriesValue'
-              intervened:
-                $ref: '#/components/schemas/TimeSeriesValue'
+    ForwardProjectionResult:
+      allOf:
+        - $ref: '#/components/schemas/ExperimentResult'
+        - type: object
+          description: The result of a forward projection experiment
+          properties:
+            projection:
+              $ref: '#/components/schemas/Projection'
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM primitive under experiment
+                  baseline:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+                  intervened:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+    SensitivityAnalysisResult:
+      allOf:
+        - $ref: '#/components/schemas/ExperimentResult'
+        - type: object
+          description: The result of a sensitivity analysis experiment
+          properties:
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM causal variable under experiment
+                  value:
+                    type: number
+                    format: double
+    Traversal:
+      type: object
+      properties:
+        maxDepth:
+          type: integer
+          format: int32
     Version:
       type: object
       properties:
