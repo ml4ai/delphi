@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     yaml = YAML(typ="safe")
-    with open("icm_api.yml", "r") as f:
+    with open("icm_api.yaml", "r") as f:
         yml = yaml.load(f)
 
     write_views(yml)
