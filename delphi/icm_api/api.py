@@ -173,6 +173,11 @@ def deleteExperiment(uuid: str, exp_id: str):
     pass
 
 
+@app.route('/icm/<string:uuid>/traverse/<string:prim_id>', methods=['POST'])
+def traverse(uuid: str, prim_id: str):
+    """ traverse through the ICM using a breadth-first search"""
+    pass
+
 @app.route('/version', methods=['GET'])
 def getVersion():
     """ Get the version of the ICM API supported"""
