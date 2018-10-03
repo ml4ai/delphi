@@ -52,9 +52,19 @@ from dataclasses import dataclass, field, asdict"""
                 type_annotation = (
                     f"List[{mapping.get(property_type, property_type)}]"
                 )
+
+            # TODO - Parse dependencies so that inherited properties are
+            # duplicated for child classes.
+
             if property not in required_properties:
                 type_annotation = f"Optional[{type_annotation}]"
-            class_lines.append(f"    {property}: {type_annotation} = None")
+            if property == "baseType":
+                default_value = f'"{schema_name}"'
+            else:
+                default_value = "None"
+            class_lines.append(
+                f"    {property}: {type_annotation} = {default_value}"
+            )
 
     def to_class(schema_name, schema):
         class_lines = []
@@ -78,7 +88,7 @@ from dataclasses import dataclass, field, asdict"""
             class_lines.append("\n\n@unique")
             class_lines.append(f"class {schema_name}(Enum):")
             for option in schema["enum"]:
-                class_lines.append(f"    {option} = '{option}'")
+                class_lines.append(f'    {option} = "{option}"')
         schema_lines_dict[schema_name] = class_lines
         if schema_name not in global_schema_list:
             global_schema_list.append(schema_name)
@@ -150,7 +160,7 @@ if __name__ == "__main__":
 
 if __name__ == "__main__":
     yaml = YAML(typ="safe")
-    with open("icm_api.yml", "r") as f:
+    with open("icm_api.yaml", "r") as f:
         yml = yaml.load(f)
 
     write_views(yml)
