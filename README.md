@@ -170,7 +170,7 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
-To see all the command line options and the help message, do `./delphi.py`.
+To see all the command line options and the help message, do `delphi -h`.
 
 # License 
 
