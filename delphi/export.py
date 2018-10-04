@@ -85,33 +85,19 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         for n in nodes_with_indicators:
             for ind in n[1]["indicators"]:
                 node_label = _insert_line_breaks(ind.name)
+                if kwargs.get("indicator_values"):
+                    if ind.unit is not None:
+                        units = f" {ind.unit}"
+                    else:
+                        units = ""
+
+                    ind_value = "{:.2f}".format(ind.mean) + f"{units}"
+                    node_label = f"{node_label}\n[{ind_value}]"
+
                 A.add_node(
                     node_label, style="rounded, filled", fillcolor="lightblue"
                 )
                 A.add_edge(n[0], node_label, color="royalblue4")
-
-    # Drawing indicator values
-    if kwargs.get("indicator_values"):
-        for n in nodes_with_indicators:
-            indicators = [i for i in n[1]["indicators"] if i.mean is not None]
-            for ind in indicators:
-                if ind.unit is not None:
-                    units = f" {ind.unit}"
-                else:
-                    units = ""
-                ind_label = _insert_line_breaks(ind.name)
-
-                node_label = "{:.2f}".format(ind.mean) + units
-                A.add_node(
-                    node_label,
-                    shape="plain",
-                    # style="rounded, filled",
-                    fillcolor="white",
-                    color="royalblue",
-                )
-                A.add_edge(
-                    ind_label, node_label, color="lightblue", arrowhead="none"
-                )
 
     if kwargs.get("nodes_to_highlight") is not None:
         nodes = kwargs.pop("nodes_to_highlight")
