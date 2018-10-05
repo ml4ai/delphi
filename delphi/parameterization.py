@@ -17,7 +17,11 @@ def parameterize(
         datafile
     """
 
-    G.data = get_data(data)
+    if isinstance(data, str):
+        G.data = get_data(data)
+    else:
+        G.data=data
+
 
     nodes_with_indicators = [
         n for n in G.nodes(data=True) if n[1]["indicators"] is not None
@@ -31,6 +35,7 @@ def parameterize(
             indicator.time = time
             if not indicator.mean is None:
                 indicator.stdev = 0.1 * abs(indicator.mean)
+
         n[1]["indicators"] = [
             ind for ind in n[1]["indicators"] if ind.mean is not None
         ]

@@ -51,10 +51,12 @@ def nameTuple(s: Influence) -> Tuple[str, str]:
 
 
 def get_concepts(sts: List[Influence]) -> Set[str]:
+    """ Get a set of all unique concepts in the list of INDRA statements. """
     return set(flatMap(nameTuple, sts))
 
 
 def process_concept_name(name: str) -> str:
+    """ Remove underscores from concept name. """
     return name.replace("_", " ")
 
 

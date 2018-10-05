@@ -1,3 +1,4 @@
+import os
 from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import *
@@ -6,6 +7,7 @@ from delphi.subgraphs import (
     get_subgraph_for_concept,
     get_subgraph_for_concept_pair,
 )
+import pickle
 import pytest
 from delphi.tests.conftest import *
 
@@ -32,6 +34,17 @@ def test_from_statements_file():
     G = AnalysisGraph.from_statements(sts_from_file)
     assert set(G.nodes()) == set(["conflict", "food_security"])
     assert set(G.edges()) == set([("conflict", "food_security")])
+    os.remove(test_statements_file())
+
+
+def test_from_pickle():
+    with open(test_model_file(), "wb") as f:
+        pickle.dump(G(), f)
+    with open(test_model_file(), "rb") as f:
+        M = pickle.load(f)
+    assert set(M.nodes()) == set(["conflict", "food_security"])
+    assert set(M.edges()) == set([("conflict", "food_security")])
+    os.remove(test_model_file())
 
 
 def test_get_subgraph_for_concept(G):

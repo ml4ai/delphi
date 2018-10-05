@@ -1,7 +1,9 @@
 [![Documentation Status](https://readthedocs.org/projects/delphi-framework/badge/?version=latest)](http://delphi-framework.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/ml4ai/delphi.svg?branch=master)](https://travis-ci.org/ml4ai/delphi)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ml4ai/delphi/master)
-# Delphi
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1436914.svg)](https://doi.org/10.5281/zenodo.1436914)
+
+<img src="https://raw.githubusercontent.com/ml4ai/delphi/master/docs/delphi_logo.png" width="250">
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -15,8 +17,17 @@ For a detailed description of our procedure to convert text to models, see
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
 
+# Citing
 
-The followng instructions describe how to install and use Delphi.
+If you use Delphi, please cite the following:
+
+```latex
+@misc{Delphi,
+    Author = {Adarsh Pyarelal and Paul Hein and Clayton Morrison},
+    Title = {Delphi: A Framework for Assembling Causal Probabilistic Models from Text and Software.},
+    doi={10.5281/zenodo.1436915},
+}
+```
 
 The general use case involves the following steps:
 
@@ -76,7 +87,7 @@ You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/mas
 to try out the Jupyter notebook demo without having to install Delphi locally. 
 
 You can see a prerendered HTML version of the notebook at
-[http://vision.cs.arizona.edu/adarsh/export/delphi_demo_wm_pi_meeting_2018.html](http://vision.cs.arizona.edu/adarsh/export/delphi_demo_wm_pi_meeting_2018.html)
+[http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
 
 
 ## Command line usage
@@ -159,7 +170,7 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
-To see all the command line options and the help message, do `./delphi.py`.
+To see all the command line options and the help message, do `delphi -h`.
 
 # License 
 

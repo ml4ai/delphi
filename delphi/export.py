@@ -85,33 +85,19 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         for n in nodes_with_indicators:
             for ind in n[1]["indicators"]:
                 node_label = _insert_line_breaks(ind.name)
+                if kwargs.get("indicator_values"):
+                    if ind.unit is not None:
+                        units = f" {ind.unit}"
+                    else:
+                        units = ""
+
+                    ind_value = "{:.2f}".format(ind.mean) + f"{units}"
+                    node_label = f"{node_label}\n[{ind_value}]"
+
                 A.add_node(
                     node_label, style="rounded, filled", fillcolor="lightblue"
                 )
                 A.add_edge(n[0], node_label, color="royalblue4")
-
-    # Drawing indicator values
-    if kwargs.get("indicator_values"):
-        for n in nodes_with_indicators:
-            indicators = [i for i in n[1]["indicators"] if i.mean is not None]
-            for ind in indicators:
-                if ind.unit is not None:
-                    units = f" {ind.unit}"
-                else:
-                    units = ""
-                ind_label = _insert_line_breaks(ind.name)
-
-                node_label = "{:.2f}".format(ind.mean) + units
-                A.add_node(
-                    node_label,
-                    shape="plain",
-                    # style="rounded, filled",
-                    fillcolor="white",
-                    color="royalblue",
-                )
-                A.add_edge(
-                    ind_label, node_label, color="lightblue", arrowhead="none"
-                )
 
     if kwargs.get("nodes_to_highlight") is not None:
         nodes = kwargs.pop("nodes_to_highlight")
@@ -191,7 +177,10 @@ def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     }
 
     if not n[1].get("indicators") is None:
-        if 'dataset' in ind.__dict__: del ind.__dict__['dataset']
+        for ind in n[1]['indicators']:
+            if 'dataset' in ind.__dict__:
+                del ind.__dict__['dataset']
+
         node_dict["indicators"] = [
             _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
         ]
@@ -219,7 +208,7 @@ def export(
     """
 
     if format == "full":
-        to_json(G, json_file)
+        write_to_json_file(G, json_file)
         _pickle(G, pickle_file)
         export_default_initial_values(G, variables_file)
 
@@ -227,7 +216,7 @@ def export(
         return to_agraph(G)
 
     if format == "json":
-        to_json(G, json_file)
+        write_to_json_file(G, json_file)
 
 
 def _pickle(G: AnalysisGraph, filename: str):
@@ -235,16 +224,16 @@ def _pickle(G: AnalysisGraph, filename: str):
         pickle.dump(G, f)
 
 
-def to_json(G: AnalysisGraph, filename: str):
+def write_to_json_file(G: AnalysisGraph, filename: str):
     with open(filename, "w") as f:
-        json.dump(to_json_dict(G), f, indent=2)
+        json.dump(to_dict(G), f, indent=2)
 
 
-def to_json_dict(G: AnalysisGraph):
+def to_dict(G: AnalysisGraph) -> Dict:
     """ Export the CAG to JSON """
     return {
         "name": G.name,
-        "dateCreated": str(datetime.now()),
+        "dateCreated": str(G.dateCreated),
         "variables": lmap(partial(export_node, G), G.nodes(data=True)),
         "timeStep": str(G.Δt),
         "edge_data": lmap(_export_edge, G.edges(data=True)),

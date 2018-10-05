@@ -71,7 +71,7 @@ def positive_real(arg, x):
             f"{arg} should be a positive real number (you entered {x})."
         )
 
-    if not val > 0.:
+    if not val > 0.0:
         raise ArgumentTypeError(
             f"{arg} should be a positive real number (you entered {x})."
         )

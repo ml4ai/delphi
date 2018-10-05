@@ -27,7 +27,7 @@ def process(fname):
     # remove partial-line comments
     for i in range(len(lines)):
         line = lines[i]
-        ex_idx = line.rfind('!')
+        ex_idx = line.rfind("!")
         apos_idx = line.rfind("'")
         quote_idx = line.rfind('"')
         if ex_idx >= 0:
@@ -48,34 +48,38 @@ def process(fname):
 
             line = lines[i]
             if line.lstrip()[0] == "&":
-            # if not line[0] == "\t" and line[5] != ' ':    # continuation character
-                prevline = lines[i-1]
+                # if not line[0] == "\t" and line[5] != ' ':    # continuation character
+                prevline = lines[i - 1]
                 line = line.lstrip()[1:].lstrip()
                 # line = line[6:].lstrip()
                 prevline = prevline.rstrip() + line
-                lines[i-1] = prevline
+                lines[i - 1] = prevline
                 lines.pop(i)
                 chg = True
 
     total_code = len(lines)
     return (total_code, total_comments, total_inline_comments)
-    outline = '\n'.join(lines)
-    new_fortran_path = "/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/"
 
-    shortpath = fname[fname.rfind("dssat-csm/") + 10:fname.rfind("/")]
-    folder_path = os.path.join(new_fortran_path, shortpath)
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-
-    shortname = fname[fname.rfind("/") + 1:]
-    with open(os.path.join(folder_path, shortname), "wb") as outfile:
-        outfile.write(outline.encode("utf-8"))
+    # outline = '\n'.join(lines)
+    # new_fortran_path = "/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/"
+    #
+    # shortpath = fname[fname.rfind("dssat-csm/") + 10: fname.rfind("/")]
+    # folder_path = os.path.join(new_fortran_path, shortpath)
+    # if not os.path.exists(folder_path):
+    #     os.makedirs(folder_path)
+    #
+    # shortname = fname[fname.rfind("/") + 1:]
+    # with open(os.path.join(folder_path, shortname), "wb") as outfile:
+    #     outfile.write(outline.encode("utf-8"))
 
 
 def main():
     codebase_path = sys.argv[1]
-    files = [os.path.join(root, elm)
-             for root, dirs, files in os.walk(codebase_path) for elm in files]
+    files = [
+        os.path.join(root, elm)
+        for root, dirs, files in os.walk(codebase_path)
+        for elm in files
+    ]
 
     fortran_files = [x for x in files if x.endswith(".for") or x.endswith(".f90")]
 
@@ -95,5 +99,5 @@ def main():
     print("Total lines of code w/o comment (tCode - tInLineComm): {}".format(tot_code - tot_in_comm))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
