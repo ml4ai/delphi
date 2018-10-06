@@ -6,6 +6,9 @@ from tqdm import tqdm
 
 def process(fname):
     lines = list()
+    total_comments = 0
+    total_code = 0
+    total_inline_comments = 0
     with open(fname, "rb") as infile:
         for line in infile.readlines():
             ascii_line = line.decode("ascii", errors="replace")
@@ -18,6 +21,8 @@ def process(fname):
             # remove lines that are entirely comments
             if trimmed_line.startswith(" ") or trimmed_line.startswith("\t"):
                 lines.append(trimmed_line)
+            else:
+                total_comments += 1
 
     # remove partial-line comments
     for i in range(len(lines)):
@@ -27,6 +32,7 @@ def process(fname):
         quote_idx = line.rfind('"')
         if ex_idx >= 0:
             if ex_idx > apos_idx and ex_idx > quote_idx:
+                total_inline_comments += 1
                 lines[i] = line[:ex_idx]
 
     lines = [line for line in lines if len(line.lstrip()) > 0]
@@ -51,19 +57,20 @@ def process(fname):
                 lines.pop(i)
                 chg = True
 
-    outline = "\n".join(lines)
-    new_fortran_path = (
-        "/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/"
-    )
+    total_code = len(lines)
+    return (total_code, total_comments, total_inline_comments)
 
-    shortpath = fname[fname.rfind("dssat-csm/") + 10 : fname.rfind("/")]
-    folder_path = os.path.join(new_fortran_path, shortpath)
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-
-    shortname = fname[fname.rfind("/") + 1 :]
-    with open(os.path.join(folder_path, shortname), "wb") as outfile:
-        outfile.write(outline.encode("utf-8"))
+    # outline = '\n'.join(lines)
+    # new_fortran_path = "/Users/phein/ml4ai/program_analysis/massaged-dssat-csm/"
+    #
+    # shortpath = fname[fname.rfind("dssat-csm/") + 10: fname.rfind("/")]
+    # folder_path = os.path.join(new_fortran_path, shortpath)
+    # if not os.path.exists(folder_path):
+    #     os.makedirs(folder_path)
+    #
+    # shortname = fname[fname.rfind("/") + 1:]
+    # with open(os.path.join(folder_path, shortname), "wb") as outfile:
+    #     outfile.write(outline.encode("utf-8"))
 
 
 def main():
@@ -74,10 +81,22 @@ def main():
         for elm in files
     ]
 
-    fortran_files = [x for x in files if x.endswith(".for")]
+    fortran_files = [x for x in files if x.endswith(".for") or x.endswith(".f90")]
 
+    tot_code = 0
+    tot_comm = 0
+    tot_in_comm = 0
     for fname in tqdm(fortran_files, desc="Processing Fortran"):
-        process(fname)
+        (code, comm, in_comm) = process(fname)
+        tot_code += code
+        tot_comm += comm
+        tot_in_comm += in_comm
+
+    print("Resultant counts:")
+    print("Total lines of code: {}".format(tot_code))
+    print("Total lines of comment: {}".format(tot_comm))
+    print("Total # of inline comments: {}".format(tot_in_comm))
+    print("Total lines of code w/o comment (tCode - tInLineComm): {}".format(tot_code - tot_in_comm))
 
 
 if __name__ == "__main__":

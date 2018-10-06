@@ -144,10 +144,9 @@ def mergeDicts(dicts):
     return out
 
 
-fnNames = {}
-
-
-def getFnName(basename):
+def getFnName(fnNames, basename):
+    # No longer using fnNames as a global variable. Causes function index
+    # errors when re-running genPGM in the same script
     fnId = fnNames.get(basename, 0)
     fnName = f"{basename}_{fnId}"
     fnNames[basename] = fnId + 1
@@ -224,7 +223,7 @@ def make_body_dict(name, target, sources):
     return body
 
 
-def genPgm(node, state):
+def genPgm(node, state, fnNames):
     types = (list, ast.Module, ast.FunctionDef)
     unnecessary_types = (
         ast.Mult,
@@ -241,14 +240,14 @@ def genPgm(node, state):
         if isinstance(node, ast.Call):
             return [{"start": node.func.id}]
         elif isinstance(node, ast.Expr):
-            return genPgm(node.value, state)
+            return genPgm(node.value, state, fnNames)
         elif isinstance(node, ast.If):
-            return genPgm(node.body, state)
+            return genPgm(node.body, state, fnNames)
         else:
             return []
 
     if isinstance(node, list):
-        return list(chain.from_iterable([genPgm(cur, state) for cur in node]))
+        return list(chain.from_iterable([genPgm(cur, state, fnNames) for cur in node]))
 
     # Function: name, args, body, decorator_list, returns
     elif isinstance(node, ast.FunctionDef):
@@ -261,8 +260,8 @@ def genPgm(node, state):
             fnName=node.name,
             varTypes=localTypes,
         )
-        args = genPgm(node.args, fnState)
-        bodyPgm = genPgm(node.body, fnState)
+        args = genPgm(node.args, fnState, fnNames)
+        bodyPgm = genPgm(node.body, fnState, fnNames)
 
         body, fns = get_body_and_functions(bodyPgm)
 
@@ -288,7 +287,7 @@ def genPgm(node, state):
 
     # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
     elif isinstance(node, ast.arguments):
-        return [genPgm(arg, state) for arg in node.args]
+        return [genPgm(arg, state, fnNames) for arg in node.args]
 
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
@@ -307,7 +306,7 @@ def genPgm(node, state):
 
     # Index: ('value',)
     elif isinstance(node, ast.Index):
-        genPgm(node.value, state)
+        genPgm(node.value, state, fnNames)
 
     # Num: ('n',)
     elif isinstance(node, ast.Num):
@@ -319,7 +318,7 @@ def genPgm(node, state):
     elif isinstance(node, ast.List):
         elements = reduce(
             (lambda x, y: x.append(y)),
-            [genPgm(elmt, state) for elmt in node.elts],
+            [genPgm(elmt, state, fnNames) for elmt in node.elts],
         )
         return elements if len(elements) == 1 else {"list": elements}
 
@@ -329,17 +328,17 @@ def genPgm(node, state):
 
     # For: ('target', 'iter', 'body', 'orelse')
     elif isinstance(node, ast.For):
-        if genPgm(node.orelse, state):
+        if genPgm(node.orelse, state, fnNames):
             sys.stderr.write("For/Else in for not supported\n")
             sys.exit(1)
 
-        indexVar = genPgm(node.target, state)
+        indexVar = genPgm(node.target, state, fnNames)
         if len(indexVar) != 1 or "var" not in indexVar[0]:
             sys.stderr.write("Only one index variable is supported\n")
             sys.exit(1)
         indexName = indexVar[0]["var"]["variable"]
 
-        loopIter = genPgm(node.iter, state)
+        loopIter = genPgm(node.iter, state, fnNames)
         if (
             len(loopIter) != 1
             or "call" not in loopIter[0]
@@ -374,13 +373,13 @@ def genPgm(node, state):
         loopState = state.copy(
             lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
         )
-        loop = genPgm(node.body, loopState)
+        loop = genPgm(node.body, loopState, fnNames)
         loopBody, loopFns = get_body_and_functions(loop)
 
         variables = [x for x in loopLastDef if x != indexName]
 
         # variables: see what changes?
-        loopName = getFnName(f"{state.fnName}__loop_plate__{indexName}")
+        loopName = getFnName(fnNames, f"{state.fnName}__loop_plate__{indexName}")
         loopFn = {
             "name": loopName,
             "type": "loop_plate",
@@ -399,7 +398,7 @@ def genPgm(node, state):
     elif isinstance(node, ast.If):
         pgm = {"functions": [], "body": []}
 
-        condSrcs = genPgm(node.test, state)
+        condSrcs = genPgm(node.test, state, fnNames)
 
         condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
         state.nextDefs["#cond"] = condNum + 1
@@ -407,10 +406,10 @@ def genPgm(node, state):
         condName = f"IF_{condNum}"
         state.varTypes[condName] = "boolean"
         state.lastDefs[condName] = 0
-        fnName = getFnName(f"{state.fnName}__condition__{condName}")
+        fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(f"{state.fnName}__lambda__{condName}")
+        lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
             "type": "assign",
@@ -446,8 +445,8 @@ def genPgm(node, state):
         elseDefs = startDefs.copy()
         ifState = state.copy(lastDefs=ifDefs)
         elseState = state.copy(lastDefs=elseDefs)
-        ifPgm = genPgm(node.body, ifState)
-        elsePgm = genPgm(node.orelse, elseState)
+        ifPgm = genPgm(node.body, ifState, fnNames)
+        elsePgm = genPgm(node.orelse, elseState, fnNames)
 
         pgm["functions"] += reduce(
             (lambda x, y: x + y["functions"]), [[]] + ifPgm
@@ -506,7 +505,7 @@ def genPgm(node, state):
                 ),
             }
 
-            fnName = getFnName(f"{state.fnName}__decision__{updatedDef}")
+            fnName = getFnName(fnNames, f"{state.fnName}__decision__{updatedDef}")
             fn = {
                 "name": fnName,
                 "type": "assign",
@@ -525,7 +524,7 @@ def genPgm(node, state):
 
     # UnaryOp: ('op', 'operand')
     elif isinstance(node, ast.UnaryOp):
-        return genPgm(node.operand, state)
+        return genPgm(node.operand, state, fnNames)
 
     # BinOp: ('left', 'op', 'right')
     elif isinstance(node, ast.BinOp):
@@ -550,7 +549,7 @@ def genPgm(node, state):
                         }
                     ]
 
-        return genPgm(node.left, state) + genPgm(node.right, state)
+        return genPgm(node.left, state, fnNames) + genPgm(node.right, state, fnNames)
 
     # Mult: ()
 
@@ -560,7 +559,7 @@ def genPgm(node, state):
 
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
-        exprs = genPgm(node.value, state)
+        exprs = genPgm(node.value, state, fnNames)
         pgm = {"functions": [], "body": []}
         for expr in exprs:
             if "call" in expr:
@@ -587,7 +586,7 @@ def genPgm(node, state):
 
     # Compare: ('left', 'ops', 'comparators')
     elif isinstance(node, ast.Compare):
-        return genPgm(node.left, state) + genPgm(node.comparators, state)
+        return genPgm(node.left, state, fnNames) + genPgm(node.comparators, state, fnNames)
 
     # Subscript: ('value', 'slice', 'ctx')
     elif isinstance(node, ast.Subscript):
@@ -595,7 +594,7 @@ def genPgm(node, state):
             sys.stderr.write("can't handle arrays right now\n")
             sys.exit(1)
 
-        val = genPgm(node.value, state)
+        val = genPgm(node.value, state, fnNames)
 
         if isinstance(node.ctx, ast.Store):
             val[0]["var"]["index"] = getNextDef(
@@ -620,15 +619,15 @@ def genPgm(node, state):
     # AnnAssign: ('target', 'annotation', 'value', 'simple')
     elif isinstance(node, ast.AnnAssign):
         if isinstance(node.value, ast.List):
-            targets = genPgm(node.target, state)
+            targets = genPgm(node.target, state, fnNames)
             for target in targets:
                 state.varTypes[target["var"]["variable"]] = getVarType(
                     node.annotation
                 )
             return []
 
-        sources = genPgm(node.value, state)
-        targets = genPgm(node.target, state)
+        sources = genPgm(node.value, state, fnNames)
+        targets = genPgm(node.target, state, fnNames)
 
         pgm = {"functions": [], "body": []}
 
@@ -637,9 +636,11 @@ def genPgm(node, state):
                 node.annotation
             )
             name = getFnName(
+                fnNames,
                 f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
+                fnNames,
                 f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
@@ -667,19 +668,21 @@ def genPgm(node, state):
 
     # Assign: ('targets', 'value')
     elif isinstance(node, ast.Assign):
-        sources = genPgm(node.value, state)
+        sources = genPgm(node.value, state, fnNames)
         targets = reduce(
             (lambda x, y: x.append(y)),
-            [genPgm(target, state) for target in node.targets],
+            [genPgm(target, state, fnNames) for target in node.targets],
         )
 
         pgm = {"functions": [], "body": []}
 
         for target in targets:
             name = getFnName(
+                fnNames,
                 f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
+                fnNames,
                 f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
@@ -710,7 +713,7 @@ def genPgm(node, state):
         inputs = []
 
         for arg in node.args:
-            arg = genPgm(arg, state)
+            arg = genPgm(arg, state, fnNames)
             inputs.append(arg)
 
         call = {"call": {"function": fnName, "inputs": inputs}}
@@ -721,7 +724,7 @@ def genPgm(node, state):
     elif isinstance(node, ast.Module):
         pgms = []
         for cur in node.body:
-            pgm = genPgm(cur, state)
+            pgm = genPgm(cur, state, fnNames)
             pgms += pgm
         return [mergeDicts(pgms)]
 
@@ -747,7 +750,7 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
     JSON output. """
     with open(lambdaFile, "w") as f:
         state = PGMState(f)
-        pgm = genPgm(asts, state)[0]
+        pgm = genPgm(asts, state, {})[0]
         pgm["start"] = pgm["start"][0]
         pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
