@@ -31,6 +31,5 @@ mypy = "*"
 pipenv-to-requirements = "*"
 xlrd = "*"
 sphinx_rtd_theme = "*"
-notedown = {git = "https://github.com/ml4ai/notedown.git"}
 rise = "*"
 jupyter-contrib-nbextensions = "*"
