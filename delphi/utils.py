@@ -1,5 +1,6 @@
 """ Helper functions. """
 
+import os
 from indra.statements import Influence
 from indra.sources import eidos
 from itertools import repeat, accumulate, islice, chain, starmap, zip_longest
