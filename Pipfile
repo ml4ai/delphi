@@ -20,6 +20,7 @@ seaborn = ">=0.9.0"
 jupyter = "*"
 networkx= "*"
 flask = "*"
+pyshp = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
