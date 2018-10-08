@@ -12,18 +12,18 @@ from glob import glob
 from tqdm import tqdm
 from indra.statements import stmts_from_json, Statement
 
-files = glob('../data/UN_stmt_jsons/*')
+files = glob("../data/UN_stmt_jsons/*")
 
 d = {}
 for file in tqdm(files):
-    with open(file, 'r') as f:
-        sts = stmts_from_json(json.load(f)['statements'])
+    with open(file, "r") as f:
+        sts = stmts_from_json(json.load(f)["statements"])
         for s in sts:
             for x in (s.subj, s.obj):
                 db_refs = x.db_refs
-                text = db_refs['TEXT']
-                if db_refs.get('UN') is not None:
-                    top_un_grounding = db_refs['UN'][0][0].split('/')[-1]
+                text = db_refs["TEXT"]
+                if db_refs.get("UN") is not None:
+                    top_un_grounding = db_refs["UN"][0][0].split("/")[-1]
                     if top_un_grounding not in d:
                         d[top_un_grounding] = [text]
                     else:
@@ -32,5 +32,5 @@ for file in tqdm(files):
 for k, v in d.items():
     d[k] = list(set(v))
 
-with open('groundings.json', 'w') as f:
+with open("groundings.json", "w") as f:
     f.write(json.dumps(d, indent=2))
