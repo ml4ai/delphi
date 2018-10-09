@@ -9,8 +9,8 @@ import argparse
 from functools import *
 import json
 from delphi.program_analysis.autoTranslate.scripts.genCode import *
-from typing import List, Dict
-from itertools import chain
+from typing import List, Dict, Iterable
+from itertools import chain, product
 import operator
 
 
@@ -120,28 +120,18 @@ def genFn(fnFile, node, fnName, returnVal, inputs):
     fnFile.write("\n\n")
 
 
-def mergeDicts(dicts):
-    fields = set()
-    for d in dicts:
-        fields.update(d.keys())
+def mergeDicts(dicts: Iterable[Dict]) -> Dict:
+    fields = set(chain.from_iterable(d.keys() for d in dicts))
 
-    out = {}
-    for field in fields:
-        for d in dicts:
-            if field not in d:
-                continue
+    merged_dict = {field:[] for field in fields}
+    for field, d in product(fields, dicts):
+        if field in d:
             if isinstance(d[field], list):
-                if field in out:
-                    out[field] += d[field]
-                else:
-                    out[field] = d[field]
+                merged_dict[field] += d[field]
             else:
-                if field in out:
-                    out[field].append(d[field])
-                else:
-                    out[field] = [d[field]]
+                merged_dict[field].append(d[field])
 
-    return out
+    return merged_dict
 
 
 def getFnName(fnNames, basename):

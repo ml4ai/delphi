@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import sys
 import argparse
 from pyTranslate import *
+from typing import List, Dict
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -29,7 +30,7 @@ class ParseState:
         )
 
 
-def parseTree(root, state):
+def parseTree(root, state) -> List[Dict]:
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         summaries[root.attrib["name"]] = None
@@ -202,11 +203,9 @@ def printAstTree(astFile, tree, blockVal):
     parentVal = blockVal
     for node in tree:
         if parentVal != blockVal:
-            astFile.write(
-                "\tB" + str(parentVal) + " -> B" + str(blockVal) + "\n"
-            )
+            astFile.write(f'\tB{parentVal} -> B{blockVal}\n')
             parentVal = blockVal
-        block = "\tB" + str(blockVal) + ' [label="'
+        block = f'\tB{blockVal} [label="'
         blockVal += 1
         for key in node:
             if not isinstance(node[key], list):
@@ -215,15 +214,7 @@ def printAstTree(astFile, tree, blockVal):
         astFile.write(block)
         for key in node:
             if isinstance(node[key], list) and bool(node[key]):
-                astFile.write(
-                    "\tB"
-                    + str(parentVal)
-                    + " -> B"
-                    + str(blockVal)
-                    + ' [label="'
-                    + str(key)
-                    + '"]\n'
-                )
+                astFile.write(f'\tB{parentVal} -> B{blockVal} [label="{key}"]\n')
                 blockVal = printAstTree(astFile, node[key], blockVal)
 
     return blockVal
@@ -250,11 +241,11 @@ def printPython1(
                 if node["type"] == "DOUBLE":
                     # dataType = 'DOUBLE PRECISION'
                     initVal = 0.0
-                pyFile.write("{0} = [{1}]".format(node["name"], initVal))
+                pyFile.write(f"{node['name']} = [{initVal}]")
             else:
                 printFirst = False
         elif node["tag"] == "subroutine" or node["tag"] == "program":
-            pyFile.write("def {0}(".format(node["name"]))
+            pyFile.write(f"def {node['name']}(")
             args = []
             printPython(
                 pyFile, node["args"], ", ", "", False, args, globalVars, False
@@ -271,13 +262,13 @@ def printPython1(
                 True,
             )
         elif node["tag"] == "call":
-            pyFile.write("{0}(".format(node["name"]))
+            pyFile.write(f"{node['name']}(")
             printPython(
                 pyFile, node["args"], ", ", "", False, [], globalVars, False
             )
             pyFile.write(")")
         elif node["tag"] == "arg":
-            pyFile.write("{0}".format(node["name"]))
+            pyFile.write("{node['name']}")
             definedVars += [node["name"]]
         # elif node['tag'] == 'variable':
         #    pass #skip
@@ -306,7 +297,7 @@ def printPython1(
             )
         elif node["tag"] == "index":
             # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high']))
-            pyFile.write("{0}[0] in range(".format(node["name"]))
+            pyFile.write(f"{node['name']}[0] in range(")
             printPython(
                 pyFile,
                 node["low"],
@@ -380,18 +371,18 @@ def printPython1(
                     globalVars,
                     True,
                 )
-                if node["operator"].lower() == ".ne.":
-                    pyFile.write(" != ")
-                elif node["operator"].lower() == ".gt.":
-                    pyFile.write(" > ")
-                elif node["operator"].lower() == ".eq.":
-                    pyFile.write(" == ")
-                elif node["operator"].lower() == ".lt.":
-                    pyFile.write(" < ")
-                elif node["operator"].lower() == ".le.":
-                    pyFile.write(" <= ")
+                operator_dict = {
+                    ".ne.":" != ",
+                    ".gt.": " > ",
+                    ".eq.": " == ",
+                    ".lt.": " < ",
+                    ".le.": " <= "
+                }
+                op =node["operator"].lower()
+                if op in operator_dict:
+                    pyFile.write(operator_dict[op])
                 else:
-                    pyFile.write(" {0} ".format(node["operator"]))
+                    pyFile.write(f" {node['operator']} ")
                 printPython(
                     pyFile,
                     node["right"],
@@ -404,8 +395,7 @@ def printPython1(
                 )
                 pyFile.write(")")
             else:
-                pyFile.write("{0}".format(node["operator"]))
-                pyFile.write("(")
+                pyFile.write(f"{node['operator']}(")
                 printPython(
                     pyFile,
                     node["left"],
@@ -420,12 +410,11 @@ def printPython1(
             if indexRef == False:
                 pyFile.write("]")
         elif node["tag"] == "literal":
-            pyFile.write("{0}".format(node["value"]))
+            pyFile.write(f"{node['value']}")
         elif node["tag"] == "ref":
+            pyFile.write(f"{node['name']}")
             if indexRef:
-                pyFile.write("{0}[0]".format(node["name"]))
-            else:
-                pyFile.write("{0}".format(node["name"]))
+                pyFile.write(f"[0]")
         elif node["tag"] == "assignment":
             printPython(
                 pyFile,
@@ -453,7 +442,7 @@ def printPython1(
         elif node["tag"] == "exit":
             pyFile.write("sys.exit(0)")
         else:
-            print("unknown tag: {0}".format(node["tag"]))
+            print(f"unknown tag: {node['tag']}")
             sys.exit(1)
 
 
