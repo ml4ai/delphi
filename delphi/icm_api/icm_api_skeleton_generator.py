@@ -25,11 +25,12 @@ from dataclasses import dataclass, field, asdict"""
         class_lines.append(
             '    """'
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
-            + ' """'
+            + ' """\n'
         )
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
+        class_lines.append(f'    basetype: str = "{schema_name}"')
         for property in sorted(
             properties, key=lambda x: x not in required_properties
         ):
@@ -58,7 +59,6 @@ from dataclasses import dataclass, field, asdict"""
 
             if property not in required_properties:
                 type_annotation = f"Optional[{type_annotation}]"
-            class_lines.append(f'    basetype: str = "{schema_name}"')
             default_value = f"{properties[property].get('default')}"
             if property != "baseType":
                 class_lines.append(
