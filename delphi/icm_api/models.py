@@ -28,12 +28,19 @@ class User:
 
     basetype: str = "User"
     id: int = None
+    basetype: str = "User"
     username: Optional[str] = None
+    basetype: str = "User"
     firstName: Optional[str] = None
+    basetype: str = "User"
     lastName: Optional[str] = None
+    basetype: str = "User"
     email: Optional[str] = None
+    basetype: str = "User"
     password: Optional[str] = None
+    basetype: str = "User"
     phone: Optional[str] = None
+    basetype: str = "User"
     userStatus: Optional[int] = None
 
 
@@ -43,17 +50,29 @@ class ICMMetadata:
 
     basetype: str = "ICMMetadata"
     id: str = None
+    basetype: str = "ICMMetadata"
     icmProvider: Optional[ICMProvider] = None
+    basetype: str = "ICMMetadata"
     title: Optional[str] = None
+    basetype: str = "ICMMetadata"
     version: Optional[int] = None
+    basetype: str = "ICMMetadata"
     created: Optional[str] = None
+    basetype: str = "ICMMetadata"
     createdByUser: Optional[User] = None
+    basetype: str = "ICMMetadata"
     lastAccessed: Optional[str] = None
+    basetype: str = "ICMMetadata"
     lastAccessedByUser: Optional[User] = None
+    basetype: str = "ICMMetadata"
     lastUpdated: Optional[str] = None
+    basetype: str = "ICMMetadata"
     lastUpdatedByUser: Optional[User] = None
+    basetype: str = "ICMMetadata"
     estimatedNumberOfPrimitives: Optional[int] = None
+    basetype: str = "ICMMetadata"
     lifecycleState: Optional[LifecycleState] = None
+    basetype: str = "ICMMetadata"
     derivation: Optional[List[str]] = None
 
 
@@ -63,6 +82,7 @@ class ServerResponse:
 
     basetype: str = "ServerResponse"
     id: Optional[str] = None
+    basetype: str = "ServerResponse"
     message: Optional[str] = None
 
 
@@ -182,8 +202,11 @@ class TimeSeriesValue:
 
     basetype: str = "TimeSeriesValue"
     time: str = None
+    basetype: str = "TimeSeriesValue"
     value: Value = None
+    basetype: str = "TimeSeriesValue"
     active: Optional[TimeSeriesState] = None
+    basetype: str = "TimeSeriesValue"
     trend: Optional[TimeSeriesTrend] = None
 
 
@@ -193,13 +216,17 @@ class CausalPrimitive:
 
     basetype: str = "CausalPrimitive"
     namespaces: Optional[object] = None
+    basetype: str = "CausalPrimitive"
     types: Optional[List[str]] = None
     editable: Optional[bool] = True
     disableable: Optional[bool] = True
     disabled: Optional[bool] = False
     id: Optional[str] = None
+    basetype: str = "CausalPrimitive"
     label: Optional[str] = None
+    basetype: str = "CausalPrimitive"
     description: Optional[str] = None
+    basetype: str = "CausalPrimitive"
     lastUpdated: Optional[str] = None
 
 
@@ -217,9 +244,13 @@ class CausalVariable(CausalPrimitive):
 
     basetype: str = "CausalVariable"
     range: Range = None
+    basetype: str = "CausalVariable"
     units: Optional[str] = None
+    basetype: str = "CausalVariable"
     backingEntities: Optional[List[str]] = None
+    basetype: str = "CausalVariable"
     lastKnownValue: Optional[TimeSeriesValue] = None
+    basetype: str = "CausalVariable"
     confidence: Optional[float] = None
 
 
@@ -229,7 +260,9 @@ class ConfigurationVariable(CausalPrimitive):
 
     basetype: str = "ConfigurationVariable"
     units: Optional[str] = None
+    basetype: str = "ConfigurationVariable"
     lastKnownValue: Optional[TimeSeriesValue] = None
+    basetype: str = "ConfigurationVariable"
     range: Optional[Range] = None
 
 
@@ -239,9 +272,13 @@ class CausalRelationship(CausalPrimitive):
 
     basetype: str = "CausalRelationship"
     source: object = None
+    basetype: str = "CausalRelationship"
     target: object = None
+    basetype: str = "CausalRelationship"
     confidence: Optional[float] = None
+    basetype: str = "CausalRelationship"
     strength: Optional[float] = None
+    basetype: str = "CausalRelationship"
     reinforcement: Optional[bool] = None
 
 
@@ -251,7 +288,9 @@ class Relationship(CausalPrimitive):
 
     basetype: str = "Relationship"
     source: object = None
+    basetype: str = "Relationship"
     target: object = None
+    basetype: str = "Relationship"
     confidence: Optional[float] = None
 
 
@@ -261,9 +300,13 @@ class Evidence:
 
     basetype: str = "Evidence"
     id: Optional[str] = None
+    basetype: str = "Evidence"
     link: Optional[str] = None
+    basetype: str = "Evidence"
     description: Optional[str] = None
+    basetype: str = "Evidence"
     category: Optional[str] = None
+    basetype: str = "Evidence"
     rank: Optional[int] = None
 
 
@@ -273,7 +316,9 @@ class Projection:
 
     basetype: str = "Projection"
     numSteps: int = None
+    basetype: str = "Projection"
     stepSize: str = None
+    basetype: str = "Projection"
     startTime: Optional[str] = None
 
 
@@ -283,7 +328,9 @@ class Experiment:
 
     basetype: str = "Experiment"
     id: Optional[str] = None
+    basetype: str = "Experiment"
     label: Optional[str] = None
+    basetype: str = "Experiment"
     options: Optional[object] = None
 
 
@@ -293,6 +340,7 @@ class ForwardProjection(Experiment):
 
     basetype: str = "ForwardProjection"
     interventions: Optional[List[object]] = None
+    basetype: str = "ForwardProjection"
     projection: Optional[Projection] = None
 
 
@@ -318,6 +366,7 @@ class ForwardProjectionResult(ExperimentResult):
 
     basetype: str = "ForwardProjectionResult"
     projection: Optional[Projection] = None
+    basetype: str = "ForwardProjectionResult"
     results: Optional[List[object]] = None
 
 
@@ -343,4 +392,5 @@ class Version:
 
     basetype: str = "Version"
     icmVersion: Optional[str] = None
+    basetype: str = "Version"
     icmProviderVersion: Optional[str] = None
