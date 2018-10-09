@@ -25,6 +25,7 @@ class LifecycleState(Enum):
 @dataclass
 class User:
     """Placeholder docstring for class User. """
+
     basetype: str = "User"
     id: int = None
     basetype: str = "User"
@@ -46,6 +47,7 @@ class User:
 @dataclass
 class ICMMetadata:
     """Placeholder docstring for class ICMMetadata. """
+
     basetype: str = "ICMMetadata"
     id: str = None
     basetype: str = "ICMMetadata"
@@ -77,6 +79,7 @@ class ICMMetadata:
 @dataclass
 class ServerResponse:
     """Placeholder docstring for class ServerResponse. """
+
     basetype: str = "ServerResponse"
     id: Optional[str] = None
     basetype: str = "ServerResponse"
@@ -86,12 +89,14 @@ class ServerResponse:
 @dataclass
 class Range:
     """Top level range object used in a CausalVariable """
+
     basetype: str = "Range"
 
 
 @dataclass
 class IntegerRange(Range):
     """The range for an integer value """
+
     basetype: str = "IntegerRange"
     range: Optional[object] = None
 
@@ -99,6 +104,7 @@ class IntegerRange(Range):
 @dataclass
 class FloatRange(Range):
     """The range for a floating point value """
+
     basetype: str = "FloatRange"
     range: Optional[object] = None
 
@@ -106,6 +112,7 @@ class FloatRange(Range):
 @dataclass
 class BooleanRange(Range):
     """Denotes a boolean range """
+
     basetype: str = "BooleanRange"
     range: Optional[object] = None
 
@@ -113,6 +120,7 @@ class BooleanRange(Range):
 @dataclass
 class EnumRange(Range):
     """The values of an enumeration """
+
     basetype: str = "EnumRange"
     range: Optional[List[str]] = None
 
@@ -120,6 +128,7 @@ class EnumRange(Range):
 @dataclass
 class DistributionEnumRange(Range):
     """The range of classifications that can be reported in a DistributionEnumValue """
+
     basetype: str = "DistributionEnumRange"
     range: Optional[List[str]] = None
 
@@ -127,12 +136,14 @@ class DistributionEnumRange(Range):
 @dataclass
 class Value:
     """Top level value object used in a TimeSeriesValue """
+
     basetype: str = "Value"
 
 
 @dataclass
 class IntegerValue(Value):
     """An integer value """
+
     basetype: str = "IntegerValue"
     value: Optional[int] = None
 
@@ -140,6 +151,7 @@ class IntegerValue(Value):
 @dataclass
 class FloatValue(Value):
     """A floating point value """
+
     basetype: str = "FloatValue"
     value: Optional[float] = None
 
@@ -147,6 +159,7 @@ class FloatValue(Value):
 @dataclass
 class BooleanValue(Value):
     """A boolean value """
+
     basetype: str = "BooleanValue"
     value: Optional[bool] = None
 
@@ -154,6 +167,7 @@ class BooleanValue(Value):
 @dataclass
 class EnumValue(Value):
     """An enumeration value defined in the EnumRange for the CausalVariable """
+
     basetype: str = "EnumValue"
     value: Optional[str] = None
 
@@ -161,6 +175,7 @@ class EnumValue(Value):
 @dataclass
 class DistributionEnumValue(Value):
     """A distribution of classifications with non-zero probabilities. The classifications must be defined in the DistributionEnumRange of the CausalVariable and the probabilities must add to 1.0. """
+
     basetype: str = "DistributionEnumValue"
     value: Optional[object] = None
 
@@ -184,6 +199,7 @@ class TimeSeriesTrend(Enum):
 @dataclass
 class TimeSeriesValue:
     """Time series value at a particular time """
+
     basetype: str = "TimeSeriesValue"
     time: str = None
     basetype: str = "TimeSeriesValue"
@@ -197,18 +213,14 @@ class TimeSeriesValue:
 @dataclass
 class CausalPrimitive:
     """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
-    basetype: str = "CausalPrimitive"
+
     basetype: str = "CausalPrimitive"
     namespaces: Optional[object] = None
     basetype: str = "CausalPrimitive"
     types: Optional[List[str]] = None
-    basetype: str = "CausalPrimitive"
     editable: Optional[bool] = True
-    basetype: str = "CausalPrimitive"
     disableable: Optional[bool] = True
-    basetype: str = "CausalPrimitive"
     disabled: Optional[bool] = False
-    basetype: str = "CausalPrimitive"
     id: Optional[str] = None
     basetype: str = "CausalPrimitive"
     label: Optional[str] = None
@@ -221,6 +233,7 @@ class CausalPrimitive:
 @dataclass
 class Entity(CausalPrimitive):
     """API definition of an entity.  """
+
     basetype: str = "Entity"
     confidence: Optional[float] = None
 
@@ -228,6 +241,7 @@ class Entity(CausalPrimitive):
 @dataclass
 class CausalVariable(CausalPrimitive):
     """API definition of a causal variable.  """
+
     basetype: str = "CausalVariable"
     range: Range = None
     basetype: str = "CausalVariable"
@@ -243,6 +257,7 @@ class CausalVariable(CausalPrimitive):
 @dataclass
 class ConfigurationVariable(CausalPrimitive):
     """Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
+
     basetype: str = "ConfigurationVariable"
     units: Optional[str] = None
     basetype: str = "ConfigurationVariable"
@@ -254,6 +269,7 @@ class ConfigurationVariable(CausalPrimitive):
 @dataclass
 class CausalRelationship(CausalPrimitive):
     """API defintion of a causal relationship. Indicates causality between two causal variables. """
+
     basetype: str = "CausalRelationship"
     source: object = None
     basetype: str = "CausalRelationship"
@@ -269,6 +285,7 @@ class CausalRelationship(CausalPrimitive):
 @dataclass
 class Relationship(CausalPrimitive):
     """API definition of a generic relationship between two primitives """
+
     basetype: str = "Relationship"
     source: object = None
     basetype: str = "Relationship"
@@ -280,6 +297,7 @@ class Relationship(CausalPrimitive):
 @dataclass
 class Evidence:
     """Object that holds a reference to evidence (either KO from TA1 or human provided). """
+
     basetype: str = "Evidence"
     id: Optional[str] = None
     basetype: str = "Evidence"
@@ -295,6 +313,7 @@ class Evidence:
 @dataclass
 class Projection:
     """Placeholder docstring for class Projection. """
+
     basetype: str = "Projection"
     numSteps: int = None
     basetype: str = "Projection"
@@ -306,6 +325,7 @@ class Projection:
 @dataclass
 class Experiment:
     """structure used for experimentation """
+
     basetype: str = "Experiment"
     id: Optional[str] = None
     basetype: str = "Experiment"
@@ -317,6 +337,7 @@ class Experiment:
 @dataclass
 class ForwardProjection(Experiment):
     """a foward projection experiment """
+
     basetype: str = "ForwardProjection"
     interventions: Optional[List[object]] = None
     basetype: str = "ForwardProjection"
@@ -326,6 +347,7 @@ class ForwardProjection(Experiment):
 @dataclass
 class SensitivityAnalysis(Experiment):
     """a sensitivity analysis experiment """
+
     basetype: str = "SensitivityAnalysis"
     variables: Optional[List[str]] = None
 
@@ -333,6 +355,7 @@ class SensitivityAnalysis(Experiment):
 @dataclass
 class ExperimentResult:
     """Notional model of experiment results """
+
     basetype: str = "ExperimentResult"
     id: Optional[str] = None
 
@@ -340,6 +363,7 @@ class ExperimentResult:
 @dataclass
 class ForwardProjectionResult(ExperimentResult):
     """The result of a forward projection experiment """
+
     basetype: str = "ForwardProjectionResult"
     projection: Optional[Projection] = None
     basetype: str = "ForwardProjectionResult"
@@ -349,6 +373,7 @@ class ForwardProjectionResult(ExperimentResult):
 @dataclass
 class SensitivityAnalysisResult(ExperimentResult):
     """The result of a sensitivity analysis experiment """
+
     basetype: str = "SensitivityAnalysisResult"
     results: Optional[List[object]] = None
 
@@ -356,6 +381,7 @@ class SensitivityAnalysisResult(ExperimentResult):
 @dataclass
 class Traversal:
     """Placeholder docstring for class Traversal. """
+
     basetype: str = "Traversal"
     maxDepth: Optional[int] = None
 
@@ -363,6 +389,7 @@ class Traversal:
 @dataclass
 class Version:
     """Placeholder docstring for class Version. """
+
     basetype: str = "Version"
     icmVersion: Optional[str] = None
     basetype: str = "Version"
