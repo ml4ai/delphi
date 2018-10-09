@@ -1,7 +1,8 @@
-import uuid
+from uuid import uuid4
 import pickle
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List
+from delphi.bmi import initialize
 from flask import Flask, jsonify, request
 from delphi.icm_api.models import *
 
@@ -9,6 +10,19 @@ app = Flask(__name__)
 
 with open("delphi_cag.pkl", "rb") as f:
     model = pickle.load(f)
+    initialize(model, 'variables.csv')
+    today = date.today().isoformat()
+    for n in model.nodes(data=True):
+        n[1]['id'] = uuid4()
+        n[1]['units'] = ""
+        n[1]['label'] = n[0]
+        n[1]['description'] = f"Long description of {n[0]}."
+        n[1]['lastUpdated'] = today
+        n[1]['lastKnownValue'] = {"timestep": 0, "value": {"baseType":
+            "FloatValue", "value" : n[1]['rv'].dataset[0]}}
+    for e in model.edges(data=True):
+        e[2]['id'] = uuid4()
+        e[2]['lastUpdated'] = today
 
 models = {str(model.id): model}
 
@@ -58,10 +72,17 @@ def updateICMMetadata(uuid: str):
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
     model = models[uuid]
-    nodes = [CausalVariable(id=n) for n in model.nodes()]
+    nodes = [CausalVariable(id=n[1]['id'], units = n[1]['units'],
+            label=n[1]['label'], description=n[1]['description'],
+            lastUpdated=n[1]['lastUpdated'],
+            lastKnownValue = n[1]['lastKnownValue'])
+            for n in model.nodes(data=True)]
     edges = [
-        CausalRelationship(id="__".join(e), source=e[0], target=e[1])
-        for e in model.edges()
+        CausalRelationship(id=e[2]['id'], source=e[0], target=e[1],
+            label=f"{e[0]} influences {e[1]}.",
+            lastUpdated=n[1]['lastUpdated']
+            )
+        for e in model.edges(data=True)
     ]
     return jsonify([asdict(x) for x in nodes + edges])
 
