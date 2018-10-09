@@ -125,6 +125,7 @@ variables.csv
 notebooks/season.dat
 
 # Data to ignore
+data/*.zip
 data/WDI
 data/FAOSTAT
 data/SS_x3085y0535_nasa.weather
