@@ -123,15 +123,15 @@ def genFn(fnFile, node, fnName, returnVal, inputs):
 def mergeDicts(dicts: Iterable[Dict]) -> Dict:
     fields = set(chain.from_iterable(d.keys() for d in dicts))
 
-    out = {field:[] for field in fields}
+    merged_dict = {field:[] for field in fields}
     for field, d in product(fields, dicts):
         if field in d:
             if isinstance(d[field], list):
-                out[field] += d[field]
+                merged_dict[field] += d[field]
             else:
-                out[field].append(d[field])
+                merged_dict[field].append(d[field])
 
-    return out
+    return merged_dict
 
 
 def getFnName(fnNames, basename):
