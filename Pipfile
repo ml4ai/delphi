@@ -34,3 +34,4 @@ xlrd = "*"
 sphinx_rtd_theme = "*"
 rise = "*"
 jupyter-contrib-nbextensions = "*"
+shapely = {version = "*", extras = ["vectorized"]}

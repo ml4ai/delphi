@@ -11,8 +11,7 @@ import matplotlib as mpl
 
 mpl.rcParams["backend"] = "Agg"
 from matplotlib import pyplot as plt
-from matplotlib.patches import Polygon, PathPatch
-from matplotlib.collections import PatchCollection
+from shapely.geometry import Polygon, MultiPolygon
 
 
 def download_FEWS_NET_admin_boundaries_data():
@@ -35,6 +34,8 @@ def download_FEWS_NET_IPC_data():
 
 def process_FEWS_NET_IPC_data(shpfile: str, title: str):
     # read the shapefile
+    admin_boundaries_shapefile = "data/FEWSNET_World_Admin/FEWSNET_Admin2"
+    sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     colors = {
         0: "white",
         1: "#c3e2c3",
@@ -57,18 +58,45 @@ def process_FEWS_NET_IPC_data(shpfile: str, title: str):
         ax.plot(xs, ys, linewidth=0.5, color="grey")
         ax.fill(xs, ys, color=colors[int(sr.record[0])])
 
-    for i, sr in tqdm(
-        enumerate(sf.iterShapeRecords()), total=len(sf.shapes())
-    ):
-        if len(sr.shape.parts) == 1:
-            fill_and_plot(sr.shape.points, sr)
+    fs_polygons = []
+    for i, sr in tqdm(enumerate(sf.shapeRecords())):
+        nparts = len(sr.shape.parts)
+        parts, points = sr.shape.parts, sr.shape.points
+        if nparts == 1:
+            # fill_and_plot(points, sr)
+            fs_polygons.append((Polygon(points), int(sr.record[0])))
         else:
-            for ip, part in enumerate(sr.shape.parts):
-                if ip < len(sr.shape.parts) - 1:
-                    i1 = sr.shape.parts[ip + 1] - 1
+            for ip, part in enumerate(parts):
+                if ip < nparts - 1:
+                    i1 = parts[ip + 1] - 1
                 else:
-                    i1 = len(sr.shape.points)
-                fill_and_plot(sr.shape.points[part : i1 + 1], sr),
+                    i1 = len(points)
+                # fill_and_plot(points[part : i1 + 1], sr),
+                fs_polygons.append(
+                    (Polygon(points[part : i1 + 1]), int(sr.record[0]))
+                )
+    south_sudan_srs = [
+        sr for sr in sf_admin.shapeRecords() if sr.record[3] == "South Sudan"
+    ]
+    for sr in tqdm(south_sudan_srs, desc="South Sudan Counties"):
+        county_polygon = Polygon(sr.shape.points)
+        for fs_polygon in tqdm(fs_polygons, desc="fs_polygons"):
+            if county_polygon.buffer(-0.05).intersects(fs_polygon[0]):
+                centroid = county_polygon.centroid
+                ax.text(
+                    centroid.x,
+                    centroid.y,
+                    sr.record[8],
+                    fontsize=6,
+                    horizontalalignment="center",
+                )
+                xs, ys = lzip(*sr.shape.points)
+                ax.plot(xs, ys, linewidth=0.5, color="grey")
+                ax.fill(
+                    xs, ys, linewidth=0.5, color=colors[int(fs_polygon[1])]
+                )
+                break
+
     plt.savefig("shape.pdf")
 
 
