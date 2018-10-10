@@ -5,11 +5,11 @@ from typing import Optional, List
 from delphi.bmi import initialize
 from flask import Flask, jsonify, request
 from delphi.icm_api.models import *
+from pprint import pprint
 
 app = Flask(__name__)
 
-with open("delphi_cag.pkl", "rb") as f:
-    model = pickle.load(f)
+def dress_model_for_icm_api(model):
     initialize(model, "variables.csv")
     today = date.today().isoformat()
     for n in model.nodes(data=True):
@@ -26,7 +26,18 @@ with open("delphi_cag.pkl", "rb") as f:
                 "value": n[1]["rv"].dataset[0],
             },
         }
+        n[1]["range"] = {
+            "baseType": "FloatRange",
+            "range": {
+                "min": 0,
+                "max": 10,
+                "step": 0.1,
+            }
+        }
+    n_evidences = [len(e[2]["InfluenceStatements"][0].evidence) for e in model.edges(data=True)]
+    max_evidences = max(n_evidences)
     for e in model.edges(data=True):
+        stmt = e[2]["InfluenceStatements"][0]
         e[2]["id"] = uuid4()
         e[2]["namespaces"] = []
         e[2]["source"] = model.nodes[e[0]]["id"]
@@ -34,10 +45,15 @@ with open("delphi_cag.pkl", "rb") as f:
         e[2]["lastUpdated"] = today
         e[2]["types"] = ["causal"]
         e[2]["description"] = f"{e[0]} influences {e[1]}."
-        e[2]["confidence"] = 1
+        e[2]["confidence"] = len(e[2]['InfluenceStatements'][0].evidence)/max_evidences
         e[2]["label"] = f"{e[0]} influences {e[1]}."
         e[2]["strength"] = 1
-        e[2]["reinforcement"] = "placeholder reinforcement"
+        e[2]["reinforcement"] = stmt.subj_delta['polarity']*stmt.obj_delta['polarity']
+
+    return model
+
+with open("delphi_cag.pkl", "rb") as f:
+    model = dress_model_for_icm_api(pickle.load(f))
 
 models = {str(model.id): model}
 
@@ -95,6 +111,7 @@ def getICMPrimitives(uuid: str):
             description=n[1]["description"],
             lastUpdated=n[1]["lastUpdated"],
             lastKnownValue=n[1]["lastKnownValue"],
+            range=n[1]["range"],
         )
         for n in model.nodes(data=True)
     ]
