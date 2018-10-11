@@ -50,10 +50,7 @@ def dress_model_for_icm_api(model):
         e[2]["lastUpdated"] = today
         e[2]["types"] = ["causal"]
         e[2]["description"] = f"{e[0]} influences {e[1]}."
-        e[2]["confidence"] = (
-            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
-            / max_evidences
-        )
+        e[2]["confidence"] = np.mean([s.belief for s in e[2]['InfluenceStatements']])
         e[2]["label"] = f"{e[0]} influences {e[1]}."
         e[2]["strength"] = abs(np.median(e[2]["betas"]) / max_mean_betas)
         e[2]["reinforcement"] = np.mean(
