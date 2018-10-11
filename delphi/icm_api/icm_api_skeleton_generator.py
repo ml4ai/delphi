@@ -25,11 +25,12 @@ from dataclasses import dataclass, field, asdict"""
         class_lines.append(
             '    """'
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
-            + ' """'
+            + ' """\n'
         )
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
+        class_lines.append(f'    basetype: str = "{schema_name}"')
         for property in sorted(
             properties, key=lambda x: x not in required_properties
         ):
@@ -58,13 +59,11 @@ from dataclasses import dataclass, field, asdict"""
 
             if property not in required_properties:
                 type_annotation = f"Optional[{type_annotation}]"
-            if property == "baseType":
-                default_value = f'"{schema_name}"'
-            else:
-                default_value = "None"
-            class_lines.append(
-                f"    {property}: {type_annotation} = {default_value}"
-            )
+            default_value = f"{properties[property].get('default')}"
+            if property != "baseType":
+                class_lines.append(
+                    f"    {property}: {type_annotation} = {default_value}"
+                )
 
     def to_class(schema_name, schema):
         class_lines = []
@@ -163,5 +162,5 @@ if __name__ == "__main__":
     with open("icm_api.yaml", "r") as f:
         yml = yaml.load(f)
 
-    write_views(yml)
+    # write_views(yml)
     write_models(yml)

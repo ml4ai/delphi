@@ -1,14 +1,70 @@
-import uuid
+from uuid import uuid4
 import pickle
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional, List
+from delphi.bmi import initialize
+from delphi.utils import flatten
 from flask import Flask, jsonify, request
 from delphi.icm_api.models import *
+from pprint import pprint
+import numpy as np
 
 app = Flask(__name__)
 
+
+def dress_model_for_icm_api(model):
+    initialize(model, "variables.csv")
+    today = date.today().isoformat()
+    for n in model.nodes(data=True):
+        n[1]["id"] = uuid4()
+        n[1]["units"] = ""
+        n[1]["namespaces"] = []
+        n[1]["label"] = n[0]
+        n[1]["description"] = f"Long description of {n[0]}."
+        n[1]["lastUpdated"] = today
+        n[1]["lastKnownValue"] = {
+            "timestep": 0,
+            "value": {
+                "baseType": "FloatValue",
+                "value": n[1]["rv"].dataset[0],
+            },
+        }
+        n[1]["range"] = {
+            "baseType": "FloatRange",
+            "range": {"min": 0, "max": 10, "step": 0.1},
+        }
+    max_evidences = max(
+        [
+            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
+            for e in model.edges(data=True)
+        ]
+    )
+    max_mean_betas = max(
+        [abs(np.median(e[2]["betas"])) for e in model.edges(data=True)]
+    )
+    for e in model.edges(data=True):
+        e[2]["id"] = uuid4()
+        e[2]["namespaces"] = []
+        e[2]["source"] = model.nodes[e[0]]["id"]
+        e[2]["target"] = model.nodes[e[1]]["id"]
+        e[2]["lastUpdated"] = today
+        e[2]["types"] = ["causal"]
+        e[2]["description"] = f"{e[0]} influences {e[1]}."
+        e[2]["confidence"] = np.mean([s.belief for s in e[2]['InfluenceStatements']])
+        e[2]["label"] = f"{e[0]} influences {e[1]}."
+        e[2]["strength"] = abs(np.median(e[2]["betas"]) / max_mean_betas)
+        e[2]["reinforcement"] = np.mean(
+            [
+                stmt.subj_delta["polarity"] * stmt.obj_delta["polarity"]
+                for stmt in e[2]["InfluenceStatements"]
+            ]
+        )
+
+    return model
+
+
 with open("delphi_cag.pkl", "rb") as f:
-    model = pickle.load(f)
+    model = dress_model_for_icm_api(pickle.load(f))
 
 models = {str(model.id): model}
 
@@ -58,10 +114,33 @@ def updateICMMetadata(uuid: str):
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
     model = models[uuid]
-    nodes = [CausalVariable(id=n) for n in model.nodes()]
+    nodes = [
+        CausalVariable(
+            id=n[1]["id"],
+            units=n[1]["units"],
+            label=n[1]["label"],
+            description=n[1]["description"],
+            lastUpdated=n[1]["lastUpdated"],
+            lastKnownValue=n[1]["lastKnownValue"],
+            range=n[1]["range"],
+        )
+        for n in model.nodes(data=True)
+    ]
     edges = [
-        CausalRelationship(id="__".join(e), source=e[0], target=e[1])
-        for e in model.edges()
+        CausalRelationship(
+            id=e[2]["id"],
+            source=e[2]["source"],
+            target=e[2]["target"],
+            namespaces=e[2]["namespaces"],
+            confidence=e[2]["confidence"],
+            types=e[2]["types"],
+            strength=e[2]["strength"],
+            lastUpdated=e[2]["lastUpdated"],
+            description=e[2]["description"],
+            label=e[2]["label"],
+            reinforcement=e[2]["reinforcement"],
+        )
+        for e in model.edges(data=True)
     ]
     return jsonify([asdict(x) for x in nodes + edges])
 
