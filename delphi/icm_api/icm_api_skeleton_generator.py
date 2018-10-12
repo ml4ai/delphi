@@ -65,7 +65,8 @@ from dataclasses import dataclass, field, asdict"""
             if type_annotation == "List":
                 property_type = properties[property]["items"]["type"]
                 type_annotation = (
-                    f"List[{mapping.get(property_type, property_type)}]"
+                    #f"List[{mapping.get(property_type, property_type)}]"
+                    f"{mapping.get(property_type, property_type)}"
                 )
 
             # TODO - Parse dependencies so that inherited properties are
@@ -117,33 +118,18 @@ from dataclasses import dataclass, field, asdict"""
             for option in schema["enum"]:
                 class_lines.append(f'    {option} = "{option}"')
         
-        #print ("schema_lines_dict: ", schema_lines_dict)
         
         schema_lines_dict[schema_name] = class_lines
         if schema_name not in global_schema_list:
-            #print (schema_name, "not in global_schema_list.")
-            global_schema_list.append(schema_name)
+           global_schema_list.append(schema_name)
         
-        #print ("global_schema_list: ", global_schema_list)
-    
-    #count = 1
-    #for schema_name, schema in schemas.items():
-        #print (schema_name , " *** " , schema, "\n")
-        #count = count + 1
-        #if count == 5:
-            #break
-    
-    #count = 1
     for schema_name, schema in schemas.items():
         to_class(schema_name, schema)
-       # count = count + 1
-        #if count == 5:
-            #break
 
-    #print (module_lines)
+    
     for schema_name in global_schema_list:
         module_lines += schema_lines_dict[schema_name]
-    #print (module_lines)
+    
     with open("models.py", "w") as f:
         f.write("\n".join(module_lines))
 
@@ -208,6 +194,8 @@ if __name__ == "__main__":
     yaml = YAML(typ="safe")
     with open("icm_api.yaml", "r") as f:
         yml = yaml.load(f)
-
+    
+    
+    
     # write_views(yml)
     write_models(yml)

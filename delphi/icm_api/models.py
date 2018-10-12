@@ -54,7 +54,7 @@ class ICMMetadata:
     lastUpdatedByUser = Column(User, unique=False)
     estimatedNumberOfPrimitives = Column(Integer, unique=False)
     lifecycleState = Column(LifecycleState, unique=False)
-    derivation = Column(List[String], unique=False)
+    derivation = Column(String(120), unique=False)
 
 
 @dataclass
@@ -102,7 +102,7 @@ class EnumRange(Range):
     """The values of an enumeration """
 
     __tablename__ = "EnumRange"
-    range = Column(List[String], primary_key=True)
+    range = Column(String(120), primary_key=True)
 
 
 @dataclass
@@ -110,7 +110,7 @@ class DistributionEnumRange(Range):
     """The range of classifications that can be reported in a DistributionEnumValue """
 
     __tablename__ = "DistributionEnumRange"
-    range = Column(List[String], primary_key=True)
+    range = Column(String(120), primary_key=True)
 
 
 @dataclass
@@ -193,7 +193,7 @@ class CausalPrimitive:
 
     __tablename__ = "CausalPrimitive"
     namespaces = Column(Object, primary_key=True)
-    types = Column(List[String], unique=False)
+    types = Column(String(120), unique=False)
     editable = Column(Boolean, unique=False)
     disableable = Column(Boolean, unique=False)
     disabled = Column(Boolean, unique=False)
@@ -218,7 +218,7 @@ class CausalVariable(CausalPrimitive):
     __tablename__ = "CausalVariable"
     range = Column(Range, primary_key=True)
     units = Column(String(120), unique=False)
-    backingEntities = Column(List[String], unique=False)
+    backingEntities = Column(String(120), unique=False)
     lastKnownValue = Column(TimeSeriesValue, unique=False)
     confidence = Column(Float, unique=False)
 
@@ -292,7 +292,7 @@ class ForwardProjection(Experiment):
     """a foward projection experiment """
 
     __tablename__ = "ForwardProjection"
-    interventions = Column(List[Object], primary_key=True)
+    interventions = Column(Object, primary_key=True)
     projection = Column(Projection, unique=False)
 
 
@@ -301,7 +301,7 @@ class SensitivityAnalysis(Experiment):
     """a sensitivity analysis experiment """
 
     __tablename__ = "SensitivityAnalysis"
-    variables = Column(List[String], primary_key=True)
+    variables = Column(String(120), primary_key=True)
 
 
 @dataclass
@@ -318,7 +318,7 @@ class ForwardProjectionResult(ExperimentResult):
 
     __tablename__ = "ForwardProjectionResult"
     projection = Column(Projection, primary_key=True)
-    results = Column(List[Object], unique=False)
+    results = Column(Object, unique=False)
 
 
 @dataclass
@@ -326,7 +326,7 @@ class SensitivityAnalysisResult(ExperimentResult):
     """The result of a sensitivity analysis experiment """
 
     __tablename__ = "SensitivityAnalysisResult"
-    results = Column(List[Object], primary_key=True)
+    results = Column(Object, primary_key=True)
 
 
 @dataclass
