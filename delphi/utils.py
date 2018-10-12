@@ -26,14 +26,14 @@ U = TypeVar("U")
 
 
 def prepend(x: T, xs: Iterable[T]) -> Iterator[T]:
-    """ Prepend a value to an iterable. 
+    """ Prepend a value to an iterable.
 
     Parameters
     ----------
     x
         An element of type T.
     xs
-        An iterable of elements of type T. 
+        An iterable of elements of type T.
 
     Returns
     -------
@@ -248,6 +248,11 @@ def repeatfunc(func, *args):
     """
     return starmap(func, repeat(args))
 
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 def tqdm_reporthook(t):
     """Wraps tqdm instance.
@@ -297,9 +302,10 @@ def _change_directory(destination_directory):
         os.chdir(cwd)
 
 
+
+
+
 cd = contextlib.contextmanager(_change_directory)
-
-
 def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
     """ Returns a list of INDRA statements from a directory containing JSON-LD
     output from Eidos. """
@@ -309,14 +315,6 @@ def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
             map(eidos.process_json_ld_file, tqdm(glob(directory))),
         )
     )
-
-
-def grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
-    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
-
 
 def _insert_line_breaks(label: str, max_str_length=20) -> str:
     words = label.split()
