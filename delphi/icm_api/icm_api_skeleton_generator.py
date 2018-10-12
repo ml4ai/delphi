@@ -27,27 +27,41 @@ from dataclasses import dataclass, field, asdict"""
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
             + ' """\n'
         )
+        class_lines.append(f"    __tablename__ = \"{schema_name}\"")
         properties = schema["properties"]
         required_properties = schema.get("required", [])
-
-        class_lines.append(f'    basetype: str = "{schema_name}"')
+        #class_lines.append(f'    basetype: str = "{schema_name}"')
+        counter = 0
         for property in sorted(
             properties, key=lambda x: x not in required_properties
         ):
+            #print (global_schema_list)
+            #print (property)
+            
             property_ref = properties[property].get("$ref", "").split("/")[-1]
+            #print (property_ref)
             if property_ref != "" and property_ref not in global_schema_list:
                 global_schema_list.append(property_ref)
+            
+            # if the current property does not have  type, use property_ref
+            # instead, so it won't be none.
             property_type = properties[property].get("type", property_ref)
+            '''print ("-----------------------------")
+            print ("Type", property_type)
+            print ("-----------------------------")'''
             mapping = {
-                "string": "str",
-                "integer": "int",
+                "string": "String",
+                "integer": "Integer",
                 "None": "",
                 "array": "List",
-                "boolean": "bool",
-                "number": "float",
-                "object": "object",
+                "boolean": "Boolean",
+                "number": "Float",
+                "object": "Object",
             }
             type_annotation = mapping.get(property_type, property_type)
+            #print ("type_annotation: ", type_annotation)
+            
+            #------------------------------------------------------------
             if type_annotation == "List":
                 property_type = properties[property]["items"]["type"]
                 type_annotation = (
@@ -57,13 +71,27 @@ from dataclasses import dataclass, field, asdict"""
             # TODO - Parse dependencies so that inherited properties are
             # duplicated for child classes.
 
-            if property not in required_properties:
-                type_annotation = f"Optional[{type_annotation}]"
-            default_value = f"{properties[property].get('default')}"
+            '''if property not in required_properties:
+                type_annotation = f"Optional[{type_annotation}]"'''
+            #default_value = f"{properties[property].get('default')}"
+            
+            # baseType becomes the table name
             if property != "baseType":
-                class_lines.append(
+                '''class_lines.append(
                     f"    {property}: {type_annotation} = {default_value}"
-                )
+                )'''
+                
+                if counter == 0:
+                    if type_annotation != "String":
+                        class_lines.append(f"    {property} = Column({type_annotation}, primary_key=True)")
+                    else:
+                        class_lines.append(f"    {property} = Column({type_annotation}(120), primary_key=True)")
+                else:
+                    if type_annotation != "String":
+                        class_lines.append(f"    {property} = Column({type_annotation}, unique=False)")
+                    else:
+                        class_lines.append(f"    {property} = Column({type_annotation}(120), unique=False)")
+                counter = counter + 1
 
     def to_class(schema_name, schema):
         class_lines = []
@@ -88,15 +116,34 @@ from dataclasses import dataclass, field, asdict"""
             class_lines.append(f"class {schema_name}(Enum):")
             for option in schema["enum"]:
                 class_lines.append(f'    {option} = "{option}"')
+        
+        #print ("schema_lines_dict: ", schema_lines_dict)
+        
         schema_lines_dict[schema_name] = class_lines
         if schema_name not in global_schema_list:
+            #print (schema_name, "not in global_schema_list.")
             global_schema_list.append(schema_name)
-
+        
+        #print ("global_schema_list: ", global_schema_list)
+    
+    #count = 1
+    #for schema_name, schema in schemas.items():
+        #print (schema_name , " *** " , schema, "\n")
+        #count = count + 1
+        #if count == 5:
+            #break
+    
+    #count = 1
     for schema_name, schema in schemas.items():
         to_class(schema_name, schema)
+       # count = count + 1
+        #if count == 5:
+            #break
 
+    #print (module_lines)
     for schema_name in global_schema_list:
         module_lines += schema_lines_dict[schema_name]
+    #print (module_lines)
     with open("models.py", "w") as f:
         f.write("\n".join(module_lines))
 
