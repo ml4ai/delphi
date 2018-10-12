@@ -12,7 +12,7 @@
 Delphi is a framework for assembling, exporting and executing executable DBN
 (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
 
-For a detailed description of our procedure to convert text to models, see 
+For a detailed description of our procedure to convert text to models, see
 [this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
@@ -71,11 +71,23 @@ pipenv install -d
 ```
 
 ## Ubuntu installation notes
-To install graphviz on Ubuntu, do 
+To install graphviz on Ubuntu, do
 
-```bash 
+```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
 ```
+## Configuration file specification
+In order to access ancillary data used by delphi please use the following command to create a `config.json` file from the included `master_config.json`
+```bash
+cp master_config.json delphi/config.json
+```
+Once you have created the `config.json` file please update the path components to allow delphi to find your local copy of any ancillary data you seek to use with delphi. The specification of which dataset each path should point to are outlined below:
+- `delphi_data_path`: This should point to the data directory hosted in the the [Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
+- `dssat_repo_path`: This should point to your local checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository
+- `ed2_repo_path`: This should point to your local checkout of the [Ecosystem Demography Model](https://github.com/EDmodel/ED2) repository
+- `clm_repo_path`: This should point to your local checkout of the clm portion of the [Community Earth System Model](https://github.com/ESCOMP/cesm#id5) repository. Note that the path component to go from the root of `cesm/` to `clm/` has already been provided in `master_config.json`
+
+
 # Usage
 
 ## Jupyter notebook workflow
@@ -84,7 +96,7 @@ Please see `notebooks/PI Meeting 2018 Demo.ipynb` for an example analysis
 workflow using a Jupyter notebook.
 
 You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/master)
-to try out the Jupyter notebook demo without having to install Delphi locally. 
+to try out the Jupyter notebook demo without having to install Delphi locally.
 
 You can see a prerendered HTML version of the notebook at
 [http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
@@ -107,7 +119,7 @@ delphi create
 Optionally combine this with the `--indra_statements` input parameter to specify
 the path to the INDRA statements. By default, `--create_model` will load a
 provided set of INDRA statements included as a pickled python file in
-`data/curated_statements.pkl`, and generate the output files 
+`data/curated_statements.pkl`, and generate the output files
 
 
 ```
@@ -149,7 +161,7 @@ delphi execute
 This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
 an output file `output_sequences.csv` (these are the default input and output
 filenames, but they can be changed with command line flags). that looks like
-this: 
+this:
 
 
 ```csv
@@ -172,6 +184,6 @@ seq_no,time_slice,rainfall,crop yield
 
 To see all the command line options and the help message, do `delphi -h`.
 
-# License 
+# License
 
 Delphi is licensed under the Apache License 2.0.
