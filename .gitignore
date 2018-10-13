@@ -124,6 +124,9 @@ scripts/*.json
 variables.csv
 notebooks/season.dat
 
+# Personalized config file
+delphi/config.json
+
 # Data to ignore
 data/*.zip
 data/WDI

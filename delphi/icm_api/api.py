@@ -3,11 +3,14 @@ import pickle
 from datetime import datetime, date
 from typing import Optional, List
 from delphi.bmi import initialize
+from delphi.utils import flatten
 from flask import Flask, jsonify, request
 from delphi.icm_api.models import *
 from pprint import pprint
+import numpy as np
 
 app = Flask(__name__)
+
 
 def dress_model_for_icm_api(model):
     initialize(model, "variables.csv")
@@ -28,16 +31,18 @@ def dress_model_for_icm_api(model):
         }
         n[1]["range"] = {
             "baseType": "FloatRange",
-            "range": {
-                "min": 0,
-                "max": 10,
-                "step": 0.1,
-            }
+            "range": {"min": 0, "max": 10, "step": 0.1},
         }
-    n_evidences = [len(e[2]["InfluenceStatements"][0].evidence) for e in model.edges(data=True)]
-    max_evidences = max(n_evidences)
+    max_evidences = max(
+        [
+            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
+            for e in model.edges(data=True)
+        ]
+    )
+    max_mean_betas = max(
+        [abs(np.median(e[2]["betas"])) for e in model.edges(data=True)]
+    )
     for e in model.edges(data=True):
-        stmt = e[2]["InfluenceStatements"][0]
         e[2]["id"] = uuid4()
         e[2]["namespaces"] = []
         e[2]["source"] = model.nodes[e[0]]["id"]
@@ -45,12 +50,18 @@ def dress_model_for_icm_api(model):
         e[2]["lastUpdated"] = today
         e[2]["types"] = ["causal"]
         e[2]["description"] = f"{e[0]} influences {e[1]}."
-        e[2]["confidence"] = len(e[2]['InfluenceStatements'][0].evidence)/max_evidences
+        e[2]["confidence"] = np.mean([s.belief for s in e[2]['InfluenceStatements']])
         e[2]["label"] = f"{e[0]} influences {e[1]}."
-        e[2]["strength"] = 1
-        e[2]["reinforcement"] = stmt.subj_delta['polarity']*stmt.obj_delta['polarity']
+        e[2]["strength"] = abs(np.median(e[2]["betas"]) / max_mean_betas)
+        e[2]["reinforcement"] = np.mean(
+            [
+                stmt.subj_delta["polarity"] * stmt.obj_delta["polarity"]
+                for stmt in e[2]["InfluenceStatements"]
+            ]
+        )
 
     return model
+
 
 with open("delphi_cag.pkl", "rb") as f:
     model = dress_model_for_icm_api(pickle.load(f))
