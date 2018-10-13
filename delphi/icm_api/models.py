@@ -1,6 +1,10 @@
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
+
 
 
 @unique
@@ -192,11 +196,11 @@ class CausalPrimitive(Base):
     """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
 
     __tablename__ = "CausalPrimitive"
-    namespaces = Column(Object, primary_key=True)
+    namespaces = Column(Object, unique=False)
     types = Column(String(120), unique=False)
-    editable = Column(Boolean, unique=False)
-    disableable = Column(Boolean, unique=False)
-    disabled = Column(Boolean, unique=False)
+    editable = Column(Boolean, default=True, unique=False)
+    disableable = Column(Boolean, default=True, unique=False)
+    disabled = Column(Boolean, default=False, unique=False)
     id = Column(String(120), unique=False)
     label = Column(String(120), unique=False)
     description = Column(String(120), unique=False)

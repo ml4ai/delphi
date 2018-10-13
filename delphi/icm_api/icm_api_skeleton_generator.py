@@ -37,9 +37,9 @@ Base = declarative_base()
         required_properties = schema.get("required", [])
         # class_lines.append(f'    basetype: str = "{schema_name}"')
         counter = 0
-        for property in sorted(
+        for index, property in enumerate(sorted(
             properties, key=lambda x: x not in required_properties
-        ):
+        )):
 
             property_ref = properties[property].get("$ref", "").split("/")[-1]
             if property_ref != "" and property_ref not in global_schema_list:
@@ -72,33 +72,23 @@ Base = declarative_base()
 
             '''if property not in required_properties:
                 type_annotation = f"Optional[{type_annotation}]"'''
-            # default_value = f"{properties[property].get('default')}"
+
 
             # baseType becomes the table name
             if property != "baseType":
-                """class_lines.append(
-                    f"    {property}: {type_annotation} = {default_value}"
-                )"""
+                if type_annotation == "String":
+                    type_annotation+=f"(120)"
+                if properties[property].get('default') is not None:
+                    default_value = f"{properties[property]['default']}"
+                    type_annotation+=f", default={default_value}"
 
-                if counter == 0:
-                    if type_annotation != "String":
-                        class_lines.append(
-                            f"    {property} = Column({type_annotation}, primary_key=True)"
-                        )
-                    else:
-                        class_lines.append(
-                            f"    {property} = Column({type_annotation}(120), primary_key=True)"
-                        )
+                if index == 0:
+                    kwarg_2 =  "primary_key=True"
                 else:
-                    if type_annotation != "String":
-                        class_lines.append(
-                            f"    {property} = Column({type_annotation}, unique=False)"
-                        )
-                    else:
-                        class_lines.append(
-                            f"    {property} = Column({type_annotation}(120), unique=False)"
-                        )
-                counter = counter + 1
+                    kwarg_2 = "unique=False"
+                class_lines.append(
+                    f"    {property} = Column({type_annotation}, {kwarg_2})"
+                )
 
     def to_class(schema_name, schema):
         class_lines = []
