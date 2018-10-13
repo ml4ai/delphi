@@ -160,11 +160,11 @@ def create_food_security_data_table(region: str, country: str):
                 fs_polygons = get_polygons(fs_sr.shape)
 
                 for sr in tqdm(
-                    south_sudan_srs, desc=f"{country} Counties", ncols=80
+                    south_sudan_srs, desc=f"{country} Counties"
                 ):
                     county_polygon = Polygon(sr.shape.points)
                     for fs_polygon in tqdm(
-                        fs_polygons, unit="Food security polygon", ncols=80
+                        fs_polygons, unit="Food security polygon"
                     ):
                         if county_polygon.buffer(-0.05).intersects(fs_polygon):
                             ipc_records.append(
