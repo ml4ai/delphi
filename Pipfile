@@ -21,6 +21,7 @@ jupyter = "*"
 networkx= "*"
 flask = "*"
 pyshp = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
