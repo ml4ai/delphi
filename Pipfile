@@ -22,6 +22,7 @@ networkx= "*"
 flask = "*"
 pyshp = "*"
 flask-sqlalchemy = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
