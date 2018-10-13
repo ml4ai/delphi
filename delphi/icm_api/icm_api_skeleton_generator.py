@@ -14,7 +14,12 @@ def write_models(yml):
         """\
 from enum import Enum, unique
 from typing import Optional, List
-from dataclasses import dataclass, field, asdict"""
+from dataclasses import dataclass, field, asdict
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
+"""
+
     )
 
     def process_properties(
@@ -35,20 +40,14 @@ from dataclasses import dataclass, field, asdict"""
         for property in sorted(
             properties, key=lambda x: x not in required_properties
         ):
-            # print (global_schema_list)
-            # print (property)
 
             property_ref = properties[property].get("$ref", "").split("/")[-1]
-            # print (property_ref)
             if property_ref != "" and property_ref not in global_schema_list:
                 global_schema_list.append(property_ref)
 
             # if the current property does not have  type, use property_ref
             # instead, so it won't be none.
             property_type = properties[property].get("type", property_ref)
-            """print ("-----------------------------")
-            print ("Type", property_type)
-            print ("-----------------------------")"""
             mapping = {
                 "string": "String",
                 "integer": "Integer",
@@ -59,7 +58,6 @@ from dataclasses import dataclass, field, asdict"""
                 "object": "Object",
             }
             type_annotation = mapping.get(property_type, property_type)
-            # print ("type_annotation: ", type_annotation)
 
             # ------------------------------------------------------------
             if type_annotation == "List":
