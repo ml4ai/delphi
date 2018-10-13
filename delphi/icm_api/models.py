@@ -23,7 +23,7 @@ class LifecycleState(Enum):
 
 
 @dataclass
-class User:
+class User(Base):
     """Placeholder docstring for class User. """
 
     __tablename__ = "User"
@@ -38,7 +38,7 @@ class User:
 
 
 @dataclass
-class ICMMetadata:
+class ICMMetadata(Base):
     """Placeholder docstring for class ICMMetadata. """
 
     __tablename__ = "ICMMetadata"
@@ -58,7 +58,7 @@ class ICMMetadata:
 
 
 @dataclass
-class ServerResponse:
+class ServerResponse(Base):
     """Placeholder docstring for class ServerResponse. """
 
     __tablename__ = "ServerResponse"
@@ -67,7 +67,7 @@ class ServerResponse:
 
 
 @dataclass
-class Range:
+class Range(Base):
     """Top level range object used in a CausalVariable """
 
     __tablename__ = "Range"
@@ -114,7 +114,7 @@ class DistributionEnumRange(Range):
 
 
 @dataclass
-class Value:
+class Value(Base):
     """Top level value object used in a TimeSeriesValue """
 
     __tablename__ = "Value"
@@ -177,7 +177,7 @@ class TimeSeriesTrend(Enum):
 
 
 @dataclass
-class TimeSeriesValue:
+class TimeSeriesValue(Base):
     """Time series value at a particular time """
 
     __tablename__ = "TimeSeriesValue"
@@ -188,7 +188,7 @@ class TimeSeriesValue:
 
 
 @dataclass
-class CausalPrimitive:
+class CausalPrimitive(Base):
     """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
 
     __tablename__ = "CausalPrimitive"
@@ -256,7 +256,7 @@ class Relationship(CausalPrimitive):
 
 
 @dataclass
-class Evidence:
+class Evidence(Base):
     """Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
     __tablename__ = "Evidence"
@@ -268,7 +268,7 @@ class Evidence:
 
 
 @dataclass
-class Projection:
+class Projection(Base):
     """Placeholder docstring for class Projection. """
 
     __tablename__ = "Projection"
@@ -278,7 +278,7 @@ class Projection:
 
 
 @dataclass
-class Experiment:
+class Experiment(Base):
     """structure used for experimentation """
 
     __tablename__ = "Experiment"
@@ -305,7 +305,7 @@ class SensitivityAnalysis(Experiment):
 
 
 @dataclass
-class ExperimentResult:
+class ExperimentResult(Base):
     """Notional model of experiment results """
 
     __tablename__ = "ExperimentResult"
@@ -330,7 +330,7 @@ class SensitivityAnalysisResult(ExperimentResult):
 
 
 @dataclass
-class Traversal:
+class Traversal(Base):
     """Placeholder docstring for class Traversal. """
 
     __tablename__ = "Traversal"
@@ -338,7 +338,7 @@ class Traversal:
 
 
 @dataclass
-class Version:
+class Version(Base):
     """Placeholder docstring for class Version. """
 
     __tablename__ = "Version"

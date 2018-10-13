@@ -97,7 +97,7 @@ from dataclasses import dataclass, field, asdict"""
     def to_class(schema_name, schema):
         class_lines = []
         if schema.get("type") == "object":
-            class_declaration = f"class {schema_name}:"
+            class_declaration = f"class {schema_name}(Base):"
             process_properties(
                 schema_name, schema, class_lines, class_declaration
             )
