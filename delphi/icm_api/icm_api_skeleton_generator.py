@@ -36,7 +36,7 @@ Base = declarative_base()
         properties = schema["properties"]
         required_properties = schema.get("required", [])
         # class_lines.append(f'    basetype: str = "{schema_name}"')
-        counter = 0
+        #counter = 0
         for index, property in enumerate(sorted(
             properties, key=lambda x: x not in required_properties
         )):
@@ -45,16 +45,16 @@ Base = declarative_base()
             if property_ref != "" and property_ref not in global_schema_list:
                 global_schema_list.append(property_ref)
 
-            # if the current property does not have  type, use property_ref
+            # if the current property does not have type, use property_ref
             # instead, so it won't be none.
             property_type = properties[property].get("type", property_ref)
             mapping = {
-                "string": "String",
-                "integer": "Integer",
+                "string": "db.String",
+                "integer": "db.Integer",
                 "None": "",
                 "array": "List",
-                "boolean": "Boolean",
-                "number": "Float",
+                "boolean": "db.Boolean",
+                "number": "db.Float",
                 "object": "Object",
             }
             type_annotation = mapping.get(property_type, property_type)
@@ -76,24 +76,28 @@ Base = declarative_base()
 
             # baseType becomes the table name
             if property != "baseType":
-                if type_annotation == "String":
-                    type_annotation+=f"(120)"
+            
+                if type_annotation == "db.String" or type_annotation == "db.Integer"\
+                or type_annotation == "db.Boolean" or type_annotation == "db.Float":
+                    if type_annotation == "db.String":
+                        type_annotation+=f"(120)"
+                else:
+                    type_annotation = "db.Text"
                 if properties[property].get('default') is not None:
                     default_value = f"{properties[property]['default']}"
                     type_annotation+=f", default={default_value}"
-
                 if index == 0:
                     kwarg_2 =  "primary_key=True"
                 else:
                     kwarg_2 = "unique=False"
                 class_lines.append(
-                    f"    {property} = Column({type_annotation}, {kwarg_2})"
+                    f"    {property} = db.Column({type_annotation}, {kwarg_2})"
                 )
 
     def to_class(schema_name, schema):
         class_lines = []
         if schema.get("type") == "object":
-            class_declaration = f"class {schema_name}(Base):"
+            class_declaration = f"class {schema_name}(db.Model):"
             process_properties(
                 schema_name, schema, class_lines, class_declaration
             )

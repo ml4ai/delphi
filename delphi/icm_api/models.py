@@ -27,51 +27,51 @@ class LifecycleState(Enum):
 
 
 @dataclass
-class User(Base):
+class User(db.Model):
     """Placeholder docstring for class User. """
 
     __tablename__ = "User"
-    id = Column(Integer, primary_key=True)
-    username = Column(String(120), unique=False)
-    firstName = Column(String(120), unique=False)
-    lastName = Column(String(120), unique=False)
-    email = Column(String(120), unique=False)
-    password = Column(String(120), unique=False)
-    phone = Column(String(120), unique=False)
-    userStatus = Column(Integer, unique=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=False)
+    firstName = db.Column(db.String(120), unique=False)
+    lastName = db.Column(db.String(120), unique=False)
+    email = db.Column(db.String(120), unique=False)
+    password = db.Column(db.String(120), unique=False)
+    phone = db.Column(db.String(120), unique=False)
+    userStatus = db.Column(db.Integer, unique=False)
 
 
 @dataclass
-class ICMMetadata(Base):
+class ICMMetadata(db.Model):
     """Placeholder docstring for class ICMMetadata. """
 
     __tablename__ = "ICMMetadata"
-    id = Column(String(120), primary_key=True)
-    icmProvider = Column(ICMProvider, unique=False)
-    title = Column(String(120), unique=False)
-    version = Column(Integer, unique=False)
-    created = Column(String(120), unique=False)
-    createdByUser = Column(User, unique=False)
-    lastAccessed = Column(String(120), unique=False)
-    lastAccessedByUser = Column(User, unique=False)
-    lastUpdated = Column(String(120), unique=False)
-    lastUpdatedByUser = Column(User, unique=False)
-    estimatedNumberOfPrimitives = Column(Integer, unique=False)
-    lifecycleState = Column(LifecycleState, unique=False)
-    derivation = Column(String(120), unique=False)
+    id = db.Column(db.String(120), primary_key=True)
+    icmProvider = db.Column(db.Text, unique=False)
+    title = db.Column(db.String(120), unique=False)
+    version = db.Column(db.Integer, unique=False)
+    created = db.Column(db.String(120), unique=False)
+    createdByUser = db.Column(db.Text, unique=False)
+    lastAccessed = db.Column(db.String(120), unique=False)
+    lastAccessedByUser = db.Column(db.Text, unique=False)
+    lastUpdated = db.Column(db.String(120), unique=False)
+    lastUpdatedByUser = db.Column(db.Text, unique=False)
+    estimatedNumberOfPrimitives = db.Column(db.Integer, unique=False)
+    lifecycleState = db.Column(db.Text, unique=False)
+    derivation = db.Column(db.String(120), unique=False)
 
 
 @dataclass
-class ServerResponse(Base):
+class ServerResponse(db.Model):
     """Placeholder docstring for class ServerResponse. """
 
     __tablename__ = "ServerResponse"
-    id = Column(String(120), primary_key=True)
-    message = Column(String(120), unique=False)
+    id = db.Column(db.String(120), primary_key=True)
+    message = db.Column(db.String(120), unique=False)
 
 
 @dataclass
-class Range(Base):
+class Range(db.Model):
     """Top level range object used in a CausalVariable """
 
     __tablename__ = "Range"
@@ -82,7 +82,7 @@ class IntegerRange(Range):
     """The range for an integer value """
 
     __tablename__ = "IntegerRange"
-    range = Column(Object, primary_key=True)
+    range = db.Column(db.Text, primary_key=True)
 
 
 @dataclass
@@ -90,7 +90,7 @@ class FloatRange(Range):
     """The range for a floating point value """
 
     __tablename__ = "FloatRange"
-    range = Column(Object, primary_key=True)
+    range = db.Column(db.Text, primary_key=True)
 
 
 @dataclass
@@ -98,7 +98,7 @@ class BooleanRange(Range):
     """Denotes a boolean range """
 
     __tablename__ = "BooleanRange"
-    range = Column(Object, primary_key=True)
+    range = db.Column(db.Text, primary_key=True)
 
 
 @dataclass
@@ -106,7 +106,7 @@ class EnumRange(Range):
     """The values of an enumeration """
 
     __tablename__ = "EnumRange"
-    range = Column(String(120), primary_key=True)
+    range = db.Column(db.String(120), primary_key=True)
 
 
 @dataclass
@@ -114,11 +114,11 @@ class DistributionEnumRange(Range):
     """The range of classifications that can be reported in a DistributionEnumValue """
 
     __tablename__ = "DistributionEnumRange"
-    range = Column(String(120), primary_key=True)
+    range = db.Column(db.String(120), primary_key=True)
 
 
 @dataclass
-class Value(Base):
+class Value(db.Model):
     """Top level value object used in a TimeSeriesValue """
 
     __tablename__ = "Value"
@@ -129,7 +129,7 @@ class IntegerValue(Value):
     """An integer value """
 
     __tablename__ = "IntegerValue"
-    value = Column(Integer, primary_key=True)
+    value = db.Column(db.Integer, primary_key=True)
 
 
 @dataclass
@@ -137,7 +137,7 @@ class FloatValue(Value):
     """A floating point value """
 
     __tablename__ = "FloatValue"
-    value = Column(Float, primary_key=True)
+    value = db.Column(db.Float, primary_key=True)
 
 
 @dataclass
@@ -145,7 +145,7 @@ class BooleanValue(Value):
     """A boolean value """
 
     __tablename__ = "BooleanValue"
-    value = Column(Boolean, primary_key=True)
+    value = db.Column(db.Boolean, primary_key=True)
 
 
 @dataclass
@@ -153,7 +153,7 @@ class EnumValue(Value):
     """An enumeration value defined in the EnumRange for the CausalVariable """
 
     __tablename__ = "EnumValue"
-    value = Column(String(120), primary_key=True)
+    value = db.Column(db.String(120), primary_key=True)
 
 
 @dataclass
@@ -161,7 +161,7 @@ class DistributionEnumValue(Value):
     """A distribution of classifications with non-zero probabilities. The classifications must be defined in the DistributionEnumRange of the CausalVariable and the probabilities must add to 1.0. """
 
     __tablename__ = "DistributionEnumValue"
-    value = Column(Object, primary_key=True)
+    value = db.Column(db.Text, primary_key=True)
 
 
 @unique
@@ -181,30 +181,30 @@ class TimeSeriesTrend(Enum):
 
 
 @dataclass
-class TimeSeriesValue(Base):
+class TimeSeriesValue(db.Model):
     """Time series value at a particular time """
 
     __tablename__ = "TimeSeriesValue"
-    time = Column(String(120), primary_key=True)
-    value = Column(Value, unique=False)
-    active = Column(TimeSeriesState, unique=False)
-    trend = Column(TimeSeriesTrend, unique=False)
+    time = db.Column(db.String(120), primary_key=True)
+    value = db.Column(db.Text, unique=False)
+    active = db.Column(db.Text, unique=False)
+    trend = db.Column(db.Text, unique=False)
 
 
 @dataclass
-class CausalPrimitive(Base):
+class CausalPrimitive(db.Model):
     """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
 
     __tablename__ = "CausalPrimitive"
-    namespaces = Column(Object, unique=False)
-    types = Column(String(120), unique=False)
-    editable = Column(Boolean, default=True, unique=False)
-    disableable = Column(Boolean, default=True, unique=False)
-    disabled = Column(Boolean, default=False, unique=False)
-    id = Column(String(120), unique=False)
-    label = Column(String(120), unique=False)
-    description = Column(String(120), unique=False)
-    lastUpdated = Column(String(120), unique=False)
+    namespaces = db.Column(db.Text, unique=False)
+    types = db.Column(db.String(120), unique=False)
+    editable = db.Column(db.Boolean, default=True, unique=False)
+    disableable = db.Column(db.Boolean, default=True, unique=False)
+    disabled = db.Column(db.Boolean, default=False, unique=False)
+    id = db.Column(db.String(120), unique=False)
+    label = db.Column(db.String(120), unique=False)
+    description = db.Column(db.String(120), unique=False)
+    lastUpdated = db.Column(db.String(120), unique=False)
 
 
 @dataclass
@@ -212,7 +212,7 @@ class Entity(CausalPrimitive):
     """API definition of an entity.  """
 
     __tablename__ = "Entity"
-    confidence = Column(Float, primary_key=True)
+    confidence = db.Column(db.Float, primary_key=True)
 
 
 @dataclass
@@ -220,11 +220,11 @@ class CausalVariable(CausalPrimitive):
     """API definition of a causal variable.  """
 
     __tablename__ = "CausalVariable"
-    range = Column(Range, primary_key=True)
-    units = Column(String(120), unique=False)
-    backingEntities = Column(String(120), unique=False)
-    lastKnownValue = Column(TimeSeriesValue, unique=False)
-    confidence = Column(Float, unique=False)
+    range = db.Column(db.Text, primary_key=True)
+    units = db.Column(db.String(120), unique=False)
+    backingEntities = db.Column(db.String(120), unique=False)
+    lastKnownValue = db.Column(db.Text, unique=False)
+    confidence = db.Column(db.Float, unique=False)
 
 
 @dataclass
@@ -232,9 +232,9 @@ class ConfigurationVariable(CausalPrimitive):
     """Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
 
     __tablename__ = "ConfigurationVariable"
-    units = Column(String(120), primary_key=True)
-    lastKnownValue = Column(TimeSeriesValue, unique=False)
-    range = Column(Range, unique=False)
+    units = db.Column(db.String(120), primary_key=True)
+    lastKnownValue = db.Column(db.Text, unique=False)
+    range = db.Column(db.Text, unique=False)
 
 
 @dataclass
@@ -242,11 +242,11 @@ class CausalRelationship(CausalPrimitive):
     """API defintion of a causal relationship. Indicates causality between two causal variables. """
 
     __tablename__ = "CausalRelationship"
-    source = Column(Object, primary_key=True)
-    target = Column(Object, unique=False)
-    confidence = Column(Float, unique=False)
-    strength = Column(Float, unique=False)
-    reinforcement = Column(Boolean, unique=False)
+    source = db.Column(db.Text, primary_key=True)
+    target = db.Column(db.Text, unique=False)
+    confidence = db.Column(db.Float, unique=False)
+    strength = db.Column(db.Float, unique=False)
+    reinforcement = db.Column(db.Boolean, unique=False)
 
 
 @dataclass
@@ -254,41 +254,41 @@ class Relationship(CausalPrimitive):
     """API definition of a generic relationship between two primitives """
 
     __tablename__ = "Relationship"
-    source = Column(Object, primary_key=True)
-    target = Column(Object, unique=False)
-    confidence = Column(Float, unique=False)
+    source = db.Column(db.Text, primary_key=True)
+    target = db.Column(db.Text, unique=False)
+    confidence = db.Column(db.Float, unique=False)
 
 
 @dataclass
-class Evidence(Base):
+class Evidence(db.Model):
     """Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
     __tablename__ = "Evidence"
-    id = Column(String(120), primary_key=True)
-    link = Column(String(120), unique=False)
-    description = Column(String(120), unique=False)
-    category = Column(String(120), unique=False)
-    rank = Column(Integer, unique=False)
+    id = db.Column(db.String(120), primary_key=True)
+    link = db.Column(db.String(120), unique=False)
+    description = db.Column(db.String(120), unique=False)
+    category = db.Column(db.String(120), unique=False)
+    rank = db.Column(db.Integer, unique=False)
 
 
 @dataclass
-class Projection(Base):
+class Projection(db.Model):
     """Placeholder docstring for class Projection. """
 
     __tablename__ = "Projection"
-    numSteps = Column(Integer, primary_key=True)
-    stepSize = Column(String(120), unique=False)
-    startTime = Column(String(120), unique=False)
+    numSteps = db.Column(db.Integer, primary_key=True)
+    stepSize = db.Column(db.String(120), unique=False)
+    startTime = db.Column(db.String(120), unique=False)
 
 
 @dataclass
-class Experiment(Base):
+class Experiment(db.Model):
     """structure used for experimentation """
 
     __tablename__ = "Experiment"
-    id = Column(String(120), primary_key=True)
-    label = Column(String(120), unique=False)
-    options = Column(Object, unique=False)
+    id = db.Column(db.String(120), primary_key=True)
+    label = db.Column(db.String(120), unique=False)
+    options = db.Column(db.Text, unique=False)
 
 
 @dataclass
@@ -296,8 +296,8 @@ class ForwardProjection(Experiment):
     """a foward projection experiment """
 
     __tablename__ = "ForwardProjection"
-    interventions = Column(Object, primary_key=True)
-    projection = Column(Projection, unique=False)
+    interventions = db.Column(db.Text, primary_key=True)
+    projection = db.Column(db.Text, unique=False)
 
 
 @dataclass
@@ -305,15 +305,15 @@ class SensitivityAnalysis(Experiment):
     """a sensitivity analysis experiment """
 
     __tablename__ = "SensitivityAnalysis"
-    variables = Column(String(120), primary_key=True)
+    variables = db.Column(db.String(120), primary_key=True)
 
 
 @dataclass
-class ExperimentResult(Base):
+class ExperimentResult(db.Model):
     """Notional model of experiment results """
 
     __tablename__ = "ExperimentResult"
-    id = Column(String(120), primary_key=True)
+    id = db.Column(db.String(120), primary_key=True)
 
 
 @dataclass
@@ -321,8 +321,8 @@ class ForwardProjectionResult(ExperimentResult):
     """The result of a forward projection experiment """
 
     __tablename__ = "ForwardProjectionResult"
-    projection = Column(Projection, primary_key=True)
-    results = Column(Object, unique=False)
+    projection = db.Column(db.Text, primary_key=True)
+    results = db.Column(db.Text, unique=False)
 
 
 @dataclass
@@ -330,21 +330,21 @@ class SensitivityAnalysisResult(ExperimentResult):
     """The result of a sensitivity analysis experiment """
 
     __tablename__ = "SensitivityAnalysisResult"
-    results = Column(Object, primary_key=True)
+    results = db.Column(db.Text, primary_key=True)
 
 
 @dataclass
-class Traversal(Base):
+class Traversal(db.Model):
     """Placeholder docstring for class Traversal. """
 
     __tablename__ = "Traversal"
-    maxDepth = Column(Integer, primary_key=True)
+    maxDepth = db.Column(db.Integer, primary_key=True)
 
 
 @dataclass
-class Version(Base):
+class Version(db.Model):
     """Placeholder docstring for class Version. """
 
     __tablename__ = "Version"
-    icmVersion = Column(String(120), primary_key=True)
-    icmProviderVersion = Column(String(120), unique=False)
+    icmVersion = db.Column(db.String(120), primary_key=True)
+    icmProviderVersion = db.Column(db.String(120), unique=False)
