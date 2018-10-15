@@ -16,8 +16,7 @@ from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from delphi.icm_api import db
 """
 
     )
