@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import json
 
-with open("config.json", "r") as f:
+with open("../delphi_config.json", "r") as f:
     config = json.load(f)
 
 data_dir = str(Path(config["data_path"].replace("~", os.path.expanduser("~"))).resolve())
