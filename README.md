@@ -61,9 +61,10 @@ system, or provide a one-step/one-click setup process.
 That being said, this is a Python package, and we use platform-independent path
 handling internally within the code using `pathlib`, so *technically*, it should
 work fine on Windows machines as well, and we will try to guide you through the
-installation process as much as possible.
+installation process as much as possible. Pull requests for improvements are
+always welcome.
 
-Pull requests for improvements are always welcome.
+Here are the steps for installation.
 
 - Fire up a terminal, navigate to the directory that you would like to install Delphi in, then execute the following in the terminal:
     ```bash
