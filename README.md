@@ -47,12 +47,38 @@ See the Usage section for more details.
 
 - Python 3.6 or higher.
 
-The recommended way to install Delphi is to use the `pip` Python package
-manager:
+The following installation instructions are directed at developers working on
+Linux and MacOS operating systems. We assume familiarity with the following:
 
-```bash
-pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
-```
+- The command line/terminal
+- Unix commands such as `cd`.
+- Environment variables.
+
+Delphi is under active development in an academic, rather than a commercial
+setting, so we do not have the resources to test it out on the Windows operating
+system, or provide a one-step/one-click setup process.
+
+That being said, this is a Python package, and we use platform-independent path
+handling internally within the code using `pathlib`, so *technically*, it should
+work fine on Windows machines as well, and we will try to guide you through the
+installation process as much as possible.
+
+Pull requests for improvements are always welcome.
+
+- Fire up a terminal, navigate to the directory that you would like to install Delphi in, then execute the following in the terminal:
+    ```bash
+    git clone https://github.com/ml4ai/delphi
+    cd delphi
+    pip install pipenv
+    pipenv install -d --skip-lock
+    ```
+- If you would like to install the delphi command-line executables, the execute
+  the following:
+  ```bash
+  python setup.py install
+  ```
+  This will register the `main` function of the `delphi/cli.py` module as a
+  command line tool.
 
 ## MacOS installation notes
 
@@ -79,16 +105,17 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 
 ## Environment variables
 
-To parameterize models correctly, you will need to set the `DELPHI_DATA`
+To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
 environment variable to the path to your local copy of the Delphi data
 directory. You can download the data directory from the 
 [Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
 
 *Optional*:
 
-- `dssat_repo_path`: This should point to your local checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository
-- `ed2_repo_path`: This should point to your local checkout of the [Ecosystem Demography Model](https://github.com/EDmodel/ED2) repository
-- `clm_repo_path`: This should point to your local checkout of the clm portion of the [Community Earth System Model](https://github.com/ESCOMP/cesm#id5) repository. Note that the path component to go from the root of `cesm/` to `clm/` has already been provided in `master_config.json`
+- `DSSAT_REPOSITORY`: This should point to your local checkout of the
+  [DSSAT](https://github.com/DSSAT/dssat-csm) repository
+- `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
+  Demography Model](https://github.com/EDmodel/ED2) repository
 
 
 # Usage
@@ -101,12 +128,11 @@ workflow using a Jupyter notebook.
 You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 to try out the Jupyter notebook demo without having to install Delphi locally.
 
-You can see a prerendered HTML version of the notebook at
-[http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
+You can see a prerendered HTML version of the notebook 
+[here](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
 
 
 ## Command line usage
-
 
 In the following sections, we will go into more detail on model creation and
 execution.
@@ -146,7 +172,7 @@ The files are
     some default values which can be edited prior to the execution of the model.
 
 
-```csv
+```
 rainfall,100.0
 ∂(rainfall)/∂t,1.0
 crop yield,100.0
@@ -167,7 +193,7 @@ filenames, but they can be changed with command line flags). that looks like
 this:
 
 
-```csv
+```
 seq_no,time_slice,rainfall,crop yield
 0,0,100.0,100.0
 0,1,102.60446042864127,102.27252764173306
