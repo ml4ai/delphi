@@ -4,7 +4,7 @@ python:
   - "3.6"
 
 env:
-  - DELPHI_DATA=$TRAVIS_BUILD_DIR/delphi/data
+  - DELPHI_DATA=$TRAVIS_BUILD_DIR/data
 
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
