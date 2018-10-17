@@ -14,7 +14,9 @@ def write_models(yml):
         """\
 from enum import Enum, unique
 from typing import Optional, List
-from dataclasses import dataclass, field, asdict"""
+from dataclasses import dataclass, field, asdict
+from delphi.icm_api import db
+"""
     )
 
     def process_properties(
