@@ -4,7 +4,7 @@ from datetime import datetime, date
 from typing import Optional, List
 from delphi.bmi import initialize
 from delphi.utils import flatten
-from flask import Flask, jsonify, request
+from flask import jsonify, request
 from delphi.icm_api.models import *
 from pprint import pprint
 import numpy as np
