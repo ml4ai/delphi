@@ -1,7 +1,6 @@
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-from delphi.icm_api import db
 
 
 @unique
