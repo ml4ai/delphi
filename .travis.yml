@@ -10,6 +10,8 @@ install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv
   - pipenv install --dev --skip-lock
+  - curl http://vision.cs.arizona.edu/adarsh/delphi_data.tgz -o data.tgz
+  - tar -xvzf data.tgz; rm data.tgz
 
-script: pipenv run pytest
+script: make test
 cache: pip
