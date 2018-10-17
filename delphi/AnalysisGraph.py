@@ -7,7 +7,7 @@ from datetime import datetime
 import networkx as nx
 import pandas as pd
 import numpy as np
-import uuid
+from uuid import uuid4
 
 from .assembly import (
     get_data,
@@ -61,7 +61,7 @@ class AnalysisGraph(nx.DiGraph):
         self.dateCreated = datetime.now()
         self.data = None
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
-        self.id = uuid.uuid1()
+        self.id = uuid4()
 
     # ==========================================================================
     # Constructors
