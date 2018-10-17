@@ -43,8 +43,4 @@ setup(
             "sphinx-autodoc-typehints",
         ],
     },
-    # dependency_links=["git+https://github.com/sorgerlab/indra.git#egg=indra"],
-    entry_points = {
-        "console_scripts" : ["delphi=delphi.cli:main"],
-    }
 )

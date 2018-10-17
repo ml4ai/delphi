@@ -12,16 +12,17 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
+from delphi.paths import data_dir
 
 
 def create(args):
     print("Creating model")
-    from .assembly import get_data
-    from .parameterization import parameterize
-    from .quantification import map_concepts_to_indicators
+    from delphi.assembly import get_data
+    from delphi.parameterization import parameterize
+    from delphi.quantification import map_concepts_to_indicators
     from datetime import datetime
-    from .AnalysisGraph import AnalysisGraph
-    from .export import export
+    from delphi.AnalysisGraph import AnalysisGraph
+    from delphi.export import export
 
     with open(args.indra_statements, "rb") as f:
         sts = pickle.load(f)
@@ -94,8 +95,7 @@ def positive_int(arg, x):
     return val
 
 
-def main():
-    data_dir = Path(__file__).parents[1] / "data"
+if __name__ == "__main__":
 
     parser = ArgumentParser(
         description="Dynamic Bayes Net Executable Model",
@@ -226,4 +226,5 @@ def main():
     if len(sys.argv) == 1:
         parser.print_help()
 
-    args.func(args)
+    else:
+        args.func(args)
