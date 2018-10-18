@@ -238,7 +238,7 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-    pass
+    return "forward Projection executed"
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
