@@ -1,8 +1,6 @@
 """ Helper functions. """
 
 import os
-from indra.statements import Influence
-from indra.sources import eidos
 from itertools import repeat, accumulate, islice, chain, starmap, zip_longest
 from functools import reduce
 from tqdm import tqdm
@@ -306,15 +304,6 @@ def _change_directory(destination_directory):
 
 
 cd = contextlib.contextmanager(_change_directory)
-def get_indra_statements_from_directory(directory: str) -> Iterable[Influence]:
-    """ Returns a list of INDRA statements from a directory containing JSON-LD
-    output from Eidos. """
-    return chain.from_iterable(
-        map(
-            lambda ep: ep.statements,
-            map(eidos.process_json_ld_file, tqdm(glob(directory))),
-        )
-    )
 
 def _insert_line_breaks(label: str, max_str_length=20) -> str:
     words = label.split()

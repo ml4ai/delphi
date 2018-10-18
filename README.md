@@ -12,23 +12,6 @@
 Delphi is a framework for assembling, exporting and executing executable DBN
 (dynamic Bayesian Network) models built for the DARPA World Modelers Program.
 
-For a detailed description of our procedure to convert text to models, see
-[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
-
-For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
-
-# Citing
-
-If you use Delphi, please cite the following:
-
-```latex
-@misc{Delphi,
-    Author = {Adarsh Pyarelal and Paul Hein and Clayton Morrison},
-    Title = {Delphi: A Framework for Assembling Causal Probabilistic Models from Text and Software.},
-    doi={10.5281/zenodo.1436915},
-}
-```
-
 The general use case involves the following steps:
 
 1. Creating a dynamic Bayes network model from a set of INDRA statements, which
@@ -41,33 +24,81 @@ The general use case involves the following steps:
 
 See the Usage section for more details.
 
+For a detailed description of our procedure to convert text to models, see
+[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
+
+For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+
+# Citing
+
+If you use Delphi, please cite the following:
+
+```
+@misc{Delphi,
+    Author = {Adarsh Pyarelal and Paul Hein and Clayton Morrison},
+    Title = {Delphi: A Framework for Assembling Causal Probabilistic Models from Text and Software.},
+    doi={10.5281/zenodo.1436915},
+}
+```
+
+
 # Installation
 
-## Requirements
+Delphi is under active development in an academic, rather than a commercial
+setting, so we do not have the resources to test it out on the Windows operating
+system, or provide a one-step/one-click setup process.
+
+That being said, this is a Python package, and we use platform-independent path
+handling internally within the code using `pathlib`, so *technically*, it should
+work fine on Windows machines as well, and we will try to guide you through the
+installation process as much as possible. Pull requests for improvements are
+always welcome.
+
+The following are the requirements for Delphi:
 
 - Python 3.6 or higher.
+  If you have another version of Python already installed and need it for other
+  projects, we recommend [`pyenv`](https://github.com/pyenv/pyenv) to manage
+  multiple versions of Python.
+- [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
+  visualize causal analysis graphs.
 
-The recommended way to install Delphi is to use the `pip` Python package
-manager:
+The following installation instructions are directed at developers working on
+Linux and MacOS operating systems. We assume familiarity with the following:
 
-```bash
-pip install -e git+https://github.com/ml4ai/delphi.git#egg=delphi
+- The command line/terminal
+- Unix commands such as `cd`.
+- Environment variables.
+
+Here are the steps for installation.
+
+- Fire up a terminal, navigate to the directory that you would like to install Delphi in, then execute the following in the terminal:
+    ```bash
+    git clone https://github.com/ml4ai/delphi
+    cd delphi
+    pip install pipenv
+    pipenv install -d --skip-lock
+    ```
+- If you would like to install the delphi command-line executables, the execute
+  the following:
+  ```bash
+  pipenv run python setup.py install
+  ```
+  This will register the `main` function of the `delphi/cli.py` module as a
+  command line tool.
+
+## Installing Graphviz on MacOS
+
+This can be done using [Homebrew](https://brew.sh):
 ```
-
-## MacOS installation notes
-
-If using Homebrew to install graphviz, then to install pygraphviz using `pip`,
-do:
-
-```bash
-pip install --install-option="--include-path=/usr/local/include/" \
-            --install-option="--library-path=/usr/local/lib" pygraphviz
+brew install graphviz
 ```
-
-Then pip install pipenv and do:
+If you use Homebrew to install graphviz, then you may need to install
+pygraphviz by specifying certain paths, as done below.
 
 ```bash
-pipenv install -d
+pipenv install --install-option="--include-path=/usr/local/include/" \
+               --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
 ## Ubuntu installation notes
@@ -76,34 +107,38 @@ To install graphviz on Ubuntu, do
 ```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
 ```
-## Configuration file specification
-In order to access ancillary data used by delphi please use the following command to create a `config.json` file from the included `master_config.json`
-```bash
-cp master_config.json delphi/config.json
-```
-Once you have created the `config.json` file please update the path components to allow delphi to find your local copy of any ancillary data you seek to use with delphi. The specification of which dataset each path should point to are outlined below:
-- `delphi_data_path`: This should point to the data directory hosted in the the [Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
-- `dssat_repo_path`: This should point to your local checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository
-- `ed2_repo_path`: This should point to your local checkout of the [Ecosystem Demography Model](https://github.com/EDmodel/ED2) repository
-- `clm_repo_path`: This should point to your local checkout of the clm portion of the [Community Earth System Model](https://github.com/ESCOMP/cesm#id5) repository. Note that the path component to go from the root of `cesm/` to `clm/` has already been provided in `master_config.json`
 
+## Environment variables
+
+To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
+environment variable to the path to your local copy of the Delphi data
+directory. You can download the data directory from the 
+[Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
+
+*Optional*:
+
+If you are working on program analysis, you may want to optionally set the
+following environment variables as well.
+- `DSSAT_REPOSITORY`: This should point to your local
+  checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
+- `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
+  Demography Model](https://github.com/EDmodel/ED2) repository.
 
 # Usage
 
 ## Jupyter notebook workflow
 
-Please see `notebooks/PI Meeting 2018 Demo.ipynb` for an example analysis
+Please see `notebooks/Delphi-Demo-Notebook.ipynb` for an example analysis
 workflow using a Jupyter notebook.
 
 You can also use the [Delphi binder](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 to try out the Jupyter notebook demo without having to install Delphi locally.
 
-You can see a prerendered HTML version of the notebook at
-[http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
+You can see a prerendered HTML version of the notebook 
+[here.](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
 
 
 ## Command line usage
-
 
 In the following sections, we will go into more detail on model creation and
 execution.
@@ -143,7 +178,7 @@ The files are
     some default values which can be edited prior to the execution of the model.
 
 
-```csv
+```
 rainfall,100.0
 ∂(rainfall)/∂t,1.0
 crop yield,100.0
@@ -164,7 +199,7 @@ filenames, but they can be changed with command line flags). that looks like
 this:
 
 
-```csv
+```
 seq_no,time_slice,rainfall,crop yield
 0,0,100.0,100.0
 0,1,102.60446042864127,102.27252764173306
