@@ -133,3 +133,9 @@ data/UN_stmt_jsons
 data/curated_cag.pkl
 data/eval_stmts_grounding_filtered.pkl
 data/Data_Extract_From_World_Development_Indicators
+
+# Automatically generated dotfiles, pngs, and pdfs (do git add -f to override)
+
+*.dot
+*.png
+*.pdf
