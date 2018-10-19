@@ -13,7 +13,7 @@ def to_dotfile(G: nx.DiGraph, filename: str):
     A.write(filename)
 
 
-def to_png(G: nx.DiGraph, filename: str):
+def draw_graph(G: nx.DiGraph, filename: str):
     """ Draw a networkx graph with Pygraphviz. """
     A = to_agraph(G)
     A.graph_attr["rankdir"] = "LR"
@@ -23,5 +23,5 @@ def to_png(G: nx.DiGraph, filename: str):
 if __name__ == "__main__":
     asce = nx_graph_from_dotfile("asce-graph.dot")
     priestley_taylor = nx_graph_from_dotfile("priestley-taylor-graph.dot")
-    to_png(asce, "asce-graph.png")
-    to_png(priestley_taylor, "priestley-taylor.png")
+    draw_graph(asce, "asce-graph.pdf")
+    draw_graph(priestley_taylor, "priestley-taylor.pdf")
