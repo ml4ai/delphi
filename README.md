@@ -79,13 +79,6 @@ Here are the steps for installation.
     pip install pipenv
     pipenv install -d --skip-lock
     ```
-- If you would like to install the delphi command-line executables, the execute
-  the following:
-  ```bash
-  pipenv run python setup.py install
-  ```
-  This will register the `main` function of the `delphi/cli.py` module as a
-  command line tool.
 
 ## Installing Graphviz on MacOS
 
@@ -148,7 +141,7 @@ execution.
 To create a model from a set of INDRA statements, do
 
 ```bash
-delphi create
+python delphi/cli.py create
 ```
 
 Optionally combine this with the `--indra_statements` input parameter to specify
@@ -190,7 +183,7 @@ crop yield,100.0
 To execute the model, do:
 
 ```bash
-delphi execute
+python delphi/cli.py execute
 ```
 
 This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
