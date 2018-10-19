@@ -17,3 +17,7 @@ clean:
 pkg_lock:
 	pipenv lock
 	pipenv run pipenv_to_requirements
+
+push_test_data:
+	tar -zcvf delphi_data.tgz $(DELPHI_DATA) 
+	scp delphi_data.tgz adarsh@vision.cs.arizona.edu:public_html/delphi_data.tgz
