@@ -173,7 +173,7 @@ def construct_view_lines(url, metadata) -> List[str]:
     for http_method in metadata:
         modified_path = url.replace("{", "<string:").replace("}", ">")
         lines.append(
-            f"\n\n@app.route('{modified_path}', methods=['{http_method.upper()}'])"
+            f"\n\n@bp.route('{modified_path}', methods=['{http_method.upper()}'])"
         )
         args = ", ".join(
             [
@@ -202,8 +202,9 @@ def write_views(yml):
                 "import pickle",
                 "from datetime import datetime",
                 "from typing import Optional, List",
-                "from flask import Flask, jsonify, request",
+                "from flask import Flask, jsonify, request, Blueprint",
                 "from delphi.icm_api.models import *",
+                "bp = Blueprint('icm_api', __name__)",
                 "app = Flask(__name__)",
             ]
         )
