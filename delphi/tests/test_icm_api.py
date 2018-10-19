@@ -20,7 +20,7 @@ def client(app):
 
 def test_icm(client):
     rv = client.get("/icm")
-    assert b'["49d53f7a-26d1-4bdd-ab49-98eea61a0345"]' in rv.data
+    assert b'["ea9bf1b4-4f88-4598-a927-09d1ff7b51e5"]' in rv.data
 
 
 def test_forwardProjection(client, test_model_uuid):

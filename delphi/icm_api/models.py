@@ -4,7 +4,6 @@ from dataclasses import dataclass, field, asdict
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from delphi.icm_api import db
 
-
 @unique
 class ICMProvider(Enum):
     BAE = "BAE"
