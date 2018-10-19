@@ -2,12 +2,8 @@ import os
 from pathlib import Path
 import json
 
-with open("config.json", "r") as f:
-    config = json.load(f)
+data_dir = Path(os.environ["DELPHI_DATA"])
 
-data_dir = str(Path(config["data_path"].replace("~", os.path.expanduser("~"))).resolve())
-adjectiveData = str((Path(data_dir) / "adjectiveData.tsv").resolve())
-south_sudan_data = str((Path(data_dir) / "south_sudan_data.csv").resolve())
-concept_to_indicator_mapping = str(
-    (Path(data_dir) / "concept_to_indicator_mapping.txt").resolve()
-)
+adjectiveData = data_dir / "adjectiveData.tsv"
+south_sudan_data = data_dir / "south_sudan_data.csv"
+concept_to_indicator_mapping = data_dir / "concept_to_indicator_mapping.txt"

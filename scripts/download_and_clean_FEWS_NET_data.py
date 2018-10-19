@@ -159,9 +159,7 @@ def create_food_security_data_table(region: str, country: str):
                 CS = int(fs_sr.record[0])
                 fs_polygons = get_polygons(fs_sr.shape)
 
-                for sr in tqdm(
-                    south_sudan_srs, desc=f"{country} Counties"
-                ):
+                for sr in tqdm(south_sudan_srs, desc=f"{country} Counties"):
                     county_polygon = Polygon(sr.shape.points)
                     for fs_polygon in tqdm(
                         fs_polygons, unit="Food security polygon"
