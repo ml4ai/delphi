@@ -1,9 +1,8 @@
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from delphi.icm_api import db
 
 
 
@@ -26,11 +25,11 @@ class LifecycleState(Enum):
     CREATED = "CREATED"
 
 
-@dataclass
+
 class User(db.Model):
     """Placeholder docstring for class User. """
 
-    __tablename__ = "User"
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=False)
     firstName = db.Column(db.String(120), unique=False)
@@ -41,11 +40,11 @@ class User(db.Model):
     userStatus = db.Column(db.Integer, unique=False)
 
 
-@dataclass
+
 class ICMMetadata(db.Model):
     """Placeholder docstring for class ICMMetadata. """
 
-    __tablename__ = "ICMMetadata"
+    __tablename__ = "icmmetadata"
     id = db.Column(db.String(120), primary_key=True)
     icmProvider = db.Column(db.Text, unique=False)
     title = db.Column(db.String(120), unique=False)
@@ -61,107 +60,119 @@ class ICMMetadata(db.Model):
     derivation = db.Column(db.String(120), unique=False)
 
 
-@dataclass
+
 class ServerResponse(db.Model):
     """Placeholder docstring for class ServerResponse. """
 
-    __tablename__ = "ServerResponse"
+    __tablename__ = "serverresponse"
     id = db.Column(db.String(120), primary_key=True)
     message = db.Column(db.String(120), unique=False)
 
 
-@dataclass
+
 class Range(db.Model):
     """Top level range object used in a CausalVariable """
 
-    __tablename__ = "Range"
+    __tablename__ = "range"
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class IntegerRange(Range):
+
+class IntegerRange(db.Model):
     """The range for an integer value """
 
-    __tablename__ = "IntegerRange"
-    range = db.Column(db.Text, primary_key=True)
+    __tablename__ = "integerrange"
+    range_id = db.Column(db.Integer, ForeignKey('range.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class FloatRange(Range):
+
+class FloatRange(db.Model):
     """The range for a floating point value """
 
-    __tablename__ = "FloatRange"
-    range = db.Column(db.Text, primary_key=True)
+    __tablename__ = "floatrange"
+    range_id = db.Column(db.Integer, ForeignKey('range.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class BooleanRange(Range):
+
+class BooleanRange(db.Model):
     """Denotes a boolean range """
 
-    __tablename__ = "BooleanRange"
-    range = db.Column(db.Text, primary_key=True)
+    __tablename__ = "booleanrange"
+    range_id = db.Column(db.Integer, ForeignKey('range.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class EnumRange(Range):
+
+class EnumRange(db.Model):
     """The values of an enumeration """
 
-    __tablename__ = "EnumRange"
-    range = db.Column(db.String(120), primary_key=True)
+    __tablename__ = "enumrange"
+    range_id = db.Column(db.Integer, ForeignKey('range.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class DistributionEnumRange(Range):
+
+class DistributionEnumRange(db.Model):
     """The range of classifications that can be reported in a DistributionEnumValue """
 
-    __tablename__ = "DistributionEnumRange"
-    range = db.Column(db.String(120), primary_key=True)
+    __tablename__ = "distributionenumrange"
+    range_id = db.Column(db.Integer, ForeignKey('range.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
+
 class Value(db.Model):
     """Top level value object used in a TimeSeriesValue """
 
-    __tablename__ = "Value"
+    __tablename__ = "value"
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class IntegerValue(Value):
+
+class IntegerValue(db.Model):
     """An integer value """
 
-    __tablename__ = "IntegerValue"
-    value = db.Column(db.Integer, primary_key=True)
+    __tablename__ = "integervalue"
+    value_id = db.Column(db.Integer, ForeignKey('value.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class FloatValue(Value):
+
+class FloatValue(db.Model):
     """A floating point value """
 
-    __tablename__ = "FloatValue"
-    value = db.Column(db.Float, primary_key=True)
+    __tablename__ = "floatvalue"
+    value_id = db.Column(db.Integer, ForeignKey('value.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class BooleanValue(Value):
+
+class BooleanValue(db.Model):
     """A boolean value """
 
-    __tablename__ = "BooleanValue"
-    value = db.Column(db.Boolean, primary_key=True)
+    __tablename__ = "booleanvalue"
+    value_id = db.Column(db.Integer, ForeignKey('value.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class EnumValue(Value):
+
+class EnumValue(db.Model):
     """An enumeration value defined in the EnumRange for the CausalVariable """
 
-    __tablename__ = "EnumValue"
-    value = db.Column(db.String(120), primary_key=True)
+    __tablename__ = "enumvalue"
+    value_id = db.Column(db.Integer, ForeignKey('value.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
-@dataclass
-class DistributionEnumValue(Value):
+
+class DistributionEnumValue(db.Model):
     """A distribution of classifications with non-zero probabilities. The classifications must be defined in the DistributionEnumRange of the CausalVariable and the probabilities must add to 1.0. """
 
-    __tablename__ = "DistributionEnumValue"
-    value = db.Column(db.Text, primary_key=True)
+    __tablename__ = "distributionenumvalue"
+    value_id = db.Column(db.Integer, ForeignKey('value.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key = True)
 
 
 @unique
@@ -180,68 +191,72 @@ class TimeSeriesTrend(Enum):
     LARGE_DECREASE = "LARGE_DECREASE"
 
 
-@dataclass
+
 class TimeSeriesValue(db.Model):
     """Time series value at a particular time """
 
-    __tablename__ = "TimeSeriesValue"
+    __tablename__ = "timeseriesvalue"
     time = db.Column(db.String(120), primary_key=True)
-    value = db.Column(db.Text, unique=False)
+    value_id = db.Column(db.Integer, ForeignKey('value.id'))
     active = db.Column(db.Text, unique=False)
     trend = db.Column(db.Text, unique=False)
 
 
-@dataclass
+
 class CausalPrimitive(db.Model):
     """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
 
-    __tablename__ = "CausalPrimitive"
+    __tablename__ = "causalprimitive"
     namespaces = db.Column(db.Text, unique=False)
     types = db.Column(db.String(120), unique=False)
     editable = db.Column(db.Boolean, default=True, unique=False)
     disableable = db.Column(db.Boolean, default=True, unique=False)
     disabled = db.Column(db.Boolean, default=False, unique=False)
-    id = db.Column(db.String(120), unique=False)
+    id = db.Column(db.String(120), primary_key=True)
     label = db.Column(db.String(120), unique=False)
     description = db.Column(db.String(120), unique=False)
     lastUpdated = db.Column(db.String(120), unique=False)
 
 
-@dataclass
-class Entity(CausalPrimitive):
+
+class Entity(db.Model):
     """API definition of an entity.  """
 
-    __tablename__ = "Entity"
+    __tablename__ = "entity"
+    causalprimitive_id = db.Column(db.Integer, ForeignKey('causalprimitive.id'), primary_key=True)
     confidence = db.Column(db.Float, primary_key=True)
 
 
-@dataclass
-class CausalVariable(CausalPrimitive):
+
+class CausalVariable(db.Model):
     """API definition of a causal variable.  """
 
-    __tablename__ = "CausalVariable"
-    range = db.Column(db.Text, primary_key=True)
+    __tablename__ = "causalvariable"
+    causalprimitive_id = db.Column(db.Integer, ForeignKey('causalprimitive.id'), primary_key=True)
+    range_id = db.Column(db.Integer, ForeignKey('range.id'))
     units = db.Column(db.String(120), unique=False)
     backingEntities = db.Column(db.String(120), unique=False)
     lastKnownValue = db.Column(db.Text, unique=False)
     confidence = db.Column(db.Float, unique=False)
 
 
-@dataclass
-class ConfigurationVariable(CausalPrimitive):
+
+class ConfigurationVariable(db.Model):
     """Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
 
-    __tablename__ = "ConfigurationVariable"
+    __tablename__ = "configurationvariable"
+    causalprimitive_id = db.Column(db.Integer, ForeignKey('causalprimitive.id'), primary_key=True)
     units = db.Column(db.String(120), primary_key=True)
     lastKnownValue = db.Column(db.Text, unique=False)
-    range = db.Column(db.Text, unique=False)
+    range_id = db.Column(db.Integer, ForeignKey('range.id'))
 
 
-@dataclass
-class CausalRelationship(CausalPrimitive):
+
+class CausalRelationship(db.Model):
     """API defintion of a causal relationship. Indicates causality between two causal variables. """
 
-    __tablename__ = "CausalRelationship"
+    __tablename__ = "causalrelationship"
+    causalprimitive_id = db.Column(db.Integer, ForeignKey('causalprimitive.id'), primary_key=True)
     source = db.Column(db.Text, primary_key=True)
     target = db.Column(db.Text, unique=False)
     confidence = db.Column(db.Float, unique=False)
@@ -249,21 +264,22 @@ class CausalRelationship(CausalPrimitive):
     reinforcement = db.Column(db.Boolean, unique=False)
 
 
-@dataclass
-class Relationship(CausalPrimitive):
+
+class Relationship(db.Model):
     """API definition of a generic relationship between two primitives """
 
-    __tablename__ = "Relationship"
+    __tablename__ = "relationship"
+    causalprimitive_id = db.Column(db.Integer, ForeignKey('causalprimitive.id'), primary_key=True)
     source = db.Column(db.Text, primary_key=True)
     target = db.Column(db.Text, unique=False)
     confidence = db.Column(db.Float, unique=False)
 
 
-@dataclass
+
 class Evidence(db.Model):
     """Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
-    __tablename__ = "Evidence"
+    __tablename__ = "evidence"
     id = db.Column(db.String(120), primary_key=True)
     link = db.Column(db.String(120), unique=False)
     description = db.Column(db.String(120), unique=False)
@@ -271,80 +287,84 @@ class Evidence(db.Model):
     rank = db.Column(db.Integer, unique=False)
 
 
-@dataclass
+
 class Projection(db.Model):
     """Placeholder docstring for class Projection. """
 
-    __tablename__ = "Projection"
+    __tablename__ = "projection"
     numSteps = db.Column(db.Integer, primary_key=True)
     stepSize = db.Column(db.String(120), unique=False)
     startTime = db.Column(db.String(120), unique=False)
 
 
-@dataclass
+
 class Experiment(db.Model):
     """structure used for experimentation """
 
-    __tablename__ = "Experiment"
+    __tablename__ = "experiment"
     id = db.Column(db.String(120), primary_key=True)
     label = db.Column(db.String(120), unique=False)
     options = db.Column(db.Text, unique=False)
 
 
-@dataclass
-class ForwardProjection(Experiment):
+
+class ForwardProjection(db.Model):
     """a foward projection experiment """
 
-    __tablename__ = "ForwardProjection"
+    __tablename__ = "forwardprojection"
+    experiment_id = db.Column(db.Integer, ForeignKey('experiment.id'), primary_key=True)
     interventions = db.Column(db.Text, primary_key=True)
     projection = db.Column(db.Text, unique=False)
 
 
-@dataclass
-class SensitivityAnalysis(Experiment):
+
+class SensitivityAnalysis(db.Model):
     """a sensitivity analysis experiment """
 
-    __tablename__ = "SensitivityAnalysis"
+    __tablename__ = "sensitivityanalysis"
+    experiment_id = db.Column(db.Integer, ForeignKey('experiment.id'), primary_key=True)
     variables = db.Column(db.String(120), primary_key=True)
 
 
-@dataclass
+
 class ExperimentResult(db.Model):
     """Notional model of experiment results """
 
-    __tablename__ = "ExperimentResult"
+    __tablename__ = "experimentresult"
     id = db.Column(db.String(120), primary_key=True)
 
 
-@dataclass
-class ForwardProjectionResult(ExperimentResult):
+
+class ForwardProjectionResult(db.Model):
     """The result of a forward projection experiment """
 
-    __tablename__ = "ForwardProjectionResult"
+    __tablename__ = "forwardprojectionresult"
+    experimentresult_id = db.Column(db.Integer, ForeignKey('experimentresult.id'), primary_key=True)
     projection = db.Column(db.Text, primary_key=True)
     results = db.Column(db.Text, unique=False)
 
 
-@dataclass
-class SensitivityAnalysisResult(ExperimentResult):
+
+class SensitivityAnalysisResult(db.Model):
     """The result of a sensitivity analysis experiment """
 
-    __tablename__ = "SensitivityAnalysisResult"
+    __tablename__ = "sensitivityanalysisresult"
+    experimentresult_id = db.Column(db.Integer, ForeignKey('experimentresult.id'), primary_key=True)
     results = db.Column(db.Text, primary_key=True)
 
 
-@dataclass
+
 class Traversal(db.Model):
     """Placeholder docstring for class Traversal. """
 
-    __tablename__ = "Traversal"
+    __tablename__ = "traversal"
     maxDepth = db.Column(db.Integer, primary_key=True)
 
 
-@dataclass
+
 class Version(db.Model):
     """Placeholder docstring for class Version. """
 
-    __tablename__ = "Version"
+    __tablename__ = "version"
     icmVersion = db.Column(db.String(120), primary_key=True)
     icmProviderVersion = db.Column(db.String(120), unique=False)

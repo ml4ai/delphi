@@ -15,31 +15,36 @@ def write_models(yml):
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from delphi.icm_api import db
 """
 
     )
+    parents_list = []
 
     def process_properties(
-        schema_name, schema, class_lines, class_declaration
+        schema_name, schema, class_lines, class_declaration, parents
     ):
-        class_lines.append("\n\n@dataclass")
+        class_lines.append("\n\n")
         class_lines.append(class_declaration)
         class_lines.append(
             '    """'
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
             + ' """\n'
         )
-        class_lines.append(f'    __tablename__ = "{schema_name}"')
+        class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
         required_properties = schema.get("required", [])
-        # class_lines.append(f'    basetype: str = "{schema_name}"')
-        #counter = 0
+        
+        if parents is not None:
+            foreign_key = f"    {parents}_id = db.Column(db.Integer, ForeignKey\
+('{parents}.id'), primary_key=True)"
+            class_lines.append(foreign_key)
+            
         for index, property in enumerate(sorted(
             properties, key=lambda x: x not in required_properties
         )):
-
+            
             property_ref = properties[property].get("$ref", "").split("/")[-1]
             if property_ref != "" and property_ref not in global_schema_list:
                 global_schema_list.append(property_ref)
@@ -72,9 +77,11 @@ from delphi.icm_api import db
             '''if property not in required_properties:
                 type_annotation = f"Optional[{type_annotation}]"'''
 
-
+           
+                
             # baseType becomes the table name
-            if property != "baseType":
+            if property != "baseType" and property.lower() != parents and \
+            property.lower() not in parents_list:
             
                 if type_annotation == "db.String" or type_annotation == "db.Integer"\
                 or type_annotation == "db.Boolean" or type_annotation == "db.Float":
@@ -82,24 +89,39 @@ from delphi.icm_api import db
                         type_annotation+=f"(120)"
                 else:
                     type_annotation = "db.Text"
+                
                 if properties[property].get('default') is not None:
                     default_value = f"{properties[property]['default']}"
                     type_annotation+=f", default={default_value}"
-                if index == 0:
+                
+                if index == 0 or property == "id":
                     kwarg_2 =  "primary_key=True"
                 else:
                     kwarg_2 = "unique=False"
+                    
                 class_lines.append(
                     f"    {property} = db.Column({type_annotation}, {kwarg_2})"
                 )
+            else:
+                # guarantee that each table has a primary key column
+                if len(properties) == 1:
+                    class_lines.append("    id = db.Column(db.Integer, primary_\
+key = True)")
+                elif property.lower() in parents_list:
+                    class_lines.append(f"    {property.lower()}_id = db.Column\
+(db.Integer, ForeignKey('{property.lower()}.id'))")
 
     def to_class(schema_name, schema):
+        parents = None
+        class_declaration = f"class {schema_name}(db.Model):"
+        
         class_lines = []
         if schema.get("type") == "object":
-            class_declaration = f"class {schema_name}(db.Model):"
+            
             process_properties(
-                schema_name, schema, class_lines, class_declaration
+                schema_name, schema, class_lines, class_declaration, parents
             )
+            
         elif schema.get("allOf") is not None:
             parents = [
                 item["$ref"].split("/")[-1]
@@ -107,10 +129,16 @@ from delphi.icm_api import db
                 if item.get("$ref")
             ]
             schema = schema["allOf"][1]
-            class_declaration = f"class {schema_name}({','.join(parents)}):"
+            parents = f"{','.join(parents)}"
+            parents = parents.lower()
+            #class_declaration = f"class {schema_name}({','.join(parents)}):"
+            
+            parents_list.append(parents)
+            
             process_properties(
-                schema_name, schema, class_lines, class_declaration
+                schema_name, schema, class_lines, class_declaration, parents
             )
+        
         elif "enum" in schema:
             class_lines.append("\n\n@unique")
             class_lines.append(f"class {schema_name}(Enum):")
