@@ -7,6 +7,16 @@ from datetime import date
 
 
 @pytest.fixture
+def delphi_model(G):
+    return DelphiModel(id=G.id, model=G)
+
+
+@pytest.fixture
+def causal_primitives(G):
+    CausalVariable(model_id=G.id)
+
+
+@pytest.fixture
 def icm_metadata(G):
     metadata = ICMMetadata(
         id=G.id,
@@ -27,13 +37,14 @@ def icm_metadata(G):
 
 
 @pytest.fixture
-def app(icm_metadata):
+def app(icm_metadata, delphi_model):
     app = create_app()
     app.testing = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
     with app.app_context():
         db.create_all()
         db.session.add(icm_metadata)
+        db.session.add(delphi_model)
         db.session.commit()
         yield app
         db.drop_all()
@@ -57,6 +68,7 @@ def test_getICMByUUID(G, client):
 
 def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
+
 
 def test_forwardProjection(G, client):
     post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
