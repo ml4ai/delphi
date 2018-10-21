@@ -1,18 +1,26 @@
 from enum import Enum, unique
 from typing import Optional, List
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from dataclasses import dataclass, field, asdict
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, PickleType
 from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
 from sqlalchemy.inspection import inspect
 
 class Serializable(object):
-
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     @staticmethod
     def serialize_list(l):
         return [m.serialize() for m in l]
+
+
+class DelphiModel(db.Model):
+    __tablename__ = "delphimodel"
+    id = db.Column(db.String(120), primary_key=True)
+    icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
+                                 lazy=True, uselist=False)
+    model = db.Column(db.PickleType)
 
 
 
@@ -55,6 +63,7 @@ class ICMMetadata(db.Model, Serializable):
     """ Placeholder docstring for class ICMMetadata. """
 
     __tablename__ = "icmmetadata"
+    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
     id = db.Column(db.String(120), primary_key=True)
     icmProvider = db.Column(db.Text, unique=False)
     title = db.Column(db.String(120), unique=False)
