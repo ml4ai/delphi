@@ -51,12 +51,15 @@ def test_listAllICMs(G, client):
 
 
 def test_getICMByUUID(G, client):
-    rv = client.get(f"/icm/{str(G.id)}")
+    rv = client.get(f"/icm/{G.id}")
     assert G.id == rv.json["id"]
 
 
+def test_getICMPrimitives(G, client):
+    rv = client.get(f"/icm/{G.id}/primitive")
+
 def test_forwardProjection(G, client):
-    post_url = "/".join(["icm", str(G.id), "experiment", "forwardProjection"])
+    post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
 
     timestamp = "2018-11-01"
     post_data = {
@@ -82,4 +85,4 @@ def test_forwardProjection(G, client):
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
-    # print(rv.data)
+    print(rv.data)
