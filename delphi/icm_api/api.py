@@ -64,12 +64,6 @@ def dress_model_for_icm_api(model):
     return model
 
 
-with open(data_dir / "delphi_cag.pkl", "rb") as f:
-    model = dress_model_for_icm_api(pickle.load(f))
-
-models = {str(model.id): model}
-
-
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
     """ Create a new ICM"""
