@@ -99,37 +99,8 @@ def updateICMMetadata(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    model = models[uuid]
-    nodes = [
-        CausalVariable(
-            id=n[1]["id"],
-            units=n[1]["units"],
-            label=n[1]["label"],
-            description=n[1]["description"],
-            lastUpdated=n[1]["lastUpdated"],
-            lastKnownValue=n[1]["lastKnownValue"],
-            range=n[1]["range"],
-        )
-        for n in model.nodes(data=True)
-    ]
-    edges = [
-        CausalRelationship(
-            id=e[2]["id"],
-            source=e[2]["source"],
-            target=e[2]["target"],
-            namespaces=e[2]["namespaces"],
-            confidence=e[2]["confidence"],
-            types=e[2]["types"],
-            strength=e[2]["strength"],
-            lastUpdated=e[2]["lastUpdated"],
-            description=e[2]["description"],
-            label=e[2]["label"],
-            reinforcement=e[2]["reinforcement"],
-        )
-        for e in model.edges(data=True)
-    ]
-    return jsonify([asdict(x) for x in nodes + edges])
-
+    G = DelphiModel.query.filter_by(id=uuid).first()
+    return "ok"
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
 def createICMPrimitive(uuid: str):
