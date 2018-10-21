@@ -16,7 +16,9 @@ from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
-from delphi.icm_api import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 """
     )
     parents_list = []
