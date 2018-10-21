@@ -31,7 +31,6 @@ from delphi.icm_api import db
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
             + ' """\n'
         )
-        class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
