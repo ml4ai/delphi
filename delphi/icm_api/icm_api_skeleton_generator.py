@@ -18,6 +18,16 @@ from dataclasses import dataclass, field, asdict
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
+from sqlalchemy.inspection import inspect
+
+class Serializable(object):
+
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    @staticmethod
+    def serialize_list(l):
+        return [m.serialize() for m in l]
 """
     )
     parents_list = []
@@ -27,18 +37,16 @@ from delphi.icm_api import db
     ):
         class_lines.append("\n\n")
         class_lines.append(class_declaration)
-        class_lines.append(
-            '    """'
-            + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
-            + ' """\n'
-        )
+        placeholder = f"Placeholder docstring for class {schema_name}."
+        docstring = f"{schema.get('description', placeholder)}"
+        class_lines.append(f'    """ {docstring} """\n')
         class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
         if parents is not None:
-            foreign_key = f"    {parents}_id = db.Column(db.Integer, ForeignKey\
-('{parents}.id'), primary_key=True)"
+            foreign_key = (f"    {parents}_id = db.Column(db.Integer,"
+                         + f"ForeignKey('{parents}.id'), primary_key=True)")
             class_lines.append(foreign_key)
 
         for index, property in enumerate(
@@ -74,9 +82,6 @@ from delphi.icm_api import db
             # TODO - Parse dependencies so that inherited properties are
             # duplicated for child classes.
 
-            '''if property not in required_properties:
-                type_annotation = f"Optional[{type_annotation}]"'''
-
             # baseType becomes the table name
             if (
                 property != "baseType"
@@ -111,18 +116,17 @@ from delphi.icm_api import db
                 # guarantee that each table has a primary key column
                 if len(properties) == 1:
                     class_lines.append(
-                        "    id = db.Column(db.Integer, primary_\
-key = True)"
+                        "    id = db.Column(db.Integer, primary_key = True)"
                     )
                 elif property.lower() in parents_list:
                     class_lines.append(
-                        f"    {property.lower()}_id = db.Column\
-(db.Integer, ForeignKey('{property.lower()}.id'))"
+                        f"    {property.lower()}_id = db.Column(db.Integer,"
+                        f"ForeignKey('{property.lower()}.id'))"
                     )
 
     def to_class(schema_name, schema):
         parents = None
-        class_declaration = f"class {schema_name}(db.Model):"
+        class_declaration = f"class {schema_name}(db.Model, Serializable):"
 
         class_lines = []
         if schema.get("type") == "object":
