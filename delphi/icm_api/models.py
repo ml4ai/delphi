@@ -251,6 +251,7 @@ class CausalVariable(db.Model, Serializable):
     """ API definition of a causal variable.  """
 
     __tablename__ = "causalvariable"
+    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
     causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
     range_id = db.Column(db.Integer,ForeignKey('range.id'))
     units = db.Column(db.String(120), unique=False)
@@ -275,6 +276,7 @@ class CausalRelationship(db.Model, Serializable):
     """ API defintion of a causal relationship. Indicates causality between two causal variables. """
 
     __tablename__ = "causalrelationship"
+    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
     causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
     source = db.Column(db.Text, primary_key=True)
     target = db.Column(db.Text, unique=False)

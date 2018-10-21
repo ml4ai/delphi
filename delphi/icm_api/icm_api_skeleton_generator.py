@@ -51,9 +51,9 @@ class DelphiModel(db.Model):
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
-        if schema_name == "ICMMetadata":
+        if schema_name in ["ICMMetadata", "CausalVariable", "CausalRelationship"]:
             class_lines.append("    model_id = db.Column(db.String(120),"
-                        "db.ForeignKey('delphimodel.id'))")
+                               "db.ForeignKey('delphimodel.id'))")
         if parents is not None:
             foreign_key = (f"    {parents}_id = db.Column(db.Integer,"
                          + f"ForeignKey('{parents}.id'), primary_key=True)")
