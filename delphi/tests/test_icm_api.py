@@ -1,15 +1,42 @@
+import json
 import pytest
 from delphi.icm_api import create_app
+from delphi.icm_api.models import *
+from delphi.tests.conftest import *
+from datetime import date
 
 
 @pytest.fixture
-def test_model_uuid():
-    yield "49d53f7a-26d1-4bdd-ab49-98eea61a0345"
+def icm_metadata(G):
+    metadata = ICMMetadata(
+        id=G.id,
+        icmProvider="",
+        title="",
+        version="",
+        created=date.today().isoformat(),
+        createdByUser="",
+        lastAccessed="",
+        lastAccessedByUser="",
+        lastUpdated="",
+        lastUpdatedByUser="",
+        estimatedNumberOfPrimitives=len(G.nodes) + len(G.edges),
+        lifecycleState="",
+        derivation="",
+    )
+    return metadata
+
 
 @pytest.fixture
-def app():
+def app(icm_metadata):
     app = create_app()
-    yield app
+    app.testing = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+    with app.app_context():
+        db.create_all()
+        db.session.add(icm_metadata)
+        db.session.commit()
+        yield app
+        db.drop_all()
 
 
 @pytest.fixture
@@ -18,27 +45,27 @@ def client(app):
     return app.test_client()
 
 
-def test_icm(client):
+def test_listAllICMs(G, client):
     rv = client.get("/icm")
-    assert b'["ea9bf1b4-4f88-4598-a927-09d1ff7b51e5"]' in rv.data
+    assert str(G.id) in json.loads(rv.data)
 
 
-def test_forwardProjection(client, test_model_uuid):
-    post_url = "/".join(
-        [
-            "icm",
-            test_model_uuid,
-            "experiment",
-            "forwardProjection",
-        ]
-    )
+def test_getICMByUUID(G, client):
+    rv = client.get(f"/icm/{str(G.id)}")
+    assert G.id == rv.json["id"]
+
+
+def test_forwardProjection(G, client):
+    post_url = "/".join(["icm", str(G.id), "experiment", "forwardProjection"])
+
+    timestamp = "2018-11-01"
     post_data = {
         "interventions": [
             {
-                "id": "49d53f7a-26d1-4bdd-ab49-98eea61a0345",
+                "id": "precipitation",
                 "values": {
                     "active": "ACTIVE",
-                    "time": "2018-11-01",
+                    "time": timestamp,
                     "value": 0.77,
                 },
             },
@@ -46,7 +73,7 @@ def test_forwardProjection(client, test_model_uuid):
                 "id": "<Some other causal Variable id/hash>",
                 "values": {
                     "active": "ACTIVE",
-                    "time": "2018-10-01",
+                    "time": timestamp,
                     "value": 0.01,
                 },
             },
@@ -55,4 +82,4 @@ def test_forwardProjection(client, test_model_uuid):
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
-    print(rv.data)
+    # print(rv.data)
