@@ -47,7 +47,7 @@ def client(app):
 
 def test_listAllICMs(G, client):
     rv = client.get("/icm")
-    assert str(G.id) in json.loads(rv.data)
+    assert G.id in rv.json
 
 
 def test_getICMByUUID(G, client):
