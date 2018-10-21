@@ -10,10 +10,11 @@ from delphi.paths import data_dir
 from pprint import pprint
 import numpy as np
 
-bp = Blueprint('icm_api', __name__)
+bp = Blueprint("icm_api", __name__)
+
 
 def dress_model_for_icm_api(model):
-    initialize(model, data_dir/"test_data"/"variables.csv")
+    initialize(model, data_dir / "variables.csv")
     today = date.today().isoformat()
     for n in model.nodes(data=True):
         n[1]["id"] = uuid4()
@@ -65,7 +66,7 @@ def dress_model_for_icm_api(model):
     return model
 
 
-with open(data_dir/"test_data"/"delphi_cag.pkl", "rb") as f:
+with open(data_dir / "delphi_cag.pkl", "rb") as f:
     model = dress_model_for_icm_api(pickle.load(f))
 
 models = {str(model.id): model}
@@ -238,7 +239,14 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-    return "forward Projection executed"
+
+    if uuid in models:
+        for intervention in request.json["interventions"]:
+            variable_id = intervention["id"]
+
+        return "model found"
+    else:
+        return "model not found"
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
