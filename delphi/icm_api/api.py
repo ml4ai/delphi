@@ -7,11 +7,9 @@ from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.icm_api.models import *
 from delphi.paths import data_dir
-from pprint import pprint
 import numpy as np
 
 bp = Blueprint("icm_api", __name__)
-
 
 def dress_model_for_icm_api(model):
     initialize(model, data_dir / "variables.csv")
@@ -81,24 +79,13 @@ def createNewICM():
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
     """ List all ICMs"""
-    return jsonify(list(models.keys()))
+    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
 def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
-    if uuid in models:
-        model = models[uuid]
-        return jsonify(
-            asdict(
-                ICMMetadata(
-                    id=uuid,
-                    estimatedNumberOfPrimitives=len(model)
-                    + len(model.edges()),
-                )
-            )
-        )
-
+    return jsonify(ICMMetadata.query.filter_by(id=uuid).first().serialize())
 
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
