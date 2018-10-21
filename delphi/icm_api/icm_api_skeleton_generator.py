@@ -16,9 +16,7 @@ from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from delphi.icm_api import db
 """
     )
     parents_list = []
@@ -33,6 +31,7 @@ db = SQLAlchemy()
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
             + ' """\n'
         )
+        class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
@@ -80,8 +79,8 @@ db = SQLAlchemy()
             # baseType becomes the table name
             if (
                 property != "baseType"
-                and property != parents
-                and property not in parents_list
+                and property.lower() != parents
+                and property.lower() not in parents_list
             ):
 
                 if (
@@ -114,10 +113,10 @@ db = SQLAlchemy()
                         "    id = db.Column(db.Integer, primary_\
 key = True)"
                     )
-                elif property in parents_list:
+                elif property.lower() in parents_list:
                     class_lines.append(
-                        f"    {property}_id = db.Column\
-(db.Integer, ForeignKey('{property}.id'))"
+                        f"    {property.lower()}_id = db.Column\
+(db.Integer, ForeignKey('{property.lower()}.id'))"
                     )
 
     def to_class(schema_name, schema):
@@ -139,7 +138,7 @@ key = True)"
             ]
             schema = schema["allOf"][1]
             parents = f"{','.join(parents)}"
-            parents = parents
+            parents = parents.lower()
             # class_declaration = f"class {schema_name}({','.join(parents)}):"
 
             parents_list.append(parents)
