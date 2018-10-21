@@ -11,6 +11,7 @@ import numpy as np
 
 bp = Blueprint("icm_api", __name__)
 
+
 def dress_model_for_icm_api(model):
     initialize(model, data_dir / "variables.csv")
     today = date.today().isoformat()
@@ -81,13 +82,14 @@ def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
     return jsonify(ICMMetadata.query.filter_by(id=uuid).first().serialize())
 
+
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
     model = ICMMetadata.query.filter_by(id=uuid).first()
     db.session.delete(model)
     db.session.commit()
-    return ('', 204)
+    return ("", 204)
 
 
 @bp.route("/icm/<string:uuid>", methods=["PATCH"])
@@ -100,7 +102,9 @@ def updateICMMetadata(uuid: str):
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
     G = DelphiModel.query.filter_by(id=uuid).first()
+    print(G.model.nodes())
     return "ok"
+
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
 def createICMPrimitive(uuid: str):
@@ -193,7 +197,7 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-    return ('', 204)
+    return ("", 204)
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
