@@ -15,19 +15,26 @@ def write_models(yml):
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, PickleType
 from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
 from sqlalchemy.inspection import inspect
 
 class Serializable(object):
-
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     @staticmethod
     def serialize_list(l):
         return [m.serialize() for m in l]
+
+
+class DelphiModel(db.Model):
+    __tablename__ = "delphimodel"
+    id = db.Column(db.String(120), primary_key=True)
+    icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
+                                 lazy=True, uselist=False)
+    model = db.Column(db.PickleType)
 """
     )
     parents_list = []
@@ -44,6 +51,9 @@ class Serializable(object):
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
+        if schema_name == "ICMMetadata":
+            class_lines.append("    model_id = db.Column(db.String(120),"
+                        "db.ForeignKey('delphimodel.id'))")
         if parents is not None:
             foreign_key = (f"    {parents}_id = db.Column(db.Integer,"
                          + f"ForeignKey('{parents}.id'), primary_key=True)")
