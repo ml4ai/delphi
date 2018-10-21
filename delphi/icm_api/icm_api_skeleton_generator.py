@@ -49,8 +49,10 @@ class DelphiModel(db.Model):
         if is_db_object:
             if parent is None:
                 class_lines.append(f'    __tablename__ = "{tablename}"')
+            polymorphy_annotation = (
+                f"    __mapper_args__ = {{'polymorphic_identity':'{tablename}'"
+            )
             if schema["properties"].get("baseType") is not None:
-                polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{tablename}'"
                 polymorphy_annotation += ", 'polymorphic_on': baseType"
             polymorphy_annotation += "}"
 
@@ -115,6 +117,7 @@ class DelphiModel(db.Model):
                 "    model_id = db.Column(db.String(120),"
                 "db.ForeignKey('delphimodel.id'))"
             )
+
         if is_db_object:
             class_lines.append(polymorphy_annotation)
 
