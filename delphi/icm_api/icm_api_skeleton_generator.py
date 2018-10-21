@@ -37,30 +37,27 @@ class DelphiModel(db.Model):
     model = db.Column(db.PickleType)
 """
     )
-    parents_list = []
 
     def process_properties(
-        schema_name, schema, class_lines, class_declaration, parents
+        schema_name, schema, class_lines, is_db_object, parent=None
     ):
-        class_lines.append("\n\n")
-        class_lines.append(class_declaration)
         placeholder = f"Placeholder docstring for class {schema_name}."
         docstring = f"{schema.get('description', placeholder)}"
         class_lines.append(f'    """ {docstring} """\n')
-        class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
+        tablename = schema_name.lower()
+        if is_db_object:
+            if parent is None:
+                class_lines.append(f'    __tablename__ = "{tablename}"')
+            if schema["properties"].get("baseType") is not None:
+                polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{tablename}'"
+                polymorphy_annotation += ", 'polymorphic_on': baseType"
+            polymorphy_annotation += "}"
+
         required_properties = schema.get("required", [])
 
-        if schema_name in ["ICMMetadata", "CausalVariable", "CausalRelationship"]:
-            class_lines.append("    model_id = db.Column(db.String(120),"
-                               "db.ForeignKey('delphimodel.id'))")
-        if parents is not None:
-            foreign_key = (f"    {parents}_id = db.Column(db.Integer,"
-                         + f"ForeignKey('{parents}.id'), primary_key=True)")
-            class_lines.append(foreign_key)
-
-        for index, property in enumerate(
-            sorted(properties, key=lambda x: x not in required_properties)
+        for property in sorted(
+            properties, key=lambda x: x not in required_properties
         ):
 
             property_ref = properties[property].get("$ref", "").split("/")[-1]
@@ -77,73 +74,64 @@ class DelphiModel(db.Model):
                 "array": "List",
                 "boolean": "db.Boolean",
                 "number": "db.Float",
-                "object": "Object",
+                "object": "db.PickleType",
             }
-            type_annotation = mapping.get(property_type, property_type)
+            type_annotation = mapping.get(property_type, "db.String")
 
             # ------------------------------------------------------------
             if type_annotation == "List":
                 property_type = properties[property]["items"]["type"]
                 type_annotation = (
-                    # f"List[{mapping.get(property_type, property_type)}]"
                     f"{mapping.get(property_type, property_type)}"
                 )
 
-            # TODO - Parse dependencies so that inherited properties are
-            # duplicated for child classes.
-
             # baseType becomes the table name
-            if (
-                property != "baseType"
-                and property.lower() != parents
-                and property.lower() not in parents_list
-            ):
+            if properties[property].get("default") is not None:
+                default_value = f"{properties[property]['default']}"
+                type_annotation += f", default={default_value}"
 
-                if (
-                    type_annotation == "db.String"
-                    or type_annotation == "db.Integer"
-                    or type_annotation == "db.Boolean"
-                    or type_annotation == "db.Float"
-                ):
-                    if type_annotation == "db.String":
-                        type_annotation += f"(120)"
-                else:
-                    type_annotation = "db.Text"
+            kwargs = []
 
-                if properties[property].get("default") is not None:
-                    default_value = f"{properties[property]['default']}"
-                    type_annotation += f", default={default_value}"
-
-                if index == 0 or property == "id":
-                    kwarg_2 = "primary_key=True"
-                else:
-                    kwarg_2 = "unique=False"
-
-                class_lines.append(
-                    f"    {property} = db.Column({type_annotation}, {kwarg_2})"
-                )
+            if property == "id":
+                kwargs.append("primary_key=True")
             else:
-                # guarantee that each table has a primary key column
-                if len(properties) == 1:
-                    class_lines.append(
-                        "    id = db.Column(db.Integer, primary_key = True)"
-                    )
-                elif property.lower() in parents_list:
-                    class_lines.append(
-                        f"    {property.lower()}_id = db.Column(db.Integer,"
-                        f"ForeignKey('{property.lower()}.id'))"
-                    )
+                kwargs.append("unique=False")
+
+            class_lines.append(
+                f"    {property} = db.Column({type_annotation}, {','.join(kwargs)})"
+            )
+
+        if is_db_object and parent is not None:
+            class_lines.append(
+                f"    id = db.Column(db.String, ForeignKey('{parent.lower()}.id'), primary_key=True)"
+            )
+
+        if schema_name in [
+            "ICMMetadata",
+            "CausalVariable",
+            "CausalRelationship",
+        ]:
+            class_lines.append(
+                "    model_id = db.Column(db.String(120),"
+                "db.ForeignKey('delphimodel.id'))"
+            )
+        if is_db_object:
+            class_lines.append(polymorphy_annotation)
 
     def to_class(schema_name, schema):
-        parents = None
-        class_declaration = f"class {schema_name}(db.Model, Serializable):"
+        is_db_object = False
+        class_lines = ["\n"]
 
-        class_lines = []
         if schema.get("type") == "object":
-
-            process_properties(
-                schema_name, schema, class_lines, class_declaration, parents
-            )
+            object_type = "parent"
+            if schema["properties"].get("id") is not None:
+                is_db_object = True
+                base = "db.Model, Serializable"
+            else:
+                base = "object"
+            class_declaration = f"class {schema_name}({base}):"
+            class_lines.append(class_declaration)
+            process_properties(schema_name, schema, class_lines, is_db_object)
 
         elif schema.get("allOf") is not None:
             parents = [
@@ -151,20 +139,20 @@ class DelphiModel(db.Model):
                 for item in schema["allOf"]
                 if item.get("$ref")
             ]
+            if schemas[parents[0]]["properties"].get("id") is not None:
+                is_db_object = True
             schema = schema["allOf"][1]
-            parents = f"{','.join(parents)}"
-            parents = parents.lower()
-            # class_declaration = f"class {schema_name}({','.join(parents)}):"
-
-            parents_list.append(parents)
+            class_declaration = f"class {schema_name}({','.join(parents)}):"
+            class_lines.append(class_declaration)
 
             process_properties(
-                schema_name, schema, class_lines, class_declaration, parents
+                schema_name, schema, class_lines, is_db_object, parents[0]
             )
 
         elif "enum" in schema:
-            class_lines.append("\n\n@unique")
-            class_lines.append(f"class {schema_name}(Enum):")
+            class_lines.append("@unique")
+            class_declaration = f"class {schema_name}(Enum):"
+            class_lines.append(class_declaration)
             for option in schema["enum"]:
                 class_lines.append(f'    {option} = "{option}"')
 

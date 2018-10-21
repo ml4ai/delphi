@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
 from sqlalchemy.inspection import inspect
 
+
 class Serializable(object):
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
@@ -18,10 +19,10 @@ class Serializable(object):
 class DelphiModel(db.Model):
     __tablename__ = "delphimodel"
     id = db.Column(db.String(120), primary_key=True)
-    icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
-                                 lazy=True, uselist=False)
+    icm_metadata = db.relationship(
+        "ICMMetadata", backref="delphimodel", lazy=True, uselist=False
+    )
     model = db.Column(db.PickleType)
-
 
 
 @unique
@@ -43,155 +44,121 @@ class LifecycleState(Enum):
     CREATED = "CREATED"
 
 
-
 class User(db.Model, Serializable):
     """ Placeholder docstring for class User. """
 
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=False)
-    firstName = db.Column(db.String(120), unique=False)
-    lastName = db.Column(db.String(120), unique=False)
-    email = db.Column(db.String(120), unique=False)
-    password = db.Column(db.String(120), unique=False)
-    phone = db.Column(db.String(120), unique=False)
+    username = db.Column(db.String, unique=False)
+    firstName = db.Column(db.String, unique=False)
+    lastName = db.Column(db.String, unique=False)
+    email = db.Column(db.String, unique=False)
+    password = db.Column(db.String, unique=False)
+    phone = db.Column(db.String, unique=False)
     userStatus = db.Column(db.Integer, unique=False)
-
+    __mapper_args__ = {"polymorphic_identity": "user"}
 
 
 class ICMMetadata(db.Model, Serializable):
     """ Placeholder docstring for class ICMMetadata. """
 
     __tablename__ = "icmmetadata"
-    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
-    id = db.Column(db.String(120), primary_key=True)
-    icmProvider = db.Column(db.Text, unique=False)
-    title = db.Column(db.String(120), unique=False)
+    id = db.Column(db.String, primary_key=True)
+    icmProvider = db.Column(db.String, unique=False)
+    title = db.Column(db.String, unique=False)
     version = db.Column(db.Integer, unique=False)
-    created = db.Column(db.String(120), unique=False)
-    createdByUser = db.Column(db.Text, unique=False)
-    lastAccessed = db.Column(db.String(120), unique=False)
-    lastAccessedByUser = db.Column(db.Text, unique=False)
-    lastUpdated = db.Column(db.String(120), unique=False)
-    lastUpdatedByUser = db.Column(db.Text, unique=False)
+    created = db.Column(db.String, unique=False)
+    createdByUser = db.Column(db.String, unique=False)
+    lastAccessed = db.Column(db.String, unique=False)
+    lastAccessedByUser = db.Column(db.String, unique=False)
+    lastUpdated = db.Column(db.String, unique=False)
+    lastUpdatedByUser = db.Column(db.String, unique=False)
     estimatedNumberOfPrimitives = db.Column(db.Integer, unique=False)
-    lifecycleState = db.Column(db.Text, unique=False)
-    derivation = db.Column(db.String(120), unique=False)
-
+    lifecycleState = db.Column(db.String, unique=False)
+    derivation = db.Column(db.String, unique=False)
+    model_id = db.Column(db.String(120), db.ForeignKey("delphimodel.id"))
+    __mapper_args__ = {"polymorphic_identity": "icmmetadata"}
 
 
 class ServerResponse(db.Model, Serializable):
     """ Placeholder docstring for class ServerResponse. """
 
     __tablename__ = "serverresponse"
-    id = db.Column(db.String(120), primary_key=True)
-    message = db.Column(db.String(120), unique=False)
+    id = db.Column(db.String, primary_key=True)
+    message = db.Column(db.String, unique=False)
+    __mapper_args__ = {"polymorphic_identity": "serverresponse"}
 
 
-
-class Range(db.Model, Serializable):
+class Range(object):
     """ Top level range object used in a CausalVariable """
 
-    __tablename__ = "range"
-    id = db.Column(db.Integer, primary_key = True)
+    baseType = db.Column(db.String, unique=False)
 
 
-
-class IntegerRange(db.Model, Serializable):
+class IntegerRange(Range):
     """ The range for an integer value """
 
-    __tablename__ = "integerrange"
-    range_id = db.Column(db.Integer,ForeignKey('range.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    range = db.Column(db.PickleType, unique=False)
 
 
-
-class FloatRange(db.Model, Serializable):
+class FloatRange(Range):
     """ The range for a floating point value """
 
-    __tablename__ = "floatrange"
-    range_id = db.Column(db.Integer,ForeignKey('range.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    range = db.Column(db.PickleType, unique=False)
 
 
-
-class BooleanRange(db.Model, Serializable):
+class BooleanRange(Range):
     """ Denotes a boolean range """
 
-    __tablename__ = "booleanrange"
-    range_id = db.Column(db.Integer,ForeignKey('range.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    range = db.Column(db.PickleType, unique=False)
 
 
-
-class EnumRange(db.Model, Serializable):
+class EnumRange(Range):
     """ The values of an enumeration """
 
-    __tablename__ = "enumrange"
-    range_id = db.Column(db.Integer,ForeignKey('range.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    range = db.Column(db.String, unique=False)
 
 
-
-class DistributionEnumRange(db.Model, Serializable):
+class DistributionEnumRange(Range):
     """ The range of classifications that can be reported in a DistributionEnumValue """
 
-    __tablename__ = "distributionenumrange"
-    range_id = db.Column(db.Integer,ForeignKey('range.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    range = db.Column(db.String, unique=False)
 
 
-
-class Value(db.Model, Serializable):
+class Value(object):
     """ Top level value object used in a TimeSeriesValue """
 
-    __tablename__ = "value"
-    id = db.Column(db.Integer, primary_key = True)
+    baseType = db.Column(db.String, unique=False)
 
 
-
-class IntegerValue(db.Model, Serializable):
+class IntegerValue(Value):
     """ An integer value """
 
-    __tablename__ = "integervalue"
-    value_id = db.Column(db.Integer,ForeignKey('value.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    value = db.Column(db.Integer, unique=False)
 
 
-
-class FloatValue(db.Model, Serializable):
+class FloatValue(Value):
     """ A floating point value """
 
-    __tablename__ = "floatvalue"
-    value_id = db.Column(db.Integer,ForeignKey('value.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    value = db.Column(db.Float, unique=False)
 
 
-
-class BooleanValue(db.Model, Serializable):
+class BooleanValue(Value):
     """ A boolean value """
 
-    __tablename__ = "booleanvalue"
-    value_id = db.Column(db.Integer,ForeignKey('value.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    value = db.Column(db.Boolean, unique=False)
 
 
-
-class EnumValue(db.Model, Serializable):
+class EnumValue(Value):
     """ An enumeration value defined in the EnumRange for the CausalVariable """
 
-    __tablename__ = "enumvalue"
-    value_id = db.Column(db.Integer,ForeignKey('value.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    value = db.Column(db.String, unique=False)
 
 
-
-class DistributionEnumValue(db.Model, Serializable):
+class DistributionEnumValue(Value):
     """ A distribution of classifications with non-zero probabilities. The classifications must be defined in the DistributionEnumRange of the CausalVariable and the probabilities must add to 1.0. """
 
-    __tablename__ = "distributionenumvalue"
-    value_id = db.Column(db.Integer,ForeignKey('value.id'), primary_key=True)
-    id = db.Column(db.Integer, primary_key = True)
+    value = db.Column(db.PickleType, unique=False)
 
 
 @unique
@@ -210,182 +177,183 @@ class TimeSeriesTrend(Enum):
     LARGE_DECREASE = "LARGE_DECREASE"
 
 
-
-class TimeSeriesValue(db.Model, Serializable):
+class TimeSeriesValue(object):
     """ Time series value at a particular time """
 
-    __tablename__ = "timeseriesvalue"
-    time = db.Column(db.String(120), primary_key=True)
-    value_id = db.Column(db.Integer,ForeignKey('value.id'))
-    active = db.Column(db.Text, unique=False)
-    trend = db.Column(db.Text, unique=False)
-
+    time = db.Column(db.String, unique=False)
+    value = db.Column(db.String, unique=False)
+    active = db.Column(db.String, unique=False)
+    trend = db.Column(db.String, unique=False)
 
 
 class CausalPrimitive(db.Model, Serializable):
     """ Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
 
     __tablename__ = "causalprimitive"
-    namespaces = db.Column(db.Text, unique=False)
-    types = db.Column(db.String(120), unique=False)
+    baseType = db.Column(db.String, unique=False)
+    namespaces = db.Column(db.PickleType, unique=False)
+    types = db.Column(db.String, unique=False)
     editable = db.Column(db.Boolean, default=True, unique=False)
     disableable = db.Column(db.Boolean, default=True, unique=False)
     disabled = db.Column(db.Boolean, default=False, unique=False)
-    id = db.Column(db.String(120), primary_key=True)
-    label = db.Column(db.String(120), unique=False)
-    description = db.Column(db.String(120), unique=False)
-    lastUpdated = db.Column(db.String(120), unique=False)
+    id = db.Column(db.String, primary_key=True)
+    label = db.Column(db.String, unique=False)
+    description = db.Column(db.String, unique=False)
+    lastUpdated = db.Column(db.String, unique=False)
+    __mapper_args__ = {
+        "polymorphic_identity": "causalprimitive",
+        "polymorphic_on": baseType,
+    }
 
 
-
-class Entity(db.Model, Serializable):
+class Entity(CausalPrimitive):
     """ API definition of an entity.  """
 
-    __tablename__ = "entity"
-    causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
-    confidence = db.Column(db.Float, primary_key=True)
+    confidence = db.Column(db.Float, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("causalprimitive.id"), primary_key=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "entity"}
 
 
-
-class CausalVariable(db.Model, Serializable):
+class CausalVariable(CausalPrimitive):
     """ API definition of a causal variable.  """
 
-    __tablename__ = "causalvariable"
-    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
-    causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
-    range_id = db.Column(db.Integer,ForeignKey('range.id'))
-    units = db.Column(db.String(120), unique=False)
-    backingEntities = db.Column(db.String(120), unique=False)
-    lastKnownValue = db.Column(db.Text, unique=False)
+    range = db.Column(db.String, unique=False)
+    units = db.Column(db.String, unique=False)
+    backingEntities = db.Column(db.String, unique=False)
+    lastKnownValue = db.Column(db.String, unique=False)
     confidence = db.Column(db.Float, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("causalprimitive.id"), primary_key=True
+    )
+    model_id = db.Column(db.String(120), db.ForeignKey("delphimodel.id"))
+    __mapper_args__ = {"polymorphic_identity": "causalvariable"}
 
 
-
-class ConfigurationVariable(db.Model, Serializable):
+class ConfigurationVariable(CausalPrimitive):
     """ Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
 
-    __tablename__ = "configurationvariable"
-    causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
-    units = db.Column(db.String(120), primary_key=True)
-    lastKnownValue = db.Column(db.Text, unique=False)
-    range_id = db.Column(db.Integer,ForeignKey('range.id'))
+    units = db.Column(db.String, unique=False)
+    lastKnownValue = db.Column(db.String, unique=False)
+    range = db.Column(db.String, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("causalprimitive.id"), primary_key=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "configurationvariable"}
 
 
-
-class CausalRelationship(db.Model, Serializable):
+class CausalRelationship(CausalPrimitive):
     """ API defintion of a causal relationship. Indicates causality between two causal variables. """
 
-    __tablename__ = "causalrelationship"
-    model_id = db.Column(db.String(120),db.ForeignKey('delphimodel.id'))
-    causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
-    source = db.Column(db.Text, primary_key=True)
-    target = db.Column(db.Text, unique=False)
+    source = db.Column(db.PickleType, unique=False)
+    target = db.Column(db.PickleType, unique=False)
     confidence = db.Column(db.Float, unique=False)
     strength = db.Column(db.Float, unique=False)
     reinforcement = db.Column(db.Boolean, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("causalprimitive.id"), primary_key=True
+    )
+    model_id = db.Column(db.String(120), db.ForeignKey("delphimodel.id"))
+    __mapper_args__ = {"polymorphic_identity": "causalrelationship"}
 
 
-
-class Relationship(db.Model, Serializable):
+class Relationship(CausalPrimitive):
     """ API definition of a generic relationship between two primitives """
 
-    __tablename__ = "relationship"
-    causalprimitive_id = db.Column(db.Integer,ForeignKey('causalprimitive.id'), primary_key=True)
-    source = db.Column(db.Text, primary_key=True)
-    target = db.Column(db.Text, unique=False)
+    source = db.Column(db.PickleType, unique=False)
+    target = db.Column(db.PickleType, unique=False)
     confidence = db.Column(db.Float, unique=False)
-
+    id = db.Column(
+        db.String, ForeignKey("causalprimitive.id"), primary_key=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "relationship"}
 
 
 class Evidence(db.Model, Serializable):
     """ Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
     __tablename__ = "evidence"
-    id = db.Column(db.String(120), primary_key=True)
-    link = db.Column(db.String(120), unique=False)
-    description = db.Column(db.String(120), unique=False)
-    category = db.Column(db.String(120), unique=False)
+    id = db.Column(db.String, primary_key=True)
+    link = db.Column(db.String, unique=False)
+    description = db.Column(db.String, unique=False)
+    category = db.Column(db.String, unique=False)
     rank = db.Column(db.Integer, unique=False)
+    __mapper_args__ = {"polymorphic_identity": "evidence"}
 
 
-
-class Projection(db.Model, Serializable):
+class Projection(object):
     """ Placeholder docstring for class Projection. """
 
-    __tablename__ = "projection"
-    numSteps = db.Column(db.Integer, primary_key=True)
-    stepSize = db.Column(db.String(120), unique=False)
-    startTime = db.Column(db.String(120), unique=False)
-
+    numSteps = db.Column(db.Integer, unique=False)
+    stepSize = db.Column(db.String, unique=False)
+    startTime = db.Column(db.String, unique=False)
 
 
 class Experiment(db.Model, Serializable):
     """ structure used for experimentation """
 
     __tablename__ = "experiment"
-    id = db.Column(db.String(120), primary_key=True)
-    label = db.Column(db.String(120), unique=False)
-    options = db.Column(db.Text, unique=False)
+    id = db.Column(db.String, primary_key=True)
+    label = db.Column(db.String, unique=False)
+    options = db.Column(db.PickleType, unique=False)
+    __mapper_args__ = {"polymorphic_identity": "experiment"}
 
 
-
-class ForwardProjection(db.Model, Serializable):
+class ForwardProjection(Experiment):
     """ a foward projection experiment """
 
-    __tablename__ = "forwardprojection"
-    experiment_id = db.Column(db.Integer,ForeignKey('experiment.id'), primary_key=True)
-    interventions = db.Column(db.Text, primary_key=True)
-    projection = db.Column(db.Text, unique=False)
+    interventions = db.Column(db.PickleType, unique=False)
+    projection = db.Column(db.String, unique=False)
+    id = db.Column(db.String, ForeignKey("experiment.id"), primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "forwardprojection"}
 
 
-
-class SensitivityAnalysis(db.Model, Serializable):
+class SensitivityAnalysis(Experiment):
     """ a sensitivity analysis experiment """
 
-    __tablename__ = "sensitivityanalysis"
-    experiment_id = db.Column(db.Integer,ForeignKey('experiment.id'), primary_key=True)
-    variables = db.Column(db.String(120), primary_key=True)
-
+    variables = db.Column(db.String, unique=False)
+    id = db.Column(db.String, ForeignKey("experiment.id"), primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "sensitivityanalysis"}
 
 
 class ExperimentResult(db.Model, Serializable):
     """ Notional model of experiment results """
 
     __tablename__ = "experimentresult"
-    id = db.Column(db.String(120), primary_key=True)
+    id = db.Column(db.String, primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "experimentresult"}
 
 
-
-class ForwardProjectionResult(db.Model, Serializable):
+class ForwardProjectionResult(ExperimentResult):
     """ The result of a forward projection experiment """
 
-    __tablename__ = "forwardprojectionresult"
-    experimentresult_id = db.Column(db.Integer,ForeignKey('experimentresult.id'), primary_key=True)
-    projection = db.Column(db.Text, primary_key=True)
-    results = db.Column(db.Text, unique=False)
+    projection = db.Column(db.String, unique=False)
+    results = db.Column(db.PickleType, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("experimentresult.id"), primary_key=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "forwardprojectionresult"}
 
 
-
-class SensitivityAnalysisResult(db.Model, Serializable):
+class SensitivityAnalysisResult(ExperimentResult):
     """ The result of a sensitivity analysis experiment """
 
-    __tablename__ = "sensitivityanalysisresult"
-    experimentresult_id = db.Column(db.Integer,ForeignKey('experimentresult.id'), primary_key=True)
-    results = db.Column(db.Text, primary_key=True)
+    results = db.Column(db.PickleType, unique=False)
+    id = db.Column(
+        db.String, ForeignKey("experimentresult.id"), primary_key=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "sensitivityanalysisresult"}
 
 
-
-class Traversal(db.Model, Serializable):
+class Traversal(object):
     """ Placeholder docstring for class Traversal. """
 
-    __tablename__ = "traversal"
-    maxDepth = db.Column(db.Integer, primary_key=True)
+    maxDepth = db.Column(db.Integer, unique=False)
 
 
-
-class Version(db.Model, Serializable):
+class Version(object):
     """ Placeholder docstring for class Version. """
 
-    __tablename__ = "version"
-    icmVersion = db.Column(db.String(120), primary_key=True)
-    icmProviderVersion = db.Column(db.String(120), unique=False)
+    icmVersion = db.Column(db.String, unique=False)
+    icmProviderVersion = db.Column(db.String, unique=False)
