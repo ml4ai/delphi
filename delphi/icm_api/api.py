@@ -84,8 +84,10 @@ def getICMByUUID(uuid: str):
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
-    if uuid in models:
-        del models[uuid]
+    model = ICMMetadata.query.filter_by(id=uuid).first()
+    db.session.delete(model)
+    db.session.commit()
+    return ('', 204)
 
 
 @bp.route("/icm/<string:uuid>", methods=["PATCH"])
@@ -220,14 +222,7 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-
-    if uuid in models:
-        for intervention in request.json["interventions"]:
-            variable_id = intervention["id"]
-
-        return "model found"
-    else:
-        return "model not found"
+    return ('', 204)
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
