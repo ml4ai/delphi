@@ -55,13 +55,13 @@ class AnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         """ Default constructor, accepts a list of edge tuples. """
         super().__init__(*args, **kwargs)
+        self.id = str(uuid4())
         self.t: float = 0.0
         self.Δt: float = 1.0
         self.time_unit: str = "Placeholder time unit"
         self.dateCreated = datetime.now()
         self.data = None
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
-        self.id = uuid4()
 
     # ==========================================================================
     # Constructors
