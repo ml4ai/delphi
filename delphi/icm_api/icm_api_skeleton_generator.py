@@ -17,8 +17,7 @@ from typing import Optional, List
 from dataclasses import dataclass, field, asdict
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from delphi.icm_api import db
 """
     )
     parents_list = []
@@ -33,6 +32,7 @@ db = SQLAlchemy()
             + f"{schema.get('description', f'Placeholder docstring for class {schema_name}.')}"
             + ' """\n'
         )
+        class_lines.append(f'    __tablename__ = "{schema_name}"'.lower())
         properties = schema["properties"]
         required_properties = schema.get("required", [])
 
