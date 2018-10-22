@@ -3,6 +3,91 @@ YAML specification. """
 
 from ruamel.yaml import YAML
 from typing import List
+from pprint import pprint
+
+
+def get_ref(ref_string):
+    return ref_string.split("/")[-1]
+
+
+class Property(object):
+    def __init__(self, schema_name, property_name, dictionary, is_required: bool):
+        self.schema_name = schema_name
+        self.name = property_name
+        self.dictionary = dictionary
+        self.is_required = is_required
+        self.property_type = self.dictionary.get("type")
+        if self.property_type is not None:
+            self.linetype = "Column"
+            self.args = [self.property_type.capitalize()]
+            if self.name == "id":
+                self.args.append("primary_key = True")
+            if not is_required:
+                self.args.append("nullable = True")
+            self.property_line = f"{self.name} = db.{self.linetype}({', '.join(self.args)})"
+
+        else:
+            self.linetype = "relationship"
+            self.args = [f'"{get_ref(self.dictionary.get("$ref", ""))}"']
+            self.args.append(f'backref = "{self.schema_name.lower()}"')
+            self.property_line = f'{self.name} = db.{self.linetype}({", ".join(self.args)})'
+
+    def __repr__(self):
+        return self.property_line
+
+
+class Model(object):
+    def __init__(self, schema_name, schema_dict):
+        self.indent = "    "
+        self.schema_name = schema_name
+        self.schema_dict = schema_dict
+        self.type = schema_dict.get("type")
+        if self.schema_dict.get("properties") is not None:
+            self.properties = self.schema_dict["properties"]
+        elif self.schema_dict.get("allOf") is not None:
+            self.properties = self.schema_dict["allOf"][1]["properties"]
+        else:
+            self.properties = {"value": self.schema_dict}
+
+        self.required_properties = schema_dict.get("required", [])
+
+        self.tablename = schema_name.lower()
+        placeholder = f"Placeholder docstring for class {self.schema_name}."
+        self.docstring = (
+            self.indent
+            + f'""" {self.schema_dict.get("description", placeholder)} """\n'
+        )
+
+        if self.schema_dict.get("allOf") is not None:
+            self.parent = get_ref(self.schema_dict["allOf"][0]["$ref"])
+            self.superclasses = [self.parent]
+        else:
+            self.parent = None
+            self.superclasses = ["db.Model", "Serializable"]
+
+        self.class_declaration = (
+            f"\n\nclass {schema_name}" + f"({', '.join(self.superclasses)}):"
+        )
+
+        self.properties = [
+            self.process_property(
+                property_name,
+                property_dict,
+                property_name in self.required_properties,
+            )
+            for property_name, property_dict in self.properties.items()
+        ]
+
+    def process_property(self, property_name, property_dict, required):
+        return Property(self.schema_name, property_name, property_dict, required)
+
+    def __repr__(self):
+        lines = [self.class_declaration, self.docstring]
+        if self.parent is None:
+            lines.append(f'    __tablename__ = "{self.tablename}"')
+        for p in self.properties:
+            lines.append(f"    {p}")
+        return '\n'.join(lines)
 
 
 def write_models(yml):
@@ -70,6 +155,7 @@ class DelphiModel(db.Model):
             # if the current property does not have type, use property_ref
             # instead, so it won't be none.
             property_type = property.get("type", property_ref)
+            print(property_name, property_type)
             mapping = {
                 "boolean": "db.Boolean",
                 "integer": "db.Integer",
@@ -96,10 +182,12 @@ class DelphiModel(db.Model):
 
             kwargs = []
 
-            if property == "id":
-                kwargs.append("primary_key=True")
+            if property_name == "id":
+                kwargs.append(" primary_key=True")
             else:
                 kwargs.append(" unique=False")
+            if property_name not in required_properties:
+                kwargs.append(" nullable=True")
 
             if is_db_object:
                 if property_ref != "":
@@ -249,5 +337,9 @@ if __name__ == "__main__":
     with open("icm_api.yaml", "r") as f:
         yml = yaml.load(f)
 
+    schemas = yml["components"]["schemas"]
+    models = [Model(k, v) for k, v in schemas.items()]
+    for m in models:
+        print(m)
     # write_views(yml)
-    write_models(yml)
+    # write_models(yml)

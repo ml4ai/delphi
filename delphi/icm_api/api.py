@@ -68,7 +68,7 @@ def dress_model_for_icm_api(model):
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
     """ Create a new ICM"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm", methods=["GET"])
@@ -95,7 +95,7 @@ def deleteICM(uuid: str):
 @bp.route("/icm/<string:uuid>", methods=["PATCH"])
 def updateICMMetadata(uuid: str):
     """ Update the metadata for an existing ICM"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
@@ -109,25 +109,25 @@ def getICMPrimitives(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
 def createICMPrimitive(uuid: str):
     """ create a new causal primitive"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["GET"])
 def getICMPrimitive(uuid: str, prim_id: str):
     """ returns a specific causal primitive"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["PATCH"])
 def updateICMPrimitive(uuid: str, prim_id: str):
     """ update an existing ICM primitive (can use this for disable?)"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["DELETE"])
 def deleteICMPrimitive(uuid: str, prim_id: str):
     """ delete (disable) this ICM primitive"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route(
@@ -135,7 +135,7 @@ def deleteICMPrimitive(uuid: str, prim_id: str):
 )
 def getEvidenceForID(uuid: str, prim_id: str):
     """ returns evidence for a causal primitive (needs pagination support)"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route(
@@ -143,55 +143,55 @@ def getEvidenceForID(uuid: str, prim_id: str):
 )
 def attachEvidence(uuid: str, prim_id: str):
     """ attach evidence to a primitive"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["GET"])
 def getEvidenceByID(uuid: str, evid_id: str):
     """ returns an individual piece of evidence"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["PATCH"])
 def updateEvidence(uuid: str, evid_id: str):
     """ update evidence item"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["DELETE"])
 def deleteEvidence(uuid: str, evid_id: str):
     """ delete evidence item"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/recalculate", methods=["POST"])
 def recalculateICM(uuid: str):
     """ indication that it is safe to recalculate/recompose model after performing some number of CRUD operations"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/archive", methods=["POST"])
 def archiveICM(uuid: str):
     """ archive an ICM"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/branch", methods=["POST"])
 def branchICM(uuid: str):
     """ branch an ICM"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/fuse", methods=["POST"])
 def fuseICMs():
     """ fuse two ICMs"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/sparql", methods=["POST"])
 def query(uuid: str):
     """ Query the ICM using SPARQL"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
@@ -203,34 +203,34 @@ def forwardProjection(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
 def getExperiments(uuid: str):
     """ list active (running or completed) experiments"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["GET"])
 def getExperiment(uuid: str, exp_id: str):
     """ Fetch experiment results"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["DELETE"])
 def deleteExperiment(uuid: str, exp_id: str):
     """ Delete experiment"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/traverse/<string:prim_id>", methods=["POST"])
 def traverse(uuid: str, prim_id: str):
     """ traverse through the ICM using a breadth-first search"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/version", methods=["GET"])
 def getVersion():
     """ Get the version of the ICM API supported"""
-    return ('', 415)
+    return ("", 415)
 
 
 @bp.route("/ping", methods=["GET"])
 def ping():
     """ Get the health status of the ICM server"""
-    return ('', 415)
+    return ("", 415)

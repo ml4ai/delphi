@@ -48,14 +48,14 @@ class User(db.Model, Serializable):
     """ Placeholder docstring for class User. """
 
     __tablename__ = "user"
-    id = db.Column(db.Integer, unique=False)
-    username = db.Column(db.String, unique=False)
-    firstName = db.Column(db.String, unique=False)
-    lastName = db.Column(db.String, unique=False)
-    email = db.Column(db.String, unique=False)
-    password = db.Column(db.String, unique=False)
-    phone = db.Column(db.String, unique=False)
-    userStatus = db.Column(db.Integer, unique=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, unique=False, nullable=True)
+    firstName = db.Column(db.String, unique=False, nullable=True)
+    lastName = db.Column(db.String, unique=False, nullable=True)
+    email = db.Column(db.String, unique=False, nullable=True)
+    password = db.Column(db.String, unique=False, nullable=True)
+    phone = db.Column(db.String, unique=False, nullable=True)
+    userStatus = db.Column(db.Integer, unique=False, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "user"}
 
 
@@ -63,19 +63,21 @@ class ICMMetadata(db.Model, Serializable):
     """ Placeholder docstring for class ICMMetadata. """
 
     __tablename__ = "icmmetadata"
-    id = db.Column(db.String, unique=False)
+    id = db.Column(db.String, primary_key=True)
     icmProvider = db.relationship("ICMProvider", backref="icmmetadata")
-    title = db.Column(db.String, unique=False)
-    version = db.Column(db.Integer, unique=False)
-    created = db.Column(db.String, unique=False)
+    title = db.Column(db.String, unique=False, nullable=True)
+    version = db.Column(db.Integer, unique=False, nullable=True)
+    created = db.Column(db.String, unique=False, nullable=True)
     createdByUser = db.relationship("User", backref="icmmetadata")
-    lastAccessed = db.Column(db.String, unique=False)
+    lastAccessed = db.Column(db.String, unique=False, nullable=True)
     lastAccessedByUser = db.relationship("User", backref="icmmetadata")
-    lastUpdated = db.Column(db.String, unique=False)
+    lastUpdated = db.Column(db.String, unique=False, nullable=True)
     lastUpdatedByUser = db.relationship("User", backref="icmmetadata")
-    estimatedNumberOfPrimitives = db.Column(db.Integer, unique=False)
+    estimatedNumberOfPrimitives = db.Column(
+        db.Integer, unique=False, nullable=True
+    )
     lifecycleState = db.relationship("LifecycleState", backref="icmmetadata")
-    derivation = db.Column("", unique=False)
+    derivation = db.Column("", unique=False, nullable=True)
     model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
     __mapper_args__ = {"polymorphic_identity": "icmmetadata"}
 
@@ -84,8 +86,8 @@ class ServerResponse(db.Model, Serializable):
     """ Placeholder docstring for class ServerResponse. """
 
     __tablename__ = "serverresponse"
-    id = db.Column(db.String, unique=False)
-    message = db.Column(db.String, unique=False)
+    id = db.Column(db.String, primary_key=True, nullable=True)
+    message = db.Column(db.String, unique=False, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "serverresponse"}
 
 
@@ -201,15 +203,19 @@ class CausalPrimitive(db.Model, Serializable):
 
     __tablename__ = "causalprimitive"
     baseType = db.Column(db.String, unique=False)
-    namespaces = db.Column("", unique=False)
-    types = db.Column("", unique=False)
-    editable = db.Column(db.Boolean, default=True, unique=False)
-    disableable = db.Column(db.Boolean, default=True, unique=False)
-    disabled = db.Column(db.Boolean, default=False, unique=False)
-    id = db.Column(db.String, unique=False)
-    label = db.Column(db.String, unique=False)
-    description = db.Column(db.String, unique=False)
-    lastUpdated = db.Column(db.String, unique=False)
+    namespaces = db.Column("", unique=False, nullable=True)
+    types = db.Column("", unique=False, nullable=True)
+    editable = db.Column(db.Boolean, default=True, unique=False, nullable=True)
+    disableable = db.Column(
+        db.Boolean, default=True, unique=False, nullable=True
+    )
+    disabled = db.Column(
+        db.Boolean, default=False, unique=False, nullable=True
+    )
+    id = db.Column(db.String, primary_key=True, nullable=True)
+    label = db.Column(db.String, unique=False, nullable=True)
+    description = db.Column(db.String, unique=False, nullable=True)
+    lastUpdated = db.Column(db.String, unique=False, nullable=True)
     __mapper_args__ = {
         "polymorphic_identity": "causalprimitive",
         "polymorphic_on": baseType,
@@ -220,7 +226,7 @@ class CausalPrimitive(db.Model, Serializable):
 class Entity(CausalPrimitive):
     """ API definition of an entity.  """
 
-    confidence = db.Column(db.Float, unique=False)
+    confidence = db.Column(db.Float, unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("causalprimitive.id"), primary_key=True
     )
@@ -232,12 +238,12 @@ class CausalVariable(CausalPrimitive):
     """ API definition of a causal variable.  """
 
     range = db.relationship("Range", backref="causalvariable")
-    units = db.Column(db.String, unique=False)
-    backingEntities = db.Column("", unique=False)
+    units = db.Column(db.String, unique=False, nullable=True)
+    backingEntities = db.Column("", unique=False, nullable=True)
     lastKnownValue = db.relationship(
         "TimeSeriesValue", backref="causalvariable"
     )
-    confidence = db.Column(db.Float, unique=False)
+    confidence = db.Column(db.Float, unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("causalprimitive.id"), primary_key=True
     )
@@ -249,7 +255,7 @@ class CausalVariable(CausalPrimitive):
 class ConfigurationVariable(CausalPrimitive):
     """ Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
 
-    units = db.Column(db.String, unique=False)
+    units = db.Column(db.String, unique=False, nullable=True)
     lastKnownValue = db.relationship(
         "TimeSeriesValue", backref="configurationvariable"
     )
@@ -266,9 +272,9 @@ class CausalRelationship(CausalPrimitive):
 
     source = db.Column("", unique=False)
     target = db.Column("", unique=False)
-    confidence = db.Column(db.Float, unique=False)
-    strength = db.Column(db.Float, unique=False)
-    reinforcement = db.Column(db.Boolean, unique=False)
+    confidence = db.Column(db.Float, unique=False, nullable=True)
+    strength = db.Column(db.Float, unique=False, nullable=True)
+    reinforcement = db.Column(db.Boolean, unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("causalprimitive.id"), primary_key=True
     )
@@ -282,7 +288,7 @@ class Relationship(CausalPrimitive):
 
     source = db.Column("", unique=False)
     target = db.Column("", unique=False)
-    confidence = db.Column(db.Float, unique=False)
+    confidence = db.Column(db.Float, unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("causalprimitive.id"), primary_key=True
     )
@@ -293,11 +299,11 @@ class Evidence(db.Model, Serializable):
     """ Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
     __tablename__ = "evidence"
-    id = db.Column(db.String, unique=False)
-    link = db.Column(db.String, unique=False)
-    description = db.Column(db.String, unique=False)
-    category = db.Column(db.String, unique=False)
-    rank = db.Column(db.Integer, unique=False)
+    id = db.Column(db.String, primary_key=True, nullable=True)
+    link = db.Column(db.String, unique=False, nullable=True)
+    description = db.Column(db.String, unique=False, nullable=True)
+    category = db.Column(db.String, unique=False, nullable=True)
+    rank = db.Column(db.Integer, unique=False, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "evidence"}
 
 
@@ -313,9 +319,9 @@ class Experiment(db.Model, Serializable):
     """ structure used for experimentation """
 
     __tablename__ = "experiment"
-    id = db.Column(db.String, unique=False)
-    label = db.Column(db.String, unique=False)
-    options = db.Column("", unique=False)
+    id = db.Column(db.String, primary_key=True, nullable=True)
+    label = db.Column(db.String, unique=False, nullable=True)
+    options = db.Column("", unique=False, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "experiment"}
 
 
@@ -323,7 +329,7 @@ class Experiment(db.Model, Serializable):
 class ForwardProjection(Experiment):
     """ a foward projection experiment """
 
-    interventions = db.Column("", unique=False)
+    interventions = db.Column("", unique=False, nullable=True)
     projection = db.relationship("Projection", backref="forwardprojection")
     id = db.Column(db.String, ForeignKey("experiment.id"), primary_key=True)
     __mapper_args__ = {"polymorphic_identity": "forwardprojection"}
@@ -333,7 +339,7 @@ class ForwardProjection(Experiment):
 class SensitivityAnalysis(Experiment):
     """ a sensitivity analysis experiment """
 
-    variables = db.Column("", unique=False)
+    variables = db.Column("", unique=False, nullable=True)
     id = db.Column(db.String, ForeignKey("experiment.id"), primary_key=True)
     __mapper_args__ = {"polymorphic_identity": "sensitivityanalysis"}
 
@@ -342,7 +348,7 @@ class ExperimentResult(db.Model, Serializable):
     """ Notional model of experiment results """
 
     __tablename__ = "experimentresult"
-    id = db.Column(db.String, unique=False)
+    id = db.Column(db.String, primary_key=True, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "experimentresult"}
 
 
@@ -353,7 +359,7 @@ class ForwardProjectionResult(ExperimentResult):
     projection = db.relationship(
         "Projection", backref="forwardprojectionresult"
     )
-    results = db.Column("", unique=False)
+    results = db.Column("", unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("experimentresult.id"), primary_key=True
     )
@@ -364,7 +370,7 @@ class ForwardProjectionResult(ExperimentResult):
 class SensitivityAnalysisResult(ExperimentResult):
     """ The result of a sensitivity analysis experiment """
 
-    results = db.Column("", unique=False)
+    results = db.Column("", unique=False, nullable=True)
     id = db.Column(
         db.String, ForeignKey("experimentresult.id"), primary_key=True
     )
