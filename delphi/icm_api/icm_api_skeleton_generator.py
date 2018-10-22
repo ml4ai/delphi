@@ -20,6 +20,7 @@ from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
 from sqlalchemy.inspection import inspect
 
+
 class Serializable(object):
     def serialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
@@ -31,7 +32,7 @@ class Serializable(object):
 
 class DelphiModel(db.Model):
     __tablename__ = "delphimodel"
-    id = db.Column(db.String(120), primary_key=True)
+    id = db.Column(db.String, primary_key=True)
     icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
                                  lazy=True, uselist=False)
     model = db.Column(db.PickleType)
@@ -58,38 +59,39 @@ class DelphiModel(db.Model):
 
         required_properties = schema.get("required", [])
 
-        for property in sorted(
-            properties, key=lambda x: x not in required_properties
+        for property_name, property in sorted(
+            properties.items(), key=lambda x: x[0] not in required_properties
         ):
 
-            property_ref = properties[property].get("$ref", "").split("/")[-1]
+            property_ref = property.get("$ref", "").split("/")[-1]
             if property_ref != "" and property_ref not in global_schema_list:
                 global_schema_list.append(property_ref)
 
             # if the current property does not have type, use property_ref
             # instead, so it won't be none.
-            property_type = properties[property].get("type", property_ref)
+            property_type = property.get("type", property_ref)
             mapping = {
-                "string": "db.String",
-                "integer": "db.Integer",
-                "None": "",
-                "array": "List",
                 "boolean": "db.Boolean",
+                "integer": "db.Integer",
                 "number": "db.Float",
-                "object": "db.PickleType",
+                "string": "db.String",
+                "None": "",
+                # "array": "db.PickleType",
+                # "object": "db.PickleType",
             }
-            type_annotation = mapping.get(property_type, "db.String")
+
+            type_annotation = mapping.get(property_type, f'"{property_ref}"')
 
             # ------------------------------------------------------------
-            if type_annotation == "List":
-                property_type = properties[property]["items"]["type"]
-                type_annotation = (
-                    f"{mapping.get(property_type, property_type)}"
-                )
+            # if type_annotation == "List":
+            # property_type = properties[property]["items"]["type"]
+            # type_annotation = (
+            # f"{mapping.get(property_type, property_type)}"
+            # )
 
             # baseType becomes the table name
-            if properties[property].get("default") is not None:
-                default_value = f"{properties[property]['default']}"
+            if property.get("default") is not None:
+                default_value = f"{property['default']}"
                 type_annotation += f", default={default_value}"
 
             kwargs = []
@@ -97,15 +99,26 @@ class DelphiModel(db.Model):
             if property == "id":
                 kwargs.append("primary_key=True")
             else:
-                kwargs.append("unique=False")
+                kwargs.append(" unique=False")
 
-            class_lines.append(
-                f"    {property} = db.Column({type_annotation}, {','.join(kwargs)})"
-            )
+            if is_db_object:
+                if property_ref != "":
+                    class_lines.append(
+                        f"    {property_name} = db.relationship"
+                        f'({type_annotation}, backref="{schema_name.lower()}")'
+                    )
+                else:
+                    class_lines.append(
+                        f"    {property_name} = db.Column({type_annotation},"
+                        f"{','.join(kwargs)})"
+                    )
+            else:
+                class_lines.append(f'    baseType = "{schema_name}"')
 
         if is_db_object and parent is not None:
             class_lines.append(
-                f"    id = db.Column(db.String, ForeignKey('{parent.lower()}.id'), primary_key=True)"
+                "    id = db.Column(db.String,"
+                f" ForeignKey('{parent.lower()}.id'), primary_key=True)"
             )
 
         if schema_name in [
@@ -114,7 +127,7 @@ class DelphiModel(db.Model):
             "CausalRelationship",
         ]:
             class_lines.append(
-                "    model_id = db.Column(db.String(120),"
+                "    model_id = db.Column(db.String,"
                 "db.ForeignKey('delphimodel.id'))"
             )
 
@@ -145,6 +158,7 @@ class DelphiModel(db.Model):
             if schemas[parents[0]]["properties"].get("id") is not None:
                 is_db_object = True
             schema = schema["allOf"][1]
+            class_lines.append("@dataclass")
             class_declaration = f"class {schema_name}({','.join(parents)}):"
             class_lines.append(class_declaration)
 
