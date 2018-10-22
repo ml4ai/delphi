@@ -207,7 +207,7 @@ def construct_view_lines(url, metadata) -> List[str]:
         lines.append(
             '    """' + f" {metadata[http_method]['summary']}" + '"""'
         )
-        lines.append("    pass")
+        lines.append("    return '', 415")
     return lines
 
 
