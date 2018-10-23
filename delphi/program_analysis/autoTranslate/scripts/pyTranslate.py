@@ -1,9 +1,10 @@
 import sys
 
 
-getframe_expr = 'sys._getframe({}).f_code.co_name'
+getframe_expr = "sys._getframe({}).f_code.co_name"
 
 printFn = {}
+
 
 class PrintState:
     def __init__(
@@ -123,9 +124,9 @@ def printCall(pyFile, node, printState):
 
 
 def printArg(pyFile, node, printState):
-   # print (node)
-    #print (eval(getframe_expr.format(2)))
-    #print (eval(getframe_expr.format(3)))  
+    # print (node)
+    # print (eval(getframe_expr.format(2)))
+    # print (eval(getframe_expr.format(3)))
     if node["type"] == "INTEGER":
         varType = "int"
     elif node["type"] == "DOUBLE":
@@ -142,8 +143,8 @@ def printVariable(pyFile, node, printState):
         node["name"] not in printState.definedVars
         and node["name"] not in printState.globalVars
     ):
-        #print (node)
-        #print (printState)
+        # print (node)
+        # print (printState)
         printState.definedVars += [node["name"]]
         if node["type"] == "INTEGER":
             initVal = 0
@@ -234,18 +235,19 @@ def printOp(pyFile, node, printState):
             node["left"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
-        if node["operator"].lower() == ".ne.":
-            pyFile.write(" != ")
-        elif node["operator"].lower() == ".gt.":
-            pyFile.write(" > ")
-        elif node["operator"].lower() == ".eq.":
-            pyFile.write(" == ")
-        elif node["operator"].lower() == ".lt.":
-            pyFile.write(" < ")
-        elif node["operator"].lower() == ".le.":
-            pyFile.write(" <= ")
-        else:
-            pyFile.write(" {0} ".format(node["operator"]))
+
+        operator_mapping = {
+            ".ne.": " != ",
+            ".gt.": " > ",
+            ".eq.": " == ",
+            ".lt.": " < ",
+            ".le.": " <= ",
+        }
+        pyFile.write(
+            operator_mapping.get(
+                node["operator"].lower(), f" {node['operator']} "
+            )
+        )
         printAst(
             pyFile,
             node["right"],
@@ -277,13 +279,13 @@ def printRef(pyFile, node, printState):
 
 
 def printAssignment(pyFile, node, printState):
-   # if node["target"][0]["name"] in functionLst:
-   #     printAst(
-   #        pyFile,
-   #        node["value"],
-   #        printState.copy(sep="", add="", printFirst=False, indexRef=True),
-   #     )
-    #else:
+    # if node["target"][0]["name"] in functionLst:
+    #     printAst(
+    #        pyFile,
+    #        node["value"],
+    #        printState.copy(sep="", add="", printFirst=False, indexRef=True),
+    #     )
+    # else:
     printAst(
         pyFile,
         node["target"],
@@ -295,6 +297,7 @@ def printAssignment(pyFile, node, printState):
         node["value"],
         printState.copy(sep="", add="", printFirst=False, indexRef=True),
     )
+
 
 def printFuncReturn(pyFile, node, printState):
     if printState.indexRef:
@@ -327,7 +330,7 @@ def setupPrintFns():
     printFn["exit"] = printExit
     printFn["return"] = printReturn
     printFn["function"] = printFunction
-    printFn["ret"] = printFuncReturn  
+    printFn["ret"] = printFuncReturn
 
 
 def printAst(pyFile, root, printState):

@@ -227,18 +227,19 @@ def printOp(pyFile, node, printState):
             node["left"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
-        if node["operator"].lower() == ".ne.":
-            pyFile.write(" != ")
-        elif node["operator"].lower() == ".gt.":
-            pyFile.write(" > ")
-        elif node["operator"].lower() == ".eq.":
-            pyFile.write(" == ")
-        elif node["operator"].lower() == ".lt.":
-            pyFile.write(" < ")
-        elif node["operator"].lower() == ".le.":
-            pyFile.write(" <= ")
-        else:
-            pyFile.write(f" {node['operator']} ")
+
+        operator_mapping = {
+            ".ne.": " != ",
+            ".gt.": " > ",
+            ".eq.": " == ",
+            ".lt.": " < ",
+            ".le.": " <= ",
+        }
+        pyFile.write(
+            operator_mapping.get(
+                node["operator"].lower(), f" {node['operator']} "
+            )
+        )
         printAst(
             pyFile,
             node["right"],
