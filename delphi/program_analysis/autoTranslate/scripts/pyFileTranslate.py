@@ -140,8 +140,6 @@ def printVariable(pyFile, node, printState):
         node["name"] not in printState.definedVars
         and node["name"] not in printState.globalVars
     ):
-        # print (node)
-        # print (printState)
         printState.definedVars += [node["name"]]
         if node["type"] == "INTEGER":
             initVal = 0
