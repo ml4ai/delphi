@@ -1,0 +1,39 @@
+def UPDATE_EST__lambda__TOTAL_RAIN_0(TOTAL_RAIN, RAIN):
+    TOTAL_RAIN = (TOTAL_RAIN+RAIN)
+    return TOTAL_RAIN
+
+def UPDATE_EST__lambda__IF_1_0(TOTAL_RAIN):
+    return (TOTAL_RAIN<=40)
+
+def UPDATE_EST__lambda__YIELD_EST_0(TOTAL_RAIN):
+    YIELD_EST = (-((((TOTAL_RAIN-40)**2)/16))+100)
+    return YIELD_EST
+
+def UPDATE_EST__lambda__YIELD_EST_1(TOTAL_RAIN):
+    YIELD_EST = (-(TOTAL_RAIN)+140)
+    return YIELD_EST
+
+def CROP_YIELD__lambda__MAX_RAIN_0():
+    MAX_RAIN = 4.0
+    return MAX_RAIN
+
+def CROP_YIELD__lambda__CONSISTENCY_0():
+    CONSISTENCY = 64.0
+    return CONSISTENCY
+
+def CROP_YIELD__lambda__ABSORBTION_0():
+    ABSORBTION = 0.6
+    return ABSORBTION
+
+def CROP_YIELD__lambda__YIELD_EST_0():
+    YIELD_EST = 0
+    return YIELD_EST
+
+def CROP_YIELD__lambda__TOTAL_RAIN_0():
+    TOTAL_RAIN = 0
+    return TOTAL_RAIN
+
+def CROP_YIELD__lambda__RAIN_0(DAY, CONSISTENCY, MAX_RAIN, ABSORBTION):
+    RAIN = ((-((((DAY-16)**2)/CONSISTENCY))+MAX_RAIN)*ABSORBTION)
+    return RAIN
+
