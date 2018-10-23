@@ -20,18 +20,11 @@ def causal_primitives(G):
 def icm_metadata(G):
     metadata = ICMMetadata(
         id=G.id,
-        icmProvider="",
-        title="",
-        version="",
         created=date.today().isoformat(),
-        createdByUser="",
-        lastAccessed="",
-        lastAccessedByUser="",
-        lastUpdated="",
-        lastUpdatedByUser="",
         estimatedNumberOfPrimitives=len(G.nodes) + len(G.edges),
-        lifecycleState="",
-        derivation="",
+        createdByUser_id=1,
+        lastAccessedByUser_id=1,
+        lastUpdatedByUser_id=1,
     )
     return metadata
 
@@ -70,6 +63,7 @@ def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
 
 
+@pytest.mark.skip(reason="Still working on forward projection implementation.")
 def test_forwardProjection(G, client):
     post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
 
