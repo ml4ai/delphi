@@ -54,8 +54,8 @@ for file in "$@"; do
     astFile="$base".xml
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$file" > "$astFile")
     pyFile="$base".py
-    ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pyFile")
-    pyFiles+=" $pyFile"
+ #   ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pyFile")
+ #   pyFiles+=" $pyFile"
 done
 
-( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
+#( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)

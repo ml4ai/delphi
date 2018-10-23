@@ -1,8 +1,9 @@
 import sys
 
 
-printFn = {}
+getframe_expr = 'sys._getframe({}).f_code.co_name'
 
+printFn = {}
 
 class PrintState:
     def __init__(
@@ -71,6 +72,33 @@ def printSubroutine(pyFile, node, printState):
     )
 
 
+def printFunction(pyFile, node, printState):
+    pyFile.write("\ndef {0}(".format(node["name"]))
+    args = []
+    printAst(
+        pyFile,
+        node["args"],
+        printState.copy(
+            sep=", ",
+            add="",
+            printFirst=False,
+            definedVars=args,
+            indexRef=False,
+        ),
+    )
+    pyFile.write("):")
+    printAst(
+        pyFile,
+        node["body"],
+        printState.copy(
+            sep=printState.sep + printState.add,
+            printFirst=True,
+            definedVars=args,
+            indexRef=True,
+        ),
+    )
+
+
 def printProgram(pyFile, node, printState):
     printSubroutine(pyFile, node, printState)
     pyFile.write("\n\n{0}(){1}".format(node["name"], printState.sep))
@@ -95,6 +123,9 @@ def printCall(pyFile, node, printState):
 
 
 def printArg(pyFile, node, printState):
+   # print (node)
+    #print (eval(getframe_expr.format(2)))
+    #print (eval(getframe_expr.format(3)))  
     if node["type"] == "INTEGER":
         varType = "int"
     elif node["type"] == "DOUBLE":
@@ -111,6 +142,8 @@ def printVariable(pyFile, node, printState):
         node["name"] not in printState.definedVars
         and node["name"] not in printState.globalVars
     ):
+        #print (node)
+        #print (printState)
         printState.definedVars += [node["name"]]
         if node["type"] == "INTEGER":
             initVal = 0
@@ -244,6 +277,13 @@ def printRef(pyFile, node, printState):
 
 
 def printAssignment(pyFile, node, printState):
+   # if node["target"][0]["name"] in functionLst:
+   #     printAst(
+   #        pyFile,
+   #        node["value"],
+   #        printState.copy(sep="", add="", printFirst=False, indexRef=True),
+   #     )
+    #else:
     printAst(
         pyFile,
         node["target"],
@@ -255,6 +295,12 @@ def printAssignment(pyFile, node, printState):
         node["value"],
         printState.copy(sep="", add="", printFirst=False, indexRef=True),
     )
+
+def printFuncReturn(pyFile, node, printState):
+    if printState.indexRef:
+        pyFile.write("return {0}[0]".format(node["name"]))
+    else:
+        pyFile.write("return {0}".format(node["name"]))
 
 
 def printExit(pyFile, node, printState):
@@ -280,6 +326,8 @@ def setupPrintFns():
     printFn["assignment"] = printAssignment
     printFn["exit"] = printExit
     printFn["return"] = printReturn
+    printFn["function"] = printFunction
+    printFn["ret"] = printFuncReturn  
 
 
 def printAst(pyFile, root, printState):

@@ -2,8 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import argparse
-from pyTranslate import *
-from typing import List, Dict
+from pytestTranslate import *
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -11,6 +10,7 @@ inputFns = ["read"]
 outputFns = ["write"]
 summaries = {}
 asts = {}
+functionList = []
 
 cleanup = True
 
@@ -30,7 +30,13 @@ class ParseState:
         )
 
 
-def parseTree(root, state) -> List[Dict]:
+def loadFunction(root):
+    for element in root.iter():
+        if element.tag == "function":
+            functionList.append(element.attrib["name"])
+
+
+def parseTree(root, state):
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         summaries[root.attrib["name"]] = None
@@ -56,6 +62,9 @@ def parseTree(root, state) -> List[Dict]:
     elif root.tag == "argument":
         return [{"tag": "arg", "name": root.attrib["name"]}]
 
+   # elif root.tag == "name":
+        #return [{"tag":"arg", "name":root.attrib["id"]}]
+
     elif root.tag == "declaration":
         decVars = []
         decType = {}
@@ -66,12 +75,16 @@ def parseTree(root, state) -> List[Dict]:
                 decVars = parseTree(node, state)
         prog = []
         for var in decVars:
+            if state.subroutine["name"] in functionList and var["name"] in state.args:
+                state.subroutine["args"][state.args.index(var["name"])]["type"] = decType["type"]
+                continue
             prog.append(decType.copy())
             prog[-1].update(var)
             if var["name"] in state.args:
                 state.subroutine["args"][state.args.index(var["name"])][
                     "type"
                 ] = decType["type"]
+        print (prog)    
         return prog
 
     elif root.tag == "variable":
@@ -161,6 +174,13 @@ def parseTree(root, state) -> List[Dict]:
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
+        elif root.attrib["id"] in functionList and state.subroutine["tag"] != "function":
+            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+            for node in root:
+                fn["args"] += parseTree(node, state)
+            return [fn]
+       # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
+        #    fn = {"tag": "return", "name": root.attrib["id"]
         else:
             ref = {"tag": "ref", "name": root.attrib["id"]}
             subscripts = []
@@ -177,7 +197,27 @@ def parseTree(root, state) -> List[Dict]:
                 assign["target"] = parseTree(node, state)
             elif node.tag == "value":
                 assign["value"] = parseTree(node, state)
-        return [assign]
+               # if assign["target"][0]["name"] in functionList:
+                #    assign["value"][0]["tag"] = "ret"
+        if assign["target"][0]["name"] in functionList:
+            assign["value"][0]["tag"] = "ret"
+            #print (assign["value"])
+            return assign["value"]
+        else:    
+            return [assign]
+
+    elif root.tag == "function":
+        subroutine = {"tag":root.tag, "name":root.attrib["name"]}
+       # functionList.append(root.attrib["name"])
+        summaries[root.attrib["name"]] = None
+        for node in root:
+            if node.tag == "header":
+                subroutine["args"] = parseTree(node, state)
+            elif node.tag == "body":
+                subState = state.copy(subroutine)
+                subroutine["body"] = parseTree(node, subState)
+        asts[root.attrib["name"]] = [subroutine]
+        return [subroutine]
 
     elif root.tag == "exit":
         return [{"tag": "exit"}]
@@ -203,9 +243,11 @@ def printAstTree(astFile, tree, blockVal):
     parentVal = blockVal
     for node in tree:
         if parentVal != blockVal:
-            astFile.write(f'\tB{parentVal} -> B{blockVal}\n')
+            astFile.write(
+                "\tB" + str(parentVal) + " -> B" + str(blockVal) + "\n"
+            )
             parentVal = blockVal
-        block = f'\tB{blockVal} [label="'
+        block = "\tB" + str(blockVal) + ' [label="'
         blockVal += 1
         for key in node:
             if not isinstance(node[key], list):
@@ -214,236 +256,19 @@ def printAstTree(astFile, tree, blockVal):
         astFile.write(block)
         for key in node:
             if isinstance(node[key], list) and bool(node[key]):
-                astFile.write(f'\tB{parentVal} -> B{blockVal} [label="{key}"]\n')
+                astFile.write(
+                    "\tB"
+                    + str(parentVal)
+                    + " -> B"
+                    + str(blockVal)
+                    + ' [label="'
+                    + str(key)
+                    + '"]\n'
+                )
                 blockVal = printAstTree(astFile, node[key], blockVal)
 
     return blockVal
 
-
-def printPython1(
-    pyFile, root, sep, add, printFirst, definedVars, globalVars, indexRef
-):
-
-    for node in root:
-        if printFirst:
-            pyFile.write(sep)
-        else:
-            printFirst = True
-
-        if node["tag"] == "variable":
-            if (
-                node["name"] not in definedVars
-                and node["name"] not in globalVars
-            ):
-                definedVars += [node["name"]]
-                # dataType = node['type']
-                initVal = 0
-                if node["type"] == "DOUBLE":
-                    # dataType = 'DOUBLE PRECISION'
-                    initVal = 0.0
-                pyFile.write(f"{node['name']} = [{initVal}]")
-            else:
-                printFirst = False
-        elif node["tag"] == "subroutine" or node["tag"] == "program":
-            pyFile.write(f"def {node['name']}(")
-            args = []
-            printPython(
-                pyFile, node["args"], ", ", "", False, args, globalVars, False
-            )
-            pyFile.write("):")
-            printPython(
-                pyFile,
-                node["body"],
-                sep + add,
-                add,
-                True,
-                args,
-                globalVars,
-                True,
-            )
-        elif node["tag"] == "call":
-            pyFile.write(f"{node['name']}(")
-            printPython(
-                pyFile, node["args"], ", ", "", False, [], globalVars, False
-            )
-            pyFile.write(")")
-        elif node["tag"] == "arg":
-            pyFile.write("{node['name']}")
-            definedVars += [node["name"]]
-        # elif node['tag'] == 'variable':
-        #    pass #skip
-        elif node["tag"] == "do":
-            pyFile.write("for ")
-            printPython(
-                pyFile,
-                node["header"],
-                "",
-                "",
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-            pyFile.write(":")
-            printPython(
-                pyFile,
-                node["body"],
-                sep + add,
-                add,
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-        elif node["tag"] == "index":
-            # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high']))
-            pyFile.write(f"{node['name']}[0] in range(")
-            printPython(
-                pyFile,
-                node["low"],
-                "",
-                "",
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-            pyFile.write(", ")
-            printPython(
-                pyFile,
-                node["high"],
-                "",
-                "",
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-            pyFile.write("+1)")
-        elif node["tag"] == "if":
-            pyFile.write("if ")
-            printPython(
-                pyFile,
-                node["header"],
-                "",
-                "",
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-            pyFile.write(":")
-            printPython(
-                pyFile,
-                node["body"],
-                sep + add,
-                add,
-                True,
-                definedVars,
-                globalVars,
-                True,
-            )
-            if "else" in node:
-                pyFile.write(sep)
-                pyFile.write("else:")
-                printPython(
-                    pyFile,
-                    node["else"],
-                    sep + add,
-                    add,
-                    True,
-                    definedVars,
-                    globalVars,
-                    True,
-                )
-        elif node["tag"] == "op":
-            if indexRef == False:
-                pyFile.write("[")
-            if "right" in node:
-                pyFile.write("(")
-                printPython(
-                    pyFile,
-                    node["left"],
-                    "",
-                    "",
-                    True,
-                    definedVars,
-                    globalVars,
-                    True,
-                )
-                operator_dict = {
-                    ".ne.":" != ",
-                    ".gt.": " > ",
-                    ".eq.": " == ",
-                    ".lt.": " < ",
-                    ".le.": " <= "
-                }
-                op =node["operator"].lower()
-                if op in operator_dict:
-                    pyFile.write(operator_dict[op])
-                else:
-                    pyFile.write(f" {node['operator']} ")
-                printPython(
-                    pyFile,
-                    node["right"],
-                    "",
-                    "",
-                    True,
-                    definedVars,
-                    globalVars,
-                    True,
-                )
-                pyFile.write(")")
-            else:
-                pyFile.write(f"{node['operator']}(")
-                printPython(
-                    pyFile,
-                    node["left"],
-                    "",
-                    "",
-                    True,
-                    definedVars,
-                    globalVars,
-                    True,
-                )
-                pyFile.write(")")
-            if indexRef == False:
-                pyFile.write("]")
-        elif node["tag"] == "literal":
-            pyFile.write(f"{node['value']}")
-        elif node["tag"] == "ref":
-            pyFile.write(f"{node['name']}")
-            if indexRef:
-                pyFile.write(f"[0]")
-        elif node["tag"] == "assignment":
-            printPython(
-                pyFile,
-                node["target"],
-                "",
-                "",
-                False,
-                definedVars,
-                globalVars,
-                True,
-            )
-            pyFile.write(" = ")
-            printPython(
-                pyFile,
-                node["value"],
-                "",
-                "",
-                False,
-                definedVars,
-                globalVars,
-                True,
-            )
-        elif node["tag"] == "return":
-            pyFile.write("return")
-        elif node["tag"] == "exit":
-            pyFile.write("sys.exit(0)")
-        else:
-            print(f"unknown tag: {node['tag']}")
-            sys.exit(1)
 
 
 def analyze(files, gen):
@@ -452,60 +277,22 @@ def analyze(files, gen):
     ast = []
     for f in files:
         tree = ET.parse(f)
+        loadFunction(tree)
+    for f in files:
+        tree = ET.parse(f)
         ast += parseTree(tree.getroot(), ParseState())
 
     # printPython(sys.stdout, ast, "\n", "  ", True, [], [], True)
     pyFile = open(gen, "w")
+    infoName = gen.split(".")[0] + ".nfo"
+    #print (infoName)
+    infoFile = open(infoName, "w")
+    for functionName in functionList:
+        infoFile.write(functionName + '\n')
+    #print (functionList)
     printPython(pyFile, ast)
     pyFile.close()
-
-    # astFile = open("ast.dot", "w")
-    # printAst(astFile, ast)
-    # astFile.close()
-
-    # outputFiles.append("ast.dot")
-    # print "Building Function Summaries"
-
-    # computeSummaries()
-
-    # dgFile = open("summaries.dot", "w")
-    # printSummaries(dgFile)
-    # dgFile.close()
-
-    # outputFiles.append("summaries.dot")
-
-    # if not bool(gen):
-    #    gen = []
-    #    for ast in asts:
-    #        if asts[ast][0]['tag'] == 'program':
-    #            gen.append(ast)
-
-    # for name in gen:
-    #    print "Processing Clean " + name
-    #    progDeps = evalSummary(summaries[name], {}, {}, {}, set())
-    #    dgFilename = name + "_clean.dot"
-    #    dgFile = open(dgFilename, "w")
-    #    printDg(dgFile, progDeps)
-    #    dgFile.close()
-    #    outputFiles.append(dgFilename)
-
-    # cleanup = False
-
-    # for name in summaries:
-    #    summaries[name] = None
-
-    # computeSummaries()
-
-    # for name in gen:
-    #    print "Processing Dirty " + name
-    #    progDeps = evalSummary(summaries[name], {}, {}, {}, set())
-    #    dgFilename = name + "_dirty.dot"
-    #    dgFile = open(dgFilename, "w")
-    #    printDg(dgFile, progDeps)
-    #    dgFile.close()
-    #    outputFiles.append(dgFilename)
-
-    # return outputFiles
+    infoFile.close()
 
 
 def main():
