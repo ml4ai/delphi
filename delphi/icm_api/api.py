@@ -4,16 +4,16 @@ from datetime import datetime, date
 from typing import Optional, List
 from delphi.bmi import initialize
 from delphi.utils import flatten
-from flask import Flask, jsonify, request
+from flask import jsonify, request, Blueprint
 from delphi.icm_api.models import *
-from pprint import pprint
+from delphi.paths import data_dir
 import numpy as np
 
-app = Flask(__name__)
+bp = Blueprint("icm_api", __name__)
 
 
 def dress_model_for_icm_api(model):
-    initialize(model, "variables.csv")
+    initialize(model, data_dir / "variables.csv")
     today = date.today().isoformat()
     for n in model.nodes(data=True):
         n[1]["id"] = uuid4()
@@ -50,7 +50,9 @@ def dress_model_for_icm_api(model):
         e[2]["lastUpdated"] = today
         e[2]["types"] = ["causal"]
         e[2]["description"] = f"{e[0]} influences {e[1]}."
-        e[2]["confidence"] = np.mean([s.belief for s in e[2]['InfluenceStatements']])
+        e[2]["confidence"] = np.mean(
+            [s.belief for s in e[2]["InfluenceStatements"]]
+        )
         e[2]["label"] = f"{e[0]} influences {e[1]}."
         e[2]["strength"] = abs(np.median(e[2]["betas"]) / max_mean_betas)
         e[2]["reinforcement"] = np.mean(
@@ -63,217 +65,172 @@ def dress_model_for_icm_api(model):
     return model
 
 
-with open("delphi_cag.pkl", "rb") as f:
-    model = dress_model_for_icm_api(pickle.load(f))
-
-models = {str(model.id): model}
-
-
-@app.route("/icm", methods=["POST"])
+@bp.route("/icm", methods=["POST"])
 def createNewICM():
     """ Create a new ICM"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm", methods=["GET"])
+@bp.route("/icm", methods=["GET"])
 def listAllICMs():
     """ List all ICMs"""
-    return jsonify(list(models.keys()))
+    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
-@app.route("/icm/<string:uuid>", methods=["GET"])
+@bp.route("/icm/<string:uuid>", methods=["GET"])
 def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
-    if uuid in models:
-        model = models[uuid]
-        return jsonify(
-            asdict(
-                ICMMetadata(
-                    id=uuid,
-                    estimatedNumberOfPrimitives=len(model)
-                    + len(model.edges()),
-                )
-            )
-        )
+    return jsonify(ICMMetadata.query.filter_by(id=uuid).first().serialize())
 
 
-@app.route("/icm/<string:uuid>", methods=["DELETE"])
+@bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
-    if uuid in models:
-        del models[uuid]
+    model = ICMMetadata.query.filter_by(id=uuid).first()
+    db.session.delete(model)
+    db.session.commit()
+    return ("", 204)
 
 
-@app.route("/icm/<string:uuid>", methods=["PATCH"])
+@bp.route("/icm/<string:uuid>", methods=["PATCH"])
 def updateICMMetadata(uuid: str):
     """ Update the metadata for an existing ICM"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/primitive", methods=["GET"])
+@bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    model = models[uuid]
-    nodes = [
-        CausalVariable(
-            id=n[1]["id"],
-            units=n[1]["units"],
-            label=n[1]["label"],
-            description=n[1]["description"],
-            lastUpdated=n[1]["lastUpdated"],
-            lastKnownValue=n[1]["lastKnownValue"],
-            range=n[1]["range"],
-        )
-        for n in model.nodes(data=True)
-    ]
-    edges = [
-        CausalRelationship(
-            id=e[2]["id"],
-            source=e[2]["source"],
-            target=e[2]["target"],
-            namespaces=e[2]["namespaces"],
-            confidence=e[2]["confidence"],
-            types=e[2]["types"],
-            strength=e[2]["strength"],
-            lastUpdated=e[2]["lastUpdated"],
-            description=e[2]["description"],
-            label=e[2]["label"],
-            reinforcement=e[2]["reinforcement"],
-        )
-        for e in model.edges(data=True)
-    ]
-    return jsonify([asdict(x) for x in nodes + edges])
+    G = DelphiModel.query.filter_by(id=uuid).first()
+    print(G.model.nodes())
+    return "ok"
 
 
-@app.route("/icm/<string:uuid>/primitive", methods=["POST"])
+@bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
 def createICMPrimitive(uuid: str):
     """ create a new causal primitive"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["GET"])
+@bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["GET"])
 def getICMPrimitive(uuid: str, prim_id: str):
     """ returns a specific causal primitive"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["PATCH"])
+@bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["PATCH"])
 def updateICMPrimitive(uuid: str, prim_id: str):
     """ update an existing ICM primitive (can use this for disable?)"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["DELETE"])
+@bp.route("/icm/<string:uuid>/primitive/<string:prim_id>", methods=["DELETE"])
 def deleteICMPrimitive(uuid: str, prim_id: str):
     """ delete (disable) this ICM primitive"""
-    pass
+    return ("", 415)
 
 
-@app.route(
+@bp.route(
     "/icm/<string:uuid>/primitive/<string:prim_id>/evidence", methods=["GET"]
 )
 def getEvidenceForID(uuid: str, prim_id: str):
     """ returns evidence for a causal primitive (needs pagination support)"""
-    pass
+    return ("", 415)
 
 
-@app.route(
+@bp.route(
     "/icm/<string:uuid>/primitive/<string:prim_id>/evidence", methods=["POST"]
 )
 def attachEvidence(uuid: str, prim_id: str):
     """ attach evidence to a primitive"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["GET"])
+@bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["GET"])
 def getEvidenceByID(uuid: str, evid_id: str):
     """ returns an individual piece of evidence"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["PATCH"])
+@bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["PATCH"])
 def updateEvidence(uuid: str, evid_id: str):
     """ update evidence item"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["DELETE"])
+@bp.route("/icm/<string:uuid>/evidence/<string:evid_id>", methods=["DELETE"])
 def deleteEvidence(uuid: str, evid_id: str):
     """ delete evidence item"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/recalculate", methods=["POST"])
+@bp.route("/icm/<string:uuid>/recalculate", methods=["POST"])
 def recalculateICM(uuid: str):
     """ indication that it is safe to recalculate/recompose model after performing some number of CRUD operations"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/archive", methods=["POST"])
+@bp.route("/icm/<string:uuid>/archive", methods=["POST"])
 def archiveICM(uuid: str):
     """ archive an ICM"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/branch", methods=["POST"])
+@bp.route("/icm/<string:uuid>/branch", methods=["POST"])
 def branchICM(uuid: str):
     """ branch an ICM"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/fuse", methods=["POST"])
+@bp.route("/icm/fuse", methods=["POST"])
 def fuseICMs():
     """ fuse two ICMs"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/sparql", methods=["POST"])
+@bp.route("/icm/<string:uuid>/sparql", methods=["POST"])
 def query(uuid: str):
     """ Query the ICM using SPARQL"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
+@bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-    pass
+    return ("", 204)
 
 
-@app.route("/icm/<string:uuid>/experiment", methods=["GET"])
+@bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
 def getExperiments(uuid: str):
     """ list active (running or completed) experiments"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["GET"])
+@bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["GET"])
 def getExperiment(uuid: str, exp_id: str):
     """ Fetch experiment results"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["DELETE"])
+@bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["DELETE"])
 def deleteExperiment(uuid: str, exp_id: str):
     """ Delete experiment"""
-    pass
+    return ("", 415)
 
 
-@app.route("/icm/<string:uuid>/traverse/<string:prim_id>", methods=["POST"])
+@bp.route("/icm/<string:uuid>/traverse/<string:prim_id>", methods=["POST"])
 def traverse(uuid: str, prim_id: str):
     """ traverse through the ICM using a breadth-first search"""
-    pass
+    return ("", 415)
 
 
-@app.route("/version", methods=["GET"])
+@bp.route("/version", methods=["GET"])
 def getVersion():
     """ Get the version of the ICM API supported"""
-    pass
+    return ("", 415)
 
 
-@app.route("/ping", methods=["GET"])
+@bp.route("/ping", methods=["GET"])
 def ping():
     """ Get the health status of the ICM server"""
-    pass
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return ("", 415)
