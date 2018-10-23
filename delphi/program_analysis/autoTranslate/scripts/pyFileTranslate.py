@@ -106,7 +106,7 @@ def printProgram(pyFile, node, printState):
 
 
 def printCall(pyFile, node, printState):
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("[")
 
     pyFile.write(f"{node['name']}(")
@@ -119,7 +119,7 @@ def printCall(pyFile, node, printState):
     )
     pyFile.write(")")
 
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("]")
 
 
@@ -220,7 +220,7 @@ def printIf(pyFile, node, printState):
 
 
 def printOp(pyFile, node, printState):
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("[")
     if "right" in node:
         pyFile.write("(")
@@ -256,7 +256,7 @@ def printOp(pyFile, node, printState):
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
         pyFile.write(")")
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("]")
 
 
