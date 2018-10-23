@@ -5,106 +5,55 @@ from ruamel.yaml import YAML
 from typing import List
 from pprint import pprint
 
-
-def get_ref(ref_string):
-    return ref_string.split("/")[-1]
-
-
-class Property(object):
-    def __init__(self, schema_name, property_name, dictionary, is_required: bool):
-        self.schema_name = schema_name
-        self.name = property_name
-        self.dictionary = dictionary
-        self.is_required = is_required
-        self.property_type = self.dictionary.get("type")
-        if self.property_type is not None:
-            self.linetype = "Column"
-            self.args = [self.property_type.capitalize()]
-            if self.name == "id":
-                self.args.append("primary_key = True")
-            if not is_required:
-                self.args.append("nullable = True")
-            self.property_line = f"{self.name} = db.{self.linetype}({', '.join(self.args)})"
-
-        else:
-            self.linetype = "relationship"
-            self.args = [f'"{get_ref(self.dictionary.get("$ref", ""))}"']
-            self.args.append(f'backref = "{self.schema_name.lower()}"')
-            self.property_line = f'{self.name} = db.{self.linetype}({", ".join(self.args)})'
-
-    def __repr__(self):
-        return self.property_line
-
-
-class Model(object):
-    def __init__(self, schema_name, schema_dict):
-        self.indent = "    "
-        self.schema_name = schema_name
-        self.schema_dict = schema_dict
-        self.type = schema_dict.get("type")
-        if self.schema_dict.get("properties") is not None:
-            self.properties = self.schema_dict["properties"]
-        elif self.schema_dict.get("allOf") is not None:
-            self.properties = self.schema_dict["allOf"][1]["properties"]
-        else:
-            self.properties = {"value": self.schema_dict}
-
-        self.required_properties = schema_dict.get("required", [])
-
-        self.tablename = schema_name.lower()
-        placeholder = f"Placeholder docstring for class {self.schema_name}."
-        self.docstring = (
-            self.indent
-            + f'""" {self.schema_dict.get("description", placeholder)} """\n'
-        )
-
-        if self.schema_dict.get("allOf") is not None:
-            self.parent = get_ref(self.schema_dict["allOf"][0]["$ref"])
-            self.superclasses = [self.parent]
-        else:
-            self.parent = None
-            self.superclasses = ["db.Model", "Serializable"]
-
-        self.class_declaration = (
-            f"\n\nclass {schema_name}" + f"({', '.join(self.superclasses)}):"
-        )
-
-        self.properties = [
-            self.process_property(
-                property_name,
-                property_dict,
-                property_name in self.required_properties,
-            )
-            for property_name, property_dict in self.properties.items()
-        ]
-
-    def process_property(self, property_name, property_dict, required):
-        return Property(self.schema_name, property_name, property_dict, required)
-
-    def __repr__(self):
-        lines = [self.class_declaration, self.docstring]
-        if self.parent is None:
-            lines.append(f'    __tablename__ = "{self.tablename}"')
-        for p in self.properties:
-            lines.append(f"    {p}")
-        return '\n'.join(lines)
-
-
-def write_models(yml):
-    global_schema_list = []
-    schemas = yml["components"]["schemas"]
-    schema_lines_dict = {}
-    module_lines = []
-    module_lines.append(
-        """\
+MODELS_PREAMBLE = '''\
+import json
+from uuid import uuid4
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, PickleType
 from flask_sqlalchemy import SQLAlchemy
 from delphi.icm_api import db
+from sqlalchemy import PickleType
 from sqlalchemy.inspection import inspect
+from sqlalchemy.ext import mutable
+from sqlalchemy.sql import operators
+from sqlalchemy.types import TypeDecorator
 
+class JsonEncodedList(db.TypeDecorator):
+    """Enables list storage by encoding and decoding on the fly."""
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return '[]'
+        else:
+            return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return []
+        else:
+            return json.loads(value)
+
+mutable.MutableList.associate_with(JsonEncodedList)
+
+class JsonEncodedDict(db.TypeDecorator):
+    """Enables JsonEncodedDict storage by encoding and decoding on the fly."""
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return '{}'
+        else:
+            return json.dumps(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return {}
+        else:
+            return json.loads(value)
+
+mutable.MutableDict.associate_with(JsonEncodedDict)
 
 class Serializable(object):
     def serialize(self):
@@ -121,158 +70,171 @@ class DelphiModel(db.Model):
     icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
                                  lazy=True, uselist=False)
     model = db.Column(db.PickleType)
-"""
-    )
+'''
 
-    def process_properties(
-        schema_name, schema, class_lines, is_db_object, parent=None
+
+def get_ref(ref_string):
+    return ref_string.split("/")[-1]
+
+
+class Property(object):
+    def __init__(
+        self,
+        schema_name,
+        property_name,
+        dictionary,
+        global_schema_dict,
+        is_required: bool,
     ):
-        placeholder = f"Placeholder docstring for class {schema_name}."
-        docstring = f"{schema.get('description', placeholder)}"
-        class_lines.append(f'    """ {docstring} """\n')
-        properties = schema["properties"]
-        tablename = schema_name.lower()
-        if is_db_object:
-            if parent is None:
-                class_lines.append(f'    __tablename__ = "{tablename}"')
-            polymorphy_annotation = (
-                f"    __mapper_args__ = {{'polymorphic_identity':'{tablename}'"
-            )
-            if schema["properties"].get("baseType") is not None:
-                polymorphy_annotation += ", 'polymorphic_on': baseType"
-            polymorphy_annotation += "}"
+        self.schema_name = schema_name
+        self.name = property_name
+        self.dictionary = dictionary
+        self.is_required = is_required
+        self.global_schema_dict = global_schema_dict
+        self.property_type = self.dictionary.get("type")
+        self.args = []
+        if self.name == "id":
+            self.args.append("primary_key = True")
+            if self.dictionary.get("format") == "uuid":
+                self.args.append("default = str(uuid4())")
 
-        required_properties = schema.get("required", [])
+        if not is_required:
+            self.args.append("nullable = True")
 
-        for property_name, property in sorted(
-            properties.items(), key=lambda x: x[0] not in required_properties
-        ):
+        if self.property_type is not None:
+            self.linetype = "Column"
+            self.property_type = {
+                "object": "JsonEncodedDict",
+                "array": "JsonEncodedList",
+            }.get(self.property_type, f"db.{self.property_type.capitalize()}")
+            self.args.insert(0, self.property_type)
 
-            property_ref = property.get("$ref", "").split("/")[-1]
-            if property_ref != "" and property_ref not in global_schema_list:
-                global_schema_list.append(property_ref)
-
-            # if the current property does not have type, use property_ref
-            # instead, so it won't be none.
-            property_type = property.get("type", property_ref)
-            print(property_name, property_type)
-            mapping = {
-                "boolean": "db.Boolean",
-                "integer": "db.Integer",
-                "number": "db.Float",
-                "string": "db.String",
-                "None": "",
-                # "array": "db.PickleType",
-                # "object": "db.PickleType",
-            }
-
-            type_annotation = mapping.get(property_type, f'"{property_ref}"')
-
-            # ------------------------------------------------------------
-            # if type_annotation == "List":
-            # property_type = properties[property]["items"]["type"]
-            # type_annotation = (
-            # f"{mapping.get(property_type, property_type)}"
-            # )
-
-            # baseType becomes the table name
-            if property.get("default") is not None:
-                default_value = f"{property['default']}"
-                type_annotation += f", default={default_value}"
-
-            kwargs = []
-
-            if property_name == "id":
-                kwargs.append(" primary_key=True")
+        else:
+            self.ref = get_ref(self.dictionary.get("$ref", ""))
+            if self.global_schema_dict[self.ref].get("enum") is not None:
+                self.linetype = "Column"
+                self.enum_values = [
+                    f'"{v}"' for v in self.global_schema_dict[self.ref]["enum"]
+                ]
+                self.args.insert(0, f"db.Enum({', '.join(self.enum_values)})")
             else:
-                kwargs.append(" unique=False")
-            if property_name not in required_properties:
-                kwargs.append(" nullable=True")
+                self.linetype = "relationship"
+                self.id_type = self.global_schema_dict[self.ref]["properties"][
+                    "id"
+                ]["type"]
+                self.id_args = [
+                    f"db.{self.id_type.capitalize()}",
+                    f"db.ForeignKey('{self.ref.lower()}.id'",
+                ]
+                self.args = [f'"{self.ref}"']
+                self.args.append(f"foreign_keys = [{self.name}_id]")
+                # self.args.append("nullable=True")
+                # self.args.append(f'backref = "{self.schema_name.lower()}"')
 
-            if is_db_object:
-                if property_ref != "":
-                    class_lines.append(
-                        f"    {property_name} = db.relationship"
-                        f'({type_annotation}, backref="{schema_name.lower()}")'
-                    )
-                else:
-                    class_lines.append(
-                        f"    {property_name} = db.Column({type_annotation},"
-                        f"{','.join(kwargs)})"
-                    )
-            else:
-                class_lines.append(f'    baseType = "{schema_name}"')
+        self.property_line = (
+            f'{self.name} = db.{self.linetype}({", ".join(self.args)})'
+        )
 
-        if is_db_object and parent is not None:
-            class_lines.append(
-                "    id = db.Column(db.String,"
-                f" ForeignKey('{parent.lower()}.id'), primary_key=True)"
+    def __repr__(self):
+        if self.linetype == "relationship":
+            self.property_line = "\n    ".join(
+                [
+                    f"{self.name}_id = db.Column({', '.join(self.id_args)}), nullable=True)",
+                    self.property_line,
+                ]
             )
+        return self.property_line
 
-        if schema_name in [
+
+class DatabaseModel(object):
+    def __init__(self, schema_name, schema_dict, global_schema_dict):
+        self.schema_name = schema_name
+        self.schema_dict = schema_dict
+        self.global_schema_dict = global_schema_dict
+        self.type = self.schema_dict.get("type")
+        if self.schema_dict.get("properties") is not None:
+            self.properties = self.schema_dict["properties"]
+        elif self.schema_dict.get("allOf") is not None:
+            self.properties = self.schema_dict["allOf"][1]["properties"]
+        else:
+            self.properties = {"value": self.schema_dict}
+
+        self.required_properties = schema_dict.get("required", [])
+
+        self.tablename = schema_name.lower()
+        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.tablename}'"
+        placeholder = f"Placeholder docstring for class {self.schema_name}."
+        self.docstring = (
+            f'    """ {self.schema_dict.get("description", placeholder)} """\n'
+        )
+
+        if self.schema_dict.get("allOf") is not None:
+            self.parent = get_ref(self.schema_dict["allOf"][0]["$ref"])
+            self.superclasses = [self.parent]
+        else:
+            if self.schema_dict["properties"].get("baseType") is not None:
+                self.polymorphy_annotation += ", 'polymorphic_on': baseType"
+            self.parent = None
+            self.superclasses = ["db.Model", "Serializable"]
+
+        self.class_declaration = (
+            f"\n\nclass {schema_name}" + f"({', '.join(self.superclasses)}):"
+        )
+
+        self.properties = [
+            self.process_property(
+                property_name,
+                property_dict,
+                property_name in self.required_properties,
+            )
+            for property_name, property_dict in self.properties.items()
+        ]
+
+        self.polymorphy_annotation += "}"
+
+    def process_property(self, property_name, property_dict, required):
+        return Property(
+            self.schema_name,
+            property_name,
+            property_dict,
+            self.global_schema_dict,
+            required,
+        )
+
+    def __repr__(self):
+        lines = [self.class_declaration, self.docstring]
+        if self.parent is None:
+            lines.append(f'    __tablename__ = "{self.tablename}"')
+        else:
+            lines.append(
+                f'    baseType = db.Column(db.String, default="{self.schema_name}")'
+            )
+        for p in self.properties:
+            lines.append(f"    {p}")
+        if self.schema_name in [
             "ICMMetadata",
             "CausalVariable",
             "CausalRelationship",
         ]:
-            class_lines.append(
+            lines.append(
                 "    model_id = db.Column(db.String,"
                 "db.ForeignKey('delphimodel.id'))"
             )
 
-        if is_db_object:
-            class_lines.append(polymorphy_annotation)
+        lines.append(self.polymorphy_annotation)
+        return "\n".join(lines)
 
-    def to_class(schema_name, schema):
-        is_db_object = False
-        class_lines = ["\n"]
 
-        if schema.get("type") == "object":
-            object_type = "parent"
-            if schema["properties"].get("id") is not None:
-                is_db_object = True
-                base = "db.Model, Serializable"
-            else:
-                base = "object"
-            class_declaration = f"class {schema_name}({base}):"
-            class_lines.append(class_declaration)
-            process_properties(schema_name, schema, class_lines, is_db_object)
+class DataclassModel(object):
+    def __init__(self, schema_name, schema_dict):
+        self.decorator
+        self.schema_name = schema_name
 
-        elif schema.get("allOf") is not None:
-            parents = [
-                item["$ref"].split("/")[-1]
-                for item in schema["allOf"]
-                if item.get("$ref")
-            ]
-            if schemas[parents[0]]["properties"].get("id") is not None:
-                is_db_object = True
-            schema = schema["allOf"][1]
-            class_lines.append("@dataclass")
-            class_declaration = f"class {schema_name}({','.join(parents)}):"
-            class_lines.append(class_declaration)
-
-            process_properties(
-                schema_name, schema, class_lines, is_db_object, parents[0]
-            )
-
-        elif "enum" in schema:
-            class_lines.append("@unique")
-            class_declaration = f"class {schema_name}(Enum):"
-            class_lines.append(class_declaration)
-            for option in schema["enum"]:
-                class_lines.append(f'    {option} = "{option}"')
-
-        schema_lines_dict[schema_name] = class_lines
-        if schema_name not in global_schema_list:
-            global_schema_list.append(schema_name)
-
-    for schema_name, schema in schemas.items():
-        to_class(schema_name, schema)
-
-    for schema_name in global_schema_list:
-        module_lines += schema_lines_dict[schema_name]
-
-    with open("models.py", "w") as f:
-        f.write("\n".join(module_lines))
+    def __repr__(self):
+        lines = []
+        lines.append("@dataclass")
+        lines.append(f"class {schema_name})")
+        return "\n".join(lines)
 
 
 def construct_view_lines(url, metadata) -> List[str]:
@@ -338,8 +300,17 @@ if __name__ == "__main__":
         yml = yaml.load(f)
 
     schemas = yml["components"]["schemas"]
-    models = [Model(k, v) for k, v in schemas.items()]
-    for m in models:
-        print(m)
+    db_models = [
+        DatabaseModel(k, v, schemas)
+        for k, v in schemas.items()
+        if v.get("enum") is None
+        and v.get("properties") is not None
+        and v.get("properties").get("id") is not None
+    ]
+    other_models = []
+    with open("models.py", "w") as f:
+        f.write(MODELS_PREAMBLE)
+        for db_model in db_models:
+            f.write(str(db_model))
     # write_views(yml)
     # write_models(yml)
