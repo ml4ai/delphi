@@ -1,346 +1,203 @@
+import json
+from uuid import uuid4
 from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
-
-
-@unique
-class ICMProvider(Enum):
-    BAE = "BAE"
-    BBN = "BBN"
-    STR = "STR"
-    DUMMY = "DUMMY"
-
-
-@unique
-class LifecycleState(Enum):
-    PROPOSED = "PROPOSED"
-    APPROVED = "APPROVED"
-    EXPERIMENTAL = "EXPERIMENTAL"
-    OPERATIONAL = "OPERATIONAL"
-    SUSPENDED = "SUSPENDED"
-    ARCHIVED = "ARCHIVED"
-    CREATED = "CREATED"
-
-
-@dataclass
-class User:
-    """Placeholder docstring for class User. """
-
-    basetype: str = "User"
-    id: int = None
-    username: Optional[str] = None
-    firstName: Optional[str] = None
-    lastName: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
-    phone: Optional[str] = None
-    userStatus: Optional[int] = None
-
-
-@dataclass
-class ICMMetadata:
-    """Placeholder docstring for class ICMMetadata. """
-
-    basetype: str = "ICMMetadata"
-    id: str = None
-    icmProvider: Optional[ICMProvider] = None
-    title: Optional[str] = None
-    version: Optional[int] = None
-    created: Optional[str] = None
-    createdByUser: Optional[User] = None
-    lastAccessed: Optional[str] = None
-    lastAccessedByUser: Optional[User] = None
-    lastUpdated: Optional[str] = None
-    lastUpdatedByUser: Optional[User] = None
-    estimatedNumberOfPrimitives: Optional[int] = None
-    lifecycleState: Optional[LifecycleState] = None
-    derivation: Optional[List[str]] = None
-
-
-@dataclass
-class ServerResponse:
-    """Placeholder docstring for class ServerResponse. """
-
-    basetype: str = "ServerResponse"
-    id: Optional[str] = None
-    message: Optional[str] = None
-
-
-@dataclass
-class Range:
-    """Top level range object used in a CausalVariable """
-
-    basetype: str = "Range"
-
-
-@dataclass
-class IntegerRange(Range):
-    """The range for an integer value """
-
-    basetype: str = "IntegerRange"
-    range: Optional[object] = None
-
-
-@dataclass
-class FloatRange(Range):
-    """The range for a floating point value """
-
-    basetype: str = "FloatRange"
-    range: Optional[object] = None
-
-
-@dataclass
-class BooleanRange(Range):
-    """Denotes a boolean range """
-
-    basetype: str = "BooleanRange"
-    range: Optional[object] = None
-
-
-@dataclass
-class EnumRange(Range):
-    """The values of an enumeration """
-
-    basetype: str = "EnumRange"
-    range: Optional[List[str]] = None
-
-
-@dataclass
-class DistributionEnumRange(Range):
-    """The range of classifications that can be reported in a DistributionEnumValue """
-
-    basetype: str = "DistributionEnumRange"
-    range: Optional[List[str]] = None
-
-
-@dataclass
-class Value:
-    """Top level value object used in a TimeSeriesValue """
-
-    basetype: str = "Value"
-
-
-@dataclass
-class IntegerValue(Value):
-    """An integer value """
-
-    basetype: str = "IntegerValue"
-    value: Optional[int] = None
-
-
-@dataclass
-class FloatValue(Value):
-    """A floating point value """
-
-    basetype: str = "FloatValue"
-    value: Optional[float] = None
-
-
-@dataclass
-class BooleanValue(Value):
-    """A boolean value """
-
-    basetype: str = "BooleanValue"
-    value: Optional[bool] = None
-
-
-@dataclass
-class EnumValue(Value):
-    """An enumeration value defined in the EnumRange for the CausalVariable """
-
-    basetype: str = "EnumValue"
-    value: Optional[str] = None
-
-
-@dataclass
-class DistributionEnumValue(Value):
-    """A distribution of classifications with non-zero probabilities. The classifications must be defined in the DistributionEnumRange of the CausalVariable and the probabilities must add to 1.0. """
-
-    basetype: str = "DistributionEnumValue"
-    value: Optional[object] = None
-
-
-@unique
-class TimeSeriesState(Enum):
-    ACTIVE = "ACTIVE"
-    INACTIVE = "INACTIVE"
-    UNKNOWN = "UNKNOWN"
-
-
-@unique
-class TimeSeriesTrend(Enum):
-    LARGE_INCREASE = "LARGE_INCREASE"
-    SMALL_INCREASE = "SMALL_INCREASE"
-    NO_CHANGE = "NO_CHANGE"
-    SMALL_DECREASE = "SMALL_DECREASE"
-    LARGE_DECREASE = "LARGE_DECREASE"
-
-
-@dataclass
-class TimeSeriesValue:
-    """Time series value at a particular time """
-
-    basetype: str = "TimeSeriesValue"
-    time: str = None
-    value: Value = None
-    active: Optional[TimeSeriesState] = None
-    trend: Optional[TimeSeriesTrend] = None
-
-
-@dataclass
-class CausalPrimitive:
-    """Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
-
-    basetype: str = "CausalPrimitive"
-    namespaces: Optional[object] = None
-    types: Optional[List[str]] = None
-    editable: Optional[bool] = True
-    disableable: Optional[bool] = True
-    disabled: Optional[bool] = False
-    id: Optional[str] = None
-    label: Optional[str] = None
-    description: Optional[str] = None
-    lastUpdated: Optional[str] = None
-
-
-@dataclass
-class Entity(CausalPrimitive):
-    """API definition of an entity.  """
-
-    basetype: str = "Entity"
-    confidence: Optional[float] = None
-
-
-@dataclass
-class CausalVariable(CausalPrimitive):
-    """API definition of a causal variable.  """
-
-    basetype: str = "CausalVariable"
-    range: Range = None
-    units: Optional[str] = None
-    backingEntities: Optional[List[str]] = None
-    lastKnownValue: Optional[TimeSeriesValue] = None
-    confidence: Optional[float] = None
-
-
-@dataclass
-class ConfigurationVariable(CausalPrimitive):
-    """Account for pieces of the causal graph that may help interpretation or expose "knobs" that might be editable by the user. """
-
-    basetype: str = "ConfigurationVariable"
-    units: Optional[str] = None
-    lastKnownValue: Optional[TimeSeriesValue] = None
-    range: Optional[Range] = None
-
-
-@dataclass
-class CausalRelationship(CausalPrimitive):
-    """API defintion of a causal relationship. Indicates causality between two causal variables. """
-
-    basetype: str = "CausalRelationship"
-    source: object = None
-    target: object = None
-    confidence: Optional[float] = None
-    strength: Optional[float] = None
-    reinforcement: Optional[bool] = None
-
-
-@dataclass
-class Relationship(CausalPrimitive):
-    """API definition of a generic relationship between two primitives """
-
-    basetype: str = "Relationship"
-    source: object = None
-    target: object = None
-    confidence: Optional[float] = None
-
-
-@dataclass
-class Evidence:
-    """Object that holds a reference to evidence (either KO from TA1 or human provided). """
-
-    basetype: str = "Evidence"
-    id: Optional[str] = None
-    link: Optional[str] = None
-    description: Optional[str] = None
-    category: Optional[str] = None
-    rank: Optional[int] = None
-
-
-@dataclass
-class Projection:
-    """Placeholder docstring for class Projection. """
-
-    basetype: str = "Projection"
-    numSteps: int = None
-    stepSize: str = None
-    startTime: Optional[str] = None
-
-
-@dataclass
-class Experiment:
-    """structure used for experimentation """
-
-    basetype: str = "Experiment"
-    id: Optional[str] = None
-    label: Optional[str] = None
-    options: Optional[object] = None
-
-
-@dataclass
-class ForwardProjection(Experiment):
-    """a foward projection experiment """
-
-    basetype: str = "ForwardProjection"
-    interventions: Optional[List[object]] = None
-    projection: Optional[Projection] = None
-
-
-@dataclass
-class SensitivityAnalysis(Experiment):
-    """a sensitivity analysis experiment """
-
-    basetype: str = "SensitivityAnalysis"
-    variables: Optional[List[str]] = None
-
-
-@dataclass
-class ExperimentResult:
-    """Notional model of experiment results """
-
-    basetype: str = "ExperimentResult"
-    id: Optional[str] = None
-
-
-@dataclass
-class ForwardProjectionResult(ExperimentResult):
-    """The result of a forward projection experiment """
-
-    basetype: str = "ForwardProjectionResult"
-    projection: Optional[Projection] = None
-    results: Optional[List[object]] = None
-
-
-@dataclass
-class SensitivityAnalysisResult(ExperimentResult):
-    """The result of a sensitivity analysis experiment """
-
-    basetype: str = "SensitivityAnalysisResult"
-    results: Optional[List[object]] = None
-
-
-@dataclass
-class Traversal:
-    """Placeholder docstring for class Traversal. """
-
-    basetype: str = "Traversal"
-    maxDepth: Optional[int] = None
-
-
-@dataclass
-class Version:
-    """Placeholder docstring for class Version. """
-
-    basetype: str = "Version"
-    icmVersion: Optional[str] = None
-    icmProviderVersion: Optional[str] = None
+from flask_sqlalchemy import SQLAlchemy
+from delphi.icm_api import db
+from sqlalchemy import PickleType
+from sqlalchemy.inspection import inspect
+from sqlalchemy.ext import mutable
+from sqlalchemy.sql import operators
+from sqlalchemy.types import TypeDecorator
+
+
+class JsonEncodedList(db.TypeDecorator):
+    """Enables list storage by encoding and decoding on the fly."""
+
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return "[]"
+        else:
+            return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return []
+        else:
+            return json.loads(value)
+
+
+mutable.MutableList.associate_with(JsonEncodedList)
+
+
+class JsonEncodedDict(db.TypeDecorator):
+    """Enables JsonEncodedDict storage by encoding and decoding on the fly."""
+
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return "{}"
+        else:
+            return json.dumps(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return {}
+        else:
+            return json.loads(value)
+
+
+mutable.MutableDict.associate_with(JsonEncodedDict)
+
+
+class Serializable(object):
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    @staticmethod
+    def serialize_list(l):
+        return [m.serialize() for m in l]
+
+
+class DelphiModel(db.Model):
+    __tablename__ = "delphimodel"
+    id = db.Column(db.String, primary_key=True)
+    icm_metadata = db.relationship(
+        "ICMMetadata", backref="delphimodel", lazy=True, uselist=False
+    )
+    model = db.Column(db.PickleType)
+
+
+class ICMMetadata(db.Model, Serializable):
+    """ Placeholder docstring for class ICMMetadata. """
+
+    __tablename__ = "icmmetadata"
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
+    icmProvider = db.Column(
+        db.Enum("BAE", "BBN", "STR", "DUMMY"), nullable=True
+    )
+    title = db.Column(db.String, nullable=True)
+    version = db.Column(db.Integer, nullable=True)
+    created = db.Column(db.String, nullable=True)
+    createdByUser_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=True
+    )
+    createdByUser = db.relationship("User", foreign_keys=[createdByUser_id])
+    lastAccessed = db.Column(db.String, nullable=True)
+    lastAccessedByUser_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=True
+    )
+    lastAccessedByUser = db.relationship(
+        "User", foreign_keys=[lastAccessedByUser_id]
+    )
+    lastUpdated = db.Column(db.String, nullable=True)
+    lastUpdatedByUser_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=True
+    )
+    lastUpdatedByUser = db.relationship(
+        "User", foreign_keys=[lastUpdatedByUser_id]
+    )
+    estimatedNumberOfPrimitives = db.Column(db.Integer, nullable=True)
+    lifecycleState = db.Column(
+        db.Enum(
+            "PROPOSED",
+            "APPROVED",
+            "EXPERIMENTAL",
+            "OPERATIONAL",
+            "SUSPENDED",
+            "ARCHIVED",
+            "CREATED",
+        ),
+        nullable=True,
+    )
+    derivation = db.Column(JsonEncodedList, nullable=True)
+    model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
+    __mapper_args__ = {"polymorphic_identity": "icmmetadata"}
+
+
+class User(db.Model, Serializable):
+    """ Placeholder docstring for class User. """
+
+    __tablename__ = "user"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=True)
+    firstName = db.Column(db.String, nullable=True)
+    lastName = db.Column(db.String, nullable=True)
+    email = db.Column(db.String, nullable=True)
+    password = db.Column(db.String, nullable=True)
+    phone = db.Column(db.String, nullable=True)
+    userStatus = db.Column(db.Integer, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "user"}
+
+
+class ServerResponse(db.Model, Serializable):
+    """ Placeholder docstring for class ServerResponse. """
+
+    __tablename__ = "serverresponse"
+    id = db.Column(
+        db.String, primary_key=True, default=str(uuid4()), nullable=True
+    )
+    message = db.Column(db.String, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "serverresponse"}
+
+
+class CausalPrimitive(db.Model, Serializable):
+    """ Top level object that contains common properties that would apply to any causal primitive (variable, relationship, etc.) """
+
+    __tablename__ = "causalprimitive"
+    baseType = db.Column(db.String)
+    namespaces = db.Column(JsonEncodedDict, nullable=True)
+    types = db.Column(JsonEncodedList, nullable=True)
+    editable = db.Column(db.Boolean, nullable=True)
+    disableable = db.Column(db.Boolean, nullable=True)
+    disabled = db.Column(db.Boolean, nullable=True)
+    id = db.Column(
+        db.String, primary_key=True, default=str(uuid4()), nullable=True
+    )
+    label = db.Column(db.String, nullable=True)
+    description = db.Column(db.String, nullable=True)
+    lastUpdated = db.Column(db.String, nullable=True)
+    __mapper_args__ = {
+        "polymorphic_identity": "causalprimitive",
+        "polymorphic_on": baseType,
+    }
+
+
+class Evidence(db.Model, Serializable):
+    """ Object that holds a reference to evidence (either KO from TA1 or human provided). """
+
+    __tablename__ = "evidence"
+    id = db.Column(
+        db.String, primary_key=True, default=str(uuid4()), nullable=True
+    )
+    link = db.Column(db.String, nullable=True)
+    description = db.Column(db.String, nullable=True)
+    category = db.Column(db.String, nullable=True)
+    rank = db.Column(db.Integer, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "evidence"}
+
+
+class Experiment(db.Model, Serializable):
+    """ structure used for experimentation """
+
+    __tablename__ = "experiment"
+    id = db.Column(
+        db.String, primary_key=True, default=str(uuid4()), nullable=True
+    )
+    label = db.Column(db.String, nullable=True)
+    options = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "experiment"}
+
+
+class ExperimentResult(db.Model, Serializable):
+    """ Notional model of experiment results """
+
+    __tablename__ = "experimentresult"
+    id = db.Column(
+        db.String, primary_key=True, default=str(uuid4()), nullable=True
+    )
+    __mapper_args__ = {"polymorphic_identity": "experimentresult"}
