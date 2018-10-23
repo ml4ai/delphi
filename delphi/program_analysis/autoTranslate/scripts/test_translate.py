@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import argparse
-from pytestTranslate import *
+from delphi.program_analysis.autoTranslate.scripts.pytestTranslate import *
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
