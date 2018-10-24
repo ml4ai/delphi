@@ -25,7 +25,7 @@ class JsonEncodedList(db.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is None:
-            return '[]'
+            return "[]"
         else:
             return str(value)
 
@@ -33,7 +33,7 @@ class JsonEncodedList(db.TypeDecorator):
         if value is None:
             return []
         else:
-            return json.loads(value)
+            return json.loads(value.replace("'", '"'))
 
 mutable.MutableList.associate_with(JsonEncodedList)
 
@@ -56,11 +56,11 @@ class JsonEncodedDict(db.TypeDecorator):
 mutable.MutableDict.associate_with(JsonEncodedDict)
 
 class Serializable(object):
-    def serialize(self):
+    def deserialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     @staticmethod
-    def serialize_list(l):
+    def deserialize_list(l):
         return [m.serialize() for m in l]
 
 
@@ -219,15 +219,11 @@ class DatabaseModel(object):
                 is not None
             ):
                 lines.append(
-                    f"    id = db.Column(db.String, db.ForeignKey('{self.parent.lower()}.id'), primary_key=True, default=uuid4())"
+                    f"    id = db.Column(db.String, db.ForeignKey('{self.parent.lower()}.id'), primary_key=True, default=str(uuid4()))"
                 )
         for p in self.property_list:
             lines.append(f"    {p}")
-        if self.schema_name in [
-            "ICMMetadata",
-            "CausalVariable",
-            "CausalRelationship",
-        ]:
+        if self.schema_name in ["ICMMetadata", "CausalPrimitive"]:
             lines.append(
                 "    model_id = db.Column(db.String,"
                 "db.ForeignKey('delphimodel.id'))"
