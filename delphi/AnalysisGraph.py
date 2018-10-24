@@ -71,7 +71,7 @@ class AnalysisGraph(nx.DiGraph):
         G = cls(edges)
 
         for n in G.nodes(data=True):
-            n[1]['id'] = str(uuid4())
+            n[1]["id"] = str(uuid4())
 
         return G
 
