@@ -6,17 +6,17 @@ from delphi.tests.conftest import *
 from datetime import date
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def delphi_model(G):
     return DelphiModel(id=G.id, model=G)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def causal_primitives(G):
     return CausalVariable(model_id=G.id)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def icm_metadata(G):
     metadata = ICMMetadata(
         id=G.id,
@@ -29,7 +29,7 @@ def icm_metadata(G):
     return metadata
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def app(icm_metadata, delphi_model):
     app = create_app()
     app.testing = True
@@ -65,8 +65,6 @@ def test_getICMPrimitives(G, client):
 
 
 def test_forwardProjection_and_getExperiment(G, client):
-    for n in G.nodes(data=True):
-        print(n[0], n[1]["id"])
     post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
 
     timestamp = "2018-11-01"
@@ -93,9 +91,11 @@ def test_forwardProjection_and_getExperiment(G, client):
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
-    print(rv.json)
     assert b"Forward projection sent successfully" in rv.data
+
+
+def test_getExperiment(G, client):
     experiment = Experiment.query.first()
     url = "/".join(["icm", G.id, "experiment", experiment.id])
     rv = client.get(url)
-    assert True
+    assert rv.json["id"] == experiment.id
