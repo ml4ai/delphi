@@ -13,7 +13,7 @@ def delphi_model(G):
 
 @pytest.fixture
 def causal_primitives(G):
-    CausalVariable(model_id=G.id)
+    return CausalVariable(model_id=G.id)
 
 
 @pytest.fixture
@@ -34,6 +34,7 @@ def app(icm_metadata, delphi_model):
     app = create_app()
     app.testing = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     with app.app_context():
         db.create_all()
         db.session.add(icm_metadata)
@@ -63,15 +64,16 @@ def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
 
 
-@pytest.mark.skip(reason="Still working on forward projection implementation.")
-def test_forwardProjection(G, client):
+def test_forwardProjection_and_getExperiment(G, client):
+    for n in G.nodes(data=True):
+        print(n[0], n[1]["id"])
     post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
 
     timestamp = "2018-11-01"
     post_data = {
         "interventions": [
             {
-                "id": "precipitation",
+                "id": G.nodes["conflict"]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -79,7 +81,7 @@ def test_forwardProjection(G, client):
                 },
             },
             {
-                "id": "<Some other causal Variable id/hash>",
+                "id": G.nodes["food_security"]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -91,4 +93,9 @@ def test_forwardProjection(G, client):
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
-    print(rv.data)
+    print(rv.json)
+    assert b"Forward projection sent successfully" in rv.data
+    experiment = Experiment.query.first()
+    url = "/".join(["icm", G.id, "experiment", experiment.id])
+    rv = client.get(url)
+    assert True
