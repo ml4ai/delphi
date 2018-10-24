@@ -67,6 +67,7 @@ def _(G: AnalysisGraph, config_file: str) -> AnalysisGraph:
         if n[1].get("indicators") is not None:
             for ind in n[1]["indicators"]:
                 ind.dataset = np.ones(G.res) * ind.mean
+
     return G
 
 

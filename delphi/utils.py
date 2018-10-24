@@ -246,11 +246,13 @@ def repeatfunc(func, *args):
     """
     return starmap(func, repeat(args))
 
+
 def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
 
 def tqdm_reporthook(t):
     """Wraps tqdm instance.
@@ -300,10 +302,8 @@ def _change_directory(destination_directory):
         os.chdir(cwd)
 
 
-
-
-
 cd = contextlib.contextmanager(_change_directory)
+
 
 def _insert_line_breaks(label: str, max_str_length=20) -> str:
     words = label.split()
