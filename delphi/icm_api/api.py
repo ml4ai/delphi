@@ -1,8 +1,12 @@
+import json
 from uuid import uuid4
 import pickle
 from datetime import datetime, date
 from typing import Optional, List
+from itertools import product
+from delphi.random_variables import LatentVar
 from delphi.bmi import initialize
+from delphi.execution import default_update_function
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.icm_api.models import *
@@ -197,12 +201,39 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
 def forwardProjection(uuid: str):
     """ Execute a "what if" projection over the model"""
-    return ("", 204)
+    G = DelphiModel.query.filter_by(id=uuid).first().model
+    data = json.loads(request.data)
+    default_latent_var_value = 1.0
+    for n in G.nodes(data=True):
+        n[1]["rv"] = LatentVar(n[0])
+        n[1]["update_function"] = default_update_function
+        rv = n[1]["rv"]
+        rv.dataset = [default_latent_var_value for _ in range(G.res)]
+        if n[1].get("indicators") is not None:
+            for ind in n[1]["indicators"]:
+                ind.dataset = np.ones(G.res) * ind.mean
+
+        for variable in data["interventions"]:
+            if n[1]["id"] == variable["id"]:
+                rv.partial_t = variable["values"]["value"]
+                break
+
+    experiment = Experiment()
+    db.session.add(experiment)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "id": experiment.id,
+            "message": "Forward projection sent successfully",
+        }
+    )
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
 def getExperiments(uuid: str):
     """ list active (running or completed) experiments"""
+    print(Experiment.query().first())
     return ("", 415)
 
 
