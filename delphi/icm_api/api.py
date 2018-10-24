@@ -233,14 +233,14 @@ def forwardProjection(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
 def getExperiments(uuid: str):
     """ list active (running or completed) experiments"""
-    print(Experiment.query().first())
     return ("", 415)
 
 
 @bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["GET"])
 def getExperiment(uuid: str, exp_id: str):
     """ Fetch experiment results"""
-    return ("", 415)
+    experiment = Experiment.query.filter_by(id=exp_id).first()
+    return jsonify(experiment.serialize())
 
 
 @bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["DELETE"])
