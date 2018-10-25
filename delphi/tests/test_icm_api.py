@@ -46,7 +46,7 @@ def causal_primitives(G):
             model_id=G.id,
             units="",
             namespaces={},
-            auxiliaryProperties = [],
+            auxiliaryProperties=[],
             label=n[0],
             description=f"Long description of {n[0]}.",
             lastUpdated=today,
@@ -81,7 +81,7 @@ def causal_primitives(G):
             namespaces={},
             source={"id": G.nodes[e[0]]["id"], "baseType": "CausalVariable"},
             target={"id": G.nodes[e[1]]["id"], "baseType": "CausalVariable"},
-            auxiliaryProperties = [],
+            auxiliaryProperties=[],
             lastUpdated=today,
             types=["causal"],
             description=f"{e[0]} influences {e[1]}.",
@@ -145,8 +145,8 @@ def test_getICMPrimitives(G, client):
     print(rv.json)
 
 
-def test_forwardProjection(G, client):
-    post_url = "/".join(["icm", G.id, "experiment", "forwardProjection"])
+def test_createExperiment(G, client):
+    post_url = "/".join(["icm", G.id, "experiment"])
 
     timestamp = "2018-11-01"
     post_data = {
