@@ -216,7 +216,7 @@ def forwardProjection(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])
 def getExperiments(uuid: str):
     """ list active (running or completed) experiments"""
-    return ("", 415)
+    return jsonify([x.deserialize() for x in Experiment.query.all()])
 
 
 @bp.route("/icm/<string:uuid>/experiment/<string:exp_id>", methods=["GET"])
