@@ -254,7 +254,7 @@ def construct_view_lines(url, metadata) -> List[str]:
     for http_method in metadata:
         modified_path = url.replace("{", "<string:").replace("}", ">")
         lines.append(
-            f"\n\n@bp.route('{modified_path}', methods=['{http_method.upper()}'])"
+            f'\n\n@bp.route("{modified_path}", methods=["{http_method.upper()}"])'
         )
         args = ", ".join(
             [
@@ -268,7 +268,7 @@ def construct_view_lines(url, metadata) -> List[str]:
         lines.append(
             '    """' + f" {metadata[http_method]['summary']}" + '"""'
         )
-        lines.append("    return '', 415")
+        lines.append('    return "", 415')
     return lines
 
 
@@ -286,20 +286,12 @@ def write_views(yml):
                 "from flask import Flask, jsonify, request, Blueprint",
                 "from delphi.icm_api.models import *",
                 "bp = Blueprint('icm_api', __name__)",
-                "app = Flask(__name__)",
             ]
         )
     )
 
     for url, metadata in paths.items():
         views_lines += construct_view_lines(url, metadata)
-
-    views_lines.append(
-        """\
-
-if __name__ == "__main__":
-    app.run(debug=True)"""
-    )
 
     with open("views.py", "w") as f:
         f.write("\n".join(views_lines))
@@ -334,5 +326,5 @@ if __name__ == "__main__":
         f.write(MODELS_PREAMBLE)
         for db_model in db_models:
             f.write(str(db_model))
-    # write_views(yml)
+    write_views(yml)
     # write_models(yml)
