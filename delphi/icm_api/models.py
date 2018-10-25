@@ -157,6 +157,7 @@ class CausalPrimitive(db.Model, Serializable):
     label = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     lastUpdated = db.Column(db.String, nullable=True)
+    auxiliaryProperties = db.Column(JsonEncodedList, nullable=True)
     model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
     __mapper_args__ = {
         "polymorphic_identity": "CausalPrimitive",
@@ -262,10 +263,14 @@ class Experiment(db.Model, Serializable):
     """ structure used for experimentation """
 
     __tablename__ = "experiment"
+    baseType = db.Column(db.String)
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     label = db.Column(db.String, nullable=True)
     options = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "Experiment"}
+    __mapper_args__ = {
+        "polymorphic_identity": "Experiment",
+        "polymorphic_on": baseType,
+    }
 
 
 class ForwardProjection(Experiment):
@@ -293,7 +298,9 @@ class SensitivityAnalysis(Experiment):
         primary_key=True,
         default=str(uuid4()),
     )
-    variables = db.Column(JsonEncodedList, nullable=True)
+    nodeOfInterest = db.Column(db.String, nullable=True)
+    numSteps = db.Column(db.Integer, nullable=True)
+    sensitivityVariables = db.Column(JsonEncodedList, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysis"}
 
 
@@ -301,8 +308,12 @@ class ExperimentResult(db.Model, Serializable):
     """ Notional model of experiment results """
 
     __tablename__ = "experimentresult"
+    baseType = db.Column(db.String)
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
-    __mapper_args__ = {"polymorphic_identity": "ExperimentResult"}
+    __mapper_args__ = {
+        "polymorphic_identity": "ExperimentResult",
+        "polymorphic_on": baseType,
+    }
 
 
 class ForwardProjectionResult(ExperimentResult):
