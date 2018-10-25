@@ -92,6 +92,7 @@ class Property(object):
         self.is_required = is_required
         self.global_schema_dict = global_schema_dict
         self.property_type = self.dictionary.get("type")
+        self.default = self.dictionary.get("default")
         self.args = []
         if self.name == "id":
             # Making it so that ids serve as primary keys.
@@ -111,6 +112,8 @@ class Property(object):
                 "number": "db.Float",
             }.get(self.property_type, f"db.{self.property_type.capitalize()}")
             self.args.insert(0, self.property_type)
+            if self.default is not None:
+                self.args.append(f"default = {self.default}")
 
         else:
             self.ref = get_ref(self.dictionary.get("$ref", ""))
@@ -171,7 +174,7 @@ class DatabaseModel(object):
         self.required_properties = schema_dict.get("required", [])
 
         self.tablename = schema_name.lower()
-        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.tablename}'"
+        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.schema_name}'"
         placeholder = f"Placeholder docstring for class {self.schema_name}."
         self.docstring = (
             f'    """ {self.schema_dict.get("description", placeholder)} """\n'
