@@ -145,9 +145,9 @@ def query(uuid: str):
     return "", 415
 
 
-@bp.route("/icm/<string:uuid>/experiment/forwardProjection", methods=["POST"])
-def forwardProjection(uuid: str):
-    """ Execute a "what if" projection over the model"""
+@bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
+def createExperiment(uuid: str):
+    """ Execute an experiment over the model"""
     G = DelphiModel.query.filter_by(id=uuid).first().model
     data = json.loads(request.data)
     default_latent_var_value = 1.0
