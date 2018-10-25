@@ -34,7 +34,7 @@ def get_respdevs(gb):
     return gb["respdev"]
 
 
-def top_grounding(c: Concept, ontology="UN") -> str:
+def top_grounding(c: Concept, ontology: str = "UN") -> str:
     return (
         c.db_refs[ontology][0][0].split("/")[-1]
         if ontology in c.db_refs
