@@ -116,7 +116,7 @@ class ICMMetadata(db.Model, Serializable):
     )
     derivation = db.Column(JsonEncodedList, nullable=True)
     model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
-    __mapper_args__ = {"polymorphic_identity": "icmmetadata"}
+    __mapper_args__ = {"polymorphic_identity": "ICMMetadata"}
 
 
 class User(db.Model, Serializable):
@@ -131,7 +131,7 @@ class User(db.Model, Serializable):
     password = db.Column(db.String, nullable=True)
     phone = db.Column(db.String, nullable=True)
     userStatus = db.Column(db.Integer, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "user"}
+    __mapper_args__ = {"polymorphic_identity": "User"}
 
 
 class ServerResponse(db.Model, Serializable):
@@ -140,7 +140,7 @@ class ServerResponse(db.Model, Serializable):
     __tablename__ = "serverresponse"
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     message = db.Column(db.String, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "serverresponse"}
+    __mapper_args__ = {"polymorphic_identity": "ServerResponse"}
 
 
 class CausalPrimitive(db.Model, Serializable):
@@ -150,16 +150,16 @@ class CausalPrimitive(db.Model, Serializable):
     baseType = db.Column(db.String)
     namespaces = db.Column(JsonEncodedDict, nullable=True)
     types = db.Column(JsonEncodedList, nullable=True)
-    editable = db.Column(db.Boolean, nullable=True)
-    disableable = db.Column(db.Boolean, nullable=True)
-    disabled = db.Column(db.Boolean, nullable=True)
+    editable = db.Column(db.Boolean, nullable=True, default=True)
+    disableable = db.Column(db.Boolean, nullable=True, default=True)
+    disabled = db.Column(db.Boolean, nullable=True, default=False)
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     label = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     lastUpdated = db.Column(db.String, nullable=True)
     model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
     __mapper_args__ = {
-        "polymorphic_identity": "causalprimitive",
+        "polymorphic_identity": "CausalPrimitive",
         "polymorphic_on": baseType,
     }
 
@@ -175,7 +175,7 @@ class Entity(CausalPrimitive):
         default=str(uuid4()),
     )
     confidence = db.Column(db.Float, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "entity"}
+    __mapper_args__ = {"polymorphic_identity": "Entity"}
 
 
 class CausalVariable(CausalPrimitive):
@@ -193,7 +193,7 @@ class CausalVariable(CausalPrimitive):
     lastKnownValue = db.Column(JsonEncodedDict, nullable=True)
     confidence = db.Column(db.Float, nullable=True)
     range = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "causalvariable"}
+    __mapper_args__ = {"polymorphic_identity": "CausalVariable"}
 
 
 class ConfigurationVariable(CausalPrimitive):
@@ -209,7 +209,7 @@ class ConfigurationVariable(CausalPrimitive):
     units = db.Column(db.String, nullable=True)
     lastKnownValue = db.Column(JsonEncodedDict, nullable=True)
     range = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "configurationvariable"}
+    __mapper_args__ = {"polymorphic_identity": "ConfigurationVariable"}
 
 
 class CausalRelationship(CausalPrimitive):
@@ -227,7 +227,7 @@ class CausalRelationship(CausalPrimitive):
     confidence = db.Column(db.Float, nullable=True)
     strength = db.Column(db.Float, nullable=True)
     reinforcement = db.Column(db.Boolean, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "causalrelationship"}
+    __mapper_args__ = {"polymorphic_identity": "CausalRelationship"}
 
 
 class Relationship(CausalPrimitive):
@@ -243,7 +243,7 @@ class Relationship(CausalPrimitive):
     source = db.Column(JsonEncodedDict, nullable=True)
     target = db.Column(JsonEncodedDict, nullable=True)
     confidence = db.Column(db.Float, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "relationship"}
+    __mapper_args__ = {"polymorphic_identity": "Relationship"}
 
 
 class Evidence(db.Model, Serializable):
@@ -255,7 +255,7 @@ class Evidence(db.Model, Serializable):
     description = db.Column(db.String, nullable=True)
     category = db.Column(db.String, nullable=True)
     rank = db.Column(db.Integer, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "evidence"}
+    __mapper_args__ = {"polymorphic_identity": "Evidence"}
 
 
 class Experiment(db.Model, Serializable):
@@ -265,7 +265,7 @@ class Experiment(db.Model, Serializable):
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     label = db.Column(db.String, nullable=True)
     options = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "experiment"}
+    __mapper_args__ = {"polymorphic_identity": "Experiment"}
 
 
 class ForwardProjection(Experiment):
@@ -280,7 +280,7 @@ class ForwardProjection(Experiment):
     )
     interventions = db.Column(JsonEncodedList, nullable=True)
     projection = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "forwardprojection"}
+    __mapper_args__ = {"polymorphic_identity": "ForwardProjection"}
 
 
 class SensitivityAnalysis(Experiment):
@@ -294,7 +294,7 @@ class SensitivityAnalysis(Experiment):
         default=str(uuid4()),
     )
     variables = db.Column(JsonEncodedList, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "sensitivityanalysis"}
+    __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysis"}
 
 
 class ExperimentResult(db.Model, Serializable):
@@ -302,7 +302,7 @@ class ExperimentResult(db.Model, Serializable):
 
     __tablename__ = "experimentresult"
     id = db.Column(db.String, primary_key=True, default=str(uuid4()))
-    __mapper_args__ = {"polymorphic_identity": "experimentresult"}
+    __mapper_args__ = {"polymorphic_identity": "ExperimentResult"}
 
 
 class ForwardProjectionResult(ExperimentResult):
@@ -317,7 +317,7 @@ class ForwardProjectionResult(ExperimentResult):
     )
     projection = db.Column(JsonEncodedDict, nullable=True)
     results = db.Column(JsonEncodedList, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "forwardprojectionresult"}
+    __mapper_args__ = {"polymorphic_identity": "ForwardProjectionResult"}
 
 
 class SensitivityAnalysisResult(ExperimentResult):
@@ -331,4 +331,4 @@ class SensitivityAnalysisResult(ExperimentResult):
         default=str(uuid4()),
     )
     results = db.Column(JsonEncodedList, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "sensitivityanalysisresult"}
+    __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysisResult"}
