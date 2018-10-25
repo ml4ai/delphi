@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional, Union, Callable, Tuple
 import random
 import json
+from uuid import uuid4
 import pickle
 from dataclasses import dataclass
 import networkx as nx
 import pandas as pd
 import numpy as np
-from uuid import uuid4
 from .assembly import get_respdevs
 from future.utils import lmap, lzip
 from delphi.assembly import (
@@ -68,8 +68,12 @@ class AnalysisGraph(nx.DiGraph):
             for e in [make_edge(sts, p) for p in node_permutations]
             if len(e[2]["InfluenceStatements"]) != 0
         ]
+        G = cls(edges)
 
-        return cls(edges)
+        for n in G.nodes(data=True):
+            n[1]["id"] = str(uuid4())
+
+        return G
 
     @classmethod
     def from_pickle(cls, file: str):

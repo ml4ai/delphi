@@ -20,8 +20,7 @@ def parameterize(
     if isinstance(data, str):
         G.data = get_data(data)
     else:
-        G.data=data
-
+        G.data = data
 
     nodes_with_indicators = [
         n for n in G.nodes(data=True) if n[1]["indicators"] is not None

@@ -25,7 +25,7 @@ class JsonEncodedList(db.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         if value is None:
-            return '[]'
+            return "[]"
         else:
             return str(value)
 
@@ -33,7 +33,7 @@ class JsonEncodedList(db.TypeDecorator):
         if value is None:
             return []
         else:
-            return json.loads(value)
+            return json.loads(value.replace("'", '"'))
 
 mutable.MutableList.associate_with(JsonEncodedList)
 
@@ -56,15 +56,15 @@ class JsonEncodedDict(db.TypeDecorator):
 mutable.MutableDict.associate_with(JsonEncodedDict)
 
 class Serializable(object):
-    def serialize(self):
+    def deserialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     @staticmethod
-    def serialize_list(l):
+    def deserialize_list(l):
         return [m.serialize() for m in l]
 
 
-class DelphiModel(db.Model):
+class DelphiModel(db.Model, Serializable):
     __tablename__ = "delphimodel"
     id = db.Column(db.String, primary_key=True)
     icm_metadata=db.relationship('ICMMetadata', backref='delphimodel',
@@ -92,22 +92,28 @@ class Property(object):
         self.is_required = is_required
         self.global_schema_dict = global_schema_dict
         self.property_type = self.dictionary.get("type")
+        self.default = self.dictionary.get("default")
         self.args = []
         if self.name == "id":
+            # Making it so that ids serve as primary keys.
+            self.is_required = True
             self.args.append("primary_key = True")
             if self.dictionary.get("format") == "uuid":
                 self.args.append("default = str(uuid4())")
 
-        if not is_required:
-            self.args.append("nullable = True")
+        if not self.is_required:
+            self.args.append(f"nullable = {not is_required}")
 
         if self.property_type is not None:
             self.linetype = "Column"
             self.property_type = {
                 "object": "JsonEncodedDict",
                 "array": "JsonEncodedList",
+                "number": "db.Float",
             }.get(self.property_type, f"db.{self.property_type.capitalize()}")
             self.args.insert(0, self.property_type)
+            if self.default is not None:
+                self.args.append(f"default = {self.default}")
 
         else:
             self.ref = get_ref(self.dictionary.get("$ref", ""))
@@ -118,17 +124,24 @@ class Property(object):
                 ]
                 self.args.insert(0, f"db.Enum({', '.join(self.enum_values)})")
             else:
-                self.linetype = "relationship"
-                self.id_type = self.global_schema_dict[self.ref]["properties"][
-                    "id"
-                ]["type"]
-                self.id_args = [
-                    f"db.{self.id_type.capitalize()}",
-                    f"db.ForeignKey('{self.ref.lower()}.id'",
-                ]
-                self.args = [f'"{self.ref}"']
-                self.args.append(f"foreign_keys = [{self.name}_id]")
-                # self.args.append("nullable=True")
+                if (
+                    self.global_schema_dict[self.ref]["properties"].get("id")
+                    is not None
+                ):
+                    self.linetype = "relationship"
+                    self.id_type = self.global_schema_dict[self.ref][
+                        "properties"
+                    ]["id"]["type"]
+                    self.id_args = [
+                        f"db.{self.id_type.capitalize()}",
+                        f"db.ForeignKey('{self.ref.lower()}.id'",
+                    ]
+                    self.args = [f'"{self.ref}"']
+                    self.args.append(f"foreign_keys = [{self.name}_id]")
+                else:
+                    self.args = ["JsonEncodedDict"]
+                    self.linetype = "Column"
+                    self.args.append("nullable=True")
                 # self.args.append(f'backref = "{self.schema_name.lower()}"')
 
         self.property_line = (
@@ -137,12 +150,11 @@ class Property(object):
 
     def __repr__(self):
         if self.linetype == "relationship":
-            self.property_line = "\n    ".join(
-                [
-                    f"{self.name}_id = db.Column({', '.join(self.id_args)}), nullable=True)",
-                    self.property_line,
-                ]
-            )
+            if self.id_type is not None:
+                self.property_line = (
+                    f"{self.name}_id = db.Column({', '.join(self.id_args)}),"
+                    "nullable=True)" + "\n    " + self.property_line
+                )
         return self.property_line
 
 
@@ -162,7 +174,7 @@ class DatabaseModel(object):
         self.required_properties = schema_dict.get("required", [])
 
         self.tablename = schema_name.lower()
-        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.tablename}'"
+        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.schema_name}'"
         placeholder = f"Placeholder docstring for class {self.schema_name}."
         self.docstring = (
             f'    """ {self.schema_dict.get("description", placeholder)} """\n'
@@ -176,21 +188,21 @@ class DatabaseModel(object):
                 self.polymorphy_annotation += ", 'polymorphic_on': baseType"
             self.parent = None
             self.superclasses = ["db.Model", "Serializable"]
+        self.polymorphy_annotation += "}"
 
         self.class_declaration = (
             f"\n\nclass {schema_name}" + f"({', '.join(self.superclasses)}):"
         )
 
-        self.properties = [
-            self.process_property(
-                property_name,
-                property_dict,
-                property_name in self.required_properties,
+        self.property_list = []
+        for property_name, property_dict in self.properties.items():
+            self.property_list.append(
+                self.process_property(
+                    property_name,
+                    property_dict,
+                    property_name in self.required_properties,
+                )
             )
-            for property_name, property_dict in self.properties.items()
-        ]
-
-        self.polymorphy_annotation += "}"
 
     def process_property(self, property_name, property_dict, required):
         return Property(
@@ -203,19 +215,18 @@ class DatabaseModel(object):
 
     def __repr__(self):
         lines = [self.class_declaration, self.docstring]
-        if self.parent is None:
-            lines.append(f'    __tablename__ = "{self.tablename}"')
-        else:
-            lines.append(
-                f'    baseType = db.Column(db.String, default="{self.schema_name}")'
-            )
-        for p in self.properties:
+        lines.append(f'    __tablename__ = "{self.tablename}"')
+        if self.parent is not None:
+            if (
+                self.global_schema_dict[self.parent]["properties"].get("id")
+                is not None
+            ):
+                lines.append(
+                    f"    id = db.Column(db.String, db.ForeignKey('{self.parent.lower()}.id'), primary_key=True, default=str(uuid4()))"
+                )
+        for p in self.property_list:
             lines.append(f"    {p}")
-        if self.schema_name in [
-            "ICMMetadata",
-            "CausalVariable",
-            "CausalRelationship",
-        ]:
+        if self.schema_name in ["ICMMetadata", "CausalPrimitive"]:
             lines.append(
                 "    model_id = db.Column(db.String,"
                 "db.ForeignKey('delphimodel.id'))"
@@ -300,13 +311,24 @@ if __name__ == "__main__":
         yml = yaml.load(f)
 
     schemas = yml["components"]["schemas"]
-    db_models = [
-        DatabaseModel(k, v, schemas)
-        for k, v in schemas.items()
-        if v.get("enum") is None
-        and v.get("properties") is not None
-        and v.get("properties").get("id") is not None
-    ]
+    db_models = []
+    for k, v in schemas.items():
+        if v.get("enum") is None:
+            if v.get("properties") is not None:
+                if v["properties"].get("id") is not None:
+                    db_models.append(DatabaseModel(k, v, schemas))
+            else:
+                if v["allOf"][0].get("$ref") is not None:
+                    ref = get_ref(v["allOf"][0].get("$ref"))
+                    if schemas[ref]["properties"].get("id") is not None:
+                        db_models.append(DatabaseModel(k, v, schemas))
+
+    # db_models = [
+    # DatabaseModel(k, v, schemas)
+    # for k, v in schemas.items()
+    # if v.get("enum") is None
+    # and v.get("properties") is not None
+    # ]
     other_models = []
     with open("models.py", "w") as f:
         f.write(MODELS_PREAMBLE)
