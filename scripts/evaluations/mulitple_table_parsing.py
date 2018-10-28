@@ -31,7 +31,7 @@ def process_file(filename):
     grouping_key_function = lambda _tuple: _tuple[1].iloc[0] in table_headers
     key_group_tuples = groupby(df.iterrows(), grouping_key_function)
     groups = [
-        [x[1].values.tolist() for x in list(group)]
+        [x[1].values.tolist() for x in list(g)]
         for k, g in key_group_tuples
     ]
 
