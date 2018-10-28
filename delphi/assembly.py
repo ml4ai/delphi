@@ -105,7 +105,15 @@ def constructConditionalPDF(
                     thetas = np.arctan2(ys1.flatten(), xs1.flatten())
                     all_thetas.append(thetas)
 
-    return gaussian_kde(np.concatenate(all_thetas))
+            # Prior
+            xs1, ys1 = np.meshgrid(stmt.subj_delta["polarity"]*rs, stmt.obj_delta["polarity"]*rs, indexing="xy")
+            thetas = np.arctan2(ys1.flatten(), xs1.flatten())
+            all_thetas.append(thetas)
+
+    if len(all_thetas) == 1:
+        return gaussian_kde(all_thetas)
+    else:
+        return gaussian_kde(np.concatenate(all_thetas))
 
 
 def is_simulable(s: Influence) -> bool:
