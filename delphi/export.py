@@ -2,7 +2,8 @@ import json
 from typing import Dict, Union, List
 import numpy as np
 import networkx as nx
-from .utils import _insert_line_breaks, lmap
+from .utils.misc import _insert_line_breaks
+from .utils.fp import lmap
 from functools import partial
 from .AnalysisGraph import AnalysisGraph
 from networkx import DiGraph

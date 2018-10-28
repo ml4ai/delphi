@@ -5,7 +5,7 @@ import re
 import pandas as pd
 from glob import glob
 from typing import List
-from delphi.utils import cd
+from delphi.utils.shell import cd
 from delphi.paths import data_dir
 
 
