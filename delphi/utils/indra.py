@@ -19,10 +19,9 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     )
 
 
-def get_statements_from_json(json_file: str) -> List[Influence]:
-    with open(json_file, "r") as f:
-        return [
-            influence_stmt_from_dict(d)
-            for d in json.load(f)
-            if d["type"] == "Influence"
-        ]
+def get_statements_from_json(json_serialized_list: str) -> List[Influence]:
+    return [
+        influence_stmt_from_dict(d)
+        for d in json.loads(json_serialized_list)
+        if d["type"] == "Influence"
+    ]
