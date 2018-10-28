@@ -47,6 +47,8 @@ def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
 
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
+    """ Returns a 2-tuple consisting of the top groundings of the subj and obj
+    of an Influence statement. """
     return top_grounding(s.subj), top_grounding(s.obj)
 
 
@@ -67,6 +69,8 @@ def filter_statements(sts: List[Influence]) -> List[Influence]:
 def constructConditionalPDF(
     gb, rs: np.ndarray, e: Tuple[str, str, Dict]
 ) -> gaussian_kde:
+    """ Construct a conditional probability density function for a particular
+    AnalysisGraph edge. """
 
     sts = e[2]["InfluenceStatements"]
 
@@ -180,6 +184,7 @@ def is_well_grounded():
 
 @is_well_grounded.register(Concept)
 def _(c: Concept, ontology: str = "UN", cutoff: float = 0.7) -> bool:
+    """Check if a concept has a high grounding score. """
 
     return is_grounded(c, ontology) and (
         top_grounding_score(c, ontology) >= cutoff
@@ -197,6 +202,7 @@ def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
 
 
 def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
+    """ Check if a concept is grounded to a given name. """
     return (
         (top_grounding(c) == name)
         if is_well_grounded(c, "UN", cutoff)
@@ -216,22 +222,28 @@ def contains_concept(s: Influence, concept_name: str, cutoff=0.7) -> bool:
 def contains_relevant_concept(
     s: Influence, relevant_concepts: List[str], cutoff=0.7
 ) -> bool:
+    """ Returns true if a given Influence statement has a relevant concept, and
+    false otherwise. """
+
     return any(
         map(lambda c: contains_concept(s, c, cutoff=cutoff), relevant_concepts)
     )
 
 
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
+    """ Get the best match to an indicator name from a list of items. """
     best_match = process.extractOne(indicator.name, items)[0]
     return best_match
 
 
 def get_data(filename: str) -> pd.DataFrame:
+    """ Create a dataframe out of south_sudan_data.csv """
     df = pd.read_csv(filename, sep="|", index_col="Indicator Name")
     return df
 
 
 def get_mean_precipitation(year: int):
+    """ Workaround to get the precipitation from CYCLES. """
     url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
     df = pd.read_table(get_data_from_url(url))
     df.columns = df.columns.str.strip()
@@ -253,6 +265,8 @@ def get_mean_precipitation(year: int):
 def get_indicator_value(
     indicator: Indicator, date: datetime, df: pd.DataFrame
 ) -> Optional[float]:
+    """ Get the value of a particular indicator at a particular date and time.
+    """
 
     if indicator.source == "FAO/WDI":
         best_match = get_best_match(indicator, df.index)
@@ -275,6 +289,7 @@ def get_indicator_value(
 
 
 def process_variable_name(x: str):
+    """ Process the variable name to make it more human-readable. """
     xs = x.replace("\/", "|").split("/")
     xs = [x.replace("|", "/") for x in xs]
     xs.reverse()
