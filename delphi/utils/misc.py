@@ -1,3 +1,5 @@
+from delphi.utils.fp import grouper
+
 def _insert_line_breaks(label: str, max_str_length: int = 20) -> str:
     words = label.split()
     if len(label) > max_str_length:
