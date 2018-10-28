@@ -15,7 +15,8 @@ from delphi.assembly import (
     get_valid_statements_for_modeling,
     nameTuple,
 )
-from .utils import flatMap, iterate, take, ltake, _insert_line_breaks, compose
+from delphi.utils.fp import flatMap, iterate, take, ltake,  compose
+from delphi.utils.misc import _insert_line_breaks
 from .paths import adjectiveData
 from datetime import datetime
 from scipy.stats import gaussian_kde

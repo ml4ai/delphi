@@ -1,6 +1,5 @@
-""" Helper functions. """
+""" Helper functions for functional programming. """
 
-import os
 from itertools import repeat, accumulate, islice, chain, starmap, zip_longest
 from functools import reduce
 from tqdm import tqdm
@@ -15,9 +14,6 @@ from typing import (
     Any,
     Union,
 )
-import urllib.request as request
-import contextlib
-from glob import glob
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -41,7 +37,7 @@ def prepend(x: T, xs: Iterable[T]) -> Iterator[T]:
     Examples
     --------
 
-    >>> from delphi.utils import prepend
+    >>> from delphi.utils.fp import prepend
     >>> list(prepend(1, [2, 3]))
     [1, 2, 3]
 
@@ -57,7 +53,7 @@ def append(x: T, xs: Iterable[T]) -> Iterator[T]:
     x
         An element of type T.
     xs
-        An iterable of elements of type T. 
+        An iterable of elements of type T.
 
     Returns
     -------
@@ -67,7 +63,7 @@ def append(x: T, xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from delphi.utils import append
+    >>> from delphi.utils.fp import append
     >>> list(append(1, [2, 3]))
     [2, 3, 1]
 
@@ -100,7 +96,7 @@ def scanl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from delphi.utils import scanl
+    >>> from delphi.utils.fp import scanl
     >>> list(scanl(lambda x, y: x + y, 10, range(5)))
     [10, 10, 11, 13, 16, 20]
 
@@ -131,7 +127,7 @@ def scanl1(f: Callable[[T, T], T], xs: Iterable[T]) -> Iterator[T]:
 
     Examples
     --------
-    >>> from delphi.utils import scanl1
+    >>> from delphi.utils.fp import scanl1
     >>> list(scanl1(lambda x, y: x + y, range(5)))
     [0, 1, 3, 6, 10]
 
@@ -149,7 +145,7 @@ def foldl(f: Callable[[T, U], T], x: T, xs: Iterable[U]) -> T:
 
     Examples
     --------
-    >>> from delphi.utils import foldl
+    >>> from delphi.utils.fp import foldl
     >>> foldl(lambda x, y: x + y, 10, range(5))
     20
 
@@ -167,7 +163,7 @@ def foldl1(f: Callable[[T, T], T], xs: Iterable[T]) -> T:
 
     Examples
     --------
-    >>> from delphi.utils import foldl1
+    >>> from delphi.utils.fp import foldl1
     >>> foldl1(lambda x, y: x + y, range(5))
     10
     """
@@ -193,7 +189,7 @@ def iterate(f: Callable[[T], T], x: T) -> Iterator[T]:
 
     Examples
     --------
-    >>> from delphi.utils import iterate, take
+    >>> from delphi.utils.fp import iterate, take
     >>> list(take(5, iterate(lambda x: x*2, 1)))
     [1, 2, 4, 8, 16]
     """
@@ -247,71 +243,11 @@ def repeatfunc(func, *args):
     return starmap(func, repeat(args))
 
 
-def grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
-    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+def grouper(iterable: Iterable, n: int, fillvalue=None):
+    """Collect data into fixed-length chunks or blocks.
+    >>> from delphi.utils.fp import grouper
+    >>> list(grouper('ABCDEFG', 3, 'x'))
+    ['ABC', 'DEF', 'Gxx']
+    """
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
-
-
-def tqdm_reporthook(t):
-    """Wraps tqdm instance.
-    Don't forget to close() or __exit__()
-    the tqdm instance once you're done with it (easiest using `with` syntax).
-    Example
-    -------
-    """
-    last_b = [0]
-
-    def update_to(b=1, bsize=1, tsize=None):
-        """
-        b  : int, optional
-            Number of blocks transferred so far [default: 1].
-        bsize  : int, optional
-            Size of each block (in tqdm units) [default: 1].
-        tsize  : int, optional
-            Total size (in tqdm units). If [default: None] remains unchanged.
-        """
-        if tsize is not None:
-            t.total = tsize
-        t.update((b - last_b[0]) * bsize)
-        last_b[0] = b
-
-    return update_to
-
-
-def download_file(url: str, filename: str):
-    print(f"Downloading {url} to {filename}")
-    with tqdm(ncols=80, unit="bytes", unit_scale=True, unit_divisor=1024) as t:
-        reporthook = tqdm_reporthook(t)
-        request.urlretrieve(url, filename, reporthook)
-
-
-def get_data_from_url(url: str):
-    return request.urlopen(url)
-
-
-def _change_directory(destination_directory):
-    cwd = os.getcwd()
-    os.chdir(destination_directory)
-    try:
-        yield
-    except:
-        pass
-    finally:
-        os.chdir(cwd)
-
-
-cd = contextlib.contextmanager(_change_directory)
-
-
-def _insert_line_breaks(label: str, max_str_length=20) -> str:
-    words = label.split()
-    if len(label) > max_str_length:
-        n_groups = len(label) // max_str_length
-        n = len(words) // n_groups
-        return "\n".join(
-            [" ".join(word_group) for word_group in grouper(words, n, "")]
-        )
-    else:
-        return label
