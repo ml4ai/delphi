@@ -89,6 +89,11 @@ class AnalysisGraph(nx.DiGraph):
         else:
             return G
 
+    @classmethod
+    def from_json_serialized_statements_file(cls, file):
+        from delphi.utils.indra import get_statements_from_json
+        return cls.from_statements(get_statements_from_json(file))
+
     def infer_transition_model(
         self, adjective_data: str = None, res: int = 100
     ):
@@ -112,13 +117,12 @@ class AnalysisGraph(nx.DiGraph):
             gaussian_kde(
                 flatMap(
                     lambda g: gaussian_kde(get_respdevs(g[1]))
-                    .resample(100)[0]
+                    .resample(res)[0]
                     .tolist(),
                     gb,
                 )
             )
-            .resample(100)[0]
-            .tolist()
+            .resample(res)[0]
         )
 
         for e in self.edges(data=True):
