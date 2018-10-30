@@ -39,7 +39,7 @@ def process_climis_crop_production_data(data_dir: str):
             }
             region = r["State/County"].strip()
 
-            if region in state_county_df["State"].values:
+            if region.lower() in state_county_df["State"].str.lower().values:
                 record["State"] = region
                 record["County"] = None
             else:
@@ -592,6 +592,7 @@ if __name__ == "__main__":
     columns = [
         "Variable",
         "Year",
+        "Month",
         "Value",
         "Unit",
         "Source",
