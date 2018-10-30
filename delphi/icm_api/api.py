@@ -145,6 +145,36 @@ def query(uuid: str):
     return "", 415
 
 
+from delphi.icm_api.run import celery
+
+@celery.task()
+def background_task(G, d, data, result):
+    for i in range(data["projection"]["numSteps"]):
+        update(G)
+
+        for n in G.nodes(data=True):
+            if data["projection"]["stepSize"] == "MONTH":
+                d = d + timedelta(days=30)
+            result.results.append(
+                {
+                    "id": n[1]["id"],
+                    "baseline": {
+                        "active": "ACTIVE",
+                        "time": d.isoformat(),
+                        "value": 1,
+                    },
+                    "intervened": {
+                        "active": "ACTIVE",
+                        "time": d.isoformat(),
+                        "value": np.mean(n[1]["rv"].dataset),
+                    },
+                }
+            )
+    db.session.add(result)
+    db.session.commit()
+    return True
+
+
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
 def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
@@ -185,34 +215,16 @@ def createExperiment(uuid: str):
 
     for i in range(data["projection"]["numSteps"]):
         update(G)
-
-        for n in G.nodes(data=True):
-            if data["projection"]["stepSize"] == "MONTH":
-                d = d + timedelta(days=30)
-            result.results.append(
-                {
-                    "id": n[1]["id"],
-                    "baseline": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": 1,
-                    },
-                    "intervened": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": np.mean(n[1]["rv"].dataset),
-                    },
-                }
-            )
-    db.session.add(result)
-    db.session.commit()
-
+    
+    background_task.delay(G, d, data, result)
+    
     return jsonify(
         {
             "id": experiment.id,
             "message": "Forward projection sent successfully",
         }
     )
+
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])

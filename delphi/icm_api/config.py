@@ -13,7 +13,9 @@ BASE_DIR = Path(__file__).parent
 SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR}/delphi.db"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
-
+# Following two lines are addedd to execute Celery Background Tasks
+CELERY_BROKER_URL = 'pyamqp://localhost//'
+CELERY_RESULT_BACKEND = 'rpc://localhost//' 
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background
