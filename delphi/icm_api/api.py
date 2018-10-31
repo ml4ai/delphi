@@ -186,9 +186,9 @@ def createExperiment(uuid: str):
     for i in range(data["projection"]["numSteps"]):
         update(G)
 
+        if data["projection"]["stepSize"] == "MONTH":
+            d = d + timedelta(days=30)
         for n in G.nodes(data=True):
-            if data["projection"]["stepSize"] == "MONTH":
-                d = d + timedelta(days=30)
             result.results.append(
                 {
                     "id": n[1]["id"],
