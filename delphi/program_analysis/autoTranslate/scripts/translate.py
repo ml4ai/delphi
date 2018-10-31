@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import argparse
-from pyTranslate import *
+from delphi.program_analysis.autoTranslate.scripts.pyTranslate import *
 from typing import List, Dict
 
 libRtns = ["read", "open", "close", "format", "print", "write"]

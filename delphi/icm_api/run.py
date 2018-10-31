@@ -2,7 +2,7 @@
 from delphi.icm_api import create_app
 from celery import Celery
 
-app = create_app()
+
 
 # Integrate Celery with Flask
 def make_celery(app):
@@ -21,5 +21,9 @@ def make_celery(app):
     celery.Task = ContextTask
     return celery
 
-celery = make_celery(app)
-app.run(host="127.0.0.1", port=5000)
+
+
+if __name__ == "__main__":
+    app = create_app()
+    app.run(host="127.0.0.1", port=5000)
+
