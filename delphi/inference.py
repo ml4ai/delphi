@@ -6,6 +6,7 @@ from delphi.paths import adjectiveData
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.assembly import constructConditionalPDF, get_respdevs
 
+
 def infer_transition_model(
     G: AnalysisGraph, adjective_data: str = None, res: int = 100
 ):
@@ -25,17 +26,14 @@ def infer_transition_model(
         "adjective"
     )
 
-    rs = (
-        gaussian_kde(
-            flatMap(
-                lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(res)[0]
-                .tolist(),
-                gb,
-            )
+    rs = gaussian_kde(
+        flatMap(
+            lambda g: gaussian_kde(get_respdevs(g[1]))
+            .resample(res)[0]
+            .tolist(),
+            gb,
         )
-        .resample(res)[0]
-    )
+    ).resample(res)[0]
 
     for e in G.edges(data=True):
         e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)

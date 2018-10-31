@@ -4,10 +4,11 @@ import json
 from typing import Dict, List
 from indra.statements import Influence, Concept, Evidence
 
+
 def influence_stmt_from_dict(d: Dict) -> Influence:
     return Influence(
-        Concept(d["subj"]["name"], db_refs = d["subj"]["db_refs"]),
-        Concept(d["obj"]["name"], db_refs = d["obj"]["db_refs"]),
+        Concept(d["subj"]["name"], db_refs=d["subj"]["db_refs"]),
+        Concept(d["obj"]["name"], db_refs=d["obj"]["db_refs"]),
         d.get("subj_delta"),
         d.get("obj_delta"),
         [

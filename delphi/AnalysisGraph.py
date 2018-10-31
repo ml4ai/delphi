@@ -78,12 +78,13 @@ class AnalysisGraph(nx.DiGraph):
         else:
             return G
 
-
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
         from delphi.utils.indra import get_statements_from_json
-        return cls.from_statements(get_statements_from_json(json_serialized_list))
 
+        return cls.from_statements(
+            get_statements_from_json(json_serialized_list)
+        )
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):

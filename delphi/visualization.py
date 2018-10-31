@@ -18,6 +18,7 @@ from pygraphviz import AGraph
 # Visualization
 # ==========================================================================
 
+
 @singledispatch
 def visualize():
     pass

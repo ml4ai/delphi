@@ -106,7 +106,11 @@ def constructConditionalPDF(
                     all_thetas.append(thetas)
 
             # Prior
-            xs1, ys1 = np.meshgrid(stmt.subj_delta["polarity"]*rs, stmt.obj_delta["polarity"]*rs, indexing="xy")
+            xs1, ys1 = np.meshgrid(
+                stmt.subj_delta["polarity"] * rs,
+                stmt.obj_delta["polarity"] * rs,
+                indexing="xy",
+            )
             thetas = np.arctan2(ys1.flatten(), xs1.flatten())
             all_thetas.append(thetas)
 
