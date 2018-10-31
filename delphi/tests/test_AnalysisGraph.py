@@ -69,13 +69,3 @@ def test_map_concepts_to_indicators(G):
         time=None,
     )
     assert G.nodes["food_security"]["indicators"][0].name == indicator.name
-
-
-def test_infer_transition_model(G):
-    G.infer_transition_model()
-    assert (
-        len(
-            G.get_edge_data("conflict", "food_security")["InfluenceStatements"]
-        )
-        == 1
-    )

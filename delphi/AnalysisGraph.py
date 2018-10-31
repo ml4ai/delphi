@@ -1,22 +1,14 @@
 from typing import Dict, List, Optional, Union, Callable, Tuple
 import json
-from uuid import uuid4
 import pickle
-from dataclasses import dataclass
+from uuid import uuid4
 import networkx as nx
-import pandas as pd
-import numpy as np
-from .assembly import get_respdevs
 from delphi.assembly import (
-    constructConditionalPDF,
     get_concepts,
     get_valid_statements_for_modeling,
     nameTuple,
 )
-from delphi.utils.fp import flatMap
-from .paths import adjectiveData
 from datetime import datetime
-from scipy.stats import gaussian_kde
 from itertools import permutations
 from indra.statements import Influence
 
@@ -97,41 +89,3 @@ class AnalysisGraph(nx.DiGraph):
     def from_json_serialized_statements_file(cls, file):
         with open(file, "r") as f:
             return cls.from_json_serialized_statements_list(f.read())
-
-
-    def infer_transition_model(
-        self, adjective_data: str = None, res: int = 100
-    ):
-        """ Add probability distribution functions constructed from gradable
-        adjective data to the edges of the analysis graph data structure.
-
-        Args:
-            adjective_data
-            res
-        """
-
-        self.res = res
-        if adjective_data is None:
-            adjective_data = adjectiveData
-
-        gb = pd.read_csv(adjective_data, delim_whitespace=True).groupby(
-            "adjective"
-        )
-
-        rs = (
-            gaussian_kde(
-                flatMap(
-                    lambda g: gaussian_kde(get_respdevs(g[1]))
-                    .resample(res)[0]
-                    .tolist(),
-                    gb,
-                )
-            )
-            .resample(res)[0]
-        )
-
-        for e in self.edges(data=True):
-            e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
-            e[2]["betas"] = np.tan(
-                e[2]["ConditionalProbability"].resample(self.res)[0]
-            )

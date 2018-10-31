@@ -3,6 +3,7 @@ import pytest
 from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.assembly import get_valid_statements_for_modeling
+from delphi.inference import infer_transition_model
 
 conflict = Concept(
     "conflict",
@@ -65,5 +66,5 @@ with open(test_statements_file(), "wb") as f:
 @pytest.fixture(scope="session")
 def G():
     G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(sts))
-    G.infer_transition_model()
+    infer_transition_model(G)
     return G
