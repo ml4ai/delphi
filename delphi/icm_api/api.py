@@ -160,6 +160,7 @@ def createExperiment(uuid: str):
             for ind in n[1]["indicators"]:
                 ind.dataset = np.ones(G.res) * ind.mean
 
+        rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
                 rv.partial_t = variable["values"]["value"]
@@ -186,8 +187,10 @@ def createExperiment(uuid: str):
     for i in range(data["projection"]["numSteps"]):
         update(G)
 
+        increment_month = lambda m: m if m % 12 != 0 else 12
         if data["projection"]["stepSize"] == "MONTH":
-            d = d + timedelta(days=30)
+            d = date(d.year, increment_month(d.month), d.day)
+
         for n in G.nodes(data=True):
             result.results.append(
                 {
