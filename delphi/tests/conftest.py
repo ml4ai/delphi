@@ -51,16 +51,15 @@ sts = [s1, s2, s3]
 
 @pytest.fixture(scope="session")
 def test_statements_file():
-    return "test_statements.pkl"
+    test_statements_file = "test_statements.pkl"
+    with open(test_statements_file, "wb") as f:
+        pickle.dump(sts, f)
+    return test_statements_file
 
 
 @pytest.fixture(scope="session")
 def test_model_file():
     return "test_model.pkl"
-
-
-with open(test_statements_file(), "wb") as f:
-    pickle.dump(sts, f)
 
 
 @pytest.fixture(scope="session")
