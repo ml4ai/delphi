@@ -247,7 +247,7 @@ def grouper(iterable: Iterable, n: int, fillvalue=None):
     """Collect data into fixed-length chunks or blocks.
     >>> from delphi.utils.fp import grouper
     >>> list(grouper('ABCDEFG', 3, 'x'))
-    ['ABC', 'DEF', 'Gxx']
+    [('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]
     """
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)

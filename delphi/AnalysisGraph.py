@@ -1,5 +1,4 @@
 from typing import Dict, List, Optional, Union, Callable, Tuple
-import random
 import json
 from uuid import uuid4
 import pickle
@@ -8,19 +7,17 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 from .assembly import get_respdevs
-from future.utils import lmap, lzip
 from delphi.assembly import (
     constructConditionalPDF,
     get_concepts,
     get_valid_statements_for_modeling,
     nameTuple,
 )
-from delphi.utils.fp import flatMap, iterate, take, ltake,  compose
-from delphi.utils.misc import _insert_line_breaks
+from delphi.utils.fp import flatMap
 from .paths import adjectiveData
 from datetime import datetime
 from scipy.stats import gaussian_kde
-from itertools import chain, permutations, cycle
+from itertools import permutations
 from indra.statements import Influence
 
 

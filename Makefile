@@ -2,8 +2,7 @@ docs:
 	cd docs; make html
 
 test:
-	cd docs; make doctest
-	pipenv run pytest --cov=delphi
+	pipenv run pytest --cov=delphi --doctest-modules
 
 pypi_upload:
 	rm -rf dist
