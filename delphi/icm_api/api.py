@@ -187,7 +187,7 @@ def createExperiment(uuid: str):
     for i in range(data["projection"]["numSteps"]):
         update(G)
 
-        increment_month = lambda m: (m+1)%12 if m+1 % 12 != 0 else 12
+        increment_month = lambda m: (m+1)%12 if (m+1) % 12 != 0 else 12
         if data["projection"]["stepSize"] == "MONTH":
             d = date(d.year, increment_month(d.month), d.day)
 
