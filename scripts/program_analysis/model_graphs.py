@@ -33,7 +33,7 @@ def get_io_paths(network, input_nodes, output_nodes):
     results = dict()
     for in_node in input_nodes:
         for out_node in output_nodes:
-            short_simple_path = nx.algorithms.simple_paths.shortest_simple_paths(network, in_node, out_node)
+            short_simple_path = nx.algorithms.simple_paths.all_simple_paths(network, in_node, out_node)
             results[(in_node, out_node)] = list(short_simple_path)
     return results
 
@@ -48,3 +48,15 @@ if __name__ == "__main__":
     asce_outputs = get_output_nodes(asce)
     asce_paths = get_io_paths(asce, asce_inputs, asce_outputs)
     print(asce_paths)
+
+    pt = priestley_taylor
+    pt_inputs = get_input_nodes(pt)
+    pt_outputs = get_output_nodes(pt)
+    pt_paths = get_io_paths(pt, pt_inputs, pt_outputs)
+    print(pt_paths)
+
+    found_in_asce = [key in asce_paths for key in pt_paths.keys()]
+    print(found_in_asce)
+
+    found_in_pt = [key in pt_paths for key in asce_paths.keys()]
+    print(found_in_pt)
