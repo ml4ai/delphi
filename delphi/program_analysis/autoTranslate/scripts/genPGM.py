@@ -123,7 +123,7 @@ def genFn(fnFile, node, fnName, returnVal, inputs):
 def mergeDicts(dicts: Iterable[Dict]) -> Dict:
     fields = set(chain.from_iterable(d.keys() for d in dicts))
 
-    merged_dict = {field:[] for field in fields}
+    merged_dict = {field: [] for field in fields}
     for field, d in product(fields, dicts):
         if field in d:
             if isinstance(d[field], list):
@@ -237,7 +237,9 @@ def genPgm(node, state, fnNames):
             return []
 
     if isinstance(node, list):
-        return list(chain.from_iterable([genPgm(cur, state, fnNames) for cur in node]))
+        return list(
+            chain.from_iterable([genPgm(cur, state, fnNames) for cur in node])
+        )
 
     # Function: name, args, body, decorator_list, returns
     elif isinstance(node, ast.FunctionDef):
@@ -369,7 +371,9 @@ def genPgm(node, state, fnNames):
         variables = [x for x in loopLastDef if x != indexName]
 
         # variables: see what changes?
-        loopName = getFnName(fnNames, f"{state.fnName}__loop_plate__{indexName}")
+        loopName = getFnName(
+            fnNames, f"{state.fnName}__loop_plate__{indexName}"
+        )
         loopFn = {
             "name": loopName,
             "type": "loop_plate",
@@ -495,7 +499,9 @@ def genPgm(node, state, fnNames):
                 ),
             }
 
-            fnName = getFnName(fnNames, f"{state.fnName}__decision__{updatedDef}")
+            fnName = getFnName(
+                fnNames, f"{state.fnName}__decision__{updatedDef}"
+            )
             fn = {
                 "name": fnName,
                 "type": "assign",
@@ -539,7 +545,9 @@ def genPgm(node, state, fnNames):
                         }
                     ]
 
-        return genPgm(node.left, state, fnNames) + genPgm(node.right, state, fnNames)
+        return genPgm(node.left, state, fnNames) + genPgm(
+            node.right, state, fnNames
+        )
 
     # Mult: ()
 
@@ -576,7 +584,9 @@ def genPgm(node, state, fnNames):
 
     # Compare: ('left', 'ops', 'comparators')
     elif isinstance(node, ast.Compare):
-        return genPgm(node.left, state, fnNames) + genPgm(node.comparators, state, fnNames)
+        return genPgm(node.left, state, fnNames) + genPgm(
+            node.comparators, state, fnNames
+        )
 
     # Subscript: ('value', 'slice', 'ctx')
     elif isinstance(node, ast.Subscript):
@@ -626,12 +636,10 @@ def genPgm(node, state, fnNames):
                 node.annotation
             )
             name = getFnName(
-                fnNames,
-                f"{state.fnName}__assign__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
-                fnNames,
-                f"{state.fnName}__lambda__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
             body = make_body_dict(name, target, sources)
@@ -668,12 +676,10 @@ def genPgm(node, state, fnNames):
 
         for target in targets:
             name = getFnName(
-                fnNames,
-                f"{state.fnName}__assign__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
-                fnNames,
-                f"{state.fnName}__lambda__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
             body = make_body_dict(name, target, sources)

@@ -8,7 +8,8 @@ from functools import partial
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as S
 from ruamel.yaml import YAML
 from delphi.paths import data_dir
-from delphi.utils import download_file, cd
+from delphi.utils.shell import cd
+from delphi.utils.web import download_file
 from pathlib import Path
 import zipfile
 import subprocess as sp
