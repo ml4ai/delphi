@@ -1,7 +1,8 @@
 import pickle
 import pytest
-from indra.statements import Concept, Influence
+from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
+from delphi.assembly import get_valid_statements_for_modeling
 
 conflict = Concept(
     "conflict",
@@ -28,10 +29,21 @@ s1 = Influence(
     food_security,
     {"adjectives": ["large"], "polarity": 1},
     {"adjectives": ["small"], "polarity": -1},
+    evidence=Evidence(
+        annotations={"subj_adjectives": ["large"], "obj_adjectives": ["small"]}
+    ),
 )
 
-s2 = Influence(precipitation, food_security)
-s3 = Influence(precipitation, flooding)
+default_annotations = {"subj_adjectives": [], "obj_adjectives": []}
+
+s2 = Influence(
+    precipitation,
+    food_security,
+    evidence=Evidence(annotations=default_annotations),
+)
+s3 = Influence(
+    precipitation, flooding, evidence=Evidence(annotations=default_annotations)
+)
 
 sts = [s1, s2, s3]
 
@@ -52,6 +64,6 @@ with open(test_statements_file(), "wb") as f:
 
 @pytest.fixture(scope="session")
 def G():
-    G = AnalysisGraph.from_statements(sts)
+    G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(sts))
     G.infer_transition_model()
     return G

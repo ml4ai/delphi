@@ -8,7 +8,7 @@ from networkx import DiGraph
 from IPython.core.display import Image
 from .export import to_agraph
 from .AnalysisGraph import AnalysisGraph
-from .utils import _insert_line_breaks
+from .utils.misc import _insert_line_breaks
 from functools import singledispatch
 from .program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 from pygraphviz import AGraph
@@ -16,7 +16,6 @@ from pygraphviz import AGraph
 # ==========================================================================
 # Visualization
 # ==========================================================================
-
 
 @singledispatch
 def visualize():

@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional, Union, Callable, Tuple
 import random
 import json
+from uuid import uuid4
 import pickle
 from dataclasses import dataclass
 import networkx as nx
 import pandas as pd
 import numpy as np
-from uuid import uuid4
 from .assembly import get_respdevs
 from future.utils import lmap, lzip
 from delphi.assembly import (
@@ -15,7 +15,8 @@ from delphi.assembly import (
     get_valid_statements_for_modeling,
     nameTuple,
 )
-from .utils import flatMap, iterate, take, ltake, _insert_line_breaks, compose
+from delphi.utils.fp import flatMap, iterate, take, ltake,  compose
+from delphi.utils.misc import _insert_line_breaks
 from .paths import adjectiveData
 from datetime import datetime
 from scipy.stats import gaussian_kde
@@ -68,8 +69,12 @@ class AnalysisGraph(nx.DiGraph):
             for e in [make_edge(sts, p) for p in node_permutations]
             if len(e[2]["InfluenceStatements"]) != 0
         ]
+        G = cls(edges)
 
-        return cls(edges)
+        for n in G.nodes(data=True):
+            n[1]["id"] = str(uuid4())
+
+        return G
 
     @classmethod
     def from_pickle(cls, file: str):
@@ -83,6 +88,19 @@ class AnalysisGraph(nx.DiGraph):
             )
         else:
             return G
+
+
+    @classmethod
+    def from_json_serialized_statements_list(cls, json_serialized_list):
+        from delphi.utils.indra import get_statements_from_json
+        return cls.from_statements(get_statements_from_json(json_serialized_list))
+
+
+    @classmethod
+    def from_json_serialized_statements_file(cls, file):
+        with open(file, "r") as f:
+            return cls.from_json_serialized_statements_list(f.read())
+
 
     def infer_transition_model(
         self, adjective_data: str = None, res: int = 100
@@ -107,13 +125,12 @@ class AnalysisGraph(nx.DiGraph):
             gaussian_kde(
                 flatMap(
                     lambda g: gaussian_kde(get_respdevs(g[1]))
-                    .resample(100)[0]
+                    .resample(res)[0]
                     .tolist(),
                     gb,
                 )
             )
-            .resample(100)[0]
-            .tolist()
+            .resample(res)[0]
         )
 
         for e in self.edges(data=True):
