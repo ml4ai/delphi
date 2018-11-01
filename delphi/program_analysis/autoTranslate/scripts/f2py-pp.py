@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 """
-    File: f2py-pp.py
-    Author: Saumya Debray
-    Purpose: Preprocess Fortran source files prior to parsing to fix up
-            some constructs (such as continuation lines) that are
-            problematic for the OpenFortranParser front end.
-    Usage:
-            f2py-pp  infile  outfile
+File: f2py-pp.py
+Author: Saumya Debray
+Purpose: Preprocess Fortran source files prior to parsing to fix up
+        some constructs (such as continuation lines) that are
+        problematic for the OpenFortranParser front end.
+Usage:
+        f2py-pp  infile  outfile
 
-                outfile is the cleaned-up version of infile
+            outfile is the cleaned-up version of infile
 """
 
 import sys
@@ -48,10 +48,11 @@ def process(infile, outfile):
     outfile.write(outline)
 
 
-# rm_trailing_comment(line) takes a line and returns the line with any
-# trailing comment (the '!' comment character and subsequent characters
-# to the end of the line) removed.
 def rm_trailing_comment(line):
+    """rm_trailing_comment(line) takes a line and returns the line with any
+    trailing comment (the '!' comment character and subsequent characters
+    to the end of the line) removed."""
+
     if line.find('!') == -1:
         return line
 
@@ -79,7 +80,7 @@ def rm_trailing_comment(line):
     return line
 
 
-def main():
+if __name__ == "__main__":
     if len(sys.argv) < 3:
         sys.stderr.write('*** USAGE: f2py-pp.py <infile> <outfile>\n')
         sys.exit(1)
@@ -97,5 +98,3 @@ def main():
 
     infile.close()
     outfile.close()
-
-main()
