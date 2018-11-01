@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import sys
 import argparse
-from pytestTranslate import *
+import pickle
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -14,7 +14,14 @@ functionList = []
 
 cleanup = True
 
-
+#################################################################
+#
+#  This class defines the state of the XML tree parsing
+#  at any given root. For any level of the tree, it stores
+#  the subroutine under which it resides along with the 
+#  subroutines arguments.
+#  
+##################################################################
 class ParseState:
     def __init__(self, subroutine=None):
         self.subroutine = subroutine if subroutine != None else {}
@@ -29,13 +36,40 @@ class ParseState:
             self.subroutine if subroutine == None else subroutine
         )
 
-
+#################################################################
+#
+#  Loads a list with all the functions in the Fortran File
+# 
+#  Input: 
+#          root: The root of the XML ast tree. 
+#
+#  Output: Does not return anything but populates a list 
+#          functionList that contains all the functions in the 
+#          Fortran File.     
+#
+##################################################################
 def loadFunction(root):
     for element in root.iter():
         if element.tag == "function":
             functionList.append(element.attrib["name"])
 
 
+#################################################################
+#
+#  Parses the XML ast tree recursively to generate a JSON ast 
+#  which can be ingested by other scripts to generate Python 
+#  scripts.
+# 
+#  Input: 
+#          root: The current root of the tree.
+#          state: The current state of the tree defined by an
+#                 object of the ParseState class.
+#
+#  Output: 
+#          ast: A JSON ast that defines the structure of the 
+#               Fortran file.
+#
+##################################################################
 def parseTree(root, state):
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
@@ -84,7 +118,6 @@ def parseTree(root, state):
                 state.subroutine["args"][state.args.index(var["name"])][
                     "type"
                 ] = decType["type"]
-        print (prog)    
         return prog
 
     elif root.tag == "variable":
@@ -124,7 +157,6 @@ def parseTree(root, state):
                 curIf["else"] = [newIf]
                 curIf = newIf
                 curIf["header"] = parseTree(node, state)
-                # ifs.append(ifStmt)
             elif node.tag == "body" and (
                 "type" not in node.attrib or node.attrib["type"] != "else"
             ):
@@ -199,9 +231,8 @@ def parseTree(root, state):
                 assign["value"] = parseTree(node, state)
                # if assign["target"][0]["name"] in functionList:
                 #    assign["value"][0]["tag"] = "ret"
-        if assign["target"][0]["name"] in functionList:
+        if (assign["target"][0]["name"] in functionList) and (assign["target"][0]["name"] == state.subroutine["name"]) :
             assign["value"][0]["tag"] = "ret"
-            #print (assign["value"])
             return assign["value"]
         else:    
             return [assign]
@@ -270,29 +301,30 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-
 def analyze(files, gen):
     global cleanup
-    outputFiles = []
+    outputFiles = {}
     ast = []
+    
+    # Parse through the ast tree once to identify and grab all the funcstions present in the Fortran file.
     for f in files:
         tree = ET.parse(f)
         loadFunction(tree)
+
+    # Parse through the ast tree a second time to convert the XML ast format to a format that can be used
+    # to generate python statements.    
     for f in files:
         tree = ET.parse(f)
         ast += parseTree(tree.getroot(), ParseState())
 
-    # printPython(sys.stdout, ast, "\n", "  ", True, [], [], True)
-    pyFile = open(gen, "w")
-    infoName = gen.split(".")[0] + ".nfo"
-    #print (infoName)
-    infoFile = open(infoName, "w")
-    for functionName in functionList:
-        infoFile.write(functionName + '\n')
-    #print (functionList)
-    printPython(pyFile, ast)
-    pyFile.close()
-    infoFile.close()
+    # Load the functions list and Fortran ast to a single data structure which can be pickled and hence
+    # is portable across various scripts and usages.
+    outputFiles["ast"] = ast
+    outputFiles["functionList"] = functionList
+
+    pickleFile = open(gen, "wb")
+    pickle.dump(outputFiles, pickleFile)
+    pickleFile.close()
 
 
 def main():
@@ -301,7 +333,7 @@ def main():
         "-g",
         "--gen",
         nargs="*",
-        help="Routines for which dependency graphs should be generated",
+        help="Pickled version of routines for which dependency graphs should be generated",
     )
     parser.add_argument(
         "-f",
