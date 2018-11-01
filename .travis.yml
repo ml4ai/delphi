@@ -9,9 +9,10 @@ env:
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv
-  - pipenv install --dev --skip-lock
+  - pipenv install -d --skip-lock
   - curl http://vision.cs.arizona.edu/adarsh/delphi_data.tgz -o data.tgz
   - tar -xvzf data.tgz; rm data.tgz
 
 script: make test
+after_success: coveralls
 cache: pip

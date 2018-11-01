@@ -3,7 +3,7 @@ servers:
   - url: 'https://icm.causeex.twosixlabs.com/icm'
 info:
   description: Causal Exploration ICM API
-  version: 4.0.0-RC1
+  version: 4.1.0
   title: Causal Exploration ICM API
   contact:
     email: causeex-help@twosixlabs.com
@@ -905,6 +905,15 @@ components:
             range:
               description: 'A dummy range, because a boolean can only be true or false'
               type: object
+    StringRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: Denotes a string range
+          properties:
+            range:
+              description: 'A dummy range, because a string has no discernible range'
+              type: object
     EnumRange:
       allOf:
         - $ref: '#/components/schemas/Range'
@@ -975,6 +984,14 @@ components:
           properties:
             value:
               type: boolean
+    StringValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: A string value
+          properties:
+            value:
+              type: string
     EnumValue:
       allOf:
         - $ref: '#/components/schemas/Value'
@@ -1090,6 +1107,17 @@ components:
           type: string
           format: date-time
           description: timestamp of the last update to this primitive
+        auxiliaryProperties:
+          description: an editable list of additional properties for this primitive
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                description: a user friendly description of this property
+              value:
+                $ref: '#/components/schemas/Value'
     Entity:
       allOf:
         - $ref: '#/components/schemas/CausalPrimitive'
@@ -1280,7 +1308,16 @@ components:
     Experiment:
       type: object
       description: structure used for experimentation
+      required:
+        - baseType
+      discriminator:
+        propertyName: baseType
       properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
         id:
           type: string
           format: uuid
@@ -1320,16 +1357,33 @@ components:
         - type: object
           description: a sensitivity analysis experiment
           properties:
-            variables:
+            nodeOfInterest:
+              type: string
+              format: uuid
+              description: ID of the ICM causal variable being examined for sensitivity to one or more sensitivityVariables
+            numSteps:
+              type: integer
+              format: int32
+              description: how many relative time steps to run each sensitivity simulation
+            sensitivityVariables:
               type: array
               items:
                 type: string
                 format: uuid
-                description: ID of the ICM causal variable under experiment
+                description: ID of an ICM causal variable sensitivity candidate
     ExperimentResult:
       type: object
       description: Notional model of experiment results
+      required:
+        - baseType
+      discriminator:
+        propertyName: baseType
       properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
         id:
           type: string
           format: uuid
