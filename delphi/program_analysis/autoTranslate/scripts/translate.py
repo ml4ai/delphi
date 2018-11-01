@@ -36,12 +36,14 @@ def loadFunction(root):
     """
     Loads a list with all the functions in the Fortran File
 
-    Input:
-            root: The root of the XML ast tree.
+    Args:
+        root: The root of the XML ast tree.
 
-    Output: Does not return anything but populates a list
-            functionList that contains all the functions in the
-            Fortran File.
+    Returns:
+        None
+
+    Does not return anything but populates a list (functionList) that contains all
+    the functions in the Fortran File.
     """
     for element in root.iter():
         if element.tag == "function":
@@ -54,14 +56,13 @@ def parseTree(root, state):
     which can be ingested by other scripts to generate Python
     scripts.
 
-    Input:
-            root: The current root of the tree.
-            state: The current state of the tree defined by an
-                    object of the ParseState class.
+    Args:
+        root: The current root of the tree.
+        state: The current state of the tree defined by an object of the
+            ParseState class.
 
-    Output:
-            ast: A JSON ast that defines the structure of the
-                Fortran file.
+    Returns:
+            ast: A JSON ast that defines the structure of the Fortran file.
     """
 
     if root.tag == "subroutine" or root.tag == "program":
