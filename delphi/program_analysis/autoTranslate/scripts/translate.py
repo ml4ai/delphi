@@ -14,11 +14,13 @@ functionList = []
 
 cleanup = True
 
+
 class ParseState:
     """This class defines the state of the XML tree parsing
     at any given root. For any level of the tree, it stores
     the subroutine under which it resides along with the
     subroutines arguments."""
+
     def __init__(self, subroutine=None):
         self.subroutine = subroutine if subroutine != None else {}
         self.args = (
@@ -31,6 +33,7 @@ class ParseState:
         return ParseState(
             self.subroutine if subroutine == None else subroutine
         )
+
 
 def loadFunction(root):
     """
@@ -90,8 +93,8 @@ def parseTree(root, state):
     elif root.tag == "argument":
         return [{"tag": "arg", "name": root.attrib["name"]}]
 
-   # elif root.tag == "name":
-        #return [{"tag":"arg", "name":root.attrib["id"]}]
+    # elif root.tag == "name":
+    # return [{"tag":"arg", "name":root.attrib["id"]}]
 
     elif root.tag == "declaration":
         decVars = []
@@ -103,8 +106,13 @@ def parseTree(root, state):
                 decVars = parseTree(node, state)
         prog = []
         for var in decVars:
-            if state.subroutine["name"] in functionList and var["name"] in state.args:
-                state.subroutine["args"][state.args.index(var["name"])]["type"] = decType["type"]
+            if (
+                state.subroutine["name"] in functionList
+                and var["name"] in state.args
+            ):
+                state.subroutine["args"][state.args.index(var["name"])][
+                    "type"
+                ] = decType["type"]
                 continue
             prog.append(decType.copy())
             prog[-1].update(var)
@@ -200,12 +208,15 @@ def parseTree(root, state):
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
-        elif root.attrib["id"] in functionList and state.subroutine["tag"] != "function":
+        elif (
+            root.attrib["id"] in functionList
+            and state.subroutine["tag"] != "function"
+        ):
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
-       # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
+        # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
         #    fn = {"tag": "return", "name": root.attrib["id"]
         else:
             ref = {"tag": "ref", "name": root.attrib["id"]}
@@ -223,17 +234,19 @@ def parseTree(root, state):
                 assign["target"] = parseTree(node, state)
             elif node.tag == "value":
                 assign["value"] = parseTree(node, state)
-               # if assign["target"][0]["name"] in functionList:
-                #    assign["value"][0]["tag"] = "ret"
-        if (assign["target"][0]["name"] in functionList) and (assign["target"][0]["name"] == state.subroutine["name"]) :
+            # if assign["target"][0]["name"] in functionList:
+            #    assign["value"][0]["tag"] = "ret"
+        if (assign["target"][0]["name"] in functionList) and (
+            assign["target"][0]["name"] == state.subroutine["name"]
+        ):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
         else:
             return [assign]
 
     elif root.tag == "function":
-        subroutine = {"tag":root.tag, "name":root.attrib["name"]}
-       # functionList.append(root.attrib["name"])
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+        # functionList.append(root.attrib["name"])
         summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
@@ -307,7 +320,7 @@ def analyze(files, pickleFile):
         loadFunction(tree)
 
     # Parse through the ast tree a second time to convert the XML ast format to
-    # a format that can be used to generate python statements.    
+    # a format that can be used to generate python statements.
     for f in files:
         tree = ET.parse(f)
         ast += parseTree(tree.getroot(), ParseState())

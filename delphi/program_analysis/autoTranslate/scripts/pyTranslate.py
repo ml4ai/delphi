@@ -1,10 +1,11 @@
 import sys
 import pickle
-import argparse 
+import argparse
 
 GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 
 PRINTFN = {}
+
 
 class PrintState:
     def __init__(
@@ -285,6 +286,7 @@ def printAssignment(pyFile, node, printState):
         printState.copy(sep="", add="", printFirst=False, indexRef=True),
     )
 
+
 def printFuncReturn(pyFile, node, printState):
     if printState.indexRef:
         if node.get("name"):
@@ -328,11 +330,12 @@ def setupPrintFns():
             "return": printReturn,
             "function": printFunction,
             "ret": printFuncReturn,
-          #  "read": printFileRead,
-          #  "open": printFileOpen,
-          #  "close": printFileClose,
+            #  "read": printFileRead,
+            #  "open": printFileOpen,
+            #  "close": printFileClose,
         }
     )
+
 
 def printAst(pyFile, root, printState):
     for node in root:
@@ -349,12 +352,13 @@ def printPython(gen, outputFile):
     pickleFile = open(outputFile[0], "rb")
     outputRoot = pickle.load(pickleFile)
     root = outputRoot["ast"]
-    
+
     pyFile.write("from typing import List")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
     pickleFile.close()
     pyFile.close()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
