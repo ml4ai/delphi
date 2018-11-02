@@ -1,5 +1,6 @@
 [![Documentation Status](https://readthedocs.org/projects/delphi-framework/badge/?version=latest)](http://delphi-framework.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/ml4ai/delphi.svg?branch=master)](https://travis-ci.org/ml4ai/delphi)
+[![Coverage Status](https://coveralls.io/repos/github/ml4ai/delphi/badge.svg?branch=master)](https://coveralls.io/github/ml4ai/delphi?branch=master)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ml4ai/delphi/master)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1436914.svg)](https://doi.org/10.5281/zenodo.1436914)
 

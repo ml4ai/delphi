@@ -38,15 +38,13 @@ functionList = []
 
 cleanup = True
 
-#################################################################
-#
-#  This class defines the state of the XML tree parsing
-#  at any given root. For any level of the tree, it stores
-#  the subroutine under which it resides along with the 
-#  subroutines arguments.
-#  
-##################################################################
+
 class ParseState:
+    """This class defines the state of the XML tree parsing
+    at any given root. For any level of the tree, it stores
+    the subroutine under which it resides along with the
+    subroutines arguments."""
+
     def __init__(self, subroutine=None):
         self.subroutine = subroutine if subroutine != None else {}
         self.args = (
@@ -60,41 +58,40 @@ class ParseState:
             self.subroutine if subroutine == None else subroutine
         )
 
-#################################################################
-#
-#  Loads a list with all the functions in the Fortran File
-# 
-#  Input: 
-#          root: The root of the XML ast tree. 
-#
-#  Output: Does not return anything but populates a list 
-#          functionList that contains all the functions in the 
-#          Fortran File.     
-#
-##################################################################
+
 def loadFunction(root):
+    """
+    Loads a list with all the functions in the Fortran File
+
+    Args:
+        root: The root of the XML ast tree.
+
+    Returns:
+        None
+
+    Does not return anything but populates a list (functionList) that contains all
+    the functions in the Fortran File.
+    """
     for element in root.iter():
         if element.tag == "function":
             functionList.append(element.attrib["name"])
 
 
-#################################################################
-#
-#  Parses the XML ast tree recursively to generate a JSON ast 
-#  which can be ingested by other scripts to generate Python 
-#  scripts.
-# 
-#  Input: 
-#          root: The current root of the tree.
-#          state: The current state of the tree defined by an
-#                 object of the ParseState class.
-#
-#  Output: 
-#          ast: A JSON ast that defines the structure of the 
-#               Fortran file.
-#
-##################################################################
 def parseTree(root, state):
+    """
+    Parses the XML ast tree recursively to generate a JSON ast
+    which can be ingested by other scripts to generate Python
+    scripts.
+
+    Args:
+        root: The current root of the tree.
+        state: The current state of the tree defined by an object of the
+            ParseState class.
+
+    Returns:
+            ast: A JSON ast that defines the structure of the Fortran file.
+    """
+
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         summaries[root.attrib["name"]] = None
@@ -120,8 +117,8 @@ def parseTree(root, state):
     elif root.tag == "argument":
         return [{"tag": "arg", "name": root.attrib["name"]}]
 
-   # elif root.tag == "name":
-        #return [{"tag":"arg", "name":root.attrib["id"]}]
+    # elif root.tag == "name":
+    # return [{"tag":"arg", "name":root.attrib["id"]}]
 
     elif root.tag == "declaration":
         decVars = []
@@ -133,8 +130,13 @@ def parseTree(root, state):
                 decVars = parseTree(node, state)
         prog = []
         for var in decVars:
-            if state.subroutine["name"] in functionList and var["name"] in state.args:
-                state.subroutine["args"][state.args.index(var["name"])]["type"] = decType["type"]
+            if (
+                state.subroutine["name"] in functionList
+                and var["name"] in state.args
+            ):
+                state.subroutine["args"][state.args.index(var["name"])][
+                    "type"
+                ] = decType["type"]
                 continue
             prog.append(decType.copy())
             prog[-1].update(var)
@@ -230,12 +232,15 @@ def parseTree(root, state):
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
-        elif root.attrib["id"] in functionList and state.subroutine["tag"] != "function":
+        elif (
+            root.attrib["id"] in functionList
+            and state.subroutine["tag"] != "function"
+        ):
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
-       # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
+        # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
         #    fn = {"tag": "return", "name": root.attrib["id"]
         else:
             ref = {"tag": "ref", "name": root.attrib["id"]}
@@ -253,17 +258,19 @@ def parseTree(root, state):
                 assign["target"] = parseTree(node, state)
             elif node.tag == "value":
                 assign["value"] = parseTree(node, state)
-               # if assign["target"][0]["name"] in functionList:
-                #    assign["value"][0]["tag"] = "ret"
-        if (assign["target"][0]["name"] in functionList) and (assign["target"][0]["name"] == state.subroutine["name"]) :
+            # if assign["target"][0]["name"] in functionList:
+            #    assign["value"][0]["tag"] = "ret"
+        if (assign["target"][0]["name"] in functionList) and (
+            assign["target"][0]["name"] == state.subroutine["name"]
+        ):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
-        else:    
+        else:
             return [assign]
 
     elif root.tag == "function":
-        subroutine = {"tag":root.tag, "name":root.attrib["name"]}
-       # functionList.append(root.attrib["name"])
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+        # functionList.append(root.attrib["name"])
         summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
@@ -325,33 +332,33 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-def analyze(files, gen):
+def analyze(files, pickleFile):
     global cleanup
     outputFiles = {}
     ast = []
-    
-    # Parse through the ast tree once to identify and grab all the funcstions present in the Fortran file.
+
+    # Parse through the ast tree once to identify and grab all the funcstions
+    # present in the Fortran file.
     for f in files:
         tree = ET.parse(f)
         loadFunction(tree)
 
-    # Parse through the ast tree a second time to convert the XML ast format to a format that can be used
-    # to generate python statements.    
+    # Parse through the ast tree a second time to convert the XML ast format to
+    # a format that can be used to generate python statements.
     for f in files:
         tree = ET.parse(f)
         ast += parseTree(tree.getroot(), ParseState())
 
-    # Load the functions list and Fortran ast to a single data structure which can be pickled and hence
-    # is portable across various scripts and usages.
+    # Load the functions list and Fortran ast to a single data structure which
+    # can be pickled and hence is portable across various scripts and usages.
     outputFiles["ast"] = ast
     outputFiles["functionList"] = functionList
 
-    pickleFile = open(gen, "wb")
-    pickle.dump(outputFiles, pickleFile)
-    pickleFile.close()
+    with open(pickleFile, "wb") as f:
+        pickle.dump(outputFiles, f)
 
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
@@ -368,7 +375,3 @@ def main():
     )
     args = parser.parse_args(sys.argv[1:])
     analyze(args.files, args.gen[0])
-
-
-if __name__ == "__main__":
-    main()

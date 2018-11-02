@@ -27,7 +27,7 @@ class JsonEncodedList(db.TypeDecorator):
         if value is None:
             return []
         else:
-            return json.loads(value)
+            return json.loads(value.replace("'", '"'))
 
 
 mutable.MutableList.associate_with(JsonEncodedList)
@@ -55,15 +55,15 @@ mutable.MutableDict.associate_with(JsonEncodedDict)
 
 
 class Serializable(object):
-    def serialize(self):
+    def deserialize(self):
         return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
 
     @staticmethod
-    def serialize_list(l):
+    def deserialize_list(l):
         return [m.serialize() for m in l]
 
 
-class DelphiModel(db.Model):
+class DelphiModel(db.Model, Serializable):
     __tablename__ = "delphimodel"
     id = db.Column(db.String, primary_key=True)
     icm_metadata = db.relationship(
@@ -116,7 +116,7 @@ class ICMMetadata(db.Model, Serializable):
     )
     derivation = db.Column(JsonEncodedList, nullable=True)
     model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
-    __mapper_args__ = {"polymorphic_identity": "icmmetadata"}
+    __mapper_args__ = {"polymorphic_identity": "ICMMetadata"}
 
 
 class User(db.Model, Serializable):
@@ -131,18 +131,16 @@ class User(db.Model, Serializable):
     password = db.Column(db.String, nullable=True)
     phone = db.Column(db.String, nullable=True)
     userStatus = db.Column(db.Integer, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "user"}
+    __mapper_args__ = {"polymorphic_identity": "User"}
 
 
 class ServerResponse(db.Model, Serializable):
     """ Placeholder docstring for class ServerResponse. """
 
     __tablename__ = "serverresponse"
-    id = db.Column(
-        db.String, primary_key=True, default=str(uuid4()), nullable=True
-    )
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     message = db.Column(db.String, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "serverresponse"}
+    __mapper_args__ = {"polymorphic_identity": "ServerResponse"}
 
 
 class CausalPrimitive(db.Model, Serializable):
@@ -152,52 +150,196 @@ class CausalPrimitive(db.Model, Serializable):
     baseType = db.Column(db.String)
     namespaces = db.Column(JsonEncodedDict, nullable=True)
     types = db.Column(JsonEncodedList, nullable=True)
-    editable = db.Column(db.Boolean, nullable=True)
-    disableable = db.Column(db.Boolean, nullable=True)
-    disabled = db.Column(db.Boolean, nullable=True)
-    id = db.Column(
-        db.String, primary_key=True, default=str(uuid4()), nullable=True
-    )
+    editable = db.Column(db.Boolean, nullable=True, default=True)
+    disableable = db.Column(db.Boolean, nullable=True, default=True)
+    disabled = db.Column(db.Boolean, nullable=True, default=False)
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     label = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     lastUpdated = db.Column(db.String, nullable=True)
+    auxiliaryProperties = db.Column(JsonEncodedList, nullable=True)
+    model_id = db.Column(db.String, db.ForeignKey("delphimodel.id"))
     __mapper_args__ = {
-        "polymorphic_identity": "causalprimitive",
+        "polymorphic_identity": "CausalPrimitive",
         "polymorphic_on": baseType,
     }
+
+
+class Entity(CausalPrimitive):
+    """ Placeholder docstring for class Entity. """
+
+    __tablename__ = "entity"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("causalprimitive.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    confidence = db.Column(db.Float, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "Entity"}
+
+
+class CausalVariable(CausalPrimitive):
+    """ Placeholder docstring for class CausalVariable. """
+
+    __tablename__ = "causalvariable"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("causalprimitive.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    units = db.Column(db.String, nullable=True)
+    backingEntities = db.Column(JsonEncodedList, nullable=True)
+    lastKnownValue = db.Column(JsonEncodedDict, nullable=True)
+    confidence = db.Column(db.Float, nullable=True)
+    range = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CausalVariable"}
+
+
+class ConfigurationVariable(CausalPrimitive):
+    """ Placeholder docstring for class ConfigurationVariable. """
+
+    __tablename__ = "configurationvariable"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("causalprimitive.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    units = db.Column(db.String, nullable=True)
+    lastKnownValue = db.Column(JsonEncodedDict, nullable=True)
+    range = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "ConfigurationVariable"}
+
+
+class CausalRelationship(CausalPrimitive):
+    """ Placeholder docstring for class CausalRelationship. """
+
+    __tablename__ = "causalrelationship"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("causalprimitive.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    source = db.Column(JsonEncodedDict, nullable=True)
+    target = db.Column(JsonEncodedDict, nullable=True)
+    confidence = db.Column(db.Float, nullable=True)
+    strength = db.Column(db.Float, nullable=True)
+    reinforcement = db.Column(db.Boolean, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CausalRelationship"}
+
+
+class Relationship(CausalPrimitive):
+    """ Placeholder docstring for class Relationship. """
+
+    __tablename__ = "relationship"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("causalprimitive.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    source = db.Column(JsonEncodedDict, nullable=True)
+    target = db.Column(JsonEncodedDict, nullable=True)
+    confidence = db.Column(db.Float, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "Relationship"}
 
 
 class Evidence(db.Model, Serializable):
     """ Object that holds a reference to evidence (either KO from TA1 or human provided). """
 
     __tablename__ = "evidence"
-    id = db.Column(
-        db.String, primary_key=True, default=str(uuid4()), nullable=True
-    )
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     link = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     category = db.Column(db.String, nullable=True)
     rank = db.Column(db.Integer, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "evidence"}
+    __mapper_args__ = {"polymorphic_identity": "Evidence"}
 
 
 class Experiment(db.Model, Serializable):
     """ structure used for experimentation """
 
     __tablename__ = "experiment"
-    id = db.Column(
-        db.String, primary_key=True, default=str(uuid4()), nullable=True
-    )
+    baseType = db.Column(db.String)
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
     label = db.Column(db.String, nullable=True)
     options = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "experiment"}
+    __mapper_args__ = {
+        "polymorphic_identity": "Experiment",
+        "polymorphic_on": baseType,
+    }
+
+
+class ForwardProjection(Experiment):
+    """ Placeholder docstring for class ForwardProjection. """
+
+    __tablename__ = "forwardprojection"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experiment.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    interventions = db.Column(JsonEncodedList, nullable=True)
+    projection = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "ForwardProjection"}
+
+
+class SensitivityAnalysis(Experiment):
+    """ Placeholder docstring for class SensitivityAnalysis. """
+
+    __tablename__ = "sensitivityanalysis"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experiment.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    nodeOfInterest = db.Column(db.String, nullable=True)
+    numSteps = db.Column(db.Integer, nullable=True)
+    sensitivityVariables = db.Column(JsonEncodedList, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysis"}
 
 
 class ExperimentResult(db.Model, Serializable):
     """ Notional model of experiment results """
 
     __tablename__ = "experimentresult"
+    baseType = db.Column(db.String)
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
+    __mapper_args__ = {
+        "polymorphic_identity": "ExperimentResult",
+        "polymorphic_on": baseType,
+    }
+
+
+class ForwardProjectionResult(ExperimentResult):
+    """ Placeholder docstring for class ForwardProjectionResult. """
+
+    __tablename__ = "forwardprojectionresult"
     id = db.Column(
-        db.String, primary_key=True, default=str(uuid4()), nullable=True
+        db.String,
+        db.ForeignKey("experimentresult.id"),
+        primary_key=True,
+        default=str(uuid4()),
     )
-    __mapper_args__ = {"polymorphic_identity": "experimentresult"}
+    projection = db.Column(JsonEncodedDict, nullable=True)
+    results = db.Column(JsonEncodedList, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "ForwardProjectionResult"}
+
+
+class SensitivityAnalysisResult(ExperimentResult):
+    """ Placeholder docstring for class SensitivityAnalysisResult. """
+
+    __tablename__ = "sensitivityanalysisresult"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experimentresult.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    results = db.Column(JsonEncodedList, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysisResult"}

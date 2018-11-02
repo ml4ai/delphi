@@ -2,7 +2,8 @@ import json
 from typing import Dict, Union, List
 import numpy as np
 import networkx as nx
-from .utils import _insert_line_breaks, lmap
+from .utils.misc import _insert_line_breaks
+from .utils.fp import lmap
 from functools import partial
 from .AnalysisGraph import AnalysisGraph
 from networkx import DiGraph
@@ -177,9 +178,9 @@ def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     }
 
     if not n[1].get("indicators") is None:
-        for ind in n[1]['indicators']:
-            if 'dataset' in ind.__dict__:
-                del ind.__dict__['dataset']
+        for ind in n[1]["indicators"]:
+            if "dataset" in ind.__dict__:
+                del ind.__dict__["dataset"]
 
         node_dict["indicators"] = [
             _process_datetime(ind.__dict__) for ind in n[1]["indicators"]

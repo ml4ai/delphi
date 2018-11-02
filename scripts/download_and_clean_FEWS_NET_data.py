@@ -5,7 +5,8 @@ from pathlib import Path
 from glob import glob
 import shapefile
 from future.utils import lzip
-from delphi.utils import download_file, cd
+from delphi.utils.shell import cd
+from delphi.utils.web import download_file
 from delphi.paths import data_dir
 from tqdm import tqdm
 import matplotlib as mpl
