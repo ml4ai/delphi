@@ -189,7 +189,9 @@ def createExperiment(uuid: str):
 
         increment_month = lambda m: (m+1)%12 if (m+1) % 12 != 0 else 12
         if data["projection"]["stepSize"] == "MONTH":
-            d = date(d.year, increment_month(d.month), d.day)
+            # TODO Right now, the day is hardcoded by default to be 1. Need to
+            # figure out later what it means to step forward by one month.
+            d = date(d.year, increment_month(d.month), 1)
 
         for n in G.nodes(data=True):
             result.results.append(
