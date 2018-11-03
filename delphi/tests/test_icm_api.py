@@ -81,7 +81,7 @@ def causal_primitives(G):
             namespaces={},
             source={"id": G.nodes[e[0]]["id"], "baseType": "CausalVariable"},
             target={"id": G.nodes[e[1]]["id"], "baseType": "CausalVariable"},
-            model_id = G.id,
+            model_id=G.id,
             auxiliaryProperties=[],
             lastUpdated=today,
             types=["causal"],
@@ -143,7 +143,7 @@ def test_getICMByUUID(G, client):
 
 def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
-    # TODO Insert assert statement here.
+    assert len(rv.json) == 3
 
 
 def test_createExperiment(G, client):
