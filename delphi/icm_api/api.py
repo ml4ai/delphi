@@ -194,6 +194,9 @@ def createExperiment(uuid: str):
         update(G)
 
         for n in G.nodes(data=True):
+            CausalVariable.query.filter_by(
+                id=n[1]["id"]
+            ).first().lastUpdated = d.isoformat()
             result.results.append(
                 {
                     "id": n[1]["id"],
