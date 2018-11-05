@@ -178,7 +178,7 @@ def createExperiment(uuid: str):
     # TODO Right now, we just take the timestamp of the first intervention -
     # we might need a more generalizable approach.
 
-    d = date(*map(int, data["interventions"][0]["values"]["time"].split("-")))
+    d = date(*map(int, data["projection"]["startTime"].split("-")))
 
     increment_month = lambda m: (m + 1) % 12 if (m + 1) % 12 != 0 else 12
 
