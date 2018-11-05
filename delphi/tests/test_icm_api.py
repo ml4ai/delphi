@@ -169,7 +169,8 @@ def test_createExperiment(G, client):
                 },
             },
         ],
-        "projection": {"numSteps": 4, "stepSize": "MONTH"},
+        "projection": {"numSteps": 4, "stepSize": "MONTH",
+            "startTime":"2018-10-25T15:10:37.419Z" },
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
