@@ -1,7 +1,8 @@
 import json
 from uuid import uuid4
 import pickle
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+import dateutil
 from typing import Optional, List
 from itertools import product
 from delphi.random_variables import LatentVar
@@ -175,10 +176,7 @@ def createExperiment(uuid: str):
     db.session.add(result)
     db.session.commit()
 
-    # TODO Right now, we just take the timestamp of the first intervention -
-    # we might need a more generalizable approach.
-
-    d = date(*map(int, data["projection"]["startTime"].split("-")))
+    d = dateutil.parser.parse(data["projection"]["startTime"])
 
     increment_month = lambda m: (m + 1) % 12 if (m + 1) % 12 != 0 else 12
 
