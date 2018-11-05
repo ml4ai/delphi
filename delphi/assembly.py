@@ -9,7 +9,6 @@ from functools import singledispatch, lru_cache
 from itertools import permutations
 import pandas as pd
 import numpy as np
-from future.utils import lmap
 from scipy.stats import gaussian_kde
 
 

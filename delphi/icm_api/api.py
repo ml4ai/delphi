@@ -160,35 +160,43 @@ def createExperiment(uuid: str):
             for ind in n[1]["indicators"]:
                 ind.dataset = np.ones(G.res) * ind.mean
 
+        rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
                 rv.partial_t = variable["values"]["value"]
                 break
 
-    experiment = ForwardProjection(baseType="ForwardProjection")
+    id = str(uuid4())
+    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
     db.session.add(experiment)
     db.session.commit()
 
-    result = ForwardProjectionResult(
-        id=experiment.id, baseType="ForwardProjectionResult"
-    )
+    result = ForwardProjectionResult(id=id, baseType="ForwardProjectionResult")
     db.session.add(result)
     db.session.commit()
 
     # TODO Right now, we just take the timestamp of the first intervention -
     # we might need a more generalizable approach.
 
-    date_integers = [
-        int(s) for s in data["interventions"][0]["values"]["time"].split("-")
-    ]
-    d = date(*date_integers)
+    d = date(*map(int, data["interventions"][0]["values"]["time"].split("-")))
+
+    increment_month = lambda m: (m + 1) % 12 if (m + 1) % 12 != 0 else 12
 
     for i in range(data["projection"]["numSteps"]):
+        if data["projection"]["stepSize"] == "MONTH":
+            # TODO Right now, the day is hardcoded by default to be 1. Need to
+            # figure out later what it means to step forward by one month (i.e.
+            # increment month by one or number of days by ~30, or ..?
+            d = date(d.year, increment_month(d.month), 1)
+        elif data["projection"]["stepSize"] == "YEAR":
+            d = date(d.year + 1, d.month, d.day)
+
         update(G)
 
         for n in G.nodes(data=True):
-            if data["projection"]["stepSize"] == "MONTH":
-                d = d + timedelta(days=30)
+            CausalVariable.query.filter_by(
+                id=n[1]["id"]
+            ).first().lastUpdated = d.isoformat()
             result.results.append(
                 {
                     "id": n[1]["id"],
