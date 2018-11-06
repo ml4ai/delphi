@@ -170,7 +170,10 @@ def createExperiment(uuid: str):
         rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
-                rv.partial_t = variable["values"]["value"]
+                # TODO: Right now, we are only taking the first value in the
+                # "values" list. Need to generalize this so that you can have
+                # multiple interventions at different times.
+                rv.partial_t = variable["values"]["value"]["value"]
                 break
 
     id = str(uuid4())
