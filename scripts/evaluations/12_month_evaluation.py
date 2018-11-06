@@ -284,5 +284,5 @@ if __name__ == "__main__":
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
     df.to_csv("combined_table.csv", index=False)
-    for v in set(df["Variable"].values):
-        print(v)
+    with open("12_month_eval_variables.txt", "w") as f:
+        f.write("\n".join(set(df["Variable"].values)))
