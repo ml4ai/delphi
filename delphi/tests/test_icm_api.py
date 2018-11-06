@@ -128,6 +128,8 @@ def app(icm_metadata, delphi_model, causal_primitives):
             db.session.add(causal_primitive)
         db.session.commit()
         yield app
+
+        # Comment the following line while creating example database
         db.drop_all()
 
 
