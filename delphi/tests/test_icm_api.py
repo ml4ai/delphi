@@ -50,12 +50,14 @@ def causal_primitives(G):
             label=n[0],
             description=f"Long description of {n[0]}.",
             lastUpdated=today,
-            confidence = 1.0,
+            confidence=1.0,
             lastKnownValue={
+                "active": "ACTIVE",
+                "trend": None,
                 "time": today,
                 "value": {
                     "baseType": "FloatValue",
-                    "value": str(n[1]["rv"].dataset[0])
+                    "value": n[1]["rv"].dataset[0],
                 },
             },
             range={
@@ -166,7 +168,7 @@ def test_createExperiment(G, client):
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
-                    "value": 0.77,
+                    "value": {"baseType": "FloatValue", "value": 0.77},
                 },
             },
             {
@@ -174,12 +176,15 @@ def test_createExperiment(G, client):
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
-                    "value": 0.01,
+                    "value": {"baseType": "FloatValue", "value": 0.01},
                 },
             },
         ],
-        "projection": {"numSteps": 4, "stepSize": "MONTH",
-            "startTime":"2018-10-25T15:10:37.419Z" },
+        "projection": {
+            "numSteps": 4,
+            "stepSize": "MONTH",
+            "startTime": "2018-10-25T15:10:37.419Z",
+        },
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)
