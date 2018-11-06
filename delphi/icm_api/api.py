@@ -201,7 +201,7 @@ def createExperiment(uuid: str):
                     "baseline": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": 1,
+                        "value": 1.0,
                     },
                     "intervened": {
                         "active": "ACTIVE",
