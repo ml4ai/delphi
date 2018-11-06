@@ -38,11 +38,11 @@ class JsonEncodedDict(db.TypeDecorator):
 
     impl = db.Text
 
-    def process_bind_param(self, value, dialect):
-        if value is None:
+    def process_bind_param(self, _dict, dialect):
+        if _dict is None:
             return "{}"
         else:
-            return json.dumps(value)
+            return json.dumps(_dict)
 
     def process_result_value(self, value, dialect):
         if value is None:

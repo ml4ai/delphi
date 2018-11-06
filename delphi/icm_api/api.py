@@ -32,14 +32,16 @@ def listAllICMs():
 @bp.route("/icm/<string:uuid>", methods=["GET"])
 def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
-    return jsonify(ICMMetadata.query.filter_by(id=uuid).first().deserialize())
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first().deserialize()
+    del _metadata["model_id"]
+    return jsonify(_metadata)
 
 
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
-    model = ICMMetadata.query.filter_by(id=uuid).first()
-    db.session.delete(model)
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first()
+    db.session.delete(_metadata)
     db.session.commit()
     return ("", 204)
 
@@ -53,8 +55,13 @@ def updateICMMetadata(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    primitives = CausalPrimitive.query.filter_by(model_id=uuid).all()
-    return jsonify([p.deserialize() for p in primitives])
+    primitives = [
+        p.deserialize()
+        for p in CausalPrimitive.query.filter_by(model_id=uuid).all()
+    ]
+    for p in primitives:
+        del p["model_id"]
+    return jsonify(primitives)
 
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
