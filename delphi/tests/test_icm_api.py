@@ -50,6 +50,7 @@ def causal_primitives(G):
             label=n[0],
             description=f"Long description of {n[0]}.",
             lastUpdated=today,
+            confidence = 1.0,
             lastKnownValue={
                 "time": today,
                 "value": {
