@@ -16,7 +16,7 @@ def map_concepts_to_indicators(
     Args:
         G
         n
-        manual_mapping
+        mapping_file
     """
     if mapping_file is None:
         url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/concept_to_indicator_mapping.txt"
