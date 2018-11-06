@@ -1,7 +1,8 @@
 import json
 from uuid import uuid4
 import pickle
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+import dateutil
 from typing import Optional, List
 from itertools import product
 from delphi.random_variables import LatentVar
@@ -31,14 +32,16 @@ def listAllICMs():
 @bp.route("/icm/<string:uuid>", methods=["GET"])
 def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
-    return jsonify(ICMMetadata.query.filter_by(id=uuid).first().deserialize())
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first().deserialize()
+    del _metadata["model_id"]
+    return jsonify(_metadata)
 
 
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
-    model = ICMMetadata.query.filter_by(id=uuid).first()
-    db.session.delete(model)
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first()
+    db.session.delete(_metadata)
     db.session.commit()
     return ("", 204)
 
@@ -52,9 +55,13 @@ def updateICMMetadata(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    # G = DelphiModel.query.filter_by(id=uuid).first()
-    primitives = CausalPrimitive.query.filter_by(model_id=uuid).all()
-    return jsonify([p.deserialize() for p in primitives])
+    primitives = [
+        p.deserialize()
+        for p in CausalPrimitive.query.filter_by(model_id=uuid).all()
+    ]
+    for p in primitives:
+        del p["model_id"]
+    return jsonify(primitives)
 
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
@@ -163,7 +170,10 @@ def createExperiment(uuid: str):
         rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
-                rv.partial_t = variable["values"]["value"]
+                # TODO: Right now, we are only taking the first value in the
+                # "values" list. Need to generalize this so that you can have
+                # multiple interventions at different times.
+                rv.partial_t = variable["values"]["value"]["value"]
                 break
 
     id = str(uuid4())
@@ -175,10 +185,7 @@ def createExperiment(uuid: str):
     db.session.add(result)
     db.session.commit()
 
-    # TODO Right now, we just take the timestamp of the first intervention -
-    # we might need a more generalizable approach.
-
-    d = date(*map(int, data["interventions"][0]["values"]["time"].split("-")))
+    d = dateutil.parser.parse(data["projection"]["startTime"])
 
     increment_month = lambda m: (m + 1) % 12 if (m + 1) % 12 != 0 else 12
 
@@ -203,7 +210,7 @@ def createExperiment(uuid: str):
                     "baseline": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": 1,
+                        "value": 1.0,
                     },
                     "intervened": {
                         "active": "ACTIVE",

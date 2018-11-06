@@ -24,6 +24,7 @@ SQLAlchemy = "*"
 pyshp = "*"
 flask-sqlalchemy = "*"
 sqlalchemy = "*"
+python-dateutil = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
