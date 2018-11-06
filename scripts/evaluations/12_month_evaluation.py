@@ -280,6 +280,7 @@ if __name__ == "__main__":
     ]
 
     data_dir = str(data_dir / "evaluations" / "12_month")
-    combined_table = create_combined_table(data_dir, columns)
-    combined_table["Year"] = combined_table["Year"].astype(int)
-    combined_table.to_csv("combined_table.csv", sep="|", index=False)
+    df = create_combined_table(data_dir, columns)
+    df["Year"] = df["Year"].astype(int)
+    df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
+    df.to_csv("combined_table.csv", index=False)
