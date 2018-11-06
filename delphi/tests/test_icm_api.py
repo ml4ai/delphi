@@ -112,7 +112,13 @@ def causal_primitives(G):
 def app(icm_metadata, delphi_model, causal_primitives):
     app = create_app()
     app.testing = True
+
+    # Uncomment this line for creating an example database
+    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
+
+    # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     with app.app_context():
         db.create_all()
