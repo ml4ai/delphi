@@ -55,7 +55,7 @@ def causal_primitives(G):
                 "time": today,
                 "value": {
                     "baseType": "FloatValue",
-                    "value": n[1]["rv"].dataset[0],
+                    "value": str(n[1]["rv"].dataset[0])
                 },
             },
             range={
