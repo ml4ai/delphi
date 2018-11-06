@@ -53,7 +53,6 @@ def updateICMMetadata(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    # G = DelphiModel.query.filter_by(id=uuid).first()
     primitives = CausalPrimitive.query.filter_by(model_id=uuid).all()
     return jsonify([p.deserialize() for p in primitives])
 

@@ -51,7 +51,7 @@ def causal_primitives(G):
             description=f"Long description of {n[0]}.",
             lastUpdated=today,
             lastKnownValue={
-                "time": 0,
+                "time": today,
                 "value": {
                     "baseType": "FloatValue",
                     "value": n[1]["rv"].dataset[0],
