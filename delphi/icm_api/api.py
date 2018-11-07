@@ -174,7 +174,11 @@ def createExperiment(uuid: str):
                 # TODO : Right now, we are only taking the first value in the
                 # "values" list. Need to generalize this so that you can have
                 # multiple interventions at different times.
-                rv.partial_t = variable["values"]["value"]["value"]
+
+                # TODO : The subtraction of 1 is a TEMPORARY PATCH to address
+                # the mismatch in semantics between the ICM API and the Delphi
+                # model. MUST FIX ASAP.
+                rv.partial_t = variable["values"]["value"]["value"] - 1
                 break
 
     id = str(uuid4())

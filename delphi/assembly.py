@@ -33,16 +33,15 @@ def get_respdevs(gb):
     return gb["respdev"]
 
 
-def top_grounding(c: Concept, ontology: str = "UN") -> str:
+def top_grounding(c: Concept) -> str:
+    """ Return the top-scoring grounding from the UN ontology. """
     return (
-        c.db_refs[ontology][0][0].split("/")[-1]
-        if ontology in c.db_refs
-        else c.name
+        c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
     )
 
 
-def top_grounding_score(c: Concept, ontology: str = "UN") -> float:
-    return c.db_refs[ontology][0][1]
+def top_grounding_score(c: Concept) -> float:
+    return c.db_refs["UN"][0][1]
 
 
 def nameTuple(s: Influence) -> Tuple[str, str]:
@@ -105,7 +104,11 @@ def constructConditionalPDF(
                     all_thetas.append(thetas)
 
             # Prior
-            xs1, ys1 = np.meshgrid(stmt.subj_delta["polarity"]*rs, stmt.obj_delta["polarity"]*rs, indexing="xy")
+            xs1, ys1 = np.meshgrid(
+                stmt.subj_delta["polarity"] * rs,
+                stmt.obj_delta["polarity"] * rs,
+                indexing="xy",
+            )
             thetas = np.arctan2(ys1.flatten(), xs1.flatten())
             all_thetas.append(thetas)
 
@@ -125,16 +128,16 @@ def is_grounded():
 
 
 @is_grounded.register(Concept)
-def _(c: Concept, ontology: str = "UN") -> bool:
+def _(c: Concept) -> bool:
     """ Check if a concept is grounded """
     return (
-        ontology in c.db_refs
-        and c.db_refs[ontology][0][0].split("/")[1] != "properties"
+        "UN" in c.db_refs
+        and c.db_refs["UN"][0][0].split("/")[1] != "properties"
     )
 
 
 @is_grounded.register(Influence)
-def _(s: Influence, ontology: str = "UN") -> bool:
+def _(s: Influence) -> bool:
     """ Check if an Influence statement is grounded """
     return is_grounded(s.subj) and is_grounded(s.obj)
 
@@ -145,31 +148,22 @@ def is_well_grounded():
 
 
 @is_well_grounded.register(Concept)
-def _(c: Concept, ontology: str = "UN", cutoff: float = 0.7) -> bool:
+def _(c: Concept, cutoff: float = 0.7) -> bool:
     """Check if a concept has a high grounding score. """
 
-    return is_grounded(c, ontology) and (
-        top_grounding_score(c, ontology) >= cutoff
-    )
+    return is_grounded(c) and (top_grounding_score(c) >= cutoff)
 
 
 @is_well_grounded.register(Influence)
-def _(s: Influence, ontology: str = "UN", cutoff: float = 0.7) -> bool:
-    """ Returns true if both subj and obj are grounded to the specified
-    ontology"""
+def _(s: Influence, cutoff: float = 0.7) -> bool:
+    """ Returns true if both subj and obj are grounded to the UN ontology. """
 
-    return all(
-        map(lambda c: is_well_grounded(c, ontology, cutoff), s.agent_list())
-    )
+    return all(map(lambda c: is_well_grounded(c, cutoff), s.agent_list()))
 
 
 def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
     """ Check if a concept is grounded to a given name. """
-    return (
-        (top_grounding(c) == name)
-        if is_well_grounded(c, "UN", cutoff)
-        else False
-    )
+    return (top_grounding(c) == name) if is_well_grounded(c, cutoff) else False
 
 
 def contains_concept(s: Influence, concept_name: str, cutoff=0.7) -> bool:
