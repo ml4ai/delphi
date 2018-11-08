@@ -1,35 +1,29 @@
 """ Script for cleaning data for 12 month evaluation. """
 
-import sys
+import os
 import re
+import sys
 import pandas as pd
 from glob import glob
-from typing import List
+from typing import List, Dict
 from delphi.utils.shell import cd
 from delphi.paths import data_dir
-
-
-
-
-
+from process_climis_livestock_data import *
+from pprint import pprint
+import numpy as np
+from functools import partial
 
 
 def process_climis_crop_production_data(data_dir: str):
     """ Process CliMIS crop production data """
 
     climis_crop_production_csvs = glob(
-        "/".join(
-            [
-                data_dir,
-                "Climis South Sudan Crop Production Data",
-                "Crops_EstimatedProductionConsumptionBalance*.csv",
-            ]
-        )
+        "{data_dir}/Climis South Sudan Crop Production Data/"
+        "Crops_EstimatedProductionConsumptionBalance*.csv"
     )
     state_county_df = pd.read_csv(
-        "/".join([data_dir, "ipc_data.csv"]), skipinitialspace=True
+        f"{data_dir}/ipc_data.csv", skipinitialspace=True
     )
-
     combined_records = []
 
     for f in climis_crop_production_csvs:
@@ -44,19 +38,19 @@ def process_climis_crop_production_data(data_dir: str):
             }
             region = r["State/County"].strip()
 
-            if region in state_county_df["State"].values:
+            if region.lower() in state_county_df["State"].str.lower().values:
                 record["State"] = region
                 record["County"] = None
             else:
                 potential_states = state_county_df.loc[
                     state_county_df["County"] == region
                 ]["State"]
-                if len(potential_states) != 0:
-                    record["State"] = potential_states.iloc[0]
-                else:
-                    record["State"] = None
+                record["State"] = (
+                    potential_states.iloc[0]
+                    if len(potential_states) != 0
+                    else None
+                )
                 record["County"] = region
-
 
             for field in r.index:
                 if field != "State/County":
@@ -76,23 +70,17 @@ def process_climis_crop_production_data(data_dir: str):
 
 def process_fao_livestock_data(
     data_dir: str, columns: List[str]
-    ) -> pd.DataFrame:
-    csvfile = "/".join(
-        [
-            "FAO Crop_Livestock Production Data",
-            "FAOSTAT_South_Sudan_livestock_data_2014-2016.csv",
-        ]
-    )
-
-    fao_livestock_csv = "/".join([data_dir, csvfile])
-
+) -> pd.DataFrame:
     df = pd.read_csv(
-        fao_livestock_csv, usecols=["Element", "Item", "Year", "Unit", "Value"]
+        f"{data_dir}/FAO Crop_Livestock Production Data/FAOSTAT_South_Sudan_livestock_data_2014-2016.csv",
+        usecols=["Element", "Item", "Year", "Unit", "Value"],
     )
 
     df["Animal"] = df["Item"].str.split(",").str.get(-1)
     df["Product"] = df["Item"].str.split(",").str.get(0)
-    df["Variable"] = df["Animal"] + " " + df["Product"] + " " + df["Element"]
+    df["Variable"] = (
+        df["Animal"].str.strip() + " " + df["Product"] + " " + df["Element"]
+    )
     df["Variable"] = df["Variable"].str.lower()
     df["Unit"] = df["Unit"].str.lower()
     df["Source"] = "FAO"
@@ -106,7 +94,7 @@ def process_fao_livestock_data(
 
 def process_fewsnet_data(data_dir, columns: List[str]) -> pd.DataFrame:
     """ Process IPC food security classifications by county for South Sudan. """
-    df = pd.read_csv("/".join([data_dir, "ipc_data.csv"]))
+    df = pd.read_csv(f"{data_dir}/ipc_data.csv")
     df["Unit"] = "IPC Phase"
     df["Source"] = "FEWSNET"
     df["Variable"] = "IPC Phase Classification"
@@ -121,280 +109,143 @@ def process_climis_livestock_data(data_dir: str):
     """ Process CliMIS livestock data. """
 
     records = []
-    climis_livestock_production_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Production"])
 
-    with cd(climis_livestock_production_dir):
-        # dirs = glob("*")
-        # for dir in dirs:
-            # with cd(dir):
-        # print("climis_livestock_dir:" + climis_livestock_dir)
-        for filename in glob('*2017.csv'):
-            # print('filename:' + filename)
-            df = pd.read_csv(filename, index_col=0)
-            # print(df.index)
-            for column in df.columns:
-                # print(column)
-                record = {
-                    'Year': 2017,
-                    'Variable': "Percentage of householding at least milking one of their livestocks",
-                    'County': None,
-                    'Country': "South Sudan",
-                    'Unit': '%',
-                    'Month': column,
-                    'Value': df.loc['Households '][column],
-                    'Source': 'CliMIS'
-                    }
-                state_without_spaces = filename.split('_')[1]
-                # print(record)
-                record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                records.append(record)
-                
-    climis_livestock_bodycondition_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Body Condition"])
-    with cd(climis_livestock_bodycondition_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            for i in df.index:
-                for column in df.columns:
-                    record = {
-                        'Year': 2017,
-                        'County': None,
-                        'Country': "South Sudan",
-                        'Unit': '%',
-                        'Month': column,
-                        'Value': df.loc[i][column],
-                        'Source': 'CliMIS'
-                        }
-                    state_without_spaces = filename.split('_')[-2]
-                    # print(record)
-                    record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))     
-                    record['Variable'] = "Percentage of " + filename.split('_')[-3] + " in body condiction of " + i
-                    records.append(record)
+    livestock_data_dir = f"{data_dir}/Climis South Sudan Livestock Data"
 
+    for filename in glob(
+        f"{livestock_data_dir}/Livestock Body Condition/*2017.csv"
+    ):
+        records += process_file_with_single_table(
+            filename,
+            lambda ind: f"Percentage of {filename.split('_')[-3].lower()} with body condition {ind.lower()}",
+            lambda f: f.split("_")[-2],
+        )
 
-    climis_livestock_diseases_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Diseases"])
-    with cd(climis_livestock_diseases_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            # print(df.loc['FMD'])
-            # print()
-            # df.rename(str.strip, axis="columns", inplace=True)
-            for i, r in df.iterrows():
-                # print (i)
-                if(i != 'Reported ' and i != 'Vaccinated ' and i != 'Treated '):
-                    disease_str = i
-                else:
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        record['Variable'] = "Percentage of livestocks with disease " + disease_str + " is " + i
-                        records.append(record)
+    for filename in glob(
+        f"{livestock_data_dir}/Livestock Production/*2017.csv"
+    ):
+        records += process_file_with_single_table(
+            filename,
+            lambda ind: "Percentage of householding at least milking one of their livestocks",
+            lambda f: f.split("_")[1],
+        )
 
+    disease_acronym_dict = {
+        "FMD": "Foot and Mouth Disease (FMD)",
+        "LSD": "Lumpy Skin Disease (LSD)",
+        "CBPP": "Contagious Bovine Pleuropneumonia (CBPP)",
+        "CCPP": "Contagious Caprine Pleuropneumonia (CCPP)",
+        "NC": "NC",
+        "PPR": "Peste des Petits Ruminants (PPR)",
+        "Others": "Other diseases",
+    }
 
-    climis_livestock_ownership_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Ownership"])
-    with cd(climis_livestock_ownership_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            for i, r in df.iterrows():
-                if(i != 'Cattle' and i != 'Goat' and i != 'Sheep' and i != 'Poultry'):
-                    quantity_str = i
-                else:
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        record['Variable'] = quantity_str.replace('animal', i).replace('stock', i)
-                        if(quantity_str == 'Average price of animal sold (SSP)'):
-                            record["Unit"] = '$'
-                        else:
-                            record["Unit"] = None
+    func = (
+        lambda k, i: f"Percentage of livestock with {disease_acronym_dict[k]} that are {i.lower().strip()}"
+    )
+    livestock_disease_header_dict = {
+        k: partial(func, k) for k in disease_acronym_dict
+    }
 
-                        records.append(record)
+    livestock_migration_header_dict = {
+        "Livestock migration": lambda i: f"Percentage of livestock migrating {i.split()[-1].lower()}",
+        "Distance covered": lambda i: "Distance covered by migrating livestock",
+        "Proportion of livestock that migrated": lambda i: "Percentage of livestock that migrated",
+        "Migration normal at this time of the year": lambda i: f"Migration normal at this time of year, {i}",
+        "Duration in months when the migrated animals are expected to be back after": lambda i: "Duration in months when the migrated animals are expected to be back after",
+        "Reasons for livestock migration": lambda i: f"Percentage of livestock migrating due to {i.lower()}",
+    }
 
+    def process_directory(dirname, header_dict):
+        return pd.concat(
+            [
+                df
+                for df in [
+                    process_file_with_multiple_tables(f, header_dict)
+                    for f in glob(f"{livestock_data_dir}/{dirname}/*2017.csv")
+                ]
+                if df is not None
+            ]
+        )
 
-    climis_livestock_loss_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Loss"])
-    with cd(climis_livestock_loss_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            for i in df.index:
-                for column in df.columns:
-                    record = {
-                        'Year': 2017,
-                        'County': None,
-                        'Country': "South Sudan",
-                        'Unit': '%',
-                        'Month': column,
-                        'Value': df.loc[i][column],
-                        'Source': 'CliMIS'
-                        }
-                    state_without_spaces = filename.split('_')[-2]
-                    # print(record)
-                    record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))     
-                    record['Variable'] = "Percentage of " + filename.split('_')[-3] + " suffer from " + i
-                    records.append(record)
+    func2 = (
+        lambda k, i: f"{k.replace('animals', i.lower()).replace('stock', 'stock of '+i.lower()).replace('animal', i.lower())}"
+    )
+    livestock_ownership_headers = [
+        "Average current stock per household",
+        "Average number of animals born per household during last 4 weeks",
+        "Average number of animals acquired per household during last 4 weeks (dowry, purchase, gift)",
+        "Average number of animals given out as bride price/gift per household during last 4 weeks per household",
+        "Average number of animals sold per household during last 4 weeks household",
+        "Average price of animal sold (SSP)",
+        "Average number of animals exchanged for grain per household during last 4 weeks",
+        "Average number of animals died/slaughtered/lost per  household during last 4 weeks",
+    ]
 
-    climis_livestock_MarketPrices_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Market Prices"])
-    with cd(climis_livestock_MarketPrices_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            for i, r in df.iterrows():
-                for column in df.columns:
-                    if(column!= 'Market'):
-                        record = {
-                            'Year': 2017,
-                            'Country': "South Sudan",
-                            'Unit': '$',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['County'] = i
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))     
-                        record['Variable'] = "Price of " + filename.split('_')[-3] + " in Market " + r['Market']
-                        records.append(record)
+    livestock_ownership_header_dict = {
+        k: partial(func2, k) for k in livestock_ownership_headers
+    }
+    ownership_df = process_directory(
+        "Livestock Ownership", livestock_ownership_header_dict
+    )
 
-    climis_livestock_migration_dir = "/".join([str(data_dir), "Climis South Sudan Livestock Data", "Livestock Migration"])
-    with cd(climis_livestock_migration_dir):
-        for filename in glob('*2017.csv'):
-            df = pd.read_csv(filename, index_col=0)
-            row_id = 0
-            for i, r in df.iterrows():
-    
-                if(row_id == df.index.get_loc("Distance covered") + 1):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'Variable': "Livestock migration distance covered",
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': 'mile',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        records.append(record)
+    disease_df = process_directory(
+        "Livestock Diseases", livestock_disease_header_dict
+    )
 
-                if(row_id == df.index.get_loc("Proportion of livestock that migrated") + 1):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'Variable': "Proportion of livestock that migrated",
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        records.append(record)
+    livestock_migration_df = process_directory(
+        "Livestock Migration", livestock_migration_header_dict
+    )
 
-                if(row_id == df.index.get_loc(" Migration normal at this time of the year") + 1):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'Variable': "Proportion of livestock that migrated normally at this time of the year",
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        records.append(record)
+    livestock_pasture_header_dict = {
+        "Pasture condtion": lambda i: f"Percentage of livestock pasture in {i.lower()} condition",
+        "Pasture condition compared to similar time in a normal year": lambda i: f"Percentage of livestock pasture in {i.lower()} condition compared to a similar time in a normal year",
+        "Browse condition": lambda i: f"Percentage of livestock pasture in {i.lower()} browse condition",
+        "Browse condition compared to similar time in a normal year": lambda i: f"Percentage of livestock pasture in {i.lower()} browse condition compared to a similar time in a normal year",
+        "Presence of constraints in accessing forage": lambda i: f"Percentage reporting the {('presence' if i=='Yes' else 'absence')} of constraints in accessing forage",
+        "Main forage constraints": lambda i: f"Percentage reporting {i.lower()} as the main forage constraint",
+    }
+    livestock_pasture_df = process_directory(
+        "Livestock Pasture", livestock_pasture_header_dict
+    )
+    livestock_water_sources_header_dict = {
+        "Main water sources": lambda i: f"Percentage of livestock whose main water source is {i.lower()}",
+        "Number of days livestock have been watered in the last 7 days": lambda i: f"Number of days {i.lower()} have been watered in the last 7 days",
+    }
 
-                if(row_id == df.index.get_loc(" Migration normal at this time of the year") + 2):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'Variable': "Proportion of livestock that migrated abnormally at this time of the year",
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        records.append(record)
+    livestock_water_sources_df = process_directory(
+        "Livestock Water Sources", livestock_water_sources_header_dict
+    )
 
-                if(row_id == df.index.get_loc(" Duration in months when the migrated animals are expected to be back after  ") + 1):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'Variable': "Duration in months when the migrated animals are expected to be back after",
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': "month",
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        records.append(record)
+    for filename in glob(f"{livestock_data_dir}/Livestock Loss/*2017.csv"):
+        records += process_file_with_single_table(
+            filename,
+            lambda ind: f"Percentage of {filename.split('_')[-3].lower()} loss accounted for by {ind.lower()}",
+            lambda f: f.split("_")[-2],
+        )
 
-                if(i == 'Migration In ' or i == 'Migration Out' or i == 'No Migration'):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        record['Variable'] = "Livestocks Percentage of " + i
-                        records.append(record)
-              
+    livestock_prices_df = pd.concat(
+        [
+            make_livestock_prices_table(f)
+            for f in glob(
+                f"{livestock_data_dir}/Livestock Market Prices/*2017.csv"
+            )
+        ]
+    )
 
-                if(i == 'Pasture' or i == 'Water' or i == 'Conflict / Insecurity' or i == 'Disease' or i == 'Wild Conflict' or i == 'Others'):
-                    for column in df.columns:
-                        record = {
-                            'Year': 2017,
-                            'County': None,
-                            'Country': "South Sudan",
-                            'Unit': '%',
-                            'Month': column,
-                            'Value': r[column],
-                            'Source': 'CliMIS'
-                            }
-                        state_without_spaces = filename.split('_')[-2]
-                        record['State'] = ' '.join(re.findall('[A-Z][^A-Z]*', state_without_spaces))
-                        record['Variable'] = "Percentage of livestock migration due to " + i
-                        records.append(record)
-
-                row_id += 1
-
-
-    climis_livestock_data_df = pd.DataFrame(records)
-    # print(climis_livestock_data_df)
+    climis_livestock_data_df = pd.concat(
+        [
+            pd.DataFrame(records),
+            disease_df,
+            ownership_df,
+            livestock_prices_df,
+            livestock_migration_df,
+            livestock_pasture_df,
+            livestock_water_sources_df,
+        ]
+    )
     return climis_livestock_data_df
+
 
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
@@ -403,7 +254,13 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
 
     df = pd.concat(
-        [climis_crop_production_df, fao_livestock_df, ipc_df, climis_livestock_data_df], sort=True
+        [
+            climis_crop_production_df,
+            fao_livestock_df,
+            ipc_df,
+            climis_livestock_data_df,
+        ],
+        sort=True,
     )
 
     return df[columns]
@@ -413,6 +270,7 @@ if __name__ == "__main__":
     columns = [
         "Variable",
         "Year",
+        "Month",
         "Value",
         "Unit",
         "Source",
@@ -422,5 +280,9 @@ if __name__ == "__main__":
     ]
 
     data_dir = str(data_dir / "evaluations" / "12_month")
-    combined_table = create_combined_table(data_dir, columns)
-    combined_table.to_csv("combined_table.csv", sep="|", index=False)
+    df = create_combined_table(data_dir, columns)
+    df["Year"] = df["Year"].astype(int)
+    df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
+    df.to_csv("combined_table.csv", index=False)
+    with open("12_month_eval_variables.txt", "w") as f:
+        f.write("\n".join(set(df["Variable"].values)))
