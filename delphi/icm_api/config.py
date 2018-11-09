@@ -15,7 +15,10 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 # Following two lines are addedd to execute Celery Background Tasks
 CELERY_BROKER_URL = 'pyamqp://localhost//'
-CELERY_RESULT_BACKEND = 'rpc://localhost//' 
+#CELERY_RESULT_BACKEND = 'rpc://localhost//'
+CELERY_RESULT_BACKEND = 'db+sqlite:///result.sqlite'
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle']
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background
