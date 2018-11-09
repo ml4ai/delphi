@@ -3,6 +3,7 @@ from uuid import uuid4
 import pickle
 from datetime import date, timedelta, datetime
 import dateutil
+from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
 from delphi.random_variables import LatentVar
@@ -170,10 +171,14 @@ def createExperiment(uuid: str):
         rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
-                # TODO: Right now, we are only taking the first value in the
+                # TODO : Right now, we are only taking the first value in the
                 # "values" list. Need to generalize this so that you can have
                 # multiple interventions at different times.
-                rv.partial_t = variable["values"]["value"]["value"]
+
+                # TODO : The subtraction of 1 is a TEMPORARY PATCH to address
+                # the mismatch in semantics between the ICM API and the Delphi
+                # model. MUST FIX ASAP.
+                rv.partial_t = variable["values"]["value"]["value"] - 1
                 break
 
     id = str(uuid4())
@@ -187,16 +192,11 @@ def createExperiment(uuid: str):
 
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
-    increment_month = lambda m: (m + 1) % 12 if (m + 1) % 12 != 0 else 12
-
     for i in range(data["projection"]["numSteps"]):
         if data["projection"]["stepSize"] == "MONTH":
-            # TODO Right now, the day is hardcoded by default to be 1. Need to
-            # figure out later what it means to step forward by one month (i.e.
-            # increment month by one or number of days by ~30, or ..?
-            d = date(d.year, increment_month(d.month), 1)
+            d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
-            d = date(d.year + 1, d.month, d.day)
+            d = d + relativedelta(years=1)
 
         update(G)
 
@@ -210,12 +210,15 @@ def createExperiment(uuid: str):
                     "baseline": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": 1.0,
+                        "value": {"baseType": "FloatValue", "value": 1.0},
                     },
                     "intervened": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": np.mean(n[1]["rv"].dataset),
+                        "value": {
+                            "baseType": "FloatValue",
+                            "value": np.mean(n[1]["rv"].dataset),
+                        },
                     },
                 }
             )

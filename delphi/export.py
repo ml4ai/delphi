@@ -12,6 +12,9 @@ import pickle
 from .execution import construct_default_initial_state
 from datetime import datetime
 import platform
+import matplotlib
+import matplotlib.cm as cm
+from matplotlib.colors import Normalize
 
 operating_system = platform.system()
 
@@ -45,6 +48,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "fontsize": 20,
             "rankdir": kwargs.get("rankdir", "TB"),
             "fontname": font,
+            "overlap": "scale",
+            "splines": True,
         }
     )
 
@@ -73,11 +78,18 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         A.add_node(n, label=n.capitalize().replace("_", " "))
 
     for e in G.edges(data=True):
+        reinforcement = np.mean(
+            [
+                stmt.subj_delta["polarity"] * stmt.obj_delta["polarity"]
+                for stmt in e[2]["InfluenceStatements"]
+            ]
+        )
         opacity = (
             sum([len(s.evidence) for s in e[2]["InfluenceStatements"]]) / n_max
         )
         h = (opacity * 255).hex()
-        c_str = color_str + h[4:6]
+        cmap = cm.Greens if reinforcement > 0 else cm.Reds
+        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
         A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
     # Drawing indicator variables
