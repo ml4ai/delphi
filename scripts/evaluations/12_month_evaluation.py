@@ -247,11 +247,36 @@ def process_climis_livestock_data(data_dir: str):
     return climis_livestock_data_df
 
 
+def process_climis_import_data(data_dir: str) -> pd.DataFrame:
+    dfs = []
+    for f in glob(f"{data_dir}/CliMIS Import Data/*.csv"):
+        df = pd.read_csv(f, names=range(1, 13), header=0, thousands=",")
+        df = df.stack().reset_index(name="Value")
+        df.columns = ["Year", "Month", "Value"]
+        df["Month"] = df["Month"].astype(int)
+        df["Year"] = df["Year"].astype(int)
+        dfs.append(df)
+    df = (
+        pd.concat(dfs)
+        .pivot_table(values="Value", index=["Year", "Month"], aggfunc=np.sum)
+        .reset_index()
+    )
+
+    df.columns = ["Year", "Month", "Value"]
+    df["Variable"] = "Total amount of cereal grains imported"
+    df["Unit"] = "metric tonne"
+    df["Country"] = "South Sudan"
+    df["County"] = None
+    df["State"] = None
+    return df
+
+
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
     fao_livestock_df = process_fao_livestock_data(data_dir, columns)
     ipc_df = process_fewsnet_data(data_dir, columns)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
+    climis_import_data_df = process_climis_import_data(data_dir)
 
     df = pd.concat(
         [
@@ -259,6 +284,7 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
             fao_livestock_df,
             ipc_df,
             climis_livestock_data_df,
+            climis_import_data_df,
         ],
         sort=True,
     )
