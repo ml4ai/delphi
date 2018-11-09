@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import openpyxl
 import pandas as pd
 from glob import glob
 from typing import List, Dict
@@ -273,6 +274,7 @@ def process_climis_import_data(data_dir: str) -> pd.DataFrame:
 
 def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
     dfs = []
+    # Read CSV files first
     for f in glob(f"{data_dir}/CliMIS South Sudan Rainfall Data in"
                   " Millimeters/*.csv"):
         # Get the name of the table without path and extension
@@ -295,7 +297,44 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
         df_new['Source'] = 'CliMIS'
         df_new['Country'] = 'South Sudan'
         dfs.append(df_new)
-    df = pd.concat(dfs)
+    df1 = pd.concat(dfs)
+
+    # Read XLSX file next
+    fname = f'{data_dir}/CliMIS South Sudan Rainfall Data in Millimeters/' + \
+        'Rainfall-Early_Warning_6month_Summary-2017-data_table.xlsx'
+    df = pd.read_excel(fname, sheet_name='Rainfall Data', header=1)
+    cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
+            'State', 'County', 'Country']
+    df_new = pd.DataFrame(columns=cols)
+    states = []
+    counties = []
+    years = []
+    months = []
+    values = []
+    for row in df.itertuples():
+        state, county, year = row[1:4]
+        for month in range(1,13):
+            value = row[3 + month]
+            if pd.isnull(value):
+                continue
+            states.append(state)
+            counties.append(county)
+            years.append(year)
+            months.append(month)
+            values.append(value)
+    df_new['Year'] = years
+    df_new['Month'] = months
+    df_new['Value'] = values
+    df_new['County'] = counties
+    df_new['State'] = states
+    df_new['Variable'] = 'Rainfall'
+    df_new['Unit'] = 'millimeters'
+    df_new['Source'] = 'CliMIS'
+    df_new['Country'] = 'South Sudan'
+
+
+    df = pd.concat([df1, df_new])
+
     return df
 
 
