@@ -1,7 +1,9 @@
 import json
 from uuid import uuid4
 import pickle
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+import dateutil
+from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
 from delphi.random_variables import LatentVar
@@ -31,14 +33,16 @@ def listAllICMs():
 @bp.route("/icm/<string:uuid>", methods=["GET"])
 def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
-    return jsonify(ICMMetadata.query.filter_by(id=uuid).first().deserialize())
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first().deserialize()
+    del _metadata["model_id"]
+    return jsonify(_metadata)
 
 
 @bp.route("/icm/<string:uuid>", methods=["DELETE"])
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
-    model = ICMMetadata.query.filter_by(id=uuid).first()
-    db.session.delete(model)
+    _metadata = ICMMetadata.query.filter_by(id=uuid).first()
+    db.session.delete(_metadata)
     db.session.commit()
     return ("", 204)
 
@@ -52,9 +56,13 @@ def updateICMMetadata(uuid: str):
 @bp.route("/icm/<string:uuid>/primitive", methods=["GET"])
 def getICMPrimitives(uuid: str):
     """ returns all ICM primitives (TODO - needs filter support)"""
-    # G = DelphiModel.query.filter_by(id=uuid).first()
-    primitives = CausalPrimitive.query.filter_by(model_id=uuid).all()
-    return jsonify([p.deserialize() for p in primitives])
+    primitives = [
+        p.deserialize()
+        for p in CausalPrimitive.query.filter_by(model_id=uuid).all()
+    ]
+    for p in primitives:
+        del p["model_id"]
+    return jsonify(primitives)
 
 
 @bp.route("/icm/<string:uuid>/primitive", methods=["POST"])
@@ -144,33 +152,42 @@ def query(uuid: str):
     """ Query the ICM using SPARQL"""
     return "", 415
 
+
 from delphi.icm_api import make_celery, create_app
+
 celery = make_celery(create_app())
+
 
 @celery.task()
 def background_task(G, d, data, experiment_id):
     print("line152: background_task being called!")
     result = ForwardProjectionResult.query.filter_by(id=experiment_id).first()
     for i in range(data["projection"]["numSteps"]):
+        if data["projection"]["stepSize"] == "MONTH":
+            d = d + relativedelta(months=1)
+        elif data["projection"]["stepSize"] == "YEAR":
+            d = d + relativedelta(years=1)
         update(G)
 
-        increment_month = lambda m: (m+1)%12 if (m+1) % 12 != 0 else 12
-        if data["projection"]["stepSize"] == "MONTH":
-            d = date(d.year, increment_month(d.month), d.day)
-
         for n in G.nodes(data=True):
+            CausalVariable.query.filter_by(
+                id=n[1]["id"]
+            ).first().lastUpdated = d.isoformat()
             result.results.append(
                 {
                     "id": n[1]["id"],
                     "baseline": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": 1,
+                        "value": {"baseType": "FloatValue", "value": 1.0},
                     },
                     "intervened": {
                         "active": "ACTIVE",
                         "time": d.isoformat(),
-                        "value": np.mean(n[1]["rv"].dataset),
+                        "value": {
+                            "baseType": "FloatValue",
+                            "value": np.mean(n[1]["rv"].dataset),
+                        },
                     },
                 }
             )
@@ -198,40 +215,42 @@ def createExperiment(uuid: str):
         rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
-                rv.partial_t = variable["values"]["value"]
+                # TODO : Right now, we are only taking the first value in the
+                # "values" list. Need to generalize this so that you can have
+                # multiple interventions at different times.
+
+                # TODO : The subtraction of 1 is a TEMPORARY PATCH to address
+                # the mismatch in semantics between the ICM API and the Delphi
+                # model. MUST FIX ASAP.
+                rv.partial_t = variable["values"]["value"]["value"] - 1
                 break
 
-    experiment = ForwardProjection(baseType="ForwardProjection")
+    id = str(uuid4())
+    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
     db.session.add(experiment)
     db.session.commit()
 
-    result = ForwardProjectionResult(
-        id=experiment.id, baseType="ForwardProjectionResult"
-    )
+    result = ForwardProjectionResult(id=id, baseType="ForwardProjectionResult")
     db.session.add(result)
     db.session.commit()
 
-    # TODO Right now, we just take the timestamp of the first intervention -
-    # we might need a more generalizable approach.
-
-    date_integers = [
-        int(s) for s in data["interventions"][0]["values"]["time"].split("-")
-    ]
-    d = date(*date_integers)
-    
     print("line:221 Before calling baskground_tasks.")
-    
-    result = background_task.delay(G,d,data,experiment.id)
+
+    d = dateutil.parser.parse(data["projection"]["startTime"])
+    result = background_task.delay(G, d, data, experiment.id)
     result.wait()
-    
-    print (result)
+
+    print(result)
+
+    db.session.add(result)
+    db.session.commit()
+
     return jsonify(
         {
             "id": experiment.id,
             "message": "Forward projection sent successfully",
         }
     )
-
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["GET"])

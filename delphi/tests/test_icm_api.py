@@ -50,8 +50,11 @@ def causal_primitives(G):
             label=n[0],
             description=f"Long description of {n[0]}.",
             lastUpdated=today,
+            confidence=1.0,
             lastKnownValue={
-                "timestep": 0,
+                "active": "ACTIVE",
+                "trend": None,
+                "time": today,
                 "value": {
                     "baseType": "FloatValue",
                     "value": n[1]["rv"].dataset[0],
@@ -81,7 +84,7 @@ def causal_primitives(G):
             namespaces={},
             source={"id": G.nodes[e[0]]["id"], "baseType": "CausalVariable"},
             target={"id": G.nodes[e[1]]["id"], "baseType": "CausalVariable"},
-            model_id = G.id,
+            model_id=G.id,
             auxiliaryProperties=[],
             lastUpdated=today,
             types=["causal"],
@@ -112,7 +115,13 @@ def causal_primitives(G):
 def app(icm_metadata, delphi_model, causal_primitives):
     app = create_app()
     app.testing = True
+
+    # Uncomment this line for creating an example database
+    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
+
+    # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     with app.app_context():
         db.create_all()
@@ -122,6 +131,8 @@ def app(icm_metadata, delphi_model, causal_primitives):
             db.session.add(causal_primitive)
         db.session.commit()
         yield app
+
+        # Comment the following line while creating example database
         db.drop_all()
 
 
@@ -143,7 +154,7 @@ def test_getICMByUUID(G, client):
 
 def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
-    # TODO Insert assert statement here.
+    assert len(rv.json) == 3
 
 
 def test_createExperiment(G, client):
@@ -157,7 +168,7 @@ def test_createExperiment(G, client):
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
-                    "value": 0.77,
+                    "value": {"baseType": "FloatValue", "value": 0.77},
                 },
             },
             {
@@ -165,11 +176,15 @@ def test_createExperiment(G, client):
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
-                    "value": 0.01,
+                    "value": {"baseType": "FloatValue", "value": 0.01},
                 },
             },
         ],
-        "projection": {"numSteps": 4, "stepSize": "MONTH"},
+        "projection": {
+            "numSteps": 4,
+            "stepSize": "MONTH",
+            "startTime": "2018-10-25T15:10:37.419Z",
+        },
         "options": {"timeout": 3600},
     }
     rv = client.post(post_url, json=post_data)

@@ -29,7 +29,7 @@ def _(G: AnalysisGraph, *args, **kwargs):
 
     return Image(
         to_agraph(G, *args, **kwargs).draw(
-            format="png", prog=kwargs.get("prog", "dot")
+            format="png", prog=kwargs.get("prog", kwargs.get("layout", "dot"))
         ),
         retina=True,
     )
@@ -73,4 +73,4 @@ def _(G: ProgramAnalysisGraph, show_values=False):
 
     # Drawing indicator variables
 
-    return Image(A.draw(format="png", prog="dot"), retina=True)
+    return Image(A.draw(format="png", prog=kwargs.get("layout", "dot")), retina=True)
