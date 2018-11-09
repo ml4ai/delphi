@@ -144,17 +144,21 @@ def query(uuid: str):
     """ Query the ICM using SPARQL"""
     return "", 415
 
-
-from delphi.icm_api.run import celery
+from delphi.icm_api import make_celery, create_app
+celery = make_celery(create_app())
 
 @celery.task()
-def background_task(G, d, data, result):
+def background_task(G, d, data, experiment_id):
+    print("line152: background_task being called!")
+    result = ForwardProjectionResult.query.filter_by(id=experiment_id).first()
     for i in range(data["projection"]["numSteps"]):
         update(G)
 
+        increment_month = lambda m: (m+1)%12 if (m+1) % 12 != 0 else 12
+        if data["projection"]["stepSize"] == "MONTH":
+            d = date(d.year, increment_month(d.month), d.day)
+
         for n in G.nodes(data=True):
-            if data["projection"]["stepSize"] == "MONTH":
-                d = d + timedelta(days=30)
             result.results.append(
                 {
                     "id": n[1]["id"],
@@ -172,6 +176,7 @@ def background_task(G, d, data, result):
             )
     db.session.add(result)
     db.session.commit()
+    print("line178: *****background_task before returns*****")
     return True
 
 
@@ -213,35 +218,13 @@ def createExperiment(uuid: str):
         int(s) for s in data["interventions"][0]["values"]["time"].split("-")
     ]
     d = date(*date_integers)
-
-    for i in range(data["projection"]["numSteps"]):
-        update(G)
     
+    print("line:221 Before calling baskground_tasks.")
     
-
-        increment_month = lambda m: (m+1)%12 if (m+1) % 12 != 0 else 12
-        if data["projection"]["stepSize"] == "MONTH":
-            d = date(d.year, increment_month(d.month), d.day)
-
-        for n in G.nodes(data=True):
-            result.results.append(
-                {
-                    "id": n[1]["id"],
-                    "baseline": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": 1,
-                    },
-                    "intervened": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": np.mean(n[1]["rv"].dataset),
-                    },
-                }
-            )
-    db.session.add(result)
-    db.session.commit()
-
+    result = background_task.delay(G,d,data,experiment.id)
+    result.wait()
+    
+    print (result)
     return jsonify(
         {
             "id": experiment.id,
