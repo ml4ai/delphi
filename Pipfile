@@ -24,6 +24,7 @@ SQLAlchemy = "*"
 pyshp = "*"
 flask-sqlalchemy = "*"
 sqlalchemy = "*"
+celery = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
