@@ -3,7 +3,6 @@
 import os
 import re
 import sys
-import openpyxl
 import pandas as pd
 from glob import glob
 from typing import List, Dict
@@ -282,7 +281,6 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
         # Get state and year from groups
         pattern = r'^(.*) ([0-9]+) Rainfall'
         state, year = re.match(pattern, table_name).groups()
-        print(state, year)
         df = pd.read_csv(f, header=0, thousands=",")
         cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
                 'State', 'County', 'Country']
@@ -332,9 +330,7 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
     df_new['Source'] = 'CliMIS'
     df_new['Country'] = 'South Sudan'
 
-
     df = pd.concat([df1, df_new])
-
     return df
 
 
@@ -344,6 +340,7 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     ipc_df = process_fewsnet_data(data_dir, columns)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
+    climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
 
     df = pd.concat(
         [
@@ -352,6 +349,7 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
             ipc_df,
             climis_livestock_data_df,
             climis_import_data_df,
+            climis_rainfall_data_df
         ],
         sort=True,
     )
