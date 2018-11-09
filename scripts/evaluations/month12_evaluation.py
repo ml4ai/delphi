@@ -271,6 +271,34 @@ def process_climis_import_data(data_dir: str) -> pd.DataFrame:
     return df
 
 
+def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
+    dfs = []
+    for f in glob(f"{data_dir}/CliMIS South Sudan Rainfall Data in"
+                  " Millimeters/*.csv"):
+        # Get the name of the table without path and extension
+        table_name = os.path.basename(f)[:-4]
+        # Get state and year from groups
+        pattern = r'^(.*) ([0-9]+) Rainfall'
+        state, year = re.match(pattern, table_name).groups()
+        print(state, year)
+        df = pd.read_csv(f, header=0, thousands=",")
+        cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
+                'State', 'County', 'Country']
+        df_new = pd.DataFrame(columns=cols)
+        df_new['Month'] = range(1, 13)
+        df_new['Year'] = int(year)
+        df_new['Value'] = df['monthly rainfall data ']
+        df_new['Variable'] = 'Rainfall'
+        df_new['Unit'] = 'millimeters'
+        df_new['County'] = None
+        df_new['State'] = state
+        df_new['Source'] = 'CliMIS'
+        df_new['Country'] = 'South Sudan'
+        dfs.append(df_new)
+    df = pd.concat(dfs)
+    return df
+
+
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
     fao_livestock_df = process_fao_livestock_data(data_dir, columns)
