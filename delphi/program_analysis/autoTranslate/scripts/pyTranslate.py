@@ -29,7 +29,7 @@ import argparse
 GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 
 PRINTFN = {}
-
+libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
 
 class PrintState:
     def __init__(
@@ -133,13 +133,19 @@ def printProgram(pyFile, node, printState):
 def printCall(pyFile, node, printState):
     if not printState.indexRef:
         pyFile.write("[")
+    
+    inRef = False
 
+    if (node["name"] in libFns):
+        node["name"] = node["name"].lower()
+        inRef = 1
+ 
     pyFile.write(f"{node['name']}(")
     printAst(
         pyFile,
         node["args"],
         printState.copy(
-            sep=", ", add="", printFirst=False, definedVars=[], indexRef=False
+            sep=", ", add="", printFirst=False, definedVars=[], indexRef=inRef
         ),
     )
     pyFile.write(")")
@@ -151,7 +157,7 @@ def printCall(pyFile, node, printState):
 def printArg(pyFile, node, printState):
     if node["type"] == "INTEGER":
         varType = "int"
-    elif node["type"] == "DOUBLE":
+    elif node["type"] in ["DOUBLE", "REAL"]:
         varType = "float"
     else:
         print(f"unrecognized type {node['type']}")
@@ -169,7 +175,7 @@ def printVariable(pyFile, node, printState):
         if node["type"] == "INTEGER":
             initVal = 0
             varType = "int"
-        elif node["type"] == "DOUBLE":
+        elif node["type"] in ["DOUBLE", "REAL"]:
             initVal = 0.0
             varType = "float"
         else:
@@ -332,8 +338,8 @@ def printExit(pyFile, node, printState):
 
 
 def printReturn(pyFile, node, printState):
-    pyFile.write("sys.exit(0)")
-
+#    pyFile.write("sys.exit(0)")
+     pyFile.write("return True")
 
 def setupPrintFns():
     PRINTFN.update(
@@ -377,7 +383,8 @@ def printPython(gen, outputFile):
     outputRoot = pickle.load(pickleFile)
     root = outputRoot["ast"]
 
-    pyFile.write("from typing import List")
+    pyFile.write("from typing import List\n")
+    pyFile.write("from math import *")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
     pickleFile.close()
