@@ -28,7 +28,7 @@ import sys
 import argparse
 import pickle
 from collections import *
-import get_comments 
+from get_comments import * 
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -346,7 +346,7 @@ def analyze(files, pickleFile, fortranFile):
     ast = []
 
     # Extracts the comments from the original Fortran source file
-    comments = get_comments.get_comments(fortranFile) 
+    comments = get_comments(fortranFile) 
  
     # Parse through the ast tree once to identify and grab all the funcstions
     # present in the Fortran file.
