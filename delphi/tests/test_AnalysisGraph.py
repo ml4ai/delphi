@@ -28,7 +28,10 @@ def test_from_statements():
     assert set(G.edges()) == set([("conflict", "food_security")])
 
 
-def test_from_statements_file(test_statements_file):
+def test_from_statements_file():
+    test_statements_file = "test_statements.pkl"
+    with open(test_statements_file, "wb") as f:
+        pickle.dump(sts, f)
     with open(test_statements_file, "rb") as f:
         sts_from_file = pickle.load(f)
     G = AnalysisGraph.from_statements(sts_from_file)
@@ -37,7 +40,8 @@ def test_from_statements_file(test_statements_file):
     os.remove(test_statements_file)
 
 
-def test_from_pickle(G, test_model_file):
+def test_from_pickle(G):
+    test_model_file = "test_model.pkl"
     with open(test_model_file, "wb") as f:
         pickle.dump(G, f)
     with open(test_model_file, "rb") as f:
