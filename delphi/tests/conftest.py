@@ -4,6 +4,7 @@ from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.assembly import get_valid_statements_for_modeling
 
+
 conflict = Concept(
     "conflict",
     db_refs={
