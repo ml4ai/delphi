@@ -4,6 +4,7 @@ import tangent
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 import numpy as np
+# from mpi4py.futures import MPIPoolExecutor
 
 import delphi.program_analysis.autoTranslate.lambdas as lambdas
 
@@ -27,13 +28,13 @@ def perform_sensitivity_analysis():
     }
 
     print("Sampling over parameter bounds")
-    param_values = saltelli.sample(param_def, 1000, calc_second_order=True)
+    param_values = saltelli.sample(param_def, 10000, calc_second_order=True)
 
     print("Evaluating samples")
     y = evaluate(func, param_values)
 
     print("Collecting sensitivity indices")
-    Si = sobol.analyze(param_def, y)
+    Si = sobol.analyze(param_def, y, parallel=False, print_to_console=False, n_processors=None)
     print(Si)
 
 

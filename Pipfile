@@ -24,6 +24,8 @@ SQLAlchemy = "*"
 pyshp = "*"
 flask-sqlalchemy = "*"
 sqlalchemy = "*"
+SALib = "*"
+tangent = "*"
 
 [dev-packages]
 sphinxcontrib-bibtex = "*"
