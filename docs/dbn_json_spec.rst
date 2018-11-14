@@ -1,9 +1,6 @@
 DBN-JSON schema specification
 =============================
 
-version 0.2.1
-
-
 Introduction
 ------------
 
@@ -13,69 +10,66 @@ Delphi.
 
 Here we adopt a simplified `Backus-Naur Form (BNF)`_ grammar convention combined
 with a convention for intuitively defining specific JSON attribute-value lists.
-This is all open to input from everyone, both for the specific form of DBN-JSON
-as well as the conventions we use for specifying the schema unambiguously.
-
 The schema definitions and instance DBN-JSON examples are shown in
 ``monospaced font``, and interspersed with comments/discussion.
 
-Following BNF convention, elements in ``<...>`` will denote non-terminals, with
-``::=`` indicating a definition of how a non-terminal is expanded.  Many
+Following BNF convention, elements in ``<...>`` denote non-terminals, with
+``::=`` indicating a definition of how a non-terminal is expanded.  Many of the
 definitions below will specify JSON attribute-value lists; when this is the
-case, I’ll decorate the element definition by adding [attrval], as follows:::
+case, we will decorate the element definition by adding ``[attrval]``, as
+follows:::
 
   <element_name>[attrval] ::= 
 
-I'll then specify the structure of the JSON attribute-value list attributes
+We will then specify the structure of the JSON attribute-value list attributes
 (quoted strings), and their value types using a mixture of JSON and BNF.
-In a few places, I note in the comments anticipated extensions that may be
+In a few places, we note in the comments anticipated extensions that may be
 needed using the tag 'FUTURE'.
 
 From Source Code to Dynamic System Representation
--------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The challenge of this project is to define a map from the semantics of program
 (computation) specification (as asserted in source code) to the semantics of
 (discrete) dynamic system model.  We must take care to define (ongoing!)
 technical terms and highlight which concept domain (general computation versus
-dynamics system model) we are 
+dynamics system model) we are dealing with. 
 
-We assume here that the source code is intended to describe how the states of a
-dynamic system are determined and/or change over time.
-
-Dynamic state representations describe a system whose state evolves over time.
-The system is decomposed into a set of individual states (represented as random
-variables), where the values of the states at any given time are a function of
-zero or more other states.  As we are considering the evolution of the system
-over time, in general every variable has an index.  The functional relationships
-may be instantaneous (based on the variables indexed at the same point in time)
-or across time (a function of states of variables at different time indices).
+We assume here that the source code is intended to describe the states of a
+dynamic system and how they evolve over time.  The system is decomposed into a
+set of individual states (represented as random variables), where the values of
+the states at any given time are a function of the values zero or more other
+states at a previous time point.  As we are considering the evolution of the
+system over time, in general every variable has an index.  The functional
+relationships may be instantaneous (based on the variables indexed at the same
+point in time) or across time (a function of states of variables at different
+time indices).
 
 Naming Conventions
 ------------------
 
 Both variables and functions will be uniquely named strings that do not rely on
-implicit position within the source code to be identified.  (One reason for
+implicit position within the source code to be identified (one reason for
 requiring unique names is that we’re moving from the semantics of program
 variables as pointers to storage to a representation of variables as denoting
-evolving state of a system.)  An important observation made by Jon: the same
-variable name in source code could itself be used in two separate variable
-declarations, so would constitute two different variable identities; source code
-name alone is not sufficient to identify variable identity.  For this reason, we
-must adopt a set of conventions for capturing any such source code context.
-These conventions will be assumed to be associated with the following
-``<variable_name>`` and ``<function_name>`` definitions.  In both cases, the names
-should also correspond to legal python variable and function names that could
-appear in python code -- so they must begin with a letter or underscore followed
-by letters, numbers or underscores.  
+the evolving state of a system).  An important observation: the same variable
+name in source code could itself be used in two separate variable declarations,
+and so would constitute two different variable identities; source code name
+alone is not sufficient to identify variable identity.  For this reason, we must
+adopt a set of conventions for capturing any such source code context.  These
+conventions will be assumed to be associated with the following
+``<variable_name>`` and ``<function_name>`` definitions.  In both cases, the
+names should also correspond to legal Python variable and function names that
+could appear in Python code -- so they must begin with a letter or underscore
+followed by letters, numbers or underscores.  
 
 Variable naming convention
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*NOTE: For now (20180709), we will NOT be using the <enclosing_context> aspect of
-Variable naming convention, however the Function naming convention will be used.
-This means that my examples of variable names below should also be read ignoring
-the <enclosing_context>*::
+*NOTE: For now (as of 2018-07-09), we will NOT be using the <enclosing_context>
+aspect of Variable naming convention, however, the Function naming convention
+will be used. This means that my examples of variable names below should also
+be read ignoring the <enclosing_context>*::
 
   <variable_name> ::= <string>
 
@@ -84,10 +78,10 @@ A top level source variable named ABSORPTION would then simply have the
 
   "ABSORPTION"
 
-On the chance that there are two separate instances of new variable declarations
-in the same context using the same name, then we’ll add an underscore and number
-to distinguish them.  For example, if ABSORPTION is defined twice, then the
-first (in order in the source code) is named::
+If there are two separate instances of new variable declarations in the same
+context using the same name, then we’ll add an underscore and number to
+distinguish them.  For example, if ABSORPTION is defined twice, then the first
+(in order in the source code) is named::
 
   "ABSORPTION_1"
 
@@ -99,6 +93,7 @@ Variable Reference
 ^^^^^^^^^^^^^^^^^^
 
 ::
+
   <variable_reference>[attrval] ::= 
       "variable" : <variable_name>
   "index" : <integer>
@@ -108,17 +103,17 @@ declarations, we also need a mechanism to disambiguate specific instances of the
 same variable within the same context to accurately capture the logical order of
 variable value updates.  In this case, we consider this as a repeated reference
 to the same variable.  The semantics of repeated reference is captured by the
-variable "index" attribute of a ``<variable_reference>``.  The index integer serves
-disambiguate the execution-order of variable state references, as determined
-during program analysis.
+variable "index" attribute of a ``<variable_reference>``.  The index integer
+serves disambiguate the execution order of variable state references, as
+determined during program analysis.
 
 Function naming conventions 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Function names, like variable names, are ultimately strings, and will also
 follow a conventional structure used to capture context information.  Also like
-variable names, they should be legal python function names that could show up in
-working python code (as will be the case when used in Lambda function
+variable names, they should be legal Python function names that could show up in
+working Python code (as will be the case when used in Lambda function
 references; see below).  The general string format is:::
 
   <enclosing_context>__<function_type>[___<var_affected>]
@@ -126,21 +121,21 @@ references; see below).  The general string format is:::
 Similar to variable naming, we need to use the function name string to uniquely
 identify the function, and as some functions extracted by program analysis will
 be expressions defined within other functions (loops and conditions), we need to
-capture the "context" in which the function is defined.  The <enclosing_context>
-represents the source code environment context within which the function is
-defined.  When a function is declared at the "top level" (often will be the case
-for container functions), then the ``<enclosing_context>`` is just the "top level"
-and so is empty.  Assigns, conditions and loop_plates, however, will often be
-declared within another source code function.  In those cases, the
-``<enclosing_context>`` capture the enclosing function name.  For example: for an
-assignment within the UPDATE_EST function, the ``<enclosing_context>`` is
-"UPDATE_EST".  
+capture the "context" in which the function is defined.  The
+``<enclosing_context>`` represents the source code environment context within
+which the function is defined.  When a function is declared at the "top level"
+(as will often be the case for container functions), the ``<enclosing_context>``
+is just the "top level" and so is empty.  Assigns, conditions and loop_plates,
+however, will often be declared within another source code function.  In those
+cases, the ``<enclosing_context>`` capture the enclosing function name. For
+example: for an assignment within the UPDATE_EST function, the
+``<enclosing_context>`` is "UPDATE_EST".  
 
-Next, the ``<function_type>`` is the string representing which of the four types the
-function belongs to (the types are described in more detail, below): "assign",
-"condition", "container", "loop_plate".  In the case of a loop_plate, we will
-name the specific loop using the generic name "loop", and include a number of
-there is more than one loop.
+Next, the ``<function_type>`` is the string representing which of the four types
+the function belongs to (the types are described in more detail, below):
+"assign", "condition", "container", "loop_plate".  In the case of a loop_plate,
+we will name the specific loop using the generic name "loop", and include a
+number if there is more than one loop.
 
 Finally, ``<var_affected>`` will only be relevant for assign and condition function
 types, and the name of the variable affected will be added after the
@@ -150,21 +145,21 @@ variable IF_1 would have the name: ``"UPDATE_EST__condition___IF_1"``.
 
 Here are example function names for each function types:
 
-* Assign: An assignment of the variable UPDATE_EST__YIELD_EST in the context of
+* **Assign**: An assignment of the variable UPDATE_EST__YIELD_EST in the context of
   function UPDATE_EST:::
 
     UPDATE_EST__assign___UPDATE_EST__YIELD_EST
 
-* Condition: A condition within the function UPDATE_EST assigning the (inferred)
+* **Condition**: A condition within the function UPDATE_EST assigning the (inferred)
   boolean variaaible IF_1:::
 
     UPDATE_EST__condition___IF_1
 
-* Container: A container function called CROP_YIELD::
+* **Container**: A container function called CROP_YIELD::
 
     CROP_YIELD__container
 
-* Loop_plate: 
+* **Loop_plate**: 
 
   * A single loop within the function CROP_YIELD:::
 
@@ -184,8 +179,8 @@ Here are example function names for each function types:
 
 NOTE: There is some redundancy in the above examples between the
 ``<enclosing_context>`` of the name of the function and the
-``<enclosing_context>`` of the name of the variable, however I think both are
-needed.
+``<enclosing_context>`` of the name of the variable, however we think that both
+are ultimately needed.
 
 Top-level DBN-JSON specification
 --------------------------------
@@ -205,37 +200,41 @@ current DBN-JSON was generated (to represent versioning).
 
 FUTURE: 
 
-* May need to extend "name" value to accommodate multiple source files.
-* May also be desirable to add attribute to represent the program_analysis code
-  version used to generate (as presumably the program_analysis code could evolve
-  and have different properties) -- although "dateCreated" may be sufficient.
+* We may need to extend "name" value to accommodate multiple source files.  * It
+  may also be desirable to add an attribute to represent the program analysis
+  code version used to generate the DBN-JSON (as presumably the program analysis
+  code could evolve and have different properties) -- although "dateCreated" may
+  be sufficient.
 
-A (partial) example instance of a JSON attribute-value list generated following the <dbn_json_spec>:
+A (partial) example instance of a JSON attribute-value list generated following
+the ``<dbn_json_spec>``:
 
 .. code-block:: javascript
 
   {
       "name": "crop_yield.py",
       "dateCreated": "20180623",
-      "variables": [ ... variable_specs go here... ],
-      "functions": [ ... function_specs go here... ]
+      "variables": [... variable_specs go here...],
+      "functions": [... function_specs go here...]
   }
 
 Variable specification
 ----------------------
+
 ::
 
   <variable_spec>[attrval] ::=
       "name" : <variable_name>
       "domain" : <variable_domain_type>
 
-The purpose of the list of <variable_spec>'s in the <dbn_json_spec> "variables"
-attribute value is to list all of the variables defined within the code we're
-analyzing, and associate each with their domain type.  This list should include
-all variables whose values get updated by computation, and will be derived from
-variables that are explicitly asserted in source code, such as those used for
-explicit value assignment or used as loop indices, and other variables that
-program analysis may introduce (infer) as part of analyzing conditionals.
+The purpose of the list of ``<variable_spec>``'s in the <dbn_json_spec>
+"variables" attribute value is to list all of the variables defined within the
+code we are analyzing, and associate each with their domain type.  This list
+should include all variables whose values get updated by computation, and will
+be derived from variables that are explicitly asserted in source code, such as
+those used for explicit value assignment or used as loop indices, and other
+variables that program analysis may introduce (infer) as part of analyzing
+conditionals.
 
 Variable value domain
 ^^^^^^^^^^^^^^^^^^^^^
@@ -243,11 +242,11 @@ Variable value domain
 
   <variable_domain_type> ::= <string>
 
-The "domain" attribute of a <variable_spec> specifies what values the variable
-be assigned to.  To start, we'll keep things simple and restrict ourselves to
-four types that can be specified as strings:
+The "domain" attribute of a ``<variable_spec>`` specifies what values the
+variable can be assigned to.  To start, we will keep things simple and restrict
+ourselves to four types that can be specified as strings:
 
-* "real" (aka float data type)
+* "real" (i.e. a floating-point number)
 * "integer"
 * "boolean"
 * "string"
@@ -261,32 +260,35 @@ TODO: Need to extend to accommodate arrays.
 FUTURE:
 
 * May also need to accommodate other structures (How far can this go?
-Unions, composite data structures, classes?).
-* I see augmenting the domain specification to also allow representing
-whether there are bounds on the values (e.g., positive integers, or real values
-in (0,10], etc.).  When we move to doing this, the value of "domain" will
-itself become a new JSON attrval type.
+  Unions, composite data structures, classes?).
+* We see augmenting the domain specification to also allow representing
+  whether there are bounds on the values (e.g., positive integers, or real values
+  in (0,10], etc.).  When we move to doing this, the value of "domain" will
+  itself become a new JSON attrval type.
 
-Python values are not statically typed (although python values *are* strongly
-typed). However, that's not to say that there is no type specification in
-python. Python 3 now provides nascent support for explicit typing ("hints"):
-https://docs.python.org/3/library/typing.html
+Python is a strongly-typed language, but is also a dynamically typed language.
+However, that's not to say that there is no type specification in Python. Python
+3 now provides nascent support for explicit typing via `type hints`_.
 
-TODO: explore whether/how this gets represented in the AST.
+TODO: Explore whether/how this gets represented in the AST.
 
 For our purposes in the near term, we do want to capture what type and
 value-domain information is available; there are two main sources of this
 information:
 
-1. Fortran: Does statically specify types.
-If we also want to capture this in program-analysis-generated code, then there
-is question of how to communicate this in the Python source representation;
-possibly through the new typing mentioned above; possibly as docstrings in
-program-analysis-generated code.
-2. Docstrings:  Possibly types and value ranges can be inferred from what is specified in a docstring.
-<variable_spec> examples:
+1. **Fortran**: Does statically specify types.
+   If we also want to capture this in program-analysis-generated code, then there
+   is question of how to communicate this in the Python source representation;
+   possibly through the new typing mentioned above; possibly as docstrings in
+   program-analysis-generated code.
+2. **Docstrings**:  Possibly types and value ranges can be inferred from what is
+   specified in a docstring.
 
-Here are three examples of <variable_spec>s:
+<variable_spec> examples
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Here are three examples of ``<variable_spec>`` objects:
+
 * Example of a "standard" variable MAX_RAIN within the CROP_YIELD function:
 
   .. code-block:: javascript
@@ -298,6 +300,7 @@ Here are three examples of <variable_spec>s:
 
 * Example of loop index variable DAY in the context of the second instance of a
   loop in the function CROP_YIELD
+
   .. code-block:: javascript
 
     {
@@ -307,6 +310,7 @@ Here are three examples of <variable_spec>s:
 
 * Example of variable introduced (inferred) when analyzing a conditional
   statement that is within the named function UPDATE_EST:
+
   .. code-block:: javascript
 
     {
@@ -314,19 +318,19 @@ Here are three examples of <variable_spec>s:
         "domain": "boolean"
     }
 
-Note that we do not include the <enclosing_context> of the UPDATE_EST function
+Note that we do not include the ``<enclosing_context>`` of the UPDATE_EST function
 in this case, as this is an inferred conditional boolean variable (per our
 naming convention, described above).
 
 Function specification
 ----------------------
 
-Next we have the <function_spec>.  There are four types of functions; two types
+Next we have the ``<function_spec>``.  There are four types of functions; two types
 can be expressed using the same attributes in their JSON attribute-value list
-(<function_assign_spec>), while the others (<function_container_spec>,
-<function_loop_plate>) require different attributes.  So the means there are
+(``<function_assign_spec>``), while the others (``<function_container_spec>``,
+``<function_loop_plate>``) require different attributes.  So the means there are
 three specializations of the <function_spec>, one of which
-(<function_assign_spec>) will be used for two function types.::
+(``<function_assign_spec>``) will be used for two function types.::
 
   <function_spec> ::=
       <function_assign_spec>     # either type "assign" or "condition:
@@ -349,12 +353,12 @@ the function type, but having the explicit type attribute make parsing easier.
 Function Assign Specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A <function_assign_spec> denotes the setting of the value of a variable.  The
-values are assigned to the "target" variable (denoted by a <variable_reference>
-or <variable_name>) and the value is determined by the "body" of the assignment,
-which itself may either be a literal value (specified by
-<function_assign_body_literal_spec>) or a lambda function (specified by
-<function_assign_body_lambda_spec>).::
+A ``<function_assign_spec>`` denotes the setting of the value of a variable.
+The values are assigned to the "target" variable (denoted by a
+``<variable_reference>`` or ``<variable_name>``) and the value is determined by
+the "body" of the assignment, which itself may either be a literal value
+(specified by ``<function_assign_body_literal_spec>``) or a lambda function
+(specified by ``<function_assign_body_lambda_spec>``).::
 
   <function_assign_spec>[attrval] ::=
       "name" : <function_name>
@@ -368,23 +372,23 @@ which itself may either be a literal value (specified by
 In the general case of variable assignment/setting, the attribute type should be
 "assign".  In the special case where we are representing the assignment of a
 boolean value as the result of a condition (if-statement), then program analysis
-will infer a new target variable that will be boolean domain type, and the
-computation of condition itself will be represented by the assignment function;
-in this case, we will use the more specific "condition" value for the "type"
-attribute of the <function_assign_spec>.  Semantically, this is nothing more
-than an assignment of a boolean variable, but conceptually it will be useful to
+will infer a new boolean target variable, and the computation of the condition
+itself will be represented by the assignment function; in this case, we will use
+the more specific "condition" value for the "type" attribute of the
+``<function_assign_spec>``.  Semantically, this is nothing more than an
+assignment of a boolean variable, but conceptually it will be useful to
 distinguish assignments used for conditions from other assignments.
 
 For "sources" and "target": when there is no need to refer to the variable by
-it's relative index, then <variable_name> is sufficient, and index will be
+its relative index, then ``<variable_name>`` is sufficient, and index will be
 assumed to be 0 (if at all relevant).
 
 Function assign body Literal
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""
 
-The <function_assign_body_literal_spec> asserts the assignment of a
-<literal_value> to the target variable.  The <literal_value> has a data type
-(corresponding to one of our 4 domain types), and the value itself will be
+The ``<function_assign_body_literal_spec>`` asserts the assignment of a
+``<literal_value>`` to the target variable.  The ``<literal_value>`` has a data
+type (corresponding to one of our four domain types), and the value itself will be
 represented generically in a string (the string will be parsed to extract the
 actual value according to its data type).::
 
@@ -397,38 +401,40 @@ actual value according to its data type).::
       "value" : <string>
 
 Function assign body Lambda
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""
 
 When more computation is done to determine the value that is being assigned to
-the variable in the <function_assign_spec>, then
-<function_assign_body_lambda_spec> is used.::
+the variable in the ``<function_assign_spec>``, then
+``<function_assign_body_lambda_spec>`` is used.::
 
   <function_assign_body_lambda_spec>[attrval] ::=
       "type" : "lambda"
       "executable_name" : <function_name>
       "source_line_number" : <source_code_reference>
 
-Eventually we can expand this part of the grammar to accommodate a restricted
+Eventually, we can expand this part of the grammar to accommodate a restricted
 set of arithmetic operations involved in computing the final value (this is now
 of interest in the World Modelers program and we're interested in supporting
-this in delphi).  But for now, we'll start by having the lambda function
-reference the source code that does the computation, in the translated python
+this in Delphi).  But for now, we will start by having the lambda function
+reference the source code that does the computation, in the translated Python
 generated by program analysis.  Any variables that are involved in the
 computation must be listed in the "source" list of variables (<variable_name>
 references) in the <function_assign_spec>.::
 
   <source_code_reference> := <string>
 
-To start, the <source_code_reference> string could just be the line number or a tuple denoting the range of line numbers over which the python source code for the corresponding operations are defined.  @Jon: let's iterate on this.
+To start, the ``<source_code_reference>`` string could just be the line number or a
+tuple denoting the range of line numbers over which the Python source code for
+the corresponding operations are defined.
 
 Function Decision Specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Handles representation of simple binary condition block:
+Handles representation of simple binary condition block:::
 
-If condition_variable:
-    Condition1 variable_reference
-Else
+  If condition_variable:
+      Condition1 variable_reference
+  Else
     
 Function Container Specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -436,8 +442,8 @@ Function Container Specification
 TODO: 
 
 * Handle single return value.
-* Handle multiple return value.
-* Handle conditional return value
+* Handle multiple return values.
+* Handle conditional return value.
 
   * Simple:::
 
@@ -446,14 +452,12 @@ TODO:
       Else
           Return <cond2>
 
-    (maybe like would be the way Jon currently handles condition combined with
-    handling a single return value)
   * Complex: handling arbitrary code in the conditions
 
-A <function_container_spec> is the generic, "top level" way to specify how a set
-of variables that are related by functions are "wired up" by those functions.
-(I previously referred to this as the "top", but here I'm renaming it a
-"container" as that's more descriptive of how it functions.)::
+A ``<function_container_spec>`` is the generic, "top level" way to specify how a
+set of variables that are related by functions are "wired up" by those
+functions.  (I previously referred to this as the "top", but here I'm renaming
+it a "container" as that's more descriptive of how it functions.)::
 
   <function_container_spec>[attrval] ::=
       "name" : <function_name>
@@ -467,7 +471,7 @@ of variables that are related by functions are "wired up" by those functions.
 
 Case 1: subroutine
 
-.. code-block:: python
+.. code-block:: Python
 
   def foo1_subroutine(x,y):
       x = y
@@ -482,7 +486,7 @@ now z = 5 and w = 5
 
 Case 2: fortran function with simple return
 
-.. code-block:: python
+.. code-block:: Python
 
   def foo():
       x <-
@@ -494,14 +498,15 @@ Case 2: fortran function with simple return
 
 Case 3: fortran function with return expression
 
-.. code-block:: python
+.. code-block:: Python
 
   def foo():
       return x+1
 
 becomes...
 
-.. code-block:: python
+.. code-block:: Python
+
   def foo():
     foo_return1 = x+1
 
@@ -509,7 +514,8 @@ becomes...
 
 Case 4: conditional return statements
 
-.. code-block:: python
+.. code-block:: Python
+
   def foo(): #fortran function
       if(x):
           return x
@@ -520,10 +526,7 @@ Case 4: conditional return statements
 There will be a container function for each source code function.  For this
 reason, we need an "input" variable list (of 0 or more variables) as well as an
 "output" variable.  In Python, a function only returns a value if there is an
-explicit return expression.  Otherwise it returns None.  How does this work in
-Fortran?
-
-The output is optional new variable specific to this function, can be used
+explicit return expression. Otherwise it returns None.  
 
 TODO: Can there be nested functions in Fortran?
 
@@ -537,7 +540,7 @@ Function Reference Specification
       "input" : list of [ <variable_reference> | <variable_name> ]
       "output" : <variable_reference> | <variable_name>
 
-The <function_reference_spec> defines the "wiring" between functions and their
+The ``<function_reference_spec>`` defines the "wiring" between functions and their
 input and output variable(s).
 
 Function Loop Plate Specification
@@ -553,13 +556,13 @@ Function Loop Plate Specification
       "index_iteration_range" : <index_range>
       "body" : list of <function_reference_spec>
 
-The "input" list of <variable_name>s should list all variables that are set in
-the scope outside of the loop_plate.  
+The "input" list of ``<variable_name>`` objects should list all variables that
+are set in the scope outside of the loop_plate.  
 
 The "index_variable" is the named variable that stores the iteration state of
 the loop; the naming convention of this variable is described above, in the
 Variable naming convention section.  The only new element introduced is the
-<index_range>:::
+``<index_range>``:::
 
   <index_range>[attrval] ::=
       "start" : <integer> | <variable_reference> | <variable_name>
@@ -568,7 +571,9 @@ Variable naming convention section.  The only new element introduced is the
 This definition permits loop iteration bounds to be specified either as literal
 integers, or as the values of variables.
 
-TODO: I think Fortran is restricted to integer values for iteration variables,
-which would include iteration over indexes into arrays.  Is that right?
+TODO: we think Fortran is restricted to integer values for iteration variables,
+which would include iteration over indexes into arrays. Need to double check
+this.
 
 .. _Backus-Naur Form (BNF): https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form
+.. _type hints: https://docs.Python.org/3/library/typing.html
