@@ -6,12 +6,24 @@
 
 <img src="https://raw.githubusercontent.com/ml4ai/delphi/master/docs/delphi_logo.png" width="250">
 
+# Delphi
+
+## Contents
+- [Citing](#citing)
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
 
-Delphi is a framework for assembling, exporting and executing executable DBN
-(dynamic Bayesian Network) models built for the DARPA World Modelers Program.
+Modeling complex phenomena such as food insecurity requires reasoning over 
+multiple levels of abstraction and fully utilizing expert knowledge about multiple
+disparate domains, ranging from the environmental to the sociopolitical.
+
+Delphi is a framework for assembling causal, dynamic, probabilistic  models from 
+information extracted from two sources:
+- *Text*: Delphi utilizes causal relations extracted using machine reading from
+   text sources such as UN agency reports, news articles, and technical papers.
+- *Software*: Delphi also incorporates functionality to extract abstracted representations
+   of scientific models from code that implements them, and convert these into probabilistic models.
 
 The general use case involves the following steps:
 
@@ -30,7 +42,7 @@ For a detailed description of our procedure to convert text to models, see
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
 
-# Citing
+## Citing
 
 If you use Delphi, please cite the following:
 
@@ -43,7 +55,7 @@ If you use Delphi, please cite the following:
 ```
 
 
-# Installation
+## Installation
 
 Delphi is under active development in an academic, rather than a commercial
 setting, so we do not have the resources to test it out on the Windows operating
@@ -81,7 +93,7 @@ Here are the steps for installation.
     pipenv install -d --skip-lock
     ```
 
-## Installing Graphviz on MacOS
+### Installing Graphviz on MacOS
 
 This can be done using [Homebrew](https://brew.sh):
 ```
@@ -95,14 +107,14 @@ pipenv install --install-option="--include-path=/usr/local/include/" \
                --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-## Ubuntu installation notes
+### Ubuntu installation notes
 To install graphviz on Ubuntu, do
 
 ```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
 ```
 
-## Environment variables
+### Environment variables
 
 To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
 environment variable to the path to your local copy of the Delphi data
@@ -118,9 +130,9 @@ following environment variables as well.
 - `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
   Demography Model](https://github.com/EDmodel/ED2) repository.
 
-# Usage
+## Usage
 
-## Jupyter notebook workflow
+### Jupyter notebook workflow
 
 Please see `notebooks/Delphi-Demo-Notebook.ipynb` for an example analysis
 workflow using a Jupyter notebook.
@@ -132,12 +144,12 @@ You can see a prerendered HTML version of the notebook
 [here.](http://vision.cs.arizona.edu/adarsh/Delphi-Demo-Notebook.html)
 
 
-## Command line usage
+### Command line usage
 
 In the following sections, we will go into more detail on model creation and
 execution.
 
-### Create model
+#### Create model
 
 To create a model from a set of INDRA statements, do
 
@@ -179,7 +191,7 @@ crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
 
-### Execute model
+#### Execute model
 
 To execute the model, do:
 
@@ -213,6 +225,6 @@ seq_no,time_slice,rainfall,crop yield
 
 To see all the command line options and the help message, do `delphi -h`.
 
-# License
+## License
 
 Delphi is licensed under the Apache License 2.0.
