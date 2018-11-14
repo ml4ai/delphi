@@ -193,8 +193,8 @@ def background_task(G, d, data, experiment_id):
             )
     db.session.add(result)
     db.session.commit()
-    print("line178: *****background_task before returns*****")
-    return True
+    print("line178: background_task before returns!")
+    #return True
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
@@ -234,17 +234,14 @@ def createExperiment(uuid: str):
     db.session.add(result)
     db.session.commit()
 
+    d = dateutil.parser.parse(data["projection"]["startTime"])
     print("line:221 Before calling baskground_tasks.")
 
-    d = dateutil.parser.parse(data["projection"]["startTime"])
     result = background_task.delay(G, d, data, experiment.id)
     result.wait()
 
     print(result)
-
-    db.session.add(result)
-    db.session.commit()
-
+    
     return jsonify(
         {
             "id": experiment.id,
