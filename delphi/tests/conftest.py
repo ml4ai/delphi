@@ -4,6 +4,7 @@ from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.assembly import get_valid_statements_for_modeling
 
+
 conflict = Concept(
     "conflict",
     db_refs={
@@ -46,21 +47,6 @@ s3 = Influence(
 )
 
 sts = [s1, s2, s3]
-
-
-@pytest.fixture(scope="session")
-def test_statements_file():
-    return "test_statements.pkl"
-
-
-@pytest.fixture(scope="session")
-def test_model_file():
-    return "test_model.pkl"
-
-
-with open(test_statements_file(), "wb") as f:
-    pickle.dump(sts, f)
-
 
 @pytest.fixture(scope="session")
 def G():
