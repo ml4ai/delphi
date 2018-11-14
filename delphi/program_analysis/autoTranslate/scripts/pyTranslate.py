@@ -1,7 +1,34 @@
+#!/usr/bin/python
+
+"""
+ 
+   File:    pyTranslate.py
+
+   Purpose: Convert a Fortran AST representation into a Python
+            script having the same functionalities and performing
+            the same operations as the original Fortran file.
+            
+   Usage:   This script is executed by the autoTranslate script as one 
+            of the steps in converted a Fortran source file to Python 
+            file. For standalone execution:
+               python pyTranslate -f <pickle_file> -g <python_file>
+            
+            pickle_file: Pickled file containing the ast represenatation
+                         of the Fortran file along with other non-source 
+                         code information.
+
+            python_file: The Python file on which to write the resulting 
+                         python script.
+
+"""
+
 import sys
+import pickle
+import argparse
 
+GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 
-printFn = {}
+PRINTFN = {}
 
 
 class PrintState:
@@ -45,7 +72,34 @@ class PrintState:
 
 
 def printSubroutine(pyFile, node, printState):
-    pyFile.write("\ndef {0}(".format(node["name"]))
+    pyFile.write(f"\ndef {node['name']}(")
+    args = []
+    printAst(
+        pyFile,
+        node["args"],
+        printState.copy(
+            sep=", ",
+            add="",
+            printFirst=False,
+            definedVars=args,
+            indexRef=False,
+        ),
+    )
+    pyFile.write("):")
+    printAst(
+        pyFile,
+        node["body"],
+        printState.copy(
+            sep=printState.sep + printState.add,
+            printFirst=True,
+            definedVars=args,
+            indexRef=True,
+        ),
+    )
+
+
+def printFunction(pyFile, node, printState):
+    pyFile.write(f"\ndef {node['name']}(")
     args = []
     printAst(
         pyFile,
@@ -73,14 +127,14 @@ def printSubroutine(pyFile, node, printState):
 
 def printProgram(pyFile, node, printState):
     printSubroutine(pyFile, node, printState)
-    pyFile.write("\n\n{0}(){1}".format(node["name"], printState.sep))
+    pyFile.write(f"\n\n{node['name']}(){printState.sep}")
 
 
 def printCall(pyFile, node, printState):
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("[")
 
-    pyFile.write("{0}(".format(node["name"]))
+    pyFile.write(f"{node['name']}(")
     printAst(
         pyFile,
         node["args"],
@@ -90,7 +144,7 @@ def printCall(pyFile, node, printState):
     )
     pyFile.write(")")
 
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("]")
 
 
@@ -100,9 +154,9 @@ def printArg(pyFile, node, printState):
     elif node["type"] == "DOUBLE":
         varType = "float"
     else:
-        print("unrecognized type {0}".format(node["type"]))
+        print(f"unrecognized type {node['type']}")
         sys.exit(1)
-    pyFile.write("{0}: List[{1}]".format(node["name"], varType))
+    pyFile.write(f"{node['name']}: List[{varType}]")
     printState.definedVars += [node["name"]]
 
 
@@ -119,11 +173,9 @@ def printVariable(pyFile, node, printState):
             initVal = 0.0
             varType = "float"
         else:
-            print("unrecognized type {0}".format(node["type"]))
+            print(f"unrecognized type {node['type']}")
             sys.exit(1)
-        pyFile.write(
-            "{0}: List[{1}] = [{2}]".format(node["name"], varType, initVal)
-        )
+        pyFile.write(f"{node['name']}: List[{varType}] = [{initVal}]")
     else:
         printState.printFirst = False
 
@@ -146,7 +198,8 @@ def printDo(pyFile, node, printState):
 
 
 def printIndex(pyFile, node, printState):
-    # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high']))
+    # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high'])) Don't use this
+    # pyFile.write(f"{node['name']}[0] in range(") Use this instead
     pyFile.write("{0}[0] in range(".format(node["name"]))
     printAst(
         pyFile,
@@ -192,7 +245,7 @@ def printIf(pyFile, node, printState):
 
 
 def printOp(pyFile, node, printState):
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("[")
     if "right" in node:
         pyFile.write("(")
@@ -201,18 +254,19 @@ def printOp(pyFile, node, printState):
             node["left"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
-        if node["operator"].lower() == ".ne.":
-            pyFile.write(" != ")
-        elif node["operator"].lower() == ".gt.":
-            pyFile.write(" > ")
-        elif node["operator"].lower() == ".eq.":
-            pyFile.write(" == ")
-        elif node["operator"].lower() == ".lt.":
-            pyFile.write(" < ")
-        elif node["operator"].lower() == ".le.":
-            pyFile.write(" <= ")
-        else:
-            pyFile.write(" {0} ".format(node["operator"]))
+
+        operator_mapping = {
+            ".ne.": " != ",
+            ".gt.": " > ",
+            ".eq.": " == ",
+            ".lt.": " < ",
+            ".le.": " <= ",
+        }
+        pyFile.write(
+            operator_mapping.get(
+                node["operator"].lower(), f" {node['operator']} "
+            )
+        )
         printAst(
             pyFile,
             node["right"],
@@ -220,7 +274,7 @@ def printOp(pyFile, node, printState):
         )
         pyFile.write(")")
     else:
-        pyFile.write("{0}".format(node["operator"]))
+        pyFile.write(f"{node['operator']}")
         pyFile.write("(")
         printAst(
             pyFile,
@@ -228,19 +282,19 @@ def printOp(pyFile, node, printState):
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
         pyFile.write(")")
-    if printState.indexRef == False:
+    if not printState.indexRef:
         pyFile.write("]")
 
 
 def printLiteral(pyFile, node, printState):
-    pyFile.write("{0}".format(node["value"]))
+    pyFile.write(f"{node['value']}")
 
 
 def printRef(pyFile, node, printState):
     if printState.indexRef:
-        pyFile.write("{0}[0]".format(node["name"]))
+        pyFile.write(f"{node['name']}[0]")
     else:
-        pyFile.write("{0}".format(node["name"]))
+        pyFile.write(f"{node['name']}")
 
 
 def printAssignment(pyFile, node, printState):
@@ -257,6 +311,22 @@ def printAssignment(pyFile, node, printState):
     )
 
 
+def printFuncReturn(pyFile, node, printState):
+    if printState.indexRef:
+        if node.get("name"):
+            pyFile.write(f"return {node['name']}[0]")
+        else:
+            pyFile.write(f"return {node['value']}")
+    else:
+        if node.get("name"):
+            pyFile.write(f"return {node['name']}")
+        else:
+            if node.get("value"):
+                pyFile.write(f"return {node['value']}")
+            else:
+                pyFile.write(f"return None")
+
+
 def printExit(pyFile, node, printState):
     pyFile.write("return")
 
@@ -266,20 +336,29 @@ def printReturn(pyFile, node, printState):
 
 
 def setupPrintFns():
-    printFn["subroutine"] = printSubroutine
-    printFn["program"] = printProgram
-    printFn["call"] = printCall
-    printFn["arg"] = printArg
-    printFn["variable"] = printVariable
-    printFn["do"] = printDo
-    printFn["index"] = printIndex
-    printFn["if"] = printIf
-    printFn["op"] = printOp
-    printFn["literal"] = printLiteral
-    printFn["ref"] = printRef
-    printFn["assignment"] = printAssignment
-    printFn["exit"] = printExit
-    printFn["return"] = printReturn
+    PRINTFN.update(
+        {
+            "subroutine": printSubroutine,
+            "program": printProgram,
+            "call": printCall,
+            "arg": printArg,
+            "variable": printVariable,
+            "do": printDo,
+            "index": printIndex,
+            "if": printIf,
+            "op": printOp,
+            "literal": printLiteral,
+            "ref": printRef,
+            "assignment": printAssignment,
+            "exit": printExit,
+            "return": printReturn,
+            "function": printFunction,
+            "ret": printFuncReturn,
+            #  "read": printFileRead,
+            #  "open": printFileOpen,
+            #  "close": printFileClose,
+        }
+    )
 
 
 def printAst(pyFile, root, printState):
@@ -288,11 +367,37 @@ def printAst(pyFile, root, printState):
             pyFile.write(printState.sep)
         else:
             printState.printFirst = True
+        if node.get("tag"):
+            PRINTFN[node["tag"]](pyFile, node, printState)
 
-        printFn[node["tag"]](pyFile, node, printState)
 
+def printPython(gen, outputFile):
+    pyFile = open(gen, "w")
+    pickleFile = open(outputFile[0], "rb")
+    outputRoot = pickle.load(pickleFile)
+    root = outputRoot["ast"]
 
-def printPython(pyFile, root):
     pyFile.write("from typing import List")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
+    pickleFile.close()
+    pyFile.close()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-g",
+        "--gen",
+        nargs="*",
+        help="Routines for which dependency graphs should be generated",
+    )
+    parser.add_argument(
+        "-f",
+        "--files",
+        nargs="+",
+        required=True,
+        help="Pickled version of the asts together with non-source code information",
+    )
+    args = parser.parse_args(sys.argv[1:])
+    printPython(args.gen[0], args.files)
