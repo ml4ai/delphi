@@ -31,6 +31,7 @@ GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 PRINTFN = {}
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
 
+
 class PrintState:
     def __init__(
         self,
@@ -133,13 +134,13 @@ def printProgram(pyFile, node, printState):
 def printCall(pyFile, node, printState):
     if not printState.indexRef:
         pyFile.write("[")
-    
+
     inRef = False
 
-    if (node["name"] in libFns):
+    if node["name"] in libFns:
         node["name"] = node["name"].lower()
         inRef = 1
- 
+
     pyFile.write(f"{node['name']}(")
     printAst(
         pyFile,
@@ -338,8 +339,9 @@ def printExit(pyFile, node, printState):
 
 
 def printReturn(pyFile, node, printState):
-#    pyFile.write("sys.exit(0)")
-     pyFile.write("return True")
+    #    pyFile.write("sys.exit(0)")
+    pyFile.write("return True")
+
 
 def setupPrintFns():
     PRINTFN.update(
