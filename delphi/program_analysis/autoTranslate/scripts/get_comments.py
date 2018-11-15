@@ -32,26 +32,26 @@ DEBUG = False
 #                                                                              #
 ################################################################################
 
-# From FORTRAN Language Reference 
+# From FORTRAN Language Reference
 # (https://docs.oracle.com/cd/E19957-01/805-4939/z40007332024/index.html):
 #
-# A line with a c, C, *, d, D, or ! in column one is a comment line, except 
-# that if the -xld option is set, then the lines starting with D or d are 
-# compiled as debug lines. The d, D, and ! are nonstandard. 
+# A line with a c, C, *, d, D, or ! in column one is a comment line, except
+# that if the -xld option is set, then the lines starting with D or d are
+# compiled as debug lines. The d, D, and ! are nonstandard.
 #
-# If you put an exclamation mark (!) in any column of the statement field, 
-# except within character literals, then everything after the ! on that 
-# line is a comment. 
+# If you put an exclamation mark (!) in any column of the statement field,
+# except within character literals, then everything after the ! on that
+# line is a comment.
 #
 # A totally blank line is a comment line.
 
 # line_is_comment(line) returns True iff line is a comment.
 def line_is_comment(line):
-    if line[0] in 'cCdD*!':
+    if line[0] in "cCdD*!":
         return True
 
     llstr = line.strip()
-    if len(llstr) == 0 or llstr[0] == '!':
+    if len(llstr) == 0 or llstr[0] == "!":
         return True
 
     return False
@@ -68,13 +68,13 @@ def line_is_comment(line):
 # and their ends, respectively.  The corresponding re objects are re_sub_start,
 # and re_fn_start, and re_subpgm_end.
 
-SUB_START = '\s*subroutine\s+(\w+)\s*\('
+SUB_START = "\s*subroutine\s+(\w+)\s*\("
 re_sub_start = re.compile(SUB_START, re.I)
 
-FN_START = '\s*function\s+(\w+)\s*\('
+FN_START = "\s*function\s+(\w+)\s*\("
 re_fn_start = re.compile(FN_START, re.I)
 
-SUBPGM_END = '\s*end\s+'
+SUBPGM_END = "\s*end\s+"
 re_subpgm_end = re.compile(SUBPGM_END, re.I)
 
 # line_starts_subpgm(line) indicates whether a line in the program is the
@@ -82,6 +82,7 @@ re_subpgm_end = re.compile(SUBPGM_END, re.I)
 #
 #    (True, f_name) : if line begins a definition for subprogram f_name;
 #    (False, None)  : if line does not begin a subprogram definition.
+
 
 def line_starts_subpgm(line):
     match = re_sub_start.match(line)
@@ -99,17 +100,19 @@ def line_starts_subpgm(line):
 
 # line_is_continuation(line) returns True iff line is a continuation line.
 
+
 def line_is_continuation(line):
     llstr = line.lstrip()
-    return (len(llstr) > 0 and llstr[0] == "&")
+    return len(llstr) > 0 and llstr[0] == "&"
 
 
-# line_ends_subpgm(line) returns True or False depending on whether line is 
+# line_ends_subpgm(line) returns True or False depending on whether line is
 # the last line of a subprogram definition.
+
 
 def line_ends_subpgm(line):
     match = re_subpgm_end.match(line)
-    return (match != None)
+    return match != None
 
 
 ################################################################################
@@ -133,16 +136,20 @@ def line_ends_subpgm(line):
 # If a particular subprogram does not have comments for any of these categories,
 # that category is mapped to [] by the comment dictionary for that subprogram.
 
+
 def get_comments(src_file_name):
     try:
         src_file = open(src_file_name, mode="r", encoding="latin-1")
     except IOError:
-        sys.stderr.write('ERROR: Could not open file {}\n'.format(src_file_name))
+        sys.stderr.write(
+            "ERROR: Could not open file {}\n".format(src_file_name)
+        )
         sys.exit(1)
     except UnicodeDecodeError:
-        sys.stderr.write('ERROR: unicode decoding problems: {}\n'.format(src_file))
+        sys.stderr.write(
+            "ERROR: unicode decoding problems: {}\n".format(src_file)
+        )
         sys.exit(1)
-
 
     comments = OrderedDict()
 
@@ -159,11 +166,13 @@ def get_comments(src_file_name):
             f_start, f_name = line_starts_subpgm(line)
             if f_start:
                 if DEBUG:
-                    print('<<< START: line {:d}, fn = {}'.format(lineno, f_name))
+                    print(
+                        "<<< START: line {:d}, fn = {}".format(lineno, f_name)
+                    )
 
                 if prev_fn != None:
-                    comments[prev_fn]['foot'] = curr_comment
-                
+                    comments[prev_fn]["foot"] = curr_comment
+
                 prev_fn = curr_fn
                 curr_fn = f_name
 
@@ -172,7 +181,7 @@ def get_comments(src_file_name):
                 in_neck = True
             elif line_ends_subpgm(line):
                 if DEBUG:
-                    print('>>> END: line {:d}, fn = {}'.format(lineno, f_name))
+                    print(">>> END: line {:d}, fn = {}".format(lineno, f_name))
 
                 curr_comment = []
                 collect_comments = True
@@ -180,7 +189,7 @@ def get_comments(src_file_name):
                 continue
             else:
                 if in_neck:
-                    comments[curr_fn]['neck'] = curr_comment
+                    comments[curr_fn]["neck"] = curr_comment
                     in_neck = False
                 collect_comments = False
 
@@ -189,23 +198,23 @@ def get_comments(src_file_name):
     # if there's a comment at the very end of the file, make it the foot
     # comment of curr_fn
     if curr_comment != []:
-        comments[curr_fn]['foot'] = curr_comment
+        comments[curr_fn]["foot"] = curr_comment
     return comments
 
 
 def init_comment_map(head_cmt, neck_cmt, foot_cmt):
-    return {'head': head_cmt, 'neck': neck_cmt, 'foot': foot_cmt}
+    return {"head": head_cmt, "neck": neck_cmt, "foot": foot_cmt}
 
 
 def print_comments(comments):
-    
+
     for fn in comments:
-        print (fn);
-        print('Function: {}'.format(fn))
+        print(fn)
+        print("Function: {}".format(fn))
         fn_comment = comments[fn]
 
-        for ccat in ['head', 'neck', 'foot']:
-            print('  {}:'.format(ccat))
+        for ccat in ["head", "neck", "foot"]:
+            print("  {}:".format(ccat))
             for line in fn_comment[ccat]:
                 print("    {}".format(line.rstrip()))
             print("")
