@@ -63,4 +63,4 @@ for file in "$@"; do
     pyFiles+=" $pyFile"
 done
 
-# ( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
+( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)

@@ -192,17 +192,48 @@ def get_body_and_functions(pgm):
 
 
 def make_fn_dict(name, target, sources, lambdaName, node):
+    
+    source = []
+    for src in sources:
+        if "call" in src:
+            source = make_call_body_dict(src)
+        elif "var" in src:
+#            source.append(src["var"]["variable"])
+            variable = src["var"]["variable"]
+            source.append({"name":variable, "type":"variable"})  
+
     fn = {
         "name": name,
         "type": "assign",
         "target": target["var"]["variable"],
-        "sources": [src["var"]["variable"] for src in sources if "var" in src],
+#        "sources": [src["var"]["variable"] for src in sources if "var" in src],
+        "sources": source,
         "body": [
             {"type": "lambda", "name": lambdaName, "reference": node.lineno}
         ],
     }
     return fn
 
+def make_call_body_dict(source):
+    source_list = []
+    name = source['call']['function']
+    source_list.append({"name": name, "type": "function"})
+ #   output = {}
+ #   inputs = []
+    for ip in source['call']['inputs']:
+        if "var" in ip[0]:
+            variable = ip[0]["var"]["variable"]
+            source_list.append({"name":variable, "type":"variable"})
+#            inputs.append(ip[0]["var"])
+#        else:
+#            inputs.append(ip[0])
+#    call_body = {
+#        "name": name,
+#        "output": output,
+#        "input": inputs
+#    }
+    
+    return source_list
 
 def make_body_dict(name, target, sources):
     body = {
@@ -408,8 +439,11 @@ def genPgm(node, state, fnNames):
             "name": fnName,
             "type": "assign",
             "target": condName,
+#            "sources": [
+#                src["var"]["variable"] for src in condSrcs if "var" in src
+#            ],
             "sources": [
-                src["var"]["variable"] for src in condSrcs if "var" in src
+                {"name":src["var"]["variable"], "type":"variable"} for src in condSrcs if "var" in src
             ],
             "body": [
                 {
@@ -506,8 +540,11 @@ def genPgm(node, state, fnNames):
                 "name": fnName,
                 "type": "assign",
                 "target": updatedDef,
+#                "sources": [
+#                    f"{var['variable']}_{var['index']}" for var in inputs
+#                ],
                 "sources": [
-                    f"{var['variable']}_{var['index']}" for var in inputs
+                    {"name":f"{var['variable']}_{var['index']}", "type":"variable"} for var in inputs
                 ],
             }
 
@@ -675,6 +712,7 @@ def genPgm(node, state, fnNames):
         pgm = {"functions": [], "body": []}
 
         for target in targets:
+            source_list = []
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
@@ -683,24 +721,30 @@ def genPgm(node, state, fnNames):
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
             body = make_body_dict(name, target, sources)
+            for src in sources:
+                if "var" in src:
+                    source_list.append(src["var"]["variable"])
+                elif "call" in src:
+                    source_list.append(src["call"]["function"])
+                    for ip in src["call"]["inputs"][0]:
+                        if "var" in ip:
+                            source_list.append(ip["var"]["variable"])
             genFn(
                 state.lambdaFile,
                 node,
                 lambdaName,
                 target["var"]["variable"],
-                [src["var"]["variable"] for src in sources if "var" in src],
+#                [src["var"]["variable"] for src in sources if "var" in src],
+                source_list,
             )
-
             if not fn["sources"] and len(sources) == 1:
                 fn["body"] = {
                     "type": "literal",
                     "dtype": sources[0]["dtype"],
                     "value": f"{sources[0]['value']}",
                 }
-
             pgm["functions"].append(fn)
             pgm["body"].append(body)
-
         return [pgm]
 
     # Call: ('func', 'args', 'keywords')
@@ -747,7 +791,10 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
     with open(lambdaFile, "w") as f:
         state = PGMState(f)
         pgm = genPgm(asts, state, {})[0]
-        pgm["start"] = pgm["start"][0]
+        if pgm.get("start"):
+            pgm["start"] = pgm["start"][0]
+        else:
+            pgm["start"] = ''
         pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 
@@ -760,7 +807,6 @@ def get_asts_from_files(files: List[str], printAst=False):
         asts.append(importAst(f))
         if printAst:
             print(dump(asts[-1]))
-
     return asts
 
 

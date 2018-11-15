@@ -28,7 +28,7 @@ import sys
 import argparse
 import pickle
 from collections import *
-from get_comments import * 
+from delphi.program_analysis.autoTranslate.scripts.get_comments import * 
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
