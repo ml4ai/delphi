@@ -425,9 +425,6 @@ def genPgm(node, state, fnNames):
             "name": fnName,
             "type": "assign",
             "target": condName,
-            #            "sources": [
-            #                src["var"]["variable"] for src in condSrcs if "var" in src
-            #            ],
             "sources": [
                 {"name": src["var"]["variable"], "type": "variable"}
                 for src in condSrcs
@@ -528,9 +525,6 @@ def genPgm(node, state, fnNames):
                 "name": fnName,
                 "type": "assign",
                 "target": updatedDef,
-                #                "sources": [
-                #                    f"{var['variable']}_{var['index']}" for var in inputs
-                #                ],
                 "sources": [
                     {
                         "name": f"{var['variable']}_{var['index']}",
@@ -726,7 +720,6 @@ def genPgm(node, state, fnNames):
                 node,
                 lambdaName,
                 target["var"]["variable"],
-                #                [src["var"]["variable"] for src in sources if "var" in src],
                 source_list,
             )
             if not fn["sources"] and len(sources) == 1:
