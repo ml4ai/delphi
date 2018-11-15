@@ -6,11 +6,11 @@
     Purpose: Read the Fortran source file specified and return subprogram
             names together with the associated subprogram-level comments.
     Usage:
-        Command-line invocation:  
+        Command-line invocation:
 
             get_comments.py src_file_name
 
-        Programmatic invocation: 
+        Programmatic invocation:
 
             comments = get_comments(src_file_name)
 
@@ -23,6 +23,7 @@
 
 import sys, re
 from collections import *
+from typing import Tuple, Optional
 
 DEBUG = False
 
@@ -32,21 +33,29 @@ DEBUG = False
 #                                                                              #
 ################################################################################
 
-# From FORTRAN Language Reference
-# (https://docs.oracle.com/cd/E19957-01/805-4939/z40007332024/index.html):
-#
-# A line with a c, C, *, d, D, or ! in column one is a comment line, except
-# that if the -xld option is set, then the lines starting with D or d are
-# compiled as debug lines. The d, D, and ! are nonstandard.
-#
-# If you put an exclamation mark (!) in any column of the statement field,
-# except within character literals, then everything after the ! on that
-# line is a comment.
-#
-# A totally blank line is a comment line.
+def line_is_comment(line: str) -> bool:
+    """
+    From FORTRAN Language Reference
+    (https://docs.oracle.com/cd/E19957-01/805-4939/z40007332024/index.html):
 
-# line_is_comment(line) returns True iff line is a comment.
-def line_is_comment(line):
+    A line with a c, C, *, d, D, or ! in column one is a comment line, except
+    that if the -xld option is set, then the lines starting with D or d are
+    compiled as debug lines. The d, D, and ! are nonstandard.
+
+    If you put an exclamation mark (!) in any column of the statement field,
+    except within character literals, then everything after the ! on that
+    line is a comment.
+
+    A totally blank line is a comment line.
+
+    Args:
+        line
+
+    Returns:
+        True iff line is a comment, False otherwise.
+
+    """
+
     if line[0] in "cCdD*!":
         return True
 
@@ -77,14 +86,20 @@ re_fn_start = re.compile(FN_START, re.I)
 SUBPGM_END = "\s*end\s+"
 re_subpgm_end = re.compile(SUBPGM_END, re.I)
 
-# line_starts_subpgm(line) indicates whether a line in the program is the
-# first line of a subprogram definition.  It returns one of the following:
-#
-#    (True, f_name) : if line begins a definition for subprogram f_name;
-#    (False, None)  : if line does not begin a subprogram definition.
 
 
-def line_starts_subpgm(line):
+def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
+    """
+    Indicates whether a line in the program is the first line of a subprogram
+    definition.
+
+    Args:
+        line
+    Returns:
+       (True, f_name) if line begins a definition for subprogram f_name;
+       (False, None) if line does not begin a subprogram definition.
+    """
+
     match = re_sub_start.match(line)
     if match != None:
         f_name = match.group(1)
@@ -98,19 +113,29 @@ def line_starts_subpgm(line):
     return (False, None)
 
 
-# line_is_continuation(line) returns True iff line is a continuation line.
+# line_is_continuation(line) 
 
 
-def line_is_continuation(line):
+def line_is_continuation(line: str) -> bool:
+    """
+    Args:
+        line
+    Returns:
+        True iff line is a continuation line, else False.
+    """
+
     llstr = line.lstrip()
     return len(llstr) > 0 and llstr[0] == "&"
 
 
-# line_ends_subpgm(line) returns True or False depending on whether line is
-# the last line of a subprogram definition.
 
-
-def line_ends_subpgm(line):
+def line_ends_subpgm(line: str) -> bool:
+    """
+    Args:
+        line
+    Returns:
+        True if line is the last line of a subprogram definition, else False.
+    """
     match = re_subpgm_end.match(line)
     return match != None
 
