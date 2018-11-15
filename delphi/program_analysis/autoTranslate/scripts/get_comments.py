@@ -74,17 +74,17 @@ def line_is_comment(line: str) -> bool:
 
 # SUB_START, FN_START, and SUBPGM_END are regular expressions that specify
 # patterns for the Fortran syntax for the start of subroutines and functions,
-# and their ends, respectively.  The corresponding re objects are re_sub_start,
-# and re_fn_start, and re_subpgm_end.
+# and their ends, respectively.  The corresponding re objects are RE_SUB_START,
+# and RE_FN_START, and RE_SUBPGM_END.
 
 SUB_START = "\s*subroutine\s+(\w+)\s*\("
-re_sub_start = re.compile(SUB_START, re.I)
+RE_SUB_START = re.compile(SUB_START, re.I)
 
 FN_START = "\s*function\s+(\w+)\s*\("
-re_fn_start = re.compile(FN_START, re.I)
+RE_FN_START = re.compile(FN_START, re.I)
 
 SUBPGM_END = "\s*end\s+"
-re_subpgm_end = re.compile(SUBPGM_END, re.I)
+RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
 
 
 
@@ -100,12 +100,12 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
        (False, None) if line does not begin a subprogram definition.
     """
 
-    match = re_sub_start.match(line)
+    match = RE_SUB_START.match(line)
     if match != None:
         f_name = match.group(1)
         return (True, f_name)
 
-    match = re_fn_start.match(line)
+    match = RE_FN_START.match(line)
     if match != None:
         f_name = match.group(1)
         return (True, f_name)
@@ -136,7 +136,7 @@ def line_ends_subpgm(line: str) -> bool:
     Returns:
         True if line is the last line of a subprogram definition, else False.
     """
-    match = re_subpgm_end.match(line)
+    match = RE_SUBPGM_END.match(line)
     return match != None
 
 
@@ -162,7 +162,7 @@ def line_ends_subpgm(line: str) -> bool:
 # that category is mapped to [] by the comment dictionary for that subprogram.
 
 
-def get_comments(src_file_name):
+def get_comments(src_file_name: str):
     try:
         src_file = open(src_file_name, mode="r", encoding="latin-1")
     except IOError:
