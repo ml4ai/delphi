@@ -33,6 +33,7 @@ DEBUG = False
 #                                                                              #
 ################################################################################
 
+
 def line_is_comment(line: str) -> bool:
     """
     From FORTRAN Language Reference
@@ -87,7 +88,6 @@ SUBPGM_END = "\s*end\s+"
 RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
 
 
-
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
     Indicates whether a line in the program is the first line of a subprogram
@@ -113,7 +113,7 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     return (False, None)
 
 
-# line_is_continuation(line) 
+# line_is_continuation(line)
 
 
 def line_is_continuation(line: str) -> bool:
@@ -126,7 +126,6 @@ def line_is_continuation(line: str) -> bool:
 
     llstr = line.lstrip()
     return len(llstr) > 0 and llstr[0] == "&"
-
 
 
 def line_ends_subpgm(line: str) -> bool:
@@ -166,14 +165,10 @@ def get_comments(src_file_name: str):
     try:
         src_file = open(src_file_name, mode="r", encoding="latin-1")
     except IOError:
-        sys.stderr.write(
-            "ERROR: Could not open file {}\n".format(src_file_name)
-        )
+        sys.stderr.write(f"ERROR: Could not open file {src_file_name}\n")
         sys.exit(1)
     except UnicodeDecodeError:
-        sys.stderr.write(
-            "ERROR: unicode decoding problems: {}\n".format(src_file)
-        )
+        sys.stderr.write(f"ERROR: unicode decoding problems: {src_file}\n")
         sys.exit(1)
 
     comments = OrderedDict()
@@ -191,9 +186,7 @@ def get_comments(src_file_name: str):
             f_start, f_name = line_starts_subpgm(line)
             if f_start:
                 if DEBUG:
-                    print(
-                        "<<< START: line {:d}, fn = {}".format(lineno, f_name)
-                    )
+                    print(f"<<< START: line {lineno}, fn = {f_name}")
 
                 if prev_fn != None:
                     comments[prev_fn]["foot"] = curr_comment
@@ -206,7 +199,7 @@ def get_comments(src_file_name: str):
                 in_neck = True
             elif line_ends_subpgm(line):
                 if DEBUG:
-                    print(">>> END: line {:d}, fn = {}".format(lineno, f_name))
+                    print(f">>> END: line {lineno}, fn = {f_name}")
 
                 curr_comment = []
                 collect_comments = True
@@ -235,19 +228,19 @@ def print_comments(comments):
 
     for fn in comments:
         print(fn)
-        print("Function: {}".format(fn))
+        print(f"Function: {fn}")
         fn_comment = comments[fn]
 
         for ccat in ["head", "neck", "foot"]:
-            print("  {}:".format(ccat))
+            print(f"  {ccat}:")
             for line in fn_comment[ccat]:
-                print("    {}".format(line.rstrip()))
+                print(f"    {line.rstrip()}")
             print("")
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        sys.stderr.write("Usage: {} filename\n".format(sys.argv[0]))
+        sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
         sys.exit(1)
 
     comments = get_comments(sys.argv[1])
