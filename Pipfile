@@ -39,6 +39,7 @@ sphinx_rtd_theme = "*"
 rise = "*"
 jupyter-contrib-nbextensions = "*"
 shapely = {version = "*", extras = ["vectorized"]}
+pytest-profiling = "*"
 
 [requires]
 python_version = "3.6"
