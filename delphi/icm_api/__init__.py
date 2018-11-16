@@ -4,9 +4,8 @@ from celery import Celery
 
 db = SQLAlchemy()
  
-
-# Integrate Celery with Flask
 def make_celery(app):
+    """Create an celery instance and set its configuration"""
     celery = Celery(
             app.import_name,
             backend=app.config['CELERY_RESULT_BACKEND'],
@@ -15,6 +14,7 @@ def make_celery(app):
     celery.conf.update(app.config)
     
     class ContextTask(celery.Task):
+	"""Integrate Celery with Falsk"""
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)
@@ -24,7 +24,7 @@ def make_celery(app):
 
 def create_app():
     from delphi.icm_api.api import bp
-
+    """Create an Flask app"""
     app = Flask(__name__)
     app.config.from_object("delphi.icm_api.config")
     db.init_app(app)
