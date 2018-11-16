@@ -11,6 +11,7 @@ from delphi.bmi import initialize, update
 from delphi.execution import default_update_function
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
+from delphi.icm_api import db
 from delphi.icm_api.models import *
 from delphi.paths import data_dir
 import numpy as np

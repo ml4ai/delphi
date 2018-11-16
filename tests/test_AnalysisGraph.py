@@ -2,8 +2,8 @@ import os
 from conftest import *
 from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
-from delphi.AnalysisGraph import *
-from delphi.quantification import *
+from delphi.AnalysisGraph import AnalysisGraph
+from delphi.quantification import map_concepts_to_indicators
 from delphi.subgraphs import (
     get_subgraph_for_concept,
     get_subgraph_for_concept_pair,

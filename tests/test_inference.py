@@ -55,7 +55,7 @@ def test_sample_observed_state(G, s0):
     sampled_observed_state = sample_observed_state(G, s0)
     assert True
 
+
 def test_evaluate_prior_pdf(A, G):
     print(evaluate_prior_pdf(A, G))
     assert True
-

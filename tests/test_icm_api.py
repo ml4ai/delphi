@@ -1,7 +1,8 @@
 import json
 import pytest
 from conftest import *
-from delphi.icm_api import create_app
+from uuid import uuid4
+from delphi.icm_api import create_app, db
 from delphi.icm_api.models import *
 from datetime import date
 from delphi.random_variables import LatentVar
