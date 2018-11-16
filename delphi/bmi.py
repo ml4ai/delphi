@@ -105,12 +105,12 @@ def _(G: AnalysisGraph) -> AnalysisGraph:
     for n in G.nodes(data=True):
         n[1]["rv"].dataset = next_state[n[0]]
         indicators = n[1].get("indicators")
-        if (indicators is not None) and (indicators != []):
-            ind = n[1]["indicators"][0]
-            ind.dataset = [
-                emission_function(x, ind.mean, ind.stdev)
-                for x in n[1]["rv"].dataset
-            ]
+        if (indicators is not None) and (indicators != {}):
+            for indicator_name, indicator in n[1]["indicators"].items():
+                indicator.dataset = [
+                    emission_function(x, indicator.mean, indicator.stdev)
+                    for x in n[1]["rv"].dataset
+                ]
 
     G.t += G.Δt
     return G

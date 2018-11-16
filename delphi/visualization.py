@@ -74,4 +74,6 @@ def _(G: ProgramAnalysisGraph, show_values=False):
 
     # Drawing indicator variables
 
-    return Image(A.draw(format="png", prog=kwargs.get("layout", "dot")), retina=True)
+    return Image(
+        A.draw(format="png", prog=kwargs.get("layout", "dot")), retina=True
+    )

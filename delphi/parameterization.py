@@ -17,25 +17,23 @@ def parameterize(
         datafile
     """
 
-    if isinstance(data, str):
-        G.data = get_data(data)
-    else:
-        G.data = data
+    if not isinstance(data, pd.DataFrame):
+        data = get_data(data)
 
     nodes_with_indicators = [
         n for n in G.nodes(data=True) if n[1]["indicators"] is not None
     ]
 
     for n in nodes_with_indicators:
-        for indicator in n[1]["indicators"]:
+        for indicator_name, indicator in n[1]["indicators"].items():
             indicator.mean, indicator.unit = get_indicator_value(
-                indicator, time, G.data
+                indicator, time, data
             )
             indicator.time = time
             if not indicator.mean is None:
                 indicator.stdev = 0.1 * abs(indicator.mean)
 
-        n[1]["indicators"] = [
-            ind for ind in n[1]["indicators"] if ind.mean is not None
-        ]
+        n[1]["indicators"] = {
+            k: v for k, v in n[1]["indicators"].items() if v.mean is not None
+        }
     return G

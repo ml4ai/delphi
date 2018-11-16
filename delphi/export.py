@@ -28,6 +28,8 @@ else:
 # ==========================================================================
 # Export
 # ==========================================================================
+
+
 def to_agraph(G, *args, **kwargs) -> AGraph:
     """ Exports AnalysisGraph to pygraphviz AGraph
 
@@ -96,7 +98,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
 
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
-            for ind in n[1]["indicators"]:
+            for indicator_name, ind in n[1]["indicators"].items():
                 node_label = _insert_line_breaks(ind.name)
                 if kwargs.get("indicator_values"):
                     if ind.unit is not None:
@@ -190,12 +192,13 @@ def export_node(G: AnalysisGraph, n) -> Dict[str, Union[str, List[str]]]:
     }
 
     if not n[1].get("indicators") is None:
-        for ind in n[1]["indicators"]:
-            if "dataset" in ind.__dict__:
-                del ind.__dict__["dataset"]
+        for indicator in n[1]["indicators"].values():
+            if "dataset" in indicator.__dict__:
+                del indicator.__dict__["dataset"]
 
         node_dict["indicators"] = [
-            _process_datetime(ind.__dict__) for ind in n[1]["indicators"]
+            _process_datetime(indicator.__dict__)
+            for indicator in n[1]["indicators"].values()
         ]
     else:
         node_dict["indicators"] = None

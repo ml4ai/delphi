@@ -165,7 +165,7 @@ def createExperiment(uuid: str):
         rv = n[1]["rv"]
         rv.dataset = [default_latent_var_value for _ in range(G.res)]
         if n[1].get("indicators") is not None:
-            for ind in n[1]["indicators"]:
+            for indicator_name, ind in n[1]["indicators"].items():
                 ind.dataset = np.ones(G.res) * ind.mean
 
         rv.partial_t = 0.0
