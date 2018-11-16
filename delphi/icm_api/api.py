@@ -160,7 +160,7 @@ celery = make_celery(create_app())
 
 @celery.task()
 def background_task(G, d, data, experiment_id):
-    print("line152: background_task being called!")
+    #print("line152: background_task being called!")
     result = ForwardProjectionResult.query.filter_by(id=experiment_id).first()
     for i in range(data["projection"]["numSteps"]):
         if data["projection"]["stepSize"] == "MONTH":
@@ -193,7 +193,7 @@ def background_task(G, d, data, experiment_id):
             )
     db.session.add(result)
     db.session.commit()
-    print("line178: background_task before returns!")
+    #print("line178: background_task before returns!")
     #return True
 
 
@@ -235,12 +235,12 @@ def createExperiment(uuid: str):
     db.session.commit()
 
     d = dateutil.parser.parse(data["projection"]["startTime"])
-    print("line:221 Before calling baskground_tasks.")
+    #print("line:221 Before calling baskground_tasks.")
 
     result = background_task.delay(G, d, data, experiment.id)
     result.wait()
 
-    print(result)
+    #print(result)
     
     return jsonify(
         {
