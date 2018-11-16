@@ -1,14 +1,23 @@
 import numpy as np
 import pandas as pd
+from conftest import *
 from datetime import datetime
 from indra.statements import Concept, Influence
 from delphi.assembly import *
 from delphi.paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
+from delphi.utils.indra import *
 import pytest
-from delphi.tests.conftest import *
 
 gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
+
+
+def test_make_edge():
+    assert make_edge(sts, ("conflict", "food_security")) == (
+        "conflict",
+        "food_security",
+        {"InfluenceStatements": [sts[0]]},
+    )
 
 
 def test_deltas():

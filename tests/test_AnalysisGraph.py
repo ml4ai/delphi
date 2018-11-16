@@ -1,4 +1,5 @@
 import os
+from conftest import *
 from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import *
@@ -9,17 +10,8 @@ from delphi.subgraphs import (
 )
 import pickle
 import pytest
-from delphi.tests.conftest import *
 
 # Testing constructors
-
-
-def test_make_edge():
-    assert make_edge(sts, ("conflict", "food_security")) == (
-        "conflict",
-        "food_security",
-        {"InfluenceStatements": [sts[0]]},
-    )
 
 
 def test_from_statements():
@@ -72,4 +64,7 @@ def test_map_concepts_to_indicators(G):
         stdev=None,
         time=None,
     )
-    assert G.nodes["food_security"]["indicators"][0].name == indicator.name
+    assert (
+        G.nodes["food_security"]["indicators"][indicator.name].name
+        == indicator.name
+    )

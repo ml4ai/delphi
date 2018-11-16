@@ -1,9 +1,11 @@
 import pickle
 import pytest
+from datetime import date
 from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.assembly import get_valid_statements_for_modeling
-from delphi.inference import infer_transition_model
+from delphi.utils.indra import *
+from delphi.quantification import map_concepts_to_indicators
+from delphi.parameterization import parameterize
 
 
 conflict = Concept(
@@ -49,8 +51,11 @@ s3 = Influence(
 
 sts = [s1, s2, s3]
 
+
 @pytest.fixture(scope="session")
 def G():
     G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(sts))
-    infer_transition_model(G)
+    G.assemble_transition_model_from_gradable_adjectives()
+    G = map_concepts_to_indicators(G)
+    G = parameterize(G, date(2014, 12, 1))
     return G
