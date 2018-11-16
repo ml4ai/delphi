@@ -80,7 +80,7 @@ def evaluate_likelihood_pdf(
             for indicator, value in observed_state[n[0]].items():
                 ind = n[1]["indicators"][indicator]
                 _list.append(
-                    norm.pdf(value, latent_state[n] * ind.mean, ind.stdev)
+                    norm.pdf(value, latent_state[n[0]] * ind.mean, ind.stdev)
                 )
 
     return np.prod(_list)
