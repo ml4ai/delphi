@@ -14,7 +14,7 @@ def make_celery(app):
     celery.conf.update(app.config)
     
     class ContextTask(celery.Task):
-	"""Integrate Celery with Falsk"""
+        """Integrate Celery with Flask"""
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)
