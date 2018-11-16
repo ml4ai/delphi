@@ -4,7 +4,7 @@ docs:
 test:
 	pipenv run pytest \
 	  -s\
-	  --cov=delphi\
+	  --cov-report term:skip-covered --cov=delphi\
 	  --doctest-module\
 	  --ignore=delphi/program_analysis/pa_unit_tests\
 	  delphi tests
