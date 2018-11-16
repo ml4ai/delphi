@@ -2,7 +2,12 @@ docs:
 	cd docs; make html
 
 test:
-	pipenv run pytest -s --cov=delphi --doctest-module --ignore=data/program_analysis/pa_unit_tests
+	pipenv run pytest \
+	  -s\
+	  --cov=delphi\
+	  --doctest-module\
+	  --ignore=delphi/program_analysis/pa_unit_tests\
+	  delphi tests
 
 pypi_upload:
 	rm -rf dist
