@@ -121,6 +121,7 @@ def app(icm_metadata, delphi_model, causal_primitives):
 
     # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+    app.config["CELERY_RESULT_BACKEND"] = "db+sqlite:////tmp/test.sqlite"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
     with app.app_context():
