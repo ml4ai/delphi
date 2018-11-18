@@ -43,7 +43,7 @@ def process(infile, outfile):
         f.write("".join(lines))
 
 
-def rm_trailing_comment(line):
+def rm_trailing_comment(line: str) -> str:
     """rm_trailing_comment(line) takes a line and returns the line with any
     trailing comment (the '!' comment character and subsequent characters
     to the end of the line) removed."""
