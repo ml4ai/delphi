@@ -41,6 +41,7 @@ jupyter-contrib-nbextensions = "*"
 shapely = {version = "*", extras = ["vectorized"]}
 pytest-profiling = "*"
 pytest-xdist = "*"
+pytest-sugar = "*"
 
 [requires]
 python_version = "3.6"
