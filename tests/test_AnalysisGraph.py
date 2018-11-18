@@ -14,7 +14,7 @@ import pytest
 
 
 def test_from_statements():
-    G = AnalysisGraph.from_statements(sts)
+    G = AnalysisGraph.from_statements(STS)
     assert set(G.nodes()) == set(["conflict", "food_security"])
     assert set(G.edges()) == set([("conflict", "food_security")])
 
@@ -22,7 +22,7 @@ def test_from_statements():
 def test_from_statements_file():
     test_statements_file = "test_statements.pkl"
     with open(test_statements_file, "wb") as f:
-        pickle.dump(sts, f)
+        pickle.dump(STS, f)
     with open(test_statements_file, "rb") as f:
         sts_from_file = pickle.load(f)
     G = AnalysisGraph.from_statements(sts_from_file)
