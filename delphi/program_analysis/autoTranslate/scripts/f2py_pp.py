@@ -16,8 +16,9 @@ import sys
 
 
 def process(infile, outfile):
-    # remove lines that are entirely comments
-    lines = [line for line in infile if (line[0] == " " or line[0] == "\t")]
+    with open(infilename, mode="r", encoding="latin-1") as f:
+        # remove lines that are entirely comments
+        lines = [line for line in f if (line[0] == " " or line[0] == "\t")]
 
     #    # remove partial-line comments
     #    for i in range(len(lines)):
@@ -45,8 +46,8 @@ def process(infile, outfile):
                 lines.pop(i)
                 chg = True
 
-    outline = "".join(lines)
-    outfile.write(outline)
+    with open(outfilename, "w") as f:
+        f.write("".join(lines))
 
 
 def rm_trailing_comment(line):
@@ -87,15 +88,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     infilename, outfilename = sys.argv[1], sys.argv[2]
-
-    try:
-        infile = open(infilename, mode="r", encoding="latin-1")
-        outfile = open(outfilename, "w")
-    except IOError:
-        sys.stderr.write("*** ERROR: could not open input/output files\n")
-        sys.exit(1)
-
     process(infile, outfile)
-
-    infile.close()
-    outfile.close()
