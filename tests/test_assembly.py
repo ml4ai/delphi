@@ -13,10 +13,10 @@ gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
 
 
 def test_make_edge():
-    assert make_edge(sts, ("conflict", "food_security")) == (
+    assert make_edge(STS, ("conflict", "food_security")) == (
         "conflict",
         "food_security",
-        {"InfluenceStatements": [sts[0]]},
+        {"InfluenceStatements": [STS[0]]},
     )
 
 
@@ -43,11 +43,11 @@ def test_top_grounding_score():
 
 
 def test_scope():
-    assert sts[0].subj.name == "conflict"
+    assert STS[0].subj.name == "conflict"
 
 
 def test_get_concepts():
-    assert get_concepts(sts) == set(
+    assert get_concepts(STS) == set(
         ["conflict", "food_security", "precipitation", "flooding"]
     )
 
