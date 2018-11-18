@@ -7,7 +7,14 @@ import pandas as pd
 from scipy.stats import gaussian_kde
 from delphi.paths import adjectiveData
 from delphi.utils.indra import get_valid_statements_for_modeling, get_concepts
-from delphi.assembly import constructConditionalPDF, get_respdevs, make_edges
+from .utils.web import get_data_from_url
+from .assembly import (
+    constructConditionalPDF,
+    get_respdevs,
+    make_edges,
+    construct_concept_to_indicator_mapping,
+    get_indicators,
+)
 from delphi.utils.fp import flatMap
 from datetime import datetime
 from itertools import permutations
@@ -114,3 +121,25 @@ class AnalysisGraph(nx.DiGraph):
             e[2]["betas"] = np.tan(
                 e[2]["ConditionalProbability"].resample(self.res)[0]
             )
+
+    def map_concepts_to_indicators(
+        self, n: int = 1, mapping_file: Optional[str] = None
+    ):
+        """ Add indicators to the analysis graph.
+
+        Args:
+            n
+            mapping_file
+        """
+        if mapping_file is None:
+            url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/concept_to_indicator_mapping.txt"
+            mapping_file = get_data_from_url(url)
+
+        mapping = construct_concept_to_indicator_mapping(n, mapping_file)
+
+        for n in self.nodes(data=True):
+            n[1]["indicators"] = get_indicators(
+                n[0].lower().replace(" ", "_"), mapping
+            )
+
+        return self
