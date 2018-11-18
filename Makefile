@@ -6,7 +6,8 @@ test:
 	  -s\
 	  --cov-report term:skip-covered --cov=delphi\
 	  --doctest-module\
-	  --ignore=delphi/program_analysis/pa_unit_tests\
+	  --ignore=delphi/program_analysis/pa_unit_tests \
+	  --ignore=delphi/program_analysis/data\
 	  delphi tests
 
 pypi_upload:
