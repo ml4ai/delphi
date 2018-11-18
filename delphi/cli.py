@@ -15,6 +15,7 @@ from argparse import (
 from delphi.paths import data_dir
 from delphi.AnalysisGraph import AnalysisGraph
 
+
 def _write_latent_state(G, f):
     for n in G.nodes(data=True):
         f.write(f"{str(G.t)},")
