@@ -144,7 +144,6 @@ To execute the model, do:
 python delphi/cli.py execute
 ```
 
-
 This takes as input the files `dressed_CAG.pkl` and `bmi_config.txt`, which looks
 like this:
 
@@ -155,24 +154,9 @@ crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
 
-<<<<<<< HEAD
 and creates an output file `output_sequences.csv` (these are the default input
-and output filenames, but they can be changed with command line flags). that
+and output filenames, but they can be changed with command line flags), that
 looks like this:
-=======
-#### Execute model
-
-To execute the model, do:
-
-```bash
-python delphi/cli.py execute
-```
-
-This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
-an output file `output_sequences.csv` (these are the default input and output
-filenames, but they can be changed with command line flags). that looks like
-this:
->>>>>>> 085221ebcc5fe6480d2e6f88e61ca829afdd1eb9
 
 
 ```
