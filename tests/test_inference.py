@@ -1,6 +1,7 @@
 from conftest import *
 from delphi.inference import *
 from delphi.execution import construct_default_initial_state
+from tqdm import trange
 
 
 @pytest.fixture()
@@ -50,12 +51,6 @@ def test_sample_observed_state(G, s0):
     assert True
 
 
-def test_evaluate_prior_pdf(A, G):
-    """ Smokescreen test for evaluating prior pdf value (modulo normalization). """
-    prior_pdf_value = evaluate_prior_pdf(A, G)
-
-    # Assert true if the previous line runs without errors.
-    assert True
 
 
 @pytest.fixture
@@ -77,9 +72,8 @@ def observed_states():
     ]
 
 
-def test_evaluate_likelihood_pdf(G, latent_states, observed_states):
-    """ Smokescreen test for evaluating likelihood pdf value (modulo normalization). """
-    likelihood_pdf_value = evaluate_likelihood_pdf(
-        G, latent_states, observed_states
-    )
+def test_sampler(G, observed_states):
+    sampler = Sampler(G, observed_states)
+    for n in trange(1000):
+        sample = sampler.get_sample()
     assert True
