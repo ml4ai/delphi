@@ -16,7 +16,7 @@ import sys
 
 
 def process(infile, outfile):
-    with open(infilename, mode="r", encoding="latin-1") as f:
+    with open(infile, mode="r", encoding="latin-1") as f:
         # remove lines that are entirely comments
         lines = [line for line in f if (line[0] == " " or line[0] == "\t")]
 
@@ -39,7 +39,7 @@ def process(infile, outfile):
                 lines.pop(i)
                 chg = True
 
-    with open(outfilename, "w") as f:
+    with open(outfile, "w") as f:
         f.write("".join(lines))
 
 
@@ -80,5 +80,5 @@ if __name__ == "__main__":
         sys.stderr.write("*** USAGE: f2py_pp.py <infile> <outfile>\n")
         sys.exit(1)
 
-    infilename, outfilename = sys.argv[1], sys.argv[2]
+    infile, outfile = sys.argv[1], sys.argv[2]
     process(infile, outfile)
