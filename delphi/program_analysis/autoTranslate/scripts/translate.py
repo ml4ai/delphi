@@ -23,12 +23,15 @@
 """
 
 
-import xml.etree.ElementTree as ET
 import sys
 import argparse
 import pickle
 from collections import *
-from delphi.program_analysis.autoTranslate.scripts.get_comments import *
+import xml.etree.ElementTree as ET
+from delphi.program_analysis.autoTranslate.scripts.get_comments import (
+    get_comments,
+)
+from typing import List, Dict
 
 LIBRTNS = ["read", "open", "close", "format", "print", "write"]
 LIBFNS = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -39,8 +42,6 @@ ASTS = {}
 FUNCTIONLIST = []
 SUBROUTINELIST = []
 ENTRYPOINT = []
-
-cleanup = True
 
 
 class ParseState:
@@ -340,35 +341,33 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-def analyze(files, pickleFile, fortranFile):
-    global cleanup
+def get_trees(files: List[str]) -> List:
+    return [ET.parse(f) for f in files]
+
+
+def analyze(trees, comments) -> Dict:
     outputFiles = {}
     ast = []
 
-    # Extracts the comments from the original Fortran source file
-    comments = get_comments(fortranFile)
-
     # Parse through the ast tree once to identify and grab all the funcstions
     # present in the Fortran file.
-    for f in files:
-        tree = ET.parse(f)
+    for tree in trees:
         loadFunction(tree)
 
     # Parse through the ast tree a second time to convert the XML ast format to
     # a format that can be used to generate python statements.
-    for f in files:
-        tree = ET.parse(f)
-        ast += parseTree(tree.getroot(), ParseState())
+    for tree in trees:
+        ast += parseTree(tree, ParseState())
 
     """
 
-     Find the entry point for the Fortran file.
-     The entry point for a conventional Fortran file is always the PROGRAM section.
-     This 'if' statement checks for the presence of a PROGRAM segment.
+    Find the entry point for the Fortran file.
+    The entry point for a conventional Fortran file is always the PROGRAM section.
+    This 'if' statement checks for the presence of a PROGRAM segment.
 
-     If not found, the entry point can be any of the functions or subroutines
-     in the file. So, all the functions and subroutines of the program are listed
-     and included as the possible entry point.
+    If not found, the entry point can be any of the functions or subroutines
+    in the file. So, all the functions and subroutines of the program are listed
+    and included as the possible entry point.
 
     """
     if ENTRYPOINT:
@@ -385,9 +384,7 @@ def analyze(files, pickleFile, fortranFile):
     outputFiles["ast"] = ast
     outputFiles["functionList"] = FUNCTIONLIST
     outputFiles["comments"] = comments
-
-    with open(pickleFile, "wb") as f:
-        pickle.dump(outputFiles, f)
+    return outputFiles
 
 
 if __name__ == "__main__":
@@ -408,5 +405,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-i", "--input", nargs="*", help="Original Fortran Source code file."
     )
+
     args = parser.parse_args(sys.argv[1:])
-    analyze(args.files, args.gen[0], args.input[0])
+    fortranFile = args.input[0]
+    pickleFile = args.gen[0]
+
+    trees = get_trees(args.files)
+    comments = get_comments(fortranFile)
+    outputFiles = analyze(trees, comments)
+
+    with open(pickleFile, "wb") as f:
+        pickle.dump(outputFiles, f)
