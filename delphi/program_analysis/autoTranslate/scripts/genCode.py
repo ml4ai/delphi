@@ -132,6 +132,14 @@ def genCode(node, state):
     elif isinstance(node, ast.LtE):
         codeStr = "<="
 
+    # Lt: ()
+    elif isinstance(node, ast.Lt):
+        codeStr = "<"
+
+    # Gt: ()
+    elif isinstance(node, ast.Gt):
+        codeStr = ">"
+
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
         codeStr = genCode(node.value, state)
@@ -177,7 +185,14 @@ def genCode(node, state):
 
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
-        codeStr = "{0}(".format(node.func.id)
+        if isinstance(node.func, ast.Attribute):
+            fnNode = node.func
+            module = fnNode.value.id
+            fnName = fnNode.attr
+            fnName = module + '.' + fnName
+        else:
+            fnName = node.func.id
+        codeStr = "{0}(".format(fnName)
 
         if len(node.args) > 0:
             codeStr += ", ".join([genCode(arg, state) for arg in node.args])

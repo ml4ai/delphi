@@ -1,23 +1,23 @@
 #!/usr/bin/python
 
 """
- 
+
    File:    pyTranslate.py
 
    Purpose: Convert a Fortran AST representation into a Python
             script having the same functionalities and performing
             the same operations as the original Fortran file.
-            
-   Usage:   This script is executed by the autoTranslate script as one 
-            of the steps in converted a Fortran source file to Python 
+
+   Usage:   This script is executed by the autoTranslate script as one
+            of the steps in converted a Fortran source file to Python
             file. For standalone execution:
                python pyTranslate -f <pickle_file> -g <python_file>
-            
+
             pickle_file: Pickled file containing the ast represenatation
-                         of the Fortran file along with other non-source 
+                         of the Fortran file along with other non-source
                          code information.
 
-            python_file: The Python file on which to write the resulting 
+            python_file: The Python file on which to write the resulting
                          python script.
 
 """
@@ -29,7 +29,8 @@ import argparse
 GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 
 PRINTFN = {}
-
+libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
+mathFunc = ["mod", "exp", "cexp", "cmplx"]
 
 class PrintState:
     def __init__(
@@ -134,12 +135,20 @@ def printCall(pyFile, node, printState):
     if not printState.indexRef:
         pyFile.write("[")
 
+    inRef = False
+
+    if node["name"] in libFns:
+        node["name"] = node["name"].lower()
+        if node["name"] in mathFunc:
+            node["name"] = 'math.'+node["name"]
+        inRef = 1
+
     pyFile.write(f"{node['name']}(")
     printAst(
         pyFile,
         node["args"],
         printState.copy(
-            sep=", ", add="", printFirst=False, definedVars=[], indexRef=False
+            sep=", ", add="", printFirst=False, definedVars=[], indexRef=inRef
         ),
     )
     pyFile.write(")")
@@ -151,7 +160,7 @@ def printCall(pyFile, node, printState):
 def printArg(pyFile, node, printState):
     if node["type"] == "INTEGER":
         varType = "int"
-    elif node["type"] == "DOUBLE":
+    elif node["type"] in ["DOUBLE", "REAL"]:
         varType = "float"
     else:
         print(f"unrecognized type {node['type']}")
@@ -169,7 +178,7 @@ def printVariable(pyFile, node, printState):
         if node["type"] == "INTEGER":
             initVal = 0
             varType = "int"
-        elif node["type"] == "DOUBLE":
+        elif node["type"] in ["DOUBLE", "REAL"]:
             initVal = 0.0
             varType = "float"
         else:
@@ -200,7 +209,7 @@ def printDo(pyFile, node, printState):
 def printIndex(pyFile, node, printState):
     # pyFile.write("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high'])) Don't use this
     # pyFile.write(f"{node['name']}[0] in range(") Use this instead
-    pyFile.write("{0}[0] in range(".format(node["name"]))
+    pyFile.write(f"{node['name']}[0] in range(")
     printAst(
         pyFile,
         node["low"],
@@ -332,7 +341,8 @@ def printExit(pyFile, node, printState):
 
 
 def printReturn(pyFile, node, printState):
-    pyFile.write("sys.exit(0)")
+    #    pyFile.write("sys.exit(0)")
+    pyFile.write("return True")
 
 
 def setupPrintFns():
@@ -377,7 +387,8 @@ def printPython(gen, outputFile):
     outputRoot = pickle.load(pickleFile)
     root = outputRoot["ast"]
 
-    pyFile.write("from typing import List")
+    pyFile.write("from typing import List\n")
+    pyFile.write("import math")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
     pickleFile.close()

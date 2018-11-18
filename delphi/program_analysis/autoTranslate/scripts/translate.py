@@ -27,6 +27,8 @@ import xml.etree.ElementTree as ET
 import sys
 import argparse
 import pickle
+from collections import *
+from delphi.program_analysis.autoTranslate.scripts.get_comments import * 
 
 libRtns = ["read", "open", "close", "format", "print", "write"]
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
@@ -35,6 +37,8 @@ outputFns = ["write"]
 summaries = {}
 asts = {}
 functionList = []
+subroutineList = []
+entryPoint = []
 
 cleanup = True
 
@@ -95,6 +99,10 @@ def parseTree(root, state):
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         summaries[root.attrib["name"]] = None
+        if root.tag == "subroutine":
+            subroutineList.append(root.attrib["name"])
+        else:
+            entryPoint.append(root.attrib["name"]) 
         for node in root:
             if node.tag == "header":
                 subroutine["args"] = parseTree(node, state)
@@ -332,11 +340,14 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-def analyze(files, pickleFile):
+def analyze(files, pickleFile, fortranFile):
     global cleanup
     outputFiles = {}
     ast = []
 
+    # Extracts the comments from the original Fortran source file
+    comments = get_comments(fortranFile) 
+ 
     # Parse through the ast tree once to identify and grab all the funcstions
     # present in the Fortran file.
     for f in files:
@@ -349,10 +360,31 @@ def analyze(files, pickleFile):
         tree = ET.parse(f)
         ast += parseTree(tree.getroot(), ParseState())
 
+    """
+
+     Find the entry point for the Fortran file.
+     The entry point for a conventional Fortran file is always the PROGRAM section.
+     This 'if' statement checks for the presence of a PROGRAM segment.
+     
+     If not found, the entry point can be any of the functions or subroutines 
+     in the file. So, all the functions and subroutines of the program are listed
+     and included as the possible entry point.
+
+    """
+    if entryPoint:
+        entry = {"program": entryPoint[0]}
+    else:
+        entry = {}
+        if functionList:
+            entry['function'] = functionList
+        if subroutineList:
+            entry['subroutine'] = subroutineList
+
     # Load the functions list and Fortran ast to a single data structure which
     # can be pickled and hence is portable across various scripts and usages.
     outputFiles["ast"] = ast
     outputFiles["functionList"] = functionList
+    outputFiles["comments"] = comments
 
     with open(pickleFile, "wb") as f:
         pickle.dump(outputFiles, f)
@@ -373,5 +405,11 @@ if __name__ == "__main__":
         required=True,
         help="A list of AST files in XML format to analyze",
     )
+    parser.add_argument(
+        "-i",
+        "--input",
+        nargs="*",
+        help="Original Fortran Source code file."
+    )
     args = parser.parse_args(sys.argv[1:])
-    analyze(args.files, args.gen[0])
+    analyze(args.files, args.gen[0], args.input[0])
