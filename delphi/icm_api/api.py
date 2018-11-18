@@ -7,8 +7,6 @@ from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
 from delphi.random_variables import LatentVar
-from delphi.bmi import initialize, update
-from delphi.execution import default_update_function
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.icm_api import db
@@ -162,7 +160,7 @@ def createExperiment(uuid: str):
     default_latent_var_value = 1.0
     for n in G.nodes(data=True):
         n[1]["rv"] = LatentVar(n[0])
-        n[1]["update_function"] = default_update_function
+        n[1]["update_function"] = G.default_update_function
         rv = n[1]["rv"]
         rv.dataset = [default_latent_var_value for _ in range(G.res)]
         if n[1].get("indicators") is not None:
@@ -199,7 +197,7 @@ def createExperiment(uuid: str):
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
 
-        update(G)
+        G.update()
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(

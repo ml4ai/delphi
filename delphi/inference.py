@@ -6,11 +6,6 @@ from math import log
 from scipy.stats import norm
 from delphi.utils.fp import flatMap, ltake, iterate
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.execution import (
-    get_latent_state_components,
-    emission_function,
-    construct_default_initial_state,
-)
 from typing import List, Dict
 from itertools import permutations
 
@@ -20,7 +15,7 @@ def sample_transition_matrix_from_gradable_adjective_prior(
 ) -> pd.DataFrame:
     """ Return a pandas DataFrame object representing a transition matrix for
     the DBN. """
-    elements = get_latent_state_components(G)
+    elements = G.get_latent_state_components()
     A = pd.DataFrame(np.identity(2 * len(G)), index=elements, columns=elements)
     for n in G.nodes:
         A[f"∂({n})/∂t"][n] = delta_t
@@ -74,7 +69,7 @@ class Sampler:
         self.delta_t = 1.0
 
         self.index_permutations = list(permutations(range(len(self.A)), 2))
-        s0 = construct_default_initial_state(self.G)
+        s0 = self.G.construct_default_initial_state()
         self.latent_states = get_sequence_of_latent_states(
             self.A, s0, len(self.observed_states)
         )

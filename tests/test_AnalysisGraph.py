@@ -3,7 +3,6 @@ from conftest import *
 from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.quantification import map_concepts_to_indicators
 from delphi.subgraphs import (
     get_subgraph_for_concept,
     get_subgraph_for_concept_pair,
@@ -56,7 +55,7 @@ def test_get_subgraph_for_concept_pair(G):
 
 
 def test_map_concepts_to_indicators(G):
-    map_concepts_to_indicators(G)
+    G.map_concepts_to_indicators()
     indicator = Indicator(
         name="Number of severely food insecure people Value",
         source="FAO/WDI",

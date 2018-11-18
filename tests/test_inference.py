@@ -1,6 +1,5 @@
 from conftest import *
 from delphi.inference import *
-from delphi.execution import construct_default_initial_state
 from tqdm import trange
 
 
@@ -11,7 +10,7 @@ def A(G):
 
 @pytest.fixture()
 def s0(G):
-    return construct_default_initial_state(G)
+    return G.construct_default_initial_state()
 
 
 @pytest.fixture()
@@ -49,8 +48,6 @@ def test_create_observed_state(observed_state):
 def test_sample_observed_state(G, s0):
     sampled_observed_state = sample_observed_state(G, s0)
     assert True
-
-
 
 
 @pytest.fixture

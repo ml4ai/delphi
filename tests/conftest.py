@@ -1,11 +1,11 @@
+import os
 import pickle
 import pytest
 from datetime import date
 from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
+from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.utils.indra import *
-from delphi.quantification import map_concepts_to_indicators
-from delphi.parameterization import parameterize
 
 
 conflict = Concept(
@@ -56,6 +56,8 @@ sts = [s1, s2, s3]
 def G():
     G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(sts))
     G.assemble_transition_model_from_gradable_adjectives()
-    G = map_concepts_to_indicators(G)
-    G = parameterize(G, date(2014, 12, 1))
-    return G
+    G.map_concepts_to_indicators()
+    G.parameterize(date(2014, 12, 1))
+    G.to_pickle()
+    G.create_bmi_config_file()
+    yield G
