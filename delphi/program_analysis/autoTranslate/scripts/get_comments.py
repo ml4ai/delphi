@@ -162,56 +162,47 @@ def line_ends_subpgm(line: str) -> bool:
 
 
 def get_comments(src_file_name: str):
-    try:
-        src_file = open(src_file_name, mode="r", encoding="latin-1")
-    except IOError:
-        sys.stderr.write(f"ERROR: Could not open file {src_file_name}\n")
-        sys.exit(1)
-    except UnicodeDecodeError:
-        sys.stderr.write(f"ERROR: unicode decoding problems: {src_file}\n")
-        sys.exit(1)
-
-    comments = OrderedDict()
-
     curr_comment = []
     curr_fn, prev_fn = None, None
     in_neck = False
     collect_comments = True
-
+    comments = OrderedDict()
     lineno = 1
-    for line in src_file:
-        if line_is_comment(line) and collect_comments:
-            curr_comment.append(line)
-        else:
-            f_start, f_name = line_starts_subpgm(line)
-            if f_start:
-                if DEBUG:
-                    print(f"<<< START: line {lineno}, fn = {f_name}")
 
-                if prev_fn != None:
-                    comments[prev_fn]["foot"] = curr_comment
-
-                prev_fn = curr_fn
-                curr_fn = f_name
-
-                comments[curr_fn] = init_comment_map(curr_comment, [], [])
-                curr_comment = []
-                in_neck = True
-            elif line_ends_subpgm(line):
-                if DEBUG:
-                    print(f">>> END: line {lineno}, fn = {f_name}")
-
-                curr_comment = []
-                collect_comments = True
-            elif line_is_continuation(line):
-                continue
+    with open(src_file_name, "r", encoding="latin-1") as f:
+        for line in f:
+            if line_is_comment(line) and collect_comments:
+                curr_comment.append(line)
             else:
-                if in_neck:
-                    comments[curr_fn]["neck"] = curr_comment
-                    in_neck = False
-                collect_comments = False
+                f_start, f_name = line_starts_subpgm(line)
+                if f_start:
+                    if DEBUG:
+                        print(f"<<< START: line {lineno}, fn = {f_name}")
 
-        lineno += 1
+                    if prev_fn != None:
+                        comments[prev_fn]["foot"] = curr_comment
+
+                    prev_fn = curr_fn
+                    curr_fn = f_name
+
+                    comments[curr_fn] = init_comment_map(curr_comment, [], [])
+                    curr_comment = []
+                    in_neck = True
+                elif line_ends_subpgm(line):
+                    if DEBUG:
+                        print(f">>> END: line {lineno}, fn = {f_name}")
+
+                    curr_comment = []
+                    collect_comments = True
+                elif line_is_continuation(line):
+                    continue
+                else:
+                    if in_neck:
+                        comments[curr_fn]["neck"] = curr_comment
+                        in_neck = False
+                    collect_comments = False
+
+            lineno += 1
 
     # if there's a comment at the very end of the file, make it the foot
     # comment of curr_fn
