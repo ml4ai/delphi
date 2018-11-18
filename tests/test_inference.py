@@ -71,6 +71,6 @@ def observed_states():
 
 def test_sampler(G, observed_states):
     sampler = Sampler(G, observed_states)
-    for n in trange(1000):
+    for n in trange(10):
         sample = sampler.get_sample()
     assert True
