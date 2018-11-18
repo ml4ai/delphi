@@ -20,13 +20,6 @@ def process(infile, outfile):
         # remove lines that are entirely comments
         lines = [line for line in f if (line[0] == " " or line[0] == "\t")]
 
-    #    # remove partial-line comments
-    #    for i in range(len(lines)):
-    #        line = lines[i]
-    #        idx = line.find('!')
-    #        if idx >= 0:
-    #            lines[i] = line[:idx] + '\n'
-
     # merge continuation lines
     chg = True
     while chg:
