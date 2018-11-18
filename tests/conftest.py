@@ -80,7 +80,7 @@ os.environ["CLASSPATH"] = (
 
 @pytest.fixture(scope="session")
 def PAG():
-    original_fortran_file = "tests/crop_yield.f"
+    original_fortran_file = "tests/data/crop_yield.f"
     preprocessed_fortran_file = "crop_yield_preprocessed.f"
     f2py_pp.process(original_fortran_file, preprocessed_fortran_file)
     xml_string = sp.run(
