@@ -1,6 +1,7 @@
 import subprocess as sp
 from conftest import *
 
+
 def test_cli(G):
     """ Smokescreen test for CLI application. """
     sp.call(
