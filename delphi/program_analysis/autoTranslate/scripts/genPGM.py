@@ -738,7 +738,7 @@ def genPgm(node, state, fnNames):
             fnNode = node.func
             module = fnNode.value.id
             fnName = fnNode.attr
-            fnName = module + '.' + fnName
+            fnName = module + "." + fnName
         else:
             fnName = node.func.id
         inputs = []
