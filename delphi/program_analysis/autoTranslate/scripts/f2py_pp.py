@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-File: f2py-pp.py
+File: f2py_pp.py
 Author: Saumya Debray
 Purpose: Preprocess Fortran source files prior to parsing to fix up
         some constructs (such as continuation lines) that are
         problematic for the OpenFortranParser front end.
 Usage:
-        f2py-pp  infile  outfile
+        f2py_pp  infile  outfile
 
             outfile is the cleaned-up version of infile
 """
@@ -83,7 +83,7 @@ def rm_trailing_comment(line):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: f2py-pp.py <infile> <outfile>\n")
+        sys.stderr.write("*** USAGE: f2py_pp.py <infile> <outfile>\n")
         sys.exit(1)
 
     infilename, outfilename = sys.argv[1], sys.argv[2]
