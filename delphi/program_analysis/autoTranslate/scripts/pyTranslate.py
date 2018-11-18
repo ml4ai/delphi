@@ -30,7 +30,7 @@ GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
 
 PRINTFN = {}
 libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
-
+mathFunc = ["mod", "exp", "cexp", "cmplx"]
 
 class PrintState:
     def __init__(
@@ -139,6 +139,8 @@ def printCall(pyFile, node, printState):
 
     if node["name"] in libFns:
         node["name"] = node["name"].lower()
+        if node["name"] in mathFunc:
+            node["name"] = 'math.'+node["name"]
         inRef = 1
 
     pyFile.write(f"{node['name']}(")
@@ -386,7 +388,7 @@ def printPython(gen, outputFile):
     root = outputRoot["ast"]
 
     pyFile.write("from typing import List\n")
-    pyFile.write("from math import *")
+    pyFile.write("import math")
     setupPrintFns()
     printAst(pyFile, root, PrintState())
     pickleFile.close()

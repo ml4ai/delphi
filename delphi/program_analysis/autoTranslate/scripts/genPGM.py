@@ -734,7 +734,13 @@ def genPgm(node, state, fnNames):
 
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
-        fnName = node.func.id
+        if isinstance(node.func, ast.Attribute):
+            fnNode = node.func
+            module = fnNode.value.id
+            fnName = fnNode.attr
+            fnName = module + '.' + fnName
+        else:
+            fnName = node.func.id
         inputs = []
 
         for arg in node.args:
