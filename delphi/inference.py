@@ -7,7 +7,7 @@ from scipy.stats import norm
 from delphi.utils.fp import flatMap, ltake, iterate
 from delphi.AnalysisGraph import AnalysisGraph
 from typing import List, Dict
-from itertools import permutations
+from itertools import permutations, product
 
 
 def create_observed_state(G: AnalysisGraph) -> Dict:
@@ -33,6 +33,10 @@ class Sampler:
         self.index_permutations = list(permutations(range(2 * len(G)), 2))
         self.s0 = G.construct_default_initial_state()
         self.original_score = None
+
+    def sample_initial_transition_matrix(self):
+        for i, j in product(range(2 * len(self.G)), range(2 * len(self.G))):
+            self.A.values[i][j] = np.random.normal()
 
     def set_number_of_timesteps(self, n: int):
         self.n_timesteps = n
@@ -101,7 +105,7 @@ class Sampler:
                     )
                     _list.append(log_likelihood)
 
-        self.log_likelihood = sum(_list)
+        self.log_likelihood = 2 * sum(_list)
 
     def calculate_log_joint_probability(self):
         self.log_joint_probability = self.log_prior + self.log_likelihood
@@ -112,32 +116,33 @@ class Sampler:
             list(self.G.edges(data=True))
         )
         self.original_value = self.A[f"∂({self.source})/∂t"][self.target]
-        self.A[f"∂({self.source})/∂t"][self.target] += 0.01 * (
-            np.random.rand() - 0.5
+        self.A[f"∂({self.source})/∂t"][self.target] += random.choice(
+            (-0.01, 0.01)
         )
-        # self.A[f"∂({self.source})/∂t"][self.target], 0.01
-        # )
+        # 0.1*(np.random.rand() - 0.5)
+        # np.random.normal(self.original_value, scale = 0.2)
 
     def sample_from_posterior(self):
         self.sample_from_proposal()
         self.set_latent_state_sequence()
 
         # Update prior
-        delta_log_prior = log(
-            self.edge_dict["ConditionalProbability"].evaluate(
-                self.A[f"∂({self.source})/∂t"][self.target]
-            )
-        ) - log(
-            self.edge_dict["ConditionalProbability"].evaluate(
-                self.original_value
-            )
-        )
+        # delta_log_prior = log(
+        # self.edge_dict["ConditionalProbability"].evaluate(
+        # self.A[f"∂({self.source})/∂t"][self.target]
+        # )
+        # ) - log(
+        # self.edge_dict["ConditionalProbability"].evaluate(
+        # self.original_value
+        # )
+        # )
 
-        self.log_prior += delta_log_prior
+        self.calculate_log_prior()
+        # self.log_prior += delta_log_prior
         # Update likelihood
         self.calculate_log_likelihood()
 
-        candidate_log_joint_probability = self.log_likelihood + self.log_prior
+        candidate_log_joint_probability = self.log_prior + self.log_likelihood
 
         delta_log_joint_probability = (
             candidate_log_joint_probability - self.log_joint_probability
@@ -149,4 +154,5 @@ class Sampler:
         else:
             self.A[f"∂({self.source})/∂t"][self.target] = self.original_value
             self.calculate_log_likelihood()
-            self.log_prior -= delta_log_prior
+            self.calculate_log_prior()
+            # self.log_prior -= delta_log_prior
