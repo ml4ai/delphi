@@ -32,6 +32,7 @@ class Sampler:
         self.delta_t = 1.0
         self.index_permutations = list(permutations(range(2 * len(G)), 2))
         self.s0 = G.construct_default_initial_state()
+        self.original_score = None
 
     def set_number_of_timesteps(self, n: int):
         self.n_timesteps = n
@@ -75,14 +76,14 @@ class Sampler:
     def calculate_log_prior(self) -> float:
         _list = [
             log(
-                e[2]["ConditionalProbability"].evaluate(
-                    self.A[f"∂({e[0]})/∂t"][e[1]] / self.delta_t
+                edge[2]["ConditionalProbability"].evaluate(
+                    self.A[f"∂({edge[0]})/∂t"][edge[1]] / self.delta_t
                 )
             )
-            for e in self.G.edges(data=True)
+            for edge in self.G.edges(data=True)
         ]
 
-        return sum(_list)
+        self.log_prior = sum(_list)
 
     def calculate_log_likelihood(self) -> float:
         s0 = self.latent_state_sequence[0]
@@ -100,27 +101,52 @@ class Sampler:
                     )
                     _list.append(log_likelihood)
 
-        return sum(_list)
+        self.log_likelihood = sum(_list)
 
     def calculate_log_joint_probability(self):
-        return self.calculate_log_prior() + self.calculate_log_likelihood()
+        self.log_joint_probability = self.log_prior + self.log_likelihood
 
-    def sample_from_posterior(self, yield_sample=False):
+    def sample_from_proposal(self):
         # Choose the element of A to perturb
-        i, j = random.choice(self.index_permutations)
+        self.source, self.target, self.edge_dict = random.choice(
+            list(self.G.edges(data=True))
+        )
+        self.original_value = self.A[f"∂({self.source})/∂t"][self.target]
+        self.A[f"∂({self.source})/∂t"][self.target] += 0.01 * (
+            np.random.rand() - 0.5
+        )
+        # self.A[f"∂({self.source})/∂t"][self.target], 0.01
+        # )
 
-        original_value = self.A.values[i][j]
-        original_log_joint_probability = self.calculate_log_joint_probability()
-        self.A.values[i][j] = np.random.normal(self.A.values[i][j], 0.1)
-        candidate_log_joint_probability = (
-            self.calculate_log_joint_probability()
+    def sample_from_posterior(self):
+        self.sample_from_proposal()
+        self.set_latent_state_sequence()
+
+        # Update prior
+        delta_log_prior = log(
+            self.edge_dict["ConditionalProbability"].evaluate(
+                self.A[f"∂({self.source})/∂t"][self.target]
+            )
+        ) - log(
+            self.edge_dict["ConditionalProbability"].evaluate(
+                self.original_value
+            )
         )
 
-        log_probability_ratio = (
-            candidate_log_joint_probability - original_log_joint_probability
+        self.log_prior += delta_log_prior
+        # Update likelihood
+        self.calculate_log_likelihood()
+
+        candidate_log_joint_probability = self.log_likelihood + self.log_prior
+
+        delta_log_joint_probability = (
+            candidate_log_joint_probability - self.log_joint_probability
         )
-        acceptance_probability = min(1, np.exp(log_probability_ratio))
+
+        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
         if acceptance_probability > np.random.rand():
-            pass
+            self.log_joint_probability = candidate_log_joint_probability
         else:
-            self.A.values[i][j] = original_value
+            self.A[f"∂({self.source})/∂t"][self.target] = self.original_value
+            self.calculate_log_likelihood()
+            self.log_prior -= delta_log_prior
