@@ -26,9 +26,11 @@ information extracted from two sources:
    of scientific models from code that implements them, and convert these into probabilistic models.
 
 For a detailed description of our procedure to convert text to models, see
-[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
+[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+
+Delphi is also part of the [AutoMATES](https://ml4ai.github.io/automates/) project.
 
 ## Citing
 
