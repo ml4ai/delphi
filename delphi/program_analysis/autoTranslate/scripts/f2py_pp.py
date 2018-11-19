@@ -13,7 +13,7 @@ Usage:
 """
 
 import sys
-from fortran_syntax import *
+from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
 
 def process(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:

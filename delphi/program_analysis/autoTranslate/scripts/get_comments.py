@@ -23,7 +23,7 @@
 
 import sys, re
 from collections import *
-from fortran_syntax import *
+from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
 from typing import Tuple, Optional
 
 DEBUG = False
