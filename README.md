@@ -146,8 +146,8 @@ To execute the model, do:
 python delphi/cli.py execute
 ```
 
-This takes as input the files `dressed_CAG.pkl` and `bmi_config.txt`, which looks
-like this:
+This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,
+and `bmi_config.txt`, which looks like this:
 
 ```
 rainfall,100.0
