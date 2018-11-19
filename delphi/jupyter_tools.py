@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List, Dict, Optional
 from indra.statements import Influence
 from IPython.display import HTML, Code, Image
-from .assembly import top_grounding_score
+from delphi.utils.indra import top_grounding_score
 import json
 import pygments
 
