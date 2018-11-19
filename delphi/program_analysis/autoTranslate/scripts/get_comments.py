@@ -14,11 +14,11 @@
 
             comments = get_comments(src_file_name)
 
-        The returned value is a dictionary that maps each subprogram name to
-        a comment dictionary; the comment dictionary maps each of the categories
-        'head', 'neck' 'foot' to a list of comment strings.  If a particular
-        subprogram does not have comments for any of these categories, the
-        corresponding entries in the comment dictionary are [].
+        The returned value is a dictionary that maps each subprogram name to a
+        comment dictionary; the comment dictionary maps each of the categories
+        'head', 'neck', and 'foot' to a list of comment strings.  If a
+        particular subprogram does not have comments for any of these
+        categories, the corresponding entries in the comment dictionary are [].
 """
 
 import sys, re
