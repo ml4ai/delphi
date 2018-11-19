@@ -13,31 +13,33 @@ Usage:
 """
 
 import sys
-
+from fortran_syntax import *
 
 def process(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         # remove lines that are entirely comments
-        lines = [line for line in f if (line[0] == " " or line[0] == "\t")]
+        lines = [line for line in f if not line_is_comment(line)]
+
+        # remove partial-line comments
+        lines = [rm_trailing_comment(line) for line in lines]
+
 
     # merge continuation lines
     chg = True
     while chg:
         chg = False
-        for i in range(len(lines)):
-            # len(lines) may have changed because of deletions
-            if i == len(lines):
-                break
-
+        i = 0
+        while i < len(lines):
             line = lines[i]
             llstr = line.lstrip()
             if len(llstr) > 0 and llstr[0] == "&":  # continuation character
                 prevline = lines[i - 1]
                 line = llstr[1:].lstrip()
-                prevline = rm_trailing_comment(prevline).rstrip() + line
+                prevline = prevline.rstrip() + line
                 lines[i - 1] = prevline
                 lines.pop(i)
                 chg = True
+            i += 1
 
     with open(outfile, "w") as f:
         f.write("".join(lines))
@@ -68,7 +70,7 @@ def rm_trailing_comment(line: str) -> str:
             else:
                 i = j + 1
         elif line[i] == "!":  # partial-line comment
-            return line[:i]
+            return line[:i].rstrip() + "\n"
         else:
             i += 1
 
