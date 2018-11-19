@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from conftest import *
 
 
@@ -282,5 +283,5 @@ CROP_YIELD_JSON_DICT = {
     ],
     "start": "CROP_YIELD",
     "name": "crop_yield.json",
-    "dateCreated": "2018-11-18",
+    "dateCreated": str(date.today()),
 }
