@@ -13,43 +13,22 @@ from argparse import (
     ArgumentDefaultsHelpFormatter,
 )
 from delphi.paths import data_dir
+from delphi.AnalysisGraph import AnalysisGraph
 
 
-def create(args):
-    print("Creating model")
-    from delphi.assembly import get_data
-    from delphi.parameterization import parameterize
-    from delphi.quantification import map_concepts_to_indicators
-    from datetime import datetime
-    from delphi.AnalysisGraph import AnalysisGraph
-    from delphi.export import export
-
-    with open(args.indra_statements, "rb") as f:
-        sts = pickle.load(f)
-
-    G = AnalysisGraph.from_statements(sts)
-    G.infer_transition_model(args.adjective_data)
-    G = map_concepts_to_indicators(G, 2)
-    G = parameterize(G, datetime(args.year, 1, 1), get_data(args.data))
-    export(
-        G,
-        format="full",
-        json_file=args.output_cag_json,
-        pickle_file=args.output_dressed_cag,
-        variables_file=args.output_variables,
-    )
+def _write_latent_state(G, f):
+    for n in G.nodes(data=True):
+        f.write(f"{str(G.t)},")
+        f.write(",".join([n[0]] + [str(v) for v in n[1]["rv"].dataset]) + "\n")
 
 
 def execute(args):
     from pandas import read_csv
-    from .AnalysisGraph import AnalysisGraph
-    from .execution import _write_latent_state, get_latent_state_components
-    from .bmi import initialize, update
 
     print("Executing model")
     G = AnalysisGraph.from_pickle(args.input_dressed_cag)
 
-    initialize(G, args.input_variables)
+    G.initialize(args.input_variables)
     with open(args.output_sequences, "w") as f:
         f.write(
             ",".join(
@@ -60,7 +39,7 @@ def execute(args):
         )
 
         for t in range(args.steps):
-            update(G)
+            G.update()
             _write_latent_state(G, f)
 
 
@@ -109,71 +88,8 @@ if __name__ == "__main__":
 
     subparsers = parser.add_subparsers()
 
-    parser_create = subparsers.add_parser("create", help="Model creation")
-    parser_create.set_defaults(func=create)
-
     parser_execute = subparsers.add_parser("execute", help="Model execution")
     parser_execute.set_defaults(func=execute)
-
-    # ==========================================================================
-    # Model creation options
-    # ==========================================================================
-
-    parser_create.add_argument(
-        "--output_dressed_cag",
-        help="Path to the output dressed cag",
-        type=str,
-        default="delphi_cag.pkl",
-    )
-
-    parser_create.add_argument(
-        "--indra_statements",
-        type=str,
-        help="Pickle file containing INDRA statements",
-        default=data_dir / "curated_statements.pkl",
-    )
-
-    parser_create.add_argument(
-        "--adjective_data",
-        help="Path to the gradable adjective data file.",
-        type=str,
-        default=data_dir / "adjectiveData.tsv",
-    )
-
-    parser_create.add_argument(
-        "--dt",
-        help="Time step size",
-        type=partial(positive_real, "dt"),
-        default=1.0,
-    )
-
-    parser_create.add_argument(
-        "--output_variables",
-        help="Path to the variables of the output dressed cag",
-        type=str,
-        default="variables.csv",
-    )
-
-    parser_create.add_argument(
-        "--concept_to_indicator_mapping",
-        help="Path to the file containing the mapping between concepts and indicators.",
-        type=str,
-        default=data_dir / "concept_to_indicator_mapping.yml",
-    )
-
-    parser_create.add_argument(
-        "--data",
-        help="Path to the file containing the data for FAO and WDI indicators for South Sudan",
-        type=str,
-        default=data_dir / "south_sudan_data.csv",
-    )
-
-    parser_create.add_argument(
-        "--year",
-        help="Year to get the indicator variable values for",
-        type=int,
-        default=2012,
-    )
 
     # ==========================================================================
     # Model execution options
@@ -183,7 +99,7 @@ if __name__ == "__main__":
         "--input_dressed_cag",
         help="Path to the input dressed cag",
         type=str,
-        default="delphi_cag.pkl",
+        default="delphi_model.pkl",
     )
 
     parser_execute.add_argument(
@@ -207,18 +123,11 @@ if __name__ == "__main__":
         default="dbn_sampled_sequences.csv",
     )
 
-    parser_create.add_argument(
-        "--output_cag_json",
-        help="Path to the output CAG JSON file",
-        type=str,
-        default="delphi_cag.json",
-    )
-
     parser_execute.add_argument(
         "--input_variables",
         help="Path to the variables of the input dressed cag",
         type=str,
-        default="variables.csv",
+        default="bmi_config.txt",
     )
 
     args = parser.parse_args()

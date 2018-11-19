@@ -271,12 +271,76 @@ def process_climis_import_data(data_dir: str) -> pd.DataFrame:
     return df
 
 
+def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
+    dfs = []
+    # Read CSV files first
+    for f in glob(f"{data_dir}/CliMIS South Sudan Rainfall Data in"
+                  " Millimeters/*.csv"):
+        # Get the name of the table without path and extension
+        table_name = os.path.basename(f)[:-4]
+        # Get state and year from groups
+        pattern = r'^(.*) ([0-9]+) Rainfall'
+        state, year = re.match(pattern, table_name).groups()
+        df = pd.read_csv(f, header=0, thousands=",")
+        cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
+                'State', 'County', 'Country']
+        df_new = pd.DataFrame(columns=cols)
+        df_new['Month'] = range(1, 13)
+        df_new['Year'] = int(year)
+        df_new['Value'] = df['monthly rainfall data ']
+        df_new['Variable'] = 'Rainfall'
+        df_new['Unit'] = 'millimeters'
+        df_new['County'] = None
+        df_new['State'] = state
+        df_new['Source'] = 'CliMIS'
+        df_new['Country'] = 'South Sudan'
+        dfs.append(df_new)
+    df1 = pd.concat(dfs)
+
+    # Read XLSX file next
+    fname = f'{data_dir}/CliMIS South Sudan Rainfall Data in Millimeters/' + \
+        'Rainfall-Early_Warning_6month_Summary-2017-data_table.xlsx'
+    df = pd.read_excel(fname, sheet_name='Rainfall Data', header=1)
+    cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
+            'State', 'County', 'Country']
+    df_new = pd.DataFrame(columns=cols)
+    states = []
+    counties = []
+    years = []
+    months = []
+    values = []
+    for row in df.itertuples():
+        state, county, year = row[1:4]
+        for month in range(1,13):
+            value = row[3 + month]
+            if pd.isnull(value):
+                continue
+            states.append(state)
+            counties.append(county)
+            years.append(year)
+            months.append(month)
+            values.append(value)
+    df_new['Year'] = years
+    df_new['Month'] = months
+    df_new['Value'] = values
+    df_new['County'] = counties
+    df_new['State'] = states
+    df_new['Variable'] = 'Rainfall'
+    df_new['Unit'] = 'millimeters'
+    df_new['Source'] = 'CliMIS'
+    df_new['Country'] = 'South Sudan'
+
+    df = pd.concat([df1, df_new])
+    return df
+
+
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
     fao_livestock_df = process_fao_livestock_data(data_dir, columns)
     ipc_df = process_fewsnet_data(data_dir, columns)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
+    climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
 
     df = pd.concat(
         [
@@ -285,6 +349,7 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
             ipc_df,
             climis_livestock_data_df,
             climis_import_data_df,
+            climis_rainfall_data_df
         ],
         sort=True,
     )

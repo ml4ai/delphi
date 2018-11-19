@@ -2,7 +2,7 @@ from delphi.export import *
 
 
 def test_to_dict(G):
-    d = to_dict(G)
+    d = G.to_dict()
     assert (
         d["name"] == "Linear Dynamical System with Stochastic Transition Model"
     )
