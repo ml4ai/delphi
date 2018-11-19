@@ -158,7 +158,6 @@ and creates an output file `output_sequences.csv` (these are the default input
 and output filenames, but they can be changed with command line flags), that
 looks like this:
 
-
 ```
 seq_no,time_slice,rainfall,crop yield
 0,0,100.0,100.0

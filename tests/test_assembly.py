@@ -93,16 +93,6 @@ def test_contains_relevant_concept():
 faostat_data = get_data(south_sudan_data)
 
 
-@pytest.mark.skip(
-    reason="Broken by changes for EC Hackathon - won't break other things"
-)
-def test_get_indicators():
-    assert (
-        get_indicators("food security", mapping)[0].name
-        == "average dietary energy supply adequacy"
-    )
-
-
 def test_get_indicator_data():
     indicator = Indicator(
         "Political stability and absence of violence/terrorism (index), Value",
