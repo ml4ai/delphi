@@ -42,6 +42,7 @@ shapely = {version = "*", extras = ["vectorized"]}
 pytest-profiling = "*"
 pytest-xdist = "*"
 pytest-sugar = "*"
+"75983cb" = {file = "https://github.com/ml4ai/notedown/tarball/master"}
 
 [requires]
 python_version = "3.6"
