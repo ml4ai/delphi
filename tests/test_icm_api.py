@@ -128,7 +128,9 @@ def app(icm_metadata, delphi_model, causal_primitives):
     
     # Uncomment this line for creating an example database
     # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
-
+    
+    subprocess.call("for pid in $(ps -ef | grep celery | awk '{print $2}'); do kill -9 $pid; done", shell=True)
+    
     print ("Run worker in background.")
     subprocess.Popen(["pipenv run celery -A  delphi.icm_api.api.celery worker"], shell=True)
 
