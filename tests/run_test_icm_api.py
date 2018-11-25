@@ -57,7 +57,7 @@ THREADS_PER_PAGE = 2
 if __name__ == '__main__':
     
     # write the test config to ../icm_api/config.py
-    with open("../icm_api/config.py","w") as f:
+    with open("../delphi/icm_api/config.py","w") as f:
         f.write(TEST_TEMPLATE)
     
     print ("Modified ../icm_api/config.py to be used for testing.")
@@ -68,7 +68,7 @@ if __name__ == '__main__':
  
     # run the tests, also test for timeout
     try:
-        subprocess.call("pipenv run pytest -s test_icm_api.py", shell=True, timeout=20)
+        subprocess.call("pipenv run pytest -s test_icm_api.py", shell=True, timeout=50)
     except subprocess.TimeoutExpired:
         print("Tests time out.")
     
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     p.terminate()
     
     # rewrite the config for normal running to config.py, overwrite the old one for test
-    with open("../icm_api/config.py","w") as s:
+    with open("../delphi/icm_api/config.py","w") as s:
         s.write(TEMPLATE)
     
     print ("Restored ../icm_api/config.py")
