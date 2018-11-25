@@ -152,9 +152,9 @@ def query(uuid: str):
     return "", 415
 
 
-from delphi.icm_api import make_celery, create_app
+from delphi.icm_api import make_celery, create_app, create_test_app
 
-celery = make_celery(create_app())
+celery = make_celery(create_test_app())
 
 
 @celery.task()
@@ -166,7 +166,7 @@ def background_task(G, d, data, experiment_id):
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
-        update(G)
+        #update(G)
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(

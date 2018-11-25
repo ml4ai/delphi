@@ -12,7 +12,6 @@ install:
   - pipenv install -d --skip-lock
   - curl http://vision.cs.arizona.edu/adarsh/delphi_data.tgz -o data.tgz
   - tar -xvzf data.tgz; rm data.tgz
-  - pipenv run celery -A delphi.icm_api.api.celery worker
 
 script: make test
 after_success: coveralls

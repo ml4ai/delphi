@@ -31,3 +31,11 @@ def create_app():
     app.register_blueprint(bp)
     return app
 
+def create_test_app():
+    from delphi.icm_api.api import bp
+    """Create an Flask app only used for testing"""
+    app = Flask(__name__)
+    app.config.from_object("delphi.icm_api.test_config")
+    db.init_app(app)
+    app.register_blueprint(bp)
+    return app
