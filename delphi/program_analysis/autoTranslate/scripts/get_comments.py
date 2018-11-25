@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 
 """
-    File: get_comments.py
-    Author: Saumya Debray
-    Purpose: Read the Fortran source file specified and return subprogram
-            names together with the associated subprogram-level comments.
-    Usage:
-        Command-line invocation:
+Purpose:
+    Read the Fortran source file specified and return subprogram
+    names together with the associated subprogram-level comments.
 
-            get_comments.py src_file_name
+Author:
+    Saumya Debray
 
-        Programmatic invocation:
+Example:
+    Command-line invocation:::
 
-            comments = get_comments(src_file_name)
+        ./get_comments.py <src_file_name>
 
-        The returned value is a dictionary that maps each subprogram name to a
-        comment dictionary; the comment dictionary maps each of the categories
-        'head', 'neck', and 'foot' to a list of comment strings.  If a
-        particular subprogram does not have comments for any of these
-        categories, the corresponding entries in the comment dictionary are [].
+    Programmatic invocation:::
+
+        comments = get_comments(src_file_name)
+
+    The returned value is a dictionary that maps each subprogram name to a
+    comment dictionary; the comment dictionary maps each of the categories
+    'head', 'neck', and 'foot' to a list of comment strings.  If a
+    particular subprogram does not have comments for any of these
+    categories, the corresponding entries in the comment dictionary are [].
 """
 
 import sys, re

@@ -219,9 +219,9 @@ def compose(*fs: Any) -> Callable:
 
 
 def rcompose(*fs: Any) -> Callable:
-    """ Compose functions from left to right.
+    """ Compose functions from right to left.
 
-    e.g. compose(f, g)(x) = f(g(x))
+    e.g. rcompose(f, g)(x) = g(f(x))
     """
     return foldl1(lambda f, g: lambda *x: g(f(*x)), fs)
 
@@ -235,7 +235,7 @@ def exists(x: Any) -> bool:
     return True if x is not None else False
 
 
-def repeatfunc(func, *args):
+def repeatfunc(func: Callable, *args):
     """Repeat calls to func with specified arguments.
 
     Example:  repeatfunc(random.random)
@@ -243,11 +243,11 @@ def repeatfunc(func, *args):
     return starmap(func, repeat(args))
 
 
-def grouper(iterable: Iterable, n: int, fillvalue=None):
+def grouper(xs: Iterable, n: int, fillvalue=None):
     """Collect data into fixed-length chunks or blocks.
     >>> from delphi.utils.fp import grouper
     >>> list(grouper('ABCDEFG', 3, 'x'))
     [('A', 'B', 'C'), ('D', 'E', 'F'), ('G', 'x', 'x')]
     """
-    args = [iter(iterable)] * n
+    args = [iter(xs)] * n
     return zip_longest(*args, fillvalue=fillvalue)
