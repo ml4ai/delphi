@@ -116,15 +116,15 @@ def app(icm_metadata, delphi_model, causal_primitives):
     app = create_app()
     app.testing = True
 
-    with open('../delphi/icm_api/api.py', 'r') as file:
-        data = file.readlines()
+    #with open('../delphi/icm_api/api.py', 'r') as file:
+        #data = file.readlines()
     
-    data[156] = 'celery = make_celery(create_test_app())\n'
+    #data[156] = 'celery = make_celery(create_test_app())\n'
     
-    with open('../delphi/icm_api/api.py', 'w') as file:
-        file.writelines(data)
+    #with open('../delphi/icm_api/api.py', 'w') as file:
+        #file.writelines(data)
     
-    print ("Modified ../delphi/icm_api/api.py")
+    #print ("Modified ../delphi/icm_api/api.py")
     
     # Uncomment this line for creating an example database
     # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
