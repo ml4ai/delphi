@@ -3,10 +3,6 @@ from conftest import *
 from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.subgraphs import (
-    get_subgraph_for_concept,
-    get_subgraph_for_concept_pair,
-)
 import pickle
 import pytest
 
@@ -44,13 +40,13 @@ def test_from_pickle(G):
 
 def test_get_subgraph_for_concept(G):
     concept_of_interest = "food_security"
-    sg = get_subgraph_for_concept(G, concept_of_interest)
+    sg = G.get_subgraph_for_concept(concept_of_interest)
     assert set(sg.nodes()) == set(["conflict", "food_security"])
 
 
 def test_get_subgraph_for_concept_pair(G):
     concept_pair = ("conflict", "food_security")
-    sg = get_subgraph_for_concept_pair(G, *concept_pair)
+    sg = G.get_subgraph_for_concept_pair(*concept_pair)
     assert set(sg.nodes()) == set(concept_pair)
 
 
