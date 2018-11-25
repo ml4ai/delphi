@@ -2,7 +2,7 @@ import json
 import pickle
 from datetime import datetime
 from functools import partial
-from itertools import permutations, cycle
+from itertools import permutations, cycle, chain
 from typing import Dict, List, Optional, Union, Callable, Tuple, List
 from uuid import uuid4
 import networkx as nx
@@ -345,3 +345,104 @@ class AnalysisGraph(nx.DiGraph):
                 for k, v in n[1]["indicators"].items()
                 if v.mean is not None
             }
+
+    def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
+        """ Merge node n1 into node n2, with the option to specify relative
+        polarity.
+
+        Args:
+            n1
+            n2
+            same_polarity
+        """
+
+        for p in self.predecessors(n1):
+            for st in self[p][n1]["InfluenceStatements"]:
+                if not same_polarity:
+                    st.obj_delta["polarity"] = -st.obj_delta["polarity"]
+                st.obj.db_refs["UN"][0] = (
+                    "/".join(
+                        st.obj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
+                    ),
+                    st.obj.db_refs["UN"][0][1],
+                )
+
+            if not self.has_edge(p, n2):
+                self.add_edge(p, n2)
+                self[p][n2]["InfluenceStatements"] = self[p][n1][
+                    "InfluenceStatements"
+                ]
+
+            else:
+                self[p][n2]["InfluenceStatements"] += self[p][n1][
+                    "InfluenceStatements"
+                ]
+
+        for s in self.successors(n1):
+            for st in self.edges[n1, s]["InfluenceStatements"]:
+                if not same_polarity:
+                    st.subj_delta["polarity"] = -st.subj_delta["polarity"]
+                st.subj.db_refs["UN"][0] = (
+                    "/".join(
+                        st.subj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
+                    ),
+                    st.subj.db_refs["UN"][0][1],
+                )
+
+            if not self.has_edge(n2, s):
+                self.add_edge(n2, s)
+                self[n2][s]["InfluenceStatements"] = self[n1][s][
+                    "InfluenceStatements"
+                ]
+            else:
+                self[n2][s]["InfluenceStatements"] += self[n1][s][
+                    "InfluenceStatements"
+                ]
+
+        self.remove_node(n1)
+
+    def get_subgraph_for_concept(
+        self, concept: str, depth_limit: Optional[int] = None
+    ):
+        """ Returns a subgraph of the analysis graph for a single concept.
+
+        Args:
+            concept
+            depth_limit
+        """
+        rev = self.reverse()
+        dfs_edges = nx.dfs_edges(rev, concept, depth_limit)
+        return AnalysisGraph(
+            self.subgraph(chain.from_iterable(dfs_edges)).copy()
+        )
+
+    def get_subgraph_for_concept_pair(
+        self, source: str, target: str, cutoff: Optional[int] = None
+    ):
+        """ Get subgraph comprised of simple paths between the source and the
+        target.
+
+        Args:
+            source
+            target
+            cutoff
+        """
+        paths = nx.all_simple_paths(self, source, target, cutoff=cutoff)
+        return AnalysisGraph(self.subgraph(set(chain.from_iterable(paths))))
+
+    def get_subgraph_for_concept_pairs(
+        self, concepts: List[str], cutoff: Optional[int] = None
+    ):
+        """ Get subgraph comprised of simple paths between the source and the
+        target.
+
+        Args:
+            concepts
+            cutoff
+        """
+        path_generator = (
+            nx.all_simple_paths(self, source, target, cutoff=cutoff)
+            for source, target in permutations(concepts, 2)
+        )
+        paths = chain.from_iterable(path_generator)
+        return AnalysisGraph(self.subgraph(set(chain.from_iterable(paths))))
