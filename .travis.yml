@@ -4,7 +4,14 @@ python:
   - "3.6"
 
 env:
+
+
   - DELPHI_DATA=$TRAVIS_BUILD_DIR/data
+
+sudo: required
+
+services:
+  - rabbitmq
 
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
