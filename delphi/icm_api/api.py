@@ -153,9 +153,7 @@ def query(uuid: str):
 
 
 from delphi.icm_api import make_celery, create_app, create_test_app
-
 celery = make_celery(create_test_app())
-
 
 @celery.task()
 def background_task(G, d, data, experiment_id):

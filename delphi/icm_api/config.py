@@ -17,6 +17,8 @@ CELERY_BROKER_URL = 'pyamqp://localhost//'
 CELERY_RESULT_BACKEND = f"db+sqlite:///{BASE_DIR}/delphi.sqlite"
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle']
+# Add a one-minute timeout to all Celery tasks.
+CELERY_TASK_SOFT_TIME_LIMIT = 60
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background

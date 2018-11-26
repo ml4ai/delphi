@@ -119,7 +119,7 @@ def app(icm_metadata, delphi_model, causal_primitives):
     #with open('../delphi/icm_api/api.py', 'r') as file:
         #data = file.readlines()
     
-    #data[156] = 'celery = make_celery(create_test_app())\n'
+    #data[155] = 'celery = make_celery(create_test_app())\n'
     
     #with open('../delphi/icm_api/api.py', 'w') as file:
         #file.writelines(data)
@@ -129,10 +129,10 @@ def app(icm_metadata, delphi_model, causal_primitives):
     # Uncomment this line for creating an example database
     # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
     
-    subprocess.call("for pid in $(ps -ef | grep celery | awk '{print $2}'); do kill -9 $pid; done", shell=True)
+    #subprocess.call("for pid in $(ps -ef | grep celery | awk '{print $2}'); do kill -9 $pid; done", shell=True)
     
-    print ("Run worker in background.")
-    subprocess.Popen(["pipenv run celery -A  delphi.icm_api.api.celery worker"], shell=True)
+    #print ("Run worker in background.")
+    #subprocess.Popen(["pipenv run celery -A  delphi.icm_api.api.celery worker"], shell=True)
 
     # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"

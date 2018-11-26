@@ -7,7 +7,7 @@ if __name__ == "__main__":
     with open('./api.py', 'r') as file:
         data = file.readlines()
     
-    data[156] = 'celery = make_celery(create_app())\n'
+    data[155] = 'celery = make_celery(create_app())\n'
     
     with open('./api.py', 'w') as file:
         file.writelines(data)
