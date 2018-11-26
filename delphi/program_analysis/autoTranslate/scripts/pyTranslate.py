@@ -1,25 +1,22 @@
 #!/usr/bin/python
 
 """
+Purpose:
+    Convert a Fortran AST representation into a Python
+    script having the same functionalities and performing
+    the same operations as the original Fortran file.
 
-   File:    pyTranslate.py
+Example:
+    This script is executed by the autoTranslate script as one
+    of the steps in converted a Fortran source file to Python
+    file. For standalone execution:::
 
-   Purpose: Convert a Fortran AST representation into a Python
-            script having the same functionalities and performing
-            the same operations as the original Fortran file.
+        python pyTranslate -f <pickle_file> -g <python_file>
 
-   Usage:   This script is executed by the autoTranslate script as one
-            of the steps in converted a Fortran source file to Python
-            file. For standalone execution:
-               python pyTranslate -f <pickle_file> -g <python_file>
+pickle_file: Pickled file containing the ast represenatation of the Fortran file
+along with other non-source code information.
 
-            pickle_file: Pickled file containing the ast represenatation
-                         of the Fortran file along with other non-source
-                         code information.
-
-            python_file: The Python file on which to write the resulting
-                         python script.
-
+python_file: The Python file on which to write the resulting python script.
 """
 
 import sys

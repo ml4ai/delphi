@@ -1,7 +1,4 @@
-"""
-File: fortran_syntax.py
-Purpose: Various utility routines for processing Fortran syntax.
-"""
+""" Various utility routines for processing Fortran syntax.  """
 
 import re
 from typing import Tuple, Optional
