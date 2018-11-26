@@ -19,7 +19,7 @@ class PGMState:
         self,
         lambdaFile: Optional[str],
         lastDefs: Optional[Dict]=None,
-        nextDef: Optional[Dict]=None,
+        nextDefs: Optional[Dict]=None,
         lastDefDefault=None,
         fnName=None,
         varTypes: Optional[Dict]=None,
