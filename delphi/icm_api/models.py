@@ -38,11 +38,11 @@ class JsonEncodedDict(db.TypeDecorator):
 
     impl = db.Text
 
-    def process_bind_param(self, _dict, dialect):
-        if _dict is None:
+    def process_bind_param(self, value, dialect):
+        if value is None:
             return "{}"
         else:
-            return json.dumps(_dict)
+            return json.dumps(value)
 
     def process_result_value(self, value, dialect):
         if value is None:
@@ -256,6 +256,9 @@ class Evidence(db.Model, Serializable):
     description = db.Column(db.String, nullable=True)
     category = db.Column(db.String, nullable=True)
     rank = db.Column(db.Integer, nullable=True)
+    causalrelationship_id = db.Column(
+        db.String, db.ForeignKey("causalrelationship.id")
+    )
     __mapper_args__ = {"polymorphic_identity": "Evidence"}
 
 

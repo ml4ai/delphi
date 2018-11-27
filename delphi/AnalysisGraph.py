@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 import numpy as np
-from indra.statements import Influence
-from .random_variables import LatentVar
+from indra.statements import Influence, Concept, Evidence
+from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .paths import south_sudan_data, adjectiveData
 from .utils.fp import flatMap, ltake, lmap
@@ -38,6 +38,7 @@ class AnalysisGraph(nx.DiGraph):
         self.time_unit: str = "Placeholder time unit"
         self.dateCreated = datetime.now()
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
+        self.res: int = 100
 
     # ==========================================================================
     # Constructors
@@ -53,6 +54,14 @@ class AnalysisGraph(nx.DiGraph):
 
         return cls.from_statements(sts)
 
+    def assign_uuids_to_nodes_and_edges(self):
+        """ Assign uuids to nodes and edges. """
+        for node in self.nodes(data=True):
+            node[1]["id"] = str(uuid4())
+
+        for edge in self.edges(data=True):
+            edge[2]["id"] = str(uuid4())
+
     @classmethod
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements. """
@@ -64,12 +73,9 @@ class AnalysisGraph(nx.DiGraph):
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
-        G = cls(edges)
-
-        for n in G.nodes(data=True):
-            n[1]["id"] = str(uuid4())
-
-        return G
+        self = cls(edges)
+        self.assign_uuids_to_nodes_and_edges()
+        return self
 
     @classmethod
     def from_pickle(cls, file: str):
@@ -96,6 +102,74 @@ class AnalysisGraph(nx.DiGraph):
     def from_json_serialized_statements_file(cls, file):
         with open(file, "r") as f:
             return cls.from_json_serialized_statements_list(f.read())
+
+    @classmethod
+    def from_uncharted_json_file(cls, file):
+        with open(file, "r") as f:
+            _dict = json.load(f)
+        return cls.from_uncharted_json_serialized_dict(_dict)
+
+    @classmethod
+    def from_uncharted_json_serialized_dict(
+        cls, _dict, minimum_evidence_pieces_required: int = 1
+    ):
+        sts = _dict["statements"]
+        G = nx.DiGraph()
+        for s in sts:
+            if len(s["evidence"]) >= minimum_evidence_pieces_required:
+                subj, obj = s["subj"], s["obj"]
+                subj_name, obj_name = [
+                    s[x]["db_refs"]["concept"].split("/")[-1]
+                    for x in ["subj", "obj"]
+                ]
+                G.add_edge(subj_name, obj_name)
+                subj_delta = s["subj_delta"]
+                obj_delta = s["obj_delta"]
+                for delta in (subj_delta, obj_delta):
+                    # TODO : Ensure that all the statements provided by
+                    # Uncharted have unambiguous polarities.
+                    if delta["polarity"] is None:
+                        delta["polarity"] = 1
+                influence_stmt = Influence(
+                    Concept(subj_name, db_refs=subj["db_refs"]),
+                    Concept(obj_name, db_refs=obj["db_refs"]),
+                    subj_delta=s["subj_delta"],
+                    obj_delta=s["obj_delta"],
+                    evidence=[
+                        Evidence(
+                            source_api=ev["source_api"],
+                            annotations=ev["annotations"],
+                            text=ev["text"],
+                            epistemics=ev.get("epistemics"),
+                        )
+                        for ev in s["evidence"]
+                    ],
+                )
+                influence_sts = G.edges[subj_name, obj_name].get(
+                    "InfluenceStatements", []
+                )
+                influence_sts.append(influence_stmt)
+                G.edges[subj_name, obj_name][
+                    "InfluenceStatements"
+                ] = influence_sts
+
+        for concept, indicator in _dict[
+            "concept_to_indicator_mapping"
+        ].items():
+            concept_name = concept.split("/")[-1]
+            if concept_name != "Unknown":
+                if indicator != "???":
+                    indicator_source, *indicator_name = indicator.split("/")
+                    if concept_name in G:
+                        if G.nodes[concept_name].get("indicators") is None:
+                            G.nodes[concept_name]["indicators"] = {}
+                        G.nodes[concept_name]["indicators"][
+                            indicator_name[-1]
+                        ] = Indicator(indicator_name[-1], indicator_source)
+
+        self = cls(G)
+        self.assign_uuids_to_nodes_and_edges()
+        return self
 
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
@@ -400,6 +474,10 @@ class AnalysisGraph(nx.DiGraph):
                 ]
 
         self.remove_node(n1)
+
+    # ==========================================================================
+    # Subgraphs
+    # ==========================================================================
 
     def get_subgraph_for_concept(
         self, concept: str, depth_limit: Optional[int] = None
