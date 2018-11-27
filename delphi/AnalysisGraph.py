@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 import numpy as np
-from indra.statements import Influence, Concept
+from indra.statements import Influence, Concept, Evidence
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .paths import south_sudan_data, adjectiveData
@@ -38,6 +38,7 @@ class AnalysisGraph(nx.DiGraph):
         self.time_unit: str = "Placeholder time unit"
         self.dateCreated = datetime.now()
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
+        self.res: int = 100
 
     # ==========================================================================
     # Constructors
@@ -53,6 +54,14 @@ class AnalysisGraph(nx.DiGraph):
 
         return cls.from_statements(sts)
 
+    def assign_uuids_to_nodes_and_edges(self):
+        """ Assign uuids to nodes and edges. """
+        for node in self.nodes(data=True):
+            node[1]["id"] = str(uuid4())
+
+        for edge in self.edges(data=True):
+            edge[2]["id"] = str(uuid4())
+
     @classmethod
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements. """
@@ -64,12 +73,9 @@ class AnalysisGraph(nx.DiGraph):
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
-        G = cls(edges)
-
-        for n in G.nodes(data=True):
-            n[1]["id"] = str(uuid4())
-
-        return G
+        self = cls(edges)
+        self.assign_uuids_to_nodes_and_edges()
+        return self
 
     @classmethod
     def from_pickle(cls, file: str):
@@ -120,6 +126,8 @@ class AnalysisGraph(nx.DiGraph):
                 subj_delta = s["subj_delta"]
                 obj_delta = s["obj_delta"]
                 for delta in (subj_delta, obj_delta):
+                    # TODO : Ensure that all the statements provided by
+                    # Uncharted have unambiguous polarities.
                     if delta["polarity"] is None:
                         delta["polarity"] = 1
                 influence_stmt = Influence(
@@ -127,7 +135,15 @@ class AnalysisGraph(nx.DiGraph):
                     Concept(obj_name, db_refs=obj["db_refs"]),
                     subj_delta=s["subj_delta"],
                     obj_delta=s["obj_delta"],
-                    evidence=s["evidence"],
+                    evidence=[
+                        Evidence(
+                            source_api=ev["source_api"],
+                            annotations=ev["annotations"],
+                            text=ev["text"],
+                            epistemics=ev.get("epistemics"),
+                        )
+                        for ev in s["evidence"]
+                    ],
                 )
                 influence_sts = G.edges[subj_name, obj_name].get(
                     "InfluenceStatements", []
@@ -150,7 +166,10 @@ class AnalysisGraph(nx.DiGraph):
                         G.nodes[concept_name]["indicators"][
                             indicator_name[-1]
                         ] = Indicator(indicator_name[-1], indicator_source)
-        return cls(G)
+
+        self = cls(G)
+        self.assign_uuids_to_nodes_and_edges()
+        return self
 
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
