@@ -95,7 +95,9 @@ def getEvidenceForID(uuid: str, prim_id: str):
     """ returns evidence for a causal primitive (needs pagination support)"""
     evidences = [
         evidence.deserialize()
-        for evidence in Evidence.query.filter_by(causalrelationship_id=prim_id).all()
+        for evidence in Evidence.query.filter_by(
+            causalrelationship_id=prim_id
+        ).all()
     ]
     for evidence in evidences:
         del evidence["causalrelationship_id"]
