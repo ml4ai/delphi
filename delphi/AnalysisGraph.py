@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 import numpy as np
-from indra.statements import Influence
+from indra.statements import Influence, Concept
 from .random_variables import LatentVar
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .paths import south_sudan_data, adjectiveData
@@ -24,6 +24,7 @@ from .assembly import (
     get_indicator_value,
     get_data,
 )
+from tqdm import tqdm
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -96,6 +97,47 @@ class AnalysisGraph(nx.DiGraph):
     def from_json_serialized_statements_file(cls, file):
         with open(file, "r") as f:
             return cls.from_json_serialized_statements_list(f.read())
+
+    @classmethod
+    def from_uncharted_json_file(cls, file):
+        with open(file, "r") as f:
+            _dict = json.load(f)
+        return cls.from_uncharted_json_serialized_dict(_dict)
+
+    @classmethod
+    def from_uncharted_json_serialized_dict(
+        cls, _dict, minimum_evidence_pieces_required: int = 1
+    ):
+        sts = _dict["statements"]
+        G = nx.DiGraph()
+        for s in sts:
+            if len(s["evidence"]) >= minimum_evidence_pieces_required:
+                subj, obj = s["subj"], s["obj"]
+                subj_name, obj_name = [
+                    s[x]["db_refs"]["concept"].split("/")[-1]
+                    for x in ["subj", "obj"]
+                ]
+                G.add_edge(subj_name, obj_name)
+                subj_delta = s["subj_delta"]
+                obj_delta = s["obj_delta"]
+                for delta in (subj_delta, obj_delta):
+                    if delta["polarity"] is None:
+                        delta["polarity"] = 1
+                influence_stmt = Influence(
+                    Concept(subj_name, db_refs=subj["db_refs"]),
+                    Concept(obj_name, db_refs=obj["db_refs"]),
+                    subj_delta=s["subj_delta"],
+                    obj_delta=s["obj_delta"],
+                    evidence=s["evidence"],
+                )
+                influence_sts = G.edges[subj_name, obj_name].get(
+                    "InfluenceStatements", []
+                )
+                influence_sts.append(influence_stmt)
+                G.edges[subj_name, obj_name][
+                    "InfluenceStatements"
+                ] = influence_sts
+        return cls(G)
 
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
