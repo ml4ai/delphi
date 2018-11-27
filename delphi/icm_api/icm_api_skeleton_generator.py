@@ -237,7 +237,6 @@ class DatabaseModel(object):
                 "db.ForeignKey('causalrelationship.id'))"
             )
 
-
         lines.append(self.polymorphy_annotation)
         return "\n".join(lines)
 
