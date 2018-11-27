@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import numpy as np
 from indra.statements import Influence, Concept
-from .random_variables import LatentVar
+from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .paths import south_sudan_data, adjectiveData
 from .utils.fp import flatMap, ltake, lmap
@@ -24,7 +24,6 @@ from .assembly import (
     get_indicator_value,
     get_data,
 )
-from tqdm import tqdm
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -137,6 +136,20 @@ class AnalysisGraph(nx.DiGraph):
                 G.edges[subj_name, obj_name][
                     "InfluenceStatements"
                 ] = influence_sts
+
+        for concept, indicator in _dict[
+            "concept_to_indicator_mapping"
+        ].items():
+            concept_name = concept.split("/")[-1]
+            if concept_name != "Unknown":
+                if indicator != "???":
+                    indicator_source, *indicator_name = indicator.split("/")
+                    if concept_name in G:
+                        if G.nodes[concept_name].get("indicators") is None:
+                            G.nodes[concept_name]["indicators"] = {}
+                        G.nodes[concept_name]["indicators"][
+                            indicator_name[-1]
+                        ] = Indicator(indicator_name[-1], indicator_source)
         return cls(G)
 
     def get_latent_state_components(self):
@@ -442,6 +455,10 @@ class AnalysisGraph(nx.DiGraph):
                 ]
 
         self.remove_node(n1)
+
+    # ==========================================================================
+    # Subgraphs
+    # ==========================================================================
 
     def get_subgraph_for_concept(
         self, concept: str, depth_limit: Optional[int] = None
