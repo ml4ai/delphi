@@ -3,7 +3,14 @@ import pytest
 from conftest import *
 from uuid import uuid4
 from delphi.icm_api import create_app, db
-from delphi.icm_api.models import *
+from delphi.icm_api.models import (
+    Evidence,
+    ICMMetadata,
+    CausalVariable,
+    CausalRelationship,
+    DelphiModel,
+    ForwardProjection,
+)
 from datetime import date
 from delphi.random_variables import LatentVar
 import numpy as np
@@ -37,6 +44,7 @@ def causal_primitives(G):
         n[1]["update_function"] = G.default_update_function
         rv = n[1]["rv"]
         rv.dataset = [default_latent_var_value for _ in range(G.res)]
+
         if n[1].get("indicators") is not None:
             for ind in n[1]["indicators"].values():
                 ind.dataset = np.ones(G.res) * ind.mean
@@ -79,8 +87,9 @@ def causal_primitives(G):
     for e in G.edges(data=True):
         # TODO: Have AnalysisGraph automatically assign uuids to edges.
 
+        causal_relationship_id = e[2]['id']
         causal_relationship = CausalRelationship(
-            id=str(uuid4()),
+            id=e[2]['id'],
             namespaces={},
             source={"id": G.nodes[e[0]]["id"], "baseType": "CausalVariable"},
             target={"id": G.nodes[e[1]]["id"], "baseType": "CausalVariable"},
@@ -112,14 +121,25 @@ def causal_primitives(G):
 
 
 @pytest.fixture(scope="module")
-def app(icm_metadata, delphi_model, causal_primitives):
+def evidences(G):
+    evidences = []
+    for edge in G.edges(data=True):
+        for stmt in edge[2]["InfluenceStatements"]:
+            for ev in stmt.evidence:
+                evidence = Evidence(
+                    id = str(uuid4()),
+                    causalrelationship_id = edge[2]['id'],
+                    description = ev.text
+                )
+                evidences.append(evidence)
+    return evidences
+
+
+@pytest.fixture(scope="module")
+def app(icm_metadata, delphi_model, causal_primitives, evidences):
     app = create_app()
     app.testing = True
 
-    # Uncomment this line for creating an example database
-    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///delphi.db"
-
-    # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
@@ -129,10 +149,11 @@ def app(icm_metadata, delphi_model, causal_primitives):
         db.session.add(delphi_model)
         for causal_primitive in causal_primitives:
             db.session.add(causal_primitive)
+        for evidence in evidences:
+            db.session.add(evidence)
         db.session.commit()
         yield app
 
-        # Comment the following line while creating example database
         db.drop_all()
 
 
