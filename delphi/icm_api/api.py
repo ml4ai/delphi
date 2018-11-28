@@ -172,9 +172,11 @@ def createExperiment(uuid: str):
         n[1]["update_function"] = G.default_update_function
         rv = n[1]["rv"]
         rv.dataset = [default_latent_var_value for _ in range(G.res)]
-        if n[1].get("indicators") is not None:
+        indicators = n[1].get("indicators")
+        if (indicators is not None) and (indicators != {}):
             for indicator_name, ind in n[1]["indicators"].items():
-                ind.dataset = np.ones(G.res) * ind.mean
+                if ind.mean is not None:
+                    ind.dataset = np.ones(G.res) * ind.mean
 
         rv.partial_t = 0.0
         for variable in data["interventions"]:
