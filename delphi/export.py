@@ -97,15 +97,16 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
             for indicator_name, ind in n[1]["indicators"].items():
-                node_label = _insert_line_breaks(ind.name)
+                node_label = _insert_line_breaks(ind.name.replace("_", " "))
                 if kwargs.get("indicator_values"):
                     if ind.unit is not None:
                         units = f" {ind.unit}"
                     else:
                         units = ""
 
-                    ind_value = "{:.2f}".format(ind.mean) + f"{units}"
-                    node_label = f"{node_label}\n[{ind_value}]"
+                    if ind.mean is not None:
+                        ind_value = "{:.2f}".format(ind.mean) + f"{units}"
+                        node_label = f"{node_label}\n[{ind_value}]"
 
                 A.add_node(
                     node_label, style="rounded, filled", fillcolor="lightblue"

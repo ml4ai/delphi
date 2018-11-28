@@ -67,4 +67,4 @@ def test_sampler(G):
     fig, ax = plt.subplots()
     plt.hist(betas, bins=40)
     plt.savefig("betas.pdf")
-    assert map_estimate == approx(original_beta, abs=0.1)
+    assert map_estimate == approx(original_beta, abs=0.2)
