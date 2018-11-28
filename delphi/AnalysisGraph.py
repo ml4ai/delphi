@@ -293,12 +293,13 @@ class AnalysisGraph(nx.DiGraph):
             indicators = n[1].get("indicators")
             if (indicators is not None) and (indicators != {}):
                 for indicator_name, indicator in n[1]["indicators"].items():
-                    indicator.dataset = [
-                        self.emission_function(
-                            x, indicator.mean, indicator.stdev
-                        )
-                        for x in n[1]["rv"].dataset
-                    ]
+                    if indicator.mean is not None:
+                        indicator.dataset = [
+                            self.emission_function(
+                                x, indicator.mean, indicator.stdev
+                            )
+                            for x in n[1]["rv"].dataset
+                        ]
 
         self.t += self.Δt
 
