@@ -17,7 +17,7 @@ textual evidence.
   self
   model
   api
-  dbn_json_spec
+  grfn_spec
 
 
 License
