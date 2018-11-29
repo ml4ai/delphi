@@ -89,7 +89,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         )
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
-        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
+        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement)))# + h[4:6]
         A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
     # Drawing indicator variables

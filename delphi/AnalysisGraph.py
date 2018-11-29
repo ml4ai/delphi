@@ -121,7 +121,7 @@ class AnalysisGraph(nx.DiGraph):
                 if (subj["db_refs"]["concept"] is not None and
                         obj["db_refs"]["concept"] is not None):
                     subj_name, obj_name = [
-                            "/".join(s[x]["db_refs"]["concept"].split("/")[1:])
+                            "/".join(s[x]["db_refs"]["concept"].split("/")[:])
                         for x in ["subj", "obj"]
                     ]
                     G.add_edge(subj_name, obj_name)
@@ -160,14 +160,13 @@ class AnalysisGraph(nx.DiGraph):
             "concept_to_indicator_mapping"
         ].items():
             if indicator is not None:
-                concept_name = concept.split("/")[-1]
-                indicator_source, *indicator_name = indicator.split("/")
-                if concept_name in G:
-                    if G.nodes[concept_name].get("indicators") is None:
-                        G.nodes[concept_name]["indicators"] = {}
-                    G.nodes[concept_name]["indicators"][
-                        indicator_name[-1]
-                    ] = Indicator(indicator_name[-1], indicator_source)
+                indicator_source, indicator_name = indicator.split("/")[0], indicator
+                if concept in G:
+                    if G.nodes[concept].get("indicators") is None:
+                        G.nodes[concept]["indicators"] = {}
+                    G.nodes[concept]["indicators"][
+                        indicator_name
+                    ] = Indicator(indicator_name, indicator_source)
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()

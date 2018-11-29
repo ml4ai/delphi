@@ -175,7 +175,7 @@ def construct_concept_to_indicator_mapping(
     gb = df.groupby("Concept")
 
     _dict = {
-        k.split("/")[-1]: [
+        k: [
             get_variable_and_source(x)
             for x in v["Indicator"].values[0:n]
         ]
