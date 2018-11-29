@@ -102,7 +102,7 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
 
 def get_data(filename: str) -> pd.DataFrame:
     """ Create a dataframe out of south_sudan_data.csv """
-    df = pd.read_csv(filename, sep="|", index_col="Indicator Name")
+    df = pd.read_csv(filename, index_col="Variable")
     return df
 
 
@@ -131,61 +131,62 @@ def get_indicator_value(
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    if indicator.source == "FAO/WDI":
-        best_match = get_best_match(indicator, df.index)
+    # if indicator.source == "FAO/WDI":
+    best_match = get_best_match(indicator, df.index)
 
-        year = str(date.year)
-        if not year in df.columns:
-            return None
-        else:
-            indicator_value = df[year][best_match]
-            indicator_units = df.loc[best_match]["Unit"]
+    # TODO Fix the above
+    df = df.loc[best_match].loc[lambda df: df["Year"] == date.year].loc[lambda df: df["Month"] == date.month]
+    if not df["Value"].isna().all():
+        indicator_value = float(df["Value"].iloc[0])
+        indicator_units = df["Unit"].iloc[0]
+    else:
+        indicator_value = None
+        indicator_units = None
 
-        return (
-            (indicator_value, indicator_units)
-            if not pd.isna(indicator_value)
-            else (None, indicator_units)
-        )
-
-    elif indicator.source == "CYCLES":
-        return get_mean_precipitation(date.year), "mm"
+    return (
+        (indicator_value, indicator_units)
+        if not pd.isna(indicator_value)
+        else (None, None)
+    )
 
 
-def process_variable_name(x: str):
+def get_variable_and_source(x: str):
     """ Process the variable name to make it more human-readable. """
     xs = x.replace("\/", "|").split("/")
     xs = [x.replace("|", "/") for x in xs]
-    xs.reverse()
-    return " ".join(xs[0:2])
+    # return " ".join(xs)
+    if xs[0] == "FAO":
+        return " ".join(xs[2:]), xs[0]
+    else:
+        return xs[-1], xs[0]
 
 
 def construct_concept_to_indicator_mapping(
-    n: int = 2, mapping=concept_to_indicator_mapping
+    n: int = 1, mapping = concept_to_indicator_mapping
 ) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
     df = pd.read_table(
         mapping,
-        usecols=[1, 3, 4],
-        names=["Concept Grounding", "Indicator Grounding", "Score"],
+        usecols=[1, 2, 3, 4],
+        names=["Concept", "Source", "Indicator", "Score"],
+        dtype={"Concept":str, "Source":str, "Indicator":str, "Score":np.float64},
     )
-    gb = df.groupby("Concept Grounding")
+    gb = df.groupby("Concept")
 
-    construct_variable_name = (
-        lambda x: x.split("/")[-1] + " " + x.split("/")[-2]
-    )
-    return {
+    _dict = {
         k.split("/")[-1]: [
-            process_variable_name(x)
-            for x in v["Indicator Grounding"].values[0:n]
+            get_variable_and_source(x)
+            for x in v["Indicator"].values[0:n]
         ]
         for k, v in gb
     }
+    return _dict
 
 
 def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
     return (
-        {x: Indicator(x, "FAO/WDI") for x in mapping[concept]}
+        {x[0]: Indicator(x[0], x[1]) for x in mapping[concept]}
         if concept in mapping
         else None
     )

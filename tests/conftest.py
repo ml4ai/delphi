@@ -104,4 +104,10 @@ def PAG():
     pgm_dict = genPGM.create_pgm_dict(
         "crop_yield_lambdas.py", asts, "crop_yield.json"
     )
-    return pgm_dict
+    yield pgm_dict
+    for filename in (
+        preprocessed_fortran_file,
+        "crop_yield_lambdas.py",
+        "crop_yield.json",
+    ):
+        os.remove(filename)

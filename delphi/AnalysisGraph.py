@@ -118,54 +118,56 @@ class AnalysisGraph(nx.DiGraph):
         for s in sts:
             if len(s["evidence"]) >= minimum_evidence_pieces_required:
                 subj, obj = s["subj"], s["obj"]
-                subj_name, obj_name = [
-                    s[x]["db_refs"]["concept"].split("/")[-1]
-                    for x in ["subj", "obj"]
-                ]
-                G.add_edge(subj_name, obj_name)
-                subj_delta = s["subj_delta"]
-                obj_delta = s["obj_delta"]
-                for delta in (subj_delta, obj_delta):
-                    # TODO : Ensure that all the statements provided by
-                    # Uncharted have unambiguous polarities.
-                    if delta["polarity"] is None:
-                        delta["polarity"] = 1
-                influence_stmt = Influence(
-                    Concept(subj_name, db_refs=subj["db_refs"]),
-                    Concept(obj_name, db_refs=obj["db_refs"]),
-                    subj_delta=s["subj_delta"],
-                    obj_delta=s["obj_delta"],
-                    evidence=[
-                        Evidence(
-                            source_api=ev["source_api"],
-                            annotations=ev["annotations"],
-                            text=ev["text"],
-                            epistemics=ev.get("epistemics"),
-                        )
-                        for ev in s["evidence"]
-                    ],
-                )
-                influence_sts = G.edges[subj_name, obj_name].get(
-                    "InfluenceStatements", []
-                )
-                influence_sts.append(influence_stmt)
-                G.edges[subj_name, obj_name][
-                    "InfluenceStatements"
-                ] = influence_sts
+                if (subj["db_refs"]["concept"] is not None and
+                        obj["db_refs"]["concept"] is not None):
+                    subj_name, obj_name = [
+                            "/".join(s[x]["db_refs"]["concept"].split("/")[1:])
+                        for x in ["subj", "obj"]
+                    ]
+                    G.add_edge(subj_name, obj_name)
+                    subj_delta = s["subj_delta"]
+                    obj_delta = s["obj_delta"]
+
+                    for delta in (subj_delta, obj_delta):
+                        # TODO : Ensure that all the statements provided by
+                        # Uncharted have unambiguous polarities.
+                        if delta["polarity"] is None:
+                            delta["polarity"] = 1
+                    influence_stmt = Influence(
+                        Concept(subj_name, db_refs=subj["db_refs"]),
+                        Concept(obj_name, db_refs=obj["db_refs"]),
+                        subj_delta=s["subj_delta"],
+                        obj_delta=s["obj_delta"],
+                        evidence=[
+                            Evidence(
+                                source_api=ev["source_api"],
+                                annotations=ev["annotations"],
+                                text=ev["text"],
+                                epistemics=ev.get("epistemics"),
+                            )
+                            for ev in s["evidence"]
+                        ],
+                    )
+                    influence_sts = G.edges[subj_name, obj_name].get(
+                        "InfluenceStatements", []
+                    )
+                    influence_sts.append(influence_stmt)
+                    G.edges[subj_name, obj_name][
+                        "InfluenceStatements"
+                    ] = influence_sts
 
         for concept, indicator in _dict[
             "concept_to_indicator_mapping"
         ].items():
-            concept_name = concept.split("/")[-1]
-            if concept_name != "Unknown":
-                if indicator != "???":
-                    indicator_source, *indicator_name = indicator.split("/")
-                    if concept_name in G:
-                        if G.nodes[concept_name].get("indicators") is None:
-                            G.nodes[concept_name]["indicators"] = {}
-                        G.nodes[concept_name]["indicators"][
-                            indicator_name[-1]
-                        ] = Indicator(indicator_name[-1], indicator_source)
+            if indicator is not None:
+                concept_name = concept.split("/")[-1]
+                indicator_source, *indicator_name = indicator.split("/")
+                if concept_name in G:
+                    if G.nodes[concept_name].get("indicators") is None:
+                        G.nodes[concept_name]["indicators"] = {}
+                    G.nodes[concept_name]["indicators"][
+                        indicator_name[-1]
+                    ] = Indicator(indicator_name[-1], indicator_source)
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
@@ -403,7 +405,7 @@ class AnalysisGraph(nx.DiGraph):
             data = get_data(data)
 
         nodes_with_indicators = [
-            n for n in self.nodes(data=True) if n[1]["indicators"] is not None
+            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
         ]
 
         for n in nodes_with_indicators:
