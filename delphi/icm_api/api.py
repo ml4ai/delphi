@@ -203,6 +203,8 @@ def createExperiment(uuid: str):
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
     for i in range(data["projection"]["numSteps"]):
+        print("i " + str(i))
+        print("stepsize "+data["projection"]["stepSize"])
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
@@ -214,6 +216,7 @@ def createExperiment(uuid: str):
             CausalVariable.query.filter_by(
                 id=n[1]["id"]
             ).first().lastUpdated = d.isoformat()
+            print(np.mean(n[1]["rv"].datasett))
             result.results.append(
                 {
                     "id": n[1]["id"],

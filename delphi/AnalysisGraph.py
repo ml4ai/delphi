@@ -303,6 +303,7 @@ class AnalysisGraph(nx.DiGraph):
                         ]
 
         self.t += self.Δt
+        print("t " + str(self.t))
 
     def update_until(self, t_final: float):
         """ Updates the model to a particular time t_final """
