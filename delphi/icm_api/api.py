@@ -216,7 +216,7 @@ def createExperiment(uuid: str):
             CausalVariable.query.filter_by(
                 id=n[1]["id"]
             ).first().lastUpdated = d.isoformat()
-            print(np.mean(n[1]["rv"].datasett))
+            print(np.mean(n[1]["rv"].dataset))
             result.results.append(
                 {
                     "id": n[1]["id"],
