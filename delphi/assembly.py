@@ -46,34 +46,36 @@ def constructConditionalPDF(
     all_thetas = []
     for stmt in e[2]["InfluenceStatements"]:
         for ev in stmt.evidence:
-            for subj_adjective in ev.annotations["subj_adjectives"]:
-                if (
-                    subj_adjective in gb.groups
-                    and subj_adjective not in adjective_response_dict
-                ):
-                    adjective_response_dict[subj_adjective] = get_respdevs(
-                        gb.get_group(subj_adjective)
-                    )
-                rs_subj = stmt.subj_delta[
-                    "polarity"
-                ] * adjective_response_dict.get(subj_adjective, rs)
-
-                for obj_adjective in ev.annotations["obj_adjectives"]:
+            # To account for discrepancy between Hume and Eidos extractions
+            if ev.annotations.get("subj_adjectives") is not None:
+                for subj_adjective in ev.annotations["subj_adjectives"]:
                     if (
-                        obj_adjective in gb.groups
-                        and obj_adjective not in adjective_response_dict
+                        subj_adjective in gb.groups
+                        and subj_adjective not in adjective_response_dict
                     ):
-                        adjective_response_dict[obj_adjective] = get_respdevs(
-                            gb.get_group(obj_adjective)
+                        adjective_response_dict[subj_adjective] = get_respdevs(
+                            gb.get_group(subj_adjective)
                         )
-
-                    rs_obj = stmt.obj_delta[
+                    rs_subj = stmt.subj_delta[
                         "polarity"
-                    ] * adjective_response_dict.get(obj_adjective, rs)
+                    ] * adjective_response_dict.get(subj_adjective, rs)
 
-                    xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                    thetas = np.arctan2(ys1.flatten(), xs1.flatten())
-                    all_thetas.append(thetas)
+                    for obj_adjective in ev.annotations["obj_adjectives"]:
+                        if (
+                            obj_adjective in gb.groups
+                            and obj_adjective not in adjective_response_dict
+                        ):
+                            adjective_response_dict[obj_adjective] = get_respdevs(
+                                gb.get_group(obj_adjective)
+                            )
+
+                        rs_obj = stmt.obj_delta[
+                            "polarity"
+                        ] * adjective_response_dict.get(obj_adjective, rs)
+
+                        xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
+                        thetas = np.arctan2(ys1.flatten(), xs1.flatten())
+                        all_thetas.append(thetas)
 
             # Prior
             xs1, ys1 = np.meshgrid(
