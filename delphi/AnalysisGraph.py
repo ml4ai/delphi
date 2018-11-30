@@ -259,7 +259,7 @@ class AnalysisGraph(nx.DiGraph):
     # Basic Modeling Interface (BMI)
     # ==========================================================================
 
-    def initialize(self, config_file: str):
+    def initialize(self, config_file: str = "bmi_config.txt"):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
@@ -277,9 +277,9 @@ class AnalysisGraph(nx.DiGraph):
             node = n[1]["rv"]
             node.dataset = [self.s0[n[0]] for _ in range(self.res)]
             node.partial_t = self.s0[f"∂({n[0]})/∂t"]
-            if n[1].get("indicators") is not None:
-                for ind in n[1]["indicators"].values():
-                    ind.dataset = np.ones(self.res) * ind.mean
+            # if n[1].get("indicators") is not None:
+                # for ind in n[1]["indicators"].values():
+                    # ind.dataset = np.ones(self.res) * ind.mean
 
     def update(self):
         """ Advance the model by one time step. """
