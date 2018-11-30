@@ -66,7 +66,7 @@ def write_model_to_database(G):
             for e in G.edges(data=True)
         ]
     )
-    max_mean_betas = max(
+    max_median_betas = max(
         [abs(np.median(e[2]["betas"])) for e in G.edges(data=True)]
     )
     evidences = []
@@ -85,10 +85,10 @@ def write_model_to_database(G):
                 [s.belief for s in e[2]["InfluenceStatements"]]
             ),
             label="influences",
-            strength=abs(np.median(e[2]["betas"]) / max_mean_betas),
+            strength=abs(np.median(e[2]["betas"]) / max_median_betas),
             reinforcement=(
                 True
-                if np.mean(
+                if np.median(
                     [
                         stmt.subj_delta["polarity"]
                         * stmt.obj_delta["polarity"]
