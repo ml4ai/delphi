@@ -210,13 +210,11 @@ def createExperiment(uuid: str):
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
 
-        G.update()
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(
                 id=n[1]["id"]
             ).first().lastUpdated = d.isoformat()
-            print(np.mean(n[1]["rv"].dataset))
             result.results.append(
                 {
                     "id": n[1]["id"],
@@ -235,6 +233,8 @@ def createExperiment(uuid: str):
                     },
                 }
             )
+
+        G.update()
     db.session.add(result)
     db.session.commit()
 
