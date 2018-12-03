@@ -1,24 +1,23 @@
 #!/usr/bin/python
 
 """
+This script converts the XML version of AST of the Fortran
+file into a JSON representation of the AST along with other
+non-source code information. The output is a pickled file
+which contains this information in a parsable data structure.
 
-   File:    translate.py
+Example:
+    This script is executed by the autoTranslate script as one
+    of the steps in converted a Fortran source file to Python
+    file. For standalone execution:::
 
-   Purpose: This script converts the XML version of AST of the Fortran
-            file into a JSON representation of the AST along with other
-            non-source code information. The output is a pickled file
-            which contains this information in a parsable data structure.
+        python translate.py -f <ast_file> -g <pickle_file>
 
-   Usage:   This script is executed by the autoTranslate script as one
-            of the steps in converted a Fortran source file to Python
-            file. For standalone execution:
-              python translate.py -f <ast_file> -g <pickle_file>
+ast_file: The XML represenatation of the AST of the Fortran file. This is
+produced by the OpenFortranParser.
 
-            ast_file: The XML represenatation of the AST of the Fortran
-                      file. This is produced by the OpenFortranParser.
-
-            pickle_file: The file which will contain the pickled version
-                          of JSON AST and supporting information.
+pickle_file: The file which will contain the pickled version of JSON AST and
+supporting information.
 
 """
 

@@ -1,21 +1,36 @@
 #!/usr/bin/env python3
 
 """
-File: f2py_pp.py
-Author: Saumya Debray
-Purpose: Preprocess Fortran source files prior to parsing to fix up
-        some constructs (such as continuation lines) that are
-        problematic for the OpenFortranParser front end.
-Usage:
-        f2py_pp  infile  outfile
+This module implements functions to preprocess Fortran source files prior to
+parsing to fix up some constructs (such as continuation lines) that are
+problematic for the OpenFortranParser front end. It can also be run as a script,
+as seen below.
 
-            outfile is the cleaned-up version of infile
+Example:
+    To invoke this script, do: ::
+
+        ./f2py_pp.py <infile> <outfile>
+
+where `infile` is the name of the input file, and `outfile` is the name of the
+file to which the preprocessed code will be written.
+
+Author:
+    Saumya Debray
 """
 
 import sys
 from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
 
-def process(infile, outfile):
+def process(infile: str, outfile: str) -> None:
+    """ Preprocess a Fortran source file.
+
+    Args:
+        infile: The input Fortran file.
+        outfile: The output file to write the preprocessed source code to.
+
+    Returns:
+        None
+    """
     with open(infile, mode="r", encoding="latin-1") as f:
         # remove lines that are entirely comments
         lines = [line for line in f if not line_is_comment(line)]
@@ -46,9 +61,16 @@ def process(infile, outfile):
 
 
 def rm_trailing_comment(line: str) -> str:
-    """rm_trailing_comment(line) takes a line and returns the line with any
+    """Takes a line and returns the line with any
     trailing comment (the '!' comment character and subsequent characters
-    to the end of the line) removed."""
+    to the end of the line) removed.
+
+    Args:
+        line: A line of Fortran source code.
+
+    Returns:
+        The line with trailing comments removed.
+    """
 
     if line.find("!") == -1:
         return line

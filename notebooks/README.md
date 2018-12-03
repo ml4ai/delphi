@@ -18,3 +18,6 @@ Usage:
 ```bash
 ./clean example_notebook.md
 ```
+
+Some of the notebooks are actually in the form of Markdown files,
+to be used in conjunction with [Notedown](https://github.com/ml4ai/notedown)

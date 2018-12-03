@@ -9,7 +9,7 @@ import argparse
 from functools import *
 import json
 from delphi.program_analysis.autoTranslate.scripts.genCode import *
-from typing import List, Dict, Iterable
+from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
 
@@ -17,12 +17,12 @@ import operator
 class PGMState:
     def __init__(
         self,
-        lambdaFile,
-        lastDefs=None,
-        nextDefs=None,
+        lambdaFile: Optional[str],
+        lastDefs: Optional[Dict]=None,
+        nextDefs: Optional[Dict]=None,
         lastDefDefault=None,
         fnName=None,
-        varTypes=None,
+        varTypes: Optional[Dict]=None,
     ):
         self.lastDefs = lastDefs if lastDefs != None else {}
         self.nextDefs = nextDefs if nextDefs != None else {}
@@ -33,12 +33,12 @@ class PGMState:
 
     def copy(
         self,
-        lastDefs=None,
-        nextDefs=None,
+        lastDefs: Optional[Dict]=None,
+        nextDefs: Optional[Dict]=None,
         lastDefDefault=None,
         fnName=None,
-        varTypes=None,
-        lambdaFile=None,
+        varTypes: Optional[Dict]=None,
+        lambdaFile: Optional[str]=None,
     ):
         return PGMState(
             self.lambdaFile if lambdaFile == None else lambdaFile,

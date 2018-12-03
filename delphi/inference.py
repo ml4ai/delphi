@@ -7,7 +7,7 @@ from scipy.stats import norm
 from delphi.utils.fp import flatMap, ltake, iterate
 from delphi.AnalysisGraph import AnalysisGraph
 from typing import List, Dict
-from itertools import permutations
+from itertools import permutations, product
 
 
 def create_observed_state(G: AnalysisGraph) -> Dict:
@@ -34,8 +34,9 @@ class Sampler:
         self.s0 = G.construct_default_initial_state()
         self.original_score = None
 
-    def set_number_of_timesteps(self, n: int):
-        self.n_timesteps = n
+    def sample_initial_transition_matrix(self):
+        for i, j in product(range(2 * len(self.G)), range(2 * len(self.G))):
+            self.A.values[i][j] = np.random.normal()
 
     def sample_observed_state(self, s: pd.Series) -> Dict:
         """ Sample an observed state given a latent state vector. """
@@ -73,7 +74,7 @@ class Sampler:
             ),
         )
 
-    def calculate_log_prior(self) -> float:
+    def update_log_prior(self) -> float:
         _list = [
             log(
                 edge[2]["ConditionalProbability"].evaluate(
@@ -85,8 +86,7 @@ class Sampler:
 
         self.log_prior = sum(_list)
 
-    def calculate_log_likelihood(self) -> float:
-        s0 = self.latent_state_sequence[0]
+    def update_log_likelihood(self) -> float:
         _list = []
         for latent_state, observed_state in zip(
             self.latent_state_sequence, self.observed_state_sequence
@@ -103,7 +103,7 @@ class Sampler:
 
         self.log_likelihood = sum(_list)
 
-    def calculate_log_joint_probability(self):
+    def update_log_joint_probability(self):
         self.log_joint_probability = self.log_prior + self.log_likelihood
 
     def sample_from_proposal(self):
@@ -112,32 +112,17 @@ class Sampler:
             list(self.G.edges(data=True))
         )
         self.original_value = self.A[f"∂({self.source})/∂t"][self.target]
-        self.A[f"∂({self.source})/∂t"][self.target] += 0.01 * (
-            np.random.rand() - 0.5
+        self.A[f"∂({self.source})/∂t"][self.target] += np.random.normal(
+            scale=0.1
         )
-        # self.A[f"∂({self.source})/∂t"][self.target], 0.01
-        # )
 
     def sample_from_posterior(self):
         self.sample_from_proposal()
         self.set_latent_state_sequence()
+        self.update_log_prior()
+        self.update_log_likelihood()
 
-        # Update prior
-        delta_log_prior = log(
-            self.edge_dict["ConditionalProbability"].evaluate(
-                self.A[f"∂({self.source})/∂t"][self.target]
-            )
-        ) - log(
-            self.edge_dict["ConditionalProbability"].evaluate(
-                self.original_value
-            )
-        )
-
-        self.log_prior += delta_log_prior
-        # Update likelihood
-        self.calculate_log_likelihood()
-
-        candidate_log_joint_probability = self.log_likelihood + self.log_prior
+        candidate_log_joint_probability = self.log_prior + self.log_likelihood
 
         delta_log_joint_probability = (
             candidate_log_joint_probability - self.log_joint_probability
@@ -145,8 +130,10 @@ class Sampler:
 
         acceptance_probability = min(1, np.exp(delta_log_joint_probability))
         if acceptance_probability > np.random.rand():
-            self.log_joint_probability = candidate_log_joint_probability
+            self.update_log_joint_probability()
         else:
             self.A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.calculate_log_likelihood()
-            self.log_prior -= delta_log_prior
+            self.set_latent_state_sequence()
+            self.update_log_likelihood()
+            self.update_log_prior()
+            self.update_log_joint_probability()

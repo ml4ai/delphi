@@ -231,6 +231,11 @@ class DatabaseModel(object):
                 "    model_id = db.Column(db.String,"
                 "db.ForeignKey('delphimodel.id'))"
             )
+        if self.schema_name == "Evidence":
+            lines.append(
+                "    causalrelationship_id = db.Column(db.String,"
+                "db.ForeignKey('causalrelationship.id'))"
+            )
 
         lines.append(self.polymorphy_annotation)
         return "\n".join(lines)
