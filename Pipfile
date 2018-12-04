@@ -25,6 +25,7 @@ sqlalchemy = "*"
 python-dateutil = "*"
 
 [dev-packages]
+recommonmark = "*"
 sphinxcontrib-bibtex = "*"
 sphinxcontrib-trio = "*"
 sphinx-autodoc-typehints = "*"
