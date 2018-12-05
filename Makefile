@@ -1,3 +1,7 @@
+dev:
+	pip install pipenv
+	pipenv install -d --skip-lock
+
 docs:
 	cd docs; make html
 
