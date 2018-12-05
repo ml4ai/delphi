@@ -10,8 +10,22 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
+75983cb
+coveralls
+indra
+jupyter-contrib-nbextensions
 mypy
 pipenv-to-requirements
+pytest
 pytest-cov
+pytest-profiling
+pytest-sugar
+pytest-xdist
+recommonmark
+rise
+shapely
+sphinx-autodoc-typehints
 sphinx-rtd-theme
+sphinxcontrib-bibtex
+sphinxcontrib-trio
 xlrd
