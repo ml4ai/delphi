@@ -90,13 +90,14 @@ def test_contains_relevant_concept():
     assert not contains_relevant_concept(s3, relevant_concepts)
 
 
-faostat_data = get_data(south_sudan_data)
+indicator_data = get_data(south_sudan_data)
 
 
+@pytest.mark.skip
 def test_get_indicator_data():
     indicator = Indicator(
         "Political stability and absence of violence/terrorism (index), Value",
         "FAO/WDI",
     )
     t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t, faostat_data)[0] == -1.2
+    assert get_indicator_value(indicator, t, indicator_data)[0] == -1.2
