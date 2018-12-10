@@ -19,14 +19,14 @@ def get_valid_statements_for_modeling(sts: List[Influence]) -> List[Influence]:
     return [
         s
         for s in sts
-        if is_grounded(s)
+        if is_grounded_statement(s)
         and (s.subj_delta["polarity"] is not None)
         and (s.obj_delta["polarity"] is not None)
     ]
 
 
 def influence_stmt_from_dict(d: Dict) -> Influence:
-    return Influence(
+    st = Influence(
         Concept(d["subj"]["name"], db_refs=d["subj"]["db_refs"]),
         Concept(d["obj"]["name"], db_refs=d["obj"]["db_refs"]),
         d.get("subj_delta"),
@@ -38,14 +38,19 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
             for e in d["evidence"]
         ],
     )
+    st.belief = d["belief"]
+    return st
 
 
-def get_statements_from_json(json_serialized_list: str) -> List[Influence]:
-    return [
-        influence_stmt_from_dict(d)
-        for d in json.loads(json_serialized_list)
-        if d["type"] == "Influence"
-    ]
+def get_statements_from_json_file(json_file: str) -> List[Influence]:
+    with open(json_file, "r") as f:
+        return [
+            influence_stmt_from_dict(d)
+            for d in json.load(f)
+            if d["type"] == "Influence"
+            and d["subj"]["name"] is not None
+            and d["obj"]["name"] is not None
+        ]
 
 
 @singledispatch
@@ -68,6 +73,19 @@ def _(s: Influence) -> bool:
     return is_grounded(s.subj) and is_grounded(s.obj)
 
 
+def is_grounded_concept(c: Concept) -> bool:
+    """ Check if a concept is grounded """
+    return (
+        "UN" in c.db_refs
+        and c.db_refs["UN"][0][0].split("/")[1] != "properties"
+    )
+
+
+def is_grounded_statement(s: Influence) -> bool:
+    """ Check if an Influence statement is grounded """
+    return is_grounded_concept(s.subj) and is_grounded_concept(s.obj)
+
+
 @singledispatch
 def is_well_grounded():
     pass
@@ -86,6 +104,16 @@ def _(s: Influence, cutoff: float = 0.7) -> bool:
 
     return all(map(lambda c: is_well_grounded(c, cutoff), s.agent_list()))
 
+def is_well_grounded_concept(c: Concept, cutoff: float = 0.7) -> bool:
+    """Check if a concept has a high grounding score. """
+
+    return is_grounded(c) and (top_grounding_score(c) >= cutoff)
+
+
+def is_well_grounded_statement(s: Influence, cutoff: float = 0.7) -> bool:
+    """ Returns true if both subj and obj are grounded to the UN ontology. """
+
+    return all(map(lambda c: is_well_grounded_concept(c, cutoff), s.agent_list()))
 
 def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
     """ Check if a concept is grounded to a given name. """

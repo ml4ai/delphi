@@ -60,6 +60,3 @@ def G():
     G.to_pickle()
     G.create_bmi_config_file()
     yield G
-
-
-

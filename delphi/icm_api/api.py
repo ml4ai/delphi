@@ -203,12 +203,13 @@ def createExperiment(uuid: str):
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
     for i in range(data["projection"]["numSteps"]):
+        print("i " + str(i))
+        print("stepsize "+data["projection"]["stepSize"])
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
 
-        G.update()
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(
@@ -232,6 +233,8 @@ def createExperiment(uuid: str):
                     },
                 }
             )
+
+        G.update()
     db.session.add(result)
     db.session.commit()
 
