@@ -31,17 +31,298 @@ from delphi.program_analysis.autoTranslate.scripts.get_comments import (
     get_comments,
 )
 from typing import List, Dict
+from collections import OrderedDict
 
-LIBRTNS = ["read", "open", "close", "format", "print", "write"]
-LIBFNS = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
-INPUTFNS = ["read"]
-OUTPUTFNS = ["write"]
-SUMMARIES = {}
-ASTS = {}
-FUNCTIONLIST = []
-SUBROUTINELIST = []
-ENTRYPOINT = []
 
+
+class XMLToJSONTranslator(object):
+    def __init__(self):
+        self.libRtns = ["read", "open", "close", "format", "print", "write"]
+        self.libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
+        self.inputFns = ["read"]
+        self.outputFns = ["write"]
+        self.summaries = {}
+        self.asts = {}
+        self.functionList = []
+        self.subroutineList = []
+        self.entryPoint = []
+
+    def parseTree(self, root, state):
+        """
+        Parses the XML ast tree recursively to generate a JSON AST
+        which can be ingested by other scripts to generate Python
+        scripts.
+
+        Args:
+            root: The current root of the tree.
+            state: The current state of the tree defined by an object of the
+                ParseState class.
+
+        Returns:
+                ast: A JSON ast that defines the structure of the Fortran file.
+        """
+
+        if root.tag in ("subroutine", "program"):
+            subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+            self.summaries[root.attrib["name"]] = None
+            if root.tag == "subroutine":
+                self.subroutineList.append(root.attrib["name"])
+            else:
+                self.entryPoint.append(root.attrib["name"])
+            for node in root:
+                if node.tag == "header":
+                    subroutine["args"] = self.parseTree(node, state)
+                elif node.tag == "body":
+                    subState = state.copy(subroutine)
+                    subroutine["body"] = self.parseTree(node, subState)
+            self.asts[root.attrib["name"]] = [subroutine]
+            return [subroutine]
+
+        elif root.tag == "call":
+            call = {"tag": "call"}
+            for node in root:
+                if node.tag == "name":
+                    call["name"] = node.attrib["id"]
+                    call["args"] = []
+                    for arg in node:
+                        call["args"] += self.parseTree(arg, state)
+            return [call]
+
+        elif root.tag == "argument":
+            return [{"tag": "arg", "name": root.attrib["name"]}]
+
+        elif root.tag == "declaration":
+            decVars = []
+            decType = {}
+            for node in root:
+                if node.tag == "type":
+                    decType = {"type": node.attrib["name"]}
+                elif node.tag == "variables":
+                    decVars = self.parseTree(node, state)
+            prog = []
+            for var in decVars:
+                if (
+                    state.subroutine["name"] in self.functionList
+                    and var["name"] in state.args
+                ):
+                    state.subroutine["args"][state.args.index(var["name"])][
+                        "type"
+                    ] = decType["type"]
+                    continue
+                prog.append(decType.copy())
+                prog[-1].update(var)
+                if var["name"] in state.args:
+                    state.subroutine["args"][state.args.index(var["name"])][
+                        "type"
+                    ] = decType["type"]
+            return prog
+
+        elif root.tag == "variable":
+            try:
+                return [{"tag": "variable", "name": root.attrib["name"]}]
+            except:
+                return []
+
+        elif root.tag == "loop" and root.attrib["type"] == "do":
+            do = {"tag": "do"}
+            for node in root:
+                if node.tag == "header":
+                    do["header"] = self.parseTree(node, state)
+                elif node.tag == "body":
+                    do["body"] = self.parseTree(node, state)
+            return [do]
+
+        elif root.tag == "index-variable":
+            ind = {"tag": "index", "name": root.attrib["name"]}
+            for bounds in root:
+                if bounds.tag == "lower-bound":
+                    ind["low"] = self.parseTree(bounds, state)
+                elif bounds.tag == "upper-bound":
+                    ind["high"] = self.parseTree(bounds, state)
+            return [ind]
+
+        elif root.tag == "if":
+            ifs = []
+            curIf = None
+            for node in root:
+                if node.tag == "header" and "type" not in node.attrib:
+                    curIf = {"tag": "if"}
+                    curIf["header"] = self.parseTree(node, state)
+                    ifs.append(curIf)
+                elif node.tag == "header" and node.attrib["type"] == "else-if":
+                    newIf = {"tag": "if"}
+                    curIf["else"] = [newIf]
+                    curIf = newIf
+                    curIf["header"] = self.parseTree(node, state)
+                elif node.tag == "body" and (
+                    "type" not in node.attrib or node.attrib["type"] != "else"
+                ):
+                    curIf["body"] = self.parseTree(node, state)
+                elif node.tag == "body" and node.attrib["type"] == "else":
+                    curIf["else"] = self.parseTree(node, state)
+            return ifs
+
+        elif root.tag == "operation":
+            op = {"tag": "op"}
+            for node in root:
+                if node.tag == "operand":
+                    if "left" in op:
+                        op["right"] = self.parseTree(node, state)
+                    else:
+                        op["left"] = self.parseTree(node, state)
+                elif node.tag == "operator":
+                    if "operator" in op:
+                        newOp = {
+                            "tag": "op",
+                            "operator": node.attrib["operator"],
+                            "left": [op],
+                        }
+                        op = newOp
+                    else:
+                        op["operator"] = node.attrib["operator"]
+            return [op]
+
+        elif root.tag == "literal":
+            for info in root:
+                if info.tag == "pause-stmt":
+                    return [{"tag": "pause", "msg": root.attrib["value"]}]
+            return [
+                {
+                    "tag": "literal",
+                    "type": root.attrib["type"],
+                    "value": root.attrib["value"],
+                }
+            ]
+
+        elif root.tag == "stop":
+            return [{"tag": "stop"}]
+
+        elif root.tag == "name":
+            if root.attrib["id"] in self.libFns:
+                fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+                for node in root:
+                    fn["args"] += self.parseTree(node, state)
+                return [fn]
+            elif (
+                root.attrib["id"] in self.functionList
+                and state.subroutine["tag"] != "function"
+            ):
+                fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+                for node in root:
+                    fn["args"] += self.parseTree(node, state)
+                return [fn]
+            else:
+                ref = {"tag": "ref", "name": root.attrib["id"]}
+                subscripts = []
+                for node in root:
+                    subscripts += self.parseTree(node, state)
+                if subscripts:
+                    ref["subscripts"] = subscripts
+                return [ref]
+
+        elif root.tag == "assignment":
+            assign = {"tag": "assignment"}
+            for node in root:
+                if node.tag == "target":
+                    assign["target"] = self.parseTree(node, state)
+                elif node.tag == "value":
+                    assign["value"] = self.parseTree(node, state)
+            if (assign["target"][0]["name"] in self.functionList) and (
+                assign["target"][0]["name"] == state.subroutine["name"]
+            ):
+                assign["value"][0]["tag"] = "ret"
+                return assign["value"]
+            else:
+                return [assign]
+
+        elif root.tag == "function":
+            subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+            self.summaries[root.attrib["name"]] = None
+            for node in root:
+                if node.tag == "header":
+                    subroutine["args"] = self.parseTree(node, state)
+                elif node.tag == "body":
+                    subState = state.copy(subroutine)
+                    subroutine["body"] = self.parseTree(node, subState)
+            self.asts[root.attrib["name"]] = [subroutine]
+            return [subroutine]
+
+        elif root.tag == "exit":
+            return [{"tag": "exit"}]
+
+        elif root.tag == "return":
+            ret = {"tag": "return"}
+            return [ret]
+
+        elif root.tag in self.libRtns:
+            fn = {"tag": "call", "name": root.tag, "args": []}
+            for node in root:
+                fn["args"] += self.parseTree(node, state)
+            return [fn]
+
+        else:
+            prog = []
+            for node in root:
+                prog += self.parseTree(node, state)
+            return prog
+
+    def loadFunction(self, root):
+        """
+        Loads a list with all the functions in the Fortran File
+
+        Args:
+            root: The root of the XML ast tree.
+
+        Returns:
+            None
+
+        Does not return anything but populates a list (self.functionList) that contains all
+        the functions in the Fortran File.
+        """
+        for element in root.iter():
+            if element.tag == "function":
+                self.functionList.append(element.attrib["name"])
+
+    def analyze(self, trees: List[ET.ElementTree], comments: OrderedDict) -> Dict:
+        outputFiles = {}
+        ast = []
+
+        # Parse through the ast once to identify and grab all the funcstions
+        # present in the Fortran file.
+        for tree in trees:
+            self.loadFunction(tree)
+
+        # Parse through the ast tree a second time to convert the XML ast format to
+        # a format that can be used to generate python statements.
+        for tree in trees:
+            ast += self.parseTree(tree, ParseState())
+
+        """
+
+        Find the entry point for the Fortran file.
+        The entry point for a conventional Fortran file is always the PROGRAM section.
+        This 'if' statement checks for the presence of a PROGRAM segment.
+
+        If not found, the entry point can be any of the functions or subroutines
+        in the file. So, all the functions and subroutines of the program are listed
+        and included as the possible entry point.
+
+        """
+        if self.entryPoint:
+            entry = {"program": self.entryPoint[0]}
+        else:
+            entry = {}
+            if self.functionList:
+                entry["function"] = self.functionList
+            if self.subroutineList:
+                entry["subroutine"] = self.subroutineList
+
+        # Load the functions list and Fortran ast to a single data structure which
+        # can be pickled and hence is portable across various scripts and usages.
+        outputFiles["ast"] = ast
+        outputFiles["functionList"] = self.functionList
+        outputFiles["comments"] = comments
+        return outputFiles
 
 class ParseState:
     """This class defines the state of the XML tree parsing
@@ -49,264 +330,18 @@ class ParseState:
     the subroutine under which it resides along with the
     subroutines arguments."""
 
-    def __init__(self, subroutine=None):
-        self.subroutine = subroutine if subroutine != None else {}
+    def __init__(self, subroutine = None):
+        self.subroutine = subroutine if subroutine is not None else {}
         self.args = (
             [arg["name"] for arg in self.subroutine["args"]]
             if "args" in self.subroutine
             else []
         )
 
-    def copy(self, subroutine=None):
+    def copy(self, subroutine = None):
         return ParseState(
             self.subroutine if subroutine == None else subroutine
         )
-
-
-def loadFunction(root):
-    """
-    Loads a list with all the functions in the Fortran File
-
-    Args:
-        root: The root of the XML ast tree.
-
-    Returns:
-        None
-
-    Does not return anything but populates a list (FUNCTIONLIST) that contains all
-    the functions in the Fortran File.
-    """
-    for element in root.iter():
-        if element.tag == "function":
-            FUNCTIONLIST.append(element.attrib["name"])
-
-
-def parseTree(root, state):
-    """
-    Parses the XML ast tree recursively to generate a JSON ast
-    which can be ingested by other scripts to generate Python
-    scripts.
-
-    Args:
-        root: The current root of the tree.
-        state: The current state of the tree defined by an object of the
-            ParseState class.
-
-    Returns:
-            ast: A JSON ast that defines the structure of the Fortran file.
-    """
-
-    if root.tag == "subroutine" or root.tag == "program":
-        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-        SUMMARIES[root.attrib["name"]] = None
-        if root.tag == "subroutine":
-            SUBROUTINELIST.append(root.attrib["name"])
-        else:
-            ENTRYPOINT.append(root.attrib["name"])
-        for node in root:
-            if node.tag == "header":
-                subroutine["args"] = parseTree(node, state)
-            elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = parseTree(node, subState)
-        ASTS[root.attrib["name"]] = [subroutine]
-        return [subroutine]
-
-    elif root.tag == "call":
-        call = {"tag": "call"}
-        for node in root:
-            if node.tag == "name":
-                call["name"] = node.attrib["id"]
-                call["args"] = []
-                for arg in node:
-                    call["args"] += parseTree(arg, state)
-        return [call]
-
-    elif root.tag == "argument":
-        return [{"tag": "arg", "name": root.attrib["name"]}]
-
-    # elif root.tag == "name":
-    # return [{"tag":"arg", "name":root.attrib["id"]}]
-
-    elif root.tag == "declaration":
-        decVars = []
-        decType = {}
-        for node in root:
-            if node.tag == "type":
-                decType = {"type": node.attrib["name"]}
-            elif node.tag == "variables":
-                decVars = parseTree(node, state)
-        prog = []
-        for var in decVars:
-            if (
-                state.subroutine["name"] in FUNCTIONLIST
-                and var["name"] in state.args
-            ):
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
-                continue
-            prog.append(decType.copy())
-            prog[-1].update(var)
-            if var["name"] in state.args:
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
-        return prog
-
-    elif root.tag == "variable":
-        try:
-            return [{"tag": "variable", "name": root.attrib["name"]}]
-        except:
-            return []
-
-    elif root.tag == "loop" and root.attrib["type"] == "do":
-        do = {"tag": "do"}
-        for node in root:
-            if node.tag == "header":
-                do["header"] = parseTree(node, state)
-            elif node.tag == "body":
-                do["body"] = parseTree(node, state)
-        return [do]
-
-    elif root.tag == "index-variable":
-        ind = {"tag": "index", "name": root.attrib["name"]}
-        for bounds in root:
-            if bounds.tag == "lower-bound":
-                ind["low"] = parseTree(bounds, state)
-            elif bounds.tag == "upper-bound":
-                ind["high"] = parseTree(bounds, state)
-        return [ind]
-
-    elif root.tag == "if":
-        ifs = []
-        curIf = None
-        for node in root:
-            if node.tag == "header" and "type" not in node.attrib:
-                curIf = {"tag": "if"}
-                curIf["header"] = parseTree(node, state)
-                ifs.append(curIf)
-            elif node.tag == "header" and node.attrib["type"] == "else-if":
-                newIf = {"tag": "if"}
-                curIf["else"] = [newIf]
-                curIf = newIf
-                curIf["header"] = parseTree(node, state)
-            elif node.tag == "body" and (
-                "type" not in node.attrib or node.attrib["type"] != "else"
-            ):
-                curIf["body"] = parseTree(node, state)
-            elif node.tag == "body" and node.attrib["type"] == "else":
-                curIf["else"] = parseTree(node, state)
-        return ifs
-
-    elif root.tag == "operation":
-        op = {"tag": "op"}
-        for node in root:
-            if node.tag == "operand":
-                if "left" in op:
-                    op["right"] = parseTree(node, state)
-                else:
-                    op["left"] = parseTree(node, state)
-            elif node.tag == "operator":
-                if "operator" in op:
-                    newOp = {
-                        "tag": "op",
-                        "operator": node.attrib["operator"],
-                        "left": [op],
-                    }
-                    op = newOp
-                else:
-                    op["operator"] = node.attrib["operator"]
-        return [op]
-
-    elif root.tag == "literal":
-        for info in root:
-            if info.tag == "pause-stmt":
-                return [{"tag": "pause", "msg": root.attrib["value"]}]
-        return [
-            {
-                "tag": "literal",
-                "type": root.attrib["type"],
-                "value": root.attrib["value"],
-            }
-        ]
-
-    elif root.tag == "stop":
-        return [{"tag": "stop"}]
-
-    elif root.tag == "name":
-        if root.attrib["id"] in LIBFNS:
-            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
-            for node in root:
-                fn["args"] += parseTree(node, state)
-            return [fn]
-        elif (
-            root.attrib["id"] in FUNCTIONLIST
-            and state.subroutine["tag"] != "function"
-        ):
-            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
-            for node in root:
-                fn["args"] += parseTree(node, state)
-            return [fn]
-        # elif root.attrib["id"] in FUNCTIONLIST and state.subroutine["tag"] == "function":
-        #    fn = {"tag": "return", "name": root.attrib["id"]
-        else:
-            ref = {"tag": "ref", "name": root.attrib["id"]}
-            subscripts = []
-            for node in root:
-                subscripts += parseTree(node, state)
-            if subscripts:
-                ref["subscripts"] = subscripts
-            return [ref]
-
-    elif root.tag == "assignment":
-        assign = {"tag": "assignment"}
-        for node in root:
-            if node.tag == "target":
-                assign["target"] = parseTree(node, state)
-            elif node.tag == "value":
-                assign["value"] = parseTree(node, state)
-            # if assign["target"][0]["name"] in FUNCTIONLIST:
-            #    assign["value"][0]["tag"] = "ret"
-        if (assign["target"][0]["name"] in FUNCTIONLIST) and (
-            assign["target"][0]["name"] == state.subroutine["name"]
-        ):
-            assign["value"][0]["tag"] = "ret"
-            return assign["value"]
-        else:
-            return [assign]
-
-    elif root.tag == "function":
-        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-        # FUNCTIONLIST.append(root.attrib["name"])
-        SUMMARIES[root.attrib["name"]] = None
-        for node in root:
-            if node.tag == "header":
-                subroutine["args"] = parseTree(node, state)
-            elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = parseTree(node, subState)
-        ASTS[root.attrib["name"]] = [subroutine]
-        return [subroutine]
-
-    elif root.tag == "exit":
-        return [{"tag": "exit"}]
-
-    elif root.tag == "return":
-        ret = {"tag": "return"}
-        return [ret]
-
-    elif root.tag in LIBRTNS:
-        fn = {"tag": "call", "name": root.tag, "args": []}
-        for node in root:
-            fn["args"] += parseTree(node, state)
-        return [fn]
-
-    else:
-        prog = []
-        for node in root:
-            prog += parseTree(node, state)
-        return prog
 
 
 def printAstTree(astFile, tree, blockVal):
@@ -340,50 +375,8 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-def get_trees(files: List[str]) -> List:
+def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f) for f in files]
-
-
-def analyze(trees, comments) -> Dict:
-    outputFiles = {}
-    ast = []
-
-    # Parse through the ast tree once to identify and grab all the funcstions
-    # present in the Fortran file.
-    for tree in trees:
-        loadFunction(tree)
-
-    # Parse through the ast tree a second time to convert the XML ast format to
-    # a format that can be used to generate python statements.
-    for tree in trees:
-        ast += parseTree(tree, ParseState())
-
-    """
-
-    Find the entry point for the Fortran file.
-    The entry point for a conventional Fortran file is always the PROGRAM section.
-    This 'if' statement checks for the presence of a PROGRAM segment.
-
-    If not found, the entry point can be any of the functions or subroutines
-    in the file. So, all the functions and subroutines of the program are listed
-    and included as the possible entry point.
-
-    """
-    if ENTRYPOINT:
-        entry = {"program": ENTRYPOINT[0]}
-    else:
-        entry = {}
-        if FUNCTIONLIST:
-            entry["function"] = FUNCTIONLIST
-        if SUBROUTINELIST:
-            entry["subroutine"] = SUBROUTINELIST
-
-    # Load the functions list and Fortran ast to a single data structure which
-    # can be pickled and hence is portable across various scripts and usages.
-    outputFiles["ast"] = ast
-    outputFiles["functionList"] = FUNCTIONLIST
-    outputFiles["comments"] = comments
-    return outputFiles
 
 
 if __name__ == "__main__":
@@ -411,7 +404,8 @@ if __name__ == "__main__":
 
     trees = get_trees(args.files)
     comments = get_comments(fortranFile)
-    outputFiles = analyze(trees, comments)
+    translator=XMLToJSONTranslator()
+    outputFiles = translator.analyze(trees, comments)
 
     with open(pickleFile, "wb") as f:
         pickle.dump(outputFiles, f)
