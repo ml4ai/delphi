@@ -34,11 +34,39 @@ from typing import List, Dict
 from collections import OrderedDict
 
 
+class ParseState(object):
+    """This class defines the state of the XML tree parsing
+    at any given root. For any level of the tree, it stores
+    the subroutine under which it resides along with the
+    subroutines arguments."""
+
+    def __init__(self, subroutine=None):
+        self.subroutine = subroutine if subroutine is not None else {}
+        self.args = (
+            [arg["name"] for arg in self.subroutine["args"]]
+            if "args" in self.subroutine
+            else []
+        )
+
+    def copy(self, subroutine=None):
+        return ParseState(
+            self.subroutine if subroutine == None else subroutine
+        )
+
 
 class XMLToJSONTranslator(object):
     def __init__(self):
         self.libRtns = ["read", "open", "close", "format", "print", "write"]
-        self.libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
+        self.libFns = [
+            "MOD",
+            "EXP",
+            "INDEX",
+            "MIN",
+            "MAX",
+            "cexp",
+            "cmplx",
+            "ATAN",
+        ]
         self.inputFns = ["read"]
         self.outputFns = ["write"]
         self.summaries = {}
@@ -47,7 +75,200 @@ class XMLToJSONTranslator(object):
         self.subroutineList = []
         self.entryPoint = []
 
-    def parseTree(self, root, state):
+    def process_subroutine_or_program(self, root, state):
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+        self.summaries[root.attrib["name"]] = None
+        if root.tag == "subroutine":
+            self.subroutineList.append(root.attrib["name"])
+        else:
+            self.entryPoint.append(root.attrib["name"])
+        for node in root:
+            if node.tag == "header":
+                subroutine["args"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                subState = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, subState)
+        self.asts[root.attrib["name"]] = [subroutine]
+        return [subroutine]
+
+    def process_call(self, root, state):
+        call = {"tag": "call"}
+        for node in root:
+            if node.tag == "name":
+                call["name"] = node.attrib["id"]
+                call["args"] = []
+                for arg in node:
+                    call["args"] += self.parseTree(arg, state)
+        return [call]
+
+    def process_argument(self, root, state):
+        return [{"tag": "arg", "name": root.attrib["name"]}]
+
+    def process_declaration(self, root, state):
+        decVars = []
+        decType = {}
+        for node in root:
+            if node.tag == "type":
+                decType = {"type": node.attrib["name"]}
+            elif node.tag == "variables":
+                decVars = self.parseTree(node, state)
+        prog = []
+        for var in decVars:
+            if (
+                state.subroutine["name"] in self.functionList
+                and var["name"] in state.args
+            ):
+                state.subroutine["args"][state.args.index(var["name"])][
+                    "type"
+                ] = decType["type"]
+                continue
+            prog.append(decType.copy())
+            prog[-1].update(var)
+            if var["name"] in state.args:
+                state.subroutine["args"][state.args.index(var["name"])][
+                    "type"
+                ] = decType["type"]
+        return prog
+
+    def process_variable(self, root, state):
+        try:
+            return [{"tag": "variable", "name": root.attrib["name"]}]
+        except:
+            return []
+
+    def process_do_loop(self, root, state):
+        do = {"tag": "do"}
+        for node in root:
+            if node.tag == "header":
+                do["header"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                do["body"] = self.parseTree(node, state)
+        return [do]
+
+    def process_index_variable(self, root, state):
+        ind = {"tag": "index", "name": root.attrib["name"]}
+        for bounds in root:
+            if bounds.tag == "lower-bound":
+                ind["low"] = self.parseTree(bounds, state)
+            elif bounds.tag == "upper-bound":
+                ind["high"] = self.parseTree(bounds, state)
+        return [ind]
+
+    def process_if(self, root, state):
+        ifs = []
+        curIf = None
+        for node in root:
+            if node.tag == "header":
+                if "type" not in node.attrib:
+                    curIf = {"tag": "if"}
+                    curIf["header"] = self.parseTree(node, state)
+                    ifs.append(curIf)
+                elif node.attrib["type"] == "else-if":
+                    newIf = {"tag": "if"}
+                    curIf["else"] = [newIf]
+                    curIf = newIf
+                    curIf["header"] = self.parseTree(node, state)
+            elif node.tag == "body" and (
+                "type" not in node.attrib or node.attrib["type"] != "else"
+            ):
+                curIf["body"] = self.parseTree(node, state)
+            elif node.tag == "body" and node.attrib["type"] == "else":
+                curIf["else"] = self.parseTree(node, state)
+        return ifs
+
+    def process_operation(self, root, state):
+        op = {"tag": "op"}
+        for node in root:
+            if node.tag == "operand":
+                if "left" in op:
+                    op["right"] = self.parseTree(node, state)
+                else:
+                    op["left"] = self.parseTree(node, state)
+            elif node.tag == "operator":
+                if "operator" in op:
+                    newOp = {
+                        "tag": "op",
+                        "operator": node.attrib["operator"],
+                        "left": [op],
+                    }
+                    op = newOp
+                else:
+                    op["operator"] = node.attrib["operator"]
+        return [op]
+
+    def process_literal(self, root, state):
+        for info in root:
+            if info.tag == "pause-stmt":
+                return [{"tag": "pause", "msg": root.attrib["value"]}]
+        return [
+            {
+                "tag": "literal",
+                "type": root.attrib["type"],
+                "value": root.attrib["value"],
+            }
+        ]
+
+    def process_stop(self, root, state):
+        return [{"tag": "stop"}]
+
+    def process_name(self, root, state):
+        if root.attrib["id"] in self.libFns:
+            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+            for node in root:
+                fn["args"] += self.parseTree(node, state)
+            return [fn]
+        elif (
+            root.attrib["id"] in self.functionList
+            and state.subroutine["tag"] != "function"
+        ):
+            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+            for node in root:
+                fn["args"] += self.parseTree(node, state)
+            return [fn]
+        else:
+            ref = {"tag": "ref", "name": root.attrib["id"]}
+            subscripts = []
+            for node in root:
+                subscripts += self.parseTree(node, state)
+            if subscripts:
+                ref["subscripts"] = subscripts
+            return [ref]
+
+    def process_assignment(self, root, state):
+        assign = {"tag": "assignment"}
+        for node in root:
+            if node.tag == "target":
+                assign["target"] = self.parseTree(node, state)
+            elif node.tag == "value":
+                assign["value"] = self.parseTree(node, state)
+        if (assign["target"][0]["name"] in self.functionList) and (
+            assign["target"][0]["name"] == state.subroutine["name"]
+        ):
+            assign["value"][0]["tag"] = "ret"
+            return assign["value"]
+        else:
+            return [assign]
+
+    def process_function(self, root, state):
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+        self.summaries[root.attrib["name"]] = None
+        for node in root:
+            if node.tag == "header":
+                subroutine["args"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                subState = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, subState)
+        self.asts[root.attrib["name"]] = [subroutine]
+        return [subroutine]
+
+    def process_exit(self, root, state):
+        return [{"tag": "exit"}]
+
+    def process_return(self, root, state):
+        ret = {"tag": "return"}
+        return [ret]
+
+    def parseTree(self, root, state: ParseState) -> List:
         """
         Parses the XML ast tree recursively to generate a JSON AST
         which can be ingested by other scripts to generate Python
@@ -63,196 +284,52 @@ class XMLToJSONTranslator(object):
         """
 
         if root.tag in ("subroutine", "program"):
-            subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-            self.summaries[root.attrib["name"]] = None
-            if root.tag == "subroutine":
-                self.subroutineList.append(root.attrib["name"])
-            else:
-                self.entryPoint.append(root.attrib["name"])
-            for node in root:
-                if node.tag == "header":
-                    subroutine["args"] = self.parseTree(node, state)
-                elif node.tag == "body":
-                    subState = state.copy(subroutine)
-                    subroutine["body"] = self.parseTree(node, subState)
-            self.asts[root.attrib["name"]] = [subroutine]
-            return [subroutine]
+            return self.process_subroutine_or_program(root, state)
 
         elif root.tag == "call":
-            call = {"tag": "call"}
-            for node in root:
-                if node.tag == "name":
-                    call["name"] = node.attrib["id"]
-                    call["args"] = []
-                    for arg in node:
-                        call["args"] += self.parseTree(arg, state)
-            return [call]
+            return self.process_call(root, state)
 
         elif root.tag == "argument":
-            return [{"tag": "arg", "name": root.attrib["name"]}]
+            return self.process_argument(root, state)
 
         elif root.tag == "declaration":
-            decVars = []
-            decType = {}
-            for node in root:
-                if node.tag == "type":
-                    decType = {"type": node.attrib["name"]}
-                elif node.tag == "variables":
-                    decVars = self.parseTree(node, state)
-            prog = []
-            for var in decVars:
-                if (
-                    state.subroutine["name"] in self.functionList
-                    and var["name"] in state.args
-                ):
-                    state.subroutine["args"][state.args.index(var["name"])][
-                        "type"
-                    ] = decType["type"]
-                    continue
-                prog.append(decType.copy())
-                prog[-1].update(var)
-                if var["name"] in state.args:
-                    state.subroutine["args"][state.args.index(var["name"])][
-                        "type"
-                    ] = decType["type"]
-            return prog
+            return self.process_declaration(root, state)
 
         elif root.tag == "variable":
-            try:
-                return [{"tag": "variable", "name": root.attrib["name"]}]
-            except:
-                return []
+            return self.process_variable(root, state)
 
         elif root.tag == "loop" and root.attrib["type"] == "do":
-            do = {"tag": "do"}
-            for node in root:
-                if node.tag == "header":
-                    do["header"] = self.parseTree(node, state)
-                elif node.tag == "body":
-                    do["body"] = self.parseTree(node, state)
-            return [do]
+            return self.process_do_loop(root, state)
 
         elif root.tag == "index-variable":
-            ind = {"tag": "index", "name": root.attrib["name"]}
-            for bounds in root:
-                if bounds.tag == "lower-bound":
-                    ind["low"] = self.parseTree(bounds, state)
-                elif bounds.tag == "upper-bound":
-                    ind["high"] = self.parseTree(bounds, state)
-            return [ind]
+            return self.process_index_variable(root, state)
 
         elif root.tag == "if":
-            ifs = []
-            curIf = None
-            for node in root:
-                if node.tag == "header" and "type" not in node.attrib:
-                    curIf = {"tag": "if"}
-                    curIf["header"] = self.parseTree(node, state)
-                    ifs.append(curIf)
-                elif node.tag == "header" and node.attrib["type"] == "else-if":
-                    newIf = {"tag": "if"}
-                    curIf["else"] = [newIf]
-                    curIf = newIf
-                    curIf["header"] = self.parseTree(node, state)
-                elif node.tag == "body" and (
-                    "type" not in node.attrib or node.attrib["type"] != "else"
-                ):
-                    curIf["body"] = self.parseTree(node, state)
-                elif node.tag == "body" and node.attrib["type"] == "else":
-                    curIf["else"] = self.parseTree(node, state)
-            return ifs
+            return self.process_if(root, state)
 
         elif root.tag == "operation":
-            op = {"tag": "op"}
-            for node in root:
-                if node.tag == "operand":
-                    if "left" in op:
-                        op["right"] = self.parseTree(node, state)
-                    else:
-                        op["left"] = self.parseTree(node, state)
-                elif node.tag == "operator":
-                    if "operator" in op:
-                        newOp = {
-                            "tag": "op",
-                            "operator": node.attrib["operator"],
-                            "left": [op],
-                        }
-                        op = newOp
-                    else:
-                        op["operator"] = node.attrib["operator"]
-            return [op]
+            return self.process_operation(root, state)
 
         elif root.tag == "literal":
-            for info in root:
-                if info.tag == "pause-stmt":
-                    return [{"tag": "pause", "msg": root.attrib["value"]}]
-            return [
-                {
-                    "tag": "literal",
-                    "type": root.attrib["type"],
-                    "value": root.attrib["value"],
-                }
-            ]
+            return self.process_literal(root, state)
 
         elif root.tag == "stop":
-            return [{"tag": "stop"}]
+            return self.process_stop(root, state)
 
         elif root.tag == "name":
-            if root.attrib["id"] in self.libFns:
-                fn = {"tag": "call", "name": root.attrib["id"], "args": []}
-                for node in root:
-                    fn["args"] += self.parseTree(node, state)
-                return [fn]
-            elif (
-                root.attrib["id"] in self.functionList
-                and state.subroutine["tag"] != "function"
-            ):
-                fn = {"tag": "call", "name": root.attrib["id"], "args": []}
-                for node in root:
-                    fn["args"] += self.parseTree(node, state)
-                return [fn]
-            else:
-                ref = {"tag": "ref", "name": root.attrib["id"]}
-                subscripts = []
-                for node in root:
-                    subscripts += self.parseTree(node, state)
-                if subscripts:
-                    ref["subscripts"] = subscripts
-                return [ref]
+            return self.process_name(root, state)
 
         elif root.tag == "assignment":
-            assign = {"tag": "assignment"}
-            for node in root:
-                if node.tag == "target":
-                    assign["target"] = self.parseTree(node, state)
-                elif node.tag == "value":
-                    assign["value"] = self.parseTree(node, state)
-            if (assign["target"][0]["name"] in self.functionList) and (
-                assign["target"][0]["name"] == state.subroutine["name"]
-            ):
-                assign["value"][0]["tag"] = "ret"
-                return assign["value"]
-            else:
-                return [assign]
+            return self.process_assignment(root, state)
 
         elif root.tag == "function":
-            subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-            self.summaries[root.attrib["name"]] = None
-            for node in root:
-                if node.tag == "header":
-                    subroutine["args"] = self.parseTree(node, state)
-                elif node.tag == "body":
-                    subState = state.copy(subroutine)
-                    subroutine["body"] = self.parseTree(node, subState)
-            self.asts[root.attrib["name"]] = [subroutine]
-            return [subroutine]
+            return self.process_function(root, state)
 
         elif root.tag == "exit":
-            return [{"tag": "exit"}]
+            return self.process_exit(root, state)
 
         elif root.tag == "return":
-            ret = {"tag": "return"}
-            return [ret]
+            return self.process_return(root, state)
 
         elif root.tag in self.libRtns:
             fn = {"tag": "call", "name": root.tag, "args": []}
@@ -283,7 +360,9 @@ class XMLToJSONTranslator(object):
             if element.tag == "function":
                 self.functionList.append(element.attrib["name"])
 
-    def analyze(self, trees: List[ET.ElementTree], comments: OrderedDict) -> Dict:
+    def analyze(
+        self, trees: List[ET.ElementTree], comments: OrderedDict
+    ) -> Dict:
         outputFiles = {}
         ast = []
 
@@ -324,25 +403,6 @@ class XMLToJSONTranslator(object):
         outputFiles["comments"] = comments
         return outputFiles
 
-class ParseState:
-    """This class defines the state of the XML tree parsing
-    at any given root. For any level of the tree, it stores
-    the subroutine under which it resides along with the
-    subroutines arguments."""
-
-    def __init__(self, subroutine = None):
-        self.subroutine = subroutine if subroutine is not None else {}
-        self.args = (
-            [arg["name"] for arg in self.subroutine["args"]]
-            if "args" in self.subroutine
-            else []
-        )
-
-    def copy(self, subroutine = None):
-        return ParseState(
-            self.subroutine if subroutine == None else subroutine
-        )
-
 
 def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f) for f in files]
@@ -373,7 +433,7 @@ if __name__ == "__main__":
 
     trees = get_trees(args.files)
     comments = get_comments(fortranFile)
-    translator=XMLToJSONTranslator()
+    translator = XMLToJSONTranslator()
     outputFiles = translator.analyze(trees, comments)
 
     with open(pickleFile, "wb") as f:
