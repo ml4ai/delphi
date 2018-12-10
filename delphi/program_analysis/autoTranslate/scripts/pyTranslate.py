@@ -238,8 +238,6 @@ class PythonCodeGenerator(object):
         )
 
     def printIndex(self, node, printState):
-        # self.pyStrings.append("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high'])) Don't use this
-        # self.pyStrings.append(f"{node['name']}[0] in range(") Use this instead
         self.pyStrings.append(f"{node['name']}[0] in range(")
         self.printAst(
             node["low"],
@@ -369,15 +367,6 @@ class PythonCodeGenerator(object):
         return "".join(self.pyStrings)
 
 
-def printPython(gen, outputFile):
-    with open(outputFile[0], "rb") as f:
-        outputDict = pickle.load(f)
-
-    pySrc = create_python_string(outputDict)
-    with open(gen, "w") as f:
-        f.write(pySrc)
-
-
 def create_python_string(outputDict):
     code_generator = PythonCodeGenerator()
     code_generator.pyStrings.append("from typing import List\n")
@@ -402,4 +391,8 @@ if __name__ == "__main__":
         help="Pickled version of the asts together with non-source code information",
     )
     args = parser.parse_args(sys.argv[1:])
-    printPython(args.gen[0], args.files)
+    with open(args.files[0], "rb") as f:
+        outputDict = pickle.load(f)
+    pySrc = create_python_string(outputDict)
+    with open(args.gen[0], "w") as f:
+        f.write(pySrc)
