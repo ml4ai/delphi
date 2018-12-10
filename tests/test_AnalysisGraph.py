@@ -50,6 +50,7 @@ def test_get_subgraph_for_concept_pair(G):
     assert set(sg.nodes()) == set(concept_pair)
 
 
+@pytest.mark.skip
 def test_map_concepts_to_indicators(G):
     G.map_concepts_to_indicators()
     indicator = Indicator(
