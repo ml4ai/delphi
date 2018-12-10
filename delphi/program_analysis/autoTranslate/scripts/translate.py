@@ -268,6 +268,12 @@ class XMLToJSONTranslator(object):
         ret = {"tag": "return"}
         return [ret]
 
+    def process_libRtn(self, root, state) -> List[Dict]:
+        fn = {"tag": "call", "name": root.tag, "args": []}
+        for node in root:
+            fn["args"] += self.parseTree(node, state)
+        return [fn]
+
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
@@ -332,10 +338,7 @@ class XMLToJSONTranslator(object):
             return self.process_return(root, state)
 
         elif root.tag in self.libRtns:
-            fn = {"tag": "call", "name": root.tag, "args": []}
-            for node in root:
-                fn["args"] += self.parseTree(node, state)
-            return [fn]
+            return self.process_libRtn(root, state)
 
         else:
             prog = []
