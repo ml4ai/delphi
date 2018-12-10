@@ -91,7 +91,7 @@ class XMLToJSONTranslator(object):
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
-    def process_call(self, root, state):
+    def process_call(self, root, state) -> List[Dict]:
         call = {"tag": "call"}
         for node in root:
             if node.tag == "name":
@@ -101,10 +101,10 @@ class XMLToJSONTranslator(object):
                     call["args"] += self.parseTree(arg, state)
         return [call]
 
-    def process_argument(self, root, state):
+    def process_argument(self, root, state) -> List[Dict]:
         return [{"tag": "arg", "name": root.attrib["name"]}]
 
-    def process_declaration(self, root, state):
+    def process_declaration(self, root, state) -> List[Dict]:
         decVars = []
         decType = {}
         for node in root:
@@ -130,13 +130,13 @@ class XMLToJSONTranslator(object):
                 ] = decType["type"]
         return prog
 
-    def process_variable(self, root, state):
+    def process_variable(self, root, state) -> List[Dict]:
         try:
             return [{"tag": "variable", "name": root.attrib["name"]}]
         except:
             return []
 
-    def process_do_loop(self, root, state):
+    def process_do_loop(self, root, state) -> List[Dict]:
         do = {"tag": "do"}
         for node in root:
             if node.tag == "header":
@@ -145,7 +145,7 @@ class XMLToJSONTranslator(object):
                 do["body"] = self.parseTree(node, state)
         return [do]
 
-    def process_index_variable(self, root, state):
+    def process_index_variable(self, root, state) -> List[Dict]:
         ind = {"tag": "index", "name": root.attrib["name"]}
         for bounds in root:
             if bounds.tag == "lower-bound":
@@ -154,7 +154,7 @@ class XMLToJSONTranslator(object):
                 ind["high"] = self.parseTree(bounds, state)
         return [ind]
 
-    def process_if(self, root, state):
+    def process_if(self, root, state) -> List[Dict]:
         ifs = []
         curIf = None
         for node in root:
@@ -176,7 +176,7 @@ class XMLToJSONTranslator(object):
                 curIf["else"] = self.parseTree(node, state)
         return ifs
 
-    def process_operation(self, root, state):
+    def process_operation(self, root, state) -> List[Dict]:
         op = {"tag": "op"}
         for node in root:
             if node.tag == "operand":
@@ -196,7 +196,7 @@ class XMLToJSONTranslator(object):
                     op["operator"] = node.attrib["operator"]
         return [op]
 
-    def process_literal(self, root, state):
+    def process_literal(self, root, state) -> List[Dict]:
         for info in root:
             if info.tag == "pause-stmt":
                 return [{"tag": "pause", "msg": root.attrib["value"]}]
@@ -208,10 +208,10 @@ class XMLToJSONTranslator(object):
             }
         ]
 
-    def process_stop(self, root, state):
+    def process_stop(self, root, state) -> List[Dict]:
         return [{"tag": "stop"}]
 
-    def process_name(self, root, state):
+    def process_name(self, root, state) -> List[Dict]:
         if root.attrib["id"] in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
@@ -234,7 +234,7 @@ class XMLToJSONTranslator(object):
                 ref["subscripts"] = subscripts
             return [ref]
 
-    def process_assignment(self, root, state):
+    def process_assignment(self, root, state) -> List[Dict]:
         assign = {"tag": "assignment"}
         for node in root:
             if node.tag == "target":
@@ -249,7 +249,7 @@ class XMLToJSONTranslator(object):
         else:
             return [assign]
 
-    def process_function(self, root, state):
+    def process_function(self, root, state) -> List[Dict]:
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         self.summaries[root.attrib["name"]] = None
         for node in root:
@@ -261,14 +261,14 @@ class XMLToJSONTranslator(object):
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
-    def process_exit(self, root, state):
+    def process_exit(self, root, state) -> List[Dict]:
         return [{"tag": "exit"}]
 
-    def process_return(self, root, state):
+    def process_return(self, root, state) -> List[Dict]:
         ret = {"tag": "return"}
         return [ret]
 
-    def parseTree(self, root, state: ParseState) -> List:
+    def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
         which can be ingested by other scripts to generate Python
