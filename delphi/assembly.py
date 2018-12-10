@@ -102,7 +102,7 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
 
 def get_data(filename: str) -> pd.DataFrame:
     """ Create a dataframe out of south_sudan_data.csv """
-    df = pd.read_csv(filename, sep="|", index_col="Indicator Name")
+    df = pd.read_csv(filename, sep=",", index_col="Variable")
     return df
 
 
