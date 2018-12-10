@@ -99,6 +99,13 @@ class PythonCodeGenerator(object):
             "function": self.printFunction,
             "ret": self.printFuncReturn,
         }
+        self.operator_mapping = {
+            ".ne.": " != ",
+            ".gt.": " > ",
+            ".eq.": " == ",
+            ".lt.": " < ",
+            ".le.": " <= ",
+        }
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
         self.pyStrings.append(f"\ndef {node['name']}(")
@@ -289,16 +296,8 @@ class PythonCodeGenerator(object):
                 ),
             )
 
-            operator_mapping = {
-                ".ne.": " != ",
-                ".gt.": " > ",
-                ".eq.": " == ",
-                ".lt.": " < ",
-                ".le.": " <= ",
-            }
-
             self.pyStrings.append(
-                operator_mapping.get(
+                self.operator_mapping.get(
                     node["operator"].lower(), f" {node['operator']} "
                 )
             )
