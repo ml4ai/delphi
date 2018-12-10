@@ -344,37 +344,6 @@ class ParseState:
         )
 
 
-def printAstTree(astFile, tree, blockVal):
-    parentVal = blockVal
-    for node in tree:
-        if parentVal != blockVal:
-            astFile.write(
-                "\tB" + str(parentVal) + " -> B" + str(blockVal) + "\n"
-            )
-            parentVal = blockVal
-        block = "\tB" + str(blockVal) + ' [label="'
-        blockVal += 1
-        for key in node:
-            if not isinstance(node[key], list):
-                block += "'" + str(key) + "=" + str(node[key]) + "' "
-        block += '"]\n'
-        astFile.write(block)
-        for key in node:
-            if isinstance(node[key], list) and bool(node[key]):
-                astFile.write(
-                    "\tB"
-                    + str(parentVal)
-                    + " -> B"
-                    + str(blockVal)
-                    + ' [label="'
-                    + str(key)
-                    + '"]\n'
-                )
-                blockVal = printAstTree(astFile, node[key], blockVal)
-
-    return blockVal
-
-
 def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f) for f in files]
 
