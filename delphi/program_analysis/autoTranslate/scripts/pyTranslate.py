@@ -28,21 +28,21 @@ from typing import List, Dict
 class PrintState:
     def __init__(
         self,
-        sep=None,
-        add=None,
+        sep="\n",
+        add="    ",
         printFirst=True,
-        definedVars=None,
-        globalVars=None,
+        definedVars=[],
+        globalVars=[],
         indexRef=True,
-        varTypes=None,
+        varTypes={},
     ):
-        self.sep = sep if sep != None else "\n"
-        self.add = add if add != None else "    "
+        self.sep = sep
+        self.add = add
         self.printFirst = printFirst
-        self.definedVars = definedVars if definedVars != None else []
-        self.globalVars = globalVars if globalVars != None else []
+        self.definedVars = definedVars
+        self.globalVars = globalVars
         self.indexRef = indexRef
-        self.varTypes = varTypes if varTypes != None else {}
+        self.varTypes = varTypes
 
     def copy(
         self,
@@ -168,7 +168,7 @@ class PythonCodeGenerator(object):
         if node["name"] in self.libFns:
             node["name"] = node["name"].lower()
             if node["name"] in self.mathFuncs:
-                node["name"] = "math." + node["name"]
+                node["name"] = f"math.{node['name']}"
             inRef = 1
 
         self.pyStrings.append(f"{node['name']}(")
@@ -199,7 +199,7 @@ class PythonCodeGenerator(object):
     def printArg(self, node, printState):
         if node["type"] == "INTEGER":
             varType = "int"
-        elif node["type"] in ["DOUBLE", "REAL"]:
+        elif node["type"] in ("DOUBLE", "REAL"):
             varType = "float"
         else:
             print(f"unrecognized type {node['type']}")
@@ -216,7 +216,7 @@ class PythonCodeGenerator(object):
             if node["type"] == "INTEGER":
                 initVal = 0
                 varType = "int"
-            elif node["type"] in ["DOUBLE", "REAL"]:
+            elif node["type"] in ("DOUBLE", "REAL"):
                 initVal = 0.0
                 varType = "float"
             else:
@@ -273,8 +273,7 @@ class PythonCodeGenerator(object):
             ),
         )
         if "else" in node:
-            self.pyStrings.append(printState.sep)
-            self.pyStrings.append("else:")
+            self.pyStrings.append(printState.sep + "else:")
             self.printAst(
                 node["else"],
                 printState.copy(
@@ -309,8 +308,7 @@ class PythonCodeGenerator(object):
             )
             self.pyStrings.append(")")
         else:
-            self.pyStrings.append(f"{node['operator']}")
-            self.pyStrings.append("(")
+            self.pyStrings.append(f"{node['operator']}(")
             self.printAst(
                 node["left"],
                 printState.copy(
@@ -322,13 +320,12 @@ class PythonCodeGenerator(object):
             self.pyStrings.append("]")
 
     def printLiteral(self, node, printState):
-        self.pyStrings.append(f"{node['value']}")
+        self.pyStrings.append(node['value'])
 
     def printRef(self, node, printState):
+        self.pyStrings.append(node['name'])
         if printState.indexRef:
-            self.pyStrings.append(f"{node['name']}[0]")
-        else:
-            self.pyStrings.append(f"{node['name']}")
+            self.pyStrings.append("[0]")
 
     def printAssignment(self, node, printState):
         self.printAst(
@@ -343,18 +340,19 @@ class PythonCodeGenerator(object):
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
-            if node.get("name"):
-                self.pyStrings.append(f"return {node['name']}[0]")
+            if node.get("name") is not None:
+                val = node["name"] + "[0]"
             else:
-                self.pyStrings.append(f"return {node['value']}")
+                val = node["value"]
         else:
-            if node.get("name"):
-                self.pyStrings.append(f"return {node['name']}")
+            if node.get("name") is not None:
+                val = node["name"]
             else:
-                if node.get("value"):
-                    self.pyStrings.append(f"return {node['value']}")
+                if node.get("value") is not None:
+                    val = node["value"]
                 else:
-                    self.pyStrings.append(f"return None")
+                    val = "None"
+        self.pyStrings.append(f"return {val}")
 
     def printExit(self, node, printState):
         self.pyStrings.append("return")
