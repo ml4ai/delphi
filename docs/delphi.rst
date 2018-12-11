@@ -38,6 +38,14 @@ delphi.cli module
     :undoc-members:
     :show-inheritance:
 
+delphi.db module
+----------------
+
+.. automodule:: delphi.db
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 delphi.export module
 --------------------
 
@@ -58,7 +66,6 @@ delphi.inspection module
 ------------------------
 
 .. automodule:: delphi.inspection
-    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
@@ -67,7 +74,14 @@ delphi.jupyter\_tools module
 ----------------------------
 
 .. automodule:: delphi.jupyter_tools
-    :noindex:
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.models module
+--------------------
+
+.. automodule:: delphi.models
     :members:
     :undoc-members:
     :show-inheritance:

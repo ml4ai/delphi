@@ -37,7 +37,7 @@ def _(G: AnalysisGraph, *args, **kwargs):
 
 
 @visualize.register(ProgramAnalysisGraph)
-def _(G: ProgramAnalysisGraph, show_values=False):
+def _(G: ProgramAnalysisGraph, **kwargs):
     """ Exports AnalysisGraph to pygraphviz AGraph
 
     Args:
@@ -67,7 +67,7 @@ def _(G: ProgramAnalysisGraph, show_values=False):
     for e in G.edges(data=True):
         A.add_edge(e[0], e[1], color=color_str, arrowsize=0.5)
 
-    if show_values:
+    if kwargs.pop("show_values"):
         for n in A.nodes():
             value = str(G.nodes[n]["value"])
             n.attr["label"] = n.attr["label"] + f": {value:.4}"

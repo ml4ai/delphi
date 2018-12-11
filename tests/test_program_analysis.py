@@ -1,10 +1,59 @@
+import os
 import json
 from datetime import date
-from conftest import *
+from delphi.program_analysis.autoTranslate.scripts import (
+    f2py_pp,
+    translate,
+    get_comments,
+    pyTranslate,
+    genPGM,
+)
+import xml.etree.ElementTree as ET
+import subprocess as sp
+import ast
+import pytest
 
+os.environ["CLASSPATH"] = (
+    os.getcwd() + "/delphi/program_analysis/autoTranslate/bin/*"
+)
 
-def test_ProgramAnalysisGraph_init(PAG):
-    assert PAG == CROP_YIELD_JSON_DICT
+@pytest.fixture
+def pgmDict():
+    original_fortran_file = "tests/data/crop_yield.f"
+    preprocessed_fortran_file = "crop_yield_preprocessed.f"
+
+    with open(original_fortran_file, "r") as f:
+        inputLines = f.readlines()
+
+    with open(preprocessed_fortran_file, "w") as f:
+        f.write(f2py_pp.process(inputLines))
+
+    xml_string = sp.run(
+        [
+            "java",
+            "fortran.ofp.FrontEnd",
+            "--class",
+            "fortran.ofp.XMLPrinter",
+            "--verbosity",
+            "0",
+            "crop_yield_preprocessed.f",
+        ],
+        stdout=sp.PIPE,
+    ).stdout
+
+    trees = [ET.fromstring(xml_string)]
+    comments = get_comments.get_comments(preprocessed_fortran_file)
+    xml_to_json_translator=translate.XMLToJSONTranslator()
+    outputDict = xml_to_json_translator.analyze(trees, comments)
+    pySrc = pyTranslate.create_python_string(outputDict)
+    asts = [ast.parse(pySrc)]
+    pgm_dict = genPGM.create_pgm_dict(
+        "crop_yield_lambdas.py", asts, "crop_yield.json"
+    )
+    return pgm_dict
+
+def test_ProgramAnalysisGraph_init(pgmDict):
+    assert pgmDict == CROP_YIELD_JSON_DICT
 
 
 CROP_YIELD_JSON_DICT = {

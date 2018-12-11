@@ -22,32 +22,27 @@ python_file: The Python file on which to write the resulting python script.
 import sys
 import pickle
 import argparse
-
-GETFRAME_EXPR = "sys._getframe({}).f_code.co_name"
-
-PRINTFN = {}
-LIBFNS = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
-MATHFUNC = ["mod", "exp", "cexp", "cmplx"]
+from typing import List, Dict
 
 
 class PrintState:
     def __init__(
         self,
-        sep=None,
-        add=None,
+        sep="\n",
+        add="    ",
         printFirst=True,
-        definedVars=None,
-        globalVars=None,
+        definedVars=[],
+        globalVars=[],
         indexRef=True,
-        varTypes=None,
+        varTypes={},
     ):
-        self.sep = sep if sep != None else "\n"
-        self.add = add if add != None else "    "
+        self.sep = sep
+        self.add = add
         self.printFirst = printFirst
-        self.definedVars = definedVars if definedVars != None else []
-        self.globalVars = globalVars if globalVars != None else []
+        self.definedVars = definedVars
+        self.globalVars = globalVars
         self.indexRef = indexRef
-        self.varTypes = varTypes if varTypes != None else {}
+        self.varTypes = varTypes
 
     def copy(
         self,
@@ -70,179 +65,178 @@ class PrintState:
         )
 
 
-def printSubroutine(pyStrings, node, printState):
-    pyStrings.append(f"\ndef {node['name']}(")
-    args = []
-    printAst(
-        pyStrings,
-        node["args"],
-        printState.copy(
-            sep=", ",
-            add="",
-            printFirst=False,
-            definedVars=args,
-            indexRef=False,
-        ),
-    )
-    pyStrings.append("):")
-    printAst(
-        pyStrings,
-        node["body"],
-        printState.copy(
-            sep=printState.sep + printState.add,
-            printFirst=True,
-            definedVars=args,
-            indexRef=True,
-        ),
-    )
+class PythonCodeGenerator(object):
+    def __init__(self):
+        self.printFn = {}
+        self.libFns = [
+            "MOD",
+            "EXP",
+            "INDEX",
+            "MIN",
+            "MAX",
+            "cexp",
+            "cmplx",
+            "ATAN",
+        ]
+        self.mathFuncs = ["mod", "exp", "cexp", "cmplx"]
+        self.getframe_expr = "sys._getframe({}).f_code.co_name"
+        self.pyStrings = []
+        self.printFn = {
+            "subroutine": self.printSubroutine,
+            "program": self.printProgram,
+            "call": self.printCall,
+            "arg": self.printArg,
+            "variable": self.printVariable,
+            "do": self.printDo,
+            "index": self.printIndex,
+            "if": self.printIf,
+            "op": self.printOp,
+            "literal": self.printLiteral,
+            "ref": self.printRef,
+            "assignment": self.printAssignment,
+            "exit": self.printExit,
+            "return": self.printReturn,
+            "function": self.printFunction,
+            "ret": self.printFuncReturn,
+        }
+        self.operator_mapping = {
+            ".ne.": " != ",
+            ".gt.": " > ",
+            ".eq.": " == ",
+            ".lt.": " < ",
+            ".le.": " <= ",
+        }
 
+    def printSubroutine(self, node: Dict[str, str], printState: PrintState):
+        self.pyStrings.append(f"\ndef {node['name']}(")
+        args = []
+        self.printAst(
+            node["args"],
+            printState.copy(
+                sep=", ",
+                add="",
+                printFirst=False,
+                definedVars=args,
+                indexRef=False,
+            ),
+        )
+        self.pyStrings.append("):")
+        self.printAst(
+            node["body"],
+            printState.copy(
+                sep=printState.sep + printState.add,
+                printFirst=True,
+                definedVars=args,
+                indexRef=True,
+            ),
+        )
 
-def printFunction(pyStrings, node, printState):
-    pyStrings.append(f"\ndef {node['name']}(")
-    args = []
-    printAst(
-        pyStrings,
-        node["args"],
-        printState.copy(
-            sep=", ",
-            add="",
-            printFirst=False,
-            definedVars=args,
-            indexRef=False,
-        ),
-    )
-    pyStrings.append("):")
-    printAst(
-        pyStrings,
-        node["body"],
-        printState.copy(
-            sep=printState.sep + printState.add,
-            printFirst=True,
-            definedVars=args,
-            indexRef=True,
-        ),
-    )
+    def printFunction(self, node, printState):
+        self.pyStrings.append(f"\ndef {node['name']}(")
+        args = []
+        self.printAst(
+            node["args"],
+            printState.copy(
+                sep=", ",
+                add="",
+                printFirst=False,
+                definedVars=args,
+                indexRef=False,
+            ),
+        )
+        self.pyStrings.append("):")
+        self.printAst(
+            node["body"],
+            printState.copy(
+                sep=printState.sep + printState.add,
+                printFirst=True,
+                definedVars=args,
+                indexRef=True,
+            ),
+        )
 
+    def printProgram(self, node, printState):
+        self.printSubroutine(node, printState)
+        self.pyStrings.append(f"\n\n{node['name']}(){printState.sep}")
 
-def printProgram(pyStrings, node, printState):
-    printSubroutine(pyStrings, node, printState)
-    pyStrings.append(f"\n\n{node['name']}(){printState.sep}")
+    def printCall(self, node: Dict[str, str], printState: PrintState):
+        if not printState.indexRef:
+            self.pyStrings.append("[")
 
+        inRef = False
 
-def printCall(pyStrings, node, printState):
-    if not printState.indexRef:
-        pyStrings.append("[")
+        if node["name"] in self.libFns:
+            node["name"] = node["name"].lower()
+            if node["name"] in self.mathFuncs:
+                node["name"] = f"math.{node['name']}"
+            inRef = 1
 
-    inRef = False
+        self.pyStrings.append(f"{node['name']}(")
+        self.printAst(
+            node["args"],
+            printState.copy(
+                sep=", ",
+                add="",
+                printFirst=False,
+                definedVars=[],
+                indexRef=inRef,
+            ),
+        )
+        self.pyStrings.append(")")
 
-    if node["name"] in LIBFNS:
-        node["name"] = node["name"].lower()
-        if node["name"] in MATHFUNC:
-            node["name"] = "math." + node["name"]
-        inRef = 1
+        if not printState.indexRef:
+            self.pyStrings.append("]")
 
-    pyStrings.append(f"{node['name']}(")
-    printAst(
-        pyStrings,
-        node["args"],
-        printState.copy(
-            sep=", ", add="", printFirst=False, definedVars=[], indexRef=inRef
-        ),
-    )
-    pyStrings.append(")")
+    def printAst(self, root, printState):
+        for node in root:
+            if printState.printFirst:
+                self.pyStrings.append(printState.sep)
+            else:
+                printState.printFirst = True
+            if node.get("tag"):
+                self.printFn[node["tag"]](node, printState)
 
-    if not printState.indexRef:
-        pyStrings.append("]")
-
-
-def printArg(pyStrings, node, printState):
-    if node["type"] == "INTEGER":
-        varType = "int"
-    elif node["type"] in ["DOUBLE", "REAL"]:
-        varType = "float"
-    else:
-        print(f"unrecognized type {node['type']}")
-        sys.exit(1)
-    pyStrings.append(f"{node['name']}: List[{varType}]")
-    printState.definedVars += [node["name"]]
-
-
-def printVariable(pyStrings, node, printState):
-    if (
-        node["name"] not in printState.definedVars
-        and node["name"] not in printState.globalVars
-    ):
-        printState.definedVars += [node["name"]]
+    def printArg(self, node, printState):
         if node["type"] == "INTEGER":
-            initVal = 0
             varType = "int"
-        elif node["type"] in ["DOUBLE", "REAL"]:
-            initVal = 0.0
+        elif node["type"] in ("DOUBLE", "REAL"):
             varType = "float"
         else:
             print(f"unrecognized type {node['type']}")
             sys.exit(1)
-        pyStrings.append(f"{node['name']}: List[{varType}] = [{initVal}]")
-    else:
-        printState.printFirst = False
+        self.pyStrings.append(f"{node['name']}: List[{varType}]")
+        printState.definedVars += [node["name"]]
 
+    def printVariable(self, node, printState):
+        if (
+            node["name"] not in printState.definedVars
+            and node["name"] not in printState.globalVars
+        ):
+            printState.definedVars += [node["name"]]
+            if node["type"] == "INTEGER":
+                initVal = 0
+                varType = "int"
+            elif node["type"] in ("DOUBLE", "REAL"):
+                initVal = 0.0
+                varType = "float"
+            else:
+                print(f"unrecognized type {node['type']}")
+                sys.exit(1)
+            self.pyStrings.append(
+                f"{node['name']}: List[{varType}] = [{initVal}]"
+            )
+        else:
+            printState.printFirst = False
 
-def printDo(pyStrings, node, printState):
-    pyStrings.append("for ")
-    printAst(
-        pyStrings,
-        node["header"],
-        printState.copy(sep="", add="", printFirst=True, indexRef=True),
-    )
-    pyStrings.append(":")
-    printAst(
-        pyStrings,
-        node["body"],
-        printState.copy(
-            sep=printState.sep + printState.add, printFirst=True, indexRef=True
-        ),
-    )
-
-
-def printIndex(pyStrings, node, printState):
-    # pyStrings.append("{0} in range({1}, {2}+1)".format(node['name'], node['low'], node['high'])) Don't use this
-    # pyStrings.append(f"{node['name']}[0] in range(") Use this instead
-    pyStrings.append(f"{node['name']}[0] in range(")
-    printAst(
-        pyStrings,
-        node["low"],
-        printState.copy(sep="", add="", printFirst=True, indexRef=True),
-    )
-    pyStrings.append(", ")
-    printAst(
-        pyStrings,
-        node["high"],
-        printState.copy(sep="", add="", printFirst=True, indexRef=True),
-    )
-    pyStrings.append("+1)")
-
-
-def printIf(pyStrings, node, printState):
-    pyStrings.append("if ")
-    printAst(
-        pyStrings,
-        node["header"],
-        printState.copy(sep="", add="", printFirst=True, indexRef=True),
-    )
-    pyStrings.append(":")
-    printAst(
-        pyStrings,
-        node["body"],
-        printState.copy(
-            sep=printState.sep + printState.add, printFirst=True, indexRef=True
-        ),
-    )
-    if "else" in node:
-        pyStrings.append(printState.sep)
-        pyStrings.append("else:")
-        printAst(
-            pyStrings,
-            node["else"],
+    def printDo(self, node, printState):
+        self.pyStrings.append("for ")
+        self.printAst(
+            node["header"],
+            printState.copy(sep="", add="", printFirst=True, indexRef=True),
+        )
+        self.pyStrings.append(":")
+        self.printAst(
+            node["body"],
             printState.copy(
                 sep=printState.sep + printState.add,
                 printFirst=True,
@@ -250,151 +244,132 @@ def printIf(pyStrings, node, printState):
             ),
         )
 
-
-def printOp(pyStrings, node, printState):
-    if not printState.indexRef:
-        pyStrings.append("[")
-    if "right" in node:
-        pyStrings.append("(")
-        printAst(
-            pyStrings,
-            node["left"],
+    def printIndex(self, node, printState):
+        self.pyStrings.append(f"{node['name']}[0] in range(")
+        self.printAst(
+            node["low"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
         )
+        self.pyStrings.append(", ")
+        self.printAst(
+            node["high"],
+            printState.copy(sep="", add="", printFirst=True, indexRef=True),
+        )
+        self.pyStrings.append("+1)")
 
-        operator_mapping = {
-            ".ne.": " != ",
-            ".gt.": " > ",
-            ".eq.": " == ",
-            ".lt.": " < ",
-            ".le.": " <= ",
-        }
-        pyStrings.append(
-            operator_mapping.get(
-                node["operator"].lower(), f" {node['operator']} "
+    def printIf(self, node, printState):
+        self.pyStrings.append("if ")
+        self.printAst(
+            node["header"],
+            printState.copy(sep="", add="", printFirst=True, indexRef=True),
+        )
+        self.pyStrings.append(":")
+        self.printAst(
+            node["body"],
+            printState.copy(
+                sep=printState.sep + printState.add,
+                printFirst=True,
+                indexRef=True,
+            ),
+        )
+        if "else" in node:
+            self.pyStrings.append(printState.sep + "else:")
+            self.printAst(
+                node["else"],
+                printState.copy(
+                    sep=printState.sep + printState.add,
+                    printFirst=True,
+                    indexRef=True,
+                ),
             )
-        )
-        printAst(
-            pyStrings,
-            node["right"],
-            printState.copy(sep="", add="", printFirst=True, indexRef=True),
-        )
-        pyStrings.append(")")
-    else:
-        pyStrings.append(f"{node['operator']}")
-        pyStrings.append("(")
-        printAst(
-            pyStrings,
-            node["left"],
-            printState.copy(sep="", add="", printFirst=True, indexRef=True),
-        )
-        pyStrings.append(")")
-    if not printState.indexRef:
-        pyStrings.append("]")
 
+    def printOp(self, node, printState):
+        if not printState.indexRef:
+            self.pyStrings.append("[")
+        if "right" in node:
+            self.pyStrings.append("(")
+            self.printAst(
+                node["left"],
+                printState.copy(
+                    sep="", add="", printFirst=True, indexRef=True
+                ),
+            )
 
-def printLiteral(pyStrings, node, printState):
-    pyStrings.append(f"{node['value']}")
-
-
-def printRef(pyStrings, node, printState):
-    if printState.indexRef:
-        pyStrings.append(f"{node['name']}[0]")
-    else:
-        pyStrings.append(f"{node['name']}")
-
-
-def printAssignment(pyStrings, node, printState):
-    printAst(
-        pyStrings,
-        node["target"],
-        printState.copy(sep="", add="", printFirst=False, indexRef=True),
-    )
-    pyStrings.append(" = ")
-    printAst(
-        pyStrings,
-        node["value"],
-        printState.copy(sep="", add="", printFirst=False, indexRef=True),
-    )
-
-
-def printFuncReturn(pyStrings, node, printState):
-    if printState.indexRef:
-        if node.get("name"):
-            pyStrings.append(f"return {node['name']}[0]")
+            self.pyStrings.append(
+                self.operator_mapping.get(
+                    node["operator"].lower(), f" {node['operator']} "
+                )
+            )
+            self.printAst(
+                node["right"],
+                printState.copy(
+                    sep="", add="", printFirst=True, indexRef=True
+                ),
+            )
+            self.pyStrings.append(")")
         else:
-            pyStrings.append(f"return {node['value']}")
-    else:
-        if node.get("name"):
-            pyStrings.append(f"return {node['name']}")
-        else:
-            if node.get("value"):
-                pyStrings.append(f"return {node['value']}")
+            self.pyStrings.append(f"{node['operator']}(")
+            self.printAst(
+                node["left"],
+                printState.copy(
+                    sep="", add="", printFirst=True, indexRef=True
+                ),
+            )
+            self.pyStrings.append(")")
+        if not printState.indexRef:
+            self.pyStrings.append("]")
+
+    def printLiteral(self, node, printState):
+        self.pyStrings.append(node['value'])
+
+    def printRef(self, node, printState):
+        self.pyStrings.append(node['name'])
+        if printState.indexRef:
+            self.pyStrings.append("[0]")
+
+    def printAssignment(self, node, printState):
+        self.printAst(
+            node["target"],
+            printState.copy(sep="", add="", printFirst=False, indexRef=True),
+        )
+        self.pyStrings.append(" = ")
+        self.printAst(
+            node["value"],
+            printState.copy(sep="", add="", printFirst=False, indexRef=True),
+        )
+
+    def printFuncReturn(self, node, printState):
+        if printState.indexRef:
+            if node.get("name") is not None:
+                val = node["name"] + "[0]"
             else:
-                pyStrings.append(f"return None")
-
-
-def printExit(pyStrings, node, printState):
-    pyStrings.append("return")
-
-
-def printReturn(pyStrings, node, printState):
-    #    pyStrings.append("sys.exit(0)")
-    pyStrings.append("return True")
-
-
-def setupPrintFns():
-    PRINTFN.update(
-        {
-            "subroutine": printSubroutine,
-            "program": printProgram,
-            "call": printCall,
-            "arg": printArg,
-            "variable": printVariable,
-            "do": printDo,
-            "index": printIndex,
-            "if": printIf,
-            "op": printOp,
-            "literal": printLiteral,
-            "ref": printRef,
-            "assignment": printAssignment,
-            "exit": printExit,
-            "return": printReturn,
-            "function": printFunction,
-            "ret": printFuncReturn,
-            #  "read": printFileRead,
-            #  "open": printFileOpen,
-            #  "close": printFileClose,
-        }
-    )
-
-
-def printAst(pyStrings, root, printState):
-    for node in root:
-        if printState.printFirst:
-            pyStrings.append(printState.sep)
+                val = node["value"]
         else:
-            printState.printFirst = True
-        if node.get("tag"):
-            PRINTFN[node["tag"]](pyStrings, node, printState)
+            if node.get("name") is not None:
+                val = node["name"]
+            else:
+                if node.get("value") is not None:
+                    val = node["value"]
+                else:
+                    val = "None"
+        self.pyStrings.append(f"return {val}")
 
+    def printExit(self, node, printState):
+        self.pyStrings.append("return")
 
-def printPython(gen, outputFile):
-    with open(outputFile[0], "rb") as f:
-        outputDict = pickle.load(f)
+    def printReturn(self, node, printState):
+        self.pyStrings.append("return True")
 
-    pySrc = create_python_string(outputDict)
-    with open(gen, "w") as f:
-        f.write(pySrc)
+    def get_python_source(self):
+        return "".join(self.pyStrings)
 
 
 def create_python_string(outputDict):
-    pyStrings = []
-    pyStrings.append("from typing import List\n")
-    pyStrings.append("import math")
-    setupPrintFns()
-    printAst(pyStrings, outputDict["ast"], PrintState())
-    return "".join(pyStrings)
+    code_generator = PythonCodeGenerator()
+    code_generator.pyStrings.append("from typing import List\n")
+    code_generator.pyStrings.append("import math")
+    code_generator.printAst(outputDict["ast"], PrintState())
+    return code_generator.get_python_source()
 
 
 if __name__ == "__main__":
@@ -413,4 +388,8 @@ if __name__ == "__main__":
         help="Pickled version of the asts together with non-source code information",
     )
     args = parser.parse_args(sys.argv[1:])
-    printPython(args.gen[0], args.files)
+    with open(args.files[0], "rb") as f:
+        outputDict = pickle.load(f)
+    pySrc = create_python_string(outputDict)
+    with open(args.gen[0], "w") as f:
+        f.write(pySrc)
