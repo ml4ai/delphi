@@ -9,7 +9,6 @@ matplotlib.use("agg")
 from matplotlib import pyplot as plt
 
 
-@pytest.mark.skip
 def test_sampler(G):
     """ Smokescreen test for sampler. """
 
@@ -21,19 +20,19 @@ def test_sampler(G):
     # Generate synthetic data
     sampler.sample_from_prior()
     original_beta = -0.2
-    sampler.A["∂(conflict)/∂t"]["food_security"] = original_beta
-    sampler.s0["∂(conflict)/∂t"] = 0.1
+    sampler.A[f"∂({conflict_string})/∂t"][food_security_string] = original_beta
+    sampler.s0[f"∂({conflict_string})/∂t"] = 0.1
     sampler.set_latent_state_sequence()
     sampler.sample_from_likelihood()
 
     # Initialize random walk
-    sampler.A["∂(conflict)/∂t"]["food_security"] = 2.0
+    sampler.A[f"∂({conflict_string})/∂t"][food_security_string] = 2.0
     sampler.update_log_prior()
     sampler.set_latent_state_sequence()
     sampler.update_log_likelihood()
     sampler.update_log_joint_probability()
     sampler.original_score = sampler.log_joint_probability
-    map_estimate = sampler.A["∂(conflict)/∂t"]["food_security"]
+    map_estimate = sampler.A[f"∂({conflict_string})/∂t"][food_security_string]
     map_log_joint_probability = sampler.original_score
 
     scores = []
@@ -45,9 +44,9 @@ def test_sampler(G):
     for i, _ in enumerate(trange(n_samples)):
         sampler.sample_from_posterior()
         if sampler.log_joint_probability > map_log_joint_probability:
-            map_estimate = sampler.A["∂(conflict)/∂t"]["food_security"]
+            map_estimate = sampler.A[f"∂({conflict_string})/∂t"][food_security_string]
         scores.append(sampler.log_joint_probability - sampler.original_score)
-        betas.append(sampler.A["∂(conflict)/∂t"]["food_security"])
+        betas.append(sampler.A[f"∂({conflict_string})/∂t"][food_security_string])
         log_likelihoods.append(sampler.log_likelihood)
         log_priors.append(sampler.log_prior)
         map_estimates.append(map_estimate)

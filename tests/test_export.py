@@ -1,4 +1,5 @@
 from delphi.export import *
+from conftest import *
 
 
 def test_to_dict(G):
@@ -8,4 +9,4 @@ def test_to_dict(G):
     )
     variables = [x["name"] for x in d["variables"]]
     assert d["timeStep"] == "1.0"
-    assert set(variables) == set(["conflict", "food_security"])
+    assert set(variables) == set([conflict_string, food_security_string])
