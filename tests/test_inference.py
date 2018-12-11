@@ -9,6 +9,7 @@ matplotlib.use("agg")
 from matplotlib import pyplot as plt
 
 
+@pytest.mark.skip
 def test_sampler(G):
     """ Smokescreen test for sampler. """
 
