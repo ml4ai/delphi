@@ -230,7 +230,7 @@ class AnalysisGraph(nx.DiGraph):
 
         for n in self.nodes(data=True):
             n[1]["indicators"] = get_indicators(
-                n[0].lower().replace(" ", "_"), mapping
+                n[0], mapping
             )
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
@@ -303,7 +303,6 @@ class AnalysisGraph(nx.DiGraph):
                         ]
 
         self.t += self.Δt
-        print("t " + str(self.t))
 
     def update_until(self, t_final: float):
         """ Updates the model to a particular time t_final """
