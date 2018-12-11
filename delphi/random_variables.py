@@ -26,6 +26,7 @@ class Indicator(RV):
         source: str = None,
         unit: str = None,
         mean: float = None,
+        value: float = None,
         stdev: float = None,
         time: datetime = None,
     ):
@@ -33,5 +34,6 @@ class Indicator(RV):
         self.source = source
         self.unit = unit
         self.mean = mean
+        self.value = value
         self.stdev = stdev
         self.time = time

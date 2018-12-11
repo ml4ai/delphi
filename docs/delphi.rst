@@ -30,15 +30,6 @@ delphi.assembly module
     :undoc-members:
     :show-inheritance:
 
-delphi.bmi module
------------------
-
-.. automodule:: delphi.bmi
-    :noindex:
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.cli module
 -----------------
 
@@ -47,19 +38,18 @@ delphi.cli module
     :undoc-members:
     :show-inheritance:
 
-delphi.execution module
------------------------
-
-.. automodule:: delphi.execution
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.export module
 --------------------
 
 .. automodule:: delphi.export
-    :noindex:
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.inference module
+-----------------------
+
+.. automodule:: delphi.inference
     :members:
     :undoc-members:
     :show-inheritance:
@@ -68,6 +58,7 @@ delphi.inspection module
 ------------------------
 
 .. automodule:: delphi.inspection
+    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
@@ -81,22 +72,6 @@ delphi.jupyter\_tools module
     :undoc-members:
     :show-inheritance:
 
-delphi.manipulation module
---------------------------
-
-.. automodule:: delphi.manipulation
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.parameterization module
-------------------------------
-
-.. automodule:: delphi.parameterization
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.paths module
 -------------------
 
@@ -105,26 +80,10 @@ delphi.paths module
     :undoc-members:
     :show-inheritance:
 
-delphi.quantification module
-----------------------------
-
-.. automodule:: delphi.quantification
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.random\_variables module
 -------------------------------
 
 .. automodule:: delphi.random_variables
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.subgraphs module
------------------------
-
-.. automodule:: delphi.subgraphs
     :members:
     :undoc-members:
     :show-inheritance:

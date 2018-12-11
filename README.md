@@ -25,22 +25,12 @@ information extracted from two sources:
 - *Software*: Delphi also incorporates functionality to extract abstracted representations
    of scientific models from code that implements them, and convert these into probabilistic models.
 
-The general use case involves the following steps:
-
-1. Creating a dynamic Bayes network model from a set of INDRA statements, which
-   are data structures that represent knowledge fragments about causal relations
-   that are extracted using machine reading software such as Eidos.
-
-2. Executing the model. This produces a set of time evolution
-   sequences that are sampled stochastically from the conditional probability
-   distributions constructed in step 1.
-
-See the Usage section for more details.
-
 For a detailed description of our procedure to convert text to models, see
-[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf)
+[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
 
 For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+
+Delphi is also part of the [AutoMATES](https://ml4ai.github.io/automates/) project.
 
 ## Citing
 
@@ -146,43 +136,18 @@ You can see a prerendered HTML version of the notebook
 
 ### Command line usage
 
-In the following sections, we will go into more detail on model creation and
-execution.
+In the following sections, we will go into more detail on model execution.
 
-#### Create model
+### Execute model
 
-To create a model from a set of INDRA statements, do
+To execute the model, do:
 
 ```bash
-python delphi/cli.py create
+python delphi/cli.py execute
 ```
 
-Optionally combine this with the `--indra_statements` input parameter to specify
-the path to the INDRA statements. By default, `--create_model` will load a
-provided set of INDRA statements included as a pickled python file in
-`data/curated_statements.pkl`, and generate the output files
-
-
-```
-./
-├── delphi_cag.json
-├── dressed_CAG.pkl
-└── variables.csv
-```
-
-The files are
-- `delphi_cag.json`: This contains the link structure of the causal analysis
-- graph, along with conditional probability tables, indicators for the latent
-    variables represented by the CAG nodes, and initial values for the
-    indicators when available.
-- `dressed_CAG.pkl`: This is a Python pickle object that can be used in Python
-    programs. It contains a networkx Digraph object, with conditional
-    probability distributions attached to the edges.
-- `variables.csv`: This CSV file contains the names and initial values of the
-    components of the latent state of the DBN, corresponding to the factors in
-    the CAG and their partial derivatives with respect to time. This is set with
-    some default values which can be edited prior to the execution of the model.
-
+This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,
+and `bmi_config.txt`, which looks like this:
 
 ```
 rainfall,100.0
@@ -191,19 +156,9 @@ crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
 
-#### Execute model
-
-To execute the model, do:
-
-```bash
-python delphi/cli.py execute
-```
-
-This takes as input the files `dressed_CAG.pkl` and `variables.csv` and creates
-an output file `output_sequences.csv` (these are the default input and output
-filenames, but they can be changed with command line flags). that looks like
-this:
-
+and creates an output file `output_sequences.csv` (these are the default input
+and output filenames, but they can be changed with command line flags), that
+looks like this:
 
 ```
 seq_no,time_slice,rainfall,crop yield

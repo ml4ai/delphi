@@ -1,7 +1,7 @@
 .. _AnalysisGraph:
 
-API
-===================
+AnalysisGraph API
+=================
 
 The AnalysisGraph is the central data structure for Delphi.
 This page describes different operations that can be performed
@@ -21,13 +21,12 @@ Constructors
 
 Subgraphs
 ---------
-.. currentmodule:: delphi.subgraphs
 .. autosummary:: 
     :toctree: generated/
 
-    get_subgraph_for_concept
-    get_subgraph_for_concept_pair
-    get_subgraph_for_concept_pairs
+    AnalysisGraph.get_subgraph_for_concept
+    AnalysisGraph.get_subgraph_for_concept_pair
+    AnalysisGraph.get_subgraph_for_concept_pairs
 
 Inspection
 ----------
@@ -46,25 +45,25 @@ Manipulation
 Methods to edit the AnalysisGraph.
 
 
-.. currentmodule:: delphi.manipulation
+.. currentmodule:: delphi.AnalysisGraph
 .. autosummary:: 
     :toctree: generated/
 
-    merge_nodes
+    AnalysisGraph.merge_nodes
 
 
 Quantification
 --------------
-.. currentmodule:: delphi
+.. currentmodule:: delphi.AnalysisGraph
 .. autosummary::
     :toctree: generated/
 
-    delphi.quantification.map_concepts_to_indicators
-    delphi.AnalysisGraph.AnalysisGraph.infer_transition_model
+    AnalysisGraph.map_concepts_to_indicators
+    AnalysisGraph.assemble_transition_model_from_gradable_adjectives
 
 Export
 ------
-.. currentmodule:: delphi.export
+.. currentmodule:: delphi
 .. autosummary::
     :toctree: generated/
 
@@ -77,26 +76,26 @@ Basic Model Interface
 These methods implement the `Basic Modeling Interface (BMI) <http://bmi-spec.readthedocs.io/en/latest/>`_.
 
 
-Model Control
+Model control
 ^^^^^^^^^^^^^
 
-.. currentmodule:: delphi.bmi
+.. currentmodule:: delphi.AnalysisGraph
 .. autosummary::
     :toctree: generated/
 
-    initialize
-    update
-    update_until
+    AnalysisGraph.initialize
+    AnalysisGraph.update
+    AnalysisGraph.update_until
 
-Model Information
+Model information
 ^^^^^^^^^^^^^^^^^
 
 .. autosummary::
     :toctree: generated/
 
-    get_input_var_names
-    get_output_var_names
-    get_component_name
+    AnalysisGraph.get_input_var_names
+    AnalysisGraph.get_output_var_names
+    AnalysisGraph.get_component_name
 
 
 Time functions
@@ -105,6 +104,6 @@ Time functions
 .. autosummary::
     :toctree: generated/
 
-    get_time_step
-    get_time_units
-    get_current_time
+    AnalysisGraph.get_time_step
+    AnalysisGraph.get_time_units
+    AnalysisGraph.get_current_time

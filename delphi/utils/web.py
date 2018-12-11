@@ -3,6 +3,7 @@
 from tqdm import tqdm
 import urllib.request as request
 
+
 def tqdm_reporthook(t):
     """Wraps tqdm instance.
     Don't forget to close() or __exit__()

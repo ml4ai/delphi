@@ -1,46 +1,46 @@
 #!/usr/bin/python
 
 """
+This script converts the XML version of AST of the Fortran
+file into a JSON representation of the AST along with other
+non-source code information. The output is a pickled file
+which contains this information in a parsable data structure.
 
-   File:    translate.py
-   
-   Purpose: This script converts the XML version of AST of the Fortran 
-            file into a JSON representation of the AST along with other
-            non-source code information. The output is a pickled file 
-            which contains this information in a parsable data structure.
+Example:
+    This script is executed by the autoTranslate script as one
+    of the steps in converted a Fortran source file to Python
+    file. For standalone execution:::
 
-   Usage:   This script is executed by the autoTranslate script as one 
-            of the steps in converted a Fortran source file to Python 
-            file. For standalone execution:
-              python translate.py -f <ast_file> -g <pickle_file>
+        python translate.py -f <ast_file> -g <pickle_file>
 
-            ast_file: The XML represenatation of the AST of the Fortran
-                      file. This is produced by the OpenFortranParser.
+ast_file: The XML represenatation of the AST of the Fortran file. This is
+produced by the OpenFortranParser.
 
-            pickle_file: The file which will contain the pickled version
-                          of JSON AST and supporting information.
+pickle_file: The file which will contain the pickled version of JSON AST and
+supporting information.
 
 """
 
 
-import xml.etree.ElementTree as ET
 import sys
 import argparse
 import pickle
 from collections import *
-from delphi.program_analysis.autoTranslate.scripts.get_comments import * 
+import xml.etree.ElementTree as ET
+from delphi.program_analysis.autoTranslate.scripts.get_comments import (
+    get_comments,
+)
+from typing import List, Dict
 
-libRtns = ["read", "open", "close", "format", "print", "write"]
-libFns = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
-inputFns = ["read"]
-outputFns = ["write"]
-summaries = {}
-asts = {}
-functionList = []
-subroutineList = []
-entryPoint = []
-
-cleanup = True
+LIBRTNS = ["read", "open", "close", "format", "print", "write"]
+LIBFNS = ["MOD", "EXP", "INDEX", "MIN", "MAX", "cexp", "cmplx", "ATAN"]
+INPUTFNS = ["read"]
+OUTPUTFNS = ["write"]
+SUMMARIES = {}
+ASTS = {}
+FUNCTIONLIST = []
+SUBROUTINELIST = []
+ENTRYPOINT = []
 
 
 class ParseState:
@@ -73,12 +73,12 @@ def loadFunction(root):
     Returns:
         None
 
-    Does not return anything but populates a list (functionList) that contains all
+    Does not return anything but populates a list (FUNCTIONLIST) that contains all
     the functions in the Fortran File.
     """
     for element in root.iter():
         if element.tag == "function":
-            functionList.append(element.attrib["name"])
+            FUNCTIONLIST.append(element.attrib["name"])
 
 
 def parseTree(root, state):
@@ -98,18 +98,18 @@ def parseTree(root, state):
 
     if root.tag == "subroutine" or root.tag == "program":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-        summaries[root.attrib["name"]] = None
+        SUMMARIES[root.attrib["name"]] = None
         if root.tag == "subroutine":
-            subroutineList.append(root.attrib["name"])
+            SUBROUTINELIST.append(root.attrib["name"])
         else:
-            entryPoint.append(root.attrib["name"]) 
+            ENTRYPOINT.append(root.attrib["name"])
         for node in root:
             if node.tag == "header":
                 subroutine["args"] = parseTree(node, state)
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = parseTree(node, subState)
-        asts[root.attrib["name"]] = [subroutine]
+        ASTS[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
     elif root.tag == "call":
@@ -139,7 +139,7 @@ def parseTree(root, state):
         prog = []
         for var in decVars:
             if (
-                state.subroutine["name"] in functionList
+                state.subroutine["name"] in FUNCTIONLIST
                 and var["name"] in state.args
             ):
                 state.subroutine["args"][state.args.index(var["name"])][
@@ -235,20 +235,20 @@ def parseTree(root, state):
         return [{"tag": "stop"}]
 
     elif root.tag == "name":
-        if root.attrib["id"] in libFns:
+        if root.attrib["id"] in LIBFNS:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
         elif (
-            root.attrib["id"] in functionList
+            root.attrib["id"] in FUNCTIONLIST
             and state.subroutine["tag"] != "function"
         ):
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += parseTree(node, state)
             return [fn]
-        # elif root.attrib["id"] in functionList and state.subroutine["tag"] == "function":
+        # elif root.attrib["id"] in FUNCTIONLIST and state.subroutine["tag"] == "function":
         #    fn = {"tag": "return", "name": root.attrib["id"]
         else:
             ref = {"tag": "ref", "name": root.attrib["id"]}
@@ -266,9 +266,9 @@ def parseTree(root, state):
                 assign["target"] = parseTree(node, state)
             elif node.tag == "value":
                 assign["value"] = parseTree(node, state)
-            # if assign["target"][0]["name"] in functionList:
+            # if assign["target"][0]["name"] in FUNCTIONLIST:
             #    assign["value"][0]["tag"] = "ret"
-        if (assign["target"][0]["name"] in functionList) and (
+        if (assign["target"][0]["name"] in FUNCTIONLIST) and (
             assign["target"][0]["name"] == state.subroutine["name"]
         ):
             assign["value"][0]["tag"] = "ret"
@@ -278,15 +278,15 @@ def parseTree(root, state):
 
     elif root.tag == "function":
         subroutine = {"tag": root.tag, "name": root.attrib["name"]}
-        # functionList.append(root.attrib["name"])
-        summaries[root.attrib["name"]] = None
+        # FUNCTIONLIST.append(root.attrib["name"])
+        SUMMARIES[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
                 subroutine["args"] = parseTree(node, state)
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = parseTree(node, subState)
-        asts[root.attrib["name"]] = [subroutine]
+        ASTS[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
     elif root.tag == "exit":
@@ -296,7 +296,7 @@ def parseTree(root, state):
         ret = {"tag": "return"}
         return [ret]
 
-    elif root.tag in libRtns:
+    elif root.tag in LIBRTNS:
         fn = {"tag": "call", "name": root.tag, "args": []}
         for node in root:
             fn["args"] += parseTree(node, state)
@@ -340,33 +340,54 @@ def printAstTree(astFile, tree, blockVal):
     return blockVal
 
 
-def analyze(files, pickleFile, fortranFile):
-    global cleanup
+def get_trees(files: List[str]) -> List:
+    return [ET.parse(f) for f in files]
+
+
+def analyze(trees, comments) -> Dict:
     outputFiles = {}
     ast = []
 
     # Extracts the comments from the original Fortran source file
-    comments = get_comments(fortranFile) 
- 
+    comments = get_comments(fortranFile)
+
     # Parse through the ast tree once to identify and grab all the funcstions
     # present in the Fortran file.
-    for f in files:
-        tree = ET.parse(f)
+    for tree in trees:
         loadFunction(tree)
 
     # Parse through the ast tree a second time to convert the XML ast format to
     # a format that can be used to generate python statements.
-    for f in files:
-        tree = ET.parse(f)
-        ast += parseTree(tree.getroot(), ParseState())
+    for tree in trees:
+        ast += parseTree(tree, ParseState())
+
+    """
+
+    Find the entry point for the Fortran file.
+    The entry point for a conventional Fortran file is always the PROGRAM section.
+    This 'if' statement checks for the presence of a PROGRAM segment.
+
+    If not found, the entry point can be any of the functions or subroutines
+    in the file. So, all the functions and subroutines of the program are listed
+    and included as the possible entry point.
+
+    """
+    if ENTRYPOINT:
+        entry = {"program": ENTRYPOINT[0]}
+    else:
+        entry = {}
+        if FUNCTIONLIST:
+            entry["function"] = FUNCTIONLIST
+        if SUBROUTINELIST:
+            entry["subroutine"] = SUBROUTINELIST
 
     """
 
      Find the entry point for the Fortran file.
      The entry point for a conventional Fortran file is always the PROGRAM section.
      This 'if' statement checks for the presence of a PROGRAM segment.
-     
-     If not found, the entry point can be any of the functions or subroutines 
+
+     If not found, the entry point can be any of the functions or subroutines
      in the file. So, all the functions and subroutines of the program are listed
      and included as the possible entry point.
 
@@ -383,11 +404,9 @@ def analyze(files, pickleFile, fortranFile):
     # Load the functions list and Fortran ast to a single data structure which
     # can be pickled and hence is portable across various scripts and usages.
     outputFiles["ast"] = ast
-    outputFiles["functionList"] = functionList
+    outputFiles["functionList"] = FUNCTIONLIST
     outputFiles["comments"] = comments
-
-    with open(pickleFile, "wb") as f:
-        pickle.dump(outputFiles, f)
+    return outputFiles
 
 
 if __name__ == "__main__":
@@ -406,10 +425,16 @@ if __name__ == "__main__":
         help="A list of AST files in XML format to analyze",
     )
     parser.add_argument(
-        "-i",
-        "--input",
-        nargs="*",
-        help="Original Fortran Source code file."
+        "-i", "--input", nargs="*", help="Original Fortran Source code file."
     )
+
     args = parser.parse_args(sys.argv[1:])
-    analyze(args.files, args.gen[0], args.input[0])
+    fortranFile = args.input[0]
+    pickleFile = args.gen[0]
+
+    trees = get_trees(args.files)
+    comments = get_comments(fortranFile)
+    outputFiles = analyze(trees, comments)
+
+    with open(pickleFile, "wb") as f:
+        pickle.dump(outputFiles, f)

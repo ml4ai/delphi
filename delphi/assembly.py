@@ -1,28 +1,22 @@
 from datetime import datetime
 from delphi.paths import concept_to_indicator_mapping, data_dir
 from .utils import exists, flatMap, flatten, get_data_from_url
+from delphi.utils.indra import *
 from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
 from fuzzywuzzy import process
-from functools import singledispatch, lru_cache
 from itertools import permutations
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
 
 
-def get_valid_statements_for_modeling(sts: List[Influence]) -> List[Influence]:
-    """ Select INDRA statements that can be used to construct a Delphi model
-    from a given list of statements. """
-
-    return [
-        s
-        for s in sts
-        if is_grounded(s)
-        and (s.subj_delta["polarity"] is not None)
-        and (s.obj_delta["polarity"] is not None)
-    ]
+def make_edge(
+    sts: List[Influence], p: Tuple[str, str]
+) -> Tuple[str, str, Dict[str, List[Influence]]]:
+    edge = (*p, {"InfluenceStatements": [s for s in sts if nameTuple(s) == p]})
+    return edge
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
@@ -31,28 +25,6 @@ def deltas(s: Influence) -> Tuple[Delta, Delta]:
 
 def get_respdevs(gb):
     return gb["respdev"]
-
-
-def top_grounding(c: Concept) -> str:
-    """ Return the top-scoring grounding from the UN ontology. """
-    return (
-        c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
-    )
-
-
-def top_grounding_score(c: Concept) -> float:
-    return c.db_refs["UN"][0][1]
-
-
-def nameTuple(s: Influence) -> Tuple[str, str]:
-    """ Returns a 2-tuple consisting of the top groundings of the subj and obj
-    of an Influence statement. """
-    return top_grounding(s.subj), top_grounding(s.obj)
-
-
-def get_concepts(sts: List[Influence]) -> Set[str]:
-    """ Get a set of all unique concepts in the list of INDRA statements. """
-    return set(flatMap(nameTuple, sts))
 
 
 def process_concept_name(name: str) -> str:
@@ -122,70 +94,6 @@ def is_simulable(s: Influence) -> bool:
     return all(map(exists, map(lambda x: x["polarity"], deltas(s))))
 
 
-@singledispatch
-def is_grounded():
-    pass
-
-
-@is_grounded.register(Concept)
-def _(c: Concept) -> bool:
-    """ Check if a concept is grounded """
-    return (
-        "UN" in c.db_refs
-        and c.db_refs["UN"][0][0].split("/")[1] != "properties"
-    )
-
-
-@is_grounded.register(Influence)
-def _(s: Influence) -> bool:
-    """ Check if an Influence statement is grounded """
-    return is_grounded(s.subj) and is_grounded(s.obj)
-
-
-@singledispatch
-def is_well_grounded():
-    pass
-
-
-@is_well_grounded.register(Concept)
-def _(c: Concept, cutoff: float = 0.7) -> bool:
-    """Check if a concept has a high grounding score. """
-
-    return is_grounded(c) and (top_grounding_score(c) >= cutoff)
-
-
-@is_well_grounded.register(Influence)
-def _(s: Influence, cutoff: float = 0.7) -> bool:
-    """ Returns true if both subj and obj are grounded to the UN ontology. """
-
-    return all(map(lambda c: is_well_grounded(c, cutoff), s.agent_list()))
-
-
-def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
-    """ Check if a concept is grounded to a given name. """
-    return (top_grounding(c) == name) if is_well_grounded(c, cutoff) else False
-
-
-def contains_concept(s: Influence, concept_name: str, cutoff=0.7) -> bool:
-    return any(
-        map(
-            lambda c: is_grounded_to_name(c, concept_name, cutoff),
-            s.agent_list(),
-        )
-    )
-
-
-def contains_relevant_concept(
-    s: Influence, relevant_concepts: List[str], cutoff=0.7
-) -> bool:
-    """ Returns true if a given Influence statement has a relevant concept, and
-    false otherwise. """
-
-    return any(
-        map(lambda c: contains_concept(s, c, cutoff=cutoff), relevant_concepts)
-    )
-
-
 def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     """ Get the best match to an indicator name from a list of items. """
     best_match = process.extractOne(indicator.name, items)[0]
@@ -221,8 +129,7 @@ def get_mean_precipitation(year: int):
 def get_indicator_value(
     indicator: Indicator, date: datetime, df: pd.DataFrame
 ) -> Optional[float]:
-    """ Get the value of a particular indicator at a particular date and time.
-    """
+    """ Get the value of a particular indicator at a particular date and time. """
 
     if indicator.source == "FAO/WDI":
         best_match = get_best_match(indicator, df.index)
@@ -278,7 +185,15 @@ def construct_concept_to_indicator_mapping(
 
 def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
     return (
-        [Indicator(x, "FAO/WDI") for x in mapping[concept]]
+        {x: Indicator(x, "FAO/WDI") for x in mapping[concept]}
         if concept in mapping
         else None
     )
+
+
+def make_edges(sts, node_permutations):
+    return [
+        e
+        for e in [make_edge(sts, p) for p in node_permutations]
+        if len(e[2]["InfluenceStatements"]) != 0
+    ]

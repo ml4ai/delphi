@@ -7,7 +7,7 @@ import pandas as pd
 from glob import glob
 from typing import List, Dict
 from delphi.utils.shell import cd
-from delphi.paths import data_dir
+from delphi.paths import data_dir, south_sudan_data
 from process_climis_livestock_data import *
 from pprint import pprint
 import numpy as np
@@ -68,29 +68,15 @@ def process_climis_crop_production_data(data_dir: str):
     return df
 
 
-def process_fao_livestock_data(
-    data_dir: str, columns: List[str]
-) -> pd.DataFrame:
-    df = pd.read_csv(
-        f"{data_dir}/FAO Crop_Livestock Production Data/FAOSTAT_South_Sudan_livestock_data_2014-2016.csv",
-        usecols=["Element", "Item", "Year", "Unit", "Value"],
-    )
-
-    df["Animal"] = df["Item"].str.split(",").str.get(-1)
-    df["Product"] = df["Item"].str.split(",").str.get(0)
-    df["Variable"] = (
-        df["Animal"].str.strip() + " " + df["Product"] + " " + df["Element"]
-    )
-    df["Variable"] = df["Variable"].str.lower()
-    df["Unit"] = df["Unit"].str.lower()
-    df["Source"] = "FAO"
+def process_fao_wdi_data(data_dir):
+    df = pd.read_csv(south_sudan_data, sep="|")
+    df = df[[c for c in df.columns if "-" not in c]]
+    df = df.pivot_table(columns=("Indicator Name", "Unit")).reset_index()
+    df.columns = ["Year", "Variable", "Unit", "Value"]
+    df["Country"] = "South Sudan"
     df["State"] = None
     df["County"] = None
-    df["Country"] = "South Sudan"
-    df["Month"] = None
-    fao_livestock_df = df[columns]
-    return fao_livestock_df
-
+    return df
 
 def process_fewsnet_data(data_dir, columns: List[str]) -> pd.DataFrame:
     """ Process IPC food security classifications by county for South Sudan. """
@@ -336,20 +322,23 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
 
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
-    fao_livestock_df = process_fao_livestock_data(data_dir, columns)
+    fao_wdi_df = process_fao_wdi_data(columns)
     ipc_df = process_fewsnet_data(data_dir, columns)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
     climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
+    # Severe acute malnutrition and inflation rate indicators from PDFs
+    pdf_indicators_df = pd.read_csv(f"{data_dir}/indicator_data_from_pdfs.csv")
 
     df = pd.concat(
         [
             climis_crop_production_df,
-            fao_livestock_df,
+            fao_wdi_df,
             ipc_df,
             climis_livestock_data_df,
             climis_import_data_df,
-            climis_rainfall_data_df
+            climis_rainfall_data_df,
+            pdf_indicators_df
         ],
         sort=True,
     )
@@ -374,6 +363,6 @@ if __name__ == "__main__":
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
-    df.to_csv("combined_table.csv", index=False)
+    df.to_csv("12_month_evaluation_indicator_data.csv", index=False)
     with open("12_month_eval_variables.txt", "w") as f:
         f.write("\n".join(set(df["Variable"].values)))
