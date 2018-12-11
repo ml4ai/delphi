@@ -366,7 +366,7 @@ class XMLToJSONTranslator(object):
     def analyze(
         self, trees: List[ET.ElementTree], comments: OrderedDict
     ) -> Dict:
-        outputFiles = {}
+        outputDict = {}
         ast = []
 
         # Parse through the ast once to identify and grab all the funcstions
@@ -401,10 +401,10 @@ class XMLToJSONTranslator(object):
 
         # Load the functions list and Fortran ast to a single data structure which
         # can be pickled and hence is portable across various scripts and usages.
-        outputFiles["ast"] = ast
-        outputFiles["functionList"] = self.functionList
-        outputFiles["comments"] = comments
-        return outputFiles
+        outputDict["ast"] = ast
+        outputDict["functionList"] = self.functionList
+        outputDict["comments"] = comments
+        return outputDict
 
 
 def get_trees(files: List[str]) -> List[ET.ElementTree]:
@@ -437,7 +437,7 @@ if __name__ == "__main__":
     trees = get_trees(args.files)
     comments = get_comments(fortranFile)
     translator = XMLToJSONTranslator()
-    outputFiles = translator.analyze(trees, comments)
+    outputDict = translator.analyze(trees, comments)
 
     with open(pickleFile, "wb") as f:
-        pickle.dump(outputFiles, f)
+        pickle.dump(outputDict, f)
