@@ -143,7 +143,7 @@ def contains_relevant_concept(
 def top_grounding(c: Concept) -> str:
     """ Return the top-scoring grounding from the UN ontology. """
     return (
-        c.db_refs["UN"][0][0].split("/")[-1] if "UN" in c.db_refs else c.name
+        c.db_refs["UN"][0][0] if "UN" in c.db_refs else c.name
     )
 
 
