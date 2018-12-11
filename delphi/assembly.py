@@ -27,11 +27,6 @@ def get_respdevs(gb):
     return gb["respdev"]
 
 
-def process_concept_name(name: str) -> str:
-    """ Remove underscores from concept name. """
-    return name.replace("_", " ")
-
-
 def filter_statements(sts: List[Influence]) -> List[Influence]:
     return [s for s in sts if is_well_grounded(s) and is_simulable(s)]
 
@@ -156,7 +151,6 @@ def get_variable_and_source(x: str):
     """ Process the variable name to make it more human-readable. """
     xs = x.replace("\/", "|").split("/")
     xs = [x.replace("|", "/") for x in xs]
-    # return " ".join(xs)
     if xs[0] == "FAO":
         return " ".join(xs[2:]), xs[0]
     else:
