@@ -208,7 +208,6 @@ def createExperiment(uuid: str):
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
 
-        G.update()
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(
@@ -232,6 +231,8 @@ def createExperiment(uuid: str):
                     },
                 }
             )
+
+        G.update()
     db.session.add(result)
     db.session.commit()
 

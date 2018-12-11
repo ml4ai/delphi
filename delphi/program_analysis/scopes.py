@@ -26,7 +26,7 @@ class Scope(metaclass=ABCMeta):
         self.json = data
 
         # NOTE: default edge color for debugging
-        self.edge_color = "red"
+        self.border_color = "red"
 
         self.build_child_names()
 
@@ -266,6 +266,7 @@ class Scope(metaclass=ABCMeta):
                 start=getattr(node, "start", None),
                 end=getattr(node, "end", None),
                 index=int(getattr(node, "index", None)),
+                parent=f"cluster_{self.name}",
             )
 
     def add_edges(self, sub):
@@ -280,7 +281,7 @@ class Scope(metaclass=ABCMeta):
             name=f"cluster_{self.name}",
             label=self.name,
             style="bold, rounded",
-            color=self.edge_color,
+            border_color=self.border_color,
         )
 
         self.add_nodes(sub)
@@ -293,7 +294,7 @@ class Scope(metaclass=ABCMeta):
 class LoopScope(Scope):
     def __init__(self, name, json_data):
         super().__init__(name, json_data)
-        self.edge_color = "blue"
+        self.border_color = "blue"
 
         self.index_var = LoopVariableNode(
             name=self.json["index_variable"],
@@ -316,7 +317,7 @@ class LoopScope(Scope):
 class ContainerScope(Scope):
     def __init__(self, name, json_data):
         super().__init__(name, json_data)
-        self.edge_color = "forestgreen"
+        self.border_color = "green"
 
     def setup_from_json(self, vars=[]):
         for var in self.json["input"]:

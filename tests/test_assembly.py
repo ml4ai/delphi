@@ -13,9 +13,9 @@ gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
 
 
 def test_make_edge():
-    assert make_edge(STS, ("conflict", "food_security")) == (
-        "conflict",
-        "food_security",
+    assert make_edge(STS, (conflict_string, food_security_string)) == (
+        conflict_string,
+        food_security_string,
         {"InfluenceStatements": [STS[0]]},
     )
 
@@ -31,11 +31,11 @@ def test_deltas():
 
 
 def test_nameTuple():
-    assert nameTuple(s1) == ("conflict", "food_security")
+    assert nameTuple(s1) == (conflict_string, food_security_string)
 
 
 def test_top_grounding():
-    assert top_grounding(conflict) == "conflict"
+    assert top_grounding(conflict) == conflict_string
 
 
 def test_top_grounding_score():
@@ -43,20 +43,13 @@ def test_top_grounding_score():
 
 
 def test_scope():
-    assert STS[0].subj.name == "conflict"
+    assert STS[0].subj.name == conflict_string
 
 
 def test_get_concepts():
     assert get_concepts(STS) == set(
-        ["conflict", "food_security", "precipitation", "flooding"]
+        [conflict_string, food_security_string, "precipitation", "flooding"]
     )
-
-
-def test_process_concept_name():
-    assert process_concept_name("food_security") == "food security"
-
-
-# Testing preassembly functions
 
 
 def test_is_simulable():
@@ -77,26 +70,27 @@ def test_is_well_grounded():
 
 
 def test_is_grounded_to_name():
-    assert is_grounded_to_name(food_security, "food_security")
+    assert is_grounded_to_name(food_security, food_security_string)
 
 
 def test_contains_concept():
-    assert contains_concept(s1, "conflict")
+    assert contains_concept(s1, conflict_string)
 
 
 def test_contains_relevant_concept():
-    relevant_concepts = ["food_security"]
+    relevant_concepts = [food_security_string]
     assert contains_relevant_concept(s1, relevant_concepts)
     assert not contains_relevant_concept(s3, relevant_concepts)
 
 
-faostat_data = get_data(south_sudan_data)
+indicator_data = get_data(south_sudan_data)
 
 
+@pytest.mark.skip
 def test_get_indicator_data():
     indicator = Indicator(
         "Political stability and absence of violence/terrorism (index), Value",
-        "FAO/WDI",
+        "WB",
     )
     t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t, faostat_data)[0] == -1.2
+    assert get_indicator_value(indicator, t, indicator_data)[0] == -1.2

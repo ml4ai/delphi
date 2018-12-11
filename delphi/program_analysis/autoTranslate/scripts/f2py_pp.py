@@ -19,25 +19,26 @@ Author:
 """
 
 import sys
+from typing import List
 from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
 
-def process(infile: str, outfile: str) -> None:
+
+def process(lines: List[str]) -> str:
     """ Preprocess a Fortran source file.
 
     Args:
-        infile: The input Fortran file.
-        outfile: The output file to write the preprocessed source code to.
+        inputLines The input Fortran file.
 
     Returns:
-        None
+        Preprocessed lines of Fortran.
     """
-    with open(infile, mode="r", encoding="latin-1") as f:
-        # remove lines that are entirely comments
-        lines = [line for line in f if not line_is_comment(line)]
 
-        # remove partial-line comments
-        lines = [rm_trailing_comment(line) for line in lines]
-
+    # remove lines that are entirely comments and partial-line comments
+    lines = [
+        rm_trailing_comment(line)
+        for line in lines
+        if not line_is_comment(line)
+    ]
 
     # merge continuation lines
     chg = True
@@ -55,9 +56,7 @@ def process(infile: str, outfile: str) -> None:
                 lines.pop(i)
                 chg = True
             i += 1
-
-    with open(outfile, "w") as f:
-        f.write("".join(lines))
+    return "".join(lines)
 
 
 def rm_trailing_comment(line: str) -> str:
@@ -105,4 +104,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     infile, outfile = sys.argv[1], sys.argv[2]
-    process(infile, outfile)
+    with open(infile, mode="r", encoding="latin-1") as f:
+        inputLines = f.readlines()
+
+    outputCode = process(inputLines)
+
+    with open(outfile, "w") as f:
+        f.write(outputCode)
