@@ -154,7 +154,6 @@ def fuseICMs():
     """ fuse two ICMs"""
     return "", 415
 
-
 @bp.route("/icm/<string:uuid>/sparql", methods=["POST"])
 def query(uuid: str):
     """ Query the ICM using SPARQL"""
@@ -166,7 +165,6 @@ celery = make_celery(create_test_app())
 
 @celery.task()
 def background_task(G, d, data, experiment_id):
-    #print("line152: background_task being called!")
     result = ForwardProjectionResult.query.filter_by(id=experiment_id).first()
     for i in range(data["projection"]["numSteps"]):
         if data["projection"]["stepSize"] == "MONTH":
@@ -199,8 +197,6 @@ def background_task(G, d, data, experiment_id):
             )
     db.session.add(result)
     db.session.commit()
-    #print("line178: background_task before returns!")
-    #return True
 
 
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])

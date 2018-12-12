@@ -1,0 +1,4 @@
+conflict,1.0
+∂(conflict)/∂t,0.0
+food_security,1.0
+∂(food_security)/∂t,0.0
