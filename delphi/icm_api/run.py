@@ -2,7 +2,7 @@
 from delphi.icm_api import create_app
 import subprocess
 
-def switchConfig(whetherUsedForTest: boolean):
+def switchConfig(whetherUsedForTest):
    '''Switch the app config from test use to normal use, or vice versa'''
     
    with open('./api.py', 'r') as file:
