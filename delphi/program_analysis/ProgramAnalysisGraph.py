@@ -11,9 +11,9 @@ from inspect import signature
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.loop_index, = [
-            n[0] for n in self.nodes(data=True) if n[1].get("is_index")
-        ]
+        # self.loop_index, = [
+            # n[0] for n in self.nodes(data=True) if n[1].get("is_index")
+        # ]
 
     def add_action_node(self, A: AGraph, lambdas, n):
         """ Add an action node to the CAG. """
@@ -22,7 +22,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         # Only allow LoopVariableNodes in the DBN
         if output.attr["node_type"] == "LoopVariableNode":
             oname = output.attr["cag_label"]
-            onode = G.nodes[oname]
+            onode = self.nodes[oname]
 
             # Check if it is an initialization function
             if len(A.predecessors(n)) == 0:
@@ -48,7 +48,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
             if n.attr["label"] == "__assign__":
                 for i in A.predecessors(n):
                     iname = i.attr["cag_label"]
-                    G.add_edge(iname, oname)
+                    self.add_edge(iname, oname)
 
     def add_variable_node(self, n):
         """ Add a variable node to the CAG. """
@@ -80,17 +80,17 @@ class ProgramAnalysisGraph(nx.DiGraph):
     @classmethod
     def from_agraph(cls, A: AGraph, lambdas):
         """ Construct a ProgramAnalysisGraph from an AGraph """
-        G = nx.DiGraph()
+        self = cls(nx.DiGraph())
 
         for n in A.nodes():
             if n.attr["node_type"] == "LoopVariableNode":
-                add_variable_node(G, n)
+                self.add_variable_node(n)
 
         for n in A.nodes():
             if n.attr["node_type"] == "ActionNode":
-                add_action_node(A, G, lambdas, n)
+                self.add_action_node(A, lambdas, n)
 
-        for n in G.nodes(data=True):
+        for n in self.nodes(data=True):
             n_preds = len(n[1]["pred_fns"])
             if n_preds == 0:
                 del n[1]["pred_fns"]
@@ -109,14 +109,14 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
         isolated_nodes = [
             n
-            for n in G.nodes()
-            if len(list(G.predecessors(n))) == len(list(G.successors(n))) == 0
+            for n in self.nodes()
+            if len(list(self.predecessors(n))) == len(list(self.successors(n))) == 0
         ]
 
         for n in isolated_nodes:
-            G.remove_node(n)
+            self.remove_node(n)
 
-        return cls(G)
+        return self
 
     def _update_node(self, n: str):
         """ Update the value of node n, recursively visiting its ancestors. """
@@ -124,7 +124,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         if node.get("update_fn") is not None and not node["visited"]:
             node["visited"] = True
             for p in self.predecessors(n):
-                _update_node(self, p)
+                self._update_node(p)
             ivals = {i: self.nodes[i]["value"] for i in self.predecessors(n)}
             node["value"] = node["update_fn"](**ivals)
 
@@ -143,7 +143,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def update(self):
         for n in self.nodes():
-            _update_node(self, n)
+            self._update_node(n)
 
         for n in self.nodes(data=True):
             n[1]["visited"] = False

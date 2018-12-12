@@ -171,7 +171,6 @@ def background_task(G, d, data, experiment_id):
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
-        #update(G)
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(
@@ -195,6 +194,7 @@ def background_task(G, d, data, experiment_id):
                     },
                 }
             )
+        G.update()
     db.session.add(result)
     db.session.commit()
 
@@ -239,12 +239,10 @@ def createExperiment(uuid: str):
     db.session.commit()
 
     d = dateutil.parser.parse(data["projection"]["startTime"])
-    #print("line:221 Before calling baskground_tasks.")
 
     result = background_task.delay(G, d, data, experiment.id)
     result.wait()
 
-    #print(result)
     
     return jsonify(
         {

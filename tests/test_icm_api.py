@@ -192,7 +192,7 @@ def test_createExperiment(G, client):
     post_data = {
         "interventions": [
             {
-                "id": G.nodes["conflict"]["id"],
+                "id": G.nodes[conflict_string]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -200,7 +200,7 @@ def test_createExperiment(G, client):
                 },
             },
             {
-                "id": G.nodes["food_security"]["id"],
+                "id": G.nodes[food_security_string]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,

@@ -74,8 +74,12 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     )
 
     color_str = "#650021"
-    for n in G.nodes():
-        A.add_node(n, label=n.capitalize().replace("_", " "))
+    for n in G.nodes(data=True):
+        if kwargs.get("values"):
+            node_label = n[0].capitalize().replace("_", " ") + " ("+str(np.mean(n[1]["rv"].dataset))+")"
+        else:
+            node_label = n[0].capitalize().replace("_", " ")
+        A.add_node(n[0], label=node_label)
 
     for e in G.edges(data=True):
         reinforcement = np.mean(
@@ -89,10 +93,11 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         )
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
-        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
+        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement)))# + h[4:6]
         A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
     # Drawing indicator variables
+
 
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:

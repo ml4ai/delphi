@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Purpose:
     Read the Fortran source file specified and return subprogram
@@ -22,6 +20,19 @@ Example:
     'head', 'neck', and 'foot' to a list of comment strings.  If a
     particular subprogram does not have comments for any of these
     categories, the corresponding entries in the comment dictionary are [].
+
+    In addition to the subprogram-level comments mentioned above, the returned
+    dictionary also has entries for two "file-level" comments: 
+
+        -- any comment at the beginning of the file (before the first function)
+           can be accessed using the key "$file_head" (this comment is also
+           the head-comment for the first subprogram in the file); and
+        -- any comment at the end of the file (after the last function)
+           can be accessed using the key "$file_foot" (this comment is also
+           the foot-comment for the last subprogram in the file).
+
+    If either the file-head or the file-foot comment is missing, the 
+    corresponding entries in the comment dictionary are [].
 """
 
 import sys, re
@@ -51,6 +62,19 @@ DEBUG = False
 # each of the categories 'head', 'neck' 'foot' to a list of comment strings.
 # If a particular subprogram does not have comments for any of these categories,
 # that category is mapped to [] by the comment dictionary for that subprogram.
+#
+# In addition to the subprogram-level comments mentioned above, the comment
+# dictionary also has entries for two "file-level" comments: 
+#
+#    -- any comment at the beginning of the file (before the first function)
+#       can be accessed using the key "$file_head" (this comment is also
+#       the head-comment for the first subprogram in the file); and
+#    -- any comment at the end of the file (after the last function)
+#       can be accessed using the key "$file_foot" (this comment is also
+#       the foot-comment for the last subprogram in the file).
+#
+# If either the file-head or the file-foot comment is missing, the 
+# corresponding entries in the comment dictionary are [].
 
 
 def get_comments(src_file_name: str):
@@ -61,15 +85,23 @@ def get_comments(src_file_name: str):
     comments = OrderedDict()
     lineno = 1
 
+    comments["$file_head"] = []
+    comments["$file_foot"] = []
+
     with open(src_file_name, "r", encoding="latin-1") as f:
         for line in f:
             if line_is_comment(line) and collect_comments:
                 curr_comment.append(line)
             else:
-                f_start, f_name = line_starts_subpgm(line)
+                f_start, f_name_maybe = line_starts_subpgm(line)
                 if f_start:
+                    f_name = f_name_maybe
+
                     if DEBUG:
-                        print(f"<<< START: line {lineno}, fn = {f_name}")
+                        print(f"<<< START: line {lineno}, fn = {f_name}; prev_fn = {str(prev_fn)}")
+
+                    if curr_fn == None:
+                        comments["$file_head"] = curr_comment
 
                     if prev_fn != None:
                         comments[prev_fn]["foot"] = curr_comment
@@ -87,6 +119,7 @@ def get_comments(src_file_name: str):
                     curr_comment = []
                     collect_comments = True
                 elif line_is_continuation(line):
+                    lineno += 1
                     continue
                 else:
                     if in_neck:
@@ -100,6 +133,7 @@ def get_comments(src_file_name: str):
     # comment of curr_fn
     if curr_comment != []:
         comments[curr_fn]["foot"] = curr_comment
+        comments["$file_foot"] = curr_comment
     return comments
 
 
@@ -110,15 +144,20 @@ def init_comment_map(head_cmt, neck_cmt, foot_cmt):
 def print_comments(comments):
 
     for fn in comments:
-        print(fn)
-        print(f"Function: {fn}")
         fn_comment = comments[fn]
 
-        for ccat in ["head", "neck", "foot"]:
-            print(f"  {ccat}:")
-            for line in fn_comment[ccat]:
+        if fn == "$file_head" or fn == "$file_foot":    # file-level comments
+            print(fn+":")
+            for line in fn_comment:
                 print(f"    {line.rstrip()}")
             print("")
+        else:                                           # subprogram comments
+            print(f"Function: {fn}")
+            for ccat in ["head", "neck", "foot"]:
+                print(f"  {ccat}:")
+                for line in fn_comment[ccat]:
+                    print(f"    {line.rstrip()}")
+                print("")
 
 
 if __name__ == "__main__":

@@ -166,9 +166,9 @@ def getVarType(annNode):
         if dType == "int":
             return "integer"
         else:
-            sys.stderr.write("Unsupported type\n")
-    except:
-        sys.stderr.write("Unsupported type\n")
+            sys.stderr.write("Unsupported type (only float and int supported as of now).\n")
+    except AttributeError:
+        sys.stderr.write("Unsupported type (annNode is None).\n")
     sys.exit(1)
 
 

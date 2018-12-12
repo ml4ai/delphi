@@ -1,5 +1,12 @@
+dev:
+	pip install pipenv
+	pipenv install -d --skip-lock
+
 docs:
 	cd docs; make html
+
+requirements:
+	pipenv run pipenv_to_requirements
 
 test:
 	pipenv run pytest \
@@ -12,7 +19,7 @@ test:
 
 pypi_upload:
 	rm -rf dist
-	python setup.py sdist bdist_wheel
+	pipenv run python setup.py sdist bdist_wheel
 	twine upload dist/*
 
 clean:
