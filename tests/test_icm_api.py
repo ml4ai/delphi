@@ -140,22 +140,6 @@ def app(icm_metadata, delphi_model, causal_primitives, evidences):
     app = create_app()
     app.testing = True
 
-    #with open('../delphi/icm_api/api.py', 'r') as file:
-        #data = file.readlines()
-    
-    #data[155] = 'celery = make_celery(create_test_app())\n'
-    
-    #with open('../delphi/icm_api/api.py', 'w') as file:
-        #file.writelines(data)
-    
-    #print ("Modified ../delphi/icm_api/api.py")
-    
-    #subprocess.call("for pid in $(ps -ef | grep celery | awk '{print $2}'); do kill -9 $pid; done", shell=True)
-    
-    #print ("Run worker in background.")
-    #subprocess.Popen(["pipenv run celery -A  delphi.icm_api.api.celery worker"], shell=True)
-
-    # Uncomment this line for normal testing
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
     app.config["CELERY_RESULT_BACKEND"] = "db+sqlite:////tmp/test.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
@@ -174,15 +158,9 @@ def app(icm_metadata, delphi_model, causal_primitives, evidences):
         db.drop_all()
     
     subprocess.call("for pid in $(ps -ef | grep celery | awk '{print $2}'); do kill -9 $pid; done", shell=True)
-    #with open('../delphi/icm_api/api.py', 'r') as file:
-        #data = file.readlines()
     
-    #data[156] = 'celery = make_celery(create_app())\n'
     
-    #with open('../delphi/icm_api/api.py', 'w') as file:
-        #file.writelines(data)
     
-    #print ("Restored ../delphi/icm_api/api.py")
     
 
 
