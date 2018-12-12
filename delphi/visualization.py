@@ -37,7 +37,7 @@ def _(G: AnalysisGraph, *args, **kwargs):
 
 
 @visualize.register(ProgramAnalysisGraph)
-def _(G: ProgramAnalysisGraph, **kwargs):
+def _(G: ProgramAnalysisGraph, save_to_dot="", **kwargs):
     """ Exports AnalysisGraph to pygraphviz AGraph
 
     Args:
@@ -73,6 +73,10 @@ def _(G: ProgramAnalysisGraph, **kwargs):
             n.attr["label"] = n.attr["label"] + f": {value:.4}"
 
     # Drawing indicator variables
+
+    if save_to_dot != "":
+        A.draw("{}.png".format(save_to_dot), format="png", prog=kwargs.get("layout", "dot"))
+        # A.write("{}.dot".format(save_to_dot))
 
     return Image(
         A.draw(format="png", prog=kwargs.get("layout", "dot")), retina=True

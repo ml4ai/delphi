@@ -58,7 +58,9 @@ class Scope(metaclass=ABCMeta):
             scope.remove_non_scope_children(scope_names)
 
         # Build the nested tree of scopes using recursion
-        root = scopes[data["start"]]
+        non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
+        root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
+        root = scopes[root_func_name]
         root.build_scope_tree(scopes)
         root.setup_from_json()
         return root

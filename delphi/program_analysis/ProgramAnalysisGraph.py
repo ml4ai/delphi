@@ -147,3 +147,6 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
         for n in self.nodes(data=True):
             n[1]["visited"] = False
+
+    def call(self, inputs):
+        pass
