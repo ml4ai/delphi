@@ -1,13 +1,6 @@
 import os
-from pygraphviz import AGraph
-from typing import Dict
-import json
-
-import delphi.program_analysis.scopes as scp
 from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.visualization import visualize
-
-from IPython.display import display, Image
 
 def printScopeTree(scope):
     for node in scope.nodes:
@@ -18,7 +11,7 @@ def printScopeTree(scope):
 
 
 if __name__ == "__main__":
-    fortran_file = "crop_yield.f"
+    fortran_file = "PETPT.for"
     G = ProgramAnalysisGraph.from_fortran_file(fortran_file)
     G.initialize()
     visualize(G, save=True)
