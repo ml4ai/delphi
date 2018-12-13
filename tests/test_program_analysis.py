@@ -87,5 +87,5 @@ def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     A = Scope.from_dict(crop_yield_grfn_dict).to_agraph()
     G = ProgramAnalysisGraph.from_agraph(A, crop_yield_lambdas)
     G.initialize()
-    visualize(G, show_values = True)
+    visualize(G)
     os.remove("crop_yield_lambdas.py")
