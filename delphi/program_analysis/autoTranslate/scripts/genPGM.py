@@ -780,6 +780,7 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
+        f.write("import math\n")
         state = PGMState(f)
         pgm = genPgm(asts, state, {})[0]
         if pgm.get("start"):
