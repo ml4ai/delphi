@@ -19,9 +19,6 @@ from pathlib import Path
 from importlib import import_module
 from typing import Dict
 
-os.environ["CLASSPATH"] = (
-    os.getcwd() + "/delphi/program_analysis/autoTranslate/bin/*"
-)
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     stem = original_fortran_file.stem
