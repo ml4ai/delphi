@@ -59,13 +59,12 @@ class Scope(metaclass=ABCMeta):
 
         # Build the nested tree of scopes using recursion
 
-        # AP version
-        root = scopes[data["start"]]
-
-        # PH version
-        # non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
-        # root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
-        # root = scopes[root_func_name]
+        if data["start"] != "":
+            root = scopes[data["start"]]
+        else:
+            non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
+            root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
+            root = scopes[root_func_name]
 
         root.build_scope_tree(scopes)
         root.setup_from_json()
