@@ -26,16 +26,13 @@ import ast
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.loop_index, = [
-            # n[0] for n in self.nodes(data=True) if n[1].get("is_index")
-        # ]
 
     def add_action_node(self, A: AGraph, lambdas, n):
         """ Add an action node to the CAG. """
         output, = A.successors(n)
 
-        # Only allow LoopVariableNodes in the DBN
-        if output.attr["node_type"] == "LoopVariableNode":
+        # Only allow FuncVariableNodes in the DBN
+        if output.attr["node_type"] == "FuncVariableNode":
             oname = output.attr["cag_label"]
             onode = self.nodes[oname]
 
@@ -98,7 +95,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         self = cls(nx.DiGraph())
 
         for n in A.nodes():
-            if n.attr["node_type"] == "LoopVariableNode":
+            if n.attr["node_type"] == "FuncVariableNode":
                 self.add_variable_node(n)
 
         for n in A.nodes():
@@ -134,7 +131,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         return self
 
     @classmethod
-    def from_fortran_file(self, fortran_file):
+    def from_fortran_file(cls, fortran_file):
         stem = Path(fortran_file).stem
         preprocessed_fortran_file = stem+"_preprocessed.f"
         lambdas_filename = stem + "_lambdas.py"
@@ -171,8 +168,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
         )
 
         A = Scope.from_dict(pgm_dict).to_agraph()
-        G = self.from_agraph(A, importlib.__import__(stem+"_lambdas"))
-        return self
+        lambdas = importlib.__import__(stem+"_lambdas")
+        return cls.from_agraph(A, lambdas)
 
     def _update_node(self, n: str):
         """ Update the value of node n, recursively visiting its ancestors. """
