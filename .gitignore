@@ -125,14 +125,8 @@ variables.csv
 notebooks/season.dat
 
 # Data to ignore
-data/*.zip
-data/WDI
-data/FAOSTAT
-data/SS_x3085y0535_nasa.weather
-data/UN_stmt_jsons
-data/curated_cag.pkl
-data/eval_stmts_grounding_filtered.pkl
-data/Data_Extract_From_World_Development_Indicators
+*_pickle
+*.pkl
 
 # Automatically generated dotfiles, pngs, and pdfs (do git add -f to override)
 
