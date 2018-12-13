@@ -110,8 +110,7 @@ def genFn(fnFile, node, fnName, returnVal, inputs):
     fnFile.write(f"def {fnName}({', '.join(inputs)}):\n    ")
     code = genCode(node, PrintState("\n    "))
     if returnVal:
-        fnFile.write(code)
-        fnFile.write(f"\n    return {returnVal}")
+        fnFile.write(f"return {code}")
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
@@ -780,7 +779,7 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
-        f.write("import math\n")
+        f.write("import math\n\n")
         state = PGMState(f)
         pgm = genPgm(asts, state, {})[0]
         if pgm.get("start"):

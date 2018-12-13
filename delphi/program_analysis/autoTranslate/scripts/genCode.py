@@ -164,7 +164,7 @@ def genCode(node, state):
             sys.exit(1)
         # typical:
         # codeStr = '{0}{1}'.format(genCode(node.value, state), genCode(node.slice, state))
-        codeStr = "{0}".format(genCode(node.value, state))
+        codeStr = genCode(node.value, state)
 
     # Name: ('id', 'ctx')
     elif isinstance(node, ast.Name):
@@ -178,10 +178,7 @@ def genCode(node, state):
 
     # Assign: ('targets', 'value')
     elif isinstance(node, ast.Assign):
-        for target in node.targets:
-            codeStr = "{0} = ".format(genCode(target, state))
-
-        codeStr += "{0}".format(genCode(node.value, state))
+        codeStr += genCode(node.value, state)
 
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
