@@ -82,9 +82,6 @@ def test_petpt_grfn_generation(petpt_grfn_dict):
     assert sorted(petpt_grfn_dict) == sorted(json_dict)
 
 
-@pytest.mark.skip(
-    reason="Program analysis does not work consistently with crop_yield.f and PETPT.for"
-)
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas
 
