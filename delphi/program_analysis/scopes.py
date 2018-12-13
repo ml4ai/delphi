@@ -63,6 +63,9 @@ class Scope(metaclass=ABCMeta):
             root = scopes[data["start"]]
         else:
             non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
+            # TODO Right now, only the first subroutine is taken as the root -
+            # in the future, we will need to merge scope trees from multiple
+            # subroutines.
             root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
             root = scopes[root_func_name]
 
