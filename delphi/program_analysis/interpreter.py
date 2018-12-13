@@ -6,7 +6,6 @@ import json
 import delphi.program_analysis.scopes as scp
 from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.visualization import visualize
-import subprocess as sp
 
 from IPython.display import display, Image
 
@@ -19,7 +18,7 @@ def printScopeTree(scope):
 
 
 if __name__ == "__main__":
-    fortran_file = "data/PETPT.for"
+    fortran_file = "PETPT.for"
     G = ProgramAnalysisGraph.from_fortran_file(fortran_file)
     G.initialize()
-    visualize(G, save=True, filename = "PETPT_graph.pdf")
+    visualize(G, save=True)
