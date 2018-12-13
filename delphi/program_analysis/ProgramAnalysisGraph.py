@@ -1,3 +1,4 @@
+import os
 import networkx as nx
 from typing import Dict
 import json
@@ -5,7 +6,21 @@ from pprint import pprint
 from pygraphviz import AGraph
 from IPython.core.display import Image
 from functools import partial
+import subprocess as sp
 from inspect import signature
+import importlib
+from pathlib import Path
+from delphi.program_analysis.autoTranslate.scripts import (
+    f2py_pp,
+    translate,
+    get_comments,
+    pyTranslate,
+    genPGM,
+)
+from delphi.program_analysis.scopes import Scope
+import xml.etree.ElementTree as ET
+import subprocess as sp
+import ast
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
@@ -116,6 +131,47 @@ class ProgramAnalysisGraph(nx.DiGraph):
         for n in isolated_nodes:
             self.remove_node(n)
 
+        return self
+
+    @classmethod
+    def from_fortran_file(self, fortran_file):
+        stem = Path(fortran_file).stem
+        preprocessed_fortran_file = stem+"_preprocessed.f"
+        lambdas_filename = stem + "_lambdas.py"
+        json_filename = stem + ".json"
+
+        with open(fortran_file, "r") as f:
+            inputLines = f.readlines()
+
+        with open(preprocessed_fortran_file, "w") as f:
+            f.write(f2py_pp.process(inputLines))
+
+        xml_string = sp.run(
+            [
+                "java",
+                "fortran.ofp.FrontEnd",
+                "--class",
+                "fortran.ofp.XMLPrinter",
+                "--verbosity",
+                "0",
+                preprocessed_fortran_file,
+            ],
+            stdout=sp.PIPE,
+        ).stdout
+
+        trees = [ET.fromstring(xml_string)]
+        comments = get_comments.get_comments(preprocessed_fortran_file)
+        os.remove(preprocessed_fortran_file)
+        xml_to_json_translator=translate.XMLToJSONTranslator()
+        outputDict = xml_to_json_translator.analyze(trees, comments)
+        pySrc = pyTranslate.create_python_string(outputDict)
+        asts = [ast.parse(pySrc)]
+        pgm_dict = genPGM.create_pgm_dict(
+            lambdas_filename, asts, json_filename
+        )
+
+        A = Scope.from_dict(pgm_dict).to_agraph()
+        G = self.from_agraph(A, importlib.__import__(stem+"_lambdas"))
         return self
 
     def _update_node(self, n: str):
