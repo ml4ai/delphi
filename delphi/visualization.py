@@ -37,8 +37,14 @@ def _(G: AnalysisGraph, *args, **kwargs):
 
 
 @visualize.register(ProgramAnalysisGraph)
-def _(G: ProgramAnalysisGraph, **kwargs):
-    """ Exports AnalysisGraph to pygraphviz AGraph
+def _(
+    G: ProgramAnalysisGraph,
+    show_values=True,
+    save=False,
+    filename="program_analysis_graph.pdf",
+    **kwargs,
+):
+    """ Visualizes ProgramAnalysisGraph in Jupyter notebook cell.
 
     Args:
         args
@@ -67,12 +73,13 @@ def _(G: ProgramAnalysisGraph, **kwargs):
     for e in G.edges(data=True):
         A.add_edge(e[0], e[1], color=color_str, arrowsize=0.5)
 
-    if kwargs.pop("show_values"):
+    if show_values:
         for n in A.nodes():
             value = str(G.nodes[n]["value"])
             n.attr["label"] = n.attr["label"] + f": {value:.4}"
 
-    # Drawing indicator variables
+    if save:
+        A.draw(filename, prog=kwargs.get("layout", "dot"))
 
     return Image(
         A.draw(format="png", prog=kwargs.get("layout", "dot")), retina=True

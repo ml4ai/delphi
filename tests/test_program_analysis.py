@@ -8,19 +8,26 @@ from delphi.program_analysis.autoTranslate.scripts import (
     pyTranslate,
     genPGM,
 )
+from delphi.program_analysis.scopes import Scope
+from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 import xml.etree.ElementTree as ET
 import subprocess as sp
 import ast
 import pytest
+from delphi.visualization import visualize
+from pathlib import Path
+from importlib import import_module
+from typing import Dict
 
 os.environ["CLASSPATH"] = (
     os.getcwd() + "/delphi/program_analysis/autoTranslate/bin/*"
 )
 
-@pytest.fixture
-def pgmDict():
-    original_fortran_file = "tests/data/crop_yield.f"
-    preprocessed_fortran_file = "crop_yield_preprocessed.f"
+def make_grfn_dict(original_fortran_file) -> Dict:
+    stem = original_fortran_file.stem
+    preprocessed_fortran_file = stem+"_preprocessed.f"
+    lambdas_filename = stem+"_lambdas.py"
+    json_filename = stem + ".json"
 
     with open(original_fortran_file, "r") as f:
         inputLines = f.readlines()
@@ -36,301 +43,49 @@ def pgmDict():
             "fortran.ofp.XMLPrinter",
             "--verbosity",
             "0",
-            "crop_yield_preprocessed.f",
+            preprocessed_fortran_file,
         ],
         stdout=sp.PIPE,
     ).stdout
 
     trees = [ET.fromstring(xml_string)]
     comments = get_comments.get_comments(preprocessed_fortran_file)
+    os.remove(preprocessed_fortran_file)
     xml_to_json_translator=translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_string(outputDict)
     asts = [ast.parse(pySrc)]
     pgm_dict = genPGM.create_pgm_dict(
-        "crop_yield_lambdas.py", asts, "crop_yield.json"
+        lambdas_filename, asts, json_filename
     )
     return pgm_dict
 
-def test_ProgramAnalysisGraph_init(pgmDict):
-    assert pgmDict == CROP_YIELD_JSON_DICT
+@pytest.fixture
+def crop_yield_grfn_dict():
+    yield make_grfn_dict(Path("tests/data/crop_yield.f"))
 
+@pytest.fixture
+def petpt_grfn_dict():
+    yield make_grfn_dict(Path("tests/data/PETPT.for"))
+    os.remove("PETPT_lambdas.py")
 
-CROP_YIELD_JSON_DICT = {
-    "functions": [
-        {
-            "name": "UPDATE_EST__assign__TOTAL_RAIN_0",
-            "type": "assign",
-            "target": "TOTAL_RAIN",
-            "sources": [
-                {"name": "TOTAL_RAIN", "type": "variable"},
-                {"name": "RAIN", "type": "variable"},
-            ],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": "UPDATE_EST__lambda__TOTAL_RAIN_0",
-                    "reference": 5,
-                }
-            ],
-        },
-        {
-            "name": "UPDATE_EST__condition__IF_1_0",
-            "type": "assign",
-            "target": "IF_1",
-            "sources": [{"name": "TOTAL_RAIN", "type": "variable"}],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": "UPDATE_EST__lambda__IF_1_0",
-                    "reference": 6,
-                }
-            ],
-        },
-        {
-            "name": "UPDATE_EST__assign__YIELD_EST_0",
-            "type": "assign",
-            "target": "YIELD_EST",
-            "sources": [{"name": "TOTAL_RAIN", "type": "variable"}],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": "UPDATE_EST__lambda__YIELD_EST_0",
-                    "reference": 7,
-                }
-            ],
-        },
-        {
-            "name": "UPDATE_EST__assign__YIELD_EST_1",
-            "type": "assign",
-            "target": "YIELD_EST",
-            "sources": [{"name": "TOTAL_RAIN", "type": "variable"}],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": "UPDATE_EST__lambda__YIELD_EST_1",
-                    "reference": 9,
-                }
-            ],
-        },
-        {
-            "name": "UPDATE_EST__decision__YIELD_EST_0",
-            "type": "assign",
-            "target": "YIELD_EST",
-            "sources": [
-                {"name": "IF_1_0", "type": "variable"},
-                {"name": "YIELD_EST_2", "type": "variable"},
-                {"name": "YIELD_EST_1", "type": "variable"},
-            ],
-        },
-        {
-            "name": "UPDATE_EST",
-            "type": "container",
-            "input": [
-                {"name": "RAIN", "domain": "real"},
-                {"name": "TOTAL_RAIN", "domain": "real"},
-                {"name": "YIELD_EST", "domain": "real"},
-            ],
-            "variables": [
-                {"name": "TOTAL_RAIN", "domain": "real"},
-                {"name": "RAIN", "domain": "real"},
-                {"name": "IF_1", "domain": "boolean"},
-                {"name": "YIELD_EST", "domain": "real"},
-            ],
-            "body": [
-                {
-                    "name": "UPDATE_EST__assign__TOTAL_RAIN_0",
-                    "output": {"variable": "TOTAL_RAIN", "index": 1},
-                    "input": [
-                        {"variable": "TOTAL_RAIN", "index": 0},
-                        {"variable": "RAIN", "index": 0},
-                    ],
-                },
-                {
-                    "name": "UPDATE_EST__condition__IF_1_0",
-                    "output": {"variable": "IF_1", "index": 0},
-                    "input": [{"variable": "TOTAL_RAIN", "index": 1}],
-                },
-                {
-                    "name": "UPDATE_EST__assign__YIELD_EST_0",
-                    "output": {"variable": "YIELD_EST", "index": 1},
-                    "input": [{"variable": "TOTAL_RAIN", "index": 1}],
-                },
-                {
-                    "name": "UPDATE_EST__assign__YIELD_EST_1",
-                    "output": {"variable": "YIELD_EST", "index": 2},
-                    "input": [{"variable": "TOTAL_RAIN", "index": 1}],
-                },
-                {
-                    "name": "UPDATE_EST__decision__YIELD_EST_0",
-                    "output": {"variable": "YIELD_EST", "index": 3},
-                    "input": [
-                        {"variable": "IF_1", "index": 0},
-                        {"variable": "YIELD_EST", "index": 2},
-                        {"variable": "YIELD_EST", "index": 1},
-                    ],
-                },
-            ],
-        },
-        {
-            "name": "CROP_YIELD__assign__MAX_RAIN_0",
-            "type": "assign",
-            "target": "MAX_RAIN",
-            "sources": [],
-            "body": {"type": "literal", "dtype": "real", "value": "4.0"},
-        },
-        {
-            "name": "CROP_YIELD__assign__CONSISTENCY_0",
-            "type": "assign",
-            "target": "CONSISTENCY",
-            "sources": [],
-            "body": {"type": "literal", "dtype": "real", "value": "64.0"},
-        },
-        {
-            "name": "CROP_YIELD__assign__ABSORPTION_0",
-            "type": "assign",
-            "target": "ABSORPTION",
-            "sources": [],
-            "body": {"type": "literal", "dtype": "real", "value": "0.6"},
-        },
-        {
-            "name": "CROP_YIELD__assign__YIELD_EST_0",
-            "type": "assign",
-            "target": "YIELD_EST",
-            "sources": [],
-            "body": {"type": "literal", "dtype": "integer", "value": "0"},
-        },
-        {
-            "name": "CROP_YIELD__assign__TOTAL_RAIN_0",
-            "type": "assign",
-            "target": "TOTAL_RAIN",
-            "sources": [],
-            "body": {"type": "literal", "dtype": "integer", "value": "0"},
-        },
-        {
-            "name": "CROP_YIELD__assign__RAIN_0",
-            "type": "assign",
-            "target": "RAIN",
-            "sources": [
-                {"name": "DAY", "type": "variable"},
-                {"name": "CONSISTENCY", "type": "variable"},
-                {"name": "MAX_RAIN", "type": "variable"},
-                {"name": "ABSORPTION", "type": "variable"},
-            ],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": "CROP_YIELD__lambda__RAIN_0",
-                    "reference": 25,
-                }
-            ],
-        },
-        {
-            "name": "CROP_YIELD__loop_plate__DAY_0",
-            "type": "loop_plate",
-            "input": [
-                "CONSISTENCY",
-                "MAX_RAIN",
-                "ABSORPTION",
-                "RAIN",
-                "TOTAL_RAIN",
-                "YIELD_EST",
-            ],
-            "index_variable": "DAY",
-            "index_iteration_range": {
-                "start": {"type": "literal", "dtype": "integer", "value": 1},
-                "end": {"value": 32, "dtype": "integer", "type": "literal"},
-            },
-            "body": [
-                {
-                    "name": "CROP_YIELD__assign__RAIN_0",
-                    "output": {"variable": "RAIN", "index": 0},
-                    "input": [
-                        {"variable": "DAY", "index": -1},
-                        {"variable": "CONSISTENCY", "index": -1},
-                        {"variable": "MAX_RAIN", "index": -1},
-                        {"variable": "ABSORPTION", "index": -1},
-                    ],
-                },
-                {
-                    "function": "UPDATE_EST",
-                    "output": {},
-                    "input": [
-                        {"variable": "RAIN", "index": 0},
-                        {"variable": "TOTAL_RAIN", "index": -1},
-                        {"variable": "YIELD_EST", "index": -1},
-                    ],
-                },
-                {
-                    "function": "print",
-                    "output": {},
-                    "input": [
-                        {"variable": "DAY", "index": -1},
-                        {"variable": "YIELD_EST", "index": -1},
-                    ],
-                },
-            ],
-        },
-        {
-            "name": "CROP_YIELD",
-            "type": "container",
-            "input": [],
-            "variables": [
-                {"name": "DAY", "domain": "integer"},
-                {"name": "RAIN", "domain": "real"},
-                {"name": "YIELD_EST", "domain": "real"},
-                {"name": "TOTAL_RAIN", "domain": "real"},
-                {"name": "MAX_RAIN", "domain": "real"},
-                {"name": "CONSISTENCY", "domain": "real"},
-                {"name": "ABSORPTION", "domain": "real"},
-            ],
-            "body": [
-                {
-                    "name": "CROP_YIELD__assign__MAX_RAIN_0",
-                    "output": {"variable": "MAX_RAIN", "index": 2},
-                    "input": [],
-                },
-                {
-                    "name": "CROP_YIELD__assign__CONSISTENCY_0",
-                    "output": {"variable": "CONSISTENCY", "index": 2},
-                    "input": [],
-                },
-                {
-                    "name": "CROP_YIELD__assign__ABSORPTION_0",
-                    "output": {"variable": "ABSORPTION", "index": 2},
-                    "input": [],
-                },
-                {
-                    "name": "CROP_YIELD__assign__YIELD_EST_0",
-                    "output": {"variable": "YIELD_EST", "index": 2},
-                    "input": [],
-                },
-                {
-                    "name": "CROP_YIELD__assign__TOTAL_RAIN_0",
-                    "output": {"variable": "TOTAL_RAIN", "index": 2},
-                    "input": [],
-                },
-                {
-                    "name": "CROP_YIELD__loop_plate__DAY_0",
-                    "inputs": [
-                        "CONSISTENCY",
-                        "MAX_RAIN",
-                        "ABSORPTION",
-                        "RAIN",
-                        "TOTAL_RAIN",
-                        "YIELD_EST",
-                    ],
-                    "output": {},
-                },
-                {
-                    "function": "print",
-                    "output": {},
-                    "input": [{"variable": "YIELD_EST", "index": 2}],
-                },
-            ],
-        },
-    ],
-    "start": "CROP_YIELD",
-    "name": "crop_yield.json",
-    "dateCreated": str(date.today()),
-}
+def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
+    with open("tests/data/crop_yield_grfn.json", "r") as f:
+        json_dict = json.load(f)
+        json_dict["dateCreated"] = str(date.today())
+
+    assert sorted(crop_yield_grfn_dict) == sorted(json_dict)
+
+def test_petpt_grfn_generation(petpt_grfn_dict):
+    with open("tests/data/PETPT_grfn.json", "r") as f:
+        json_dict = json.load(f)
+        json_dict["dateCreated"] = str(date.today())
+    assert sorted(petpt_grfn_dict) == sorted(json_dict)
+
+def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
+    import crop_yield_lambdas
+    A = Scope.from_dict(crop_yield_grfn_dict).to_agraph()
+    G = ProgramAnalysisGraph.from_agraph(A, crop_yield_lambdas)
+    G.initialize()
+    visualize(G)
+    os.remove("crop_yield_lambdas.py")
