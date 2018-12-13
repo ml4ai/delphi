@@ -32,7 +32,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         output, = A.successors(n)
 
         # Only allow FuncVariableNodes in the DBN
-        if output.attr["node_type"] == "FuncVariableNode":
+        if output.attr["node_type"] == "LoopVariableNode":
             oname = output.attr["cag_label"]
             onode = self.nodes[oname]
 
@@ -95,7 +95,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         self = cls(nx.DiGraph())
 
         for n in A.nodes():
-            if n.attr["node_type"] == "FuncVariableNode":
+            if n.attr["node_type"] == "LoopVariableNode":
                 self.add_variable_node(n)
 
         for n in A.nodes():
