@@ -8,10 +8,13 @@ from delphi.program_analysis.autoTranslate.scripts import (
     pyTranslate,
     genPGM,
 )
+from delphi.program_analysis.scopes import Scope
+from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 import xml.etree.ElementTree as ET
 import subprocess as sp
 import ast
 import pytest
+from delphi.visualization import visualize
 
 os.environ["CLASSPATH"] = (
     os.getcwd() + "/delphi/program_analysis/autoTranslate/bin/*"
@@ -21,6 +24,8 @@ os.environ["CLASSPATH"] = (
 def pgmDict():
     original_fortran_file = "tests/data/crop_yield.f"
     preprocessed_fortran_file = "crop_yield_preprocessed.f"
+    lambdas_filename = "lambdas.py"
+    json_filename = "crop_yield.json"
 
     with open(original_fortran_file, "r") as f:
         inputLines = f.readlines()
@@ -36,26 +41,34 @@ def pgmDict():
             "fortran.ofp.XMLPrinter",
             "--verbosity",
             "0",
-            "crop_yield_preprocessed.f",
+            preprocessed_fortran_file,
         ],
         stdout=sp.PIPE,
     ).stdout
 
     trees = [ET.fromstring(xml_string)]
     comments = get_comments.get_comments(preprocessed_fortran_file)
-    os.remove("crop_yield_preprocessed.f")
+    os.remove(preprocessed_fortran_file)
     xml_to_json_translator=translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_string(outputDict)
     asts = [ast.parse(pySrc)]
     pgm_dict = genPGM.create_pgm_dict(
-        "crop_yield_lambdas.py", asts, "crop_yield.json"
+        lambdas_filename, asts, json_filename
     )
-    os.remove("crop_yield_lambdas.py")
-    return pgm_dict
+    yield pgm_dict
+    os.remove("lambdas.py")
 
-def test_ProgramAnalysisGraph_init(pgmDict):
+def test_grfn_generation(pgmDict):
     assert pgmDict == CROP_YIELD_JSON_DICT
+
+
+def test_programAnalysisGraph(pgmDict):
+    import lambdas
+    A = Scope.from_dict(pgmDict).to_agraph()
+    G = ProgramAnalysisGraph.from_agraph(A, lambdas)
+    G.initialize()
+    visualize(G, show_values = True, save=True)
 
 
 CROP_YIELD_JSON_DICT = {
