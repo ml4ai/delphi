@@ -43,6 +43,7 @@ def pgmDict():
 
     trees = [ET.fromstring(xml_string)]
     comments = get_comments.get_comments(preprocessed_fortran_file)
+    os.remove("crop_yield_preprocessed.f")
     xml_to_json_translator=translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_string(outputDict)
@@ -50,6 +51,7 @@ def pgmDict():
     pgm_dict = genPGM.create_pgm_dict(
         "crop_yield_lambdas.py", asts, "crop_yield.json"
     )
+    os.remove("crop_yield_lambdas.py")
     return pgm_dict
 
 def test_ProgramAnalysisGraph_init(pgmDict):
