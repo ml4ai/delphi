@@ -6,6 +6,11 @@ python:
 env:
   - DELPHI_DATA=$TRAVIS_BUILD_DIR/data
 
+addons:
+  apt:
+    packages:
+    - graphviz
+
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv

@@ -18,17 +18,17 @@ class PGMState:
     def __init__(
         self,
         lambdaFile: Optional[str],
-        lastDefs: Optional[Dict]=None,
-        nextDefs: Optional[Dict]=None,
-        lastDefDefault=None,
+        lastDefs: Optional[Dict]={},
+        nextDefs: Optional[Dict]={},
+        lastDefDefault=0,
         fnName=None,
-        varTypes: Optional[Dict]=None,
+        varTypes: Optional[Dict]={},
     ):
-        self.lastDefs = lastDefs if lastDefs != None else {}
-        self.nextDefs = nextDefs if nextDefs != None else {}
-        self.lastDefDefault = lastDefDefault if lastDefDefault != None else 0
+        self.lastDefs = lastDefs
+        self.nextDefs = nextDefs
+        self.lastDefDefault = lastDefDefault
         self.fnName = fnName
-        self.varTypes = varTypes if varTypes != None else {}
+        self.varTypes = varTypes
         self.lambdaFile = lambdaFile
 
     def copy(
@@ -75,7 +75,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
                     node.__class__.__name__,
                     "(",
                     ", ".join(
-                        ("%s=%s" % field for field in fields)
+                        (f"{field}={field}" for field in fields)
                         if annotate_fields
                         else (b for a, b in fields)
                     ),
