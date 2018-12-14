@@ -20,4 +20,4 @@ def PETPT(MSALB: List[float], SRAD: List[float], TMAX: List[float], TMIN: List[f
         if (TMAX[0] < 5.0):
             EO[0] = ((EEQ[0] * 0.01) * exp((0.18 * (TMAX[0] + 20.0))))
     EO[0] = max(EO[0], 0.0001)
-    return True
+    return EO[0]
