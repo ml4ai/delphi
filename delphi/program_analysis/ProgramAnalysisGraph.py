@@ -128,6 +128,17 @@ class ProgramAnalysisGraph(nx.DiGraph):
         for n in isolated_nodes:
             self.remove_node(n)
 
+        # Create lists of all input function and all input variables
+        self.input_variables = list()
+        self.input_functions = list()
+        for n in self.nodes():
+            if self.nodes[n].get("init_fn") is not None:
+                self.input_functions.append(n)
+
+            if self.nodes[n]["node_type"] in ("LoopVariableNode", "FuncVariableNode") \
+               and len(list(self.predecessors(n))) == 0:
+                self.input_variables.append(n)
+
         return self
 
     @classmethod
@@ -186,11 +197,11 @@ class ProgramAnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def initialize(self):
-        """ Initialize the value of nodes that don't have a predecessor in the
-        CAG."""
+        """ Initialize the value of input function nodes in the CAG."""
 
         for n in self.nodes():
-            if self.nodes[n].get("init_fn") is not None:
+            # if self.nodes[n].get("init_fn") is not None:
+            if n in self.input_functions:
                 self.nodes[n]["value"] = self.nodes[n]["init_fn"]()
         self.update()
 

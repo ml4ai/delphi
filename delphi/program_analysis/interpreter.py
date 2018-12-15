@@ -11,7 +11,8 @@ def printScopeTree(scope):
 
 
 if __name__ == "__main__":
-    fortran_file = "PETPT.for"
+    fortran_file = "../../tests/data/crop_yield.f"
     G = ProgramAnalysisGraph.from_fortran_file(fortran_file)
-    G.initialize()
-    visualize(G, save=True)
+    print(G.input_variables)
+    # G.initialize()
+    # visualize(G, save=True)
