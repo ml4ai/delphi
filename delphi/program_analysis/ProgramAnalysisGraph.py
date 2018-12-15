@@ -1,15 +1,17 @@
 import os
+import ast
+import json
+import importlib
 import networkx as nx
 from typing import Dict
-import json
+import subprocess as sp
+from pathlib import Path
+from inspect import signature
 from pprint import pprint
+from functools import partial
+import xml.etree.ElementTree as ET
 from pygraphviz import AGraph
 from IPython.core.display import Image
-from functools import partial
-import subprocess as sp
-from inspect import signature
-import importlib
-from pathlib import Path
 from delphi.program_analysis.autoTranslate.scripts import (
     f2py_pp,
     translate,
@@ -18,9 +20,6 @@ from delphi.program_analysis.autoTranslate.scripts import (
     genPGM,
 )
 from delphi.program_analysis.scopes import Scope
-import xml.etree.ElementTree as ET
-import subprocess as sp
-import ast
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
@@ -31,8 +30,11 @@ class ProgramAnalysisGraph(nx.DiGraph):
         """ Add an action node to the CAG. """
         output, = A.successors(n)
 
-        # Only allow FuncVariableNodes in the DBN
-        if output.attr["node_type"] in ("LoopVariableNode", "FuncVariableNode"):
+        # Only allow LoopVariable and FuncVariable nodes in the DBN
+        if output.attr["node_type"] in (
+            "LoopVariableNode",
+            "FuncVariableNode",
+        ):
             oname = output.attr["cag_label"]
             onode = self.nodes[oname]
 
@@ -122,7 +124,9 @@ class ProgramAnalysisGraph(nx.DiGraph):
         isolated_nodes = [
             n
             for n in self.nodes()
-            if len(list(self.predecessors(n))) == len(list(self.successors(n))) == 0
+            if len(list(self.predecessors(n)))
+            == len(list(self.successors(n)))
+            == 0
         ]
 
         for n in isolated_nodes:
@@ -135,8 +139,11 @@ class ProgramAnalysisGraph(nx.DiGraph):
             if self.nodes[n].get("init_fn") is not None:
                 self.input_functions.append(n)
 
-            if self.nodes[n]["node_type"] in ("LoopVariableNode", "FuncVariableNode") \
-               and len(list(self.predecessors(n))) == 0:
+            if (
+                self.nodes[n]["node_type"]
+                in ("LoopVariableNode", "FuncVariableNode")
+                and len(list(self.predecessors(n))) == 0
+            ):
                 self.input_variables.append(n)
 
         return self
@@ -144,7 +151,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
     @classmethod
     def from_fortran_file(cls, fortran_file):
         stem = Path(fortran_file).stem
-        preprocessed_fortran_file = stem+"_preprocessed.f"
+        preprocessed_fortran_file = stem + "_preprocessed.f"
         lambdas_filename = stem + "_lambdas.py"
         json_filename = stem + ".json"
 
@@ -170,7 +177,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         trees = [ET.fromstring(xml_string)]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
-        xml_to_json_translator=translate.XMLToJSONTranslator()
+        xml_to_json_translator = translate.XMLToJSONTranslator()
         outputDict = xml_to_json_translator.analyze(trees, comments)
         pySrc = pyTranslate.create_python_string(outputDict)
         asts = [ast.parse(pySrc)]
@@ -179,7 +186,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         )
 
         A = Scope.from_dict(pgm_dict).to_agraph()
-        lambdas = importlib.__import__(stem+"_lambdas")
+        lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_agraph(A, lambdas)
 
     def _update_node(self, n: str):
