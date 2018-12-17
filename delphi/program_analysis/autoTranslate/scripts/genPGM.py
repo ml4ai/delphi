@@ -711,7 +711,6 @@ def genPgm(node, state, fnNames):
                 if "var" in src:
                     source_list.append(src["var"]["variable"])
                 elif "call" in src:
-                    source_list.append(src["call"]["function"])
                     for ip in src["call"]["inputs"][0]:
                         if "var" in ip:
                             source_list.append(ip["var"]["variable"])
