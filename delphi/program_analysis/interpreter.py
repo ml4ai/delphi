@@ -1,6 +1,7 @@
 import os
 from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.visualization import visualize
+from delphi.program_analysis.scopes import Scope
 
 def printScopeTree(scope):
     for node in scope.nodes:
@@ -11,8 +12,8 @@ def printScopeTree(scope):
 
 
 if __name__ == "__main__":
-    fortran_file = "../../tests/data/crop_yield.f"
-    G = ProgramAnalysisGraph.from_fortran_file(fortran_file)
-    print(G.input_variables)
+    fortran_file = "data/PETPT.for"
+    A = Scope.from_fortran_file(fortran_file).to_agraph()
+    A.draw("PETPT.pdf", prog="dot")
     # G.initialize()
     # visualize(G, save=True)
