@@ -53,13 +53,13 @@ def line_is_comment(line: str) -> bool:
 # and their ends, respectively.  The corresponding re objects are RE_SUB_START,
 # and RE_FN_START, and RE_SUBPGM_END.
 
-SUB_START = "\s*subroutine\s+(\w+)\s*\("
+SUB_START = r"\s*subroutine\s+(\w+)\s*\("
 RE_SUB_START = re.compile(SUB_START, re.I)
 
-FN_START = "\s*function\s+(\w+)\s*\("
+FN_START = r"\s*function\s+(\w+)\s*\("
 RE_FN_START = re.compile(FN_START, re.I)
 
-SUBPGM_END = "\s*end\s+"
+SUBPGM_END = r"\s*end\s+"
 RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
 
 
