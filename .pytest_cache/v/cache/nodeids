@@ -1,7 +1,0 @@
-[
-  "tests/test_icm_api.py::test_listAllICMs",
-  "tests/test_icm_api.py::test_getICMByUUID",
-  "tests/test_icm_api.py::test_getICMPrimitives",
-  "tests/test_icm_api.py::test_createExperiment",
-  "tests/test_icm_api.py::test_getExperiment"
-]

@@ -133,3 +133,6 @@ notebooks/season.dat
 *.dot
 *.png
 *.pdf
+
+# PyTest cache
+.pytest_cache

@@ -1,5 +1,0 @@
-{
-  "delphi/tests/test_AnalysisGraph.py::test_from_uncharted_payload": true,
-  "delphi/tests/test_icm_api.py::test_icm": true,
-  "delphi/tests/test_icm_api.py::test_range": true
-}

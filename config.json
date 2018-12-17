@@ -1,6 +1,0 @@
-{
-  "delphi_data_path": "/PATH/TO/Delphi/data/",
-  "dssat_repo_path": "/PATH/TO/dssat-csm/",
-  "ed2_repo_path": "/PATH/TO/ED2",
-  "clm_repo_path": "/PATH/TO/cesm/components/clm/"
-}
