@@ -18,7 +18,7 @@ def genCode(node, state):
 
     if isinstance(node, list):
         for cur in node:
-            codeStr += "{0}{1}".format(genCode(cur, state), state.sep)
+            codeStr += f"{genCode(cur, state)}{state.sep}"
 
     # Function: name, args, body, decorator_list, returns
     elif isinstance(node, ast.FunctionDef):
@@ -31,9 +31,7 @@ def genCode(node, state):
 
     # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
     elif isinstance(node, ast.arguments):
-        codeStr = "{0}".format(
-            ", ".join([genCode(arg, state) for arg in node.args])
-        )
+        codeStr = ", ".join([genCode(arg, state) for arg in node.args])
 
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
@@ -53,13 +51,13 @@ def genCode(node, state):
 
     # Num: ('n',)
     elif isinstance(node, ast.Num):
-        codeStr = "{0}".format(node.n)
+        codeStr = str(node.n)
 
     # List: ('elts', 'ctx')
     elif isinstance(node, ast.List):
         elements = [genCode(elmt, state) for elmt in node.elts]
         codeStr = (
-            "{0}".format(elements[0])
+            str(elements[0])
             if len(elements) == 1
             else "[{0}]".format(", ".join(elements))
         )
@@ -164,7 +162,7 @@ def genCode(node, state):
             sys.exit(1)
         # typical:
         # codeStr = '{0}{1}'.format(genCode(node.value, state), genCode(node.slice, state))
-        codeStr = "{0}".format(genCode(node.value, state))
+        codeStr = genCode(node.value, state)
 
     # Name: ('id', 'ctx')
     elif isinstance(node, ast.Name):
@@ -178,10 +176,7 @@ def genCode(node, state):
 
     # Assign: ('targets', 'value')
     elif isinstance(node, ast.Assign):
-        for target in node.targets:
-            codeStr = "{0} = ".format(genCode(target, state))
-
-        codeStr += "{0}".format(genCode(node.value, state))
+        codeStr += genCode(node.value, state)
 
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
@@ -192,7 +187,7 @@ def genCode(node, state):
             fnName = module + "." + fnName
         else:
             fnName = node.func.id
-        codeStr = "{0}(".format(fnName)
+        codeStr = f"{fnName}("
 
         if len(node.args) > 0:
             codeStr += ", ".join([genCode(arg, state) for arg in node.args])

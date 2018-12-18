@@ -23,6 +23,8 @@ pyshp = "*"
 flask-sqlalchemy = "*"
 sqlalchemy = "*"
 python-dateutil = "*"
+SALib = "*"
+tangent = "*"
 
 [dev-packages]
 recommonmark = "*"

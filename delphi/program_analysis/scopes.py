@@ -1,9 +1,21 @@
+import os
+import ast
 from abc import ABCMeta, abstractmethod
 from typing import Dict
 import json
 from pygraphviz import AGraph
 import platform
 from typing import Dict
+from pathlib import Path
+import xml.etree.ElementTree as ET
+from delphi.program_analysis.autoTranslate.scripts import (
+    f2py_pp,
+    translate,
+    get_comments,
+    pyTranslate,
+    genPGM,
+)
+import subprocess as sp
 
 
 rv_maroon = "#650021"
@@ -31,14 +43,14 @@ class Scope(metaclass=ABCMeta):
         self.build_child_names()
 
     @classmethod
-    def from_json(self, file: str):
+    def from_json(cls, file: str):
         with open(file, "r") as f:
             data = json.load(f)
 
-        return self.from_dict(data)
+        return cls.from_dict(data)
 
     @classmethod
-    def from_dict(self, data: Dict):
+    def from_dict(cls, data: Dict):
         scope_types_dict = {
             "container": ContainerScope,
             "loop_plate": LoopScope,
@@ -58,10 +70,59 @@ class Scope(metaclass=ABCMeta):
             scope.remove_non_scope_children(scope_names)
 
         # Build the nested tree of scopes using recursion
-        root = scopes[data["start"]]
+
+        if data["start"] != "":
+            root = scopes[data["start"]]
+        else:
+            non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
+            # TODO Right now, only the first subroutine is taken as the root -
+            # in the future, we will need to merge scope trees from multiple
+            # subroutines.
+            root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
+            root = scopes[root_func_name]
+
         root.build_scope_tree(scopes)
         root.setup_from_json()
         return root
+
+    @classmethod
+    def from_fortran_file(cls, fortran_file):
+        stem = Path(fortran_file).stem
+        preprocessed_fortran_file = stem + "_preprocessed.f"
+        lambdas_filename = stem + "_lambdas.py"
+        json_filename = stem + ".json"
+
+        with open(fortran_file, "r") as f:
+            inputLines = f.readlines()
+
+        with open(preprocessed_fortran_file, "w") as f:
+            f.write(f2py_pp.process(inputLines))
+
+        xml_string = sp.run(
+            [
+                "java",
+                "fortran.ofp.FrontEnd",
+                "--class",
+                "fortran.ofp.XMLPrinter",
+                "--verbosity",
+                "0",
+                preprocessed_fortran_file,
+            ],
+            stdout=sp.PIPE,
+        ).stdout
+
+        trees = [ET.fromstring(xml_string)]
+        comments = get_comments.get_comments(preprocessed_fortran_file)
+        os.remove(preprocessed_fortran_file)
+        xml_to_json_translator = translate.XMLToJSONTranslator()
+        outputDict = xml_to_json_translator.analyze(trees, comments)
+        pySrc = pyTranslate.create_python_string(outputDict)
+        asts = [ast.parse(pySrc)]
+        pgm_dict = genPGM.create_pgm_dict(
+            lambdas_filename, asts, json_filename
+        )
+
+        return cls.from_dict(pgm_dict)
 
     def __repr__(self):
         return self.__str__()
@@ -73,7 +134,7 @@ class Scope(metaclass=ABCMeta):
     def to_agraph(self):
         A = AGraph(directed=True)
         A.node_attr["shape"] = "rectangle"
-        A.graph_attr["rankdir"] = "LR"
+        A.graph_attr["rankdir"] = "TB"
 
         operating_system = platform.system()
 

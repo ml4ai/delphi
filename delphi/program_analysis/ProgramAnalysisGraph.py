@@ -1,26 +1,29 @@
+import json
+import importlib
 import networkx as nx
 from typing import Dict
-import json
+from pathlib import Path
+from inspect import signature
 from pprint import pprint
+from functools import partial
 from pygraphviz import AGraph
 from IPython.core.display import Image
-from functools import partial
-from inspect import signature
+from delphi.program_analysis.scopes import Scope
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.loop_index, = [
-            # n[0] for n in self.nodes(data=True) if n[1].get("is_index")
-        # ]
 
     def add_action_node(self, A: AGraph, lambdas, n):
         """ Add an action node to the CAG. """
         output, = A.successors(n)
 
-        # Only allow LoopVariableNodes in the DBN
-        if output.attr["node_type"] == "LoopVariableNode":
+        # Only allow LoopVariable and FuncVariable nodes in the DBN
+        if output.attr["node_type"] in (
+            "LoopVariableNode",
+            "FuncVariableNode",
+        ):
             oname = output.attr["cag_label"]
             onode = self.nodes[oname]
 
@@ -83,7 +86,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
         self = cls(nx.DiGraph())
 
         for n in A.nodes():
-            if n.attr["node_type"] == "LoopVariableNode":
+            if n.attr["node_type"] in ("LoopVariableNode", "FuncVariableNode"):
                 self.add_variable_node(n)
 
         for n in A.nodes():
@@ -110,13 +113,35 @@ class ProgramAnalysisGraph(nx.DiGraph):
         isolated_nodes = [
             n
             for n in self.nodes()
-            if len(list(self.predecessors(n))) == len(list(self.successors(n))) == 0
+            if len(list(self.predecessors(n)))
+            == len(list(self.successors(n)))
+            == 0
         ]
 
         for n in isolated_nodes:
             self.remove_node(n)
 
+        # Create lists of all input function and all input variables
+        self.input_variables = list()
+        self.input_functions = list()
+        for n in self.nodes():
+            if self.nodes[n].get("init_fn") is not None:
+                self.input_functions.append(n)
+
+            if (
+                self.nodes[n]["node_type"]
+                in ("LoopVariableNode", "FuncVariableNode")
+                and len(list(self.predecessors(n))) == 0
+            ):
+                self.input_variables.append(n)
+
         return self
+
+    @classmethod
+    def from_fortran_file(cls, fortran_file):
+        A = Scope.from_fortran_file(fortran_file).to_agraph()
+        lambdas = importlib.__import__(stem + "_lambdas")
+        return cls.from_agraph(A, lambdas)
 
     def _update_node(self, n: str):
         """ Update the value of node n, recursively visiting its ancestors. """
@@ -133,11 +158,11 @@ class ProgramAnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def initialize(self):
-        """ Initialize the value of nodes that don't have a predecessor in the
-        CAG."""
+        """ Initialize the value of input function nodes in the CAG."""
 
         for n in self.nodes():
-            if self.nodes[n].get("init_fn") is not None:
+            # if self.nodes[n].get("init_fn") is not None:
+            if n in self.input_functions:
                 self.nodes[n]["value"] = self.nodes[n]["init_fn"]()
         self.update()
 
@@ -147,3 +172,6 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
         for n in self.nodes(data=True):
             n[1]["visited"] = False
+
+    def call(self, inputs):
+        pass

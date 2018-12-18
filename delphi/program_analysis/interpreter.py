@@ -1,13 +1,19 @@
-from os.path import normpath
-from pygraphviz import AGraph
-from typing import Dict
-import json
+import os
+from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.visualization import visualize
+from delphi.program_analysis.scopes import Scope
 
-import delphi.program_analysis.scopes as scp
+def printScopeTree(scope):
+    for node in scope.nodes:
+        if isinstance(node, scp.ActionNode):
+            print(node.lambda_fn)
+    for child in scope.child_scopes:
+        printScopeTree(child)
+
 
 if __name__ == "__main__":
-    dbn_json_file = "autoTranslate/pgm.json"
-    scope = scp.Scope.from_json(normpath(dbn_json_file))
-    A = scope.to_agraph()
-    A.write("nested_graph.dot")
-    A.draw("nested_graph.png", prog="dot")
+    fortran_file = "data/PETPT.for"
+    A = Scope.from_fortran_file(fortran_file).to_agraph()
+    A.draw("PETPT.pdf", prog="dot")
+    # G.initialize()
+    # visualize(G, save=True)
