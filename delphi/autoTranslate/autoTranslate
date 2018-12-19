@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Usage: ./autoTranslate <fortran files>
+
+checkVersion() {
+    versionStr=$($1 --version 2>&1)
+
+    if [[ $? -ne 0 ]]; then
+        continue
+    fi
+
+    IFS=' ' read -r -a versionStr <<< "$versionStr"
+
+    versionStr=${versionStr[${#versionStr[@]}-1]}
+
+    IFS='. ' read -r -a version <<< "$versionStr"
+
+    if [ "${version[0]}" -eq 3 ] && [ "${version[1]}" -ge 6 ]; then
+        cmp=1
+    else
+        cmp=0
+    fi
+}
+
+findExec() {
+    for p in $(compgen -c python); do 
+        checkVersion $p
+
+        if [ $cmp -eq 1 ]; then
+            export PYTRANSLATE=$p
+        fi
+    done
+}
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <fortran files>"
+    exit 1
+fi
+
+export CLASSPATH="${CLASSPATH}:"$(pwd)/$(dirname ${BASH_SOURCE[0]})"/bin/*"
+pyFiles=""
+
+if [ -z "$PYTRANSLATE" ]; then
+    findExec
+    if [ -z "$PYTRANSLATE" ]; then
+        echo 'Could not find python > 3.6'
+        exit 1
+    fi
+fi
+
+for file in "$@"; do
+    base=$(basename "$file")
+    extension=${base##*.}
+    base=${base%.*}
+    processedFile="$base"_processed."$extension"
+    pickleFile="$base"_pickle
+    astFile="$base".xml
+    ( set -x; $PYTRANSLATE scripts/f2py_pp.py "$file" "$processedFile") 
+    ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
+    pyFile="$base".py
+    ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pickleFile" -i "$file")
+    ( set -x; $PYTRANSLATE scripts/pyTranslate.py -f "$pickleFile" -g "$pyFile")
+    pyFiles+=" $pyFile"
+done
+
+( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
