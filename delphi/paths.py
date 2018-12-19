@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import json
 
-data_dir = Path(os.environ["DELPHI_DATA"])
+data_dir = Path(os.environ.get("DELPHI_DATA"))
 
 adjectiveData = data_dir / "adjectiveData.tsv"
 south_sudan_data = data_dir / "south_sudan_data.csv"
