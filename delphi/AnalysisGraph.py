@@ -39,6 +39,7 @@ class AnalysisGraph(nx.DiGraph):
         self.dateCreated = datetime.now()
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
         self.res: int = 100
+        self.data = None
 
     # ==========================================================================
     # Constructors
@@ -400,8 +401,12 @@ class AnalysisGraph(nx.DiGraph):
             data
         """
 
-        if not isinstance(data, pd.DataFrame):
-            data = get_data(data)
+        if self.data is None:
+            if not isinstance(data, pd.DataFrame):
+                self.data = get_data(data)
+            else:
+                self.data = data
+        self.data.dropna(subset=["Value"], inplace=True)
 
         nodes_with_indicators = [
             n for n in self.nodes(data=True) if n[1].get("indicators") is not None
@@ -410,7 +415,7 @@ class AnalysisGraph(nx.DiGraph):
         for n in nodes_with_indicators:
             for indicator_name, indicator in n[1]["indicators"].items():
                 indicator.mean, indicator.unit = get_indicator_value(
-                    indicator, time, data
+                    indicator, time, self.data
                 )
                 indicator.time = time
                 if not indicator.mean is None:
