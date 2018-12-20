@@ -99,7 +99,7 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
 
 def get_data(filename: str) -> pd.DataFrame:
     """ Create a dataframe out of south_sudan_data.csv """
-    df = pd.read_csv(filename, index_col="Variable")
+    df = pd.read_csv(filename)
     return df
 
 
@@ -128,11 +128,16 @@ def get_indicator_value(
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    # if indicator.source == "FAO/WDI":
-    best_match = get_best_match(indicator, df.index)
+    best_match = get_best_match(indicator, set(df.Variable))
 
-    # TODO Fix the above
-    df = df.loc[best_match].loc[lambda df: df["Year"] == date.year].loc[lambda df: df["Month"] == date.month]
+    df = df.loc[df["Variable"] == best_match]
+    df = df[df["Year"] == date.year]
+
+    # TODO devise a strategy to deal with missing month values and then
+    # uncomment the line below.
+
+    # df = df[df["Month"] == date.month]
+
     if not df["Value"].isna().all():
         indicator_value = float(df["Value"].iloc[0])
         indicator_units = df["Unit"].iloc[0]

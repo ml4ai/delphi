@@ -1,11 +1,12 @@
 import os
-from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.visualization import visualize
-from delphi.program_analysis.scopes import Scope
+from delphi.GrFN.scopes import Scope
+
 
 def printScopeTree(scope):
     for node in scope.nodes:
-        if isinstance(node, scp.ActionNode):
+        if isinstance(node, Scope.ActionNode):
             print(node.lambda_fn)
     for child in scope.child_scopes:
         printScopeTree(child)

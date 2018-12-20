@@ -1,15 +1,15 @@
 import os
 import json
 from datetime import date
-from delphi.program_analysis.autoTranslate.scripts import (
+from delphi.autoTranslate.scripts import (
     f2py_pp,
     translate,
     get_comments,
     pyTranslate,
     genPGM,
 )
-from delphi.program_analysis.scopes import Scope
-from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.scopes import Scope
+from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 import xml.etree.ElementTree as ET
 import subprocess as sp
 import ast

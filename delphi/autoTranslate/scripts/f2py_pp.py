@@ -20,7 +20,7 @@ Author:
 
 import sys
 from typing import List
-from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
+from delphi.autoTranslate.scripts.fortran_syntax import *
 
 
 def process(lines: List[str]) -> str:

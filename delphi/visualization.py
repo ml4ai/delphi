@@ -11,7 +11,7 @@ from .export import to_agraph
 from .AnalysisGraph import AnalysisGraph
 from .utils.misc import _insert_line_breaks
 from functools import singledispatch
-from .program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from .GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from pygraphviz import AGraph
 
 # ==========================================================================

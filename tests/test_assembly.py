@@ -86,7 +86,6 @@ def test_contains_relevant_concept():
 indicator_data = get_data(south_sudan_data)
 
 
-@pytest.mark.skip
 def test_get_indicator_data():
     indicator = Indicator(
         "Political stability and absence of violence/terrorism (index), Value",
