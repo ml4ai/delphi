@@ -1,11 +1,10 @@
 import inspect
 import pickle
 
-from delphi.program_analysis.sensitivity.VarianceMethods import SobolAnalyzer
-
-from delphi.program_analysis.data.PETPT import PETPT
-from delphi.program_analysis.data.PETASCE import PETASCE
-from delphi.program_analysis.data.Plant_pgm import MAIN
+from delphi.analysis.sensitivity.variance_methods import SobolAnalyzer
+from delphi.autoTranslate.data.PETPT import PETPT
+from delphi.autoTranslate.data.PETASCE import PETASCE
+from delphi.autoTranslate.data.Plant_pgm import MAIN
 
 
 def test_PETPT():

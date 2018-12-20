@@ -22,7 +22,7 @@ Example:
     categories, the corresponding entries in the comment dictionary are [].
 
     In addition to the subprogram-level comments mentioned above, the returned
-    dictionary also has entries for two "file-level" comments: 
+    dictionary also has entries for two "file-level" comments:
 
         -- any comment at the beginning of the file (before the first function)
            can be accessed using the key "$file_head" (this comment is also
@@ -31,13 +31,13 @@ Example:
            can be accessed using the key "$file_foot" (this comment is also
            the foot-comment for the last subprogram in the file).
 
-    If either the file-head or the file-foot comment is missing, the 
+    If either the file-head or the file-foot comment is missing, the
     corresponding entries in the comment dictionary are [].
 """
 
 import sys, re
 from collections import *
-from delphi.program_analysis.autoTranslate.scripts.fortran_syntax import *
+from delphi.autoTranslate.scripts.fortran_syntax import *
 from typing import Tuple, Optional
 
 DEBUG = False

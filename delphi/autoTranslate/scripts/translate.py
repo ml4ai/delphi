@@ -27,7 +27,7 @@ import argparse
 import pickle
 from collections import *
 import xml.etree.ElementTree as ET
-from delphi.program_analysis.autoTranslate.scripts.get_comments import (
+from delphi.autoTranslate.scripts.get_comments import (
     get_comments,
 )
 from typing import List, Dict

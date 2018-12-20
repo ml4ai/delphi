@@ -3,7 +3,7 @@ import pytest
 from datetime import date
 from indra.statements import Concept, Influence, Evidence
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.utils.indra import *
 from delphi.utils.shell import cd
 

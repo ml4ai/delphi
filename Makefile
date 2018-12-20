@@ -15,7 +15,7 @@ test:
 	  --doctest-module\
 	  --ignore=delphi/program_analysis/pa_unit_tests \
 	  --ignore=delphi/program_analysis/data\
-	  --ignore=delphi/program_analysis/sensitivity/tests\
+	  --ignore=delphi/analysis/sensitivity/tests\
 	  delphi tests
 
 pypi_upload:

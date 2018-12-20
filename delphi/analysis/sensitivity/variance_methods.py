@@ -7,6 +7,10 @@ import numpy as np
 
 
 class VarianceAnalyzer(metaclass=ABCMeta):
+    """
+    Meta-class for all variance based sensitivity analysis methods
+    """
+
     def __init__(self, model, prob_def=None):
         self.has_samples = False
         self.has_outputs = False
