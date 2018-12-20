@@ -8,7 +8,7 @@ import re
 import argparse
 from functools import *
 import json
-from delphi.program_analysis.autoTranslate.scripts.genCode import *
+from delphi.autoTranslate.scripts.genCode import *
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator

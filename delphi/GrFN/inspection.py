@@ -1,7 +1,7 @@
 import os
-from delphi.program_analysis.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.visualization import visualize
-from delphi.program_analysis.scopes import Scope
+from delphi.GrFN.scopes import Scope
 
 
 def printScopeTree(scope):

@@ -8,7 +8,7 @@ import platform
 from typing import Dict
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from delphi.program_analysis.autoTranslate.scripts import (
+from delphi.autoTranslate.scripts import (
     f2py_pp,
     translate,
     get_comments,

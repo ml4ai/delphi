@@ -8,7 +8,7 @@ from pprint import pprint
 from functools import partial
 from pygraphviz import AGraph
 from IPython.core.display import Image
-from delphi.program_analysis.scopes import Scope
+from .scopes import Scope
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
