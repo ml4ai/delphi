@@ -42,15 +42,19 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     return st
 
 
+def get_statements_from_json_dict(_dict: Dict) -> List[Influence]:
+    return [
+        influence_stmt_from_dict(d)
+        for d in _dict
+        if d["type"] == "Influence"
+        and d["subj"]["name"] is not None
+        and d["obj"]["name"] is not None
+    ]
+
 def get_statements_from_json_file(json_file: str) -> List[Influence]:
     with open(json_file, "r") as f:
-        return [
-            influence_stmt_from_dict(d)
-            for d in json.load(f)
-            if d["type"] == "Influence"
-            and d["subj"]["name"] is not None
-            and d["obj"]["name"] is not None
-        ]
+        _dict = json.load(f)
+    return get_statements_from_json_dict(_dict)
 
 
 @singledispatch
