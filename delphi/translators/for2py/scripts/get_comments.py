@@ -37,7 +37,7 @@ Example:
 
 import sys, re
 from collections import *
-from delphi.autoTranslate.scripts.fortran_syntax import *
+from delphi.translators.for2py.scripts.fortran_syntax import *
 from typing import Tuple, Optional
 
 DEBUG = False
