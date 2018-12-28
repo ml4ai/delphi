@@ -1,4 +1,4 @@
-C File: arrays-constr-04.f
+C File: arrays-constr-05.f
 C This program has a simple 1-D array with the default lower bound of 1.
 C It shows the use of an array constructor to initialize the array.
 
