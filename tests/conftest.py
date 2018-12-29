@@ -60,6 +60,4 @@ def G():
     G.map_concepts_to_indicators()
     G.parameterize(date(2014, 12, 1))
     G.to_pickle()
-    G.create_bmi_config_file()
     yield G
-    os.remove("bmi_config.txt")
