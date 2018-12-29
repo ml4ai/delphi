@@ -60,7 +60,7 @@ class Sampler(object):
 
         for node_pair in permutations(self.G.nodes(), 2):
             for simple_path in nx.all_simple_paths(self.G, *node_pair):
-                self.A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
+                self.A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = np.prod(
                     [
                         self.G.edges[edge[0], edge[1]]["ConditionalProbability"].resample(1)[0][0]
                         * self.delta_t
