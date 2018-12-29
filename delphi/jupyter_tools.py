@@ -1,3 +1,4 @@
+import os
 from pprint import pprint
 import pandas as pd
 from typing import List, Dict, Optional
@@ -90,3 +91,30 @@ def display(file: str):
 
 def display_image(file: str):
     return Image(file, retina=True)
+
+
+def get_python_shell():
+    """Determine python shell
+
+    get_python_shell() returns
+
+    'shell' (started python on command line using "python")
+    'ipython' (started ipython on command line using "ipython")
+    'ipython-notebook' (e.g., running in Spyder or started with "ipython qtconsole")
+    'jupyter-notebook' (running in a Jupyter notebook)
+
+    See also https://stackoverflow.com/a/37661854
+    """
+
+    env = os.environ
+    shell = "shell"
+    program = os.path.basename(env["_"])
+
+    if "jupyter-notebook" in program:
+        shell = "jupyter-notebook"
+    elif "JPY_PARENT_PID" in env or "ipython" in program:
+        shell = "ipython"
+        if "JPY_PARENT_PID" in env:
+            shell = "ipython-notebook"
+
+    return shell
