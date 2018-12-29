@@ -62,3 +62,4 @@ def G():
     G.to_pickle()
     G.create_bmi_config_file()
     yield G
+    os.remove("bmi_config.txt")

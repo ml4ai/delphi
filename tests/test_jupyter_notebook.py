@@ -5,5 +5,6 @@ def test_delphi_demo_notebook():
         "jupyter",
         "nbconvert",
         "--execute",
+        "--ExecutePreprocessor.timeout=3600",
         "notebooks/Delphi-Demo-Notebook.ipynb",
         ])
