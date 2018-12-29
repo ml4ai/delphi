@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 import numpy as np
-import pandas as pd
 import random
 from math import log
-from scipy.stats import norm
-from delphi.utils.fp import flatMap, ltake, iterate
-from delphi.AnalysisGraph import AnalysisGraph
 from typing import List, Dict
 from itertools import permutations, product
+import pandas as pd
+import networkx as nx
+from scipy.stats import norm
+from delphi.utils.fp import flatMap, ltake, iterate, pairwise
+from delphi.AnalysisGraph import AnalysisGraph
 
 
 def create_observed_state(G: AnalysisGraph) -> Dict:
@@ -18,7 +19,7 @@ def create_observed_state(G: AnalysisGraph) -> Dict:
     }
 
 
-class Sampler:
+class Sampler(object):
     """ MCMC sampler. """
 
     def __init__(self, G: AnalysisGraph):
@@ -53,12 +54,20 @@ class Sampler:
         self.A = pd.DataFrame(
             np.identity(2 * len(self.G)), index=elements, columns=elements
         )
+
         for n in self.G.nodes:
             self.A[f"∂({n})/∂t"][n] = self.delta_t
-        for e in self.G.edges(data=True):
-            self.A[f"∂({e[0]})/∂t"][e[1]] = (
-                e[2]["ConditionalProbability"].resample(1)[0][0] * self.delta_t
-            )
+
+        for node_pair in permutations(self.G.nodes(), 2):
+            for simple_path in nx.all_simple_paths(self.G, *node_pair):
+                self.A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
+                    [
+                        self.G.edges[edge[0], edge[1]]["ConditionalProbability"].resample(1)[0][0]
+                        * self.delta_t
+                        for edge in pairwise(simple_path)
+                    ]
+                )
+
 
     def sample_from_likelihood(self):
         self.observed_state_sequence = [
