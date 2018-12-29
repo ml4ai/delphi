@@ -206,10 +206,6 @@ class AnalysisGraph(nx.DiGraph):
             )
         ).resample(res)[0]
 
-        # Algorithm:
-        # for each pair of nodes i, j in the graph:
-        #     for each path in the set of shortest simple paths between i and j:
-        #         p <- product of betas for each link along the path.
         for e in self.edges(data=True):
             e[2]["ConditionalProbability"] = constructConditionalPDF(gb, rs, e)
             e[2]["betas"] = np.tan(
