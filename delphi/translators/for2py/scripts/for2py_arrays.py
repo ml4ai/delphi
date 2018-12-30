@@ -3,7 +3,7 @@
     Purpose: Code to handle array manipulation in the Python code generated
         by for2py.
 
-    Usage:
+    Usage: see the document "for2py: Handling Fortran Arrays"
 """
 
 import sys
