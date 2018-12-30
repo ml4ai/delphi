@@ -17,6 +17,7 @@ test:
 	  --ignore=delphi/program_analysis/data\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/translators/for2py/data\
+	  --ignore=tests/data/\
 	  delphi tests
 
 pypi_upload:
