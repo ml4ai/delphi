@@ -192,11 +192,11 @@ def make_fn_dict(name, target, sources, lambdaName, node):
     source = []
     for src in sources:
         if "call" in src:
-            source = make_call_body_dict(src)
-        elif "var" in src:
+            for source_ins in make_call_body_dict(src):
+                source.append(source_ins)
+        if "var" in src:
             variable = src["var"]["variable"]
             source.append({"name": variable, "type": "variable"})
-
     fn = {
         "name": name,
         "type": "assign",
@@ -213,18 +213,26 @@ def make_call_body_dict(source):
     source_list = []
     name = source["call"]["function"]
     source_list.append({"name": name, "type": "function"})
-    for ip in source["call"]["inputs"]:
-        if "var" in ip[0]:
-            variable = ip[0]["var"]["variable"]
+    for ip in source["call"]["inputs"][0]:
+        if "var" in ip:
+            variable = ip["var"]["variable"]
             source_list.append({"name": variable, "type": "variable"})
     return source_list
 
 
 def make_body_dict(name, target, sources):
+    source_list = []
+    for src in sources:
+        if "var" in src:
+            source_list.append(src["var"])
+        if "call" in src:
+            for ip in src["call"]["inputs"][0]:
+                if "var" in ip:
+                    source_list.append(ip["var"]) 
     body = {
         "name": name,
         "output": target["var"],
-        "input": [src["var"] for src in sources if "var" in src],
+        "input": source_list,
     }
     return body
 

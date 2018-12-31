@@ -408,7 +408,7 @@ class XMLToJSONTranslator(object):
 
 
 def get_trees(files: List[str]) -> List[ET.ElementTree]:
-    return [ET.parse(f) for f in files]
+    return [ET.parse(f).getroot() for f in files]
 
 
 if __name__ == "__main__":
