@@ -14,7 +14,7 @@ from indra.statements import Influence, Concept, Evidence
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .paths import south_sudan_data, adjectiveData
-from .utils.fp import flatMap, ltake, lmap
+from .utils.fp import flatMap, ltake, lmap, pairwise
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
@@ -119,10 +119,12 @@ class AnalysisGraph(nx.DiGraph):
         for s in sts:
             if len(s["evidence"]) >= minimum_evidence_pieces_required:
                 subj, obj = s["subj"], s["obj"]
-                if (subj["db_refs"]["concept"] is not None and
-                        obj["db_refs"]["concept"] is not None):
+                if (
+                    subj["db_refs"]["concept"] is not None
+                    and obj["db_refs"]["concept"] is not None
+                ):
                     subj_name, obj_name = [
-                            "/".join(s[x]["db_refs"]["concept"].split("/")[:])
+                        "/".join(s[x]["db_refs"]["concept"].split("/")[:])
                         for x in ["subj", "obj"]
                     ]
                     G.add_edge(subj_name, obj_name)
@@ -161,13 +163,16 @@ class AnalysisGraph(nx.DiGraph):
             "concept_to_indicator_mapping"
         ].items():
             if indicator is not None:
-                indicator_source, indicator_name = indicator.split("/")[0], indicator
+                indicator_source, indicator_name = (
+                    indicator.split("/")[0],
+                    indicator,
+                )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
                         G.nodes[concept]["indicators"] = {}
-                    G.nodes[concept]["indicators"][
-                        indicator_name
-                    ] = Indicator(indicator_name, indicator_source)
+                    G.nodes[concept]["indicators"][indicator_name] = Indicator(
+                        indicator_name, indicator_source
+                    )
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
@@ -212,6 +217,27 @@ class AnalysisGraph(nx.DiGraph):
                 e[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
+    def sample_from_prior(self):
+        elements = self.get_latent_state_components()
+        self.A = pd.DataFrame(
+            np.identity(2 * len(self)), index=elements, columns=elements
+        )
+
+        for n in self.nodes:
+            self.A[f"∂({n})/∂t"][n] = self.Δt
+
+        for node_pair in permutations(self.nodes(), 2):
+            self.A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = np.sum(
+                np.prod([
+                    self.edges[edge[0], edge[1]][
+                        "ConditionalProbability"
+                    ].resample(1)[0][0]
+                    * self.Δt
+                    for edge in pairwise(simple_path)
+                ])
+                for simple_path in nx.all_simple_paths(self, *node_pair)
+            )
+
     def map_concepts_to_indicators(
         self, n: int = 1, mapping_file: Optional[str] = None
     ):
@@ -230,31 +256,17 @@ class AnalysisGraph(nx.DiGraph):
         mapping = construct_concept_to_indicator_mapping(n, mapping_file)
 
         for n in self.nodes(data=True):
-            n[1]["indicators"] = get_indicators(
-                n[0], mapping
-            )
+            n[1]["indicators"] = get_indicators(n[0], mapping)
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
-        rv = n[1]["rv"]
-        return [
-            rv.dataset[i]
-            + (
-                rv.partial_t
-                + sum(
-                    self[p][n[0]]["betas"][i] * self.nodes[p]["rv"].partial_t
-                    for p in self.pred[n[0]]
-                )
-            )
-            * self.Δt
-            for i in range(self.res)
-        ]
+        return self.A.loc[n[0]].values @ self.s0.values
 
     def emission_function(self, s_i, mu_ij, sigma_ij):
         return np.random.normal(s_i * mu_ij, sigma_ij)
 
     def construct_default_initial_state(self) -> pd.Series:
-        comps = self.get_latent_state_components()
-        return pd.Series(ltake(len(comps), cycle([1.0, 0.0])), comps)
+        components = self.get_latent_state_components()
+        return pd.Series(ltake(len(components), cycle([1.0, 0.0])), components)
 
     # ==========================================================================
     # Basic Modeling Interface (BMI)
@@ -272,15 +284,19 @@ class AnalysisGraph(nx.DiGraph):
         self.s0 = pd.read_csv(
             config_file, index_col=0, header=None, error_bad_lines=False
         )[1]
+
+        self.latent_state_vector = self.construct_default_initial_state()
+
         for n in self.nodes(data=True):
+            self.latent_state_vector[n[0]] = self.s0[n[0]]
             n[1]["rv"] = LatentVar(n[0])
             n[1]["update_function"] = self.default_update_function
             node = n[1]["rv"]
-            node.dataset = [self.s0[n[0]] for _ in range(self.res)]
+            node.value = self.s0[n[0]]
             node.partial_t = self.s0[f"∂({n[0]})/∂t"]
             # if n[1].get("indicators") is not None:
-                # for ind in n[1]["indicators"].values():
-                    # ind.dataset = np.ones(self.res) * ind.mean
+            # for ind in n[1]["indicators"].values():
+            # ind.dataset = np.ones(self.res) * ind.mean
 
     def update(self):
         """ Advance the model by one time step. """
@@ -291,17 +307,19 @@ class AnalysisGraph(nx.DiGraph):
             next_state[n[0]] = n[1]["update_function"](n)
 
         for n in self.nodes(data=True):
-            n[1]["rv"].dataset = next_state[n[0]]
-            indicators = n[1].get("indicators")
-            if (indicators is not None) and (indicators != {}):
-                for indicator_name, indicator in n[1]["indicators"].items():
-                    if indicator.mean is not None:
-                        indicator.dataset = [
-                            self.emission_function(
-                                x, indicator.mean, indicator.stdev
-                            )
-                            for x in n[1]["rv"].dataset
-                        ]
+            n[1]["rv"].value = next_state[n[0]]
+            self.s0[n[0]] = n[1]["rv"].value
+            # n[1]["rv"].dataset = next_state[n[0]]
+            # indicators = n[1].get("indicators")
+            # if (indicators is not None) and (indicators != {}):
+                # for indicator_name, indicator in n[1]["indicators"].items():
+                    # if indicator.mean is not None:
+                        # indicator.dataset = [
+                            # self.emission_function(
+                                # x, indicator.mean, indicator.stdev
+                            # )
+                            # for x in n[1]["rv"].dataset
+                        # ]
 
         self.t += self.Δt
 
@@ -406,10 +424,12 @@ class AnalysisGraph(nx.DiGraph):
                 self.data = get_data(data)
             else:
                 self.data = data
-        self.data.dropna(subset=["Value"], inplace=True)
+        # self.data.dropna(subset=["Value"], inplace=True)
 
         nodes_with_indicators = [
-            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
+            n
+            for n in self.nodes(data=True)
+            if n[1].get("indicators") is not None
         ]
 
         for n in nodes_with_indicators:
