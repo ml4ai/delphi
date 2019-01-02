@@ -39,7 +39,6 @@ class AnalysisGraph(nx.DiGraph):
         self.dateCreated = datetime.now()
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
         self.res: int = 100
-        self.data = None
 
     # ==========================================================================
     # Constructors
