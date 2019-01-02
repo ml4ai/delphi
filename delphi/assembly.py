@@ -1,5 +1,5 @@
 from datetime import datetime
-from delphi.paths import concept_to_indicator_mapping, data_dir
+from delphi.paths import concept_to_indicator_mapping, data_dir, db_path
 from .utils import exists, flatMap, flatten, get_data_from_url
 from delphi.utils.indra import *
 from .random_variables import Delta, Indicator
@@ -10,6 +10,7 @@ from itertools import permutations
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
+from sqlalchemy import create_engine
 
 
 def make_edge(
@@ -60,9 +61,9 @@ def constructConditionalPDF(
                             obj_adjective in gb.groups
                             and obj_adjective not in adjective_response_dict
                         ):
-                            adjective_response_dict[obj_adjective] = get_respdevs(
-                                gb.get_group(obj_adjective)
-                            )
+                            adjective_response_dict[
+                                obj_adjective
+                            ] = get_respdevs(gb.get_group(obj_adjective))
 
                         rs_obj = stmt.obj_delta[
                             "polarity"
@@ -128,26 +129,38 @@ def get_indicator_value(
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    best_match = get_best_match(indicator, set(df.Variable))
+    engine = create_engine("sqlite:///"+str(db_path), echo=False)
+    variable_names = [
+        x[0]
+        for x in engine.execute(
+            f"select distinct `Variable` from indicator"
+        ).fetchall()
+    ]
+    best_match = get_best_match(indicator, variable_names)
 
-    df = df.loc[df["Variable"] == best_match]
-    df = df[df["Year"] == date.year]
+    # TODO Devise a strategy to get rid of the fetchone() call at the end of the
+    # expression below (i.e. add month support instead of taking the first
+    # available result.)
 
-    # TODO devise a strategy to deal with missing month values and then
-    # uncomment the line below.
+    result = engine.execute(" ".join([
+        f"select * from indicator where `Variable` like '{best_match}'",
+        "and `Value` is not null",
+        f"and `Year` is {date.year}"
+        ])
+    ).fetchone()
 
-    # df = df[df["Month"] == date.month]
+    # TODO devise a strategy to deal with missing month values
 
-    if not df["Value"].isna().all():
-        indicator_value = float(df["Value"].iloc[0])
-        indicator_units = df["Unit"].iloc[0]
+    if not result is None:
+        indicator_value = float(result["Value"])
+        indicator_units = result["Unit"]
     else:
         indicator_value = None
         indicator_units = None
 
     return (
         (indicator_value, indicator_units)
-        if not pd.isna(indicator_value)
+        if not indicator_value is None
         else (None, None)
     )
 
@@ -163,7 +176,7 @@ def get_variable_and_source(x: str):
 
 
 def construct_concept_to_indicator_mapping(
-    n: int = 1, mapping = concept_to_indicator_mapping
+    n: int = 1, mapping=concept_to_indicator_mapping
 ) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
@@ -171,15 +184,17 @@ def construct_concept_to_indicator_mapping(
         mapping,
         usecols=[1, 2, 3, 4],
         names=["Concept", "Source", "Indicator", "Score"],
-        dtype={"Concept":str, "Source":str, "Indicator":str, "Score":np.float64},
+        dtype={
+            "Concept": str,
+            "Source": str,
+            "Indicator": str,
+            "Score": np.float64,
+        },
     )
     gb = df.groupby("Concept")
 
     _dict = {
-        k: [
-            get_variable_and_source(x)
-            for x in v["Indicator"].values[0:n]
-        ]
+        k: [get_variable_and_source(x) for x in v["Indicator"].values[0:n]]
         for k, v in gb
     }
     return _dict
