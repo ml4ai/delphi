@@ -229,9 +229,9 @@ class AnalysisGraph(nx.DiGraph):
         for node_pair in permutations(self.nodes(), 2):
             self.A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = np.sum(
                 np.prod([
-                    self.edges[edge[0], edge[1]][
+                    np.tan(self.edges[edge[0], edge[1]][
                         "ConditionalProbability"
-                    ].resample(1)[0][0]
+                    ].resample(1)[0][0])
                     * self.Δt
                     for edge in pairwise(simple_path)
                 ])
@@ -411,20 +411,12 @@ class AnalysisGraph(nx.DiGraph):
         s0 = self.construct_default_initial_state()
         s0.to_csv(bmi_config_file, index_label="variable")
 
-    def parameterize(self, time: datetime, data=south_sudan_data):
+    def parameterize(self, time: datetime):
         """ Parameterize the analysis graph.
 
         Args:
             time
-            data
         """
-
-        if self.data is None:
-            if not isinstance(data, pd.DataFrame):
-                self.data = get_data(data)
-            else:
-                self.data = data
-        # self.data.dropna(subset=["Value"], inplace=True)
 
         nodes_with_indicators = [
             n
@@ -435,7 +427,7 @@ class AnalysisGraph(nx.DiGraph):
         for n in nodes_with_indicators:
             for indicator_name, indicator in n[1]["indicators"].items():
                 indicator.mean, indicator.unit = get_indicator_value(
-                    indicator, time, self.data
+                    indicator, time
                 )
                 indicator.time = time
                 if not indicator.mean is None:
