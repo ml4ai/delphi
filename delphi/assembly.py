@@ -125,7 +125,7 @@ def get_mean_precipitation(year: int):
 
 
 def get_indicator_value(
-    indicator: Indicator, date: datetime, df: pd.DataFrame
+    indicator: Indicator, date: datetime
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
