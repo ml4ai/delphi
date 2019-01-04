@@ -56,3 +56,4 @@ the following:
   by going to the [repo website](https://github.com/ml4ai/delphi).
 - One of the repo maintainers will then review your PR, and merge it into the
   master branch.
+- **Tip**: In general, smaller pull requests are better, and easier to merge.
