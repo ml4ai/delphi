@@ -22,7 +22,7 @@ the following:
     - Source code: 
        - `.py` files
        - Jupyter notebooks with their outputs cleared.
-      - Documentatation in the form of `.md` and `.rst` files.
+      - Documentation in the form of `.md` and `.rst` files.
   - In the case of testing code, this restriction can be relaxed a bit - for
     example, if you want to test the JSON output of a function, you can put
     the corresponding JSON file in the `tests/data` directory. 
@@ -32,11 +32,11 @@ the following:
       they need to be checked in to render properly on Github.com.
     - The OpenFortranParser JAR file that is required for running program
       analysis. 
-     **Do not run** `git add .` Instead, add the changed files individually -
-     this will encourage you to make your commits less monolithic, which makes
-     them easier to merge, and to revert if necessary. Also, this prevents the
-     accidental addition of automatically-generated files to version control,
-     which bloats the repository.
+  - **Do not run** `git add .` Instead, add the changed files individually -
+    this will encourage you to make your commits less monolithic, which makes
+    them easier to merge, and to revert if necessary. Also, this prevents the
+    accidental addition of automatically-generated files to version control,
+    which bloats the repository.
 - Commit the changes:
   ```
   git commit -m "Description of features/changes that were implemented."
