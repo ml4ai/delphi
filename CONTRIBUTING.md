@@ -62,7 +62,7 @@ the following:
   ```
   git checkout master
   git pull
-  git branch -d new_feature
+  git branch -D new_feature
   ```
 - **Tip 1:**: In general, smaller pull requests are better, and easier to merge.
 - **Tip 2:**: Whenever you get an email from Github telling you that a branch
