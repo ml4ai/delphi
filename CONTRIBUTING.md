@@ -73,3 +73,6 @@ the following:
     ```
     For those more proficient in the usage of `git`- feel free to fetch changes
     from master and rebase your feature branch on top of the master branch.
+- Committing changes directly to the `master` branch is *highly* discouraged.
+  The only exception to this rule is documentation updates (updating READMEs,
+  etc.) And even then, major documentation updates should be done via a PR.
