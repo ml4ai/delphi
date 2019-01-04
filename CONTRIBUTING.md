@@ -30,8 +30,10 @@ the following:
     control source code (i.e. text files). There are some exceptions, however:
     - Images that go into the `README.md` file in the root of the repository -
       they need to be checked in to render properly on Github.com.
-    - The OpenFortranParser JAR file that is required for running program
-      analysis. 
+    - The OpenFortranParser program, that is required for analyzing Fortran
+      programs, requires four JAR files (in `delphi/translators/for2py/bin`) -
+      these are checked into the repository for easier deployment, and because
+      we do not expect them to change in the future.
   - **Do not run** `git add .` Instead, add the changed files individually -
     this will encourage you to make your commits less monolithic, which makes
     them easier to merge, and to revert if necessary. Also, this prevents the
