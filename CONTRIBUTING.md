@@ -56,4 +56,20 @@ the following:
   by going to the [repo website](https://github.com/ml4ai/delphi).
 - One of the repo maintainers will then review your PR, and merge it into the
   master branch.
-- **Tip**: In general, smaller pull requests are better, and easier to merge.
+- Once the feature branch is merged, do the following:
+  ```
+  git checkout master
+  git pull
+  git branch -d new_feature
+  ```
+- **Tip 1:**: In general, smaller pull requests are better, and easier to merge.
+- **Tip 2:**: Whenever you get an email from Github telling you that a branch
+    has been merged into the master branch, but you are in the middle of
+    implementing your feature branch, make sure to pull the changes from master
+    into your branch and resolve any merge conflicts (another reason to not
+    delay PRs!). Assuming you are on the `new_feature` branch, you would do:
+    ```
+    git pull origin master
+    ```
+    For those more proficient in the usage of `git`- feel free to fetch changes
+    from master and rebase your feature branch on top of the master branch.
