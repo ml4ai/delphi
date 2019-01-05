@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+"""Command line interface for delphi.
+
+Why does this file exist, and why not put this in ``__main__``? You might be tempted to import
+things from ``__main__`` later, but that will cause problems--the code will get executed twice:
+
+- When you run ``python3 -m delphi`` python will execute``__main__.py`` as a script. That means there won't be any
+  ``delphi.__main__`` in ``sys.modules``.
+- When you import __main__ it will get executed again (as a module) because
+  there's no ``delphi.__main__`` in ``sys.modules``.
+  
+.. seealso:: http://click.pocoo.org/5/setuptools/#setuptools-integration
+"""
+
 import os
 import sys
 import pickle
