@@ -74,8 +74,8 @@ def positive_int(arg, x):
     return val
 
 
-if __name__ == "__main__":
-
+def main():
+    """Run the CLI."""
     parser = ArgumentParser(
         description="Dynamic Bayes Net Executable Model",
         formatter_class=ArgumentDefaultsHelpFormatter,
@@ -137,3 +137,6 @@ if __name__ == "__main__":
 
     else:
         args.func(args)
+
+if __name__ == '__main__':
+    main()
