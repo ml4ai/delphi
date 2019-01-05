@@ -43,4 +43,9 @@ setup(
             "sphinx-autodoc-typehints",
         ],
     },
+    entry_points={
+        'console_scripts': [
+            'delphi = delphi.cli:main',
+        ],
+    },
 )
