@@ -143,7 +143,7 @@ In the following sections, we will go into more detail on model execution.
 To execute the model, do:
 
 ```bash
-python delphi/cli.py execute
+delphi execute
 ```
 
 This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,
