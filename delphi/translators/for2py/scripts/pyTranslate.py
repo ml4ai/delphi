@@ -428,7 +428,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f") = format_{format_label}_obj.read_line({file_handle}.readline())")       
 
     def printWrite(self, node, printState):
-        print (node)
         write_list = []
         write_string = ''
         file_number = str(node["args"][0]["value"])

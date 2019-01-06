@@ -295,7 +295,6 @@ def make_call_body_dict(source):
 
 
 def make_body_dict(name, target, sources):
-    print (name, target, sources)
     source_list = []
     file_read_index = 2
 
