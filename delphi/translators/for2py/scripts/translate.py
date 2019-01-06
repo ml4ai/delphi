@@ -273,6 +273,57 @@ class XMLToJSONTranslator(object):
         for node in root:
             fn["args"] += self.parseTree(node, state)
         return [fn]
+    
+    def process_keyword_argument(self, root, state) -> List[Dict]:
+        x = []
+        if (root.attrib and root.attrib['argument-name'] != ''):
+            x = [{"arg_name": root.attrib['argument-name']}]
+        for node in root:
+            x += self.parseTree(node, state)
+        return x
+
+    def process_open(self, root, state) -> List[Dict]:
+        open_st = {"tag":root.tag, "args":[]}
+        for node in root:
+            open_st["args"] += self.parseTree(node, state)
+        return [open_st]
+
+    def process_read(self, root, state) -> List[Dict]:
+        read_st = {"tag":root.tag, "args":[]}
+        for node in root:
+            read_st["args"] += self.parseTree(node, state)
+        return [read_st]
+
+    def process_write(self, root, state) -> List[Dict]:
+        write_st = {"tag":root.tag, "args":[]}
+        for node in root:
+            write_st["args"] += self.parseTree(node, state)
+        return [write_st]
+
+    def process_format(self, root, state) -> List[Dict]:
+        format_spec = {"tag": "format", "args": []}
+        for node in root:
+            if node.tag == "label":
+                format_spec["label"] = node.attrib["lbl"]
+            format_spec["args"] += self.parseTree(node, state)
+        return [format_spec]
+
+    def process_format_item(self, root, state) -> List[Dict]:
+        variable_spec = {
+                "tag": "literal",
+                "type": "char",
+                "value": root.attrib["descOrDigit"]
+        }
+        return [variable_spec]
+
+    def process_close(self, root, state) -> List[Dict]:
+        close_spec = {
+            "tag": "close",
+            "args": []
+        }
+        for node in root:
+            close_spec["args"] += self.parseTree(node, state)
+        return [close_spec] 
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -337,9 +388,30 @@ class XMLToJSONTranslator(object):
         elif root.tag == "return":
             return self.process_return(root, state)
 
+        elif root.tag == "keyword-argument":
+            return self.process_keyword_argument(root, state)
+
+        elif root.tag == "open":
+            return self.process_open(root, state)
+
+        elif root.tag == "read":
+            return self.process_read(root, state)
+
+        elif root.tag == "write":
+            return self.process_write(root, state)
+
+        elif root.tag == "format":
+            return self.process_format(root, state)
+
+        elif root.tag == "format-item":
+            return self.process_format_item(root, state)
+
+        elif root.tag == "close":
+            return self.process_close(root, state)   
+   
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
-
+ 
         else:
             prog = []
             for node in root:

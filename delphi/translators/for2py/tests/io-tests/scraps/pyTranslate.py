@@ -23,7 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from fortran_format import *
+
 
 class PrintState:
     def __init__(
@@ -82,7 +82,6 @@ class PythonCodeGenerator(object):
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
         self.stateMap = {
-            "UNKNOWN": "r",
             "REPLACE": "w",
        }
         self.format_dict = {}
@@ -108,7 +107,6 @@ class PythonCodeGenerator(object):
             "write": self.printWrite,
             "open": self.printOpen,
             "format": self.printFormat,
-            "close": self.printClose,
         }
         self.operator_mapping = {
             ".ne.": " != ",
@@ -117,7 +115,6 @@ class PythonCodeGenerator(object):
             ".lt.": " < ",
             ".le.": " <= ",
         }
-        self.readFormat = []
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
         self.pyStrings.append(f"\ndef {node['name']}(")
@@ -201,40 +198,39 @@ class PythonCodeGenerator(object):
 
     def printAst(self, root, printState):
         for node in root:
-            if node.get("tag"):
-                if node["tag"] == "format":
-                    self.printFn["format"](node, printState)
-        for node in root:
-            if node.get("tag"):
-                if node["tag"] == "read":
-                    self.initializeFileVars(node, printState)
-
+            if node.get("tag") and node["tag"] == "format":
+                #self.extractFormat(node)
+                self.printFn["format"](node, printState)
         for node in root:
             if printState.printFirst:
                 self.pyStrings.append(printState.sep)
             else:
                 printState.printFirst = True
-            if node.get("tag") and node.get("tag") != "format":
+            if node.get("tag"):
                 self.printFn[node["tag"]](node, printState)
 
-    def initializeFileVars(self, node, printState):
-       label = node["args"][1]["value"]
-       data_type = list_data_type(self.format_dict[label])
-       index = 0
-       for item in node["args"]:
-            if item["tag"] == "ref":
-                var = item["name"]
-                self.printVariable({"name": var, "type": data_type[index]}, printState)
-                self.pyStrings.append(printState.sep)
-                index += 1
-
+    def extractFormat(self, node):
+        type_list = []
+        try:
+            rep_count = int(node["args"][-1]["value"])
+        except ValueError:
+            for item in node["args"]:
+                type_list.append(item["value"])
+            self.format_dict[node["label"]] = type_list
+        else:
+            type_string = str(rep_count) + '('
+            for item in node["args"][:-1]:
+                type_string += item["value"] + ','
+            type_string = type_string[:-1] 
+            type_string += ')'
+            type_list.append(type_string)
+            self.format_dict[node["label"]] = type_list
+ 
     def printArg(self, node, printState):
         if node["type"] == "INTEGER":
             varType = "int"
         elif node["type"] in ("DOUBLE", "REAL"):
             varType = "float"
-        elif node["type"] == "CHARACTER":
-            varType = "str"
         else:
             print(f"unrecognized type {node['type']}")
             sys.exit(1)
@@ -253,9 +249,6 @@ class PythonCodeGenerator(object):
             elif node["type"] in ("DOUBLE", "REAL"):
                 initVal = 0.0
                 varType = "float"
-            elif node["type"] == "STRING":
-                initVal = ''
-                varType = "str"
             else:
                 print(f"unrecognized type {node['type']}")
                 sys.exit(1)
@@ -398,10 +391,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("return True")
 
     def printOpen(self, node, printState):
-        if node["args"][0].get("arg_name") == "UNIT":
-            file_handle = "file_" + str(node["args"][1]["value"])
-        else:
-            file_handle = "file_" + str(node["args"][0]["value"])
+        file_handle = "file_" + str(node["args"][0]["value"])
         self.pyStrings.append(f"{file_handle} = ")
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
@@ -420,15 +410,18 @@ class PythonCodeGenerator(object):
             file_handle = "file_" + file_number
         if node["args"][1]["type"] == "int":
             format_label = node["args"][1]["value"]
+        self.pyStrings.append(f"read_format_{file_number} = {self.format_dict[format_label]}")
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append(f"read_{file_handle} = Format(read_format_{file_number})")
+        self.pyStrings.append(printState.sep)
         self.pyStrings.append("(")
         for item in node["args"]:
             if item["tag"] == "ref":
                 var = item["name"]
                 self.pyStrings.append(f"{var},") 
-        self.pyStrings.append(f") = format_{format_label}_obj.read_line({file_handle}.readline())")       
+        self.pyStrings.append(f") = read_{file_handle}.read_line({file_handle}.readline())")       
 
     def printWrite(self, node, printState):
-        print (node)
         write_list = []
         write_string = ''
         file_number = str(node["args"][0]["value"])
@@ -436,15 +429,19 @@ class PythonCodeGenerator(object):
             file_handle = "file_" + file_number
         if node["args"][1]["type"] == "int":
             format_label = node["args"][1]["value"]
-        self.pyStrings.append(f"write_list_{file_number} = [")
+        self.pyStrings.append(f"write_format_{file_number} = {self.format_dict[format_label]}")
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append(f"write_{file_handle} = Format(write_format_{file_number})")
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append("write_list = [")
         for item in node["args"]:
             if item["tag"] == "ref":
                 write_string += f"{item['name']}, "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})")
+        self.pyStrings.append(f"write_line = write_{file_handle}.write_line(write_list)")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"{file_handle}.write(write_line)")
+        self.pyStrings.append(f"{file_handle}.write(write_line+'\\n')")
 
     def printExit(self, node, printState):
         self.pyStrings.append("return")
@@ -456,6 +453,10 @@ class PythonCodeGenerator(object):
         except ValueError:
             for item in node["args"]:
                 type_list.append(item["value"])
+            self.format_dict[node["label"]] = type_list
+            self.pyStrings.append(f"format_{node['label']} = {type_list}")
+            self.pyStrings.append(printState.sep)
+            self.pyStrings.append(f"format_{node['label']}_obj = FOrmat(format_{node['label']})")
         else:
             type_string = str(rep_count) + '('
             for item in node["args"][:-1]:
@@ -463,20 +464,11 @@ class PythonCodeGenerator(object):
             type_string = type_string[:-1] 
             type_string += ')'
             type_list.append(type_string)
-      
-        self.pyStrings.append(printState.sep) 
-        self.printVariable({"name": "format_"+node["label"], "type": "STRING"}, printState)
-        self.format_dict[node["label"]] = type_list
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"format_{node['label']} = {type_list}")
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"format_{node['label']}_obj = Format(format_{node['label']})")
-        self.pyStrings.append(printState.sep)
-
-    def printClose(self, node, printState):
-        file_id = node["args"][0]["value"]
-        self.pyStrings.append(f"file_{file_id}.close()")
-
+            self.format_dict[node["label"]] = type_list
+            self.pyStrings.append(f"format_{node['label']} = {type_list}")
+            self.pyStrings.append(printState.sep)
+            self.pyStrings.append(f"format_{node['label']}_obj = FOrmat(format_{node['label']})")
+ 
     def get_python_source(self):
         return "".join(self.pyStrings)
 
