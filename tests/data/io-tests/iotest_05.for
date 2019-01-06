@@ -8,7 +8,8 @@ C
 C F =  67.9; I =  123
 
       PROGRAM MAIN
-      
+
+      REAL X,Y      
       OPEN (10, FILE="infile3")
       OPEN (20, FILE="outfile3", STATUS="REPLACE")
  30   FORMAT(/,'F = ', F5.1, '; I = ', I4)
