@@ -610,7 +610,7 @@ C****************************************************************************
         TRAIN  = TRAIN + RAIN
         CALL DRAINE(SWC, FC, DRNp, DRN)
 
-        IF (POTINF. GT. 0.0) THEN
+        IF (POTINF .GT. 0.0) THEN
           CALL RUNOFF(POTINF, CN, ROF, 'RATE      ')
           INF = POTINF - ROF
         ELSE
