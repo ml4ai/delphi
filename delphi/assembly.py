@@ -1,7 +1,7 @@
 from datetime import datetime
-from delphi.paths import concept_to_indicator_mapping, data_dir, db_path
+from .paths import concept_to_indicator_mapping, data_dir, db_path
 from .utils import exists, flatMap, flatten, get_data_from_url
-from delphi.utils.indra import *
+from .utils.indra import *
 from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
@@ -40,6 +40,14 @@ def constructConditionalPDF(
 
     adjective_response_dict = {}
     all_thetas = []
+
+    # Setting σ_X and σ_Y that are in Eq. 1.21 of the model document.
+    # This assumes that the real-valued variables representing the abstract
+    # concepts are on the order of 1.0.
+    # TODO Make this more general.
+
+    σ_X = σ_Y = 0.1
+
     for stmt in e[2]["InfluenceStatements"]:
         for ev in stmt.evidence:
             # To account for discrepancy between Hume and Eidos extractions
@@ -70,7 +78,7 @@ def constructConditionalPDF(
                         ] * adjective_response_dict.get(obj_adjective, rs)
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                        thetas = np.arctan2(ys1.flatten(), xs1.flatten())
+                        thetas = np.arctan2(σ_Y*ys1.flatten(), xs1.flatten())
                         all_thetas.append(thetas)
 
             # Prior
@@ -79,10 +87,11 @@ def constructConditionalPDF(
                 stmt.obj_delta["polarity"] * rs,
                 indexing="xy",
             )
-            thetas = np.arctan2(ys1.flatten(), xs1.flatten())
-            all_thetas.append(thetas)
+            # TODO - make the setting of σ_X and σ_Y more automated
+            thetas = np.arctan2(σ_Y*ys1.flatten(), σ_X*xs1.flatten())
 
-    if len(all_thetas) == 1:
+    if len(all_thetas) == 0:
+        all_thetas.append(thetas)
         return gaussian_kde(all_thetas)
     else:
         return gaussian_kde(np.concatenate(all_thetas))
