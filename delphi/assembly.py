@@ -113,26 +113,6 @@ def get_data(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_mean_precipitation(year: int):
-    """ Workaround to get the precipitation from CYCLES. """
-    url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
-    df = pd.read_table(get_data_from_url(url))
-    df.columns = df.columns.str.strip()
-    df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
-    df.drop([0], axis=0, inplace=True)
-    df["DATE (YYYY-MM-DD)"] = pd.to_datetime(
-        df["DATE (YYYY-MM-DD)"], format="%Y-%m-%d"
-    )
-    return (
-        df.loc[
-            (datetime(year, 1, 1) < df["DATE (YYYY-MM-DD)"])
-            & (df["DATE (YYYY-MM-DD)"] < datetime(year, 12, 31))
-        ]["PRECIPITATION (mm)"]
-        .values.astype(float)
-        .mean()
-    )
-
-
 def get_indicator_value(
     indicator: Indicator, date: datetime
 ) -> Optional[float]:
