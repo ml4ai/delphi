@@ -13,8 +13,7 @@ addons:
 
 install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - pip install pipenv
-  - pipenv install -d --skip-lock
+  - pip install .[test]
   - wget http://vision.cs.arizona.edu/adarsh/delphi.db
 
 script: make test
