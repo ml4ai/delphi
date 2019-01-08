@@ -53,7 +53,6 @@ setup(
             ],
         "test": [
             "pytest>=3.6.0",
-            "mypy",
             "pytest-cov",
             "pytest-profiling",
             "pytest-sugar",
