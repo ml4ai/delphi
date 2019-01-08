@@ -26,7 +26,6 @@ from argparse import (
     FileType,
     ArgumentDefaultsHelpFormatter,
 )
-from delphi.paths import data_dir
 from delphi.AnalysisGraph import AnalysisGraph
 
 

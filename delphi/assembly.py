@@ -1,5 +1,5 @@
 from datetime import datetime
-from .paths import concept_to_indicator_mapping, data_dir, db_path
+from .paths import db_path
 from .utils import exists, flatMap, flatten, get_data_from_url
 from .utils.indra import *
 from .random_variables import Delta, Indicator

@@ -4,7 +4,7 @@ python:
   - "3.6"
 
 env:
-  - DELPHI_DATA=$TRAVIS_BUILD_DIR/data
+  - DELPHI_DB=$TRAVIS_BUILD_DIR/delphi.db
 
 addons:
   apt:
@@ -15,7 +15,7 @@ install:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install pipenv
   - pipenv install -d --skip-lock
-  - mkdir data; cd data; wget http://vision.cs.arizona.edu/adarsh/delphi.db
+  - wget http://vision.cs.arizona.edu/adarsh/delphi.db
 
 script: make test
 after_success: coveralls

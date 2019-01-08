@@ -13,8 +13,8 @@ import numpy as np
 from indra.statements import Influence, Concept, Evidence
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .paths import south_sudan_data, adjectiveData
 from .utils.fp import flatMap, ltake, lmap, pairwise
+from .paths import db_path
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
@@ -24,6 +24,7 @@ from .assembly import (
     get_indicator_value,
     get_data,
 )
+from sqlalchemy import create_engine
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -181,9 +182,7 @@ class AnalysisGraph(nx.DiGraph):
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
 
-    def assemble_transition_model_from_gradable_adjectives(
-        self, adjective_data: str = None
-    ):
+    def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
         adjective data to the edges of the analysis graph data structure.
 
@@ -194,12 +193,9 @@ class AnalysisGraph(nx.DiGraph):
 
         from scipy.stats import gaussian_kde
 
-        if adjective_data is None:
-            adjective_data = adjectiveData
-
-        gb = pd.read_csv(adjective_data, delim_whitespace=True).groupby(
-            "adjective"
-        )
+        engine = create_engine(f"sqlite:///{str(db_path)}", echo=False)
+        df = pd.read_sql_table("gradableAdjectiveData", con=engine)
+        gb = df.groupby("adjective")
 
         rs = gaussian_kde(
             flatMap(

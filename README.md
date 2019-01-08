@@ -106,10 +106,13 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 
 ### Environment variables
 
-To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
-environment variable to the path to your local copy of the Delphi data
-directory. You can download the data directory from the 
-[Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
+To parameterize Delphi models correctly, you will need to set the `DELPHI_DB`
+environment variable to the path to your local copy of the Delphi SQLite
+database, which you can download with:
+
+```
+wget http://vision.cs.arizona.edu/adarsh/delphi.db
+```
 
 *Optional*:
 

@@ -4,12 +4,9 @@ from conftest import *
 from datetime import datetime
 from indra.statements import Concept, Influence
 from delphi.assembly import *
-from delphi.paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
 from delphi.utils.indra import *
 import pytest
-
-gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
 
 
 def test_make_edge():
@@ -81,9 +78,6 @@ def test_contains_relevant_concept():
     relevant_concepts = [food_security_string]
     assert contains_relevant_concept(s1, relevant_concepts)
     assert not contains_relevant_concept(s3, relevant_concepts)
-
-
-indicator_data = get_data(south_sudan_data)
 
 
 def test_get_indicator_data():
