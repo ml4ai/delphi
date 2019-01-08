@@ -183,7 +183,7 @@ class AnalysisGraph(nx.DiGraph):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
 
     def assemble_transition_model_from_gradable_adjectives(
-        self, adjective_data: str = None, res: int = 100
+        self, adjective_data: str = None
     ):
         """ Add probability distribution functions constructed from gradable
         adjective data to the edges of the analysis graph data structure.
@@ -205,11 +205,11 @@ class AnalysisGraph(nx.DiGraph):
         rs = gaussian_kde(
             flatMap(
                 lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(res)[0]
+                .resample(self.res)[0]
                 .tolist(),
                 gb,
             )
-        ).resample(res)[0]
+        ).resample(self.res)[0]
 
         for edge in self.edges(data=True):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
@@ -246,9 +246,7 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def map_concepts_to_indicators(
-        self, n: int = 1, mapping_file: Optional[str] = None
-    ):
+    def map_concepts_to_indicators(self, n: int = 1):
         """ Add indicators to the analysis graph.
 
         Args:
@@ -257,11 +255,7 @@ class AnalysisGraph(nx.DiGraph):
         """
         from .utils.web import get_data_from_url
 
-        if mapping_file is None:
-            url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/concept_to_indicator_mapping.txt"
-            mapping_file = get_data_from_url(url)
-
-        mapping = construct_concept_to_indicator_mapping(n, mapping_file)
+        mapping = construct_concept_to_indicator_mapping(n)
 
         for n in self.nodes(data=True):
             n[1]["indicators"] = get_indicators(n[0], mapping)
