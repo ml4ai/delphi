@@ -47,7 +47,6 @@ setup(
         "tangent",
     ],
     python_requires=">=3.6",
-    setup_requires=["cython"],
     extras_require={
         "dev": ["check-manifest", "rise", "shapely", "pyshp", "xlrd"],
         "test": [
