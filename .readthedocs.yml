@@ -3,4 +3,6 @@ build:
 
 python:
     pip_install: true
+    extra_requirements:
+      - docs
     version: 3.6
