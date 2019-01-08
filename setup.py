@@ -52,7 +52,7 @@ setup(
             "pyjnius"
             ],
         "test": [
-            "pytest",
+            "pytest>=3.6.0",
             "mypy",
             "pytest-cov",
             "pytest-profiling",
