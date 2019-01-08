@@ -38,7 +38,6 @@ setup(
         "flask-sqlalchemy",
         "fuzzywuzzy[speedup]",
         "indra",
-        "pyjnius",
         "jupyter",
         "jupyter-contrib-nbextensions",
         "python-dateutil",
@@ -48,7 +47,10 @@ setup(
     ],
     python_requires=">=3.6",
     extras_require={
-        "dev": ["check-manifest", "rise", "shapely", "pyshp", "xlrd"],
+        "dev": [
+            "check-manifest", "rise", "shapely", "pyshp", "xlrd",
+            "pyjnius"
+            ],
         "test": [
             "pytest",
             "mypy",
