@@ -72,7 +72,6 @@ class AnalysisGraph(nx.DiGraph):
         )
 
         sts = get_valid_statements_for_modeling(sts)
-        print(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
         self = cls(edges)
