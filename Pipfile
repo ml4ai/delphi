@@ -45,6 +45,7 @@ shapely = {version = "*", extras = ["vectorized"]}
 pytest-profiling = "*"
 pytest-xdist = "*"
 pytest-sugar = "*"
+pyjnius = "*"
 
 [requires]
 python_version = "3.6"

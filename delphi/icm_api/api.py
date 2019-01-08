@@ -11,7 +11,6 @@ from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.icm_api import db
 from delphi.icm_api.models import *
-from delphi.paths import data_dir
 import numpy as np
 
 bp = Blueprint("icm_api", __name__)
@@ -166,18 +165,9 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     G = DelphiModel.query.filter_by(id=uuid).first().model
     data = json.loads(request.data)
-    default_latent_var_value = 1.0
+    G.initialize()
     for n in G.nodes(data=True):
-        n[1]["rv"] = LatentVar(n[0])
-        n[1]["update_function"] = G.default_update_function
         rv = n[1]["rv"]
-        rv.dataset = [default_latent_var_value for _ in range(G.res)]
-        indicators = n[1].get("indicators")
-        if (indicators is not None) and (indicators != {}):
-            for indicator_name, ind in n[1]["indicators"].items():
-                if ind.mean is not None:
-                    ind.dataset = np.ones(G.res) * ind.mean
-
         rv.partial_t = 0.0
         for variable in data["interventions"]:
             if n[1]["id"] == variable["id"]:
@@ -207,7 +197,6 @@ def createExperiment(uuid: str):
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
-
 
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(

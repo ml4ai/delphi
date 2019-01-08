@@ -85,8 +85,6 @@ def causal_primitives(G):
         [abs(np.median(e[2]["betas"])) for e in G.edges(data=True)]
     )
     for e in G.edges(data=True):
-        # TODO: Have AnalysisGraph automatically assign uuids to edges.
-
         causal_relationship_id = e[2]['id']
         causal_relationship = CausalRelationship(
             id=e[2]['id'],

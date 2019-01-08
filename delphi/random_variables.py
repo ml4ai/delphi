@@ -7,6 +7,7 @@ Delta = Dict[Optional[str], Optional[int]]
 class RV(object):
     def __init__(self, name):
         self.name = name
+        self.value = None
         self.dataset = None
 
     def sample(self):

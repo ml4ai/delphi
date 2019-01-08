@@ -44,6 +44,14 @@ delphi.icm\_api.run module
     :undoc-members:
     :show-inheritance:
 
+delphi.icm\_api.utils module
+----------------------------
+
+.. automodule:: delphi.icm_api.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
