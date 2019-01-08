@@ -16,5 +16,3 @@ def test_cli(G):
         ]
     )
     assert True
-    os.remove("dbn_sampled_sequences.csv")
-    os.remove("bmi_config.txt")

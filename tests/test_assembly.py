@@ -92,4 +92,4 @@ def test_get_indicator_data():
         "WB",
     )
     t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t, indicator_data)[0] == -1.2
+    assert get_indicator_value(indicator, t)[0] == -1.2
