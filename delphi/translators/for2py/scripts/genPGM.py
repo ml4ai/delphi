@@ -8,7 +8,7 @@ import re
 import argparse
 from functools import *
 import json
-from .genCode import *
+from genCode import *
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -842,6 +842,7 @@ def genPgm(node, state, fnNames):
                 target["var"]["variable"],
                 source_list,
             )
+            print (sources)
             if not fn["sources"] and len(sources) == 1:
                 if sources[0].get("list"):
                     dtypes = set()
