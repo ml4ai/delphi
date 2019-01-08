@@ -199,7 +199,6 @@ def createExperiment(uuid: str):
         elif data["projection"]["stepSize"] == "YEAR":
             d = d + relativedelta(years=1)
 
-
         for n in G.nodes(data=True):
             CausalVariable.query.filter_by(
                 id=n[1]["id"]
