@@ -78,7 +78,7 @@ def constructConditionalPDF(
                         ] * adjective_response_dict.get(obj_adjective, rs)
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                        thetas = np.arctan2(σ_Y*ys1.flatten(), xs1.flatten())
+                        thetas = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
                         all_thetas.append(thetas)
 
             # Prior
@@ -88,7 +88,7 @@ def constructConditionalPDF(
                 indexing="xy",
             )
             # TODO - make the setting of σ_X and σ_Y more automated
-            thetas = np.arctan2(σ_Y*ys1.flatten(), σ_X*xs1.flatten())
+            thetas = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
 
     if len(all_thetas) == 0:
         all_thetas.append(thetas)
@@ -118,7 +118,7 @@ def get_indicator_value(
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    engine = create_engine("sqlite:///"+str(db_path), echo=False)
+    engine = create_engine("sqlite:///" + str(db_path), echo=False)
     variable_names = [
         x[0]
         for x in engine.execute(
@@ -131,11 +131,14 @@ def get_indicator_value(
     # expression below (i.e. add month support instead of taking the first
     # available result.)
 
-    result = engine.execute(" ".join([
-        f"select * from indicator where `Variable` like '{best_match}'",
-        "and `Value` is not null",
-        f"and `Year` is {date.year}"
-        ])
+    result = engine.execute(
+        " ".join(
+            [
+                f"select * from indicator where `Variable` like '{best_match}'",
+                "and `Value` is not null",
+                f"and `Year` is {date.year}",
+            ]
+        )
     ).fetchone()
 
     # TODO devise a strategy to deal with missing month values
@@ -164,22 +167,11 @@ def get_variable_and_source(x: str):
         return xs[-1], xs[0]
 
 
-def construct_concept_to_indicator_mapping(
-    n: int = 1, mapping=concept_to_indicator_mapping
-) -> Dict[str, List[str]]:
+def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
-    df = pd.read_table(
-        mapping,
-        usecols=[1, 2, 3, 4],
-        names=["Concept", "Source", "Indicator", "Score"],
-        dtype={
-            "Concept": str,
-            "Source": str,
-            "Indicator": str,
-            "Score": np.float64,
-        },
-    )
+    engine = create_engine(f"sqlite:///{str(db_path)}", echo=False)
+    df = pd.read_sql_table("concept_to_indicator_mapping", con=engine)
     gb = df.groupby("Concept")
 
     _dict = {
