@@ -90,7 +90,7 @@ def test_io_grfn_generation(io_grfn_dict):
     with open("tests/data/io-tests/iotest_05_grfn.json","r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
-    assert sorted(io_gfrn_dict) == sorted(json_dict)
+    assert sorted(io_grfn_dict) == sorted(json_dict)
 
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas
