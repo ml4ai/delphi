@@ -842,7 +842,6 @@ def genPgm(node, state, fnNames):
                 target["var"]["variable"],
                 source_list,
             )
-            print (sources)
             if not fn["sources"] and len(sources) == 1:
                 if sources[0].get("list"):
                     dtypes = set()
