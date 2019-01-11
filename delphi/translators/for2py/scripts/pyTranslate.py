@@ -481,6 +481,7 @@ class PythonCodeGenerator(object):
 
 
 def create_python_string(outputDict):
+    print (outputDict["ast"])
     code_generator = PythonCodeGenerator()
     code_generator.pyStrings.append("from typing import List\n")
     code_generator.pyStrings.append("import math\n")
