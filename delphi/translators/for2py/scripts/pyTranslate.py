@@ -460,12 +460,8 @@ class PythonCodeGenerator(object):
             for item in node["args"]:
                 type_list.append(item["value"])
         else:
-            type_string = str(rep_count) + "("
-            for item in node["args"][:-1]:
-                type_string += item["value"] + ","
-            type_string = type_string[:-1]
-            type_string += ")"
-            type_list.append(type_string)
+            values = [item["value"] for item in node["args"][:-1]]
+            type_list.append(f"{rep_count}({','.join(values)})")
 
         self.pyStrings.append(printState.sep)
         self.printVariable(
