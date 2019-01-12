@@ -75,12 +75,12 @@ Linux and MacOS operating systems. We assume familiarity with the following:
 
 Here are the steps for installation.
 
-- Fire up a terminal, navigate to the directory that you would like to install Delphi in, then execute the following in the terminal:
+- Fire up a terminal, navigate to the directory that you would like to install
+  Delphi in, then execute the following in the terminal:
     ```bash
     git clone https://github.com/ml4ai/delphi
     cd delphi
-    pip install pipenv
-    pipenv install -d --skip-lock
+    pip install .
     ```
 
 ### Installing Graphviz on MacOS
@@ -93,7 +93,7 @@ If you use Homebrew to install graphviz, then you may need to install
 pygraphviz by specifying certain paths, as done below.
 
 ```bash
-pipenv install --install-option="--include-path=/usr/local/include/" \
+brew install --install-option="--include-path=/usr/local/include/" \
                --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
@@ -106,10 +106,13 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 
 ### Environment variables
 
-To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
-environment variable to the path to your local copy of the Delphi data
-directory. You can download the data directory from the 
-[Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
+To parameterize Delphi models correctly, you will need to set the `DELPHI_DB`
+environment variable to the path to your local copy of the Delphi SQLite
+database, which you can download with:
+
+```
+wget http://vision.cs.arizona.edu/adarsh/delphi.db
+```
 
 *Optional*:
 
@@ -143,7 +146,7 @@ In the following sections, we will go into more detail on model execution.
 To execute the model, do:
 
 ```bash
-python delphi/cli.py execute
+delphi execute
 ```
 
 This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,

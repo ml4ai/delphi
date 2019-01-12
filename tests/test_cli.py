@@ -5,6 +5,7 @@ from conftest import *
 
 def test_cli(G):
     """ Smokescreen test for CLI application. """
+    G.create_bmi_config_file()
     sp.call(
         [
             "python",
@@ -15,4 +16,3 @@ def test_cli(G):
         ]
     )
     assert True
-    os.remove("dbn_sampled_sequences.csv")
