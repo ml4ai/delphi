@@ -61,6 +61,7 @@ setup(
             "mypy",
         ],
         "docs": [
+            "sphinx",
             "sphinx-rtd-theme",
             "sphinxcontrib-bibtex",
             "sphinxcontrib-trio",
