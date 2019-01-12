@@ -34,7 +34,7 @@ setup(
         "cython",
         "dataclasses",
         "flask",
-        "sqlalchemy",
+        "SQLAlchemy",
         "flask-sqlalchemy",
         "fuzzywuzzy[speedup]",
         "indra",
