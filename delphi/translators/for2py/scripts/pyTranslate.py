@@ -25,6 +25,7 @@ import argparse
 from typing import List, Dict
 from .fortran_format import *
 
+
 class PrintState:
     def __init__(
         self,
@@ -81,10 +82,7 @@ class PythonCodeGenerator(object):
         self.mathFuncs = ["mod", "exp", "cexp", "cmplx"]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
-        self.stateMap = {
-            "UNKNOWN": "r",
-            "REPLACE": "w",
-       }
+        self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
         self.format_dict = {}
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -218,13 +216,15 @@ class PythonCodeGenerator(object):
                 self.printFn[node["tag"]](node, printState)
 
     def initializeFileVars(self, node, printState):
-       label = node["args"][1]["value"]
-       data_type = list_data_type(self.format_dict[label])
-       index = 0
-       for item in node["args"]:
+        label = node["args"][1]["value"]
+        data_type = list_data_type(self.format_dict[label])
+        index = 0
+        for item in node["args"]:
             if item["tag"] == "ref":
                 var = item["name"]
-                self.printVariable({"name": var, "type": data_type[index]}, printState)
+                self.printVariable(
+                    {"name": var, "type": data_type[index]}, printState
+                )
                 self.pyStrings.append(printState.sep)
                 index += 1
 
@@ -254,7 +254,7 @@ class PythonCodeGenerator(object):
                 initVal = 0.0
                 varType = "float"
             elif node["type"] == "STRING":
-                initVal = ''
+                initVal = ""
                 varType = "str"
             else:
                 print(f"unrecognized type {node['type']}")
@@ -357,10 +357,10 @@ class PythonCodeGenerator(object):
             self.pyStrings.append("]")
 
     def printLiteral(self, node, printState):
-        self.pyStrings.append(node['value'])
+        self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
-        self.pyStrings.append(node['name'])
+        self.pyStrings.append(node["name"])
         if printState.indexRef:
             self.pyStrings.append("[0]")
 
@@ -406,13 +406,13 @@ class PythonCodeGenerator(object):
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
                 if item["arg_name"] == "FILE":
-                    file_name = node["args"][index+1]["value"][1:-1]
-                    open_state = 'r'
+                    file_name = node["args"][index + 1]["value"][1:-1]
+                    open_state = "r"
                 elif item["arg_name"] == "STATUS":
-                    open_state = node["args"][index+1]["value"][1:-1]
+                    open_state = node["args"][index + 1]["value"][1:-1]
                     open_state = self.stateMap[open_state]
 
-        self.pyStrings.append(f"open(\"{file_name}\", \"{open_state}\")")    
+        self.pyStrings.append(f'open("{file_name}", "{open_state}")')
 
     def printRead(self, node, printState):
         file_number = str(node["args"][0]["value"])
@@ -424,12 +424,14 @@ class PythonCodeGenerator(object):
         for item in node["args"]:
             if item["tag"] == "ref":
                 var = item["name"]
-                self.pyStrings.append(f"{var},") 
-        self.pyStrings.append(f") = format_{format_label}_obj.read_line({file_handle}.readline())")       
+                self.pyStrings.append(f"{var},")
+        self.pyStrings.append(
+            f") = format_{format_label}_obj.read_line({file_handle}.readline())"
+        )
 
     def printWrite(self, node, printState):
         write_list = []
-        write_string = ''
+        write_string = ""
         file_number = str(node["args"][0]["value"])
         if node["args"][0]["type"] == "int":
             file_handle = "file_" + file_number
@@ -441,7 +443,9 @@ class PythonCodeGenerator(object):
                 write_string += f"{item['name']}, "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})")
+        self.pyStrings.append(
+            f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
+        )
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(f"{file_handle}.write(write_line)")
 
@@ -456,21 +460,27 @@ class PythonCodeGenerator(object):
             for item in node["args"]:
                 type_list.append(item["value"])
         else:
-            type_string = str(rep_count) + '('
+            type_string = str(rep_count) + "("
             for item in node["args"][:-1]:
-                type_string += item["value"] + ','
-            type_string = type_string[:-1] 
-            type_string += ')'
+                type_string += item["value"] + ","
+            type_string = type_string[:-1]
+            type_string += ")"
             type_list.append(type_string)
-      
-        self.pyStrings.append(printState.sep) 
-        self.printVariable({"name": "format_"+node["label"], "type": "STRING"}, printState)
+
+        self.pyStrings.append(printState.sep)
+        self.printVariable(
+            {"name": "format_" + node["label"], "type": "STRING"}, printState
+        )
         self.format_dict[node["label"]] = type_list
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"format_{node['label']} = {type_list}")
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"format_{node['label']}_obj = Format(format_{node['label']})")
-        self.pyStrings.append(printState.sep)
+        self.pyStrings.extend(
+            [
+                printState.sep,
+                f"format_{node['label']} = {type_list}",
+                printState.sep,
+                f"format_{node['label']}_obj = Format(format_{node['label']})",
+                printState.sep,
+            ]
+        )
 
     def printClose(self, node, printState):
         file_id = node["args"][0]["value"]
@@ -482,9 +492,13 @@ class PythonCodeGenerator(object):
 
 def create_python_string(outputDict):
     code_generator = PythonCodeGenerator()
-    code_generator.pyStrings.append("from typing import List\n")
-    code_generator.pyStrings.append("import math\n")
-    code_generator.pyStrings.append("from fortran_format import *")
+    code_generator.pyStrings.extend(
+        [
+            "from typing import List\n",
+            "import math\n",
+            "from fortran_format import *",
+        ]
+    )
     code_generator.printAst(outputDict["ast"], PrintState())
     return code_generator.get_python_source()
 
