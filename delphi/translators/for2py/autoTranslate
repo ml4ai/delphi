@@ -57,6 +57,7 @@ for file in "$@"; do
     astFile="$base".xml
     ( set -x; $PYTRANSLATE scripts/f2py_pp.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
+
     pyFile="$base".py
     ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pickleFile" -i "$file")
     ( set -x; $PYTRANSLATE scripts/pyTranslate.py -f "$pickleFile" -g "$pyFile")
