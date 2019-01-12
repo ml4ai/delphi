@@ -11,10 +11,12 @@ import numpy as np
 import pandas as pd
 import numpy as np
 from indra.statements import Influence, Concept, Evidence
+from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, ltake, lmap, pairwise
 from .paths import db_path
+from sqlalchemy import create_engine
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
@@ -24,7 +26,6 @@ from .assembly import (
     get_indicator_value,
     get_data,
 )
-from sqlalchemy import create_engine
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -45,6 +46,7 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
     # Constructors
     # ==========================================================================
+
 
     @classmethod
     def from_statements_file(cls, file: str):
@@ -78,6 +80,13 @@ class AnalysisGraph(nx.DiGraph):
         self = cls(edges)
         self.assign_uuids_to_nodes_and_edges()
         return self
+
+    @classmethod
+    def from_text(cls, text: str):
+        """ Construct an AnalysisGraph object from text, using Eidos to perform
+        machine reading. """
+        eidosProcessor = process_text(text)
+        return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
     def from_pickle(cls, file: str):
