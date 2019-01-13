@@ -78,7 +78,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         if kwargs.get("values"):
             node_label = n[0].capitalize().replace("_", " ") + " ("+str(np.mean(n[1]["rv"].dataset))+")"
         else:
-            node_label = n[0].capitalize().replace("_", " ")
+            node_label = '/'.join(n[0].split('/')[1:])
         A.add_node(n[0], label=node_label)
 
     for e in G.edges(data=True):
@@ -114,9 +114,11 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                         node_label = f"{node_label}\n[{ind_value}]"
 
                 A.add_node(
-                    node_label, style="rounded, filled", fillcolor="lightblue"
+                    indicator_name, style="rounded, filled",
+                    fillcolor="lightblue",
+                    label=node_label
                 )
-                A.add_edge(n[0], node_label, color="royalblue4")
+                A.add_edge(n[0], indicator_name, color="royalblue4")
 
     if kwargs.get("nodes_to_highlight") is not None:
         nodes = kwargs.pop("nodes_to_highlight")
