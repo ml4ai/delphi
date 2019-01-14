@@ -47,6 +47,7 @@ class AnalysisGraph(nx.DiGraph):
     # Constructors
     # ==========================================================================
 
+
     @classmethod
     def from_statements_file(cls, file: str):
         """ Construct an AnalysisGraph object from a pickle file containing a
