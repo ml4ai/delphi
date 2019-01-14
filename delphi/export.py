@@ -78,7 +78,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         if kwargs.get("values"):
             node_label = n[0].capitalize().replace("_", " ") + " ("+str(np.mean(n[1]["rv"].dataset))+")"
         else:
-            node_label = '/'.join(n[0].split('/')[1:])
+            node_label = n[0]
         A.add_node(n[0], label=node_label)
 
     for e in G.edges(data=True):

@@ -1,8 +1,25 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from datetime import datetime
+from .db import engine
 
 Delta = Dict[Optional[str], Optional[int]]
 
+MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]
+
+MONTH_DICT = {month_name: month_number for month_name, month_number in zip(MONTHS, range(1,13))}
 
 class RV(object):
     def __init__(self, name):
@@ -38,3 +55,30 @@ class Indicator(RV):
         self.value = value
         self.stdev = stdev
         self.time = time
+
+    def get_historical_distribution(
+        self,
+        country: Optional[str] = "South Sudan",
+        state: Optional[str] = None,
+        county: Optional[str] = None,
+        month: Optional[int] = None,
+        source: Optional[str] = None,
+    ):
+        varName = self.name.replace("_", " ")
+        query_components = [
+            f"select * from indicator where `Variable` like '{varName}'",
+            "and `Value` is not null",
+        ]
+        if country is not None:
+            query_components.append(f"and `Country` like '{country}'")
+        if state is not None:
+            query_components.append(f"and `State` like '{state}'")
+        if county is not None:
+            query_components.append(f"and `County` like '{county}'")
+        if month is not None:
+            month = MONTH_DICT.get(month, month)
+            query_components.append(f"and `Month` like '{float(month)}'")
+        if source is not None:
+            query_components.append(f"and `Source` like '{source}'")
+        query = " ".join(query_components)
+        return [float(x["Value"]) for x in engine.execute(query)]

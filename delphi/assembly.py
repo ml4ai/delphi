@@ -1,6 +1,6 @@
 from datetime import datetime
 from .paths import db_path
-from .utils import exists, flatMap, flatten, get_data_from_url
+from .utils import exists, flatMap, flatten, get_data_from_url, take
 from .utils.indra import *
 from .random_variables import Delta, Indicator
 from typing import *
@@ -10,7 +10,7 @@ from itertools import permutations
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
-from sqlalchemy import create_engine
+from .db import engine
 
 
 def make_edge(
@@ -107,18 +107,11 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     return best_match
 
 
-def get_data(filename: str) -> pd.DataFrame:
-    """ Create a dataframe out of south_sudan_data.csv """
-    df = pd.read_csv(filename)
-    return df
-
-
 def get_indicator_value(
     indicator: Indicator, date: datetime
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    engine = create_engine("sqlite:///" + str(db_path), echo=False)
     variable_names = [
         x[0]
         for x in engine.execute(
@@ -170,18 +163,24 @@ def get_variable_and_source(x: str):
 def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
-    engine = create_engine(f"sqlite:///{str(db_path)}", echo=False)
     df = pd.read_sql_table("concept_to_indicator_mapping", con=engine)
     gb = df.groupby("Concept")
 
     _dict = {
-        k: [get_variable_and_source(x) for x in v["Indicator"].values[0:n]]
+        k: [get_variable_and_source(x) for x in take(n, v["Indicator"].values)]
         for k, v in gb
     }
     return _dict
 
 
 def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
+    # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to make sure
+    # that the intervention nodes are represented consistently in the mapping
+    # (i.e. with spaces vs. with underscores.
+
+    if concept.split("/")[1] == "interventions":
+        concept = concept.replace("_"," ")
+
     return (
         {x[0]: Indicator(x[0], x[1]) for x in mapping[concept]}
         if concept in mapping

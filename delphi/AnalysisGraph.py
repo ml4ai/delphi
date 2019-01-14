@@ -16,7 +16,7 @@ from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, ltake, lmap, pairwise
 from .paths import db_path
-from sqlalchemy import create_engine
+from .db import engine
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
@@ -24,8 +24,8 @@ from .assembly import (
     construct_concept_to_indicator_mapping,
     get_indicators,
     get_indicator_value,
-    get_data,
 )
+from future.utils import lzip
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -46,7 +46,6 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
     # Constructors
     # ==========================================================================
-
 
     @classmethod
     def from_statements_file(cls, file: str):
@@ -202,7 +201,6 @@ class AnalysisGraph(nx.DiGraph):
 
         from scipy.stats import gaussian_kde
 
-        engine = create_engine(f"sqlite:///{str(db_path)}", echo=False)
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
 
@@ -219,17 +217,15 @@ class AnalysisGraph(nx.DiGraph):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
+            edge[2]["betas"] = np.tan(
+                edge[2]["ConditionalProbability"].resample(self.res)[0]
+            )
 
     def sample_from_prior(self):
 
-        n_samples = self.res
-        for edge in self.edges(data=True):
-            edge[2]["betas"] = np.tan(
-                edge[2]["ConditionalProbability"].resample(n_samples)[0]
-            )
-
+        self.transition_matrix_collection = []
         elements = self.get_latent_state_components()
-        for i in range(n_samples):
+        for i in range(self.res):
             A = pd.DataFrame(
                 np.identity(2 * len(self)), index=elements, columns=elements
             )
@@ -257,7 +253,6 @@ class AnalysisGraph(nx.DiGraph):
             n
             mapping_file
         """
-        from .utils.web import get_data_from_url
 
         mapping = construct_concept_to_indicator_mapping(n)
 
@@ -542,3 +537,20 @@ class AnalysisGraph(nx.DiGraph):
         )
         paths = chain.from_iterable(path_generator)
         return AnalysisGraph(self.subgraph(set(chain.from_iterable(paths))))
+
+    def infer_transition_matrix_coefficient_from_data(
+        self,
+        source: str,
+        target: str,
+        state: Optional[str] = None,
+        crop: Optional[str] = None,
+    ):
+        rows = engine.execute(
+            f"select * from dssat where `Crop` like '{crop}'"
+            f" and `State` like '{state}'"
+        )
+        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
+        xs_scaled, ys_scaled = xs/np.mean(xs), ys/np.mean(ys)
+        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov = True)
+        self.edges[source, target]["betas"] = np.random.normal(p[0], np.sqrt(V[0][0]), self.res)
+        self.sample_from_prior()
