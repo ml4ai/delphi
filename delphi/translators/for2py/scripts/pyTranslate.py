@@ -70,14 +70,14 @@ class PythonCodeGenerator(object):
     def __init__(self):
         self.printFn = {}
         self.libFns = [
-            "MOD",
-            "EXP",
-            "INDEX",
-            "MIN",
-            "MAX",
+            "mod",
+            "exp",
+            "index",
+            "min",
+            "max",
             "cexp",
             "cmplx",
-            "ATAN",
+            "atan",
         ]
         self.mathFuncs = ["mod", "exp", "cexp", "cmplx"]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
@@ -114,6 +114,9 @@ class PythonCodeGenerator(object):
             ".eq.": " == ",
             ".lt.": " < ",
             ".le.": " <= ",
+            ".ge.": " >= ",
+            ".and.": " and ",
+            ".or.": " or ",
         }
         self.readFormat = []
 
@@ -175,7 +178,7 @@ class PythonCodeGenerator(object):
 
         inRef = False
 
-        if node["name"] in self.libFns:
+        if node["name"].lower() in self.libFns:
             node["name"] = node["name"].lower()
             if node["name"] in self.mathFuncs:
                 node["name"] = f"math.{node['name']}"
@@ -253,7 +256,7 @@ class PythonCodeGenerator(object):
             elif node["type"] in ("DOUBLE", "REAL"):
                 initVal = 0.0
                 varType = "float"
-            elif node["type"] == "STRING":
+            elif node["type"] == "STRING" or node["type"] == "CHARACTER":
                 initVal = ""
                 varType = "str"
             else:
@@ -395,7 +398,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("return")
 
     def printReturn(self, node, printState):
-        self.pyStrings.append("return True")
+        pyStrings.append("")
 
     def printOpen(self, node, printState):
         if node["args"][0].get("arg_name") == "UNIT":

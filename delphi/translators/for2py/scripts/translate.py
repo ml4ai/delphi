@@ -58,14 +58,14 @@ class XMLToJSONTranslator(object):
     def __init__(self):
         self.libRtns = ["read", "open", "close", "format", "print", "write"]
         self.libFns = [
-            "MOD",
-            "EXP",
-            "INDEX",
-            "MIN",
-            "MAX",
+            "mod",
+            "exp",
+            "index",
+            "min",
+            "max",
             "cexp",
             "cmplx",
-            "ATAN",
+            "atan",
         ]
         self.inputFns = ["read"]
         self.outputFns = ["write"]
@@ -212,7 +212,7 @@ class XMLToJSONTranslator(object):
         return [{"tag": "stop"}]
 
     def process_name(self, root, state) -> List[Dict]:
-        if root.attrib["id"] in self.libFns:
+        if root.attrib["id"].lower() in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += self.parseTree(node, state)
