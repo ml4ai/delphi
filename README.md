@@ -123,6 +123,12 @@ following environment variables as well.
 - `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
   Demography Model](https://github.com/EDmodel/ED2) repository.
 
+### Building documentation
+
+To locally build and view the documentation
+- From delphi root, run `make html`
+- To view locally in browser: open `_build/html/index.html`
+
 ## Usage
 
 ### Jupyter notebook workflow
