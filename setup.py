@@ -54,7 +54,6 @@ setup(
         "test": [
             "pytest>=3.6.0",
             "pytest-cov",
-            "pytest-profiling",
             "pytest-sugar",
             "pytest-xdist",
             "coveralls",
