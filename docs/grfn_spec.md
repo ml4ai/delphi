@@ -1,5 +1,5 @@
-Grounded Function Network (GrFN) JSON Specification v0.1
-========================================================
+Grounded Function Network (GrFN) JSON Specification v0.1.m3
+===========================================================
 
 Introduction
 ------------
