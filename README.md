@@ -125,9 +125,14 @@ following environment variables as well.
 
 ### Building documentation
 
-To locally build and view the documentation
-- From delphi root, run `make html`
-- To view locally in browser: open `_build/html/index.html`
+To build and view the documentation, run the following commands from the root of
+the repository:
+
+```
+make docs; open docs/_build/html/index.html
+```
+
+(On a Linux system, replace `open` with `xdg-open`)
 
 ## Usage
 
