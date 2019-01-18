@@ -111,7 +111,7 @@ environment variable to the path to your local copy of the Delphi SQLite
 database, which you can download with:
 
 ```
-wget http://vision.cs.arizona.edu/adarsh/delphi.db
+curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
 ```
 
 *Optional*:
