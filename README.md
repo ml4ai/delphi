@@ -127,7 +127,7 @@ following environment variables as well.
 
 To locally build and view the documentation
 - From delphi root, run `make html`
-- To view locally in browser: open `_build/thml/index.html`
+- To view locally in browser: open `_build/html/index.html`
 
 ## Usage
 
