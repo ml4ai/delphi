@@ -6,10 +6,8 @@ from itertools import permutations, cycle, chain
 from typing import Dict, List, Optional, Union, Callable, Tuple, List
 from uuid import uuid4
 import networkx as nx
-import pandas as pd
 import numpy as np
 import pandas as pd
-import numpy as np
 from indra.statements import Influence, Concept, Evidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
@@ -43,6 +41,14 @@ class AnalysisGraph(nx.DiGraph):
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
 
+    def assign_uuids_to_nodes_and_edges(self):
+        """ Assign uuids to nodes and edges. """
+        for node in self.nodes(data=True):
+            node[1]["id"] = str(uuid4())
+
+        for edge in self.edges(data=True):
+            edge[2]["id"] = str(uuid4())
+
     # ==========================================================================
     # Constructors
     # ==========================================================================
@@ -57,14 +63,6 @@ class AnalysisGraph(nx.DiGraph):
             sts = pickle.load(f)
 
         return cls.from_statements(sts)
-
-    def assign_uuids_to_nodes_and_edges(self):
-        """ Assign uuids to nodes and edges. """
-        for node in self.nodes(data=True):
-            node[1]["id"] = str(uuid4())
-
-        for edge in self.edges(data=True):
-            edge[2]["id"] = str(uuid4())
 
     @classmethod
     def from_statements(cls, sts: List[Influence]):
@@ -188,8 +186,20 @@ class AnalysisGraph(nx.DiGraph):
         self.assign_uuids_to_nodes_and_edges()
         return self
 
+    # ==========================================================================
+    # Utilities
+    # ==========================================================================
+
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
+
+    def construct_default_initial_state(self) -> pd.Series:
+        components = self.get_latent_state_components()
+        return pd.Series(ltake(len(components), cycle([1.0, 0.0])), components)
+
+    # ==========================================================================
+    # Sampling and inference
+    # ==========================================================================
 
     def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
@@ -223,6 +233,7 @@ class AnalysisGraph(nx.DiGraph):
             )
 
     def sample_from_prior(self):
+        """ Sample elements of the stochastic transition matrix. """
 
         self.transition_matrix_collection = []
         elements = self.get_latent_state_components()
@@ -247,36 +258,45 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def map_concepts_to_indicators(self, n: int = 1):
-        """ Add indicators to the analysis graph.
+    def emission_function(self, s_i, mu_ij, sigma_ij):
+        return np.random.normal(s_i * mu_ij, sigma_ij)
 
-        Args:
-            n
-            mapping_file
-        """
+    def infer_transition_matrix_coefficient_from_data(
+        self,
+        source: str,
+        target: str,
+        state: Optional[str] = None,
+        crop: Optional[str] = None,
+    ):
+        """ Infer the distribution of a transition matrix coefficient from data. """
+        rows = engine.execute(
+            f"select * from dssat where `Crop` like '{crop}'"
+            f" and `State` like '{state}'"
+        )
+        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
+        xs_scaled, ys_scaled = xs / np.mean(xs), ys / np.mean(ys)
+        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov=True)
+        self.edges[source, target]["betas"] = np.random.normal(
+            p[0], np.sqrt(V[0][0]), self.res
+        )
+        self.sample_from_prior()
 
-        mapping = construct_concept_to_indicator_mapping(n)
+    # ==========================================================================
+    # Basic Modeling Interface (BMI)
+    # ==========================================================================
 
-        for n in self.nodes(data=True):
-            n[1]["indicators"] = get_indicators(n[0], mapping)
+    def create_bmi_config_file(self, bmi_config_file: str = "bmi_config.txt"):
+        """ Create a BMI config file to initialize the model. """
+        s0 = self.construct_default_initial_state()
+        s0.to_csv(bmi_config_file, index_label="variable")
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
+        """ The default update function for a CAG node. """
         return [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
             for i in range(self.res)
         ]
-
-    def emission_function(self, s_i, mu_ij, sigma_ij):
-        return np.random.normal(s_i * mu_ij, sigma_ij)
-
-    def construct_default_initial_state(self) -> pd.Series:
-        components = self.get_latent_state_components()
-        return pd.Series(ltake(len(components), cycle([1.0, 0.0])), components)
-
-    # ==========================================================================
-    # Basic Modeling Interface (BMI)
-    # ==========================================================================
 
     def initialize(self, config_file: str = "bmi_config.txt"):
         """ Initialize the executable AnalysisGraph with a config file.
@@ -321,7 +341,7 @@ class AnalysisGraph(nx.DiGraph):
     def update_until(self, t_final: float):
         """ Updates the model to a particular time t_final """
         while self.t < t_final:
-            update(self)
+            self.update()
 
     def finalize(self):
         raise NotImplementedError(
@@ -336,11 +356,11 @@ class AnalysisGraph(nx.DiGraph):
 
     def get_input_var_names(self) -> List[str]:
         """ Returns the input variable names """
-        return get_latent_state_components(self)
+        return self.get_latent_state_components()
 
     def get_output_var_names(self) -> List[str]:
         """ Returns the output variable names. """
-        return get_latent_state_components(self)
+        return self.get_latent_state_components()
 
     def get_time_step(self) -> float:
         """ Returns the time step size """
@@ -353,6 +373,10 @@ class AnalysisGraph(nx.DiGraph):
     def get_current_time(self) -> float:
         """ Returns the current time in the execution of the model. """
         return self.t
+
+    # ==========================================================================
+    # Export
+    # ==========================================================================
 
     def export_node(self, n) -> Dict[str, Union[str, List[str]]]:
         """ Return dict suitable for exporting to JSON.
@@ -402,9 +426,22 @@ class AnalysisGraph(nx.DiGraph):
         with open(filename, "wb") as f:
             pickle.dump(self, f)
 
-    def create_bmi_config_file(self, bmi_config_file: str = "bmi_config.txt"):
-        s0 = self.construct_default_initial_state()
-        s0.to_csv(bmi_config_file, index_label="variable")
+    # ==========================================================================
+    # Model parameterization
+    # ==========================================================================
+
+    def map_concepts_to_indicators(self, n: int = 1):
+        """ Add indicators to the analysis graph.
+
+        Args:
+            n
+            mapping_file
+        """
+
+        mapping = construct_concept_to_indicator_mapping(n)
+
+        for n in self.nodes(data=True):
+            n[1]["indicators"] = get_indicators(n[0], mapping)
 
     def parameterize(self, time: datetime):
         """ Parameterize the analysis graph.
@@ -433,6 +470,10 @@ class AnalysisGraph(nx.DiGraph):
                 for k, v in n[1]["indicators"].items()
                 if v.mean is not None
             }
+
+    # ==========================================================================
+    # Manipulation
+    # ==========================================================================
 
     def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
         """ Merge node n1 into node n2, with the option to specify relative
@@ -538,20 +579,3 @@ class AnalysisGraph(nx.DiGraph):
         )
         paths = chain.from_iterable(path_generator)
         return AnalysisGraph(self.subgraph(set(chain.from_iterable(paths))))
-
-    def infer_transition_matrix_coefficient_from_data(
-        self,
-        source: str,
-        target: str,
-        state: Optional[str] = None,
-        crop: Optional[str] = None,
-    ):
-        rows = engine.execute(
-            f"select * from dssat where `Crop` like '{crop}'"
-            f" and `State` like '{state}'"
-        )
-        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
-        xs_scaled, ys_scaled = xs/np.mean(xs), ys/np.mean(ys)
-        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov = True)
-        self.edges[source, target]["betas"] = np.random.normal(p[0], np.sqrt(V[0][0]), self.res)
-        self.sample_from_prior()
