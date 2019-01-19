@@ -1,3 +1,4 @@
+import random
 from typing import Dict, List, Optional, Union
 from datetime import datetime
 from .db import engine
@@ -28,7 +29,7 @@ class RV(object):
         self.dataset = None
 
     def sample(self):
-        return random.choice(dataset)
+        return random.choice(self.dataset)
 
 
 class LatentVar(RV):
