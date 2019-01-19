@@ -235,8 +235,15 @@ class AnalysisGraph(nx.DiGraph):
     def sample_from_prior(self):
         """ Sample elements of the stochastic transition matrix. """
 
+        simple_path_dict = {
+            node_pair: pairwise(list(nx.all_simple_paths(self, *node_pair)))
+            for node_pair in permutations(self.nodes(), 2)
+        }
+
         self.transition_matrix_collection = []
+
         elements = self.get_latent_state_components()
+
         for i in range(self.res):
             A = pd.DataFrame(
                 np.identity(2 * len(self)), index=elements, columns=elements
@@ -250,11 +257,11 @@ class AnalysisGraph(nx.DiGraph):
                     np.prod(
                         [
                             self.edges[edge[0], edge[1]]["betas"][i]
-                            for edge in pairwise(simple_path)
+                            for edge in simple_path_edge_list
                         ]
                     )
                     * self.Δt
-                    for simple_path in nx.all_simple_paths(self, *node_pair)
+                    for simple_path_edge_list in simple_path_dict[node_pair]
                 )
             self.transition_matrix_collection.append(A)
 
