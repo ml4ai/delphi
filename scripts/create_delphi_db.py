@@ -37,7 +37,7 @@ def create_dssat_data_table():
 
 def create_adjectiveData_table():
     df = pd.read_csv(adjectiveData, index_col=False, delim_whitespace=True)
-    insert_table("gradableAdjectiveData")
+    insert_table(df, "gradableAdjectiveData")
 
 
 def create_concept_to_indicator_mapping_table():
@@ -53,7 +53,7 @@ def create_concept_to_indicator_mapping_table():
         },
     )
 
-    insert_table("concept_to_indicator_mapping")
+    insert_table(df, "concept_to_indicator_mapping")
 
 
 if __name__ == "__main__":
