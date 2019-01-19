@@ -88,6 +88,7 @@ def get_comments(src_file_name: str):
     comments["$file_head"] = []
     comments["$file_foot"] = []
 
+    print (curr_comment)
     with open(src_file_name, "r", encoding="latin-1") as f:
         for line in f:
             if line_is_comment(line) and collect_comments:
@@ -131,7 +132,8 @@ def get_comments(src_file_name: str):
 
     # if there's a comment at the very end of the file, make it the foot
     # comment of curr_fn
-    if curr_comment != []:
+    print (comments)
+    if curr_comment and curr_comment != []:
         comments[curr_fn]["foot"] = curr_comment
         comments["$file_foot"] = curr_comment
     return comments
