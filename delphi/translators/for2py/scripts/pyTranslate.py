@@ -398,7 +398,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("return")
 
     def printReturn(self, node, printState):
-        pyStrings.append("")
+        self.pyStrings.append("")
 
     def printOpen(self, node, printState):
         if node["args"][0].get("arg_name") == "UNIT":
