@@ -228,15 +228,22 @@ class AnalysisGraph(nx.DiGraph):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
-            edge[2]["betas"] = np.tan(
+            edge[2]["βs"] = np.tan(
                 edge[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
     def sample_from_prior(self):
         """ Sample elements of the stochastic transition matrix. """
 
+        # simple_path_dict caches the results of the graph traversal that finds
+        # simple paths between pairs of nodes, so that it doesn't have to be
+        # executed for every sampled transition matrix.
+
         simple_path_dict = {
-            node_pair: pairwise(list(nx.all_simple_paths(self, *node_pair)))
+            node_pair: [
+                list(pairwise(path))
+                for path in nx.all_simple_paths(self, *node_pair)
+            ]
             for node_pair in permutations(self.nodes(), 2)
         }
 
@@ -256,7 +263,7 @@ class AnalysisGraph(nx.DiGraph):
                 A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
                     np.prod(
                         [
-                            self.edges[edge[0], edge[1]]["betas"][i]
+                            self.edges[edge[0], edge[1]]["βs"][i]
                             for edge in simple_path_edge_list
                         ]
                     )
@@ -283,7 +290,7 @@ class AnalysisGraph(nx.DiGraph):
         xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
         xs_scaled, ys_scaled = xs / np.mean(xs), ys / np.mean(ys)
         p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov=True)
-        self.edges[source, target]["betas"] = np.random.normal(
+        self.edges[source, target]["βs"] = np.random.normal(
             p[0], np.sqrt(V[0][0]), self.res
         )
         self.sample_from_prior()
