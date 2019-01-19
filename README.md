@@ -111,7 +111,7 @@ environment variable to the path to your local copy of the Delphi SQLite
 database, which you can download with:
 
 ```
-wget http://vision.cs.arizona.edu/adarsh/delphi.db
+curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
 ```
 
 *Optional*:
@@ -122,6 +122,17 @@ following environment variables as well.
   checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
 - `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
   Demography Model](https://github.com/EDmodel/ED2) repository.
+
+### Building documentation
+
+To build and view the documentation, run the following commands from the root of
+the repository:
+
+```
+make docs; open docs/_build/html/index.html
+```
+
+(On a Linux system, replace `open` with `xdg-open`)
 
 ## Usage
 
