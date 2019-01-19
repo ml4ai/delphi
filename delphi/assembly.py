@@ -39,7 +39,7 @@ def constructConditionalPDF(
     AnalysisGraph edge. """
 
     adjective_response_dict = {}
-    all_thetas = []
+    all_θs = []
 
     # Setting σ_X and σ_Y that are in Eq. 1.21 of the model document.
     # This assumes that the real-valued variables representing the abstract
@@ -78,8 +78,8 @@ def constructConditionalPDF(
                         ] * adjective_response_dict.get(obj_adjective, rs)
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                        thetas = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
-                        all_thetas.append(thetas)
+                        θs = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
+                        all_θs.append(θs)
 
             # Prior
             xs1, ys1 = np.meshgrid(
@@ -88,13 +88,13 @@ def constructConditionalPDF(
                 indexing="xy",
             )
             # TODO - make the setting of σ_X and σ_Y more automated
-            thetas = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
+            θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
 
-    if len(all_thetas) == 0:
-        all_thetas.append(thetas)
-        return gaussian_kde(all_thetas)
+    if len(all_θs) == 0:
+        all_θs.append(θs)
+        return gaussian_kde(all_θs)
     else:
-        return gaussian_kde(np.concatenate(all_thetas))
+        return gaussian_kde(np.concatenate(all_θs))
 
 
 def is_simulable(s: Influence) -> bool:
