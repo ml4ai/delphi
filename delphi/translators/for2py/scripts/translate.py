@@ -208,6 +208,19 @@ class XMLToJSONTranslator(object):
             }
         ]
 
+    def process_io_control_spec(self, root, state) -> List[Dict]:
+        x = []
+        for attr in root.attrib:
+            if attr == "hasAsterisk" and root.attrib[attr] == "true":
+                x = [
+                    {
+                        "tag": "literal",
+                        "type": "char",
+                        "value": "*",
+                    }
+                ]
+        return x
+
     def process_stop(self, root, state) -> List[Dict]:
         return [{"tag": "stop"}]
 
@@ -369,6 +382,9 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "literal":
             return self.process_literal(root, state)
+
+        elif root.tag == "io-control-spec":
+            return self.process_io_control_spec(root, state)
 
         elif root.tag == "stop":
             return self.process_stop(root, state)

@@ -22,6 +22,7 @@ python_file: The Python file on which to write the resulting python script.
 import sys
 import pickle
 import argparse
+import re
 from typing import List, Dict
 from .fortran_format import *
 
@@ -79,6 +80,7 @@ class PythonCodeGenerator(object):
             "cmplx",
             "atan",
         ]
+        self.variableMap = {}
         self.mathFuncs = ["mod", "exp", "cexp", "cmplx"]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
@@ -265,6 +267,7 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(
                 f"{node['name']}: List[{varType}] = [{initVal}]"
             )
+            self.variableMap[node['name']] = node['type']
         else:
             printState.printFirst = False
 
@@ -433,24 +436,59 @@ class PythonCodeGenerator(object):
         )
 
     def printWrite(self, node, printState):
-        write_list = []
+
         write_string = ""
-        file_number = str(node["args"][0]["value"])
-        if node["args"][0]["type"] == "int":
-            file_handle = "file_" + file_number
-        if node["args"][1]["type"] == "int":
-            format_label = node["args"][1]["value"]
-        self.pyStrings.append(f"write_list_{file_number} = [")
+
+        # Check whether write to file or output stream
+        if str(node["args"][0]["value"]) == "*":
+            write_target = "outStream"
+        else:
+            write_target = "file"
+            file_number = str(node["args"][0]["value"])
+            if node["args"][0]["type"] == "int":
+                file_handle = "file_" + file_number
+
+        # Check whether format has been specified
+        if str(node["args"][1]["value"]) == "*":
+            format_type = "runtime"
+        else:
+            format_type = "specifier"
+            if node["args"][1]["type"] == "int":
+                format_label = node["args"][1]["value"]
+
+        if write_target == "file":
+            self.pyStrings.append(f"write_list_{file_number} = [")
+        elif write_target == "outStream":
+            self.pyStrings.append(f"write_list_stream = [")
+
         for item in node["args"]:
             if item["tag"] == "ref":
-                write_string += f"{item['name']}, "
+                write_string += f"{item['name']}"
+                if printState.indexRef:
+                    write_string += "[0]"
+                write_string += ", "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append(
-            f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
-        )
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"{file_handle}.write(write_line)")
+
+        # If format specified and output in a file, execute write_line on file handler
+        if write_target == "file" and format_type == "specifier":
+            self.pyStrings.append(f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})")
+            self.pyStrings.append(printState.sep)
+            self.pyStrings.append(f"{file_handle}.write(write_line)")
+
+        # If printing on stdout, handle accordingly
+        elif write_target == "outStream" and format_type == "runtime":
+            self.pyStrings.append("output_fmt = list_output_formats([")
+            for var in write_string.split(','):
+                varMatch = re.match(r'^(.*?)\[\d+\]|^(.*?)[^\[]',var.strip())
+                if varMatch:
+                    var = varMatch.group(1)
+                    self.pyStrings.append(f"\"{self.variableMap[var.strip()]}\",")
+            self.pyStrings.append("])" + printState.sep)
+            self.pyStrings.append("write_stream_obj = Format(output_fmt)" + printState.sep)
+            self.pyStrings.append("write_line = write_stream_obj.write_line(write_list_stream)" + printState.sep)
+            self.pyStrings.append("sys.stdout.write(write_line)")
+
 
     def printExit(self, node, printState):
         self.pyStrings.append("return")
@@ -493,6 +531,7 @@ def create_python_string(outputDict):
     code_generator = PythonCodeGenerator()
     code_generator.pyStrings.extend(
         [
+            "import sys\n"
             "from typing import List\n",
             "import math\n",
             "from fortran_format import *",
