@@ -24,7 +24,7 @@ import pickle
 import argparse
 import re
 from typing import List, Dict
-from .fortran_format import *
+from fortran_format import *
 
 
 class PrintState:
@@ -406,6 +406,8 @@ class PythonCodeGenerator(object):
     def printOpen(self, node, printState):
         if node["args"][0].get("arg_name") == "UNIT":
             file_handle = "file_" + str(node["args"][1]["value"])
+        elif node["args"][0].get("tag") == "ref":
+            file_handle = "file_" + str(node["args"][0]["name"])
         else:
             file_handle = "file_" + str(node["args"][0]["value"])
         self.pyStrings.append(f"{file_handle} = ")
@@ -438,15 +440,16 @@ class PythonCodeGenerator(object):
     def printWrite(self, node, printState):
 
         write_string = ""
-
         # Check whether write to file or output stream
-        if str(node["args"][0]["value"]) == "*":
+        if str(node["args"][0].get("value")) == "*":
             write_target = "outStream"
         else:
             write_target = "file"
-            file_number = str(node["args"][0]["value"])
-            if node["args"][0]["type"] == "int":
-                file_handle = "file_" + file_number
+            if node["args"][0].get("value"):
+                file_id = str(node["args"][0]["value"])
+            elif str(node["args"][0].get("tag")) == "ref":
+                file_id = str(node["args"][0].get("name"))
+            file_handle = "file_" + file_id
 
         # Check whether format has been specified
         if str(node["args"][1]["value"]) == "*":
@@ -457,7 +460,7 @@ class PythonCodeGenerator(object):
                 format_label = node["args"][1]["value"]
 
         if write_target == "file":
-            self.pyStrings.append(f"write_list_{file_number} = [")
+            self.pyStrings.append(f"write_list_{file_id} = [")
         elif write_target == "outStream":
             self.pyStrings.append(f"write_list_stream = [")
 
@@ -472,7 +475,7 @@ class PythonCodeGenerator(object):
 
         # If format specified and output in a file, execute write_line on file handler
         if write_target == "file" and format_type == "specifier":
-            self.pyStrings.append(f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})")
+            self.pyStrings.append(f"write_line = format_{format_label}_obj.write_line(write_list_{file_id})")
             self.pyStrings.append(printState.sep)
             self.pyStrings.append(f"{file_handle}.write(write_line)")
 
@@ -520,7 +523,7 @@ class PythonCodeGenerator(object):
         )
 
     def printClose(self, node, printState):
-        file_id = node["args"][0]["value"]
+        file_id = node["args"][0]["value"] if node["args"][0].get("value") else node["args"][0]["name"]
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def get_python_source(self):

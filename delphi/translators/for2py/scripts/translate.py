@@ -102,7 +102,7 @@ class XMLToJSONTranslator(object):
         return [call]
 
     def process_argument(self, root, state) -> List[Dict]:
-        return [{"tag": "arg", "name": root.attrib["name"]}]
+        return [{"tag": "arg", "name": root.attrib["name"].lower()}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         decVars = []
@@ -132,7 +132,7 @@ class XMLToJSONTranslator(object):
 
     def process_variable(self, root, state) -> List[Dict]:
         try:
-            return [{"tag": "variable", "name": root.attrib["name"]}]
+            return [{"tag": "variable", "name": root.attrib["name"].lower()}]
         except:
             return []
 
@@ -146,7 +146,7 @@ class XMLToJSONTranslator(object):
         return [do]
 
     def process_index_variable(self, root, state) -> List[Dict]:
-        ind = {"tag": "index", "name": root.attrib["name"]}
+        ind = {"tag": "index", "name": root.attrib["name"].lower()}
         for bounds in root:
             if bounds.tag == "lower-bound":
                 ind["low"] = self.parseTree(bounds, state)
@@ -239,7 +239,7 @@ class XMLToJSONTranslator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         else:
-            ref = {"tag": "ref", "name": root.attrib["id"]}
+            ref = {"tag": "ref", "name": root.attrib["id"].lower()}
             subscripts = []
             for node in root:
                 subscripts += self.parseTree(node, state)
