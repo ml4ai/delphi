@@ -156,16 +156,21 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 There are several environment variables that need to be set in order
 for Delphi to function.
 
-These variables can be set in your .bash_profile (MacOS) or .bashrc,
-but if you use a virtual environment (recommended), then you can place
-these environment variables in the `project.pth`, which will be found
-here within your virtual environment (the following assumes your
+These variables can be set in your `.bash_profile` (MacOS) or
+`.bashrc`, but if you use a virtual environment (recommended), then
+you can place these environment variables in a `project.pth` under the
+virtual environment python's site-packages directory, which will be
+found here within your virtual environment (the following assumes your
 virtual environment is named `<venv>`, and `<version>` is the version
 number of your python, such as 3.7):
 
 ```
 <venv>/lib/python<version>/site-packages/project.pth
 ```
+
+NOTE: you may need to create the `project.pth` if one does not already
+exist. Otherwise, just append the environment variable declarations to
+the end of that file.
 
 Here are the variabels to add:
 
