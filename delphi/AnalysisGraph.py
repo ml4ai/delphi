@@ -3,12 +3,14 @@ import pickle
 from datetime import datetime
 from functools import partial
 from itertools import permutations, cycle, chain
-from typing import Dict, List, Optional, Union, Callable, Tuple, List
+from typing import Dict, List, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
 import numpy as np
 import pandas as pd
-from indra.statements import Influence, Concept, Evidence
+from indra.statements.statements import Influence
+from indra.statements.concept import Concept
+from indra.statements.evidence import Evidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
@@ -24,6 +26,7 @@ from .assembly import (
     get_indicator_value,
 )
 from future.utils import lzip
+from tqdm import tqdm
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -75,9 +78,9 @@ class AnalysisGraph(nx.DiGraph):
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
-        self = cls(edges)
-        self.assign_uuids_to_nodes_and_edges()
-        return self
+        G = cls(edges)
+        G.assign_uuids_to_nodes_and_edges()
+        return G
 
     @classmethod
     def from_text(cls, text: str):
@@ -101,16 +104,17 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
-        from delphi.utils.indra import get_statements_from_json
+        from delphi.utils.indra import get_statements_from_json_list
 
         return cls.from_statements(
-            get_statements_from_json(json_serialized_list)
+            get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):
-        with open(file, "r") as f:
-            return cls.from_json_serialized_statements_list(f.read())
+        from delphi.utils.indra import get_statements_from_json_file
+
+        return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
     def from_uncharted_json_file(cls, file):
@@ -144,6 +148,7 @@ class AnalysisGraph(nx.DiGraph):
                         # Uncharted have unambiguous polarities.
                         if delta["polarity"] is None:
                             delta["polarity"] = 1
+
                     influence_stmt = Influence(
                         Concept(subj_name, db_refs=subj["db_refs"]),
                         Concept(obj_name, db_refs=obj["db_refs"]),
@@ -239,12 +244,13 @@ class AnalysisGraph(nx.DiGraph):
         # simple paths between pairs of nodes, so that it doesn't have to be
         # executed for every sampled transition matrix.
 
+        node_pairs = list(permutations(self.nodes(), 2))
         simple_path_dict = {
             node_pair: [
                 list(pairwise(path))
                 for path in nx.all_simple_paths(self, *node_pair)
             ]
-            for node_pair in permutations(self.nodes(), 2)
+            for node_pair in node_pairs
         }
 
         self.transition_matrix_collection = []
@@ -259,7 +265,7 @@ class AnalysisGraph(nx.DiGraph):
             for node in self.nodes:
                 A[f"∂({node})/∂t"][node] = self.Δt
 
-            for node_pair in permutations(self.nodes(), 2):
+            for node_pair in node_pairs:
                 A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
                     np.prod(
                         [
@@ -489,6 +495,67 @@ class AnalysisGraph(nx.DiGraph):
     # Manipulation
     # ==========================================================================
 
+    def delete_nodes(self, nodes: Iterable[str]):
+        """ Iterate over a set of nodes and remove the ones that are present in
+        the graph. """
+        for n in nodes:
+            if self.has_node(n):
+                self.remove_node(n)
+
+    def delete_node(self, node: str):
+        """ Removes a node if it is in the graph. """
+        if self.has_node(node):
+            self.remove_node(node)
+
+    def delete_edge(self, source: str, target: str):
+        """ Removes an edge if it is in the graph. """
+        if self.has_edge(source, target):
+            self.remove_edge(source, target)
+
+    def delete_edges(self, edges: Iterable[Tuple[str, str]]):
+        """ Iterate over a set of edges and remove the ones that are present in
+        the graph. """
+        for edge in edges:
+            if self.has_edge(*edge):
+                self.remove_edge(*edge)
+
+    def prune(self, cutoff: int = 2):
+        """ Prunes the CAG by removing redundant paths. If there are multiple
+        (directed) paths between two nodes, this function removes all but the
+        longest paths. Subsequently, it restricts the graph to the largest
+        connected component.
+
+        Args:
+            cutoff: The maximum path length to consider for finding redundant
+            paths. Higher values of this parameter correspond to more
+            aggressive pruning.
+        """
+
+        edges_to_keep = set()
+
+        # Remove redundant paths.
+        for node_pair in tqdm(list(permutations(self.nodes(), 2))):
+            paths = [
+                list(pairwise(path))
+                for path in nx.all_simple_paths(self, *node_pair, cutoff)
+            ]
+            if len(paths) > 1:
+                for path in paths:
+                    if len(path) == 1:
+                        self.delete_edge(*path[0])
+                        break
+
+        # Keep only the largest connected component
+        # TODO - implement code to handle case where there are multiple
+        # largest connected components (by number of nodes).
+
+        for n in [
+            n
+            for n in self.nodes()
+            if n not in max(nx.weakly_connected_components(self), key=len)
+        ]:
+            self.remove_node(n)
+
     def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
         """ Merge node n1 into node n2, with the option to specify relative
         polarity.
@@ -503,12 +570,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
                     st.obj_delta["polarity"] = -st.obj_delta["polarity"]
-                st.obj.db_refs["UN"][0] = (
-                    "/".join(
-                        st.obj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
-                    ),
-                    st.obj.db_refs["UN"][0][1],
-                )
+                st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
 
             if not self.has_edge(p, n2):
                 self.add_edge(p, n2)
@@ -525,12 +587,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
                     st.subj_delta["polarity"] = -st.subj_delta["polarity"]
-                st.subj.db_refs["UN"][0] = (
-                    "/".join(
-                        st.subj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
-                    ),
-                    st.subj.db_refs["UN"][0][1],
-                )
+                st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
 
             if not self.has_edge(n2, s):
                 self.add_edge(n2, s)
@@ -549,16 +606,27 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def get_subgraph_for_concept(
-        self, concept: str, depth_limit: Optional[int] = None
+        self, concept: str, depth: Optional[int] = None, flow: str = "incoming"
     ):
-        """ Returns a subgraph of the analysis graph for a single concept.
+        """ Returns a new subgraph of the analysis graph for a single concept.
 
         Args:
-            concept
-            depth_limit
+            concept: The concept that the subgraph will be centered around.
+            depth: The depth to which the depth-first search must be performed.
+            flow: The direction of causal influence flow to examine. Setting
+                  this to 'incoming' will search for upstream causal influences, and
+                  setting it to 'outgoing' will search for downstream causal
+                  influences.
+        returns:
+            AnalysisGraph
         """
-        rev = self.reverse()
-        dfs_edges = nx.dfs_edges(rev, concept, depth_limit)
+        if flow == "incoming":
+            rev = self.reverse()
+        elif flow == "outgoing":
+            rev = self
+        else:
+            raise ValueError("flow must be one of [incoming|outgoing]")
+        dfs_edges = nx.dfs_edges(rev, concept, depth)
         return AnalysisGraph(
             self.subgraph(chain.from_iterable(dfs_edges)).copy()
         )
