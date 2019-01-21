@@ -82,20 +82,50 @@ Here are the steps for installation.
     cd delphi
     pip install .
     ```
+- Installing INDRA: We currently recommend installing the latest INDRA rather than through PyPI. To install the latest, execute the following from the terminal:
+    ```
+    pip install git+https://github.com/sorgerlab/indra.git
+    ```
 
-### Installing Graphviz on MacOS
+### MacOS Installation Notes
 
-This can be done using [Homebrew](https://brew.sh):
-```
-brew install graphviz
-```
-If you use Homebrew to install graphviz, then you may need to install
-pygraphviz by specifying certain paths, as done below.
+#### Installing Graphviz on MacOS
+
+This can be done using [Homebrew](https://brew.sh): 
 
 ```bash
-brew install --install-option="--include-path=/usr/local/include/" \
-               --install-option="--library-path=/usr/local/lib" pygraphviz
+brew install graphviz
+``` 
+
+If you use Homebrew to install graphviz, then you when you install
+pygraphviz by pip, you need to install it by specifying paths to grab
+the necessary brew-based include and libs, as done below:
+
+```bash
+pip install --install-option="--include-path=/usr/local/include/" \
+            --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
+
+#### Installing Tanget on MacOS X with python >=3.7
+
+The model analysis (AutoMATES-related) portion of delphi now depends
+on [Tangent](https://github.com/google/tangent), which in turn depends
+on a library in TensorFlow, which itself does not support (yet) python
+>=3.7. You can still fix the install to tangent (after following the
+`pip install .` instructions above) by doing the following (if you use
+a virtual environment for delphi work (recommended!), then be sure to
+do the follwoing while within the virutal environment):
+
+- Clone the tanget project. `cd` to location where you would like the
+    tangent source to be cloned and then do: 
+    ```
+    git clone https://github.com/google/tangent.git
+    ```
+- `cd` into tangent
+- Run the tangent installer:
+    ```
+    python setup.py install
+    ```
 
 ### Ubuntu installation notes
 To install graphviz on Ubuntu, do
