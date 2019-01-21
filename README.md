@@ -14,23 +14,31 @@
 - [Usage](#usage)
 - [License](#license)
 
-Modeling complex phenomena such as food insecurity requires reasoning over 
-multiple levels of abstraction and fully utilizing expert knowledge about multiple
-disparate domains, ranging from the environmental to the sociopolitical.
+Modeling complex phenomena such as food insecurity requires reasoning
+over multiple levels of abstraction and fully utilizing expert
+knowledge about multiple disparate domains, ranging from the
+environmental to the sociopolitical.
 
-Delphi is a framework for assembling causal, dynamic, probabilistic  models from 
-information extracted from two sources:
-- *Text*: Delphi utilizes causal relations extracted using machine reading from
-   text sources such as UN agency reports, news articles, and technical papers.
-- *Software*: Delphi also incorporates functionality to extract abstracted representations
-   of scientific models from code that implements them, and convert these into probabilistic models.
+Delphi is a framework for assembling causal, dynamic, probabilistic
+models from information extracted from two sources:
 
-For a detailed description of our procedure to convert text to models, see
-[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
+- *Text*: Delphi utilizes causal relations extracted using machine
+   reading from text sources such as UN agency reports, news articles,
+   and technical papers.
 
-For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+- *Software*: Delphi also incorporates functionality to extract
+   abstracted representations of scientific models from code that
+   implements them, and convert these into probabilistic models.
 
-Delphi is also part of the [AutoMATES](https://ml4ai.github.io/automates/) project.
+For a detailed description of our procedure to convert text to models,
+see [this
+document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
+
+For API documentation, see
+[delphi.readthedocs.io](https://delphi.readthedocs.io).
+
+Delphi is also part of the
+[AutoMATES](https://ml4ai.github.io/automates/) project.
 
 ## Citing
 
@@ -47,15 +55,17 @@ If you use Delphi, please cite the following:
 
 ## Installation
 
-Delphi is under active development in an academic, rather than a commercial
-setting, so we do not have the resources to test it out on the Windows operating
-system, or provide a one-step/one-click setup process.
+Delphi is under active development in an academic, rather than a
+commercial setting, so we do not have the resources to test it out on
+the Windows operating system, or provide a one-step/one-click setup
+process.
 
-That being said, this is a Python package, and we use platform-independent path
-handling internally within the code using `pathlib`, so *technically*, it should
-work fine on Windows machines as well, and we will try to guide you through the
-installation process as much as possible. Pull requests for improvements are
-always welcome.
+That being said, this is a Python package, and we use
+platform-independent path handling internally within the code using
+`pathlib`, so *technically*, it should work fine on Windows machines
+as well, and we will try to guide you through the installation process
+as much as possible. Pull requests for improvements are always
+welcome.
 
 The following are the requirements for Delphi:
 
@@ -63,6 +73,7 @@ The following are the requirements for Delphi:
   If you have another version of Python already installed and need it for other
   projects, we recommend [`pyenv`](https://github.com/pyenv/pyenv) to manage
   multiple versions of Python.
+
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
   visualize causal analysis graphs.
 
@@ -115,7 +126,7 @@ pip install --install-option="--include-path=/usr/local/include/" \
 The model analysis (AutoMATES-related) portion of delphi now depends
 on [Tangent](https://github.com/google/tangent), which in turn depends
 on a library in TensorFlow, which itself does not support (yet) python
->=3.7. You can still fix the install to tangent (after following the
+>derp>=3.7. You can still fix the install to tangent (after following the
 `pip install .` instructions above) by doing the following (if you use
 a virtual environment for delphi work (recommended!), then be sure to
 do the follwoing while within the virutal environment):
