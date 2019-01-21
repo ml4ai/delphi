@@ -102,7 +102,27 @@ Here are the steps for installation.
     pip install git+https://github.com/sorgerlab/indra.git
     ```
 
-### MacOS Installation Notes
+- Installing Tanget under Python >=3.7: The model analysis
+(AutoMATES-related) portion of delphi now depends on
+[Tangent](https://github.com/google/tangent), which in turn depends on
+a library in TensorFlow, which itself does not support (yet) python
+`>=3.7`. You can still fix the install to tangent (after following the
+`pip install .` instructions above) by doing the following (if you use
+a virtual environment for delphi work (recommended!), then be sure to
+do the follwoing while within the virutal environment):
+
+  - Clone the tanget project. `cd` to location where you would like the
+    tangent source to be cloned and then do: 
+    ```
+    git clone https://github.com/google/tangent.git
+    ```
+  - `cd` into tangent
+  - Run the tangent installer:
+    ```
+    python setup.py install
+    ```
+
+### MacOS installation notes
 
 #### Installing Graphviz on MacOS
 
@@ -120,27 +140,6 @@ the necessary brew-based include and libs, as done below:
 pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
-
-#### Installing Tanget on MacOS X with python >=3.7
-
-The model analysis (AutoMATES-related) portion of delphi now depends
-on [Tangent](https://github.com/google/tangent), which in turn depends
-on a library in TensorFlow, which itself does not support (yet) python
-`>=3.7`. You can still fix the install to tangent (after following the
-`pip install .` instructions above) by doing the following (if you use
-a virtual environment for delphi work (recommended!), then be sure to
-do the follwoing while within the virutal environment):
-
-- Clone the tanget project. `cd` to location where you would like the
-    tangent source to be cloned and then do: 
-    ```
-    git clone https://github.com/google/tangent.git
-    ```
-- `cd` into tangent
-- Run the tangent installer:
-    ```
-    python setup.py install
-    ```
 
 ### Ubuntu installation notes
 To install graphviz on Ubuntu, do
@@ -192,10 +191,10 @@ export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
 optionally set the following environment variables as well (again, in 
 .bash_profile/.bashrc or viritual environment projects.pth).
 
--- `DSSAT_REPOSITORY`: This should point to your local checkout of the
-  [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
+  - `DSSAT_REPOSITORY`: This should point to your local checkout of
+  the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
 
--- `ED2_REPOSITORY`: This should point to your local checkout of the
+  - `ED2_REPOSITORY`: This should point to your local checkout of the
   [Ecosystem Demography Model](https://github.com/EDmodel/ED2)
   repository.
 
