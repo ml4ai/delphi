@@ -362,17 +362,32 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("return True")
 
     def printArray(self, node, printState):
-        if (
-            node["name"] not in printState.definedVars
-            and node["name"] not in printState.globalVars
-        ):
-            printState.definedVars += [node["name"]]
-            loBound = 1
-            upBound = node["value"]
+        print ('node in pyTranslate.py: ', node)
+        if int(node['count']) == 1:
+            if (
+                node["name"] not in printState.definedVars
+                and node["name"] not in printState.globalVars
+            ):
+                printState.definedVars += [node["name"]]
+                loBound = 1
+                upBound = node["value" + node["count"]]
 
-            self.pyStrings.append(
-                f"{node['name']} = Array([({loBound}, {upBound})])"
-            )
+                self.pyStrings.append(
+                    f"{node['name']} = Array([({loBound}, {upBound})])"
+                )
+        elif int(node['count']) > 1:
+            printState.definedVars += [node["name"]]
+
+            self.pyStrings.append(f"{node['name']} = Array([")
+            for i in range (0, int(node['count'])):  
+                loBound = 1
+                upBound = node["value" + str(i+1)]
+                dimensions = f"({loBound}, {upBound})"
+                if i < int(node['count'])-1:
+                    self.pyStrings.append(f"{dimensions}, ")
+                else:
+                    self.pyStrings.append(f"{dimensions}")
+            self.pyStrings.append("])")
         else:
             printState.printFirst = False
 

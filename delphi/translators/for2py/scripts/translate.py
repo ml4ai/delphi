@@ -141,9 +141,9 @@ class XMLToJSONTranslator(object):
             for dim in decDims:
                 print ("dim: ", dim)
                 for lit in dim["literal"]:
-                    prog[counter]["tag"] = "array"
-                    prog[counter]["value"] = lit["value"]
-                    prog[counter]["count"] = counter + 1
+                    prog[0]["tag"] = "array"
+                    prog[0]["count"] = count
+                    prog[0]["value" + str(counter+1)] = lit["value"]
                 counter = counter + 1
         if len(prog) > 1:
             for i in range (0, int(count)):

@@ -14,10 +14,7 @@ C     and an upper bound of 10
       end do
 
       do i = 1, 10
-          write (*,10) array(i)
+          print *, array(i)
       end do
 
- 10   format(I5)
-
-      stop
       end program main
