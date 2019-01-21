@@ -371,7 +371,7 @@ class PythonCodeGenerator(object):
             upBound = node["value"]
 
             self.pyStrings.append(
-                f"{node['name']} = Array([{loBound}, {upBound}])"
+                f"{node['name']} = Array([({loBound}, {upBound})])"
             )
         else:
             printState.printFirst = False
