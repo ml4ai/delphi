@@ -186,10 +186,8 @@ Delphi SQLite database, which you can download with:
 ```bash
 curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
 ```
-
 Then set the variable enviornment (again, may be done within your bash
 resource file or the virtual envrionment `project.pth`). 
-
 The delphi.db name must appear at the end of the path, for example:
 ```bash
 export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
