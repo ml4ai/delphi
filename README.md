@@ -69,7 +69,9 @@ welcome.
 
 The following are the requirements for Delphi:
 
-- Python 3.6.  
+- Python 3.6 or higher.
+
+  - Python 3.6 is recommended.  
   
   - If you have another version of Python already installed and need
     it for other projects, we recommend
@@ -77,12 +79,12 @@ The following are the requirements for Delphi:
     versions of Python.
 
   - You can install and run Delphi under Python 3.7, but you will need
-    to first install Tangent per the instructions below before
-    pip-installing the rest of hte packages.
+    to first install Tangent, per the instructions below, before
+    pip-installing the rest of the packages.
 
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
   visualize causal analysis graphs. See MacOS and Ubuntu notes below
-  for installing graphviz
+  for installing graphviz.
 
 The following installation instructions are directed at developers working on
 Linux and MacOS operating systems. We assume familiarity with the following:
@@ -96,7 +98,7 @@ Here are the steps for installation.
 - If you are installing using Python 3.7: The model analysis
 (AutoMATES-related) portion of delphi now depends on
 [Tangent](https://github.com/google/tangent), which in turn depends on
-a library in TensorFlow, which itself does not support (yet) python
+a library in TensorFlow, which itself does not (yet) support python
 `>=3.7`. You can manually install to tangent as follows (if you use a
 virtual environment for delphi work (recommended!), then be sure to do
 the follwoing while within the virutal environment):
@@ -111,6 +113,8 @@ the follwoing while within the virutal environment):
     ```
     python setup.py install
     ```
+
+... Regular instructions:
 
 - Fire up a terminal, navigate to the directory that you would like to
   install Delphi in, then execute the following in the terminal:
@@ -132,7 +136,7 @@ the follwoing while within the virutal environment):
 ### Additional installation for developers
 
 If you are developing Delphi and want to run tests or compile the
-documentation, then also do the following: 
+documentation, then also do the following (from the root of Delphi): 
 
 ```
 pip install -e .[test,docs]
@@ -175,16 +179,18 @@ for Delphi to function.
 #### Adding the Delphi root to the PYTHONPATH
 
 Set the PYTHONPATH to include the absolute path to the root of the
-delphi project. This can be set in one of two places
+delphi project. This can be set in one of two places:
 - In your .bash_profile (mac) or .bashrc (linux). For example:
     ```bash
     export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
     ```
 - If you use a virtual environment, instead of adding yet another
     path to your global PYTHONPATH in your .bash_profile/.bashrc,
-    instead you can add the path to delphi to be used only in your
-    virtual environment by placing the path in the virtual environment
-    `project.pth` file. This file is located within the virtual 
+    instead you can add the path to the Delphi root to be used only in your
+    virtual environment `project.pth` file. 
+    This has the advantage of not poluting your global PYTHONPATH when you
+    run python in other contexts (e.g., other virtual environments).
+    This file is located within the virtual 
     environment as follows (the following assumes your virtual environment 
     is named `<venv>`, and `<version>` is the version number of your python, 
     such as 3.6 or 3.7):
@@ -192,10 +198,9 @@ delphi project. This can be set in one of two places
     <venv>/lib/python<version>/site-packages/project.pth
     ```
     NOTE: you may need to create the `project.pth` if one does not already
-    exist. Otherwise, just append the environment variable declarations to
-    the end of that file.
+    exist.
     To this file you simply add the absolute path to the Delphi root (you
-    do not use export or PYTHONPATH, for example:
+    do not use export or PYTHONPATH), for example:
     ```
     /Users/claytonm/Documents/repository/delphi
     ```
@@ -203,17 +208,17 @@ delphi project. This can be set in one of two places
 #### Other environment variables
 
 - To parameterize Delphi models correctly, you will need to set the
-`DELPHI_DB` environment variable to the path to your local copy of the
-Delphi SQLite database, which you can download with:
-```bash
-curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
-```
-Then set the variable enviornment (again, may be done within your bash
-resource file or the virtual envrionment `project.pth`). 
-The delphi.db name must appear at the end of the path, for example:
-```bash
-export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
-```
+    `DELPHI_DB` environment variable to the path to your local copy of the
+    Delphi SQLite database, which you can download with:
+    ```bash
+    curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
+    ```
+    Then set the variable enviornment (again, may be done within your bash
+    resource file or the virtual envrionment `project.pth`). 
+    The delphi.db name must appear at the end of the path, for example:
+    ```bash
+    export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
+    ```
 
 - *Optional*: If you are working on program analysis, you may want to
 optionally set the following environment variables as well (again, in 
@@ -228,6 +233,7 @@ optionally set the following environment variables as well (again, in
 
 ### Building documentation
 
+(This requies you have performed the installation for developers, above.) 
 To build and view the documentation, run the following commands from the root of
 the repository:
 
