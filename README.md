@@ -172,7 +172,7 @@ NOTE: you may need to create the `project.pth` if one does not already
 exist. Otherwise, just append the environment variable declarations to
 the end of that file.
 
-Here are the variabels to add:
+Here are the variables to add:
 
 - Set the PYTHONPATH to include the absolute path to the root of the
 delphi project.  For example:
