@@ -4,9 +4,15 @@ import pandas as pd
 from typing import List, Dict, Optional
 from indra.statements import Influence
 from IPython.display import HTML, Code, Image
-from delphi.utils.indra import top_grounding_score
+from .utils.indra import top_grounding_score
+from .db import engine
+from matplotlib import pyplot as plt
+import seaborn as sns
+sns.set_style("darkgrid")
 import json
 import pygments
+import numpy as np
+import subprocess as sp
 
 
 def create_statement_inspection_table(sts: List[Influence]):
@@ -118,3 +124,78 @@ def get_python_shell():
             shell = "ipython-notebook"
 
     return shell
+
+
+def get_expected_value(quantity: str, state: str, method="historical", **kwargs):
+
+    if method == "historical":
+        if quantity == "rainfall":
+            units = "mm"
+            results = engine.execute(
+                f"select {quantity.capitalize()} from dssat where `Crop` like 'maize'"
+                f" and `State` like '{state}'"
+            )
+            values = [r[0] for r in results]
+            print(
+                f"Based on historical data, the mean expected {quantity} for the lean "
+                f"season for the state of {state} is {np.mean(values):.2f} {units} "
+                f"with a standard deviation of {np.std(values):.2f} {units}."
+            )
+            xlabel = f"Historical distribution of {quantity} for {state} ({units})"
+        elif quantity == "production":
+            units = "tonnes"
+            crop = kwargs.get('crop')
+            if crop not in ("maize", "sorghum"):
+                raise ValueError("The 'crop' keyword argument must be one of "
+                                 "the following:  ('maize', 'sorghum')")
+            results = engine.execute(
+                f"select {quantity.capitalize()} from dssat where `Crop` like "
+                f"'{crop}' and `State` like '{state}'"
+            )
+            values = [r[0] for r in results]
+            print(
+                f"Based on historical data, the mean expected {crop} {quantity} "
+                f"for the state of {state} is {np.mean(values):.2f} {units} "
+                f"with a standard deviation of {np.std(values):.2f} {units}."
+            )
+            xlabel = f"Historical distribution of {crop} \n{quantity} for {state} ({units})"
+        else:
+            raise ValueError("'quantity' must be one of the following: "
+                             "('rainfall', 'production')")
+    else:
+        raise NotImplementedError("Estimates can currently only be obtained "
+                "using historical data - please set method='historical'. "
+                "In future versions, predictions will be obtained from domain "
+                "model simulations.")
+
+    fig, ax = plt.subplots()
+    ax.set_xlabel(xlabel)
+    sns.distplot(values, ax=ax)
+
+
+def print_commit_hash_message():
+    commit_hash = sp.check_output(["git", "rev-parse", "HEAD"])
+    print(f"This notebook has been rendered with commit {commit_hash[:-1]} of"
+            " Delphi.")
+
+def run_experiment(G, n0, partial_t_n0, n1, xlim = (0,1)):
+    G.construct_default_initial_state()
+    G.create_bmi_config_file()
+    s0 = pd.read_csv(
+        "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
+    )[1]
+    s0.loc[f"∂({n0})/∂t"] = partial_t_n0
+    s0.to_csv("bmi_config.txt")
+    G.initialize()
+    vals = {}
+
+    G.update()
+
+    xmax = 2
+    vals[n1] = [x for x in G.nodes[n1]["rv"].dataset if 0 < x < xmax]
+    fig, ax = plt.subplots()
+    ax.set_xlim(0,xmax)
+    ax.set_xlabel(n1)
+    ax.hist(vals[n1], density=True, bins=30)
+    print(f"Standard deviation, σ = {np.std(vals[n1]):.2f}")
+    plt.tight_layout()

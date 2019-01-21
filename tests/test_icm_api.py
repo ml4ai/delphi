@@ -82,7 +82,7 @@ def causal_primitives(G):
         ]
     )
     max_mean_betas = max(
-        [abs(np.median(e[2]["betas"])) for e in G.edges(data=True)]
+        [abs(np.median(e[2]["βs"])) for e in G.edges(data=True)]
     )
     for e in G.edges(data=True):
         causal_relationship_id = e[2]['id']
@@ -100,7 +100,7 @@ def causal_primitives(G):
                 [s.belief for s in e[2]["InfluenceStatements"]]
             ),
             label=f"{e[0]} influences {e[1]}.",
-            strength=abs(np.median(e[2]["betas"]) / max_mean_betas),
+            strength=abs(np.median(e[2]["βs"]) / max_mean_betas),
             reinforcement=(
                 True
                 if np.mean(

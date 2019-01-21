@@ -3,18 +3,20 @@ import pickle
 from datetime import datetime
 from functools import partial
 from itertools import permutations, cycle, chain
-from typing import Dict, List, Optional, Union, Callable, Tuple, List
+from typing import Dict, List, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
-import pandas as pd
 import numpy as np
 import pandas as pd
-import numpy as np
-from indra.statements import Influence, Concept, Evidence
+from indra.statements.statements import Influence
+from indra.statements.concept import Concept
+from indra.statements.evidence import Evidence
+from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, ltake, lmap, pairwise
 from .paths import db_path
+from .db import engine
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
@@ -22,9 +24,9 @@ from .assembly import (
     construct_concept_to_indicator_mapping,
     get_indicators,
     get_indicator_value,
-    get_data,
 )
-from sqlalchemy import create_engine
+from future.utils import lzip
+from tqdm import tqdm
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -42,9 +44,18 @@ class AnalysisGraph(nx.DiGraph):
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
 
+    def assign_uuids_to_nodes_and_edges(self):
+        """ Assign uuids to nodes and edges. """
+        for node in self.nodes(data=True):
+            node[1]["id"] = str(uuid4())
+
+        for edge in self.edges(data=True):
+            edge[2]["id"] = str(uuid4())
+
     # ==========================================================================
     # Constructors
     # ==========================================================================
+
 
     @classmethod
     def from_statements_file(cls, file: str):
@@ -55,14 +66,6 @@ class AnalysisGraph(nx.DiGraph):
             sts = pickle.load(f)
 
         return cls.from_statements(sts)
-
-    def assign_uuids_to_nodes_and_edges(self):
-        """ Assign uuids to nodes and edges. """
-        for node in self.nodes(data=True):
-            node[1]["id"] = str(uuid4())
-
-        for edge in self.edges(data=True):
-            edge[2]["id"] = str(uuid4())
 
     @classmethod
     def from_statements(cls, sts: List[Influence]):
@@ -75,9 +78,16 @@ class AnalysisGraph(nx.DiGraph):
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
-        self = cls(edges)
-        self.assign_uuids_to_nodes_and_edges()
-        return self
+        G = cls(edges)
+        G.assign_uuids_to_nodes_and_edges()
+        return G
+
+    @classmethod
+    def from_text(cls, text: str):
+        """ Construct an AnalysisGraph object from text, using Eidos to perform
+        machine reading. """
+        eidosProcessor = process_text(text)
+        return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
     def from_pickle(cls, file: str):
@@ -94,16 +104,17 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
-        from delphi.utils.indra import get_statements_from_json
+        from delphi.utils.indra import get_statements_from_json_list
 
         return cls.from_statements(
-            get_statements_from_json(json_serialized_list)
+            get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):
-        with open(file, "r") as f:
-            return cls.from_json_serialized_statements_list(f.read())
+        from delphi.utils.indra import get_statements_from_json_file
+
+        return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
     def from_uncharted_json_file(cls, file):
@@ -137,6 +148,7 @@ class AnalysisGraph(nx.DiGraph):
                         # Uncharted have unambiguous polarities.
                         if delta["polarity"] is None:
                             delta["polarity"] = 1
+
                     influence_stmt = Influence(
                         Concept(subj_name, db_refs=subj["db_refs"]),
                         Concept(obj_name, db_refs=obj["db_refs"]),
@@ -179,8 +191,20 @@ class AnalysisGraph(nx.DiGraph):
         self.assign_uuids_to_nodes_and_edges()
         return self
 
+    # ==========================================================================
+    # Utilities
+    # ==========================================================================
+
     def get_latent_state_components(self):
         return flatMap(lambda a: (a, f"∂({a})/∂t"), self.nodes())
+
+    def construct_default_initial_state(self) -> pd.Series:
+        components = self.get_latent_state_components()
+        return pd.Series(ltake(len(components), cycle([1.0, 0.0])), components)
+
+    # ==========================================================================
+    # Sampling and inference
+    # ==========================================================================
 
     def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
@@ -193,7 +217,6 @@ class AnalysisGraph(nx.DiGraph):
 
         from scipy.stats import gaussian_kde
 
-        engine = create_engine(f"sqlite:///{str(db_path)}", echo=False)
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
 
@@ -210,17 +233,31 @@ class AnalysisGraph(nx.DiGraph):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
-
-    def sample_from_prior(self):
-
-        n_samples = self.res
-        for edge in self.edges(data=True):
-            edge[2]["betas"] = np.tan(
-                edge[2]["ConditionalProbability"].resample(n_samples)[0]
+            edge[2]["βs"] = np.tan(
+                edge[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
+    def sample_from_prior(self):
+        """ Sample elements of the stochastic transition matrix. """
+
+        # simple_path_dict caches the results of the graph traversal that finds
+        # simple paths between pairs of nodes, so that it doesn't have to be
+        # executed for every sampled transition matrix.
+
+        node_pairs = list(permutations(self.nodes(), 2))
+        simple_path_dict = {
+            node_pair: [
+                list(pairwise(path))
+                for path in nx.all_simple_paths(self, *node_pair)
+            ]
+            for node_pair in node_pairs
+        }
+
+        self.transition_matrix_collection = []
+
         elements = self.get_latent_state_components()
-        for i in range(n_samples):
+
+        for i in range(self.res):
             A = pd.DataFrame(
                 np.identity(2 * len(self)), index=elements, columns=elements
             )
@@ -228,50 +265,58 @@ class AnalysisGraph(nx.DiGraph):
             for node in self.nodes:
                 A[f"∂({node})/∂t"][node] = self.Δt
 
-            for node_pair in permutations(self.nodes(), 2):
+            for node_pair in node_pairs:
                 A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
                     np.prod(
                         [
-                            self.edges[edge[0], edge[1]]["betas"][i]
-                            for edge in pairwise(simple_path)
+                            self.edges[edge[0], edge[1]]["βs"][i]
+                            for edge in simple_path_edge_list
                         ]
                     )
                     * self.Δt
-                    for simple_path in nx.all_simple_paths(self, *node_pair)
+                    for simple_path_edge_list in simple_path_dict[node_pair]
                 )
             self.transition_matrix_collection.append(A)
 
-    def map_concepts_to_indicators(self, n: int = 1):
-        """ Add indicators to the analysis graph.
+    def emission_function(self, s_i, mu_ij, sigma_ij):
+        return np.random.normal(s_i * mu_ij, sigma_ij)
 
-        Args:
-            n
-            mapping_file
-        """
-        from .utils.web import get_data_from_url
+    def infer_transition_matrix_coefficient_from_data(
+        self,
+        source: str,
+        target: str,
+        state: Optional[str] = None,
+        crop: Optional[str] = None,
+    ):
+        """ Infer the distribution of a transition matrix coefficient from data. """
+        rows = engine.execute(
+            f"select * from dssat where `Crop` like '{crop}'"
+            f" and `State` like '{state}'"
+        )
+        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
+        xs_scaled, ys_scaled = xs / np.mean(xs), ys / np.mean(ys)
+        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov=True)
+        self.edges[source, target]["βs"] = np.random.normal(
+            p[0], np.sqrt(V[0][0]), self.res
+        )
+        self.sample_from_prior()
 
-        mapping = construct_concept_to_indicator_mapping(n)
+    # ==========================================================================
+    # Basic Modeling Interface (BMI)
+    # ==========================================================================
 
-        for n in self.nodes(data=True):
-            n[1]["indicators"] = get_indicators(n[0], mapping)
+    def create_bmi_config_file(self, bmi_config_file: str = "bmi_config.txt"):
+        """ Create a BMI config file to initialize the model. """
+        s0 = self.construct_default_initial_state()
+        s0.to_csv(bmi_config_file, index_label="variable")
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
+        """ The default update function for a CAG node. """
         return [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
             for i in range(self.res)
         ]
-
-    def emission_function(self, s_i, mu_ij, sigma_ij):
-        return np.random.normal(s_i * mu_ij, sigma_ij)
-
-    def construct_default_initial_state(self) -> pd.Series:
-        components = self.get_latent_state_components()
-        return pd.Series(ltake(len(components), cycle([1.0, 0.0])), components)
-
-    # ==========================================================================
-    # Basic Modeling Interface (BMI)
-    # ==========================================================================
 
     def initialize(self, config_file: str = "bmi_config.txt"):
         """ Initialize the executable AnalysisGraph with a config file.
@@ -316,7 +361,7 @@ class AnalysisGraph(nx.DiGraph):
     def update_until(self, t_final: float):
         """ Updates the model to a particular time t_final """
         while self.t < t_final:
-            update(self)
+            self.update()
 
     def finalize(self):
         raise NotImplementedError(
@@ -331,11 +376,11 @@ class AnalysisGraph(nx.DiGraph):
 
     def get_input_var_names(self) -> List[str]:
         """ Returns the input variable names """
-        return get_latent_state_components(self)
+        return self.get_latent_state_components()
 
     def get_output_var_names(self) -> List[str]:
         """ Returns the output variable names. """
-        return get_latent_state_components(self)
+        return self.get_latent_state_components()
 
     def get_time_step(self) -> float:
         """ Returns the time step size """
@@ -348,6 +393,10 @@ class AnalysisGraph(nx.DiGraph):
     def get_current_time(self) -> float:
         """ Returns the current time in the execution of the model. """
         return self.t
+
+    # ==========================================================================
+    # Export
+    # ==========================================================================
 
     def export_node(self, n) -> Dict[str, Union[str, List[str]]]:
         """ Return dict suitable for exporting to JSON.
@@ -397,9 +446,22 @@ class AnalysisGraph(nx.DiGraph):
         with open(filename, "wb") as f:
             pickle.dump(self, f)
 
-    def create_bmi_config_file(self, bmi_config_file: str = "bmi_config.txt"):
-        s0 = self.construct_default_initial_state()
-        s0.to_csv(bmi_config_file, index_label="variable")
+    # ==========================================================================
+    # Model parameterization
+    # ==========================================================================
+
+    def map_concepts_to_indicators(self, n: int = 1):
+        """ Add indicators to the analysis graph.
+
+        Args:
+            n
+            mapping_file
+        """
+
+        mapping = construct_concept_to_indicator_mapping(n)
+
+        for n in self.nodes(data=True):
+            n[1]["indicators"] = get_indicators(n[0], mapping)
 
     def parameterize(self, time: datetime):
         """ Parameterize the analysis graph.
@@ -429,6 +491,71 @@ class AnalysisGraph(nx.DiGraph):
                 if v.mean is not None
             }
 
+    # ==========================================================================
+    # Manipulation
+    # ==========================================================================
+
+    def delete_nodes(self, nodes: Iterable[str]):
+        """ Iterate over a set of nodes and remove the ones that are present in
+        the graph. """
+        for n in nodes:
+            if self.has_node(n):
+                self.remove_node(n)
+
+    def delete_node(self, node: str):
+        """ Removes a node if it is in the graph. """
+        if self.has_node(node):
+            self.remove_node(node)
+
+    def delete_edge(self, source: str, target: str):
+        """ Removes an edge if it is in the graph. """
+        if self.has_edge(source, target):
+            self.remove_edge(source, target)
+
+    def delete_edges(self, edges: Iterable[Tuple[str, str]]):
+        """ Iterate over a set of edges and remove the ones that are present in
+        the graph. """
+        for edge in edges:
+            if self.has_edge(*edge):
+                self.remove_edge(*edge)
+
+    def prune(self, cutoff: int = 2):
+        """ Prunes the CAG by removing redundant paths. If there are multiple
+        (directed) paths between two nodes, this function removes all but the
+        longest paths. Subsequently, it restricts the graph to the largest
+        connected component.
+
+        Args:
+            cutoff: The maximum path length to consider for finding redundant
+            paths. Higher values of this parameter correspond to more
+            aggressive pruning.
+        """
+
+        edges_to_keep = set()
+
+        # Remove redundant paths.
+        for node_pair in tqdm(list(permutations(self.nodes(), 2))):
+            paths = [
+                list(pairwise(path))
+                for path in nx.all_simple_paths(self, *node_pair, cutoff)
+            ]
+            if len(paths) > 1:
+                for path in paths:
+                    if len(path) == 1:
+                        self.delete_edge(*path[0])
+                        break
+
+        # Keep only the largest connected component
+        # TODO - implement code to handle case where there are multiple
+        # largest connected components (by number of nodes).
+
+        for n in [
+            n
+            for n in self.nodes()
+            if n not in max(nx.weakly_connected_components(self), key=len)
+        ]:
+            self.remove_node(n)
+
     def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
         """ Merge node n1 into node n2, with the option to specify relative
         polarity.
@@ -443,12 +570,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
                     st.obj_delta["polarity"] = -st.obj_delta["polarity"]
-                st.obj.db_refs["UN"][0] = (
-                    "/".join(
-                        st.obj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
-                    ),
-                    st.obj.db_refs["UN"][0][1],
-                )
+                st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
 
             if not self.has_edge(p, n2):
                 self.add_edge(p, n2)
@@ -465,12 +587,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
                     st.subj_delta["polarity"] = -st.subj_delta["polarity"]
-                st.subj.db_refs["UN"][0] = (
-                    "/".join(
-                        st.subj.db_refs["UN"][0][0].split("/")[:-1] + [n2]
-                    ),
-                    st.subj.db_refs["UN"][0][1],
-                )
+                st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
 
             if not self.has_edge(n2, s):
                 self.add_edge(n2, s)
@@ -489,16 +606,27 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def get_subgraph_for_concept(
-        self, concept: str, depth_limit: Optional[int] = None
+        self, concept: str, depth: Optional[int] = None, flow: str = "incoming"
     ):
-        """ Returns a subgraph of the analysis graph for a single concept.
+        """ Returns a new subgraph of the analysis graph for a single concept.
 
         Args:
-            concept
-            depth_limit
+            concept: The concept that the subgraph will be centered around.
+            depth: The depth to which the depth-first search must be performed.
+            flow: The direction of causal influence flow to examine. Setting
+                  this to 'incoming' will search for upstream causal influences, and
+                  setting it to 'outgoing' will search for downstream causal
+                  influences.
+        returns:
+            AnalysisGraph
         """
-        rev = self.reverse()
-        dfs_edges = nx.dfs_edges(rev, concept, depth_limit)
+        if flow == "incoming":
+            rev = self.reverse()
+        elif flow == "outgoing":
+            rev = self
+        else:
+            raise ValueError("flow must be one of [incoming|outgoing]")
+        dfs_edges = nx.dfs_edges(rev, concept, depth)
         return AnalysisGraph(
             self.subgraph(chain.from_iterable(dfs_edges)).copy()
         )
