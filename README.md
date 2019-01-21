@@ -75,15 +75,19 @@ Linux and MacOS operating systems. We assume familiarity with the following:
 
 Here are the steps for installation.
 
-- Fire up a terminal, navigate to the directory that you would like to install
-  Delphi in, then execute the following in the terminal:
-    ```bash
+- Fire up a terminal, navigate to the directory that you would like to
+  install Delphi in, then execute the following in the terminal:
+    ```bash 
     git clone https://github.com/ml4ai/delphi
-    cd delphi
+    cd delphi 
     pip install .
-    ```
-- Installing INDRA: We currently recommend installing the latest INDRA rather than through PyPI. To install the latest, execute the following from the terminal:
-    ```
+    ``` 
+
+- Installing [INDRA](https://github.com/sorgerlab/indra`): We
+  currently recommend installing the latest INDRA rather than through
+  PyPI. To install the latest, execute the following from the
+  terminal:
+    ```bash 
     pip install git+https://github.com/sorgerlab/indra.git
     ```
 
