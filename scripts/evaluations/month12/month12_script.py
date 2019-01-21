@@ -1,5 +1,7 @@
+import os
 import json
 import pickle
+from datetime import datetime
 from typing import List
 from tqdm import tqdm
 from delphi.AnalysisGraph import AnalysisGraph
@@ -111,21 +113,38 @@ def create_precipitation_centered_CAG(filename="CAG.pdf"):
     A.draw(filename, prog="dot")
     with open("build/precipitation_centered_CAG.pkl", "wb") as f:
         pickle.dump(G, f)
-    G.res = 2
-    G.assemble_transition_model_from_gradable_adjectives()
-    with open("12m_eval_cag_for_spot_checking.json", "w") as f:
-        f.write(json.dumps(G.to_dict(), indent=2))
 
 
-def create_parameterized_CAG(filename="CAG_with_indicators.pdf"):
-    """ Create a CAG with mapped indicators, and parameterized. """
+def create_quantified_CAG():
     with open("build/precipitation_centered_CAG.pkl", "rb") as f:
+        G = pickle.load(f)
+    G.res = 500
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    with open("build/quantified_CAG.pkl", "wb") as f:
+        pickle.dump(G, f)
+
+def create_CAG_with_indicators(filename="CAG_with_indicators.pdf"):
+    """ Create a CAG with mapped indicators """
+    with open("build/quantified_CAG.pkl", "rb") as f:
         G = pickle.load(f)
     G.map_concepts_to_indicators()
     A = to_agraph(G, indicators=True)
     A.draw(filename, prog="dot")
+    with open("build/CAG_with_indicators.pkl", "wb") as f:
+        pickle.dump(G, f)
 
+
+def create_parameterized_CAG(filename = "CAG_with_indicators_and_values.pdf"):
+    """ Create a CAG with mapped and parameterized indicators """
+    with open("build/CAG_with_indicators.pkl", "rb") as f:
+        G = pickle.load(f)
+    G.parameterize(datetime(2017,4,1))
+    A = to_agraph(G, indicators=True, indicator_values=True)
+    A.draw(filename, prog="dot")
 
 if __name__ == "__main__":
-    os.mkdirs("build", exist_ok=True)
-    create_precipitation_centered_CAG()
+    os.makedirs("build", exist_ok=True)
+    create_quantified_CAG()
+    create_CAG_with_indicators()
+    create_parameterized_CAG()
