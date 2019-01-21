@@ -151,22 +151,52 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 
 ### Environment variables
 
-To parameterize Delphi models correctly, you will need to set the `DELPHI_DB`
-environment variable to the path to your local copy of the Delphi SQLite
-database, which you can download with:
+There are several environment variables that need to be set in order
+for Delphi to function.
 
+These variables can be set in your .bash_profile (MacOS) or .bashrc,
+but if you use a virtual environment (recommended), then you can place
+these environment variables in the `project.pth`, which will be found
+here within your virtual environment (the following assumes your
+virtual environment is named `<venv>`, and `<version>` is the version
+number of your python, such as 3.7):
+
+```bash
+<venv>/lib/python<version>/site-packages/project.pth
+```
+
+Here are the variabels to add:
+
+- Set the PYTHONPATH to include the absolute path to the root of the
+delphi project.  For example:
+```
+export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
+```
+
+- To parameterize Delphi models correctly, you will need to set the
+`DELPHI_DB` environment variable to the path to your local copy of the
+Delphi SQLite database, which you can download with:
 ```
 curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
 ```
 
-*Optional*:
+Then set the variable enviornment (again, may be done within your bash
+resource file or the virtual envrionment `project.pth`). 
 
-If you are working on program analysis, you may want to optionally set the
-following environment variables as well.
-- `DSSAT_REPOSITORY`: This should point to your local
-  checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
-- `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
-  Demography Model](https://github.com/EDmodel/ED2) repository.
+The delphi.db name must appear at the end of the path, for example:
+```
+export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
+```
+
+- *Optional*: If you are working on program analysis, you may want to
+optionally set the following environment variables as well.
+
+-- `DSSAT_REPOSITORY`: This should point to your local checkout of the
+  [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
+
+-- `ED2_REPOSITORY`: This should point to your local checkout of the
+  [Ecosystem Demography Model](https://github.com/EDmodel/ED2)
+  repository.
 
 ### Building documentation
 
