@@ -69,13 +69,20 @@ welcome.
 
 The following are the requirements for Delphi:
 
-- Python 3.6 or higher.
-  If you have another version of Python already installed and need it for other
-  projects, we recommend [`pyenv`](https://github.com/pyenv/pyenv) to manage
-  multiple versions of Python.
+- Python 3.6.  
+  
+  - If you have another version of Python already installed and need
+    it for other projects, we recommend
+    [`pyenv`](https://github.com/pyenv/pyenv) to manage multiple
+    versions of Python.
+
+  - You can install and run Delphi under Python 3.7, but you will need
+    to first install Tangent per the instructions below before
+    pip-installing the rest of hte packages.
 
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
-  visualize causal analysis graphs.
+  visualize causal analysis graphs. See MacOS and Ubuntu notes below
+  for installing graphviz
 
 The following installation instructions are directed at developers working on
 Linux and MacOS operating systems. We assume familiarity with the following:
@@ -86,8 +93,28 @@ Linux and MacOS operating systems. We assume familiarity with the following:
 
 Here are the steps for installation.
 
+- If you are installing using Python 3.7: The model analysis
+(AutoMATES-related) portion of delphi now depends on
+[Tangent](https://github.com/google/tangent), which in turn depends on
+a library in TensorFlow, which itself does not support (yet) python
+`>=3.7`. You can manually install to tangent as follows (if you use a
+virtual environment for delphi work (recommended!), then be sure to do
+the follwoing while within the virutal environment):
+
+  - Clone the tanget project: `cd` to location where you would like the
+    tangent source to be cloned and then do: 
+    ```
+    git clone https://github.com/google/tangent.git
+    ```
+  - `cd` into tangent
+  - Run the tangent installer:
+    ```
+    python setup.py install
+    ```
+
 - Fire up a terminal, navigate to the directory that you would like to
   install Delphi in, then execute the following in the terminal:
+
     ```bash 
     git clone https://github.com/ml4ai/delphi
     cd delphi 
@@ -102,25 +129,14 @@ Here are the steps for installation.
     pip install git+https://github.com/sorgerlab/indra.git
     ```
 
-- Installing Tanget under Python >=3.7: The model analysis
-(AutoMATES-related) portion of delphi now depends on
-[Tangent](https://github.com/google/tangent), which in turn depends on
-a library in TensorFlow, which itself does not support (yet) python
-`>=3.7`. You can still fix the install to tangent (after following the
-`pip install .` instructions above) by doing the following (if you use
-a virtual environment for delphi work (recommended!), then be sure to
-do the follwoing while within the virutal environment):
+### Additional installation for developers
 
-  - Clone the tanget project. `cd` to location where you would like the
-    tangent source to be cloned and then do: 
-    ```
-    git clone https://github.com/google/tangent.git
-    ```
-  - `cd` into tangent
-  - Run the tangent installer:
-    ```
-    python setup.py install
-    ```
+If you are developing Delphi and want to run tests or compile the
+documentation, then also do the following: 
+
+```
+pip install -e .[test,docs]
+```
 
 ### MacOS installation notes
 
@@ -156,29 +172,35 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 There are several environment variables that need to be set in order
 for Delphi to function.
 
-These variables can be set in your `.bash_profile` (MacOS) or
-`.bashrc`, but if you use a virtual environment (recommended), then
-you can place these environment variables in a `project.pth` under the
-virtual environment python's site-packages directory, which will be
-found here within your virtual environment (the following assumes your
-virtual environment is named `<venv>`, and `<version>` is the version
-number of your python, such as 3.7):
+#### Adding the Delphi root to the PYTHONPATH
 
-```
-<venv>/lib/python<version>/site-packages/project.pth
-```
+Set the PYTHONPATH to include the absolute path to the root of the
+delphi project. This can be set in one of two places
+- In your .bash_profile (mac) or .bashrc (linux). For example:
+    ```bash
+    export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
+    ```
+- If you use a virtual environment, instead of adding yet another
+    path to your global PYTHONPATH in your .bash_profile/.bashrc,
+    instead you can add the path to delphi to be used only in your
+    virtual environment by placing the path in the virtual environment
+    `project.pth` file. This file is located within the virtual 
+    environment as follows (the following assumes your virtual environment 
+    is named `<venv>`, and `<version>` is the version number of your python, 
+    such as 3.6 or 3.7):
+    ```
+    <venv>/lib/python<version>/site-packages/project.pth
+    ```
+    NOTE: you may need to create the `project.pth` if one does not already
+    exist. Otherwise, just append the environment variable declarations to
+    the end of that file.
+    To this file you simply add the absolute path to the Delphi root (you
+    do not use export or PYTHONPATH, for example:
+    ```
+    /Users/claytonm/Documents/repository/delphi
+    ```
 
-NOTE: you may need to create the `project.pth` if one does not already
-exist. Otherwise, just append the environment variable declarations to
-the end of that file.
-
-Here are the variables to add:
-
-- Set the PYTHONPATH to include the absolute path to the root of the
-delphi project.  For example:
-```bash
-export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
-```
+#### Other environment variables
 
 - To parameterize Delphi models correctly, you will need to set the
 `DELPHI_DB` environment variable to the path to your local copy of the
