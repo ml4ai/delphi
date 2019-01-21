@@ -126,7 +126,7 @@ pip install --install-option="--include-path=/usr/local/include/" \
 The model analysis (AutoMATES-related) portion of delphi now depends
 on [Tangent](https://github.com/google/tangent), which in turn depends
 on a library in TensorFlow, which itself does not support (yet) python
->derp>=3.7. You can still fix the install to tangent (after following the
+&gr;=3.7. You can still fix the install to tangent (after following the
 `pip install .` instructions above) by doing the following (if you use
 a virtual environment for delphi work (recommended!), then be sure to
 do the follwoing while within the virutal environment):
