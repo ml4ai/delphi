@@ -161,7 +161,7 @@ here within your virtual environment (the following assumes your
 virtual environment is named `<venv>`, and `<version>` is the version
 number of your python, such as 3.7):
 
-```bash
+```
 <venv>/lib/python<version>/site-packages/project.pth
 ```
 
@@ -169,14 +169,14 @@ Here are the variabels to add:
 
 - Set the PYTHONPATH to include the absolute path to the root of the
 delphi project.  For example:
-```
+```bash
 export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
 ```
 
 - To parameterize Delphi models correctly, you will need to set the
 `DELPHI_DB` environment variable to the path to your local copy of the
 Delphi SQLite database, which you can download with:
-```
+```bash
 curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
 ```
 
@@ -184,12 +184,13 @@ Then set the variable enviornment (again, may be done within your bash
 resource file or the virtual envrionment `project.pth`). 
 
 The delphi.db name must appear at the end of the path, for example:
-```
+```bash
 export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
 ```
 
 - *Optional*: If you are working on program analysis, you may want to
-optionally set the following environment variables as well.
+optionally set the following environment variables as well (again, in 
+.bash_profile/.bashrc or viritual environment projects.pth).
 
 -- `DSSAT_REPOSITORY`: This should point to your local checkout of the
   [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
