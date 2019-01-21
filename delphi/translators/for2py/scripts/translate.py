@@ -106,12 +106,15 @@ class XMLToJSONTranslator(object):
 
     def process_declaration(self, root, state) -> List[Dict]:
         decVars = []
+        decDims = []
         decType = {}
         for node in root:
             if node.tag == "type":
                 decType = {"type": node.attrib["name"]}
             elif node.tag == "variables":
                 decVars = self.parseTree(node, state)
+            elif node.tag == "dimensions":
+                decDims = self.parseTree(node, state)
         prog = []
         for var in decVars:
             if (
@@ -128,6 +131,11 @@ class XMLToJSONTranslator(object):
                 state.subroutine["args"][state.args.index(var["name"])][
                     "type"
                 ] = decType["type"]
+        if decDims:
+            for dim in decDims:
+                for lit in dim["literal"]:
+                    prog[0]["tag"] = "array"
+                    prog[0]["value"] = lit["value"]
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -268,6 +276,13 @@ class XMLToJSONTranslator(object):
         ret = {"tag": "return"}
         return [ret]
 
+    def process_dimension(self, root, state) -> List[Dict]:
+        dimension = {"tag": "dimension"}
+        for node in root:
+            if node.tag == "literal":
+                dimension["literal"] = self.parseTree(node, state)
+        return [dimension]
+
     def process_libRtn(self, root, state) -> List[Dict]:
         fn = {"tag": "call", "name": root.tag, "args": []}
         for node in root:
@@ -336,6 +351,9 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "return":
             return self.process_return(root, state)
+
+        elif root.tag == "dimension":
+            return self.process_dimension(root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)

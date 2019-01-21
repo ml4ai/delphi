@@ -98,6 +98,7 @@ class PythonCodeGenerator(object):
             "return": self.printReturn,
             "function": self.printFunction,
             "ret": self.printFuncReturn,
+            "array": self.printArray,
         }
         self.operator_mapping = {
             ".ne.": " != ",
@@ -360,6 +361,21 @@ class PythonCodeGenerator(object):
     def printReturn(self, node, printState):
         self.pyStrings.append("return True")
 
+    def printArray(self, node, printState):
+        if (
+            node["name"] not in printState.definedVars
+            and node["name"] not in printState.globalVars
+        ):
+            printState.definedVars += [node["name"]]
+            loBound = 1
+            upBound = node["value"]
+
+            self.pyStrings.append(
+                f"{node['name']} = Array([{loBound}, {upBound}])"
+            )
+        else:
+            printState.printFirst = False
+
     def get_python_source(self):
         return "".join(self.pyStrings)
 
@@ -367,7 +383,8 @@ class PythonCodeGenerator(object):
 def create_python_string(outputDict):
     code_generator = PythonCodeGenerator()
     code_generator.pyStrings.append("from typing import List\n")
-    code_generator.pyStrings.append("import math")
+    code_generator.pyStrings.append("import math\n")
+    code_generator.pyStrings.append("from for2py_arrays import *\n")
     code_generator.printAst(outputDict["ast"], PrintState())
     return code_generator.get_python_source()
 
