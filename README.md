@@ -124,7 +124,7 @@ do the follwoing while within the virutal environment):
 
 ### MacOS installation notes
 
-#### Installing Graphviz on MacOS
+#### Installing graphviz on MacOS
 
 This can be done using [Homebrew](https://brew.sh): 
 
@@ -142,6 +142,9 @@ pip install --install-option="--include-path=/usr/local/include/" \
 ```
 
 ### Ubuntu installation notes
+
+#### Installing graphiviz on Ubuntu
+
 To install graphviz on Ubuntu, do
 
 ```bash
