@@ -107,6 +107,7 @@ class PythonCodeGenerator(object):
             "open": self.printOpen,
             "format": self.printFormat,
             "close": self.printClose,
+            "array": self.printArray,
         }
         self.operator_mapping = {
             ".ne.": " != ",
@@ -397,6 +398,7 @@ class PythonCodeGenerator(object):
     def printReturn(self, node, printState):
         self.pyStrings.append("return True")
 
+<<<<<<< HEAD
     def printOpen(self, node, printState):
         if node["args"][0].get("arg_name") == "UNIT":
             file_handle = "file_" + str(node["args"][1]["value"])
@@ -482,6 +484,36 @@ class PythonCodeGenerator(object):
         file_id = node["args"][0]["value"]
         self.pyStrings.append(f"file_{file_id}.close()")
 
+    def printArray(self, node, printState):
+        print ('node in pyTranslate.py: ', node)
+        if int(node['count']) == 1:
+            if (
+                node["name"] not in printState.definedVars
+                and node["name"] not in printState.globalVars
+            ):
+                printState.definedVars += [node["name"]]
+                loBound = 1
+                upBound = node["value" + node["count"]]
+
+                self.pyStrings.append(
+                    f"{node['name']} = Array([({loBound}, {upBound})])"
+                )
+        elif int(node['count']) > 1:
+            printState.definedVars += [node["name"]]
+
+            self.pyStrings.append(f"{node['name']} = Array([")
+            for i in range (0, int(node['count'])):  
+                loBound = 1
+                upBound = node["value" + str(i+1)]
+                dimensions = f"({loBound}, {upBound})"
+                if i < int(node['count'])-1:
+                    self.pyStrings.append(f"{dimensions}, ")
+                else:
+                    self.pyStrings.append(f"{dimensions}")
+            self.pyStrings.append("])")
+        else:
+            printState.printFirst = False
+
     def get_python_source(self):
         return "".join(self.pyStrings)
 
@@ -495,6 +527,7 @@ def create_python_string(outputDict):
             "from fortran_format import *",
         ]
     )
+    code_generator.pyStrings.append("from for2py_arrays import *\n")
     code_generator.printAst(outputDict["ast"], PrintState())
     return code_generator.get_python_source()
 
