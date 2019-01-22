@@ -110,15 +110,16 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
 def get_indicator_value(
     indicator: Indicator, date: datetime
 ) -> Optional[float]:
-    """ Get the value of a particular indicator at a particular date and time. """
+    """ Get the value of a particular indicator at a particular date and time.
+    If no value is available, take historical average."""
 
-    variable_names = [
-        x[0]
-        for x in engine.execute(
-            f"select distinct `Variable` from indicator"
-        ).fetchall()
-    ]
-    best_match = get_best_match(indicator, variable_names)
+    # variable_names = [
+        # x[0]
+        # for x in engine.execute(
+            # f"select distinct `Variable` from indicator"
+        # ).fetchall()
+    # ]
+    # best_match = get_best_match(indicator, variable_names)
 
     # TODO Devise a strategy to get rid of the fetchone() call at the end of the
     # expression below (i.e. add month support instead of taking the first
@@ -127,7 +128,7 @@ def get_indicator_value(
     result = engine.execute(
         " ".join(
             [
-                f"select * from indicator where `Variable` like '{best_match}'",
+                f"select * from indicator where `Variable` like '{indicator.name}'",
                 "and `Value` is not null",
                 f"and `Year` is {date.year}",
             ]
@@ -171,21 +172,6 @@ def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
         for k, v in gb
     }
     return _dict
-
-
-def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
-    # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to make sure
-    # that the intervention nodes are represented consistently in the mapping
-    # (i.e. with spaces vs. with underscores.
-
-    if concept.split("/")[1] == "interventions":
-        concept = concept.replace("_"," ")
-
-    return (
-        {x[0]: Indicator(x[0], x[1]) for x in mapping[concept]}
-        if concept in mapping
-        else None
-    )
 
 
 def make_edges(sts, node_permutations):

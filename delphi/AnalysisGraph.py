@@ -14,7 +14,7 @@ from indra.statements.evidence import Evidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .utils.fp import flatMap, ltake, lmap, pairwise
+from .utils.fp import flatMap, take, ltake, lmap, pairwise
 from .paths import db_path
 from .db import engine
 from .assembly import (
@@ -55,7 +55,6 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
     # Constructors
     # ==========================================================================
-
 
     @classmethod
     def from_statements_file(cls, file: str):
@@ -460,23 +459,41 @@ class AnalysisGraph(nx.DiGraph):
 
         mapping = construct_concept_to_indicator_mapping(n)
 
-        for n in self.nodes(data=True):
-            n[1]["indicators"] = get_indicators(n[0], mapping)
+        for node in self.nodes(data=True):
 
-    def parameterize(self, time: datetime):
+            # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to
+            # make sure that the intervention nodes are represented consistently
+            # in the mapping (i.e. with spaces vs. with underscores.
+            if node[0].split("/")[1] == "interventions":
+                node_name = node[0].replace("_", " ")
+            else:
+                node_name = node[0]
+
+            results = engine.execute(
+                "select Indicator from concept_to_indicator_mapping where "
+                f"`Concept` like '{node_name}' and `source` like 'MITRE12'"
+            )
+
+            node[1]["indicators"] = {
+                x.split("/")[1]: Indicator(x.split("/")[1], "MITRE12")
+                for x in [r[0] for r in take(n, results)]
+            }
+
+    def parameterize(
+        self,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        day: Optional[int] = None,
+    ):
         """ Parameterize the analysis graph.
 
         Args:
-            time
+            year
+            month
+            day
         """
 
-        nodes_with_indicators = [
-            n
-            for n in self.nodes(data=True)
-            if n[1].get("indicators") is not None
-        ]
-
-        for n in nodes_with_indicators:
+        for n in G.nodes(data=True):
             for indicator_name, indicator in n[1]["indicators"].items():
                 indicator.mean, indicator.unit = get_indicator_value(
                     indicator, time
