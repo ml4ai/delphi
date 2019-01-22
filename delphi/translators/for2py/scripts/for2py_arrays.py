@@ -20,9 +20,10 @@ _SET_ = 1
 ################################################################################
 
 class Array:
-    # bounds is a list [(lo1,hi1), (lo2,hi2), ..., (loN, hiN)] of pairs of
-    # lower and upper bounds for the dimensions of the array.  The length
-    # of the list bounds gives the number of dimensions of the array.
+    """ bounds is a list [(lo1,hi1), (lo2,hi2), ..., (loN, hiN)] of pairs of
+        lower and upper bounds for the dimensions of the array.  The length
+        of the list bounds gives the number of dimensions of the array.
+    """
     def __init__(self, bounds):
         self._bounds = bounds
         self._values = self._mk_uninit_array(bounds)
@@ -109,15 +110,15 @@ class Array:
                 sub_arr = sub_arr[this_pos]
 
 
-    # set() sets the value of the array element specified by the given tuple
+    # set_() sets the value of the array element specified by the given tuple
     # of array subscript values to the argument val.
-    def set(self, subs, val):
+    def set_(self, subs, val):
         self._access(subs, _SET_, val)
 
 
-    # get() returns the value of the array element specified by the given tuple
+    # get_() returns the value of the array element specified by the given tuple
     # of array subscript values.
-    def get(self, subs):
+    def get_(self, subs):
         return self._access(subs, _GET_, None)
 
 
@@ -125,7 +126,7 @@ class Array:
     # by the list of subscript values subs_list (each element of subs_list is a
     # tuple of subscripts identifying an array element).  
     def get_elems(self, subs_list):
-        return [self.get(subs) for subs in subs_list]
+        return [self.get_(subs) for subs in subs_list]
 
 
     # set_elems(subs, vals) sets the array elements specified by the list
@@ -137,7 +138,7 @@ class Array:
             vals = [vals] * len(subs)
 
         for i in range(len(subs)):
-            self.set(subs[i], vals[i])
+            self.set_(subs[i], vals[i])
 
 
 ################################################################################
