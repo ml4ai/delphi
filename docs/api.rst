@@ -18,6 +18,11 @@ Constructors
     AnalysisGraph.from_statements
     AnalysisGraph.from_statements_file
     AnalysisGraph.from_pickle
+    AnalysisGraph.from_text
+    AnalysisGraph.from_json_serialized_statements_list
+    AnalysisGraph.from_json_serialized_statements_file
+    AnalysisGraph.from_uncharted_json_file
+    AnalysisGraph.from_uncharted_json_serialized_dict
 
 Subgraphs
 ---------
@@ -50,16 +55,33 @@ Methods to edit the AnalysisGraph.
     :toctree: generated/
 
     AnalysisGraph.merge_nodes
+    AnalysisGraph.delete_node
+    AnalysisGraph.delete_edge
+    AnalysisGraph.delete_nodes
+    AnalysisGraph.delete_edges
+    AnalysisGraph.prune
 
 
-Quantification
---------------
+Parameterization
+----------------
 .. currentmodule:: delphi.AnalysisGraph
 .. autosummary::
     :toctree: generated/
 
     AnalysisGraph.map_concepts_to_indicators
+    AnalysisGraph.parameterize
+
+Sampling and Inference
+----------------------
+.. currentmodule:: delphi.AnalysisGraph
+.. autosummary::
+    :toctree: generated/
+
     AnalysisGraph.assemble_transition_model_from_gradable_adjectives
+    AnalysisGraph.sample_from_prior
+    AnalysisGraph.emission_function
+    AnalysisGraph.infer_transition_matrix_coefficient_from_data
+
 
 Export
 ------

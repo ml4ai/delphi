@@ -3,33 +3,61 @@ C     GAUSSIAN ELIMINATION
 C     From: http://users.metu.edu.tr/azulfu/courses/es361/programs/fortran/GAUEL.FOR
 
       DIMENSION A(20,21)
-      PRINT *
-      PRINT *, 'GAUSS ELIMINATION'
-      DATA  N/4/
-      DATA  (A(1,J), J=1,5) /-40.0,28.5,0.,0.,1.81859/
-      DATA  (A(2,J), J=1,5) /21.5,-40.0,28.5,0.,-1.5136/
-      DATA  (A(3,J), J=1,5) /0.,21.5,-40.0,28.5,-0.55883/
-      DATA (A(4,J), J=1,5) /0.,0.,21.5,-40.0,1.69372/
-      PRINT *
-      PRINT *, 'AUGMENTED MATRIX'
-      PRINT *
-      DO I=1,N
-      PRINT 61, (A(I,J),J=1,5)
-61        FORMAT(1X,5f8.4)
+      INTEGER I,J
+
+ 10   FORMAT(/,' GAUSS ELIMINATION')
+      WRITE (*,10)      
+
+C INITIALIZATION
+C      DATA  N/4/
+C      DATA  (A(1,J), J=1,5) /-40.0,28.5,0.,0.,1.81859/
+C      DATA  (A(2,J), J=1,5) /21.5,-40.0,28.5,0.,-1.5136/
+C      DATA  (A(3,J), J=1,5) /0.,21.5,-40.0,28.5,-0.55883/
+C      DATA (A(4,J), J=1,5) /0.,0.,21.5,-40.0,1.69372/
+
+      N = 4
+      
+ 11   FORMAT(5(X,F8.2))
+      OPEN(10, FILE="INFILE-GAUSSIAN")
+
+      DO I = 1, N
+         READ (10,11) A(I,1), A(I,2), A(I,3), A(I,4), A(I,5)
       END DO
-      PRINT *
+      CLOSE(10)
+C END INITIALIZATION
+
+ 12   FORMAT(/,' AUGMENTED MATRIX',/)
+      WRITE(*,12)
+
+61    FORMAT(5(1X,5f8.4))
+      DO I=1,N
+      WRITE(*, 61) A(I,1), A(I,2), A(I,3), A(I,4), A(I,5)
+      END DO
+
+ 13   FORMAT('')
+ 14   FORMAT(' SOLUTION')
+ 15   FORMAT(' ...........................................')
+ 16   FORMAT('         I       X(I)')
+      
+      WRITE(*,13)
+      
       CALL GAUSS(N,A)
-65    PRINT *
-68    PRINT *, 'SOLUTION'
-      PRINT *, '...........................................'
-69    PRINT *, '        I       X(I)'
-70    PRINT *, '............................................'
-        DO I=1,N
-72         FORMAT(5X,I5, 1PE16.6)
-           PRINT 72, I, A(I,N+1)
-         END DO
-75    PRINT *,'..............................................'
-80    PRINT *
+
+      WRITE(*,13)
+      WRITE(*,14)
+      WRITE(*,15)
+      WRITE(*,16)      
+      WRITE(*,15)
+
+72    FORMAT(5X,I5, F12.6)
+
+      DO I=1,N
+          WRITE (*,72) I, A(I,N+1)
+      END DO
+
+      WRITE(*,15)
+      WRITE(*,13)
+      
       STOP
       END PROGRAM MAIN
 C*************************************
@@ -42,7 +70,10 @@ C*************************************
           GOTO 10
       END IF
       EPS=EPS*2
-      PRINT *,'      MACHINE EPSILON=',EPS
+      
+ 11   FORMAT ('      MACHINE EPSILON=',E16.8)
+      WRITE(*,11) EPS
+      
       EPS2=EPS*2
 1005  DET=1.
       DO 1010 I=1,N-1
@@ -72,9 +103,10 @@ C*************************************
       DO I=1,N
          DET=DET*A(I,I)
       END DO
-      PRINT *
-      PRINT *,' DETERMINANT= ',DET
-      PRINT*
+
+ 12   FORMAT(/,'  DETERMINANT= ',F16.5,/)
+      WRITE(*,12) DET
+
       IF (A(N,N).EQ.0.0) GOTO 1200
       A(N,N+1)=A(N,N+1)/A(N,N)
       DO NV=N-1,1,-1
@@ -87,5 +119,8 @@ C*************************************
       RETURN
 1100  CONTINUE
       RETURN
-1200  PRINT *,'MATRIX IS SINGULAR'
+
+ 1200 FORMAT(' MATRIX IS SINGULAR')
+      WRITE(*,1200)
+      
       END

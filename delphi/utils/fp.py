@@ -1,6 +1,14 @@
 """ Helper functions for functional programming. """
 
-from itertools import repeat, accumulate, islice, chain, starmap, zip_longest
+from itertools import (
+    repeat,
+    accumulate,
+    islice,
+    chain,
+    starmap,
+    zip_longest,
+    tee,
+)
 from functools import reduce
 from tqdm import tqdm
 from future.utils import lmap
@@ -251,3 +259,10 @@ def grouper(xs: Iterable, n: int, fillvalue=None):
     """
     args = [iter(xs)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)

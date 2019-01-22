@@ -4,12 +4,9 @@ from conftest import *
 from datetime import datetime
 from indra.statements import Concept, Influence
 from delphi.assembly import *
-from delphi.paths import adjectiveData, south_sudan_data
 from future.utils import lfilter
 from delphi.utils.indra import *
 import pytest
-
-gb = pd.read_csv(adjectiveData, delim_whitespace=True).groupby("adjective")
 
 
 def test_make_edge():
@@ -83,13 +80,10 @@ def test_contains_relevant_concept():
     assert not contains_relevant_concept(s3, relevant_concepts)
 
 
-indicator_data = get_data(south_sudan_data)
-
-
 def test_get_indicator_data():
     indicator = Indicator(
         "Political stability and absence of violence/terrorism (index), Value",
         "WB",
     )
     t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t, indicator_data)[0] == -1.2
+    assert get_indicator_value(indicator, t)[0] == -1.2

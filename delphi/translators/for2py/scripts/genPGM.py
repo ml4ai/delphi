@@ -18,11 +18,11 @@ class PGMState:
     def __init__(
         self,
         lambdaFile: Optional[str],
-        lastDefs: Optional[Dict]={},
-        nextDefs: Optional[Dict]={},
+        lastDefs: Optional[Dict] = {},
+        nextDefs: Optional[Dict] = {},
         lastDefDefault=0,
         fnName=None,
-        varTypes: Optional[Dict]={},
+        varTypes: Optional[Dict] = {},
     ):
         self.lastDefs = lastDefs
         self.nextDefs = nextDefs
@@ -33,12 +33,12 @@ class PGMState:
 
     def copy(
         self,
-        lastDefs: Optional[Dict]=None,
-        nextDefs: Optional[Dict]=None,
+        lastDefs: Optional[Dict] = None,
+        nextDefs: Optional[Dict] = None,
         lastDefDefault=None,
         fnName=None,
-        varTypes: Optional[Dict]=None,
-        lambdaFile: Optional[str]=None,
+        varTypes: Optional[Dict] = None,
+        lambdaFile: Optional[str] = None,
     ):
         return PGMState(
             self.lambdaFile if lambdaFile == None else lambdaFile,
@@ -75,7 +75,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
                     node.__class__.__name__,
                     "(",
                     ", ".join(
-                        (f"{field}={field}" for field in fields)
+                        ("%s=%s" % field for field in fields)
                         if annotate_fields
                         else (b for a, b in fields)
                     ),
@@ -164,8 +164,14 @@ def getVarType(annNode):
             return "real"
         if dType == "int":
             return "integer"
+        if dType == "list":
+            return "array"
+        if dType == "str":
+            return "string"
         else:
-            sys.stderr.write("Unsupported type (only float and int supported as of now).\n")
+            sys.stderr.write(
+                "Unsupported type (only float and int supported as of now).\n"
+            )
     except AttributeError:
         sys.stderr.write("Unsupported type (annNode is None).\n")
     sys.exit(1)
@@ -190,50 +196,134 @@ def get_body_and_functions(pgm):
 
 def make_fn_dict(name, target, sources, lambdaName, node):
     source = []
+    fn = {}
+
+    # Preprocessing and removing certain Assigns which only pertain to the Python
+    # code and do not relate to the FORTRAN code in any way.
+    if target["var"]["variable"] == "write_line":
+        return fn
     for src in sources:
         if "call" in src:
+            if src["call"]["function"] == "Format":
+                return fn
             for source_ins in make_call_body_dict(src):
                 source.append(source_ins)
         if "var" in src:
             variable = src["var"]["variable"]
             source.append({"name": variable, "type": "variable"})
-    fn = {
-        "name": name,
-        "type": "assign",
-        "target": target["var"]["variable"],
-        "sources": source,
-        "body": [
-            {"type": "lambda", "name": lambdaName, "reference": node.lineno}
-        ],
-    }
+        if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
+            # This is a write to a file
+            source.append({"name": "write", "type": "function"})
+            for item in src["list"]:
+                variable = item["var"]["variable"]
+                source.append({"name": variable, "type": "variable"})
+
+    # File Open Check
+    fn.update(
+        {
+            "name": name,
+            "type": "assign",
+            "sources": source,
+            "body": [
+                {
+                    "type": "lambda",
+                    "name": lambdaName,
+                    "reference": node.lineno,
+                }
+            ],
+        }
+    )
+    if len(source) > 0:
+        if (
+            source[0].get("name") == "open"
+            and source[0].get("type") == "function"
+        ):
+            (file_id, source) = handle_file_open(
+                target["var"]["variable"], source
+            )
+            fn["target"] = file_id
+        else:
+            fn["target"] = target["var"]["variable"]
+    else:
+        fn["target"] = target["var"]["variable"]
     return fn
+
+
+def handle_file_open(target, source):
+    # This block maps the 'r' and 'w' modes in python file handling to read and write
+    # commands in the source field.
+    #
+    # Currently, the 'read' and 'write' actions are not included in source field but
+    # this function can handle it if necessary.
+    mode_mapping = {"r": "read", "w": "write"}
+    file_id = re.findall(r".*_(\d+)$", target)[0]
+    source[-1]["name"] = mode_mapping[source[-1]["name"]]
+
+    # Return with 'read'/'write' action. Disabled for now
+    # return (file_id, source)
+
+    # Return without the 'read'/'write' action.
+    return (file_id, source[:-1])
 
 
 def make_call_body_dict(source):
     source_list = []
+    if re.match(r"format_\d+_obj\.read_line", source["call"]["function"]):
+        source_list.append({"name": "read", "type": "function"})
+        file_id_reg = r"file_(\d+)\.readline"
+        id_string = source["call"]["inputs"][0][0]["call"]["function"]
+        if re.match(file_id_reg, id_string):
+            match = re.findall(file_id_reg, id_string)
+            source_list.append({"name": match[0], "type": "variable"})
+        return source_list
+
     name = source["call"]["function"]
     source_list.append({"name": name, "type": "function"})
-    for ip in source["call"]["inputs"][0]:
-        if "var" in ip:
-            variable = ip["var"]["variable"]
-            source_list.append({"name": variable, "type": "variable"})
+    for ip in source["call"]["inputs"]:
+        if isinstance(ip, list):
+            for item in ip:
+                if "var" in item:
+                    variable = item["var"]["variable"]
+                    source_list.append({"name": variable, "type": "variable"})
+                if item.get("dtype") == "string":
+                    source_list.append(
+                        {"name": item["value"], "type": "variable"}
+                    )
     return source_list
 
 
 def make_body_dict(name, target, sources):
     source_list = []
+    file_read_index = 2
+
+    file_id_match = re.match(r"file_(\d+)$", target["var"]["variable"])
     for src in sources:
         if "var" in src:
             source_list.append(src["var"])
         if "call" in src:
             for ip in src["call"]["inputs"][0]:
+                if "call" in ip:
+                    read_match = re.match(
+                        r"file_(\d+)\.readline", ip["call"]["function"]
+                    )
+                    if read_match:
+                        source_list.append(
+                            {
+                                "variable": read_match.group(1),
+                                "index": file_read_index,
+                            }
+                        )
+                        file_read_index += 1
                 if "var" in ip:
-                    source_list.append(ip["var"]) 
-    body = {
-        "name": name,
-        "output": target["var"],
-        "input": source_list,
-    }
+                    source_list.append(ip["var"])
+            if file_id_match:
+                target["var"]["variable"] = file_id_match.group(1)
+                source_list = source_list[:-1]
+        if "list" in src and re.match(r"^(\d+)$", target["var"]["variable"]):
+            for item in src["list"]:
+                source_list.append(item)
+
+    body = {"name": name, "output": target["var"], "input": source_list}
     return body
 
 
@@ -282,6 +372,17 @@ def genPgm(node, state, fnNames):
         body, fns = get_body_and_functions(bodyPgm)
 
         variables = list(localDefs.keys())
+        variables_tmp = []
+
+        for item in variables:
+            match = re.match(
+                r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|(write_line)",
+                item,
+            )
+            if not match:
+                variables_tmp.append(item)
+
+        variables = variables_tmp
 
         fnDef = {
             "name": node.name,
@@ -332,11 +433,11 @@ def genPgm(node, state, fnNames):
 
     # List: ('elts', 'ctx')
     elif isinstance(node, ast.List):
-        elements = reduce(
-            (lambda x, y: x.append(y)),
-            [genPgm(elmt, state, fnNames) for elmt in node.elts],
-        )
-        return elements if len(elements) == 1 else {"list": elements}
+        elements = [
+            element[0]
+            for element in [genPgm(elmt, state, fnNames) for elmt in node.elts]
+        ]
+        return elements if len(elements) == 1 else [{"list": elements}]
 
     # Str: ('s',)
     elif isinstance(node, ast.Str):
@@ -597,6 +698,8 @@ def genPgm(node, state, fnNames):
                     "output": {},
                     "input": [],
                 }
+                if re.match(r"file_\d+\.write", body["function"]):
+                    return []
                 for arg in call["inputs"]:
                     if len(arg) == 1:
                         if "var" in arg[0]:
@@ -701,11 +804,21 @@ def genPgm(node, state, fnNames):
             (lambda x, y: x.append(y)),
             [genPgm(target, state, fnNames) for target in node.targets],
         )
-
         pgm = {"functions": [], "body": []}
 
         for target in targets:
             source_list = []
+            if target.get("list"):
+                targets = ",".join(
+                    [x["var"]["variable"] for x in target["list"]]
+                )
+                target = {"var": {"variable": targets, "index": 1}}
+
+            # Extracting only file_id from the write list variable
+            match = re.match(r"write_list_(\d+)", target["var"]["variable"])
+            if match:
+                target["var"]["variable"] = match.group(1)
+
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
@@ -713,6 +826,8 @@ def genPgm(node, state, fnNames):
                 fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
+            if len(fn) == 0:
+                return []
             body = make_body_dict(name, target, sources)
             for src in sources:
                 if "var" in src:
@@ -729,14 +844,32 @@ def genPgm(node, state, fnNames):
                 source_list,
             )
             if not fn["sources"] and len(sources) == 1:
+                if sources[0].get("list"):
+                    dtypes = set()
+                    value = list()
+                    for item in sources[0]["list"]:
+                        dtypes.add(item["dtype"])
+                        value.append(item["value"])
+                    dtype = list(dtypes)
+                else:
+                    dtype = sources[0]["dtype"]
+                    value = f"{sources[0]['value']}"
                 fn["body"] = {
                     "type": "literal",
-                    "dtype": sources[0]["dtype"],
-                    "value": f"{sources[0]['value']}",
+                    "dtype": dtype,
+                    "value": value,
                 }
             pgm["functions"].append(fn)
             pgm["body"].append(body)
         return [pgm]
+
+    # Tuple: ('elts', 'ctx')
+    elif isinstance(node, ast.Tuple):
+        elements = []
+        for element in [genPgm(elmt, state, fnNames) for elmt in node.elts]:
+            elements.append(element[0])
+
+        return elements if len(elements) == 1 else [{"list": elements}]
 
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
@@ -805,6 +938,7 @@ def get_asts_from_files(files: List[str], printAst=False):
         asts.append(importAst(f))
         if printAst:
             print(dump(asts[-1]))
+
     return asts
 
 

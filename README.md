@@ -14,23 +14,31 @@
 - [Usage](#usage)
 - [License](#license)
 
-Modeling complex phenomena such as food insecurity requires reasoning over 
-multiple levels of abstraction and fully utilizing expert knowledge about multiple
-disparate domains, ranging from the environmental to the sociopolitical.
+Modeling complex phenomena such as food insecurity requires reasoning
+over multiple levels of abstraction and fully utilizing expert
+knowledge about multiple disparate domains, ranging from the
+environmental to the sociopolitical.
 
-Delphi is a framework for assembling causal, dynamic, probabilistic  models from 
-information extracted from two sources:
-- *Text*: Delphi utilizes causal relations extracted using machine reading from
-   text sources such as UN agency reports, news articles, and technical papers.
-- *Software*: Delphi also incorporates functionality to extract abstracted representations
-   of scientific models from code that implements them, and convert these into probabilistic models.
+Delphi is a framework for assembling causal, dynamic, probabilistic
+models from information extracted from two sources:
 
-For a detailed description of our procedure to convert text to models, see
-[this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
+- *Text*: Delphi utilizes causal relations extracted using machine
+   reading from text sources such as UN agency reports, news articles,
+   and technical papers.
 
-For API documentation, see [delphi.readthedocs.io](https://delphi.readthedocs.io).
+- *Software*: Delphi also incorporates functionality to extract
+   abstracted representations of scientific models from code that
+   implements them, and convert these into probabilistic models.
 
-Delphi is also part of the [AutoMATES](https://ml4ai.github.io/automates/) project.
+For a detailed description of our procedure to convert text to models,
+see [this
+document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
+
+For API documentation, see
+[delphi.readthedocs.io](https://delphi.readthedocs.io).
+
+Delphi is also part of the
+[AutoMATES](https://ml4ai.github.io/automates/) project.
 
 ## Citing
 
@@ -47,24 +55,31 @@ If you use Delphi, please cite the following:
 
 ## Installation
 
-Delphi is under active development in an academic, rather than a commercial
-setting, so we do not have the resources to test it out on the Windows operating
-system, or provide a one-step/one-click setup process.
+Delphi is under active development in an academic, rather than a
+commercial setting, so we do not have the resources to test it out on
+the Windows operating system, or provide a one-step/one-click setup
+process.
 
-That being said, this is a Python package, and we use platform-independent path
-handling internally within the code using `pathlib`, so *technically*, it should
-work fine on Windows machines as well, and we will try to guide you through the
-installation process as much as possible. Pull requests for improvements are
-always welcome.
+That being said, this is a Python package, and we use
+platform-independent path handling internally within the code using
+`pathlib`, so *technically*, it should work fine on Windows machines
+as well, and we will try to guide you through the installation process
+as much as possible. Pull requests for improvements are always
+welcome.
 
 The following are the requirements for Delphi:
 
 - Python 3.6 or higher.
-  If you have another version of Python already installed and need it for other
-  projects, we recommend [`pyenv`](https://github.com/pyenv/pyenv) to manage
-  multiple versions of Python.
+
+  - Python 3.6 is recommended.
+
+  - You can install and run Delphi under Python 3.7, but you will need
+    to first install Tangent, per the instructions below, before
+    pip-installing the rest of the packages.
+
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
-  visualize causal analysis graphs.
+  visualize causal analysis graphs. See MacOS and Ubuntu notes below
+  for installing graphviz.
 
 The following installation instructions are directed at developers working on
 Linux and MacOS operating systems. We assume familiarity with the following:
@@ -75,30 +90,73 @@ Linux and MacOS operating systems. We assume familiarity with the following:
 
 Here are the steps for installation.
 
-- Fire up a terminal, navigate to the directory that you would like to install Delphi in, then execute the following in the terminal:
-    ```bash
-    git clone https://github.com/ml4ai/delphi
-    cd delphi
-    pip install pipenv
-    pipenv install -d --skip-lock
+- If you are installing using Python 3.7: The model analysis
+(AutoMATES-related) portion of delphi now depends on
+[Tangent](https://github.com/google/tangent), which in turn depends on
+a library in TensorFlow, which itself does not (yet) support python
+`>=3.7`. You can manually install tangent as follows (if you use a
+virtual environment for delphi work (recommended!), then be sure to do
+the following while within the virtual environment):
+
+  - `cd` to the directory where you would like the
+    tangent source to be cloned and then do: 
+    ```
+    git clone https://github.com/google/tangent.git
+    cd tangent
+    python setup.py install
     ```
 
-### Installing Graphviz on MacOS
+... Regular instructions:
 
-This can be done using [Homebrew](https://brew.sh):
+- Install [INDRA](https://github.com/sorgerlab/indra`): We
+  currently recommend installing the latest (master branch) version of 
+  INDRA from Github rather than through PyPI. To install the latest version,
+  execute the following from the terminal:
+    ```bash 
+    pip install git+https://github.com/sorgerlab/indra
+    ```
+
+- Fire up a terminal, navigate to the directory that you would like to
+  install Delphi in, then execute the following in the terminal:
+
+    ```bash 
+    git clone https://github.com/ml4ai/delphi
+    cd delphi 
+    pip install .
+    ``` 
+
+
+### Additional installation for developers
+
+If you are developing Delphi and want to run tests or compile the
+documentation, then also do the following (from the root of Delphi): 
+
 ```
-brew install graphviz
+pip install -e .[test,docs]
 ```
-If you use Homebrew to install graphviz, then you may need to install
-pygraphviz by specifying certain paths, as done below.
+
+### Graphviz installation notes
+
+#### MacOS
+
+This can be done using [Homebrew](https://brew.sh): 
 
 ```bash
-pipenv install --install-option="--include-path=/usr/local/include/" \
-               --install-option="--library-path=/usr/local/lib" pygraphviz
+brew install graphviz
+``` 
+
+If you use Homebrew to install graphviz, then you when you install
+pygraphviz by pip, you may need to install it by specifying paths to grab
+the necessary brew-based include and libs, as done below:
+
+```bash
+pip install --install-option="--include-path=/usr/local/include/" \
+            --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-### Ubuntu installation notes
-To install graphviz on Ubuntu, do
+### Debian
+
+To install graphviz on Debian systems (like Ubuntu), do
 
 ```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
@@ -106,19 +164,79 @@ sudo apt-get install graphviz libgraphviz-dev pkg-config
 
 ### Environment variables
 
-To parameterize Delphi models correctly, you will need to set the `DELPHI_DATA`
-environment variable to the path to your local copy of the Delphi data
-directory. You can download the data directory from the 
-[Delphi Google Drive folder](https://drive.google.com/drive/u/1/folders/1XznXUzqVIDQKuvgZuTANRy10Q2I1CqQ6)
+There are several environment variables that need to be set in order
+for Delphi to function.
 
-*Optional*:
+#### Adding the Delphi root to the PYTHONPATH
 
-If you are working on program analysis, you may want to optionally set the
-following environment variables as well.
-- `DSSAT_REPOSITORY`: This should point to your local
-  checkout of the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
-- `ED2_REPOSITORY`: This should point to your local checkout of the [Ecosystem
-  Demography Model](https://github.com/EDmodel/ED2) repository.
+Set the PYTHONPATH to include the absolute path to the root of the
+delphi project. This can be set in one of two places:
+- In your `~/.bash_profile` (Mac) or `~/.bashrc` (linux) file. For example:
+    ```bash
+    export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
+    ```
+- If you use a virtual environment, instead of adding yet another
+    path to your global PYTHONPATH in your `~/.bash_profile` or `~/.bashrc`,
+    instead you can add the path to the Delphi root to be used only in your
+    virtual environment `project.pth` file. 
+    This has the advantage of not polluting your global PYTHONPATH when you
+    run python in other contexts (e.g., other virtual environments).
+    This file is located within the virtual 
+    environment as follows (the following assumes your virtual environment 
+    is named `<venv>`, and `<version>` is the version number of your python, 
+    such as 3.6 or 3.7):
+    ```
+    <venv>/lib/python<version>/site-packages/project.pth
+    ```
+    NOTE: you may need to create the `project.pth` if one does not already
+    exist.
+    To this file you simply add the absolute path to the Delphi root (you
+    do not use export or `PYTHONPATH`), for example:
+    ```
+    /Users/claytonm/Documents/repository/delphi
+    ```
+
+#### Other environment variables
+
+- To parameterize Delphi models correctly, you will need to set the
+    `DELPHI_DB` environment variable to the path to your local copy of the
+    Delphi SQLite database, which you can download with:
+
+    ```bash
+    curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
+    ```
+
+    Then set the variable enviornment (again, may be done within your bash
+    resource file or the virtual envrionment `project.pth`). 
+    The delphi.db name must appear at the end of the path, for example:
+
+    ```bash
+    export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
+    ```
+
+
+- *Optional*: If you are working on program analysis, you may want to
+optionally set the following environment variables as well (again, in 
+.bash_profile/.bashrc or viritual environment projects.pth).
+
+  - `DSSAT_REPOSITORY`: This should point to your local checkout of
+  the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
+
+  - `ED2_REPOSITORY`: This should point to your local checkout of the
+  [Ecosystem Demography Model](https://github.com/EDmodel/ED2)
+  repository.
+
+### Building documentation
+
+(This requies you have performed the installation for developers, above.) 
+To build and view the documentation, run the following commands from the root of
+the repository:
+
+```
+make docs; open docs/_build/html/index.html
+```
+
+(On a Linux system, replace `open` with `xdg-open`)
 
 ## Usage
 
@@ -143,7 +261,7 @@ In the following sections, we will go into more detail on model execution.
 To execute the model, do:
 
 ```bash
-python delphi/cli.py execute
+delphi execute
 ```
 
 This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,

@@ -1,7 +1,7 @@
 from datetime import datetime
-from delphi.paths import concept_to_indicator_mapping, data_dir
-from .utils import exists, flatMap, flatten, get_data_from_url
-from delphi.utils.indra import *
+from .paths import db_path
+from .utils import exists, flatMap, flatten, get_data_from_url, take
+from .utils.indra import *
 from .random_variables import Delta, Indicator
 from typing import *
 from indra.statements import Influence, Concept
@@ -10,6 +10,7 @@ from itertools import permutations
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
+from .db import engine
 
 
 def make_edge(
@@ -38,7 +39,15 @@ def constructConditionalPDF(
     AnalysisGraph edge. """
 
     adjective_response_dict = {}
-    all_thetas = []
+    all_θs = []
+
+    # Setting σ_X and σ_Y that are in Eq. 1.21 of the model document.
+    # This assumes that the real-valued variables representing the abstract
+    # concepts are on the order of 1.0.
+    # TODO Make this more general.
+
+    σ_X = σ_Y = 0.1
+
     for stmt in e[2]["InfluenceStatements"]:
         for ev in stmt.evidence:
             # To account for discrepancy between Hume and Eidos extractions
@@ -60,17 +69,17 @@ def constructConditionalPDF(
                             obj_adjective in gb.groups
                             and obj_adjective not in adjective_response_dict
                         ):
-                            adjective_response_dict[obj_adjective] = get_respdevs(
-                                gb.get_group(obj_adjective)
-                            )
+                            adjective_response_dict[
+                                obj_adjective
+                            ] = get_respdevs(gb.get_group(obj_adjective))
 
                         rs_obj = stmt.obj_delta[
                             "polarity"
                         ] * adjective_response_dict.get(obj_adjective, rs)
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                        thetas = np.arctan2(ys1.flatten(), xs1.flatten())
-                        all_thetas.append(thetas)
+                        θs = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
+                        all_θs.append(θs)
 
             # Prior
             xs1, ys1 = np.meshgrid(
@@ -78,13 +87,14 @@ def constructConditionalPDF(
                 stmt.obj_delta["polarity"] * rs,
                 indexing="xy",
             )
-            thetas = np.arctan2(ys1.flatten(), xs1.flatten())
-            all_thetas.append(thetas)
+            # TODO - make the setting of σ_X and σ_Y more automated
+            θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
 
-    if len(all_thetas) == 1:
-        return gaussian_kde(all_thetas)
+    if len(all_θs) == 0:
+        all_θs.append(θs)
+        return gaussian_kde(all_θs)
     else:
-        return gaussian_kde(np.concatenate(all_thetas))
+        return gaussian_kde(np.concatenate(all_θs))
 
 
 def is_simulable(s: Influence) -> bool:
@@ -97,57 +107,45 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     return best_match
 
 
-def get_data(filename: str) -> pd.DataFrame:
-    """ Create a dataframe out of south_sudan_data.csv """
-    df = pd.read_csv(filename)
-    return df
-
-
-def get_mean_precipitation(year: int):
-    """ Workaround to get the precipitation from CYCLES. """
-    url = "http://vision.cs.arizona.edu/adarsh/export/demos/data/weather.dat"
-    df = pd.read_table(get_data_from_url(url))
-    df.columns = df.columns.str.strip()
-    df.columns = [c + f" ({df.iloc[0][c].strip()})" for c in df.columns]
-    df.drop([0], axis=0, inplace=True)
-    df["DATE (YYYY-MM-DD)"] = pd.to_datetime(
-        df["DATE (YYYY-MM-DD)"], format="%Y-%m-%d"
-    )
-    return (
-        df.loc[
-            (datetime(year, 1, 1) < df["DATE (YYYY-MM-DD)"])
-            & (df["DATE (YYYY-MM-DD)"] < datetime(year, 12, 31))
-        ]["PRECIPITATION (mm)"]
-        .values.astype(float)
-        .mean()
-    )
-
-
 def get_indicator_value(
-    indicator: Indicator, date: datetime, df: pd.DataFrame
+    indicator: Indicator, date: datetime
 ) -> Optional[float]:
     """ Get the value of a particular indicator at a particular date and time. """
 
-    best_match = get_best_match(indicator, set(df.Variable))
+    variable_names = [
+        x[0]
+        for x in engine.execute(
+            f"select distinct `Variable` from indicator"
+        ).fetchall()
+    ]
+    best_match = get_best_match(indicator, variable_names)
 
-    df = df.loc[df["Variable"] == best_match]
-    df = df[df["Year"] == date.year]
+    # TODO Devise a strategy to get rid of the fetchone() call at the end of the
+    # expression below (i.e. add month support instead of taking the first
+    # available result.)
 
-    # TODO devise a strategy to deal with missing month values and then
-    # uncomment the line below.
+    result = engine.execute(
+        " ".join(
+            [
+                f"select * from indicator where `Variable` like '{best_match}'",
+                "and `Value` is not null",
+                f"and `Year` is {date.year}",
+            ]
+        )
+    ).fetchone()
 
-    # df = df[df["Month"] == date.month]
+    # TODO devise a strategy to deal with missing month values
 
-    if not df["Value"].isna().all():
-        indicator_value = float(df["Value"].iloc[0])
-        indicator_units = df["Unit"].iloc[0]
+    if not result is None:
+        indicator_value = float(result["Value"])
+        indicator_units = result["Unit"]
     else:
         indicator_value = None
         indicator_units = None
 
     return (
         (indicator_value, indicator_units)
-        if not pd.isna(indicator_value)
+        if not indicator_value is None
         else (None, None)
     )
 
@@ -162,30 +160,27 @@ def get_variable_and_source(x: str):
         return xs[-1], xs[0]
 
 
-def construct_concept_to_indicator_mapping(
-    n: int = 1, mapping = concept_to_indicator_mapping
-) -> Dict[str, List[str]]:
+def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
     """ Create a dictionary mapping high-level concepts to low-level indicators """
 
-    df = pd.read_table(
-        mapping,
-        usecols=[1, 2, 3, 4],
-        names=["Concept", "Source", "Indicator", "Score"],
-        dtype={"Concept":str, "Source":str, "Indicator":str, "Score":np.float64},
-    )
+    df = pd.read_sql_table("concept_to_indicator_mapping", con=engine)
     gb = df.groupby("Concept")
 
     _dict = {
-        k: [
-            get_variable_and_source(x)
-            for x in v["Indicator"].values[0:n]
-        ]
+        k: [get_variable_and_source(x) for x in take(n, v["Indicator"].values)]
         for k, v in gb
     }
     return _dict
 
 
 def get_indicators(concept: str, mapping: Dict = None) -> Optional[List[str]]:
+    # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to make sure
+    # that the intervention nodes are represented consistently in the mapping
+    # (i.e. with spaces vs. with underscores.
+
+    if concept.split("/")[1] == "interventions":
+        concept = concept.replace("_"," ")
+
     return (
         {x[0]: Indicator(x[0], x[1]) for x in mapping[concept]}
         if concept in mapping
