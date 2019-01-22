@@ -32,7 +32,7 @@ def get_output_nodes(network: nx.DiGraph) -> List[str]:
     return [node for node, degree in network.out_degree() if degree == 0]
 
 
-def get_io_paths(network: nx.DiGraph, input_nodes: List[str], output_nodes: List[str]) -> Dict:
+def get_io_paths(network: nx.DiGraph, input_nodes: List[str], output_nodes: List[str]) -> dict:
     """ Returns a dict of all paths for each input/output node pair. """
     results = dict()
     for in_node in input_nodes:
@@ -42,7 +42,7 @@ def get_io_paths(network: nx.DiGraph, input_nodes: List[str], output_nodes: List
     return results
 
 
-def io_paths_in_both(p_dict1: dict, p_dict2: dict):
+def io_paths_in_both(p_dict1: dict, p_dict2: dict) -> List[str]:
     return list(set(asce_paths.keys()).intersection(set(pt_paths.keys())))
 
 
