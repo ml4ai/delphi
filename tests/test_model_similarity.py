@@ -1,12 +1,12 @@
 import pytest
 
+from pathlib import Path
 import delphi.analysis.comparison.utils as utils
 from delphi.analysis.comparison.CausalMarkovBlanket import CausalMarkovBlanket
-from delphi.paths import data_dir
 
 
 def test_pt_asce_comparison():
-    pa_graph_example_dir = data_dir/"program_analysis"/"pa_graph_examples"
+    pa_graph_example_dir = Path("tests")/"data"/"pa_graph_examples"
     asce = utils.nx_graph_from_dotfile(str(pa_graph_example_dir/"asce-graph.dot"))
     pt = utils.nx_graph_from_dotfile(str(pa_graph_example_dir/"priestley-taylor-graph.dot"))
     shared_nodes = utils.get_shared_nodes(asce, pt)
