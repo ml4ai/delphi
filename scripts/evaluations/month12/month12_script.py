@@ -145,6 +145,4 @@ def create_parameterized_CAG(filename = "CAG_with_indicators_and_values.pdf"):
 
 if __name__ == "__main__":
     os.makedirs("build", exist_ok=True)
-    create_quantified_CAG()
     create_CAG_with_indicators()
-    create_parameterized_CAG()
