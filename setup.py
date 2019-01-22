@@ -37,7 +37,6 @@ setup(
         "SQLAlchemy",
         "flask-sqlalchemy",
         "fuzzywuzzy[speedup]",
-        "indra",
         "jupyter",
         "jupyter-contrib-nbextensions",
         "python-dateutil",
