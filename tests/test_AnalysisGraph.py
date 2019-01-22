@@ -53,13 +53,10 @@ def test_get_subgraph_for_concept_pair(G):
 def test_map_concepts_to_indicators(G):
     G.map_concepts_to_indicators()
     indicator = Indicator(
-        name="Coverage_of_social_safety_net_programs_(%_of_population)",
+        name="Import Value, Infant food",
         source="WB",
         mean=None,
         stdev=None,
         time=None,
     )
-    assert (
-        G.nodes[food_security_string]["indicators"][indicator.name].name
-        == indicator.name
-    )
+    assert indicator.name in G.nodes[food_security_string]["indicators"]
