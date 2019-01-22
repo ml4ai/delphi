@@ -71,12 +71,7 @@ The following are the requirements for Delphi:
 
 - Python 3.6 or higher.
 
-  - Python 3.6 is recommended.  
-  
-  - If you have another version of Python already installed and need
-    it for other projects, we recommend
-    [`pyenv`](https://github.com/pyenv/pyenv) to manage multiple
-    versions of Python.
+  - Python 3.6 is recommended.
 
   - You can install and run Delphi under Python 3.7, but you will need
     to first install Tangent, per the instructions below, before
@@ -99,22 +94,27 @@ Here are the steps for installation.
 (AutoMATES-related) portion of delphi now depends on
 [Tangent](https://github.com/google/tangent), which in turn depends on
 a library in TensorFlow, which itself does not (yet) support python
-`>=3.7`. You can manually install to tangent as follows (if you use a
+`>=3.7`. You can manually install tangent as follows (if you use a
 virtual environment for delphi work (recommended!), then be sure to do
-the follwoing while within the virutal environment):
+the following while within the virtual environment):
 
-  - Clone the tanget project: `cd` to location where you would like the
+  - `cd` to the directory where you would like the
     tangent source to be cloned and then do: 
     ```
     git clone https://github.com/google/tangent.git
-    ```
-  - `cd` into tangent
-  - Run the tangent installer:
-    ```
+    cd tangent
     python setup.py install
     ```
 
 ... Regular instructions:
+
+- Install [INDRA](https://github.com/sorgerlab/indra`): We
+  currently recommend installing the latest (master branch) version of 
+  INDRA from Github rather than through PyPI. To install the latest version,
+  execute the following from the terminal:
+    ```bash 
+    pip install git+https://github.com/sorgerlab/indra
+    ```
 
 - Fire up a terminal, navigate to the directory that you would like to
   install Delphi in, then execute the following in the terminal:
@@ -125,13 +125,6 @@ the follwoing while within the virutal environment):
     pip install .
     ``` 
 
-- Installing [INDRA](https://github.com/sorgerlab/indra`): We
-  currently recommend installing the latest INDRA rather than through
-  PyPI. To install the latest, execute the following from the
-  terminal:
-    ```bash 
-    pip install git+https://github.com/sorgerlab/indra.git
-    ```
 
 ### Additional installation for developers
 
@@ -142,9 +135,9 @@ documentation, then also do the following (from the root of Delphi):
 pip install -e .[test,docs]
 ```
 
-### MacOS installation notes
+### Graphviz installation notes
 
-#### Installing graphviz on MacOS
+#### MacOS
 
 This can be done using [Homebrew](https://brew.sh): 
 
@@ -153,7 +146,7 @@ brew install graphviz
 ``` 
 
 If you use Homebrew to install graphviz, then you when you install
-pygraphviz by pip, you need to install it by specifying paths to grab
+pygraphviz by pip, you may need to install it by specifying paths to grab
 the necessary brew-based include and libs, as done below:
 
 ```bash
@@ -161,11 +154,9 @@ pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-### Ubuntu installation notes
+### Debian
 
-#### Installing graphiviz on Ubuntu
-
-To install graphviz on Ubuntu, do
+To install graphviz on Debian systems (like Ubuntu), do
 
 ```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
@@ -180,15 +171,15 @@ for Delphi to function.
 
 Set the PYTHONPATH to include the absolute path to the root of the
 delphi project. This can be set in one of two places:
-- In your .bash_profile (mac) or .bashrc (linux). For example:
+- In your `~/.bash_profile` (Mac) or `~/.bashrc` (linux) file. For example:
     ```bash
     export PYTHONPATH="/Users/claytonm/Documents/repository/delphi:$PYTHONPATH"
     ```
 - If you use a virtual environment, instead of adding yet another
-    path to your global PYTHONPATH in your .bash_profile/.bashrc,
+    path to your global PYTHONPATH in your `~/.bash_profile` or `~/.bashrc`,
     instead you can add the path to the Delphi root to be used only in your
     virtual environment `project.pth` file. 
-    This has the advantage of not poluting your global PYTHONPATH when you
+    This has the advantage of not polluting your global PYTHONPATH when you
     run python in other contexts (e.g., other virtual environments).
     This file is located within the virtual 
     environment as follows (the following assumes your virtual environment 
@@ -200,7 +191,7 @@ delphi project. This can be set in one of two places:
     NOTE: you may need to create the `project.pth` if one does not already
     exist.
     To this file you simply add the absolute path to the Delphi root (you
-    do not use export or PYTHONPATH), for example:
+    do not use export or `PYTHONPATH`), for example:
     ```
     /Users/claytonm/Documents/repository/delphi
     ```
@@ -210,15 +201,19 @@ delphi project. This can be set in one of two places:
 - To parameterize Delphi models correctly, you will need to set the
     `DELPHI_DB` environment variable to the path to your local copy of the
     Delphi SQLite database, which you can download with:
+
     ```bash
     curl http://vision.cs.arizona.edu/adarsh/delphi.db -o delphi.db
     ```
+
     Then set the variable enviornment (again, may be done within your bash
     resource file or the virtual envrionment `project.pth`). 
     The delphi.db name must appear at the end of the path, for example:
+
     ```bash
     export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
     ```
+
 
 - *Optional*: If you are working on program analysis, you may want to
 optionally set the following environment variables as well (again, in 
