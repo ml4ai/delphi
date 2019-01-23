@@ -10,6 +10,7 @@ from delphi.utils.misc import choose_font
 
 FONT = choose_font()
 
+
 class ForwardInfluenceBlanket(nx.DiGraph):
     """
     This class takes a network and a list of a shared nodes between the input
@@ -23,6 +24,8 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         super().__init__()
         self.orig_graph = G
         self.shared_nodes = shared
+        orig_inputs = utils.get_input_nodes(self.orig_graph)
+        self.shared_inputs = list(set(orig_inputs).intersection(set(self.shared_nodes)))
         self.outputs = utils.get_output_nodes(self.orig_graph)
 
         # Get all paths from shared inputs to shared outputs
@@ -68,3 +71,6 @@ class ForwardInfluenceBlanket(nx.DiGraph):
 
         for node in self.nodes(data=True):
             node[1]["fontname"] = FONT
+
+        for node_name in self.shared_inputs:
+            self.node[node_name]["style"] = "bold"
