@@ -6,8 +6,8 @@ Subpackages
 
 .. toctree::
 
+    delphi.GrFN
     delphi.icm_api
-    delphi.program_analysis
     delphi.utils
 
 Submodules
@@ -17,7 +17,6 @@ delphi.AnalysisGraph module
 ---------------------------
 
 .. automodule:: delphi.AnalysisGraph
-    :noindex:
     :members:
     :undoc-members:
     :show-inheritance:
@@ -54,14 +53,6 @@ delphi.export module
     :undoc-members:
     :show-inheritance:
 
-delphi.inference module
------------------------
-
-.. automodule:: delphi.inference
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.inspection module
 ------------------------
 
@@ -74,14 +65,6 @@ delphi.jupyter\_tools module
 ----------------------------
 
 .. automodule:: delphi.jupyter_tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.models module
---------------------
-
-.. automodule:: delphi.models
     :members:
     :undoc-members:
     :show-inheritance:

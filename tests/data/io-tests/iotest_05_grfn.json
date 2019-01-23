@@ -1,0 +1,275 @@
+{
+  "start": "MAIN",
+  "functions": [
+    {
+      "name": "MAIN__assign__format_30_0",
+      "type": "assign",
+      "target": "format_30",
+      "sources": [],
+      "body": {
+        "type": "literal",
+        "dtype": [
+          "string"
+        ],
+        "value": [
+          "/",
+          "'F = '",
+          "F5.1",
+          "'; I = '",
+          "I4"
+        ]
+      }
+    },
+    {
+      "name": "MAIN__assign__format_10_0",
+      "type": "assign",
+      "target": "format_10",
+      "sources": [],
+      "body": {
+        "type": "literal",
+        "dtype": "string",
+        "value": "2(I3,X,F5.2,X)"
+      }
+    },
+    {
+      "name": "MAIN__assign__file_10_0",
+      "type": "assign",
+      "target": "10",
+      "sources": [
+        {
+          "name": "open",
+          "type": "function"
+        },
+        {
+          "name": "infile3",
+          "type": "variable"
+        }
+      ],
+      "body": [
+        {
+          "type": "lambda",
+          "name": "MAIN__lambda__file_10_0",
+          "reference": 18
+        }
+      ]
+    },
+    {
+      "name": "MAIN__assign__file_20_0",
+      "type": "assign",
+      "target": "20",
+      "sources": [
+        {
+          "name": "open",
+          "type": "function"
+        },
+        {
+          "name": "outfile3",
+          "type": "variable"
+        }
+      ],
+      "body": [
+        {
+          "type": "lambda",
+          "name": "MAIN__lambda__file_20_0",
+          "reference": 19
+        }
+      ]
+    },
+    {
+      "name": "MAIN__assign__I,X,J,Y_0",
+      "type": "assign",
+      "target": "I,X,J,Y",
+      "sources": [
+        {
+          "name": "read",
+          "type": "function"
+        },
+        {
+          "name": "10",
+          "type": "variable"
+        }
+      ],
+      "body": [
+        {
+          "type": "lambda",
+          "name": "MAIN__lambda__I,X,J,Y_0",
+          "reference": 21
+        }
+      ]
+    },
+    {
+      "name": "MAIN__assign__20_0",
+      "type": "assign",
+      "target": "20",
+      "sources": [
+        {
+          "name": "write",
+          "type": "function"
+        },
+        {
+          "name": "X",
+          "type": "variable"
+        },
+        {
+          "name": "J",
+          "type": "variable"
+        }
+      ],
+      "body": [
+        {
+          "type": "lambda",
+          "name": "MAIN__lambda__20_0",
+          "reference": 22
+        }
+      ]
+    },
+    {
+      "name": "MAIN__assign__20_1",
+      "type": "assign",
+      "target": "20",
+      "sources": [
+        {
+          "name": "write",
+          "type": "function"
+        },
+        {
+          "name": "Y",
+          "type": "variable"
+        },
+        {
+          "name": "I",
+          "type": "variable"
+        }
+      ],
+      "body": [
+        {
+          "type": "lambda",
+          "name": "MAIN__lambda__20_1",
+          "reference": 25
+        }
+      ]
+    },
+    {
+      "name": "MAIN",
+      "type": "container",
+      "input": [],
+      "variables": [
+        {
+          "name": "format_30",
+          "domain": "string"
+        },
+        {
+          "name": "format_10",
+          "domain": "string"
+        },
+        {
+          "name": "I",
+          "domain": "integer"
+        },
+        {
+          "name": "X",
+          "domain": "real"
+        },
+        {
+          "name": "J",
+          "domain": "integer"
+        },
+        {
+          "name": "Y",
+          "domain": "real"
+        }
+      ],
+      "body": [
+        {
+          "name": "MAIN__assign__format_30_0",
+          "output": {
+            "variable": "format_30",
+            "index": 2
+          },
+          "input": []
+        },
+        {
+          "name": "MAIN__assign__format_10_0",
+          "output": {
+            "variable": "format_10",
+            "index": 2
+          },
+          "input": []
+        },
+        {
+          "name": "MAIN__assign__file_10_0",
+          "output": {
+            "variable": "10",
+            "index": 1
+          },
+          "input": []
+        },
+        {
+          "name": "MAIN__assign__file_20_0",
+          "output": {
+            "variable": "20",
+            "index": 1
+          },
+          "input": []
+        },
+        {
+          "name": "MAIN__assign__I,X,J,Y_0",
+          "output": {
+            "variable": "I,X,J,Y",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "10",
+              "index": 2
+            }
+          ]
+        },
+        {
+          "name": "MAIN__assign__20_0",
+          "output": {
+            "variable": "20",
+            "index": 1
+          },
+          "input": [
+            {
+              "var": {
+                "variable": "X",
+                "index": 2
+              }
+            },
+            {
+              "var": {
+                "variable": "J",
+                "index": 2
+              }
+            }
+          ]
+        },
+        {
+          "name": "MAIN__assign__20_1",
+          "output": {
+            "variable": "20",
+            "index": 2
+          },
+          "input": [
+            {
+              "var": {
+                "variable": "Y",
+                "index": 2
+              }
+            },
+            {
+              "var": {
+                "variable": "I",
+                "index": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "name": "pgm.json",
+  "dateCreated": "2019-01-10"
+}

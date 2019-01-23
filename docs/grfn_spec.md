@@ -1,5 +1,5 @@
-Grounded Function Network (GrFN) JSON Specification v0.1
-========================================================
+Grounded Function Network (GrFN) JSON Specification
+===================================================
 
 Introduction
 ------------
@@ -41,53 +41,61 @@ The challenge of this project is to define a map from the semantics of
 program (computation) specification (as asserted in source code) to the
 semantics of a (discretized) dynamic system model. We must take care to
 define (ongoing!) technical terms and highlight which concept domain
-(general computation versus dynamics system model) we are dealing with.
+(general computation versus dynamic system model) we are dealing with.
 
 We assume here that the source code is intended to describe the states
 of a dynamical system and how they evolve over time. The system is
 decomposed into a set of individual states (represented as random
-variables), where the values of the states at any given time are
-functions of function of the values of zero or more other states at a
-previous time point. As we are considering the evolution of the system
-over time, in general, every variable has an index. The functional
-relationships may be instantaneous (based on the variables indexed at
-the same point in time) or across time (a function of states of
-variables at different time indices).
+variables), where the values of the states at any given time are a
+function of the values of zero or more other states at a previous time
+point. As we are considering the evolution of the system over time, in
+general, every variable has an index. The functional relationships may
+be instantaneous (based on the variables indexed at the same point in
+time) or across time (a function of states of variables at different
+time indices).
 
 Naming Conventions
 ------------------
 
-Both variables and functions will be uniquely named strings that do not
-rely on implicit position within the source code to be identified (one
-reason for requiring unique names is that we are moving from the
-semantics of program variables as pointers to storage to a
-representation of variables as denoting the evolving state of a system).
+TODO: add namespace convention. 
+TODO: Clarify difference between namespace and enclosing context.
+
+Both variables and functions will be uniquely named strings that do
+not rely on implicit position within the source code to be
+identified. One reason for requiring unique names is that we are
+moving from the semantics of program variables as pointers to storage
+to a representation of variables as denoting the evolving state of a
+system. 
+
 An important observation: the same variable name in source code could
 itself be used in two separate variable declarations, and so would
-constitute two different variable identities; source code name alone is
-not sufficient to identify variable identity. For this reason, we must
-adopt a set of conventions for capturing any such source code context.
-These conventions will be assumed to be associated with the following
-`<variable_name>` and `<function_name>` definitions. In both cases, the
-names should also correspond to legal Python variable and function names
-that could appear in Python code \-- so they must begin with a letter or
-underscore followed by letters, numbers or underscores.
+constitute two different variable identities; source code name alone
+is not sufficient to identify variable identity. For this reason, we
+must adopt a set of conventions for capturing any such source code
+context.  These conventions will be assumed to be associated with the
+following `<variable_name>` and `<function_name>` definitions. In both
+cases, the names should also correspond to legal Python variable and
+function names that could appear in Python code \-- so they must begin
+with a letter or underscore followed by letters, numbers or
+underscores.
 
 ### Variable naming convention
 
-*NOTE: For now (as of 2018-07-09), we will NOT be using the
+*NOTE: For now (as of 2018-07-09), NOT yet making use of
 \<enclosing\_context\> aspect of Variable naming convention, however,
-the Function naming convention will be used. This means that my examples
-of variable names below should also be read ignoring the
-\<enclosing\_context\>*:
+the Function naming convention will be used. In any cases below where
+a variable name includes an \<enclosing\_context\>, for now ignore
+that \<enclosing\_context\>.*
+
+A variable name will be a string:
 
     <variable_name> ::= <string>
 
 A top level source variable named ABSORPTION would then simply have the
 `<source_variable_name>` as the string making up the
-\<variable\_name\>::
+\<variable\_name\>:
 
-    "ABSORPTION"
+    <variable_name> ::= "ABSORPTION"
 
 If there are two separate instances of new variable declarations in the
 same context using the same name, then we'll add an underscore and
@@ -106,23 +114,24 @@ And the second:
         "variable" : <variable_name>
         "index" : <integer>
 
-In addition to capturing source code variable environment context in variable
-declarations, we also need a mechanism to disambiguate specific instances of the
-same variable within the same context to accurately capture the logical order of
-variable value updates. In this case, we consider this as a repeated reference
-to the same variable. The semantics of repeated reference is captured by the
-variable \"index\" attribute of a `<variable_reference>`. The index integer
-serves disambiguate the execution order of variable state references, as
-determined during program analysis.
+In addition to capturing source code variable environment context in
+variable declarations, we also need a mechanism to disambiguate
+specific instances of the same variable within the same context to
+accurately capture the logical order of variable value updates. In
+this case, we consider this as a repeated reference to the same
+variable. The semantics of repeated reference is captured by the
+variable \"index\" attribute of a `<variable_reference>`. The index
+integer serves to disambiguate the execution order of the variable
+state references, as determined during program analysis.
 
-#### Function naming conventions
+### Function naming conventions
 
 Function names, like variable names, are ultimately strings, and will
 also follow a conventional structure used to capture context
 information. Also like variable names, they should be legal Python
 function names that could show up in working Python code (as will be the
 case when used in Lambda function references; see below). The general
-string format is::
+string format is:
 
     <enclosing_context>__<function_type>[___<var_affected>]
 
@@ -157,12 +166,12 @@ the (inferred) boolean variable IF\_1 would have the name:
 Here are example function names for each function types:
 
 -   **Assign**: An assignment of the variable UPDATE\_EST\_\_YIELD\_EST
-    in the context of function UPDATE\_EST::
+    in the context of function UPDATE\_EST:
 
         UPDATE_EST__assign___UPDATE_EST__YIELD_EST
 
 -   **Condition**: A condition within the function UPDATE\_EST assigning
-    the (inferred) boolean variaaible IF\_1::
+    the (inferred) boolean variaaible IF\_1:
 
         UPDATE_EST__condition___IF_1
 
@@ -171,11 +180,11 @@ Here are example function names for each function types:
         CROP_YIELD__container
 
 -   **Loop\_plate**:
-    -   A single loop within the function CROP\_YIELD::
+    -   A single loop within the function CROP\_YIELD:
 
             CROP_YIELD__loop
 
-    -   The third of three loops within the function CROP\_YIELD::
+    -   The third of three loops within the function CROP\_YIELD:
 
             CROP_YIELD__loop_3
 
@@ -183,20 +192,21 @@ Here are example function names for each function types:
 
             CROP_YIELD__loop_1__loop_2
 
-    -   An assignment within a single loop in CROP\_YIELD::
+    -   An assignment within a single loop in CROP\_YIELD:
 
             CROP_YIELD__loop__assign___CROP_YIELD__RAIN
 
 NOTE: There is some redundancy in the above examples between the
 `<enclosing_context>` of the name of the function and the
-`<enclosing_context>` of the name of the variable, however we think that
-both are ultimately needed.
+`<enclosing_context>` of the name of the variable, however both are
+needed to unambiguously refer to the specific function and the
+specific variable (by their enclosing contexts).
 
 Top-level GrFN specification
 ----------------------------
 
 The top-level structure of the GrFN is the `<grfn_spec>` and is itself a
-JSON attribute-value list, with the following schema definition::
+JSON attribute-value list, with the following schema definition:
 
     <grfn_spec>[attrval] ::=
         "start": <string>
@@ -206,10 +216,11 @@ JSON attribute-value list, with the following schema definition::
 
 The \"start\" attribute holds the name of the entry point of the
 (Fortran) source code i.e. the PROGRAM module. In the absence of this
-module, this string will remain empty. The \"name\" attribute is used to
-denote the (Fortran) source code that has been analyzed. The
+module, this string will remain empty. The \"name\" attribute is used
+to denote the (Fortran) source code that has been analyzed. The
 \"dateCreated\" attribute is a string representing the date+time that
-the current GrFN was generated (to represent versioning).
+the current GrFN was generated (this helps resolve what version of the
+program analysis code (e.g., for2py) was used).
 
 FUTURE:
 

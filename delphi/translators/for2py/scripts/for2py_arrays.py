@@ -178,8 +178,13 @@ def idx2subs(idx_list):
             for items in idx2subs(idx_list[:-1]) for item in idx_list[-1]]
 
 
+<<<<<<< HEAD
 def array_values(expr):
     """Given an expression expr denoting a list of values, array_values(expr) 
+=======
+def values(expr):
+    """Given an expression expr denoting a list of values, values(expr) 
+>>>>>>> cc71ac0c8676c92e02c66e13ce5a2ebcc210e5e6
        returns a list of values for that expression."""
     if isinstance(expr, Array):
         return expr.get_elems(all_subs(expr._bounds))
@@ -190,10 +195,17 @@ def array_values(expr):
         return [expr]
 
 
+<<<<<<< HEAD
 def array_subscripts(expr):
     """Given a subscript expression expr (i.e., an expression that denotes the
        set of elements of some array that are to be accessed), 
        array_subscripts() returns a list of the elements denoted by expr."""
+=======
+def subscripts(expr):
+    """Given a subscript expression expr (i.e., an expression that denotes the
+       set of elements of some array that are to be accessed), subscripts() 
+       returns a list of the elements denoted by expr."""
+>>>>>>> cc71ac0c8676c92e02c66e13ce5a2ebcc210e5e6
     if isinstance(expr, Array):
         return all_subs(expr._bounds)
     elif isinstance(expr, list):
