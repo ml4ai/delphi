@@ -6,9 +6,9 @@
     Usage: see the document "for2py: Handling Fortran Arrays"
 """
 
-import sys
 import copy
 import itertools
+import sys
 
 _GET_ = 0
 _SET_ = 1
@@ -77,11 +77,9 @@ class Array:
            the (lo,hi)-based array.  It generates an error if idx < lo or 
            idx > hi."""
         lo,hi = bounds[0],bounds[1]
-        if idx < lo or idx > hi:
-            sys.stderr.write("Array index (value = {:d}) out of bounds {}\n".\
-                                 format(idx, str(bounds)))
-            sys.exit(1)
-
+        assert idx >= lo and idx <= hi, \
+               f"Array index {idx} out of bounds: {bounds}\n"
+   
         return idx-lo
    
 
@@ -177,16 +175,18 @@ def idx2subs(idx_list):
     return [items + (item,) 
             for items in idx2subs(idx_list[:-1]) for item in idx_list[-1]]
 
+
 def array_values(expr):
     """Given an expression expr denoting a list of values, array_values(expr) 
        returns a list of values for that expression."""
     if isinstance(expr, Array):
         return expr.get_elems(all_subs(expr._bounds))
     elif isinstance(expr, list):
-        vals = [values(x) for x in expr]
+        vals = [array_values(x) for x in expr]
         return flatten(vals)
     else:
         return [expr]
+
 
 def array_subscripts(expr):
     """Given a subscript expression expr (i.e., an expression that denotes the
