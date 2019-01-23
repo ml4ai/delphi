@@ -2,7 +2,7 @@ import pytest
 
 from pathlib import Path
 import delphi.analysis.comparison.utils as utils
-from delphi.analysis.comparison.CausalMarkovBlanket import CausalMarkovBlanket
+from delphi.analysis.comparison.ForwardInfluenceBlanket import ForwardInfluenceBlanket
 
 
 def test_pt_asce_comparison():
@@ -11,8 +11,8 @@ def test_pt_asce_comparison():
     pt = utils.nx_graph_from_dotfile(str(pa_graph_example_dir/"priestley-taylor-graph.dot"))
     shared_nodes = utils.get_shared_nodes(asce, pt)
 
-    cmb_asce = CausalMarkovBlanket(asce, shared_nodes)
-    cmb_pt = CausalMarkovBlanket(pt, shared_nodes)
+    cmb_asce = ForwardInfluenceBlanket(asce, shared_nodes)
+    cmb_pt = ForwardInfluenceBlanket(pt, shared_nodes)
 
     expected_cover_set = ['u_2', 'C_d', 'C_n', 'e_a', 'gamma', 'G', 'R_so', 'K_e']
     assert set(expected_cover_set) == set(cmb_asce.cover_nodes)

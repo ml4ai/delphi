@@ -10,6 +10,16 @@ def draw_graph(G: nx.DiGraph, filename: str):
     A.draw(filename, prog="dot")
 
 
+def get_input_nodes(G: nx.DiGraph) -> List[str]:
+    """ Get all input nodes from a network. """
+    return [n for n, d in G.in_degree() if d == 0]
+
+
+def get_output_nodes(G: nx.DiGraph) -> List[str]:
+    """ Get all output nodes from a network. """
+    return [n for n, d in G.out_degree() if d == 0]
+
+
 def nx_graph_from_dotfile(filename: str) -> nx.DiGraph:
     """ Get a networkx graph from a DOT file, and reverse the edges. """
     return nx.DiGraph(read_dot(filename).reverse())
