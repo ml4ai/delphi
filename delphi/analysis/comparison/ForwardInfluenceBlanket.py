@@ -5,7 +5,10 @@ from itertools import product
 from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.analysis.comparison.utils as utils
+from delphi.utils.misc import choose_font
 
+
+FONT = choose_font()
 
 class ForwardInfluenceBlanket(nx.DiGraph):
     """
@@ -50,12 +53,18 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         self.add_edges_from(self.cover_edges)
 
         for node_name in self.cover_nodes:
-            self.node[node_name]["color"] = "green"
+            self.node[node_name]["color"] = "forestgreen"
+            self.node[node_name]["fontcolor"] = "forestgreen"
 
         for node_name in self.shared_nodes:
-            self.node[node_name]["color"] = "blue"
+            self.node[node_name]["color"] = "dodgerblue3"
+            self.node[node_name]["fontcolor"] = "dodgerblue3"
             for dest in self.successors(node_name):
-                self[node_name][dest]["color"] = "blue"
+                self[node_name][dest]["color"] = "dodgerblue3"
+                self[node_name][dest]["fontcolor"] = "dodgerblue3"
 
         for source, dest in self.cover_edges:
-            self[source][dest]["color"] = "green"
+            self[source][dest]["color"] = "forestgreen"
+
+        for node in self.nodes(data=True):
+            node[1]["fontname"] = FONT
