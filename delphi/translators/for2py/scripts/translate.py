@@ -140,6 +140,7 @@ class XMLToJSONTranslator(object):
             counter = 0
             for dim in decDims:
                 print ("dim: ", dim)
+                print ("dim[literal]: ", dim["literal"])
                 for lit in dim["literal"]:
                     prog[0]["tag"] = "array"
                     prog[0]["count"] = count
@@ -291,9 +292,20 @@ class XMLToJSONTranslator(object):
     def process_dimension(self, root, state) -> List[Dict]:
         dimension = {"tag": "dimension"}
         for node in root:
+            if node.tag == "range":
+                dimension["range"] = self.parseTree(node, state)
             if node.tag == "literal":
                 dimension["literal"] = self.parseTree(node, state)
         return [dimension]
+
+    def process_range(self, root, state) -> List[Dict]:
+        ran = {}
+        for node in root:
+            if node.tag == "lower-bound":
+                ran["low"] = self.parseTree(node, state)
+            if node.tag == "upper-bound":
+                ran["high"] = self.parseTree(node, state)
+        return [ran]
 
     def process_libRtn(self, root, state) -> List[Dict]:
         fn = {"tag": "call", "name": root.tag, "args": []}
@@ -366,6 +378,9 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "dimension":
             return self.process_dimension(root, state)
+
+        elif root.tag == "range":
+            return self.process_range(root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
