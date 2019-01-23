@@ -129,9 +129,9 @@ class Property(object):
                     is not None
                 ):
                     self.linetype = "relationship"
-                    self.id_type = self.global_schema_dict[self.ref][
-                        "properties"
-                    ]["id"]["type"]
+                    self.id_type = self.global_schema_dict[self.ref]["properties"][
+                        "id"
+                    ]["type"]
                     self.id_args = [
                         f"db.{self.id_type.capitalize()}",
                         f"db.ForeignKey('{self.ref.lower()}.id'",
@@ -144,9 +144,7 @@ class Property(object):
                     self.args.append("nullable=True")
                 # self.args.append(f'backref = "{self.schema_name.lower()}"')
 
-        self.property_line = (
-            f'{self.name} = db.{self.linetype}({", ".join(self.args)})'
-        )
+        self.property_line = f'{self.name} = db.{self.linetype}({", ".join(self.args)})'
 
     def __repr__(self):
         if self.linetype == "relationship":
@@ -174,7 +172,9 @@ class DatabaseModel(object):
         self.required_properties = schema_dict.get("required", [])
 
         self.tablename = schema_name.lower()
-        self.polymorphy_annotation = f"    __mapper_args__ = {{'polymorphic_identity':'{self.schema_name}'"
+        self.polymorphy_annotation = (
+            f"    __mapper_args__ = {{'polymorphic_identity':'{self.schema_name}'"
+        )
         placeholder = f"Placeholder docstring for class {self.schema_name}."
         self.docstring = (
             f'    """ {self.schema_dict.get("description", placeholder)} """\n'
@@ -217,10 +217,7 @@ class DatabaseModel(object):
         lines = [self.class_declaration, self.docstring]
         lines.append(f'    __tablename__ = "{self.tablename}"')
         if self.parent is not None:
-            if (
-                self.global_schema_dict[self.parent]["properties"].get("id")
-                is not None
-            ):
+            if self.global_schema_dict[self.parent]["properties"].get("id") is not None:
                 lines.append(
                     f"    id = db.Column(db.String, db.ForeignKey('{self.parent.lower()}.id'), primary_key=True, default=str(uuid4()))"
                 )
@@ -228,8 +225,7 @@ class DatabaseModel(object):
             lines.append(f"    {p}")
         if self.schema_name in ["ICMMetadata", "CausalPrimitive"]:
             lines.append(
-                "    model_id = db.Column(db.String,"
-                "db.ForeignKey('delphimodel.id'))"
+                "    model_id = db.Column(db.String," "db.ForeignKey('delphimodel.id'))"
             )
         if self.schema_name == "Evidence":
             lines.append(
@@ -262,17 +258,11 @@ def construct_view_lines(url, metadata) -> List[str]:
             f'\n\n@bp.route("{modified_path}", methods=["{http_method.upper()}"])'
         )
         args = ", ".join(
-            [
-                part[1:-1] + ": str"
-                for part in url.split("/")
-                if part.startswith("{")
-            ]
+            [part[1:-1] + ": str" for part in url.split("/") if part.startswith("{")]
         )
         operationId = metadata[http_method]["operationId"]
         lines.append(f"def {operationId}({args}):")
-        lines.append(
-            '    """' + f" {metadata[http_method]['summary']}" + '"""'
-        )
+        lines.append('    """' + f" {metadata[http_method]['summary']}" + '"""')
         lines.append('    return "", 415')
     return lines
 
@@ -284,13 +274,21 @@ def write_views(yml):
     views_lines.append(
         "\n".join(
             [
-                "import uuid",
+                "import json",
+                "from uuid import uuid4",
                 "import pickle",
-                "from datetime import datetime",
+                "from datetime import date, timedelta, datetime",
+                "import dateutil",
+                "from dateutil.relativedelta import relativedelta",
                 "from typing import Optional, List",
-                "from flask import Flask, jsonify, request, Blueprint",
+                "from itertools import product",
+                "from delphi.random_variables import LatentVar",
+                "from delphi.utils import flatten",
+                "from flask import jsonify, request, Blueprint",
+                "from delphi.icm_api import db",
                 "from delphi.icm_api.models import *",
-                "bp = Blueprint('icm_api', __name__)",
+                "import numpy as np",
+                'bp = Blueprint("icm_api", __name__)',
             ]
         )
     )

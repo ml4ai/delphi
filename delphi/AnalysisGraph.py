@@ -455,7 +455,6 @@ class AnalysisGraph(nx.DiGraph):
 
         Args:
             n
-            mapping_file
         """
 
         mapping = construct_concept_to_indicator_mapping(n)

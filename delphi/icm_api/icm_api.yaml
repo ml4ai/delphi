@@ -3,7 +3,7 @@ servers:
   - url: 'https://icm.causeex.twosixlabs.com/icm'
 info:
   description: Causal Exploration ICM API
-  version: 4.1.0
+  version: 4.2.0
   title: Causal Exploration ICM API
   contact:
     email: causeex-help@twosixlabs.com
@@ -522,11 +522,15 @@ paths:
           description: >-
             successful operation; returns the results of the SPARQL query in
             whatever content type requested
+          content:
+            text/turtle:
+              schema:
+                type: string
         '405':
           description: Invalid SPARQL query
       requestBody:
         content:
-          application/sparql-query:
+          text/plain:
             schema:
               type: string
         description: the SPARQL / SPARQL Update query
@@ -1051,7 +1055,6 @@ components:
           description: the time that corresponds to the reported value
         value:
           $ref: '#/components/schemas/Value'
-          description: the value of a variable
     CausalPrimitive:
       type: object
       description: >-
