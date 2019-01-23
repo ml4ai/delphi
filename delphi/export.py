@@ -9,19 +9,13 @@ from networkx import DiGraph
 from pygraphviz import AGraph
 import pickle
 from datetime import datetime
-import platform
 import matplotlib
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
+from delphi.utils.misc import choose_font
 
-operating_system = platform.system()
 
-if operating_system == "Darwin":
-    font = "Gill Sans"
-elif operating_system == "Windows":
-    font = "Candara"
-else:
-    font = "Ubuntu"
+FONT = choose_font()
 
 # ==========================================================================
 # Export
@@ -47,7 +41,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "dpi": 227,
             "fontsize": 20,
             "rankdir": kwargs.get("rankdir", "TB"),
-            "fontname": font,
+            "fontname": MONOSPACE_FONT,
             "overlap": "scale",
             "splines": True,
         }
@@ -58,7 +52,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "shape": "rectangle",
             "color": "#650021",
             "style": "rounded",
-            "fontname": font,
+            "fontname": MONOSPACE_FONT,
         }
     )
 
