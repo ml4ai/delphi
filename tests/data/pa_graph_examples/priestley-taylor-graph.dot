@@ -1,0 +1,6 @@
+digraph G {
+  ET_c -> {T_max E_eq}
+  E_eq -> {T_d alpha R_s}
+  T_d -> {T_max T_min}
+  alpha -> {LAI alpha_ms}
+}

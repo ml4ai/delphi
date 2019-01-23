@@ -1,0 +1,27 @@
+digraph G {
+  ET_c -> {K_e ET_sz}
+  K_e -> {K_r f_ew}
+  f_ew -> {f_w f_c}
+  ET_sz -> {u_2 C_d C_n R_n e_a e_s Delta gamma G}
+  u_2 -> {u_z z_w}
+  {C_d C_n} -> MEEVP
+  R_n -> {R_ns R_nl}
+  e_a -> T_dew
+  e_s -> {e_max e_min}
+  Delta -> T
+  gamma -> P
+  f_c -> {K_c_min K_c_max h}
+  R_ns -> {alpha R_s}
+  R_nl -> {f_cd T_max T_min}
+  e_max -> T_max
+  e_min -> T_min
+  T -> T_min
+  P -> z
+  K_c_max -> {u_2 MEEVP h RH_min K_cb}
+  alpha -> {LAI alpha_ms}
+  f_cd -> {R_s, R_so}
+  K_cb -> {K_cb_max K_cb_min S_Kc}
+  R_so -> {z R_a}
+  R_a -> {d_r delta omega_s phi G_sc}
+  {d_r delta} -> J -> {D_M M Y}
+}
