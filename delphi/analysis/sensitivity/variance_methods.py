@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from typing import Dict, Callable
 import inspect
 
 from SALib.sample import saltelli
@@ -11,7 +12,7 @@ class VarianceAnalyzer(metaclass=ABCMeta):
     Meta-class for all variance based sensitivity analysis methods
     """
 
-    def __init__(self, model, prob_def=None):
+    def __init__(self, model, prob_def):
         self.has_samples = False
         self.has_outputs = False
         self.model = model
@@ -28,14 +29,24 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         else:
             self.problem_definition = prob_def
 
-    def sample(self, num_samples=1000, second_order=True):
+    def get_model_args(self):
+        """Returns list of input arguments for the model."""
+        return list(inspect.signature(self.model).parameters)
+
+    def sample(self, num_samples: int=1000, second_order: bool=True) -> None:
+        """
+        Return a sample over the problem definition space using saltelli's
+        sampling method. This sample will be analyzed to construct a
+        sensitivity index.
+        """
         print("Sampling over parameter bounds")
         self.samples = saltelli.sample(self.problem_definition,
                                        num_samples,
                                        calc_second_order=second_order)
         self.has_samples = True
 
-    def evaluate(self):
+    def evaluate(self) -> None:
+        """Evaluate the model on the list of samples from self.sample()."""
         if not self.has_samples:
             raise RuntimeError("Attempted to evaluate model without samples")
 
@@ -44,8 +55,12 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         self.outputs = np.array(res)
         self.has_outputs = True
 
+    def eval_sample(self, args):
+        return self.model(*args)
+
     @abstractmethod
-    def analyze(self):
+    def analyze(self) -> Dict:
+        """Method to be implemented, should return a sensitivity index."""
         if not self.has_outputs:
             raise RuntimeError("Attempting analysis without outputs")
 
@@ -53,9 +68,16 @@ class VarianceAnalyzer(metaclass=ABCMeta):
 
 
 class SobolAnalyzer(VarianceAnalyzer):
-    def __init__(self, model, prob_def=None):
-        super().__init__(model, prob_def=prob_def)
+    """
+    Varianced-based method that constructs a Sobol sensitivity index
+    """
+    def __init__(self, model: Callable, prob_def):
+        super().__init__(model, prob_def)
 
-    def analyze(self, **kwargs):
+    def analyze(self, **kwargs) -> Dict:
+        """
+        Returns a sensitivity index as a dictionary with the following
+        sensitivity indexes: S1, S2, ST.
+        """
         super().analyze()
         return sobol.analyze(self.problem_definition, self.outputs, **kwargs)
