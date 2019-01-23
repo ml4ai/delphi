@@ -41,7 +41,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "dpi": 227,
             "fontsize": 20,
             "rankdir": kwargs.get("rankdir", "TB"),
-            "fontname": MONOSPACE_FONT,
+            "fontname": FONT,
             "overlap": "scale",
             "splines": True,
         }
@@ -52,7 +52,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             "shape": "rectangle",
             "color": "#650021",
             "style": "rounded",
-            "fontname": MONOSPACE_FONT,
+            "fontname": FONT,
         }
     )
 
