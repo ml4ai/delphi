@@ -10,17 +10,25 @@ from delphi.paths import data_dir
 from delphi.utils.indra import get_statements_from_json_file
 
 
+def create_pruned_corpus_json():
+    """ Prune the preassembled corpus json file """
+    with open(data_dir / "wm_12_month_4_reader_20190118.json", "r") as f:
+        sts = json.load(f)
+    filtered_sts = []
+    for s in sts:
+        if s["type"] == "Influence":
+            for c in (s['subj'], s['obj']):
+                for key in [k for k in c['db_refs'] if k != "UN"]:
+                    del c['db_refs'][key]
+
+            filtered_sts.append(s)
+    with open("build/pruned_corpus.json", "w") as f:
+        f.write(json.dumps(filtered_sts, indent=2))
+
 def get_all_sts():
     """ Get all preassembled statements, prune away unneeded information, pickle
     them. """
-    all_sts = get_statements_from_json_file(
-        data_dir / "wm_12_month_4_reader_20190118.json"
-    )
-    for s in all_sts:
-        for c in (s.subj, s.obj):
-            for key in [k for k in c.db_refs if k != "UN"]:
-                del c.db_refs[key]
-
+    all_sts = get_statements_from_json_file("build/pruned_corpus.json")
     with open("build/all_sts.pkl", "wb") as f:
         pickle.dump(all_sts, f)
 
@@ -107,32 +115,33 @@ def create_precipitation_centered_CAG(filename="CAG.pdf"):
     G = G.get_subgraph_for_concept(
         "UN/events/weather/precipitation", depth=2, flow="outgoing"
     )
-    G.prune(cutoff=2)
+    G.prune(cutoff=0)
     A = to_agraph(G)
     A.graph_attr["rankdir"] = "TB"
     A.draw(filename, prog="dot")
     with open("build/precipitation_centered_CAG.pkl", "wb") as f:
         pickle.dump(G, f)
 
-
-def create_quantified_CAG():
-    with open("build/precipitation_centered_CAG.pkl", "rb") as f:
-        G = pickle.load(f)
-    G.res = 500
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
-    with open("build/quantified_CAG.pkl", "wb") as f:
-        pickle.dump(G, f)
-
 def create_CAG_with_indicators(filename="CAG_with_indicators.pdf"):
     """ Create a CAG with mapped indicators """
-    with open("build/quantified_CAG.pkl", "rb") as f:
+    with open("build/precipitation_centered_CAG.pkl", "rb") as f:
         G = pickle.load(f)
     G.map_concepts_to_indicators()
     A = to_agraph(G, indicators=True)
     A.draw(filename, prog="dot")
     with open("build/CAG_with_indicators.pkl", "wb") as f:
         pickle.dump(G, f)
+
+def create_quantified_CAG():
+    with open("build/CAG_with_indicators.pkl", "rb") as f:
+        G = pickle.load(f)
+
+    G.res = 500
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    with open("build/quantified_CAG.pkl", "wb") as f:
+        pickle.dump(G, f)
+
 
 
 def create_parameterized_CAG(filename = "CAG_with_indicators_and_values.pdf"):
@@ -145,4 +154,10 @@ def create_parameterized_CAG(filename = "CAG_with_indicators_and_values.pdf"):
 
 if __name__ == "__main__":
     os.makedirs("build", exist_ok=True)
-    create_CAG_with_indicators()
+    # create_pruned_corpus_json()
+    # get_all_sts()
+    # create_reference_CAG()
+    create_precipitation_centered_CAG()
+    # create_quantified_CAG()
+    # create_CAG_with_indicators()
+    # create_parameterized_CAG()
