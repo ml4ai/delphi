@@ -82,18 +82,17 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         A.add_node(n[0], label=node_label)
 
     for e in G.edges(data=True):
-        reinforcement = np.mean(
-            [
-                stmt.subj_delta["polarity"] * stmt.obj_delta["polarity"]
-                for stmt in e[2]["InfluenceStatements"]
-            ]
-        )
+        # Calculate reinforcement (ad-hoc!)
+
+        sts = e[2]["InfluenceStatements"]
+        total_evidence_pieces = sum([len(s.evidence) for s in sts])
+        reinforcement = sum([stmt.overall_polarity()*len(stmt.evidence) for stmt in sts])/total_evidence_pieces
         opacity = (
-            sum([len(s.evidence) for s in e[2]["InfluenceStatements"]]) / n_max
+            total_evidence_pieces / n_max
         )
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
-        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement)))# + h[4:6]
+        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
         A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
 
     # Drawing indicator variables
