@@ -11,9 +11,9 @@ class Reporter:
     def __init__(self, analyzer, num_samples=1000):
         self.analyzer = analyzer
         self.num_samples = num_samples
-        self.get_sensitivity_indices(self.num_samples)
+        self.calc_sensitivity_indices(self.num_samples)
 
-    def get_sensitivity_indices(self, num_samples):
+    def calc_sensitivity_indices(self, num_samples):
         self.analyzer.sample(num_samples=num_samples)
         self.analyzer.evaluate()
         self.Si = self.analyzer.analyze(parallel=False,
@@ -25,10 +25,20 @@ class Reporter:
                 for c, val in enumerate(row) if c > r]
 
     def get_min_s2_sensitivity(self):
+        """
+        Returns a tuple of the form:
+            (S2-value, variable index 1, variable index 2)
+        where S2-value is the minimum of the set of all S2 indices
+        """
         S2_ranks = self.__get_s2_ranks__()
         return min(S2_ranks, key=lambda tup: abs(tup[0]))
 
     def get_max_s2_sensitivity(self):
+        """
+        Returns a tuple of the form:
+            (S2-value, variable index 1, variable index 2)
+        where S2-value is the maximum of the set of all S2 indices
+        """
         S2_ranks = self.__get_s2_ranks__()
         return max(S2_ranks, key=lambda tup: abs(tup[0]))
 
@@ -53,9 +63,9 @@ class Reporter:
                     else:
                         eval_args.append(presets[idx])
 
-                surface[r][c] = self.analyzer.evaluate(*tuple(eval_args))
+                surface[r][c] = self.analyzer.eval_sample(tuple(eval_args))
         print("finished evaluating meshgrid")
-        return surface
+        return (X, Y, surface)
 
     def visualize_surface(self, var1_idx, var2_idx, X, Y, surface):
         args = self.analyzer.get_model_args()
@@ -67,4 +77,5 @@ class Reporter:
         ax.plot_surface(X, Y, surface, cmap=cm.viridis_r,
                         linewidth=0, antialiased=False)
         # ax.plot_wireframe(X, Y, Z)
-        plt.show()
+        # plt.show()
+        return plt

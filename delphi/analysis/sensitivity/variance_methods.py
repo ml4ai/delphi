@@ -55,6 +55,9 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         self.outputs = np.array(res)
         self.has_outputs = True
 
+    def eval_sample(self, args):
+        return self.model(*args)
+
     @abstractmethod
     def analyze(self) -> Dict:
         """Method to be implemented, should return a sensitivity index."""
