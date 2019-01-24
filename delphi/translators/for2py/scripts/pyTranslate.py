@@ -366,11 +366,16 @@ class PythonCodeGenerator(object):
             self.pyStrings.append("[0]")
 
     def printAssignment(self, node, printState):
-        self.printAst(
-            node["target"],
-            printState.copy(sep="", add="", printFirst=False, indexRef=True),
-        )
-        self.pyStrings.append(" = ")
+        print (node["target"])
+        if "subscripts" in node["target"][0]:
+            ind = node["target"][0]["subscripts"][0]["name"]
+            self.pyStrings.append(f"{node['target'][0]['name']}[{ind}] = ")
+        else:
+            self.printAst(
+                node["target"],
+                printState.copy(sep="", add="", printFirst=False, indexRef=True),
+            )
+            self.pyStrings.append(" = ")
         self.printAst(
             node["value"],
             printState.copy(sep="", add="", printFirst=False, indexRef=True),
@@ -431,13 +436,23 @@ class PythonCodeGenerator(object):
         )
 
     def printWrite(self, node, printState):
+        print ("\n")
+        print ("printWrite's node: ", node)
+        print ("printWrite's node[args][0]: ", node["args"][0])
+        print ("printWrite's node[args][1]: ", node["args"][1], "\n")
         write_list = []
         write_string = ""
         file_number = str(node["args"][0]["value"])
         if node["args"][0]["type"] == "int":
             file_handle = "file_" + file_number
-        if node["args"][1]["type"] == "int":
-            format_label = node["args"][1]["value"]
+        if "name" in node["args"][1]:
+            if "subscripts" in node["args"][1]:
+                format_label = node["args"][1]["subscripts"][0]["name"]
+            else:
+                format_label = node["args"][1]["name"]
+        else:
+            if node["args"][1]["type"] == "int":
+                format_label = node["args"][1]["value"]
         self.pyStrings.append(f"write_list_{file_number} = [")
         for item in node["args"]:
             if item["tag"] == "ref":
@@ -484,7 +499,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def printArray(self, node, printState):
-        print ('node in pyTranslate.py: ', node)
         if int(node['count']) == 1:
             if (
                 node["name"] not in printState.definedVars

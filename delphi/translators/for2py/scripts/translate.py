@@ -117,8 +117,7 @@ class XMLToJSONTranslator(object):
             elif node.tag == "dimensions":
                 decDims = self.parseTree(node, state)
                 count = node.attrib["count"]
-        print ("decDims: ", decDims)
-        print ("count: ", count)
+
         prog = []
         for var in decVars:
             if (
@@ -136,14 +135,16 @@ class XMLToJSONTranslator(object):
                 state.subroutine["args"][state.args.index(var["name"])][
                     "type"
                 ] = decType["type"]
+
         if decDims:
             counter = 0
             for dim in decDims:
-                print ("dim: ", dim)
                 if "literal" in dim:
                     for lit in dim["literal"]:
                         prog[0]["tag"] = "array"
                         prog[0]["count"] = count
+                        for i in range (0, int(count)):
+                            prog[0]["low" + str(i+1)] = 1
                         prog[0]["up" + str(counter + 1)] = lit["value"]
                     counter = counter + 1
                 elif "range" in dim:
@@ -163,11 +164,7 @@ class XMLToJSONTranslator(object):
                         else:
                             prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
                     counter = counter + 1
-                         
-        if len(prog) > 1:
-            for i in range (0, int(count)):
-                print ("prog [", i, "]: ", prog[i])
-
+        print (prog)
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
