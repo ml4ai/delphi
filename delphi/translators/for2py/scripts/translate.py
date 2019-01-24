@@ -150,8 +150,18 @@ class XMLToJSONTranslator(object):
                     for ran in dim["range"]:
                         prog[0]["tag"] = "array"
                         prog[0]["count"] = count
-                        prog[0]["low" + str(counter + 1)] = ran["low"][0]["value"]
-                        prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
+                        if "operator" in ran["low"][0]:
+                            op = ran["low"][0]["operator"]
+                            value = ran["low"][0]["left"][0]["value"]
+                            prog[0]["low" + str(counter + 1)] = op + value
+                        else:
+                            prog[0]["low" + str(counter + 1)] = ran["low"][0]["value"]
+                        if "operator" in ran["high"][0]:
+                            op = ran["high"][0]["operator"]
+                            value = ran["high"][0]["left"][0]["value"]
+                            prog[0]["up" + str(counter + 1)] = op + value
+                        else:
+                            prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
                     counter = counter + 1
                          
         if len(prog) > 1:
