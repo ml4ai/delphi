@@ -91,6 +91,7 @@ class PythonCodeGenerator(object):
             "arg": self.printArg,
             "variable": self.printVariable,
             "do": self.printDo,
+            "do-while": self.printDoWhile,
             "index": self.printIndex,
             "if": self.printIf,
             "op": self.printOp,
@@ -279,6 +280,22 @@ class PythonCodeGenerator(object):
                 sep=printState.sep + printState.add,
                 printFirst=True,
                 indexRef=True,
+            ),
+        )
+
+    def printDoWhile(self, node, printState):
+        self.pyStrings.append("while ")
+        self.printAst(
+            node["header"],
+            printState.copy(sep="", add="", printFirst=True, indexRef=True),
+        )
+        self.pyStrings.append(":")
+        self.printAst(
+            node["body"],
+            printState.copy(
+                sep=printState.sep + printState.add,
+                printFirst=True,
+                indexRef=True, 
             ),
         )
 
