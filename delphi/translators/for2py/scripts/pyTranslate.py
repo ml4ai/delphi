@@ -23,7 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from .fortran_format import *
+from fortran_format import *
 
 
 class PrintState:
@@ -398,7 +398,6 @@ class PythonCodeGenerator(object):
     def printReturn(self, node, printState):
         self.pyStrings.append("return True")
 
-<<<<<<< HEAD
     def printOpen(self, node, printState):
         if node["args"][0].get("arg_name") == "UNIT":
             file_handle = "file_" + str(node["args"][1]["value"])
@@ -493,7 +492,7 @@ class PythonCodeGenerator(object):
             ):
                 printState.definedVars += [node["name"]]
                 loBound = 1
-                upBound = node["value" + node["count"]]
+                upBound = node["up" + node['count']]
 
                 self.pyStrings.append(
                     f"{node['name']} = Array([({loBound}, {upBound})])"
@@ -503,8 +502,8 @@ class PythonCodeGenerator(object):
 
             self.pyStrings.append(f"{node['name']} = Array([")
             for i in range (0, int(node['count'])):  
-                loBound = 1
-                upBound = node["value" + str(i+1)]
+                loBound = node["low" + str(i+1)]
+                upBound = node["up" + str(i+1)]
                 dimensions = f"({loBound}, {upBound})"
                 if i < int(node['count'])-1:
                     self.pyStrings.append(f"{dimensions}, ")
@@ -524,10 +523,10 @@ def create_python_string(outputDict):
         [
             "from typing import List\n",
             "import math\n",
-            "from fortran_format import *",
+            "from fortran_format import *\n",
+            "from for2py_arrays import *",
         ]
     )
-    code_generator.pyStrings.append("from for2py_arrays import *\n")
     code_generator.printAst(outputDict["ast"], PrintState())
     return code_generator.get_python_source()
 

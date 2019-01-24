@@ -140,15 +140,24 @@ class XMLToJSONTranslator(object):
             counter = 0
             for dim in decDims:
                 print ("dim: ", dim)
-                print ("dim[literal]: ", dim["literal"])
-                for lit in dim["literal"]:
-                    prog[0]["tag"] = "array"
-                    prog[0]["count"] = count
-                    prog[0]["value" + str(counter+1)] = lit["value"]
-                counter = counter + 1
+                if "literal" in dim:
+                    for lit in dim["literal"]:
+                        prog[0]["tag"] = "array"
+                        prog[0]["count"] = count
+                        prog[0]["up" + str(counter + 1)] = lit["value"]
+                    counter = counter + 1
+                elif "range" in dim:
+                    for ran in dim["range"]:
+                        prog[0]["tag"] = "array"
+                        prog[0]["count"] = count
+                        prog[0]["low" + str(counter + 1)] = ran["low"][0]["value"]
+                        prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
+                    counter = counter + 1
+                         
         if len(prog) > 1:
             for i in range (0, int(count)):
-                print ("prog: ", prog[i])
+                print ("prog [", i, "]: ", prog[i])
+
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
