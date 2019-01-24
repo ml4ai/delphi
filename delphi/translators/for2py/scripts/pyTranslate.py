@@ -383,10 +383,21 @@ class PythonCodeGenerator(object):
             self.pyStrings.append("[0]")
 
     def printAssignment(self, node, printState):
-        print (node["target"])
         if "subscripts" in node["target"][0]:
-            ind = node["target"][0]["subscripts"][0]["name"]
-            self.pyStrings.append(f"{node['target'][0]['name']}[{ind}] = ")
+            self.pyStrings.append(f"{node['target'][0]['name']}.set_(")
+            self.pyStrings.append("(")
+            length = len(node["target"][0]["subscripts"])
+            for ind in node["target"][0]["subscripts"]:
+                index = ""
+                if 'name' in ind:
+                    index = ind['name']
+                elif 'value' in ind:
+                    index = ind['value']
+                self.pyStrings.append(f"{index}")
+                if (length > 1):
+                    self.pyStrings.append(", ")
+                    length = length - 1
+            self.pyStrings.append("), ")
         else:
             self.printAst(
                 node["target"],
@@ -397,6 +408,8 @@ class PythonCodeGenerator(object):
             node["value"],
             printState.copy(sep="", add="", printFirst=False, indexRef=True),
         )
+        if "subscripts" in node["target"][0]:
+            self.pyStrings.append(")")
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
@@ -453,34 +466,45 @@ class PythonCodeGenerator(object):
         )
 
     def printWrite(self, node, printState):
-        print ("\n")
-        print ("printWrite's node: ", node)
-        print ("printWrite's node[args][0]: ", node["args"][0])
-        print ("printWrite's node[args][1]: ", node["args"][1], "\n")
-        write_list = []
-        write_string = ""
-        file_number = str(node["args"][0]["value"])
-        if node["args"][0]["type"] == "int":
-            file_handle = "file_" + file_number
-        if "name" in node["args"][1]:
-            if "subscripts" in node["args"][1]:
-                format_label = node["args"][1]["subscripts"][0]["name"]
-            else:
-                format_label = node["args"][1]["name"]
+        print ("WRITE: ", node)
+        if "subscripts" in node["args"][1]:
+            name = node["args"][1]["name"]
+            for i in node["args"]:
+                if "subscripts" in i:
+                    self.pyStrings.append(f"var = {name}.get_(")
+                    print (i["subscripts"])
+                    subLength = len(i["subscripts"])
+                    for ind in i["subscripts"]:
+                        if "name" in ind:
+                            indName = ind["name"]
+                            self.pyStrings.append(f"{indName}")
+                        if "value" in ind:
+                            indValue = ind["value"]
+                            self.pyStrings.append(f"{indValue}")
+                        if (subLength > 1):
+                            self.pyStrings.append(", ")
+                            subLength = subLength - 1
+                    self.pyStrings.append(")")
+
         else:
+            write_list = []
+            write_string = ""
+            file_number = str(node["args"][0]["value"])
+            if node["args"][0]["type"] == "int":
+                file_handle = "file_" + file_number
             if node["args"][1]["type"] == "int":
                 format_label = node["args"][1]["value"]
-        self.pyStrings.append(f"write_list_{file_number} = [")
-        for item in node["args"]:
-            if item["tag"] == "ref":
-                write_string += f"{item['name']}, "
-        self.pyStrings.append(f"{write_string[:-2]}]")
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(
-            f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
-        )
-        self.pyStrings.append(printState.sep)
-        self.pyStrings.append(f"{file_handle}.write(write_line)")
+            self.pyStrings.append(f"write_list_{file_number} = [")
+            for item in node["args"]:
+                if item["tag"] == "ref":
+                    write_string += f"{item['name']}, "
+            self.pyStrings.append(f"{write_string[:-2]}]")
+            self.pyStrings.append(printState.sep)
+            self.pyStrings.append(
+                f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
+            )
+            self.pyStrings.append(printState.sep)
+            self.pyStrings.append(f"{file_handle}.write(write_line)")
 
     def printExit(self, node, printState):
         self.pyStrings.append("return")

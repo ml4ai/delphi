@@ -6,6 +6,5 @@
       REAL, DIMENSION(3, 5, 10) :: X
 
       array_one(1) = 10
-      PRINT *, array_one(1)
 
       end program main
