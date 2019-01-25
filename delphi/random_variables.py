@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Set
 from datetime import datetime
 from .db import engine
 
@@ -48,6 +48,7 @@ class Indicator(RV):
         value: float = None,
         stdev: float = None,
         time: datetime = None,
+        aggaxes: Set[str] = set(),
     ):
         super().__init__(name)
         self.source = source
@@ -56,6 +57,7 @@ class Indicator(RV):
         self.value = value
         self.stdev = stdev
         self.time = time
+        self.aggaxes = aggaxes
 
     def get_historical_distribution(
         self,

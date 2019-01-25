@@ -53,7 +53,7 @@ def create_concept_to_indicator_mapping_table():
         },
     )
     df.Indicator = df.Indicator.str.replace("\\\/","/")
-    df.to_csv('test.csv')
+    df.to_csv('test.csv', index=False)
 
     insert_table(df, "concept_to_indicator_mapping")
 

@@ -115,7 +115,7 @@ def create_precipitation_centered_CAG(filename="CAG.pdf"):
     G = G.get_subgraph_for_concept(
         "UN/events/weather/precipitation", depth=2, flow="outgoing"
     )
-    G.prune(cutoff=0)
+    G.prune(cutoff=2)
     A = to_agraph(G)
     A.graph_attr["rankdir"] = "TB"
     A.draw(filename, prog="dot")
@@ -142,13 +142,11 @@ def create_quantified_CAG():
     with open("build/quantified_CAG.pkl", "wb") as f:
         pickle.dump(G, f)
 
-
-
 def create_parameterized_CAG(filename = "CAG_with_indicators_and_values.pdf"):
     """ Create a CAG with mapped and parameterized indicators """
-    with open("build/CAG_with_indicators.pkl", "rb") as f:
+    with open("build/quantified_CAG.pkl", "rb") as f:
         G = pickle.load(f)
-    G.parameterize(datetime(2017,4,1))
+    G.parameterize(year = 2017, month = 4)
     A = to_agraph(G, indicators=True, indicator_values=True)
     A.draw(filename, prog="dot")
 
@@ -157,7 +155,7 @@ if __name__ == "__main__":
     # create_pruned_corpus_json()
     # get_all_sts()
     # create_reference_CAG()
-    create_precipitation_centered_CAG()
-    # create_quantified_CAG()
-    # create_CAG_with_indicators()
-    # create_parameterized_CAG()
+    # create_precipitation_centered_CAG()
+    create_CAG_with_indicators()
+    create_quantified_CAG()
+    create_parameterized_CAG()
