@@ -107,50 +107,6 @@ def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
     return best_match
 
 
-def get_indicator_value(
-    indicator: Indicator, date: datetime
-) -> Optional[float]:
-    """ Get the value of a particular indicator at a particular date and time.
-    If no value is available, take historical average."""
-
-    # variable_names = [
-        # x[0]
-        # for x in engine.execute(
-            # f"select distinct `Variable` from indicator"
-        # ).fetchall()
-    # ]
-    # best_match = get_best_match(indicator, variable_names)
-
-    # TODO Devise a strategy to get rid of the fetchone() call at the end of the
-    # expression below (i.e. add month support instead of taking the first
-    # available result.)
-
-    result = engine.execute(
-        " ".join(
-            [
-                f"select * from indicator where `Variable` like '{indicator.name}'",
-                "and `Value` is not null",
-                f"and `Year` is {date.year}",
-            ]
-        )
-    ).fetchone()
-
-    # TODO devise a strategy to deal with missing month values
-
-    if not result is None:
-        indicator_value = float(result["Value"])
-        indicator_units = result["Unit"]
-    else:
-        indicator_value = None
-        indicator_units = None
-
-    return (
-        (indicator_value, indicator_units)
-        if not indicator_value is None
-        else (None, None)
-    )
-
-
 def get_variable_and_source(x: str):
     """ Process the variable name to make it more human-readable. """
     xs = x.replace("\/", "|").split("/")
@@ -180,3 +136,86 @@ def make_edges(sts, node_permutations):
         for e in [make_edge(sts, p) for p in node_permutations]
         if len(e[2]["InfluenceStatements"]) != 0
     ]
+
+
+def get_indicator_value(
+    indicator: Indicator,
+    country: Optional[str] = "South Sudan",
+    state: Optional[str] = None,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    unit: Optional[str] = None,
+    fallback_aggaxes: List[str] = ["year", "month"],
+    aggfunc: Callable = np.mean,
+) -> Tuple[float, Optional[str]]:
+    query_base = " ".join(
+        [
+            f"select * from indicator",
+            f"where `Variable` like '{indicator.name}'",
+            # "and `Source` like 'mitre12'",
+        ]
+    )
+
+    query_parts = {"base": query_base}
+
+    if country is not None:
+        query_parts["country"] = f"and `Country` is '{country}'"
+    if state is not None:
+        query_parts["state"] = f"and `State` is '{state}'"
+    if year is not None:
+        query_parts["year"] = f"and `Year` is '{year}'"
+    if month is not None:
+        query_parts["month"] = f"and `Month` is '{month}'"
+    if unit is not None:
+        query_parts["unit"] = f"and `Unit` is '{unit}'"
+
+    for constraint in ("country", "state", "year", "month"):
+        if constraint not in query_parts:
+            indicator.aggaxes.add(constraint)
+
+    query = " ".join(query_parts.values())
+    results = list(engine.execute(query))
+    if results != []:
+        unit = sorted(list({r["Unit"] for r in results}))[0]
+        results = [float(r["Value"]) for r in results if r["Unit"] == unit]
+        return aggfunc(results), unit
+    else:
+        for i, aggregation_axis in enumerate(fallback_aggaxes):
+            try:
+                indicator.aggaxes.add(aggregation_axis)
+                query = " ".join(
+                    [
+                        query_parts[k]
+                        for k in query_parts
+                        if k not in fallback_aggaxes[: i + 1]
+                    ]
+                )
+
+                results = list(engine.execute(query))
+
+                if results == []:
+                    continue
+
+                # Handling the case where the same indicator name is present
+                # with different units - we must not aggregate these values!
+
+                # If there are multiple possible units, use the first in the
+                # (alphabetically sorted) set of possible units as a default.
+
+                unit = sorted(list({r["Unit"] for r in results}))[0]
+                return (
+                    aggfunc(
+                        [
+                            float(r["Value"])
+                            for r in results
+                            if r["Unit"] == unit
+                        ]
+                    ),
+                    unit,
+                )
+
+            except StopIteration:
+                raise ValueError(
+                    f"No data found for the indicator {indicator_name}!"
+                    "Try using additional aggregation axes."
+                )
