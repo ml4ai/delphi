@@ -52,12 +52,14 @@ def create_concept_to_indicator_mapping_table():
             "Score": np.float64,
         },
     )
+    df.Indicator = df.Indicator.str.replace("\\\/","/")
+    df.to_csv('test.csv', index=False)
 
     insert_table(df, "concept_to_indicator_mapping")
 
 
 if __name__ == "__main__":
-    create_dssat_data_table()
-    create_indicator_table()
-    create_adjectiveData_table()
+    # create_dssat_data_table()
+    # create_indicator_table()
+    # create_adjectiveData_table()
     create_concept_to_indicator_mapping_table()

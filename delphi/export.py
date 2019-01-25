@@ -91,7 +91,6 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
 
     # Drawing indicator variables
 
-
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
             for indicator_name, ind in n[1]["indicators"].items():
