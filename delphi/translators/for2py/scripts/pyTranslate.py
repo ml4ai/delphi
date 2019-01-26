@@ -23,7 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from fortran_format import *
+from .fortran_format import *
 
 
 class PrintState:
@@ -231,11 +231,11 @@ class PythonCodeGenerator(object):
                 index += 1
 
     def printArg(self, node, printState):
-        if node["type"] == "INTEGER":
+        if node["type"].upper() == "INTEGER":
             varType = "int"
-        elif node["type"] in ("DOUBLE", "REAL"):
+        elif node["type"].upper() in ("DOUBLE", "REAL"):
             varType = "float"
-        elif node["type"] == "CHARACTER":
+        elif node["type"].upper() == "CHARACTER":
             varType = "str"
         else:
             print(f"unrecognized type {node['type']}")
@@ -249,13 +249,13 @@ class PythonCodeGenerator(object):
             and node["name"] not in printState.globalVars
         ):
             printState.definedVars += [node["name"]]
-            if node["type"] == "INTEGER":
+            if node["type"].upper() == "INTEGER":
                 initVal = 0
                 varType = "int"
-            elif node["type"] in ("DOUBLE", "REAL"):
+            elif node["type"].upper() in ("DOUBLE", "REAL"):
                 initVal = 0.0
                 varType = "float"
-            elif node["type"] == "STRING":
+            elif node["type"].upper() == "STRING":
                 initVal = ""
                 varType = "str"
             else:
@@ -384,8 +384,7 @@ class PythonCodeGenerator(object):
 
     def printAssignment(self, node, printState):
         if "subscripts" in node["target"][0]:
-            self.pyStrings.append(f"{node['target'][0]['name']}.set_(")
-            self.pyStrings.append("(")
+            self.pyStrings.append(f"{node['target'][0]['name']}.set_((")
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
                 index = ""
@@ -393,7 +392,7 @@ class PythonCodeGenerator(object):
                     index = ind['name']
                 elif 'value' in ind:
                     index = ind['value']
-                self.pyStrings.append(f"{index}")
+                self.pyStrings.append(f"{index}[0]")
                 if (length > 1):
                     self.pyStrings.append(", ")
                     length = length - 1
@@ -404,9 +403,22 @@ class PythonCodeGenerator(object):
                 printState.copy(sep="", add="", printFirst=False, indexRef=True),
             )
             self.pyStrings.append(" = ")
-        self.printAst(
-            node["value"],
-            printState.copy(sep="", add="", printFirst=False, indexRef=True),
+        if "subscripts" in node["value"][0]:
+            self.pyStrings.append(f"{node['value'][0]['name']}.get_((")
+            arrayLen = len(node["value"][0]["subscripts"])
+            for ind in node["value"][0]["subscripts"]:
+                if "name" in ind:
+                    self.pyStrings.append(f"{ind['name']}[0]")
+                else:
+                    self.pyStrings.append(f"{ind['value']}")
+                if arrayLen > 1:
+                    self.pyStrings.append(", ")
+                    arrayLen = arrayLen - 1
+            self.pyStrings.append("))")
+        else:
+            self.printAst(
+                node["value"],
+                printState.copy(sep="", add="", printFirst=False, indexRef=True),
         )
         if "subscripts" in node["target"][0]:
             self.pyStrings.append(")")
@@ -465,46 +477,68 @@ class PythonCodeGenerator(object):
             f") = format_{format_label}_obj.read_line({file_handle}.readline())"
         )
 
+
+
     def printWrite(self, node, printState):
-        print ("WRITE: ", node)
-        if "subscripts" in node["args"][1]:
-            name = node["args"][1]["name"]
-            for i in node["args"]:
-                if "subscripts" in i:
-                    self.pyStrings.append(f"var = {name}.get_(")
-                    print (i["subscripts"])
-                    subLength = len(i["subscripts"])
-                    for ind in i["subscripts"]:
-                        if "name" in ind:
+        hasArray = False
+        arrayloc = 0
+        for i in range(0, len(node["args"])):
+            if "subscripts" in node["args"][i]:
+                hasArray = True
+                arrayloc = i
+
+        if hasArray:
+            var = 0
+            name = node["args"][arrayloc]["name"]
+            for args in node["args"]:
+                if "subscripts" in args:
+                    var = var + 1
+                    self.pyStrings.append(f"var{var} = {name}.get_((")
+                    subLength = len(args["subscripts"])
+                    for ind in args["subscripts"]:
+                        if ind["tag"] == "ref" and "name" in ind:
                             indName = ind["name"]
-                            self.pyStrings.append(f"{indName}")
-                        if "value" in ind:
+                            self.pyStrings.append(f"{indName}[0]")
+                        if ind["tag"] == "op":
+                            indOp = ind["operator"]
+                            indValue = ind["left"][0]["value"]
+                            self.pyStrings.append(f"{indOp}{indValue}")
+                        elif ind["tag"] == "literal" and "value" in ind:
                             indValue = ind["value"]
                             self.pyStrings.append(f"{indValue}")
                         if (subLength > 1):
                             self.pyStrings.append(", ")
                             subLength = subLength - 1
-                    self.pyStrings.append(")")
-
-        else:
-            write_list = []
-            write_string = ""
-            file_number = str(node["args"][0]["value"])
-            if node["args"][0]["type"] == "int":
+                    self.pyStrings.append("))")
+                    self.pyStrings.append(printState.sep)
+        write_list = []
+        write_string = ""
+        file_number = str(node["args"][0]["value"])
+        for i in range (0, len(node["args"])):
+            if i == 0 and node["args"][i]["type"] == "int":
                 file_handle = "file_" + file_number
-            if node["args"][1]["type"] == "int":
-                format_label = node["args"][1]["value"]
-            self.pyStrings.append(f"write_list_{file_number} = [")
-            for item in node["args"]:
+            if i == 1 and"type" in node["args"][1]:
+                if node["args"][1]["type"] == "int":
+                    format_label = node["args"][1]["value"]
+        else:
+            format_label = node["args"][0]["value"]
+        self.pyStrings.append(f"write_list_{file_number} = [")
+        var_num = 0
+        for item in node["args"]:
+            if hasArray == False:
                 if item["tag"] == "ref":
                     write_string += f"{item['name']}, "
-            self.pyStrings.append(f"{write_string[:-2]}]")
-            self.pyStrings.append(printState.sep)
-            self.pyStrings.append(
-                f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
-            )
-            self.pyStrings.append(printState.sep)
-            self.pyStrings.append(f"{file_handle}.write(write_line)")
+            else:
+                if "subscripts" in item:
+                    var_num = var_num + 1 
+                    write_string += f"var{var_num}, "
+        self.pyStrings.append(f"{write_string[:-2]}]")
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append(
+            f"write_line = format_{format_label}_obj.write_line(write_list_{file_number})"
+        )
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append(f"{file_handle}.write(write_line)")
 
     def printExit(self, node, printState):
         self.pyStrings.append("return")

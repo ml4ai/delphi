@@ -9,6 +9,8 @@ C     of 1 and upper bounds of 5.
       integer, dimension(5,5) :: arr 
       integer :: i, j
 
+      open (10, FILE="OUTPUT", STATUS="REPLACE")
+
       do i = 1, 5
         do j = 1, 5
           arr(i,j) = i+j     ! initialize the array
@@ -17,7 +19,7 @@ C     of 1 and upper bounds of 5.
 
       ! write out the array
       do i = 1, 5
-          write (*,10) arr(i,1), arr(i,2), arr(i,3), arr(i,4), arr(i,5)
+          write (10,10) arr(i,1), arr(i,2), arr(i,3), arr(i,4), arr(i,5)
       end do
 
  10   format(5(I5,X))
