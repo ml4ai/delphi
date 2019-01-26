@@ -85,8 +85,8 @@ Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`.
 
     <identifier>[attrval] ::=
     	"base_name" : <lang_string>
-    	"scope" : <scope>
-    	"namespace" : <namespace>
+    	"scope" : <scope_path>
+    	"namespace" : <namespace_path>
     	"gensym" : <gensym>
     	
 The `<lang_string>` is itself a string
