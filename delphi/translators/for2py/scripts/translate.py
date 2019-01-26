@@ -145,6 +145,15 @@ class XMLToJSONTranslator(object):
                 do["body"] = self.parseTree(node, state)
         return [do]
 
+    def process_do_while_loop(self, root, state) -> List[Dict]:
+        doWhile = {"tag": "do-while"}
+        for node in root:
+            if node.tag == "header":
+                doWhile["header"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                doWhile["body"] = self.parseTree(node, state)
+        return [doWhile]
+
     def process_index_variable(self, root, state) -> List[Dict]:
         ind = {"tag": "index", "name": root.attrib["name"]}
         for bounds in root:
@@ -357,6 +366,9 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "loop" and root.attrib["type"] == "do":
             return self.process_do_loop(root, state)
+
+        elif root.tag == "loop" and root.attrib["type"] == "do-while":
+            return self.process_do_while_loop(root, state)
 
         elif root.tag == "index-variable":
             return self.process_index_variable(root, state)

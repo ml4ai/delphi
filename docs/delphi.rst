@@ -37,18 +37,18 @@ delphi.cli module
     :undoc-members:
     :show-inheritance:
 
-delphi.export module
---------------------
+delphi.db module
+----------------
 
-.. automodule:: delphi.export
+.. automodule:: delphi.db
     :members:
     :undoc-members:
     :show-inheritance:
 
-delphi.inference module
------------------------
+delphi.export module
+--------------------
 
-.. automodule:: delphi.inference
+.. automodule:: delphi.export
     :members:
     :undoc-members:
     :show-inheritance:
