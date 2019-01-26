@@ -17,28 +17,6 @@ from matplotlib import pyplot as plt
 from shapely.geometry import Polygon, MultiPolygon
 
 
-def download_FEWSNET_admin_boundaries_data():
-    url = "http://shapefiles.fews.net.s3.amazonaws.com/ADMIN/FEWSNET_World_Admin.zip"
-    zipfile_name = Path(data_dir) / url.split("/")[-1]
-    download_file(url, zipfile_name)
-    directory = Path(data_dir) / (url.split("/")[-1].split(".")[0])
-    os.makedirs(directory, exist_ok=True)
-    with zipfile.ZipFile(zipfile_name) as zf:
-        zf.extractall(directory)
-
-
-def download_and_clean_FEWSNET_IPC_data():
-    url = "http://shapefiles.fews.net.s3.amazonaws.com/ALL_HFIC.zip"
-    zipfile_name = Path(data_dir) / url.split("/")[-1]
-    download_file(url, zipfile_name)
-    with zipfile.ZipFile(zipfile_name) as zf:
-        zf.extractall(data_dir)
-    with cd(str(Path(data_dir) / "ALL_HFIC" / "East Africa")):
-        files_to_rename = glob("EA2017*")
-        for f in files_to_rename:
-            os.rename(f, f.replace("EA", "EA_"))
-
-
 def process_FEWSNET_IPC_data(shpfile: str, title: str):
     admin_boundaries_shapefile = "data/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
