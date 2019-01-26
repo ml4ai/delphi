@@ -19,10 +19,10 @@ data/FAOSTAT/%.csv: data/FAOSTAT/%.zip
 	cd data/FAOSTAT; unzip '$(<F)'
 
 data/south_sudan_data_fao.tsv: | data/FAOSTAT/*.zip
-	python download_and_clean_FAO_and_WDI_indicator_data.py --fao
+	python process_FAO_and_WDI_data.py --fao
 
 data/south_sudan_data_wdi.tsv: data/WDI_csv/WDIData.csv
-	python download_and_clean_FAO_and_WDI_indicator_data.py --wdi
+	python process_FAO_and_WDI_data.py --wdi
 
 data/south_sudan_data.tsv: data/south_sudan_data_fao.tsv data/south_sudan_data_wdi.tsv
-	python download_and_clean_FAO_and_WDI_indicator_data.py --combine
+	python process_FAO_and_WDI_data.py --combine
