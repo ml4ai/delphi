@@ -122,6 +122,7 @@ scratch
 scripts/*.json
 variables.csv
 notebooks/season.dat
+bmi_config.txt
 
 # Data to ignore
 *_pickle
