@@ -71,7 +71,9 @@ More that one identifier can be used to denote the same program element, but an 
 
 <span style="color:blue">
 CHOICE: Do we need to keep track of the set of identifiers used to refer to a specific program element?
+
 - Option 1: Argument for No: keep things simple in the GrFN representation and have `program analysis` resolve multiple references to the same program element and just keep and use the first identifier for all references.
+
 - Option 2: Argument for Yes: the `base_name` of an identifier as well as the context in which identifier use instances occur (in particular, nearby comments) may provide evidence of what the identifier represents in the target model domain (domain ontology). Also, an identifier may be used to represent a domain entity and yet use different program elements at different times as part of that representation. This suggests we may want to keep track of the different identifiers along with the comment-context associated with them.
 
 FOR NOW: go with Option 1, but collect all comment-context associated with subsequent identifiers assigned with the same program element, and associate those with the selected first identifier.
