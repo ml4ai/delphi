@@ -1,4 +1,7 @@
-all: data/south_sudan_data.tsv
+all: delphi.db
+
+delphi.db: data/south_sudan_data.tsv create_delphi_db.py
+	python create_delphi_db.py
 
 data:
 	mkdir -p $@
@@ -8,7 +11,8 @@ data:
 			   data/FAOSTAT.zip\
 			   data/FAOSTAT\
 			   data/FEWSNET/ALL_HFIC.zip\
-			   data/FEWSNET/FEWSNET_World_Admin.zip
+			   data/FEWSNET/FEWSNET_World_Admin.zip\
+			   fews
 
 data/WDI_csv.tar.bz2: | data
 	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
@@ -41,22 +45,28 @@ fews: data/FEWSNET/FEWSNET_World_Admin data/FEWSNET/ALL_HFIC
 
 data/south_sudan_data_fao.tsv: data/FAOSTAT
 	python process_FAO_and_WDI_data.py --fao
-	rm -rf $<
 
 data/south_sudan_data_wdi.tsv: data/WDI_csv/WDIData.csv
 	python process_FAO_and_WDI_data.py --wdi
 
+data/south_sudan_data_fewsnet.tsv: process_FEWSNET_data.py fews
+	python $<
+
+data/south_sudan_data_climis_unicef_ieeconomics.tsv: evaluations/month12/data_cleaning.py
+	python $<
+
+data/south_sudan_data_conflict.tsv:
+	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
+
 data/south_sudan_data.tsv: data/south_sudan_data_fao.tsv\
-						   data/south_sudan_data_wdi.tsv
-						   #data/south_sudan_data_fewsnet.tsv
+						   data/south_sudan_data_wdi.tsv\
+						   data/south_sudan_data_conflict.tsv\
+						   data/south_sudan_data_fewsnet.tsv\
+						   data/south_sudan_data_climis_unicef_ieeconomics.tsv
 
 	python process_FAO_and_WDI_data.py --combine
 
-data/south_sudan_data_fewsnet.tsv: fews
-	python process_FEWSNET_data.py
 
-data/south_sudan_conflict_data.tsv:
-	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
 clean: 
 	rm -rf data/FAOSTAT

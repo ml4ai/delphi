@@ -9,7 +9,7 @@ from delphi.paths import (
 )
 from sqlalchemy import create_engine
 
-ENGINE = create_engine(f"sqlite:///{str(db_path)}", echo=False)
+ENGINE = create_engine(f"sqlite:///data/delphi.db", echo=False)
 
 
 def insert_table(df, table_name):
@@ -17,7 +17,7 @@ def insert_table(df, table_name):
 
 
 def create_indicator_table():
-    df = pd.read_csv(south_sudan_data, index_col=False)
+    df = pd.read_table("data/south_sudan_data.tsv", index_col=False)
     insert_table(df, "indicator")
 
 
@@ -42,7 +42,7 @@ def create_adjectiveData_table():
 
 def create_concept_to_indicator_mapping_table():
     df = pd.read_table(
-        concept_to_indicator_mapping,
+        "data/un_to_indicators.tsv",
         usecols=[1, 2, 3, 4],
         names=["Concept", "Source", "Indicator", "Score"],
         dtype={
@@ -53,13 +53,12 @@ def create_concept_to_indicator_mapping_table():
         },
     )
     df.Indicator = df.Indicator.str.replace("\\\/","/")
-    df.to_csv('test.csv', index=False)
 
     insert_table(df, "concept_to_indicator_mapping")
 
 
 if __name__ == "__main__":
-    # create_dssat_data_table()
-    # create_indicator_table()
-    # create_adjectiveData_table()
+    create_dssat_data_table()
+    create_indicator_table()
+    create_adjectiveData_table()
     create_concept_to_indicator_mapping_table()

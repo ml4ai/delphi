@@ -142,7 +142,7 @@ def clean_WDI_data():
     df.to_csv("data/south_sudan_data_wdi.tsv", index=False, sep="\t")
 
 
-def combine_FAO_and_WDI_data():
+def combine_data():
     fao_df = pd.read_table("data/south_sudan_data_fao.tsv")
     fao_df["Source"] = "FAO"
     wdi_df = pd.read_table("data/south_sudan_data_wdi.tsv")
@@ -165,26 +165,30 @@ def combine_FAO_and_WDI_data():
 
     ind_cols = ["Variable", "Unit", "Source", "Country"]
     # print(fao_df.reset_index().melt(id_vars=ind_cols).head())
-    df = pd.concat([fao_df, wdi_df], sort=True)
+    fao_wdi_df = pd.concat([fao_df, wdi_df], sort=True)
     # If a column name is something like 2010-2012, we make copies of its data
     # for three years - 2010, 2011, 2012
 
-    for c in df.columns:
+    for c in fao_wdi_df.columns:
         if "-" in c:
             years = c.split("-")
             for y in range(int(years[0]), int(years[-1]) + 1):
                 y = str(y)
-                df[y] = df[y].fillna(df[c])
-            del df[c]
+                fao_wdi_df[y] = fao_wdi_df[y].fillna(fao_wdi_df[c])
+            del fao_wdi_df[c]
 
-    df = (
-        df.reset_index()
+    fao_wdi_df = (
+        fao_wdi_df.reset_index()
         .melt(id_vars=ind_cols, var_name="Year", value_name="Value")
         .dropna(subset=["Value"])
     )
-    df["State"] = None
+    fao_wdi_df["State"] = None
+    conflict_data_df = pd.read_table("data/south_sudan_data_conflict.tsv", index_col=False)
+    fewsnet_df = pd.read_table("data/south_sudan_data_fewsnet.tsv", index_col=False)
+    climis_unicef_ieeconomics_df = pd.read_table("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index_col=False)
 
-    df.to_csv(Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False)
+    combined_df = pd.concat([fao_wdi_df, conflict_data_df, fewsnet_df], sort=True).dropna(subset=["Value"])
+    combined_df.to_csv(Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False)
 
 
 if __name__ == "__main__":
@@ -193,4 +197,4 @@ if __name__ == "__main__":
     elif sys.argv[1] == "--wdi":
         clean_WDI_data()
     elif sys.argv[1] == "--combine":
-        combine_FAO_and_WDI_data()
+        combine_data()

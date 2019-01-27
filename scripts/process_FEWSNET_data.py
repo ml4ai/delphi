@@ -7,7 +7,6 @@ import shapefile
 from future.utils import lzip
 from delphi.utils.shell import cd
 from delphi.utils.web import download_file
-from delphi.paths import data_dir
 from tqdm import tqdm
 import matplotlib as mpl
 import pandas as pd
@@ -18,7 +17,7 @@ from shapely.geometry import Polygon, MultiPolygon
 
 
 def process_FEWSNET_IPC_data(shpfile: str, title: str):
-    admin_boundaries_shapefile = "data/FEWSNET_World_Admin/FEWSNET_Admin2"
+    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     colors = {
         0: "white",
@@ -113,15 +112,13 @@ def get_polygons(shape):
 
 
 def create_food_security_data_table(region: str, country: str):
-    admin_boundaries_shapefile = str(
-        Path(data_dir) / "FEWSNET_World_Admin" / "FEWSNET_Admin2"
-    )
+    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     south_sudan_srs = [
         x for x in sf_admin.shapeRecords() if x.record[3] == country
     ]
 
-    path = str(Path(data_dir) / "ALL_HFIC" / region)
+    path = f"data/FEWSNET/ALL_HFIC/{region}"
     ipc_records = []
     with cd(path):
         shapefiles = glob("*.shp")
@@ -151,11 +148,14 @@ def create_food_security_data_table(region: str, country: str):
                                     "County": sr.record[8],
                                     "Year": year,
                                     "Month": month,
-                                    "IPC Phase": CS,
+                                    "Value": CS,
+                                    "Variable": "IPC Phase Classification",
+                                    "Unit": "IPC Phase",
+                                    "Source": "FEWSNET",
                                 }
                             )
     df = pd.DataFrame(ipc_records)
-    df.to_csv(Path(data_dir) / "ipc_data.tsv", sep="\t")
+    df.to_csv("data/south_sudan_data_fewsnet.tsv", sep="\t", index=False)
 
 
 if __name__ == "__main__":

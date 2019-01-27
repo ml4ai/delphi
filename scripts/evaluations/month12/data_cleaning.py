@@ -205,29 +205,6 @@ def process_climis_crop_production_data(data_dir: str):
     return df
 
 
-def process_fao_wdi_data(data_dir):
-    df = pd.read_csv(south_sudan_data, sep="|")
-    df = df[[c for c in df.columns if "-" not in c]]
-    df = df.pivot_table(columns=("Indicator Name", "Unit")).reset_index()
-    df.columns = ["Year", "Variable", "Unit", "Value"]
-    df["Country"] = "South Sudan"
-    df["State"] = None
-    df["County"] = None
-    return df
-
-def process_fewsnet_data(data_dir, columns: List[str]) -> pd.DataFrame:
-    """ Process IPC food security classifications by county for South Sudan. """
-    df = pd.read_csv(f"{data_dir}/ipc_data.csv")
-    df["Unit"] = "IPC Phase"
-    df["Source"] = "FEWSNET"
-    df["Variable"] = "IPC Phase Classification"
-    df["Country"] = "South Sudan"
-    df.rename(str.strip, axis="columns", inplace=True)
-    df.rename(columns={"IPC Phase": "Value"}, inplace=True)
-    df = df[columns]
-    return df
-
-
 def process_climis_livestock_data(data_dir: str):
     """ Process CliMIS livestock data. """
 
@@ -459,19 +436,15 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
 
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
-    fao_wdi_df = process_fao_wdi_data(columns)
-    ipc_df = process_fewsnet_data(data_dir, columns)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
     climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
     # Severe acute malnutrition and inflation rate indicators from PDFs
-    pdf_indicators_df = pd.read_csv(f"{data_dir}/indicator_data_from_pdfs.csv")
+    pdf_indicators_df = pd.read_table(f"{data_dir}/indicator_data_from_pdfs.tsv")
 
     df = pd.concat(
         [
             climis_crop_production_df,
-            fao_wdi_df,
-            ipc_df,
             climis_livestock_data_df,
             climis_import_data_df,
             climis_rainfall_data_df,
@@ -498,8 +471,9 @@ if __name__ == "__main__":
 
     data_dir = str(data_dir / "evaluations" / "12_month")
     df = create_combined_table(data_dir, columns)
+    df["Value"] = df["Value"].str.replace("%","")
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
-    df.to_csv("12_month_evaluation_indicator_data.csv", index=False)
-    with open("12_month_eval_variables.txt", "w") as f:
-        f.write("\n".join(set(df["Variable"].values)))
+    df.to_csv("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index=False, sep="\t")
+    # with open("12_month_eval_variables.txt", "w") as f:
+        # f.write("\n".join(set(df["Variable"].values)))
