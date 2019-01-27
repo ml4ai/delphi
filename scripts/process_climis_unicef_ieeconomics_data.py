@@ -479,5 +479,3 @@ if __name__ == "__main__":
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
     df.to_csv("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index=False, sep="\t")
-    # with open("12_month_eval_variables.txt", "w") as f:
-        # f.write("\n".join(set(df["Variable"].values)))

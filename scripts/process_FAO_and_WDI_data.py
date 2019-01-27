@@ -153,6 +153,7 @@ def combine_data():
     )
     wdi_df["Variable"] = wdi_df["Variable"].str.partition("(")[0]
     wdi_df = wdi_df.set_index(["Variable", "Unit", "Source", "Country"])
+    fao_df = fao_df[fao_df.Value != 0.]
     fao_df = (
         fao_df.pivot_table(
             values="Value",
@@ -164,7 +165,6 @@ def combine_data():
     )
 
     ind_cols = ["Variable", "Unit", "Source", "Country"]
-    # print(fao_df.reset_index().melt(id_vars=ind_cols).head())
     fao_wdi_df = pd.concat([fao_df, wdi_df], sort=True)
     # If a column name is something like 2010-2012, we make copies of its data
     # for three years - 2010, 2011, 2012
@@ -187,8 +187,8 @@ def combine_data():
         "data/south_sudan_data_conflict.tsv", index_col=False
     )
     fewsnet_df = pd.read_table(
-        "data/south_sudan_data_fewsnet.tsv", index_col=False
-    )
+        "data/south_sudan_data_fewsnet.tsv", index_col=False)
+    fewsnet_df = fewsnet_df[(fewsnet_df.Value <= 5) & (fewsnet_df.Value >=1)]
     climis_unicef_ieeconomics_df = pd.read_table(
         "data/south_sudan_data_climis_unicef_ieeconomics.tsv", index_col=False
     )
@@ -206,6 +206,8 @@ def combine_data():
     combined_df.to_csv(
         Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False
     )
+    with open("data/indicator_flat_list.txt", "w") as f:
+        f.write("\n".join(set(combined_df.Variable)))
 
 
 if __name__ == "__main__":

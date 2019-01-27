@@ -1,23 +1,22 @@
+import sys
 import numpy as np
 import pandas as pd
 from delphi.paths import (
     data_dir,
-    db_path,
     south_sudan_data,
     adjectiveData,
     concept_to_indicator_mapping,
 )
 from sqlalchemy import create_engine
 
-ENGINE = create_engine(f"sqlite:///data/delphi.db", echo=False)
-
+ENGINE = create_engine(f"sqlite:///{sys.argv[2]}", echo=False)
 
 def insert_table(df, table_name):
     df.to_sql(table_name, con=ENGINE, if_exists="replace")
 
 
-def create_indicator_table():
-    df = pd.read_table("data/south_sudan_data.tsv", index_col=False)
+def create_indicator_table(indicator_table):
+    df = pd.read_table(indicator_table, index_col=False)
     insert_table(df, "indicator")
 
 
@@ -40,9 +39,9 @@ def create_adjectiveData_table():
     insert_table(df, "gradableAdjectiveData")
 
 
-def create_concept_to_indicator_mapping_table():
+def create_concept_to_indicator_mapping_table(mapping_table):
     df = pd.read_table(
-        "data/un_to_indicators.tsv",
+        mapping_table,
         usecols=[1, 2, 3, 4],
         names=["Concept", "Source", "Indicator", "Score"],
         dtype={
@@ -59,6 +58,6 @@ def create_concept_to_indicator_mapping_table():
 
 if __name__ == "__main__":
     create_dssat_data_table()
-    create_indicator_table()
+    create_indicator_table(sys.argv[1])
     create_adjectiveData_table()
-    create_concept_to_indicator_mapping_table()
+    create_concept_to_indicator_mapping_table(sys.argv[2])

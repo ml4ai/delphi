@@ -1,18 +1,19 @@
-all: delphi.db
+all: data/delphi.db
 
-delphi.db: data/south_sudan_data.tsv create_delphi_db.py
-	python create_delphi_db.py
+data/delphi.db: create_delphi_db.py data/south_sudan_data.tsv data/un_to_indicators.tsv
+	python $^ $@
+	cp $@ $(DELPHI_DATA)/$(@F)
 
 data:
 	mkdir -p $@
 
-# Intermediate files that will be deleted after downloading
+# Intermediate files that will be deleted after they are no longer necessary
 
 .INTERMEDIATE: data/WDI_csv.tar.bz2 \
 			   data/FAOSTAT.zip\
 			   data/FEWSNET/ALL_HFIC.zip\
 			   data/FEWSNET/FEWSNET_World_Admin.zip\
-			   fews
+			   fews\
 
 
 # =============================================================================
@@ -80,15 +81,16 @@ data/south_sudan_data_conflict.tsv:
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
 
-data/south_sudan_data.tsv data/indicator_flat_list.txt: process_FAO_and_WDI_data.py\
-														data/south_sudan_data_fao.tsv\
-														data/south_sudan_data_wdi.tsv\
-														data/south_sudan_data_conflict.tsv\
-														data/south_sudan_data_fewsnet.tsv\
-														data/south_sudan_data_climis_unicef_ieeconomics.tsv
+data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
+						   data/south_sudan_data_fao.tsv\
+						   data/south_sudan_data_wdi.tsv\
+						   data/south_sudan_data_conflict.tsv\
+						   data/south_sudan_data_fewsnet.tsv\
+						   data/south_sudan_data_climis_unicef_ieeconomics.tsv
 
 	python $< --combine
 
+data/indicator_flat_list.txt: data/south_sudan_data.tsv
 
 # =============================================================================
 # Creation of concept to indicator mapping
@@ -100,9 +102,39 @@ ONTOLOGY_GEN_SCRIPT := $(EIDOS_SRC)/python/mk_yaml_ontology.py
 TARGET_ONTOLOGY_FILENAME := $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/mitre12_indicators.yml
 TARGET_ONTOLOGY_NAME := MITRE12
 
-data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT)
-	
+data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) data/south_sudan_data.tsv
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
 	cd $(EIDOS); time sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
+	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
+# =============================================================================
+# Creation of reference evaluation CAG
+# =============================================================================
+
+build:
+	mkdir -p $@
+
+build/pruned_corpus.json: evaluations/create_pruned_corpus.py\
+						  $(DELPHI_DATA)/wm_12_month_4_reader_20190118.json\
+						  | build
+	python $^ $@
+
+build/all_sts.pkl: evaluations/create_all_sts.py build/pruned_corpus.json
+	python $^ $@
+
+build/reference_cag.pkl: evaluations/create_reference_cag.py build/all_sts.pkl
+	python $^ $@
+
+build/precipitation_centered_CAG.pkl: evaluations/create_precipitation_centered_CAG.py\
+									  build/reference_cag.pkl
+	python $^ $@
+
+build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
+							   build/precipitation_centered_CAG.pkl
+	python $^ $@
+
+build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
+							 build/CAG_with_indicators.pkl\
+							 data/delphi.db
+	python $^ $@
