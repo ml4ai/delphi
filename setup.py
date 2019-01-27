@@ -52,6 +52,7 @@ setup(
             "shapely",
             "pyshp",
             "xlrd",
+            "fire",
             "pyjnius"
             ],
         "test": [
