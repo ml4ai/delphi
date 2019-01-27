@@ -85,7 +85,9 @@ Identifiers play a key role in connecting the model as implemented in source cod
 	
 - "source\_references": To facilitate later grounding inference, we will store a reference to the location within the source code where an identifier is declared, using a `<source_code_reference>`:
 
+	```
     <source_code_reference> := <string>
+    ```
 
     The string contains information to identify the location of the identifier, which is a single line number if the declaration occurs on a single line, otherwise two line numbers to indicate the span of line numbers containing the declaration. (`<soure_code_references>` will be used to represent the location of other program elements, such as for functions, below.)
 
@@ -111,8 +113,8 @@ Examples:
     ```
     def foo():
         for i in range(10):      # assigned name 'loop$1'
-        	for j in range(10):  # assigned name 'loop$1' (in the scope of the outer loop$1)
-        		x = i*j
+            for j in range(10):  # assigned name 'loop$1' (in the scope of the outer loop$1)
+                x = i*j
     ```
     would be uniquely specified by the following path:
     ```
@@ -150,9 +152,15 @@ Examples:
 
 It will be convenient to be able to express `<scope_path>`s and `<namespace_path>`s using single strings within GrFN (particularly when building an identifier string). For this we introduce a special string notation in which the string names that make up a path are expressed in order but separated by periods. These representations will be referred to as the `<scope_path_string>` and `<namespace_path_string>`, respectively. The string representations of the `<scope_path>` and `<namespace_path>` examples above would be:
 
-- Example `<scope_path_string>`: \"foo.loop$1.loop$1\"
+- Example `<scope_path_string>`:
+    ```
+    "foo.loop$1.loop$1"
+    ```
 
-- Example `<namespace_path_string>`: \"foo.bar.baz\"
+- Example `<namespace_path_string>`:
+	```
+	"foo.bar.baz"
+	```
 
 ### Identifier string
 
@@ -168,7 +176,7 @@ FUTURE: create a unique hashing function between `gensym`s and identifiers.
 
 FOR NOW: Generate Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
 
-Each identifier will be associated 1-1 with a `<gensym>`.
+Each identifier will be associated one-to-one with a unique `<gensym>`.
 
 ### Identifier specification
 
@@ -221,14 +229,21 @@ The general string format for a function `base_name` is:
 The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): \"assign\", \"condition\", \"container\", \"loop\_plate\". In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
 
 The optional `<code_given_name>` is used when the function identified by program analysis has also been given a name within source code. For example, in this python example:
+
     ```python
     def foo():
        ...
     ```
-the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `base_name` be \"container$foo\". When a `<code_given_name>` is available, it occurs first in the function `base_name`, followed by 2 underscores.
+
+the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `base_name` be
+
+    "container$foo"
+
+When a `<code_given_name>` is available, it occurs first in the function `base_name`, followed by 2 underscores.
 
 The optional `<var_affected>` will only be relevant for assign and condition function types, and the name of the variable affected will be added after the `<function_type>` and 3 underscores. For example, a condition variable and setting the (inferred) boolean variable IF\_1 would have the `base_name`:
-`"condition$IF_1"`.
+
+    "condition$IF_1"
 
 Here are example function names for each function types. In each example, we assume the function is defined in the scope of the function UPDATE\_EST and the namespace CROP\_YIELD.
 
@@ -424,7 +439,7 @@ Here are three examples of `<variable_spec>` objects:
     ```
 
 -   Example of loop index variable DAY in the context of the second
-    instance of a loop in the function CROP\_YIELD (in the CROP namespace)
+    instance of a loop in the function CROP\_YIELD (in the CROP namespace):
 
     ```javascript
     {
@@ -453,7 +468,7 @@ attribute-value list (`<function_assign_spec>`), while the others
 (`<function_container_spec>`, `<function_loop_plate>`) require different
 attributes. So this means there are three specializations of the
 \<function\_spec\>, one of which (`<function_assign_spec>`) will be used
-for two function types.:
+for two function types.
 
     <function_spec> ::=
         <function_assign_spec>       # either type "assign" or "condition:
@@ -482,7 +497,7 @@ variable. The values are assigned to the \"target\" variable (denoted by
 a `<variable_reference>` or `<variable_name>`) and the value is
 determined by the \"body\" of the assignment, which itself may either be
 a literal value (specified by `<function_assign_body_literal_spec>`) or
-a lambda function (specified by `<function_assign_body_lambda_spec>`).:
+a lambda function (specified by `<function_assign_body_lambda_spec>`).
 
     <function_assign_spec>[attrval] ::=
         "name" : <function_name>
@@ -533,11 +548,11 @@ parsed to extract the actual value according to its data type).
         "dtype" : "real" | "integer" | "boolean" | "string"
         "value" : <string>
 
-#### Function assign body Lambda
+#### Function Assign body Lambda
 
 When more computation is done to determine the value that is being
 assigned to the variable in the `<function_assign_spec>`, then
-`<function_assign_body_lambda_spec>` is used.:
+`<function_assign_body_lambda_spec>` is used.
 
     <function_assign_body_lambda_spec>[attrval] ::=
         "type" : "lambda"
@@ -550,7 +565,7 @@ FOR NOW: have the lambda function reference the source code that does the comput
 
 As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented int he generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
 
-### Function decision specification
+### Function Decision specification
 
 >TODO: Review this with the program analysis team
 
@@ -653,7 +668,7 @@ The current loop\_plate specification is aimed at handling for-loops. (assumes \
 
 >TODO: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
 
-The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`::
+The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`:
 
     <index_range>[attrval] ::=
         "start" : <integer> | <variable_reference> | <variable_name>
