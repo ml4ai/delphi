@@ -215,11 +215,16 @@ def process_climis_livestock_data(data_dir: str):
     for filename in glob(
         f"{livestock_data_dir}/Livestock Body Condition/*2017.csv"
     ):
-        records += process_file_with_single_table(
+        body_condition_records = process_file_with_single_table(
             filename,
             lambda ind: f"Percentage of {filename.split('_')[-3].lower()} with body condition {ind.lower()}",
             lambda f: f.split("_")[-2],
         )
+        for record in body_condition_records:
+            if isinstance(record["Value"], str):
+                record["Value"] = record["Value"].replace("%", "")
+        records += body_condition_records
+
 
     for filename in glob(
         f"{livestock_data_dir}/Livestock Production/*2017.csv"
@@ -471,7 +476,6 @@ if __name__ == "__main__":
 
     data_dir = str(data_dir / "evaluations" / "12_month")
     df = create_combined_table(data_dir, columns)
-    df["Value"] = df["Value"].str.replace("%","")
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
     df.to_csv("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index=False, sep="\t")
