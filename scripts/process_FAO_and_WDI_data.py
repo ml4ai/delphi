@@ -183,12 +183,29 @@ def combine_data():
         .dropna(subset=["Value"])
     )
     fao_wdi_df["State"] = None
-    conflict_data_df = pd.read_table("data/south_sudan_data_conflict.tsv", index_col=False)
-    fewsnet_df = pd.read_table("data/south_sudan_data_fewsnet.tsv", index_col=False)
-    climis_unicef_ieeconomics_df = pd.read_table("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index_col=False)
+    conflict_data_df = pd.read_table(
+        "data/south_sudan_data_conflict.tsv", index_col=False
+    )
+    fewsnet_df = pd.read_table(
+        "data/south_sudan_data_fewsnet.tsv", index_col=False
+    )
+    climis_unicef_ieeconomics_df = pd.read_table(
+        "data/south_sudan_data_climis_unicef_ieeconomics.tsv", index_col=False
+    )
 
-    combined_df = pd.concat([fao_wdi_df, conflict_data_df, fewsnet_df], sort=True).dropna(subset=["Value"])
-    combined_df.to_csv(Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False)
+    combined_df = pd.concat(
+        [
+            fao_wdi_df,
+            conflict_data_df,
+            fewsnet_df,
+            climis_unicef_ieeconomics_df,
+        ],
+        sort=True,
+    ).dropna(subset=["Value"])
+    combined_df.Variable = combined_df.Variable.str.strip()
+    combined_df.to_csv(
+        Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False
+    )
 
 
 if __name__ == "__main__":
