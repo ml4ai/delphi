@@ -42,10 +42,11 @@ attributes (quoted strings) and their value types using a mixture of
 [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form).
 
 We also use the following conventions in the discussion below:
-- \'FUTURE\': tags anticipated extensions that may be needed but not yet 
+- \'FUTURE\': Tags anticipated extensions that may be needed but not yet 
 supported.
-- \'CHOICE\' followed by \'FOR NOW\': Captures discussion of a CHOICE that 
-does not yet have a clear resolution, but what we are doing FOR NOW.
+- \'CHOICE\': Captures discussion of a CHOICE that does not yet have a clear 
+resolution
+- \'FOR NOW\': Tags approach being currently taken, eiher in response to FUTURE or CHOICE.
 
 ### From source code to dynamic system representation
 
@@ -73,6 +74,7 @@ Identifiers play a key role in connecting the model as implemented in source cod
 - "aliases": It is possible for multiple identifiers to be used to denote the same program element. How this is done differs across languages, according to scoping rules and assignment. Program analysis modules for each language (e.g., the Fortran `for2py` analyzer) will determine this. One general way to assign more than one identifier to the same program element is through a *simple equality assignment*, e.g.: `y = x` means that a new identifier, `y`, denotes the same program element that `x` does. A simple equality assignment just involve one identifier being equated with another, no other operations are applied; if other operations are applied (e.g., `y = x + 1`), then this is a *new* identifier as it does not represent the original value of `x` but a modification of it.
 
     CHOICE: Do we declare each identifier separately, or combine them at program analysis time to the a single identifier with aliases.
+    
     FOR NOW: We will only keep track of a single identifier (the first one encountered by program analysis) but associate any additional `aliases` as the names of any additional identifier introduced in code.
 	
 - "source\_references": To facilitate later grounding inference, we will store a reference to the location within the source code where an identifier is declared, using a `<source_code_reference>`:
@@ -154,7 +156,13 @@ Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`.
 
 ### Identifier gensym
 
->TODO
+One of the outputs of program analysis is a functionally equivalent version of the original source code (e.g., Fortran) and lambda functions, both expressed in the Python (as the intermediate target language). All identifiers in the output Python must match identifiers in GrFN. Since capturing the semantics (particularly the namespace and scope context) results in a representation that does not appear to be consistently expressible in legal Python output, we will use `gensym`s that may be represented (generally more compactly) as legal Python names and associated uniquely with identifiers.
+
+FUTURE: create a unique hashing function between `gensym`s and identifiers.
+
+FOR NOW: Generate Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
+
+Each identifier will be associated 1-1 with a `<gensym>`.
 
 ### Identifier specification
 
@@ -381,7 +389,7 @@ specification in Python. Python 3 now provides nascent support for
 explicit typing via [type
 hints](https://docs.Python.org/3/library/typing.html).
 
-TODO: Explore whether/how this gets represented in the AST.
+>TODO: Explore whether/how this gets represented in the AST.
 
 For our purposes in the near term, we do want to capture what type and
 value-domain information is available; there are two main sources of
