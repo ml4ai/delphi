@@ -647,7 +647,7 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def get_subgraph_for_concept(
-        self, concept: str, depth: Optional[int] = None, reverse: bool = False
+        self, concept: str, depth: int = 1, reverse: bool = False
     ):
         """ Returns a new subgraph of the analysis graph for a single concept.
 
