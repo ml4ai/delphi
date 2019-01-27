@@ -1,6 +1,8 @@
 all: data/delphi.db
 
-data/delphi.db: create_delphi_db.py data/south_sudan_data.tsv data/un_to_indicators.tsv
+data/delphi.db: create_delphi_db.py\
+				data/south_sudan_data.tsv\
+				data/un_to_indicators.tsv
 	python $^ $@
 	cp $@ $(DELPHI_DATA)/$(@F)
 
@@ -13,7 +15,7 @@ data:
 			   data/FAOSTAT.zip\
 			   data/FEWSNET/ALL_HFIC.zip\
 			   data/FEWSNET/FEWSNET_World_Admin.zip\
-			   fews\
+			   fews
 
 
 # =============================================================================
@@ -71,7 +73,7 @@ data/south_sudan_data_wdi.tsv: data/WDI_csv/WDIData.csv
 data/south_sudan_data_fewsnet.tsv: process_FEWSNET_data.py fews
 	python $<
 
-data/south_sudan_data_climis_unicef_ieeconomics.tsv: process_climis_unicef_ieeconomics_data.py
+data/south_sudan_data_climis_unicef_ieconomics.tsv: process_climis_unicef_ieconomics_data.py
 	python $<
 
 data/south_sudan_data_conflict.tsv:
@@ -86,7 +88,7 @@ data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_wdi.tsv\
 						   data/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
-						   data/south_sudan_data_climis_unicef_ieeconomics.tsv
+						   data/south_sudan_data_climis_unicef_ieconomics.tsv
 
 	python $< --combine
 
@@ -115,9 +117,9 @@ data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) d
 build:
 	mkdir -p $@
 
-build/pruned_corpus.json: evaluations/create_pruned_corpus.py\
-						  $(DELPHI_DATA)/wm_12_month_4_reader_20190118.json\
-						  | build
+PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_20190118.json
+
+build/pruned_corpus.json: evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build
 	python $^ $@
 
 build/all_sts.pkl: evaluations/create_all_sts.py build/pruned_corpus.json
