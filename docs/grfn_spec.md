@@ -3,6 +3,12 @@ Grounded Function Network (GrFN) JSON Specification
 
 **Version 0.1.m3**
 
+Changes from previous version:
+- Revision of Introduction
+- Addition of identifiers: `<identifier_spec>`, `<identifier_string>`, and `<gensym>` (for identifiers in generated code)
+- Updates to naming conventions for variables and functions
+- General cleanup of discussion throughout
+
 
 Introduction
 ------------
