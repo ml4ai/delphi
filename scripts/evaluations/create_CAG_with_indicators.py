@@ -9,6 +9,7 @@ def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"
     G.map_concepts_to_indicators()
     G.set_indicator("UN/entities/human/food/food_security", "IPC Phase Classification", "FEWSNET")
     G.set_indicator("UN/entities/food_availability", "Production, Meat indigenous, total", "FEWSNET")
+    G.set_indicator("UN/entities/human/financial/economic/market", "Inflation Rate", "ieconomics.com")
     A = to_agraph(G, indicators=True)
     A.draw(filename, prog="dot")
     with open(output, "wb") as f:
