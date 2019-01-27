@@ -9,7 +9,6 @@ data:
 # Intermediate files that will be deleted after downloading
 .INTERMEDIATE: data/WDI_csv.tar.bz2 \
 			   data/FAOSTAT.zip\
-			   data/FAOSTAT\
 			   data/FEWSNET/ALL_HFIC.zip\
 			   data/FEWSNET/FEWSNET_World_Admin.zip\
 			   fews
@@ -58,13 +57,14 @@ data/south_sudan_data_climis_unicef_ieeconomics.tsv: evaluations/month12/data_cl
 data/south_sudan_data_conflict.tsv:
 	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
-data/south_sudan_data.tsv: data/south_sudan_data_fao.tsv\
+data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
+						   data/south_sudan_data_fao.tsv\
 						   data/south_sudan_data_wdi.tsv\
 						   data/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieeconomics.tsv
 
-	python process_FAO_and_WDI_data.py --combine
+	python $< --combine
 
 
 
