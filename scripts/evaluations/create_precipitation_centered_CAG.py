@@ -14,7 +14,6 @@ def create_precipitation_centered_CAG(input, output, filename="CAG.pdf"):
     G.prune(cutoff=2)
     print("pruned", len(G), len(G.edges()))
     A = to_agraph(G)
-    A.graph_attr["rankdir"] = "LR"
     A.draw(filename, prog="dot")
     with open(output, "wb") as f:
         pickle.dump(G, f)
