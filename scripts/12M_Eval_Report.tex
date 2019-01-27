@@ -31,21 +31,12 @@
 % ======================================================================
 % Graphics
 % ======================================================================
-$if(graphics)$
-\usepackage{graphicx,grffile}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
+\usepackage{graphicx}
 % Scale images if necessary, so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-$endif$
-$if(links-as-notes)$
-% Make links footnotes instead of hotlinks:
-\DeclareRobustCommand{\href}[2]{#2\footnote{\url{#1}}}
-$endif$
+
 % ======================================================================
 % Memoir layout and formatting specifications
 % ======================================================================
@@ -68,9 +59,9 @@ $endif$
 \checkandfixthelayout
 
 
-\title{$title$}
-\author{$author$}
-\date{$date$}
+\title{12 Month Evaluation Report}
+\author{Adarsh Pyarelal}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -80,6 +71,37 @@ $endif$
 \bigskip
 
 
-$body$
+\section{CAG Construction Steps}
+
+The CAG was constructed as follows. 
+
+\begin{enumerate}
+  \item The preassembled corpus of statements from the four readers (Eidos, SOFIA,
+    Hume, and CWMS), \texttt{wm\_12\_month\_4\_reader\_20190118.json} was
+    deserialized, and filtered through the following selection criteria.
+
+    \begin{tabular}
+      Stage                                               & Number of statements\\
+      Original number of statements                       & 18944\\
+      Statements with belief score > 0.85                 & 7283\\
+      Statements with UN groundings                       & 5808\\
+      Statements with subj and obj grounding scores > 0.9 & 184
+    \end{tabular}
+
+    \begin{figure}
+      \includegraphics[width=\textwidth]{CAG.pdf}
+      \caption{Concept-level CAG}
+    \end{figure}
+
+    \begin{figure}
+      \includegraphics[width=\textwidth]{CAG_with_indicators.pdf}
+      \caption{CAG with indicators}
+    \end{figure}
+
+    \begin{figure}
+      \includegraphics[width=\textwidth]{CAG_with_indicators_and_values.pdf}
+      \caption{CAG with indicators and values}
+    \end{figure}
+
 
 \end{document}
