@@ -444,6 +444,7 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
     climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
+
     # Severe acute malnutrition and inflation rate indicators from PDFs
     pdf_indicators_df = pd.read_table(f"{data_dir}/indicator_data_from_pdfs.tsv")
 
@@ -478,4 +479,4 @@ if __name__ == "__main__":
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
-    df.to_csv("data/south_sudan_data_climis_unicef_ieeconomics.tsv", index=False, sep="\t")
+    df.to_csv("data/south_sudan_data_climis_unicef_ieconomics.tsv", index=False, sep="\t")
