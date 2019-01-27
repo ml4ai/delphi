@@ -113,7 +113,9 @@ Examples:
     
     In general, it is not necessary within GrFN to independently declare `scope`s. Instead, we simply specify the `<scope_path>` in an indicator declaration as a list of strings under the "scope" attribute in the identifier declaration (below).
     
+    ```
     <scope_path> ::= list of <string>
+    ```
     
 - `namespace`: Different languages have different conventions for defining namespaces, but in general they are either (1) explicitly defined within source code by namespace declarations (such as Fortran "modules" or C++ "namespace"s), or (2) implicitly defined by the project directory structure within which a file is located (as in Python). In the case of namespaces defined by project directory structure, two files in different locations in the project directory tree may have the same name. To distinguish these, program analysis will capture the path of the directory tree from the root to the file. The final name in the path, which is the name of the source file, will drop the file extension. For example, the namespace for file `baz.py` within the following directory tree
     ```
@@ -130,7 +132,9 @@ Examples:
 
     Again, it is not necessary within GrFN to independently declare a `namesapce`; like the `<scope_path>`, we specify the `<namespace_path>` within an identifier declaration as a list strings under the "namespace" attribute in the identifie declaration:
 	
+	```
     <namespace_path> ::= list of <string>
+    ```
     
     Like the `<scope_path>`, the string names of the path uniquely defining the namespace are in in order from general to specific, with the last string name either being the implicit namespace defined by the source code file, or the user-defined name of the namespace.
 
@@ -146,7 +150,7 @@ It will be convenient to be able to express `<scope_path>`s and `<namespace_path
 
 Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`. It will be convenient to refer to any identifier using a single string. Here we combine the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `base_name` by double-colons: '::':
 
-    <identifier_string> ::= "<namespace_path_string>::<scope_path_string>::base_name"
+    <identifier_string> ::= "<namespace_path_string>::<scope_path_string>::<base_name>"
 
 ### Identifier gensym
 
@@ -178,11 +182,11 @@ A top level source variable named ABSORPTION would then simply have the `base_na
 
 If there are two (or more) separate instances of new variable declarations in the same context (same namespace and scope) using the same name, then we'll add an underscore and number to the `base_name` to distinguish them. For example, if ABSORPTION is defined twice in the same namespace and scope, then the `base_name` of the first (in order in the source code) is named:
 
-    "ABSORPTION\_1"
+    "ABSORPTION_1"
 
 And the second:
 
-    "ABSORPTION\_2"
+    "ABSORPTION_2"
 
 ### Variable Reference
 
@@ -438,9 +442,9 @@ attributes. So this means there are three specializations of the
 for two function types.:
 
     <function_spec> ::=
-        <function_assign_spec>     # either type "assign" or "condition:
-    | <function_container_spec> # type "container"
-    | <function_loop_plate>     # type "loop_plate"
+        <function_assign_spec>       # either type "assign" or "condition:
+        | <function_container_spec>  # type "container"
+        | <function_loop_plate>      # type "loop_plate"
 
 All three specs will have a \"type\" attribute that will unambiguously
 identify which type of function is being specified. The four possible
@@ -458,7 +462,6 @@ function name will include the function type, but having the explicit
 type attribute makes JSON parsing easier.
 
 ### Function assign specification
----------------------------------
 
 A `<function_assign_spec>` denotes the setting of the value of a
 variable. The values are assigned to the \"target\" variable (denoted by
@@ -474,7 +477,7 @@ a lambda function (specified by `<function_assign_body_lambda_spec>`).:
         "sources" : list of [ <function_source_reference> | <variable_name> ]
         "target" : <function_source_reference> | <variable_name>
         "body" : <function_assign_body_literal_spec> 
-            | <function_assign_body_lambda_spec>
+                 | <function_assign_body_lambda_spec>
 
 In the general case of variable assignment/setting, the attribute type
 should be \"assign\". In the special case where we are representing the
@@ -492,7 +495,7 @@ variable by its relative index, then `<variable_name>` (itself an
 `<identifier_string>`) is sufficient, and index will be assumed to be 0 
 (if at all relevant). 
 
-TODO: Review this section on `<function_source_reference>` with the program analysis team.
+>TODO: Review this section on `<function_source_reference>` with the program analysis team.
 
 In other cases, the variables will be referenced using the `<function_source_reference>`, to indicate the return value of the function. There may also be cases where the sources can be a function, either built-in or user-defined. These two will be referenced using `<function_source_reference>` defined as:
 
@@ -535,7 +538,7 @@ As noted above, due to the more semantically rich identifier specification and `
 
 ### Function decision specification
 
-TODO: Review this with the program analysis team
+>TODO: Review this with the program analysis team
 
 Handles representation of simple binary condition block::
 
@@ -634,7 +637,7 @@ The \"input\" list of `<variable_name>` objects should list all variables that a
 
 The current loop\_plate specification is aimed at handling for-loops. (assumes \"index\_variable\" and \"index\_iteration\_range\" are specified)
 
-TODO: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
+>TODO: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
 
 The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`::
 
