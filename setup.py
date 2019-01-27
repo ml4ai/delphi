@@ -42,11 +42,11 @@ setup(
         "python-dateutil",
         "salib",
         "tangent",
+        "ruamel.yaml",
     ],
     python_requires=">=3.6",
     extras_require={
         "dev": [
-            "ruamel.yaml",
             "check-manifest",
             "rise",
             "shapely",
