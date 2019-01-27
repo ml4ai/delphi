@@ -1,0 +1,85 @@
+\documentclass[article, 12pt, oneside]{memoir}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsmath, amssymb}
+\usepackage{xspace}
+\usepackage{hyperref}
+
+\usepackage[tracking, protrusion]{microtype}
+
+\usepackage{fontspec}
+\setmainfont{Alegreya}
+\setsansfont{Alegreya Sans}
+\setmonofont[Scale=MatchLowercase]{Menlo}
+\linespread{1.1}
+
+\hypersetup{
+  unicode=true,
+  linktocpage=true,
+  linkcolor=NavyBlue,
+  colorlinks=true,
+  urlcolor=NavyBlue,
+  citecolor=RoyalBlue,
+  breaklinks=true,
+}
+
+\def\sectionautorefname{§}
+\def\subsectionautorefname{§}
+
+\renewcommand{\bf}{\bfseries}
+\renewcommand{\it}{\itshape}
+
+% ======================================================================
+% Graphics
+% ======================================================================
+$if(graphics)$
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+$endif$
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\DeclareRobustCommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+% ======================================================================
+% Memoir layout and formatting specifications
+% ======================================================================
+%\setlrmarginsandblock{1.91in}{*}{*}
+%\setulmarginsandblock{1in}{*}{*}
+\setsecnumdepth{subsection}
+\settocdepth{subsection}
+\setsecheadstyle{\color{Maroon}\large\sffamily\bfseries}
+\setsubsecheadstyle{\bfseries}
+\setparaheadstyle{\bfseries\sffamily\large}
+\tightlists
+
+\counterwithout{section}{chapter}
+\captionstyle[\centering]{\sffamily\small}
+\captionnamefont{\color{Maroon}\sffamily\small}
+\captionwidth{0.95\textwidth}
+\changecaptionwidth
+
+
+\checkandfixthelayout
+
+
+\title{$title$}
+\author{$author$}
+\date{$date$}
+
+\begin{document}
+\maketitle
+\tableofcontents*
+
+\bigskip
+\bigskip
+
+
+$body$
+
+\end{document}
