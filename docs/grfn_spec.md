@@ -148,7 +148,7 @@ It will be convenient to be able to express `<scope_path>`s and `<namespace_path
 
 ### Identifier string
 
-Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`. It will be convenient to refer to any identifier using a single string. Here we combine the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `base_name` by double-colons: '::':
+Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`. It will be convenient to refer to any identifier using a single string, outside of the identifier specification declaration. We define an `<identifier_string>` by combining the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `<base_name>` by double-colons:
 
     <identifier_string> ::= "<namespace_path_string>::<scope_path_string>::<base_name>"
 
@@ -158,7 +158,7 @@ Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`.
 
 ### Identifier specification
 
-Each identifier within a GrFN specification will have a single `<identifier_spec>` declaration, and `<identifier_string>`s are then used to denote uses of the identifier elsewhere in the GrFN spec. An identifier will be declared in the GrFN spec JSON by the following attribute-value list:
+Each identifier within a GrFN specification will have a single `<identifier_spec>` declaration, and `<identifier_string>`s are then used to denote uses of the identifier elsewhere in the GrFN spec (e.g., in variable and function specs). An identifier will be declared in the GrFN spec JSON by the following attribute-value list:
 
     <identifier_spec>[attrval] ::=
         "base_name" : <lang_string>
@@ -363,7 +363,7 @@ and restrict ourselves to four types that can be specified as strings:
 the \"support\" of a random variable, although should also correspond to
 standard data types.)
 
-TODO: Need to extend to accommodate arrays.
+>TODO: Need to extend to accommodate arrays.
 
 FUTURE:
 
