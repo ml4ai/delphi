@@ -202,7 +202,7 @@ def get_indicator_value(
                 # If there are multiple possible units, use the first in the
                 # (alphabetically sorted) set of possible units as a default.
 
-                unit = sorted(list({r["Unit"] for r in results}))[0]
+                unit = sorted(list({r["Unit"] for r in results if r["Unit"] is not None}))[0]
                 return (
                     aggfunc(
                         [
