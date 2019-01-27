@@ -134,7 +134,12 @@ build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
 							   build/precipitation_centered_CAG.pkl
 	python $^ $@
 
+.SECONDEXPANSION:
 build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
-							 data/delphi.db
+							 #data/delphi.db
 	python $^ $@
+
+report.pdf: report.md pandoc_report_template.tex build/parameterized_CAG.pkl
+	pandoc --template pandoc_report_template.tex\
+		   --pdf-engine lualatex $< -o $@
