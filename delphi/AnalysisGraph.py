@@ -506,11 +506,11 @@ class AnalysisGraph(nx.DiGraph):
             country
             year
             month
-            fallback_aggaxes: 
+            fallback_aggaxes:
                 An iterable of strings denoting the axes upon which to perform
                 fallback aggregation if the desired constraints cannot be met.
             aggfunc: The function that will be called to perform the
-            aggregation if there are multiple matches.
+                aggregation if there are multiple matches.
         """
 
         valid_axes = ("country", "state", "year", "month")
@@ -534,11 +534,15 @@ class AnalysisGraph(nx.DiGraph):
                     aggfunc,
                 )
                 indicator.stdev = 0.1 * abs(indicator.mean)
-                print(indicator.__dict__)
 
     # ==========================================================================
     # Manipulation
     # ==========================================================================
+
+    def set_indicator(self, concept: str, indicator: str, source: str):
+        self.nodes[concept]["indicators"] = {
+            indicator: Indicator(indicator, source)
+        }
 
     def delete_nodes(self, nodes: Iterable[str]):
         """ Iterate over a set of nodes and remove the ones that are present in
@@ -588,18 +592,10 @@ class AnalysisGraph(nx.DiGraph):
                 for path in paths:
                     if len(path) == 1:
                         self.delete_edge(*path[0])
+                        if any(self.degree(n) == 0 for n in path[0]):
+                            self.add_edge(*path[0])
                         break
 
-        # Keep only the largest connected component
-        # TODO - implement code to handle case where there are multiple
-        # largest connected components (by number of nodes).
-
-        for n in [
-            n
-            for n in self.nodes()
-            if n not in max(nx.weakly_connected_components(self), key=len)
-        ]:
-            self.remove_node(n)
 
     def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
         """ Merge node n1 into node n2, with the option to specify relative
@@ -651,7 +647,7 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def get_subgraph_for_concept(
-        self, concept: str, depth: Optional[int] = None, flow: str = "incoming"
+        self, concept: str, depth: Optional[int] = None, reverse: bool = False
     ):
         """ Returns a new subgraph of the analysis graph for a single concept.
 
@@ -665,15 +661,21 @@ class AnalysisGraph(nx.DiGraph):
         returns:
             AnalysisGraph
         """
+        flow = "incoming"
         if flow == "incoming":
             rev = self.reverse()
         elif flow == "outgoing":
             rev = self
         else:
             raise ValueError("flow must be one of [incoming|outgoing]")
-        dfs_edges = nx.dfs_edges(rev, concept, depth)
+
+        nodeset = {concept}
+
+        for i in range(depth):
+            nodeset.update(chain.from_iterable([list(self.successors(n)) for n in nodeset]))
+
         return AnalysisGraph(
-            self.subgraph(chain.from_iterable(dfs_edges)).copy()
+            self.subgraph(nodeset).copy()
         )
 
     def get_subgraph_for_concept_pair(
