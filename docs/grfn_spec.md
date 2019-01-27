@@ -196,15 +196,9 @@ In addition to capturing source code variable environment context in variable de
 
 Function names, like variable names, are ultimately identifiers (and therefore include their `namespace` and `scope`), but there are additional rules for determining the function `base_name`. 
 
->Note that the functions extracted by program analysis do not always correspond to the source code declarations of functions; the source code function declarations are just one type of function, referred to below as a "Container".
-
->Also like variable names, they should be legal Python function names that could show up in working Python code (as will be the case when used in Lambda function references; see below). 
-
 The general string format for a function `base_name` is:
 
-    <function_type>[$[<var_affected>|<code_given_name>]]
-
->Similar to variable naming, we need to use the function name string to uniquely identify the function, and as some functions extracted by program analysis will be expressions defined within other functions (loops and conditions), we need to capture the \"context\" in which the function is defined. The `<enclosing_context>` represents the source code environment context within which the function is defined. When a function is declared at the \"top level\" (as will often be the case for container functions), the `<enclosing_context>` is just the \"top level\" and so is empty. Assigns, conditions and loop\_plates, however, will often be declared within another source code function. In those cases, the `<enclosing_context>` capture the enclosing function name. For example, for an assignment within the UPDATE\_EST function, the `<enclosing_context>` is \"UPDATE\_EST\".
+    <variable_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
 
 The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): \"assign\", \"condition\", \"container\", \"loop\_plate\". In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
 
@@ -223,8 +217,8 @@ Here are example function names for each function types. In each example, we ass
 -   **Assign**: An assignment of the variable with the `<identifier_string>`
     "CROP_YIELD::UPDATE_EST::YIELD\_EST"
     (which denotes the variable with `base_name` \"YIELD\_EST\" in the scope of 
-    the function UPDATE\_EST declared in the namespace CROP\_YIELD) -- the 
-    `base_name` would be:
+    the function UPDATE\_EST declared in the namespace CROP\_YIELD) has the 
+    `base_name`:
     
     	"assign$CROP_YIELD::UPDATE_EST::YIELD_EST"
     
@@ -276,6 +270,12 @@ Here are example function names for each function types. In each example, we ass
         a single loop in the CROP\_YIELD function in the CROP\_YIELD namespace:
 
             "CROP_YIELD::CROP_YIELD.loop$1::assign$CROP_YIELD::UPDATE_EST::RAIN"
+        
+        (Note that the above string is still unambiguous to parse to recover the
+        components pieces of the name: the first two names separated by \'::\'
+        are the `<namespace_string>` followed by the `<scope_string>`, with the
+        rest being the `base_name` of the function, which itself is an \"assign\"
+        of a variable that itself is a complete `<identifier_string>`)
 
 
 Top-level GrFN specification
@@ -289,7 +289,6 @@ JSON attribute-value list, with the following schema definition:
         "source" : <string>
         "date_created" : <string>
         "identifiers" : list of <identifier_spec>
-        "variables" : list of <variable_spec>
         "functions" : list of <function_spec>
 
 There will be one GrFN spec file corresponding to each source code file
@@ -312,6 +311,8 @@ FUTURE:
   presumably the program analysis code could evolve and have different
   properties) \-- although \"dateCreated\" may be sufficient.
 
+NOTE: variables are not declared at the top-level `<grfn_spec>`, but will be defined in `<function_spec>`s, described below.
+
 A (partial) example instance of the JSON generated for a `<grfn_spec>` of an analyzed file in the path \'crop\_system/yield/crop\_yield.py\' is:
 
 ```javascript
@@ -320,7 +321,6 @@ A (partial) example instance of the JSON generated for a `<grfn_spec>` of an ana
     "source": ["crop_system", "yield", "crop_yield.py"]
     "dateCreated": "20190127",
     "identifiers": [... identifier_specs go here...]
-    "variables": [... variable_specs go here...]
     "functions": [... function_specs go here...]
 }
 ```
@@ -396,38 +396,35 @@ this information:
 Here are three examples of `<variable_spec>` objects:
 
 -   Example of a \"standard\" variable MAX\_RAIN within the CROP\_YIELD
-    function:
+    function of the CROP namespace:
 
     ```javascript
     {
-        "name": "CROP_YIELD__MAX_RAIN",
+        "name": "CROP::CROP_YIELD::MAX_RAIN",
         "domain": "real"
     }
     ```
 
 -   Example of loop index variable DAY in the context of the second
-    instance of a loop in the function CROP\_YIELD
+    instance of a loop in the function CROP\_YIELD (in the CROP namespace)
 
     ```javascript
     {
-        "name": "CROP_YIELD__LOOP_2__DAY"
+        "name": "CROP::CROP_YIELD.loop$2::DAY"
         "domain": "integer"
     }
     ```
 
 -   Example of variable introduced (inferred) when analyzing a
-    conditional statement that is within the named function UPDATE\_EST:
+    conditional statement that is within the named function
+    UPDATE\_EST of the CROP namespace:
 
     ```javascript
     {
-        "name": "IF_1"
+        "name": "CROP::UPDATE_EST::IF_1"
         "domain": "boolean"
     }
     ```
-
-Note that we do not include the `<enclosing_context>` of the UPDATE\_EST
-function in this case, as this is an inferred conditional boolean
-variable (per our naming convention, described above).
 
 Function specification
 ----------------------
@@ -436,7 +433,7 @@ Next we have the `<function_spec>`. There are four types of functions;
 two types can be expressed using the same attributes in their JSON
 attribute-value list (`<function_assign_spec>`), while the others
 (`<function_container_spec>`, `<function_loop_plate>`) require different
-attributes. So the means there are three specializations of the
+attributes. So this means there are three specializations of the
 \<function\_spec\>, one of which (`<function_assign_spec>`) will be used
 for two function types.:
 
@@ -454,13 +451,13 @@ types are:
 -   \"container\"
 -   \"loop\_plate\"
 
-All \<function\_spec\>s will also have a name attribute with a unique
-string value (across \<function\_spec\>s), as described above under the
+All \<function\_spec\>s will also have a \"name\"" attribute with a unique
+`<identifier_string>` (across \<function\_spec\>s), as described above under the
 Function naming convention section; as described in that section, the
 function name will include the function type, but having the explicit
-type attribute make parsing easier.
+type attribute makes JSON parsing easier.
 
-### Function Assign Specification
+### Function assign specification
 ---------------------------------
 
 A `<function_assign_spec>` denotes the setting of the value of a
@@ -491,12 +488,13 @@ assignment of a boolean variable, but conceptually it will be useful to
 distinguish assignments used for conditions from other assignments.
 
 For \"sources\" and \"target\": when there is no need to refer to the
-variable by its relative index, then `<variable_name>` is sufficient,
-and index will be assumed to be 0 (if at all relevant). In other cases,
-the variables will be referenced using the
-`<function_source_reference>`. There may also be cases where the sources
-can be a function, either built-in or user-defined. These two will be
-referenced using `<function_source_reference>` defined as:
+variable by its relative index, then `<variable_name>` (itself an 
+`<identifier_string>`) is sufficient, and index will be assumed to be 0 
+(if at all relevant). 
+
+TODO: Review this section on `<function_source_reference>` with the program analysis team.
+
+In other cases, the variables will be referenced using the `<function_source_reference>`, to indicate the return value of the function. There may also be cases where the sources can be a function, either built-in or user-defined. These two will be referenced using `<function_source_reference>` defined as:
 
     <function_source_reference> ::=
        "name" : [ <variable_name> | <function_name> ]
@@ -508,7 +506,7 @@ The `<function_assign_body_literal_spec>` asserts the assignment of a
 `<literal_value>` to the target variable. The `<literal_value>` has a
 data type (corresponding to one of our four domain types), and the value
 itself will be represented generically in a string (the string will be
-parsed to extract the actual value according to its data type).:
+parsed to extract the actual value according to its data type).
 
     <function_assign_body_literal_spec>[attrval] ::=
         "type" : "literal"
@@ -529,17 +527,15 @@ assigned to the variable in the `<function_assign_spec>`, then
         "name" : <function_name>
         "reference" : <source_code_reference>
 
-Eventually, we can expand this part of the grammar to accommodate a
-restricted set of arithmetic operations involved in computing the final
-value (this is now of interest in the World Modelers program and we\'re
-interested in supporting this in Delphi). But for now, we will start by
-having the lambda function reference the source code that does the
-computation, in the translated Python generated by program analysis. Any
-variables that are involved in the computation must be listed in the
-\"source\" list of variables (\<variable\_name\> references) in the
-\<function\_assign\_spec\>.
+FUTURE: Eventually, we can expand this part of the grammar to accommodate a restricted set of arithmetic operations involved in computing the final value (this is now of interest in the World Modelers program and we\'re interested in supporting this in Delphi). 
 
-### Function Decision Specification
+FOR NOW: have the lambda function reference the source code that does the computation, in the translated Python generated by program analysis. Any variables that are involved in the computation must be listed in the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
+
+As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented int he generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
+
+### Function decision specification
+
+TODO: Review this with the program analysis team
 
 Handles representation of simple binary condition block::
 
@@ -549,20 +545,18 @@ Handles representation of simple binary condition block::
 
 ### Function Container Specification
 
-A `<function_container_spec>` is the generic, \"top level\" way to
-specify how a set of variables that are related by functions are \"wired
-up\" by those functions. (I previously referred to this as the \"top\",
-but here I\'m renaming it a \"container\" as that\'s more descriptive of
-how it functions.):
+A `<function_container_spec>` represents the grouping of a set of variables and how they are updated by functions. Generally the \"function container\" corresponds to functions (or subroutines) defined in source code. A \"function container\" is also defined for the \"top\" level of a source code file.
 
     <function_container_spec>[attrval] ::=
         "name" : <function_name>
         "type" : "container"
-        "DOCS" : <STRING>
-    "input" : list of [ <variable_reference> | <variable_name> ]
+        "DOCS" : <string>
+        "input" : list of [ <variable_reference> | <variable_name> ]
         "variables" : list of <variable_spec>
         "output" : list of <variable_reference> | <variable_name>
         "body" : list of <function_reference_spec>
+
+There will be a container function for each source code function. For this reason, we need an \"input\" variable list (of 0 or more variables) as well as an \"output\" variable. In Python, a function only returns a value if there is an explicit return expression. Otherwise it returns `None`.
 
 Case 1: subroutine
 
@@ -616,14 +610,6 @@ def foo(): #fortran function
         return y
 ```
 
-There will be a container function for each source code function. For
-this reason, we need an \"input\" variable list (of 0 or more variables)
-as well as an \"output\" variable. In Python, a function only returns a
-value if there is an explicit return expression. Otherwise it returns
-None.
-
-TODO: Can there be nested functions in Fortran?
-
 ### Function Reference Specification
 
     <function_reference_spec>[attrval] ::=
@@ -631,8 +617,7 @@ TODO: Can there be nested functions in Fortran?
         "input" : list of [ <variable_reference> | <variable_name> ]
         "output" : <variable_reference> | <variable_name>
 
-The `<function_reference_spec>` defines the \"wiring\" between functions
-and their input and output variable(s).
+The `<function_reference_spec>` defines the \"wiring\" between functions and their input and output variable(s).
 
 ### Function Loop Plate Specification
 
@@ -642,23 +627,19 @@ and their input and output variable(s).
         "input" : list of <variable_name>
         "index_variable" : <variable_name>
         "index_iteration_range" : <index_range>
+        "condition" : <loop_condition>
         "body" : list of <function_reference_spec>
 
-The \"input\" list of `<variable_name>` objects should list all
-variables that are set in the scope outside of the loop\_plate.
+The \"input\" list of `<variable_name>` objects should list all variables that are set in the scope outside of the loop\_plate.
 
-The \"index\_variable\" is the named variable that stores the iteration
-state of the loop; the naming convention of this variable is described
-above, in the Variable naming convention section. The only new element
-introduced is the `<index_range>`::
+The current loop\_plate specification is aimed at handling for-loops. (assumes \"index\_variable\" and \"index\_iteration\_range\" are specified)
+
+TODO: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
+
+The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`::
 
     <index_range>[attrval] ::=
         "start" : <integer> | <variable_reference> | <variable_name>
         "end" : <integer> | <variable_reference> | <variable_name>
 
-This definition permits loop iteration bounds to be specified either as
-literal integers, or as the values of variables.
-
-TODO: we think Fortran is restricted to integer values for iteration
-variables, which would include iteration over indexes into arrays. Need
-to double check this.
+This definition permits loop iteration bounds to be specified either as literal integers, or as the values of variables.
