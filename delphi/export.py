@@ -94,7 +94,7 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
             for indicator_name, ind in n[1]["indicators"].items():
-                node_label = _insert_line_breaks(ind.name.replace("_", " "))
+                node_label = _insert_line_breaks(ind.name.replace("_", " "), 30)
                 if kwargs.get("indicator_values"):
                     if ind.unit is not None:
                         units = f" {ind.unit}"
@@ -102,8 +102,12 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                         units = ""
 
                     if ind.mean is not None:
-                        ind_value = "{:.2f}".format(ind.mean) + f"{units}"
-                        node_label = f"{node_label}\n[{ind_value}]"
+                        ind_value = "{:.2f}".format(ind.mean)
+                        node_label = (f"{node_label}\nValue: {ind_value}"
+                                     f"\nSource {ind.source}"
+                                     f"\nUnits: {ind.unit}"
+                                     f"\nAggregation axes: {ind.aggaxes}"
+                                     f"\nAggregation method: mean") #TODO make this more general
 
                 A.add_node(
                     indicator_name, style="rounded, filled",
