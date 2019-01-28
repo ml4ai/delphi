@@ -143,7 +143,13 @@ build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
 
 build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
-							 #data/delphi.db
+							 data/delphi.db
+	python $^ $@
+
+build/quantified_CAG.pkl: evaluations/create_quantified_CAG.py build/parameterized_CAG.pkl
+	python $^ $@
+
+build/inference_plots: evaluations/create_inference_plots.py build/quantified_CAG.pkl
 	python $^ $@
 
 report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
