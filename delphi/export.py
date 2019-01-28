@@ -70,7 +70,12 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     color_str = "#650021"
     for n in G.nodes(data=True):
         if kwargs.get("values"):
-            node_label = n[0].capitalize().replace("_", " ") + " ("+str(np.mean(n[1]["rv"].dataset))+")"
+            node_label = (
+                n[0].capitalize().replace("_", " ")
+                + " ("
+                + str(np.mean(n[1]["rv"].dataset))
+                + ")"
+            )
         else:
             node_label = n[0]
         A.add_node(n[0], label=node_label)
@@ -80,10 +85,11 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
 
         sts = e[2]["InfluenceStatements"]
         total_evidence_pieces = sum([len(s.evidence) for s in sts])
-        reinforcement = sum([stmt.overall_polarity()*len(stmt.evidence) for stmt in sts])/total_evidence_pieces
-        opacity = (
-            total_evidence_pieces / n_max
+        reinforcement = (
+            sum([stmt.overall_polarity() * len(stmt.evidence) for stmt in sts])
+            / total_evidence_pieces
         )
+        opacity = total_evidence_pieces / n_max
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
         c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
@@ -94,7 +100,9 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
             for indicator_name, ind in n[1]["indicators"].items():
-                node_label = _insert_line_breaks(ind.name.replace("_", " "), 30)
+                node_label = _insert_line_breaks(
+                    ind.name.replace("_", " "), 30
+                )
                 if kwargs.get("indicator_values"):
                     if ind.unit is not None:
                         units = f" {ind.unit}"
@@ -103,16 +111,19 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
 
                     if ind.mean is not None:
                         ind_value = "{:.2f}".format(ind.mean)
-                        node_label = (f"{node_label}\nValue: {ind_value}"
-                                     f"\nSource {ind.source}"
-                                     f"\nUnits: {ind.unit}"
-                                     f"\nAggregation axes: {ind.aggaxes}"
-                                     f"\nAggregation method: mean") #TODO make this more general
+                        node_label = (
+                            f"{node_label}\nValue: {ind_value}"
+                            f"\nSource: {ind.source}"
+                            f"\nUnits: {ind.unit}"
+                            f"\nAggregation axes: {ind.aggaxes}"
+                            f"\nAggregation method: {ind.aggregation_method}"
+                        )
 
                 A.add_node(
-                    indicator_name, style="rounded, filled",
+                    indicator_name,
+                    style="rounded, filled",
                     fillcolor="lightblue",
-                    label=node_label
+                    label=node_label,
                 )
                 A.add_edge(n[0], indicator_name, color="royalblue4")
 
