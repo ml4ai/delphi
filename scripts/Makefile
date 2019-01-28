@@ -4,7 +4,6 @@ data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
 				data/un_to_indicators.tsv
 	python $^ $@
-	#cp $@ $(DELPHI_DATA)/$(@F)
 
 data:
 	mkdir -p $@
