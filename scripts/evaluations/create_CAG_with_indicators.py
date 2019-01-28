@@ -10,7 +10,7 @@ def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"
     G.set_indicator("UN/events/weather/precipitation", "Average Total Daily Rainfall (Maize)", "DSSAT")
     G.set_indicator("UN/events/human/agriculture/food_production", "Production (Maize)", "DSSAT")
     G.set_indicator("UN/entities/human/food/food_security", "IPC Phase Classification", "FEWSNET")
-    G.set_indicator("UN/entities/food_availability", "Production, Meat indigenous, total", "FEWSNET")
+    G.set_indicator("UN/entities/food_availability", "Production, Meat indigenous, total", "FAO")
     G.set_indicator("UN/entities/human/financial/economic/market", "Inflation Rate", "ieconomics.com")
     G.set_indicator("UN/events/human/death", "Battle-related deaths", "WDI")
     A = to_agraph(G, indicators=True)
