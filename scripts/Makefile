@@ -4,7 +4,7 @@ data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
 				data/un_to_indicators.tsv
 	python $^ $@
-	cp $@ $(DELPHI_DATA)/$(@F)
+	#cp $@ $(DELPHI_DATA)/$(@F)
 
 data:
 	mkdir -p $@
@@ -92,7 +92,8 @@ data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_wdi.tsv\
 						   data/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
-						   data/south_sudan_data_climis_unicef_ieconomics.tsv
+						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
+						   data/south_sudan_data_dssat.tsv
 
 	python $< --combine
 
@@ -146,5 +147,5 @@ build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 	python $^ $@
 
 report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
-	lualatex $< -o $@
+	latexmk -lualatex $<
 	latexmk -c $(*F)
