@@ -11,11 +11,14 @@ data:
 
 # Intermediate files that will be deleted after they are no longer necessary
 
+DSSAT_DATA := data/disaggregated_all_20190123_1451
+
 .INTERMEDIATE: data/WDI_csv.tar.bz2 \
 			   data/FAOSTAT.zip\
 			   data/FEWSNET/ALL_HFIC.zip\
 			   data/FEWSNET/FEWSNET_World_Admin.zip\
-			   fews
+			   fews\
+			   $(DSSAT_DATA).zip
 
 
 # =============================================================================
@@ -38,7 +41,7 @@ data/FAOSTAT.zip: | data
 
 data/FAOSTAT: data/FAOSTAT.zip
 	unzip $< -d $@
-	cd $@; ls *.zip | parallel --bar -k unzip 
+	cd $@; find . -name '*.zip' -print0 | xargs -0 -I {} -P 8 unzip {}
 
 # =============================================================================
 # FEWSNET data processing
@@ -79,7 +82,13 @@ data/south_sudan_data_climis_unicef_ieconomics.tsv: process_climis_unicef_iecono
 data/south_sudan_data_conflict.tsv:
 	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
-DSSAT_DATA := ~/Downloads/disaggregated_all_20190123_1451
+
+$(DSSAT_DATA): | data
+	curl http://vision.cs.arizona.edu/adarsh/$(@F).zip -o data/$(@F).zip 
+	unzip $@.zip -d $(DSSAT_DATA)
+
+dssat: $(DSSAT_DATA)
+
 data/south_sudan_data_dssat.tsv: process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
 
@@ -138,7 +147,8 @@ build/precipitation_centered_CAG.pkl: evaluations/create_precipitation_centered_
 	python $^ $@
 
 build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
-							   build/precipitation_centered_CAG.pkl
+							   build/precipitation_centered_CAG.pkl\
+							   data/delphi.db
 	python $^ $@
 
 build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
