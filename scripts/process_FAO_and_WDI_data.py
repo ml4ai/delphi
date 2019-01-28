@@ -189,16 +189,18 @@ def combine_data():
     fewsnet_df = pd.read_table(
         "data/south_sudan_data_fewsnet.tsv", index_col=False)
     fewsnet_df = fewsnet_df[(fewsnet_df.Value <= 5) & (fewsnet_df.Value >=1)]
-    climis_unicef_ieeconomics_df = pd.read_table(
-        "data/south_sudan_data_climis_unicef_ieeconomics.tsv", index_col=False
+    climis_unicef_ieconomics_df = pd.read_table(
+        "data/south_sudan_data_climis_unicef_ieconomics.tsv", index_col=False
     )
+    dssat_df = pd.read_table("data/south_sudan_data_dssat.tsv", index_col=False)
 
     combined_df = pd.concat(
         [
             fao_wdi_df,
             conflict_data_df,
             fewsnet_df,
-            climis_unicef_ieeconomics_df,
+            climis_unicef_ieconomics_df,
+            dssat_df
         ],
         sort=True,
     ).dropna(subset=["Value"])
