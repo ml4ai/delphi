@@ -9,7 +9,7 @@ from delphi.paths import (
 )
 from sqlalchemy import create_engine
 
-ENGINE = create_engine(f"sqlite:///{sys.argv[2]}", echo=False)
+ENGINE = create_engine(f"sqlite:///{sys.argv[3]}", echo=False)
 
 def insert_table(df, table_name):
     df.to_sql(table_name, con=ENGINE, if_exists="replace")
@@ -18,20 +18,6 @@ def insert_table(df, table_name):
 def create_indicator_table(indicator_table):
     df = pd.read_table(indicator_table, index_col=False)
     insert_table(df, "indicator")
-
-
-def create_dssat_data_table():
-    state_dict = {"NBG":"Northern Bahr El Ghazal","Unity":"Unity"}
-    crop_dict = {"MAIZ":"maize", "SORG":"sorghum"}
-    dfs = []
-    for filename in ("NBG_MAIZ", "NBG_SORG", "Unity_MAIZ", "Unity_SORG"):
-        df = pd.read_csv(data_dir / "SSD_csv" / f"{filename}.csv", usecols=[0, 1, 2])
-        state, crop = filename.split("_")
-        df["State"], df["Crop"]  = state_dict[state], crop_dict[crop]
-        df["Source"] = "DSSAT"
-        dfs.append(df)
-
-    insert_table(pd.concat(dfs), "dssat")
 
 
 def create_adjectiveData_table():
@@ -57,7 +43,6 @@ def create_concept_to_indicator_mapping_table(mapping_table):
 
 
 if __name__ == "__main__":
-    create_dssat_data_table()
     create_indicator_table(sys.argv[1])
     create_adjectiveData_table()
     create_concept_to_indicator_mapping_table(sys.argv[2])
