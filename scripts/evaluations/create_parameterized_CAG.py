@@ -13,4 +13,4 @@ def create_parameterized_CAG(input, output, filename="CAG_with_indicators_and_va
     A.draw(filename, prog="dot")
 
 if __name__ == "__main__":
-    create_parameterized_CAG(sys.argv[1], sys.argv[2])
+    create_parameterized_CAG(sys.argv[1], sys.argv[3])

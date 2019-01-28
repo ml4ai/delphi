@@ -86,13 +86,14 @@ sake of readability, unless there is a need for disambiguation.
   {\centering
   \begin{tabular}{lll}
     \toprule
-    Concept                     & Indicator                         & Source\\
+    Concept                     & Indicator                            & Source\\
     \midrule
-    \texttt{food\_security}     & IPC Phase Classification          & FEWSNET\\
-    \texttt{food\_availability} & Production Meat indigenous, total & FEWSNET\\
-    \texttt{food\_production}   & Maize/Sorghum  production         & FEWSNET\\
-    \texttt{market}             & Inflation Rate                    & ieconomics.com\\
-    \texttt{death}              & Battle-related deaths             & WDI\\
+    \texttt{precipitation}      & Average Total Daily Rainfall (Maize) & DSSAT\\
+    \texttt{food\_security}     & IPC Phase Classification             & FEWSNET\\
+    \texttt{food\_availability} & Production Meat indigenous, total    & FAO\\
+    \texttt{food\_production}   & Production (Maize)                   & DSSAT\\
+    \texttt{market}             & Inflation Rate                       & ieconomics.com\\
+    \texttt{death}              & Battle-related deaths                & WDI\\
     \bottomrule
   \end{tabular}
   }
@@ -121,4 +122,9 @@ sake of readability, unless there is a need for disambiguation.
   \caption{CAG with indicators and values}
 \end{figure}
 
+\begin{figure}
+  \input{figs.tex}
+  \caption{Relative changes in the values of the real-valued variables
+  representing the abstract concepts in the node.}
+\end{figure}
 \end{document}
