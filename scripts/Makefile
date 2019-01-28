@@ -79,6 +79,10 @@ data/south_sudan_data_climis_unicef_ieconomics.tsv: process_climis_unicef_iecono
 data/south_sudan_data_conflict.tsv:
 	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
+DSSAT_DATA := ~/Downloads/disaggregated_all_20190123_1451
+data/south_sudan_data_dssat.tsv: process_dssat_data.py $(DSSAT_DATA)
+	python $^ $@
+
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
@@ -136,12 +140,11 @@ build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
 							   build/precipitation_centered_CAG.pkl
 	python $^ $@
 
-.SECONDEXPANSION:
 build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
 							 #data/delphi.db
 	python $^ $@
 
-report.pdf: report.md pandoc_report_template.tex build/parameterized_CAG.pkl
-	pandoc --template pandoc_report_template.tex\
-		   --pdf-engine lualatex $< -o $@
+report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
+	lualatex $< -o $@
+	latexmk -c $(*F)
