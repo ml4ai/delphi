@@ -49,6 +49,7 @@ class Indicator(RV):
         stdev: float = None,
         time: datetime = None,
         aggaxes: Set[str] = set(),
+        aggregation_method: str
     ):
         super().__init__(name)
         self.source = source
@@ -58,6 +59,7 @@ class Indicator(RV):
         self.stdev = stdev
         self.time = time
         self.aggaxes = aggaxes
+        self.aggregation_method = aggregation_method
 
     def get_historical_distribution(
         self,
