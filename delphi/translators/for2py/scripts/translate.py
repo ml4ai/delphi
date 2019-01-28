@@ -106,12 +106,20 @@ class XMLToJSONTranslator(object):
 
     def process_declaration(self, root, state) -> List[Dict]:
         decVars = []
+        decDims = []
         decType = {}
+        count = 0
+        isArray = True
         for node in root:
             if node.tag == "type":
                 decType = {"type": node.attrib["name"]}
             elif node.tag == "variables":
                 decVars = self.parseTree(node, state)
+                isArray = False
+            elif node.tag == "dimensions":
+                decDims = self.parseTree(node, state)
+                count = node.attrib["count"]
+
         prog = []
         for var in decVars:
             if (
@@ -128,6 +136,35 @@ class XMLToJSONTranslator(object):
                 state.subroutine["args"][state.args.index(var["name"])][
                     "type"
                 ] = decType["type"]
+
+        if decDims:
+            counter = 0
+            for dim in decDims:
+                if "literal" in dim:
+                    for lit in dim["literal"]:
+                        prog[0]["tag"] = "array"
+                        prog[0]["count"] = count
+                        for i in range (0, int(count)):
+                            prog[0]["low" + str(i+1)] = 1
+                        prog[0]["up" + str(counter + 1)] = lit["value"]
+                    counter = counter + 1
+                elif "range" in dim:
+                    for ran in dim["range"]:
+                        prog[0]["tag"] = "array"
+                        prog[0]["count"] = count
+                        if "operator" in ran["low"][0]:
+                            op = ran["low"][0]["operator"]
+                            value = ran["low"][0]["left"][0]["value"]
+                            prog[0]["low" + str(counter + 1)] = op + value
+                        else:
+                            prog[0]["low" + str(counter + 1)] = ran["low"][0]["value"]
+                        if "operator" in ran["high"][0]:
+                            op = ran["high"][0]["operator"]
+                            value = ran["high"][0]["left"][0]["value"]
+                            prog[0]["up" + str(counter + 1)] = op + value
+                        else:
+                            prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
+                    counter = counter + 1
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -277,6 +314,24 @@ class XMLToJSONTranslator(object):
         ret = {"tag": "return"}
         return [ret]
 
+    def process_dimension(self, root, state) -> List[Dict]:
+        dimension = {"tag": "dimension"}
+        for node in root:
+            if node.tag == "range":
+                dimension["range"] = self.parseTree(node, state)
+            if node.tag == "literal":
+                dimension["literal"] = self.parseTree(node, state)
+        return [dimension]
+
+    def process_range(self, root, state) -> List[Dict]:
+        ran = {}
+        for node in root:
+            if node.tag == "lower-bound":
+                ran["low"] = self.parseTree(node, state)
+            if node.tag == "upper-bound":
+                ran["high"] = self.parseTree(node, state)
+        return [ran]
+
     def process_libRtn(self, root, state) -> List[Dict]:
         fn = {"tag": "call", "name": root.tag, "args": []}
         for node in root:
@@ -421,6 +476,12 @@ class XMLToJSONTranslator(object):
         elif root.tag == "close":
             return self.process_close(root, state)   
    
+        elif root.tag == "dimension":
+            return self.process_dimension(root, state)
+
+        elif root.tag == "range":
+            return self.process_range(root, state)
+
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
  

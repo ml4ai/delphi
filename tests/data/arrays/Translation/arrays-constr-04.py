@@ -15,14 +15,14 @@ def main():
     sublist3 = implied_loop_expr((lambda x: x*x), 8, 10, 1)
 
     arr_constr = flatten([sublist1, sublist2, sublist3])
-    arr_subs = subscripts(arr)
+    arr_subs = array_subscripts(arr)
 
     arr.set_elems(arr_subs, arr_constr)
 
     fmt_obj = Format(['I5'])
 
     for i in range(1,10+1):
-        val = arr.get((i,))
+        val = arr.get_((i,))
         sys.stdout.write(fmt_obj.write_line([val]))
 
 main()
