@@ -158,6 +158,10 @@ def get_indicator_value(
 
     query_parts = {"base": query_base}
 
+    if aggfunc == np.mean:
+        indicator.aggregation_method = "mean"
+    else:
+        indicator.aggregation_method = "Unknown"
     if country is not None:
         query_parts["country"] = f"and `Country` is '{country}'"
     if state is not None:
