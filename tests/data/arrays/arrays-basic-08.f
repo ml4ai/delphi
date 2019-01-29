@@ -2,8 +2,9 @@
 C     GAUSSIAN ELIMINATION
 C     From: http://users.metu.edu.tr/azulfu/courses/es361/programs/fortran/GAUEL.FOR
 
-      DIMENSION A(20,21)
-      INTEGER I,J
+      IMPLICIT NONE
+      REAL, DIMENSION (20,21) :: A
+      INTEGER :: I, J, N
 
  10   FORMAT(/,' GAUSS ELIMINATION')
       WRITE (*,10)      
@@ -62,8 +63,11 @@ C END INITIALIZATION
       END PROGRAM MAIN
 C*************************************
       SUBROUTINE GAUSS(N,A)
-      INTEGER PV
-      DIMENSION A(20,21)
+
+      REAL, DIMENSION(20,21) :: A
+      INTEGER PV, I, J, K, N, JC, JR, KC, NV
+      REAL :: EPS, EPS2, DET, TM, TEMP, VA
+
       EPS=1.0
       DO WHILE (1.0+EPS.GT.1.0) 
           EPS=EPS/2.0
@@ -74,7 +78,8 @@ C*************************************
       WRITE(*,11) EPS
       
       EPS2=EPS*2
-1005  DET=1.
+
+1005  DET=1.0
       DO 1010 I=1,N-1
          PV=I
          DO J=I+1,N
