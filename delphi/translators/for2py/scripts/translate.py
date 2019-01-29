@@ -123,8 +123,6 @@ class XMLToJSONTranslator(object):
 
         prog = []
         for var in decVars:
-            print ("var: ", var)
-            print ("decType: ", decType)
             if (
                 state.subroutine["name"] in self.functionList
                 and var["name"] in state.args
