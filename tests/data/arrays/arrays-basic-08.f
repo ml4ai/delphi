@@ -65,10 +65,9 @@ C*************************************
       INTEGER PV
       DIMENSION A(20,21)
       EPS=1.0
-10    IF (1.0+EPS.GT.1.0) THEN
+      DO WHILE (1.0+EPS.GT.1.0) 
           EPS=EPS/2.0
-          GOTO 10
-      END IF
+      END DO
       EPS=EPS*2
       
  11   FORMAT ('      MACHINE EPSILON=',E16.8)
@@ -81,14 +80,19 @@ C*************************************
          DO J=I+1,N
             IF (ABS(A(PV,I)) .LT. ABS(A(J,I))) PV=J
          END DO
-         IF (PV.EQ.I) GOTO 1050
-         DO JC=1,N+1
-          TM=A(I,JC)
-          A(I,JC)=A(PV,JC)
-          A(PV,JC)=TM
-        END DO
-1045    DET=-1*DET
-1050    IF (A(I,I).EQ.0.0) GOTO 1200
+         IF (PV.NE.I) THEN
+             DO JC=1,N+1
+              TM=A(I,JC)
+              A(I,JC)=A(PV,JC)
+              A(PV,JC)=TM
+            END DO
+1045        DET=-1*DET
+        END IF
+
+1050    IF (A(I,I).EQ.0.0) THEN
+            STOP 'MATRIX IS SINGULAR'
+        END IF
+
         DO JR=I+1,N
            IF (A(JR,I).NE.0.0) THEN
               R=A(JR,I)/A(I,I)
@@ -107,7 +111,10 @@ C*************************************
  12   FORMAT(/,'  DETERMINANT= ',F16.5,/)
       WRITE(*,12) DET
 
-      IF (A(N,N).EQ.0.0) GOTO 1200
+      IF (A(N,N).EQ.0.0) THEN
+          STOP 'MATRIX IS SINGULAR'
+      END IF
+
       A(N,N+1)=A(N,N+1)/A(N,N)
       DO NV=N-1,1,-1
          VA=A(NV,N+1)
@@ -120,7 +127,4 @@ C*************************************
 1100  CONTINUE
       RETURN
 
- 1200 FORMAT(' MATRIX IS SINGULAR')
-      WRITE(*,1200)
-      
       END
