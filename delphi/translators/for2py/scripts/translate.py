@@ -110,6 +110,7 @@ class XMLToJSONTranslator(object):
         decType = {}
         count = 0
         isArray = True
+
         for node in root:
             if node.tag == "type":
                 decType = {"type": node.attrib["name"]}
@@ -138,33 +139,33 @@ class XMLToJSONTranslator(object):
                 ] = decType["type"]
 
         if decDims:
-            counter = 0
-            for dim in decDims:
-                if "literal" in dim:
-                    for lit in dim["literal"]:
-                        prog[0]["tag"] = "array"
-                        prog[0]["count"] = count
-                        for i in range (0, int(count)):
-                            prog[0]["low" + str(i+1)] = 1
-                        prog[0]["up" + str(counter + 1)] = lit["value"]
-                    counter = counter + 1
-                elif "range" in dim:
-                    for ran in dim["range"]:
-                        prog[0]["tag"] = "array"
-                        prog[0]["count"] = count
-                        if "operator" in ran["low"][0]:
-                            op = ran["low"][0]["operator"]
-                            value = ran["low"][0]["left"][0]["value"]
-                            prog[0]["low" + str(counter + 1)] = op + value
-                        else:
-                            prog[0]["low" + str(counter + 1)] = ran["low"][0]["value"]
-                        if "operator" in ran["high"][0]:
-                            op = ran["high"][0]["operator"]
-                            value = ran["high"][0]["left"][0]["value"]
-                            prog[0]["up" + str(counter + 1)] = op + value
-                        else:
-                            prog[0]["up" + str(counter + 1)] = ran["high"][0]["value"]
-                    counter = counter + 1
+            for i in range (0, len(prog)):
+                counter = 0
+                for dim in decDims:
+                    if "literal" in dim:
+                        for lit in dim["literal"]:
+                            prog[i]["tag"] = "array"
+                            prog[i]["count"] = count
+                            prog[i]["low" + str(counter + 1)] = 1
+                            prog[i]["up" + str(counter + 1)] = lit["value"]
+                        counter = counter + 1
+                    elif "range" in dim:
+                        for ran in dim["range"]:
+                            prog[i]["tag"] = "array"
+                            prog[i]["count"] = count
+                            if "operator" in ran["low"][0]:
+                                op = ran["low"][0]["operator"]
+                                value = ran["low"][0]["left"][0]["value"]
+                                prog[i]["low" + str(counter + 1)] = op + value
+                            else:
+                                prog[i]["low" + str(counter + 1)] = ran["low"][0]["value"]
+                            if "operator" in ran["high"][0]:
+                                op = ran["high"][0]["operator"]
+                                value = ran["high"][0]["left"][0]["value"]
+                                prog[i]["up" + str(counter + 1)] = op + value
+                            else:
+                                prog[i]["up" + str(counter + 1)] = ran["high"][0]["value"]
+                        counter = counter + 1
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
