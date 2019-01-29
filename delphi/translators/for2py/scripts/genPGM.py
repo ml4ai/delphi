@@ -527,7 +527,7 @@ def genPgm(node, state, fnNames):
         state.lastDefs[condName] = 0
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
-
+   
         lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
@@ -568,6 +568,7 @@ def genPgm(node, state, fnNames):
         elseState = state.copy(lastDefs=elseDefs)
         ifPgm = genPgm(node.body, ifState, fnNames)
         elsePgm = genPgm(node.orelse, elseState, fnNames)
+
 
         pgm["functions"] += reduce(
             (lambda x, y: x + y["functions"]), [[]] + ifPgm
@@ -641,6 +642,20 @@ def genPgm(node, state, fnNames):
                     for var in inputs
                 ],
             }
+
+            # Check for buggy __decision__ tag containing of only IF_ blocks
+            # More information required on how __decision__ tags are made
+            # This seems to be in development phase and documentation is 
+            # missing from the GrFN spec as well. Actual removal (or not) 
+            # of this tag depends on further information about this
+
+            if 'IF_' in updatedDef:
+                count = 0
+                for var in inputs:
+                    if 'IF_' in var['variable']:
+                        count += 1
+                if count == len(inputs):
+                    continue
 
             body = {"name": fnName, "output": output, "input": inputs}
 
