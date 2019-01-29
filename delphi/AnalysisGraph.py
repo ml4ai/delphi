@@ -1,6 +1,6 @@
 import json
 import pickle
-from datetime import datetime
+from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
 from typing import (
@@ -42,6 +42,15 @@ from .assembly import (
 )
 from future.utils import lzip
 from tqdm import tqdm
+from .icm_api.models import (
+    Evidence,
+    ICMMetadata,
+    CausalVariable,
+    CausalRelationship,
+    DelphiModel,
+    ForwardProjection,
+)
+
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -54,10 +63,11 @@ class AnalysisGraph(nx.DiGraph):
         self.t: float = 0.0
         self.Δt: float = 1.0
         self.time_unit: str = "Placeholder time unit"
-        self.dateCreated = datetime.now()
+        self.dateCreated = date.today().isoformat()
         self.name: str = "Linear Dynamical System with Stochastic Transition Model"
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
+        self.latent_state_sequences = None
 
     def assign_uuids_to_nodes_and_edges(self):
         """ Assign uuids to nodes and edges. """
@@ -89,7 +99,6 @@ class AnalysisGraph(nx.DiGraph):
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
         G = cls(edges)
-        G.assign_uuids_to_nodes_and_edges()
         return G
 
     @classmethod
@@ -246,7 +255,8 @@ class AnalysisGraph(nx.DiGraph):
             )
 
     def sample_from_prior(self):
-        """ Sample elements of the stochastic transition matrix. """
+        """ Sample elements of the stochastic transition matrix from the prior
+        distribution, based on gradable adjectives. """
 
         # simple_path_dict caches the results of the graph traversal that finds
         # simple paths between pairs of nodes, so that it doesn't have to be
@@ -285,6 +295,19 @@ class AnalysisGraph(nx.DiGraph):
                     for simple_path_edge_list in simple_path_dict[node_pair]
                 )
             self.transition_matrix_collection.append(A)
+
+    def sample_from_likelihood(self):
+        for transition_matrix in self.transition_matrix_collection:
+            self.latent_state_sequences.append()
+
+    def sample_from_posterior(self):
+        """ Run Bayesian inference - sample from the posterior distribution. """
+        # Algorithm:
+        # Each concept node (latent state variable) is mapped to a single
+        # indicator (observed variable).
+        # Given: the time series for each of the indicator variables 
+        # For each time step:
+        pass
 
     def emission_function(self, s_i, mu_ij, sigma_ij):
         return np.random.normal(s_i * mu_ij, sigma_ij)
@@ -708,3 +731,125 @@ class AnalysisGraph(nx.DiGraph):
         )
         paths = chain.from_iterable(path_generator)
         return AnalysisGraph(self.subgraph(set(chain.from_iterable(paths))))
+
+    # ==========================================================================
+    # Database-related code
+    # ==========================================================================
+
+    def to_sql(self, app=None):
+        """ Inserts the model into the SQLite3 database associated with Delphi,
+        for use with the ICM REST API. """
+
+        from delphi.icm_api import create_app, db
+        self.assign_uuids_to_nodes_and_edges()
+        icm_metadata = ICMMetadata(
+            id=self.id,
+            created=self.dateCreated,
+            estimatedNumberOfPrimitives=len(self.nodes) + len(self.edges),
+            createdByUser_id=1,
+            lastAccessedByUser_id=1,
+            lastUpdatedByUser_id=1,
+        )
+        today = date.today().isoformat()
+        default_latent_var_value = 1.0
+        causal_primitives = []
+        for n in self.nodes(data=True):
+            n[1]["rv"] = LatentVar(n[0])
+            n[1]["update_function"] = self.default_update_function
+            rv = n[1]["rv"]
+            rv.dataset = [default_latent_var_value for _ in range(self.res)]
+
+            if n[1].get("indicators") is not None:
+                for ind in n[1]["indicators"].values():
+                    ind.dataset = np.ones(self.res) * ind.mean
+
+            causal_variable = CausalVariable(
+                id=n[1]["id"],
+                model_id=self.id,
+                units="",
+                namespaces={},
+                auxiliaryProperties=[],
+                label=n[0],
+                description=f"Long description of {n[0]}.",
+                lastUpdated=today,
+                confidence=1.0,
+                lastKnownValue={
+                    "active": "ACTIVE",
+                    "trend": None,
+                    "time": today,
+                    "value": {
+                        "baseType": "FloatValue",
+                        "value": n[1]["rv"].dataset[0],
+                    },
+                },
+                range={
+                    "baseType": "FloatRange",
+                    "range": {"min": 0, "max": 10, "step": 0.1},
+                },
+            )
+            causal_primitives.append(causal_variable)
+
+        max_evidences = max(
+            [
+                sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
+                for e in self.edges(data=True)
+            ]
+        )
+        max_mean_betas = max(
+            [abs(np.median(e[2]["βs"])) for e in self.edges(data=True)]
+        )
+        for e in self.edges(data=True):
+            causal_relationship_id = e[2]['id']
+            causal_relationship = CausalRelationship(
+                id=e[2]['id'],
+                namespaces={},
+                source={"id": self.nodes[e[0]]["id"], "baseType": "CausalVariable"},
+                target={"id": self.nodes[e[1]]["id"], "baseType": "CausalVariable"},
+                model_id=self.id,
+                auxiliaryProperties=[],
+                lastUpdated=today,
+                types=["causal"],
+                description=f"{e[0]} influences {e[1]}.",
+                confidence=np.mean(
+                    [s.belief for s in e[2]["InfluenceStatements"]]
+                ),
+                label=f"{e[0]} influences {e[1]}.",
+                strength=abs(np.median(e[2]["βs"]) / max_mean_betas),
+                reinforcement=(
+                    True
+                    if np.mean(
+                        [
+                            stmt.subj_delta["polarity"]
+                            * stmt.obj_delta["polarity"]
+                            for stmt in e[2]["InfluenceStatements"]
+                        ]
+                    )
+                    > 0
+                    else False
+                ),
+            )
+            causal_primitives.append(causal_relationship)
+        evidences = []
+        for edge in self.edges(data=True):
+            for stmt in edge[2]["InfluenceStatements"]:
+                for ev in stmt.evidence:
+                    evidence = Evidence(
+                        id = str(uuid4()),
+                        causalrelationship_id = edge[2]['id'],
+                        description = ev.text
+                    )
+                    evidences.append(evidence)
+
+        if app is None:
+            app = create_app()
+
+        with app.app_context():
+            db.drop_all()
+            db.create_all()
+            db.session.add(icm_metadata)
+            db.session.add(DelphiModel(id=self.id, model=self))
+            for causal_primitive in causal_primitives:
+                db.session.add(causal_primitive)
+            for evidence in evidences:
+                db.session.add(evidence)
+            db.session.commit()
