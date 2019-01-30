@@ -119,13 +119,15 @@ TARGET_ONTOLOGY_NAME := MITRE12
 
 data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) data/south_sudan_data.tsv
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
-	cd $(EIDOS); time sbt "runMain org.clulab.wm.eidos.apps.CacheOntologies"
+	cd $(EIDOS); time java -cp target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
 	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
 # =============================================================================
-# Creation of reference evaluation CAG
+# Creation of reference evaluation CAGs
 # =============================================================================
+
+# Via scripting ---------------------------------------------------------------
 
 build:
 	mkdir -p $@
@@ -148,7 +150,7 @@ build/precipitation_centered_CAG.pkl: evaluations/create_precipitation_centered_
 build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
 							   build/precipitation_centered_CAG.pkl\
 							   data/delphi.db
-	python $^ $@
+	python $< build/precipitation_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
@@ -164,3 +166,17 @@ build/inference_plots: evaluations/create_inference_plots.py build/quantified_CA
 report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
 	latexmk -lualatex $<
 	latexmk -c $(*F)
+
+insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl
+	python $^
+
+build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG.pkl
+	python $^ $@
+
+# Via manual construction in the CauseMos HMI ---------------------------------
+
+data/CauseMosCAG.json: | data
+	curl http://vision.cs.arizona.edu/adarsh/$(@F).gz | gunzip > $@
+
+build/causemos_cag.pkl: evaluations/create_cag_from_causemos_output.py data/CauseMosCAG.json
+	python $^ $@
