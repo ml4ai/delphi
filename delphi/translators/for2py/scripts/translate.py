@@ -66,6 +66,14 @@ class XMLToJSONTranslator(object):
             "cexp",
             "cmplx",
             "atan",
+            "cos",
+            "sin",
+            "acos",
+            "asin",
+            "tan",
+            "atan",
+            "sqrt",
+            "log",
         ]
         self.inputFns = ["read"]
         self.outputFns = ["write"]
@@ -75,8 +83,8 @@ class XMLToJSONTranslator(object):
         self.subroutineList = []
         self.entryPoint = []
 
-    def process_subroutine_or_program(self, root, state):
-        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+    def process_subroutine_or_program_module(self, root, state):
+        subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.summaries[root.attrib["name"]] = None
         if root.tag == "subroutine":
             self.subroutineList.append(root.attrib["name"])
@@ -88,6 +96,8 @@ class XMLToJSONTranslator(object):
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = self.parseTree(node, subState)
+            elif node.tag == "members":
+                subroutine["body"] += self.parseTree(node, subState)
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
@@ -95,7 +105,7 @@ class XMLToJSONTranslator(object):
         call = {"tag": "call"}
         for node in root:
             if node.tag == "name":
-                call["name"] = node.attrib["id"]
+                call["name"] = node.attrib["id"].lower()
                 call["args"] = []
                 for arg in node:
                     call["args"] += self.parseTree(arg, state)
@@ -107,12 +117,18 @@ class XMLToJSONTranslator(object):
     def process_declaration(self, root, state) -> List[Dict]:
         decVars = []
         decType = {}
+        prog = []
         for node in root:
+            if node.tag == "format":
+                prog += self.parseTree(node, state)
             if node.tag == "type":
                 decType = {"type": node.attrib["name"]}
             elif node.tag == "variables":
                 decVars = self.parseTree(node, state)
-        prog = []
+            elif node.tag == "access-spec":
+                if node.attrib["keyword"] == "PRIVATE":
+                    decVars = self.process_private_variable(root, state)
+
         for var in decVars:
             if (
                 state.subroutine["name"] in self.functionList
@@ -132,7 +148,13 @@ class XMLToJSONTranslator(object):
 
     def process_variable(self, root, state) -> List[Dict]:
         try:
-            return [{"tag": "variable", "name": root.attrib["name"].lower()}]
+            var_name = root.attrib["name"].lower()
+            for node in root:
+                if node.tag == "initial-value":
+                    value = self.parseTree(node, state)
+                    return [{"tag": "variable", "name": var_name, "value": value}]
+                else:
+                    return [{"tag": "variable", "name": var_name}]
         except:
             return []
 
@@ -152,6 +174,8 @@ class XMLToJSONTranslator(object):
                 ind["low"] = self.parseTree(bounds, state)
             elif bounds.tag == "upper-bound":
                 ind["high"] = self.parseTree(bounds, state)
+            elif bounds.tag == "step":
+                ind["step"] = self.parseTree(bounds, state)
         return [ind]
 
     def process_if(self, root, state) -> List[Dict]:
@@ -234,7 +258,7 @@ class XMLToJSONTranslator(object):
             root.attrib["id"] in self.functionList
             and state.subroutine["tag"] != "function"
         ):
-            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
+            fn = {"tag": "call", "name": root.attrib["id"].lower(), "args": []}
             for node in root:
                 fn["args"] += self.parseTree(node, state)
             return [fn]
@@ -254,8 +278,8 @@ class XMLToJSONTranslator(object):
                 assign["target"] = self.parseTree(node, state)
             elif node.tag == "value":
                 assign["value"] = self.parseTree(node, state)
-        if (assign["target"][0]["name"] in self.functionList) and (
-            assign["target"][0]["name"] == state.subroutine["name"]
+        if (assign["target"][0]["name"] in [x.lower() for x in self.functionList]) and (
+            assign["target"][0]["name"] == state.subroutine["name"].lower()
         ):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
@@ -263,7 +287,7 @@ class XMLToJSONTranslator(object):
             return [assign]
 
     def process_function(self, root, state) -> List[Dict]:
-        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
+        subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
@@ -336,7 +360,30 @@ class XMLToJSONTranslator(object):
         }
         for node in root:
             close_spec["args"] += self.parseTree(node, state)
-        return [close_spec] 
+        return [close_spec]
+
+    def process_use(self, root, state) -> List[Dict]:
+        tag_spec = {
+            "tag": "use",
+            "arg": root.attrib["name"]
+        }
+        for node in root:
+            if node.tag == "only":
+                tag_spec["include"] = []
+                for item in node:
+                    if item.tag == "name":
+                        tag_spec["include"] += [item.attrib["id"]]
+
+        return [tag_spec]
+
+    def process_private_variable(self, root, state) -> List[Dict]:
+        for node in root:
+            if node.tag == "name":
+                return [{"tag": "private", "name": node.attrib["id"].lower()}]
+
+        return []
+
+
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -353,8 +400,8 @@ class XMLToJSONTranslator(object):
                 ast: A JSON ast that defines the structure of the Fortran file.
         """
 
-        if root.tag in ("subroutine", "program"):
-            return self.process_subroutine_or_program(root, state)
+        if root.tag in ("subroutine", "program", "module"):
+            return self.process_subroutine_or_program_module(root, state)
 
         elif root.tag == "call":
             return self.process_call(root, state)
@@ -423,8 +470,11 @@ class XMLToJSONTranslator(object):
             return self.process_format_item(root, state)
 
         elif root.tag == "close":
-            return self.process_close(root, state)   
-   
+            return self.process_close(root, state)
+
+        elif root.tag == "use":
+            return self.process_use(root, state)
+
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
  
