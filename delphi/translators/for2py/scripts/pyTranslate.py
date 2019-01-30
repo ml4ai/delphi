@@ -489,6 +489,9 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"return {val}")
 
     def printExit(self, node, printState):
+        if node.get("value"):
+            self.pyStrings.append(f"print({node['value']})")
+            self.pyStrings.append(printState.sep)
         self.pyStrings.append("return")
 
     def printReturn(self, node, printState):
@@ -586,9 +589,6 @@ class PythonCodeGenerator(object):
         )
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(f"{file_handle}.write(write_line)")
-
-    def printExit(self, node, printState):
-        self.pyStrings.append("return")
 
     def printFormat(self, node, printState):
         type_list = []

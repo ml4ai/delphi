@@ -247,6 +247,9 @@ class XMLToJSONTranslator(object):
         for info in root:
             if info.tag == "pause-stmt":
                 return [{"tag": "pause", "msg": root.attrib["value"]}]
+            elif info.tag == "stop":
+                text = root.attrib["value"]
+                return [{"tag": "stop", "value": text}]
         return [
             {
                 "tag": "literal",
@@ -388,8 +391,8 @@ class XMLToJSONTranslator(object):
         }
         for node in root:
             close_spec["args"] += self.parseTree(node, state)
-        return [close_spec] 
-
+        return [close_spec]
+        
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
