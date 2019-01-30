@@ -163,8 +163,8 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
 def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
-    G = DelphiModel.query.filter_by(id=uuid).first().model
     data = json.loads(request.data)
+    G = DelphiModel.query.filter_by(id=uuid).first().model
     G.initialize()
     for n in G.nodes(data=True):
         rv = n[1]["rv"]

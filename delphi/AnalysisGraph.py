@@ -374,7 +374,7 @@ class AnalysisGraph(nx.DiGraph):
             list(self.edges(data=True))
         )
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.1*abs(A[f"∂({self.source})/∂t"][self.target]))
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
     def sample_from_posterior(self, A):
         """ Run Bayesian inference - sample from the posterior distribution. """
@@ -450,6 +450,7 @@ class AnalysisGraph(nx.DiGraph):
         """
         if not os.path.isfile(config_file):
             self.create_bmi_config_file(config_file)
+
         self.s0 = [
             pd.read_csv(
                 config_file, index_col=0, header=None, error_bad_lines=False
