@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3.7
 
 """
 Purpose:
@@ -23,7 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from .fortran_format import *
+from delphi.translators.for2py.scripts.fortran_format import *
 
 
 class PrintState:
