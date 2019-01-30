@@ -1,3 +1,4 @@
+import os
 import json
 import pickle
 import random
@@ -447,6 +448,8 @@ class AnalysisGraph(nx.DiGraph):
         Returns:
             AnalysisGraph
         """
+        if not os.path.isfile(config_file):
+            self.create_bmi_config_file(config_file)
         self.s0 = [
             pd.read_csv(
                 config_file, index_col=0, header=None, error_bad_lines=False
