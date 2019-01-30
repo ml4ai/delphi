@@ -1,5 +1,6 @@
 import json
 import pickle
+import random
 from math import log
 from datetime import date
 from functools import partial
@@ -226,20 +227,18 @@ class AnalysisGraph(nx.DiGraph):
 
     def update_log_prior(self, A: pd.DataFrame) -> float:
         _list = [
-            log(
-                edge[2]["ConditionalProbability"].evaluate(
-                    A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-                )
+            edge[2]["ConditionalProbability"].evaluate(
+                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
             )
             for edge in self.edges(data=True)
         ]
 
-        self.log_prior = sum(_list)
+        self.log_prior = sum(map(log, _list))
 
-    def update_log_likelihood(self, latent_state_sequence, observed_state_sequence) -> float:
+    def update_log_likelihood(self):
         _list = []
         for latent_state, observed_state in zip(
-            latent_state_sequence, observed_state_sequence
+            self.latent_state_sequence, self.observed_state_sequence
         ):
             for n in self.nodes(data=True):
                 for indicator, value in observed_state[n[0]].items():
@@ -253,6 +252,9 @@ class AnalysisGraph(nx.DiGraph):
 
         self.log_likelihood = sum(_list)
 
+    def update_log_joint_probability(self):
+        self.log_joint_probability = self.log_prior + self.log_likelihood
+
     def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
         adjective data to the edges of the analysis graph data structure.
@@ -261,7 +263,6 @@ class AnalysisGraph(nx.DiGraph):
             adjective_data
             res
         """
-
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
@@ -283,6 +284,14 @@ class AnalysisGraph(nx.DiGraph):
                 edge[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
+    def set_latent_state_sequence(self, A, n_timesteps=10):
+        self.latent_state_sequence = ltake(
+            n_timesteps,
+            iterate(
+                lambda s: pd.Series(A.values @ s.values, index=s.index),
+                self.s0,
+            ),
+        )
 
     def sample_from_prior(self):
         """ Sample elements of the stochastic transition matrix from the prior
@@ -342,13 +351,12 @@ class AnalysisGraph(nx.DiGraph):
             for n in self.nodes(data=True)
         }
 
-    def sample_from_likelihood(self, initial_state: pd.Series, n_timesteps=5):
+    def sample_from_likelihood(self, n_timesteps=10):
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
                 iterate(
-                    lambda s: pd.Series(A @ s.values, index=s.index),
-                    initial_state,
+                    lambda s: pd.Series(A @ s.values, index=s.index), self.s0
                 ),
             ),
             self.transition_matrix_collection,
@@ -359,14 +367,36 @@ class AnalysisGraph(nx.DiGraph):
             for latent_state_sequence in self.latent_state_sequences
         ]
 
-    def sample_from_posterior(self):
+    def sample_from_proposal(self, A):
+        # Choose the element of A to perturb
+        self.source, self.target, self.edge_dict = random.choice(
+            list(self.edges(data=True))
+        )
+        self.original_value = A[f"∂({self.source})/∂t"][self.target]
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.1*abs(A[f"∂({self.source})/∂t"][self.target]))
+
+    def sample_from_posterior(self, A):
         """ Run Bayesian inference - sample from the posterior distribution. """
-        # Algorithm:
-        # Each concept node (latent state variable) is mapped to a single
-        # indicator (observed variable).
-        # Given: the time series for each of the indicator variables
-        # For each time step:
-        pass
+        self.sample_from_proposal(A)
+        self.set_latent_state_sequence(A)
+        self.update_log_prior(A)
+        self.update_log_likelihood()
+
+        candidate_log_joint_probability = self.log_prior + self.log_likelihood
+
+        delta_log_joint_probability = (
+            candidate_log_joint_probability - self.log_joint_probability
+        )
+
+        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
+        if acceptance_probability > np.random.rand():
+            self.update_log_joint_probability()
+        else:
+            A[f"∂({self.source})/∂t"][self.target] = self.original_value
+            self.set_latent_state_sequence(A)
+            self.update_log_likelihood()
+            self.update_log_prior(A)
+            self.update_log_joint_probability()
 
     def emission_function(self, s_i, mu_ij, sigma_ij):
         return np.random.normal(s_i * mu_ij, sigma_ij)
