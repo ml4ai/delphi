@@ -24,7 +24,7 @@ from indra.statements.evidence import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .utils.fp import flatMap, take, ltake, lmap, pairwise
+from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate
 from .utils.indra import (
     get_valid_statements_for_modeling,
     get_concepts,
@@ -50,7 +50,6 @@ from .icm_api.models import (
     DelphiModel,
     ForwardProjection,
 )
-
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -296,16 +295,46 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def sample_from_likelihood(self):
-        for transition_matrix in self.transition_matrix_collection:
-            self.latent_state_sequences.append()
+    def sample_observed_state(self, s: pd.Series) -> Dict:
+        """ Sample observed state vector.
+        Args:
+            s: Latent state vector.
+
+        Returns:
+            Observed state vector.
+        """
+        return {
+            n[0]: {
+                i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
+                for i in n[1]["indicators"].values()
+            }
+            for n in self.nodes(data=True)
+        }
+
+    def sample_from_likelihood(self, initial_state: pd.Series, n_timesteps=5):
+        latent_state_sequences = lmap(
+            lambda A: ltake(
+                n_timesteps,
+                iterate(
+                    lambda s: pd.Series(A @ s.values, index=s.index),
+                    initial_state,
+                ),
+            ),
+            self.transition_matrix_collection,
+        )
+
+        observed_state_sequences = [
+            [self.sample_observed_state(s) for s in latent_state_sequence]
+            for latent_state_sequence in latent_state_sequences
+        ]
+        return observed_state_sequences
 
     def sample_from_posterior(self):
         """ Run Bayesian inference - sample from the posterior distribution. """
         # Algorithm:
         # Each concept node (latent state variable) is mapped to a single
         # indicator (observed variable).
-        # Given: the time series for each of the indicator variables 
+        # Given: the time series for each of the indicator variables
         # For each time step:
         pass
 
@@ -619,7 +648,6 @@ class AnalysisGraph(nx.DiGraph):
                             self.add_edge(*path[0])
                         break
 
-
     def merge_nodes(self, n1: str, n2: str, same_polarity: bool = True):
         """ Merge node n1 into node n2, with the option to specify relative
         polarity.
@@ -694,12 +722,16 @@ class AnalysisGraph(nx.DiGraph):
 
         nodeset = {concept}
 
+        if reverse:
+            func = self.predecessors
+        else:
+            func = self.successors
         for i in range(depth):
-            nodeset.update(chain.from_iterable([list(self.successors(n)) for n in nodeset]))
+            nodeset.update(
+                chain.from_iterable([list(func(n)) for n in nodeset])
+            )
 
-        return AnalysisGraph(
-            self.subgraph(nodeset).copy()
-        )
+        return AnalysisGraph(self.subgraph(nodeset).copy())
 
     def get_subgraph_for_concept_pair(
         self, source: str, target: str, cutoff: Optional[int] = None
@@ -741,6 +773,7 @@ class AnalysisGraph(nx.DiGraph):
         for use with the ICM REST API. """
 
         from delphi.icm_api import create_app, db
+
         self.assign_uuids_to_nodes_and_edges()
         icm_metadata = ICMMetadata(
             id=self.id,
@@ -799,12 +832,18 @@ class AnalysisGraph(nx.DiGraph):
             [abs(np.median(e[2]["βs"])) for e in self.edges(data=True)]
         )
         for e in self.edges(data=True):
-            causal_relationship_id = e[2]['id']
+            causal_relationship_id = e[2]["id"]
             causal_relationship = CausalRelationship(
-                id=e[2]['id'],
+                id=e[2]["id"],
                 namespaces={},
-                source={"id": self.nodes[e[0]]["id"], "baseType": "CausalVariable"},
-                target={"id": self.nodes[e[1]]["id"], "baseType": "CausalVariable"},
+                source={
+                    "id": self.nodes[e[0]]["id"],
+                    "baseType": "CausalVariable",
+                },
+                target={
+                    "id": self.nodes[e[1]]["id"],
+                    "baseType": "CausalVariable",
+                },
                 model_id=self.id,
                 auxiliaryProperties=[],
                 lastUpdated=today,
@@ -834,9 +873,9 @@ class AnalysisGraph(nx.DiGraph):
             for stmt in edge[2]["InfluenceStatements"]:
                 for ev in stmt.evidence:
                     evidence = Evidence(
-                        id = str(uuid4()),
-                        causalrelationship_id = edge[2]['id'],
-                        description = ev.text
+                        id=str(uuid4()),
+                        causalrelationship_id=edge[2]["id"],
+                        description=ev.text,
                     )
                     evidences.append(evidence)
 
