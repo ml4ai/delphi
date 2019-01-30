@@ -1,5 +1,6 @@
 import json
 import pickle
+from math import log
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
@@ -17,6 +18,7 @@ from typing import (
 from uuid import uuid4
 import networkx as nx
 import numpy as np
+from scipy.stats import gaussian_kde, norm
 import pandas as pd
 from indra.statements.statements import Influence
 from indra.statements.concept import Concept
@@ -222,6 +224,35 @@ class AnalysisGraph(nx.DiGraph):
     # Sampling and inference
     # ==========================================================================
 
+    def update_log_prior(self, A: pd.DataFrame) -> float:
+        _list = [
+            log(
+                edge[2]["ConditionalProbability"].evaluate(
+                    A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
+                )
+            )
+            for edge in self.edges(data=True)
+        ]
+
+        self.log_prior = sum(_list)
+
+    def update_log_likelihood(self, latent_state_sequence, observed_state_sequence) -> float:
+        _list = []
+        for latent_state, observed_state in zip(
+            latent_state_sequence, observed_state_sequence
+        ):
+            for n in self.nodes(data=True):
+                for indicator, value in observed_state[n[0]].items():
+                    ind = n[1]["indicators"][indicator]
+                    log_likelihood = np.log(
+                        norm.pdf(
+                            value, latent_state[n[0]] * ind.mean, ind.stdev
+                        )
+                    )
+                    _list.append(log_likelihood)
+
+        self.log_likelihood = sum(_list)
+
     def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
         adjective data to the edges of the analysis graph data structure.
@@ -231,7 +262,6 @@ class AnalysisGraph(nx.DiGraph):
             res
         """
 
-        from scipy.stats import gaussian_kde
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
@@ -252,6 +282,7 @@ class AnalysisGraph(nx.DiGraph):
             edge[2]["βs"] = np.tan(
                 edge[2]["ConditionalProbability"].resample(self.res)[0]
             )
+
 
     def sample_from_prior(self):
         """ Sample elements of the stochastic transition matrix from the prior
@@ -312,7 +343,7 @@ class AnalysisGraph(nx.DiGraph):
         }
 
     def sample_from_likelihood(self, initial_state: pd.Series, n_timesteps=5):
-        latent_state_sequences = lmap(
+        self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
                 iterate(
@@ -323,11 +354,10 @@ class AnalysisGraph(nx.DiGraph):
             self.transition_matrix_collection,
         )
 
-        observed_state_sequences = [
+        self.observed_state_sequences = [
             [self.sample_observed_state(s) for s in latent_state_sequence]
-            for latent_state_sequence in latent_state_sequences
+            for latent_state_sequence in self.latent_state_sequences
         ]
-        return observed_state_sequences
 
     def sample_from_posterior(self):
         """ Run Bayesian inference - sample from the posterior distribution. """
