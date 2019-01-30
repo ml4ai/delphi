@@ -7,7 +7,7 @@ from conftest import G, conflict_string, food_security_string
 import seaborn as sns
 
 def test_inference(G):
-
+    """ Smokescreen test for sampler. """
     # Generate synthetic data
 
     # Sample a transition matrix from the prior
@@ -80,27 +80,6 @@ def test_inference(G):
     fig, ax = plt.subplots()
     plt.hist(betas, bins=40)
     plt.savefig("betas.pdf")
-    print(map_estimate, original_beta)
+
+    # This tolerance seems to work for now, so I'm leaving it in.
     assert map_estimate == approx(original_beta, abs=0.1)
-    assert True
-
-@pytest.mark.skip
-def test_sampler(G):
-    """ Smokescreen test for sampler. """
-
-    n_samples = 1000
-
-
-    # Generate synthetic data
-    G.sample_from_prior()
-    original_beta = -0.2
-    sampler.A[f"∂({conflict_string})/∂t"][food_security_string] = original_beta
-    sampler.s0[f"∂({conflict_string})/∂t"] = 0.1
-    sampler.set_latent_state_sequence()
-    sampler.sample_from_likelihood()
-
-
-    # Initialize random walk
-
-
-
