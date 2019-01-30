@@ -173,9 +173,10 @@ def get_indicator_value(
     if unit is not None:
         query_parts["unit"] = f"and `Unit` is '{unit}'"
 
+    indicator.aggaxes = []
     for constraint in ("country", "state", "year", "month"):
         if constraint not in query_parts:
-            indicator.aggaxes.add(constraint)
+            indicator.aggaxes.append(constraint)
 
     query = " ".join(query_parts.values())
     results = list(engine.execute(query))
@@ -186,7 +187,7 @@ def get_indicator_value(
     else:
         for i, aggregation_axis in enumerate(fallback_aggaxes):
             try:
-                indicator.aggaxes.add(aggregation_axis)
+                indicator.aggaxes.append(aggregation_axis)
                 query = " ".join(
                     [
                         query_parts[k]

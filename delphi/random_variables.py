@@ -48,8 +48,8 @@ class Indicator(RV):
         value: float = None,
         stdev: float = None,
         time: datetime = None,
-        aggaxes: Set[str] = set(),
-        aggregation_method: str
+        aggaxes: List[str] = [],
+        aggregation_method: str = "mean"
     ):
         super().__init__(name)
         self.source = source
