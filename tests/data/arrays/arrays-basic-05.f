@@ -16,7 +16,7 @@ C     A is a 2-D array (5x5) of integers with explicit lower-bounds.
 
       ! write out the array
       do i = -3, 1
-          write (*,10) A(i,-4), A(i,-3), A(i,-2), A(i,-1), A(i,0)
+          write (*,10) A(-1,-4), A(i,-3), A(i,-2), A(i,-1), A(i,0)
       end do
 
  10   format(5(I5,X))

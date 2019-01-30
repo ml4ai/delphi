@@ -108,6 +108,7 @@ class PythonCodeGenerator(object):
             "open": self.printOpen,
             "format": self.printFormat,
             "close": self.printClose,
+            "array": self.printArray,
         }
         self.operator_mapping = {
             ".ne.": " != ",
@@ -230,11 +231,11 @@ class PythonCodeGenerator(object):
                 index += 1
 
     def printArg(self, node, printState):
-        if node["type"] == "INTEGER":
+        if node["type"].upper() == "INTEGER":
             varType = "int"
-        elif node["type"] in ("DOUBLE", "REAL"):
+        elif node["type"].upper() in ("DOUBLE", "REAL"):
             varType = "float"
-        elif node["type"] == "CHARACTER":
+        elif node["type"].upper() == "CHARACTER":
             varType = "str"
         else:
             print(f"unrecognized type {node['type']}")
@@ -248,13 +249,13 @@ class PythonCodeGenerator(object):
             and node["name"] not in printState.globalVars
         ):
             printState.definedVars += [node["name"]]
-            if node["type"] == "INTEGER":
+            if node["type"].upper() == "INTEGER":
                 initVal = 0
                 varType = "int"
-            elif node["type"] in ("DOUBLE", "REAL"):
+            elif node["type"].upper() in ("DOUBLE", "REAL"):
                 initVal = 0.0
                 varType = "float"
-            elif node["type"] == "STRING":
+            elif node["type"].upper() == "STRING":
                 initVal = ""
                 varType = "str"
             else:
@@ -380,17 +381,96 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(node["name"])
         if printState.indexRef:
             self.pyStrings.append("[0]")
+        if node.get("subscripts"):
+            self.pyStrings.append(".get_((")
+            value = ""
+            subLength = len(node["subscripts"])
+            for ind in node["subscripts"]:
+                if ind["tag"] == "ref":
+                    indName = ind["name"]
+                    self.pyStrings.append(f"{indName}")
+                    if "subscripts" in ind:
+                        self.pyStrings.append(".get_((")
+                        self.printAst(
+                            ind["subscripts"],
+                            printState.copy(
+                                sep="", add="", printFirst=True, indexRef=True
+                            ),
+                        )
+                        self.pyStrings.append("))")
+                    else:
+                        self.pyStrings.append("[0]")
+                if ind["tag"] == "op":
+                    indOp = ind["operator"]
+                    indValue = ind["left"][0]["value"]
+                    self.pyStrings.append(f"{indOp}{indValue}")
+                elif ind["tag"] == "literal" and "value" in ind:
+                    indValue = ind["value"]
+                    self.pyStrings.append(f"{indValue}")
+                if (subLength > 1):
+                    self.pyStrings.append(", ")
+                    subLength = subLength - 1
+            self.pyStrings.append("))")
 
     def printAssignment(self, node, printState):
-        self.printAst(
-            node["target"],
-            printState.copy(sep="", add="", printFirst=False, indexRef=True),
+        if "subscripts" in node["target"][0]:
+            self.pyStrings.append(f"{node['target'][0]['name']}.set_((")
+            length = len(node["target"][0]["subscripts"])
+            for ind in node["target"][0]["subscripts"]:
+                index = ""
+                if ind["tag"] == "ref":
+                    if 'name' in ind:
+                        index = ind["name"]
+                    elif 'value' in ind:
+                        index = ind["value"]
+                    self.pyStrings.append(f"{index}[0]")
+                if ind["tag"] == "op":
+                    operator = ind["operator"]
+                    if ind["left"][0]["tag"] == "literal":
+                        lIndex = ind["left"][0]["value"]
+                        self.pyStrings.append(f"{lIndex}")
+                    elif (ind["left"][0]["tag"] == "ref"):
+                        lIndex = ind["left"][0]["name"]
+                        self.pyStrings.append(f"{lIndex}[0]")
+
+                    self.pyStrings.append(f" {operator} ")
+
+                    if ind["right"][0]["tag"] == "literal":
+                        rIndex = ind["right"][0]["value"]
+                        self.pyStrings.append(f"{rIndex}")
+                    elif (ind["right"][0]["tag"] == "ref"):
+                        rIndex = ind["right"][0]["name"]
+                        self.pyStrings.append(f"{rIndex}[0]")
+
+                if (length > 1):
+                    self.pyStrings.append(", ")
+                    length = length - 1
+            self.pyStrings.append("), ")
+        else:
+            self.printAst(
+                node["target"],
+                printState.copy(sep="", add="", printFirst=False, indexRef=True),
+            )
+            self.pyStrings.append(" = ")
+        if "subscripts" in node["value"][0]:
+            self.pyStrings.append(f"{node['value'][0]['name']}.get_((")
+            arrayLen = len(node["value"][0]["subscripts"])
+            for ind in node["value"][0]["subscripts"]:
+                if "name" in ind:
+                    self.pyStrings.append(f"{ind['name']}[0]")
+                else:
+                    self.pyStrings.append(f"{ind['value']}")
+                if arrayLen > 1:
+                    self.pyStrings.append(", ")
+                    arrayLen = arrayLen - 1
+            self.pyStrings.append("))")
+        else:
+            self.printAst(
+                node["value"],
+                printState.copy(sep="", add="", printFirst=False, indexRef=True),
         )
-        self.pyStrings.append(" = ")
-        self.printAst(
-            node["value"],
-            printState.copy(sep="", add="", printFirst=False, indexRef=True),
-        )
+        if "subscripts" in node["target"][0]:
+            self.pyStrings.append(")")
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
@@ -447,17 +527,58 @@ class PythonCodeGenerator(object):
         )
 
     def printWrite(self, node, printState):
+        hasArray = False
+        arrayloc = 0
+        for i in range(0, len(node["args"])):
+            if "subscripts" in node["args"][i]:
+                hasArray = True
+                arrayloc = i
+
+        if hasArray:
+            var = 0
+            name = node["args"][arrayloc]["name"]
+            for args in node["args"]:
+                if "subscripts" in args:
+                    var = var + 1
+                    self.pyStrings.append(f"var{var} = {name}.get_((")
+                    subLength = len(args["subscripts"])
+                    for ind in args["subscripts"]:
+                        if ind["tag"] == "ref" and "name" in ind:
+                            indName = ind["name"]
+                            self.pyStrings.append(f"{indName}[0]")
+                        if ind["tag"] == "op":
+                            indOp = ind["operator"]
+                            indValue = ind["left"][0]["value"]
+                            self.pyStrings.append(f"{indOp}{indValue}")
+                        elif ind["tag"] == "literal" and "value" in ind:
+                            indValue = ind["value"]
+                            self.pyStrings.append(f"{indValue}")
+                        if (subLength > 1):
+                            self.pyStrings.append(", ")
+                            subLength = subLength - 1
+                    self.pyStrings.append("))")
+                    self.pyStrings.append(printState.sep)
         write_list = []
         write_string = ""
         file_number = str(node["args"][0]["value"])
-        if node["args"][0]["type"] == "int":
-            file_handle = "file_" + file_number
-        if node["args"][1]["type"] == "int":
-            format_label = node["args"][1]["value"]
+        for i in range (0, len(node["args"])):
+            if i == 0 and node["args"][i]["type"] == "int":
+                file_handle = "file_" + file_number
+            if i == 1 and"type" in node["args"][1]:
+                if node["args"][1]["type"] == "int":
+                    format_label = node["args"][1]["value"]
+        else:
+            format_label = node["args"][0]["value"]
         self.pyStrings.append(f"write_list_{file_number} = [")
+        var_num = 0
         for item in node["args"]:
-            if item["tag"] == "ref":
-                write_string += f"{item['name']}, "
+            if hasArray == False:
+                if item["tag"] == "ref":
+                    write_string += f"{item['name']}, "
+            else:
+                if "subscripts" in item:
+                    var_num = var_num + 1 
+                    write_string += f"var{var_num}, "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(
@@ -499,6 +620,35 @@ class PythonCodeGenerator(object):
         file_id = node["args"][0]["value"]
         self.pyStrings.append(f"file_{file_id}.close()")
 
+    def printArray(self, node, printState):
+        if int(node['count']) == 1:
+            if (
+                node["name"] not in printState.definedVars
+                and node["name"] not in printState.globalVars
+            ):
+                printState.definedVars += [node["name"]]
+                loBound = node["low" + node['count']]
+                upBound = node["up" + node['count']]
+
+                self.pyStrings.append(
+                    f"{node['name']} = Array([({loBound}, {upBound})])"
+                )
+        elif int(node['count']) > 1:
+            printState.definedVars += [node["name"]]
+
+            self.pyStrings.append(f"{node['name']} = Array([")
+            for i in range (0, int(node['count'])):  
+                loBound = node["low" + str(i+1)]
+                upBound = node["up" + str(i+1)]
+                dimensions = f"({loBound}, {upBound})"
+                if i < int(node['count'])-1:
+                    self.pyStrings.append(f"{dimensions}, ")
+                else:
+                    self.pyStrings.append(f"{dimensions}")
+            self.pyStrings.append("])")
+        else:
+            printState.printFirst = False
+
     def get_python_source(self):
         return "".join(self.pyStrings)
 
@@ -509,7 +659,8 @@ def create_python_string(outputDict):
         [
             "from typing import List\n",
             "import math\n",
-            "from fortran_format import *",
+            "from fortran_format import *\n",
+            "from for2py_arrays import *",
         ]
     )
     code_generator.printAst(outputDict["ast"], PrintState())
