@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 from indra.statements.statements import Influence
 from indra.statements.concept import Concept
-from indra.statements.evidence import Evidence
+from indra.statements.evidence import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
@@ -172,7 +172,7 @@ class AnalysisGraph(nx.DiGraph):
                         subj_delta=s["subj_delta"],
                         obj_delta=s["obj_delta"],
                         evidence=[
-                            Evidence(
+                            INDRAEvidence(
                                 source_api=ev["source_api"],
                                 annotations=ev["annotations"],
                                 text=ev["text"],
