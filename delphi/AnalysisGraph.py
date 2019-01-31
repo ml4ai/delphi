@@ -337,7 +337,9 @@ class AnalysisGraph(nx.DiGraph):
             self.transition_matrix_collection.append(A)
 
     def sample_observed_state(self, s: pd.Series) -> Dict:
-        """ Sample observed state vector.
+        """ Sample observed state vector. This is the implementation of the
+        emission function.
+
         Args:
             s: Latent state vector.
 
@@ -353,6 +355,13 @@ class AnalysisGraph(nx.DiGraph):
         }
 
     def sample_from_likelihood(self, n_timesteps=10):
+        """ Sample a collection of observed state sequences from the likelihood
+        model given a collection of transition matrices.
+
+        Args:
+            n_timesteps: The number of timesteps for the sequences.
+        """
+
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
@@ -368,7 +377,15 @@ class AnalysisGraph(nx.DiGraph):
             for latent_state_sequence in self.latent_state_sequences
         ]
 
-    def sample_from_proposal(self, A):
+    def sample_from_proposal(self, A: pd.DataFrame) -> None:
+        """ Sample a new transition matrix from the proposal distribution,
+        given a current candidate transition matrix. In practice, this amounts
+        to the in-place perturbation of an element of the transition matrix
+        currently being used by the sampler.
+
+        Args
+        """
+
         # Choose the element of A to perturb
         self.source, self.target, self.edge_dict = random.choice(
             list(self.edges(data=True))
@@ -376,7 +393,7 @@ class AnalysisGraph(nx.DiGraph):
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
-    def sample_from_posterior(self, A):
+    def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
         self.sample_from_proposal(A)
         self.set_latent_state_sequence(A)
@@ -399,9 +416,6 @@ class AnalysisGraph(nx.DiGraph):
             self.update_log_prior(A)
             self.update_log_joint_probability()
 
-    def emission_function(self, s_i, mu_ij, sigma_ij):
-        return np.random.normal(s_i * mu_ij, sigma_ij)
-
     def infer_transition_matrix_coefficient_from_data(
         self,
         source: str,
@@ -409,7 +423,21 @@ class AnalysisGraph(nx.DiGraph):
         state: Optional[str] = None,
         crop: Optional[str] = None,
     ):
-        """ Infer the distribution of a transition matrix coefficient from data. """
+        """ Infer the distribution of a particular transition matrix
+        coefficient from data. 
+
+        Args:
+            source: The source of the edge corresponding to the matrix element
+                to infer.
+            target: The target of the edge corresponding to the matrix element
+                to infer.
+            state:
+                The state in South Sudan for which the transition matrix
+                coefficient should be calculated.
+            crop:
+                The crop for which the transition matrix coefficient should be
+                calculated.
+        """
         rows = engine.execute(
             f"select * from dssat where `Crop` like '{crop}'"
             f" and `State` like '{state}'"
@@ -426,13 +454,25 @@ class AnalysisGraph(nx.DiGraph):
     # Basic Modeling Interface (BMI)
     # ==========================================================================
 
-    def create_bmi_config_file(self, bmi_config_file: str = "bmi_config.txt"):
-        """ Create a BMI config file to initialize the model. """
+    def create_bmi_config_file(self, filename: str = "bmi_config.txt") -> None:
+        """ Create a BMI config file to initialize the model. 
+
+        Args:
+            filename: The filename with which the config file should be saved.
+        """
         s0 = self.construct_default_initial_state()
-        s0.to_csv(bmi_config_file, index_label="variable")
+        s0.to_csv(filename, index_label="variable")
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
-        """ The default update function for a CAG node. """
+        """ The default update function for a CAG node. 
+        
+        Args:
+            n: A 2-tuple containing the node name and node data.
+
+        Returns:
+            A list of values corresponding to the distribution of the value of
+            the real-valued variable representing the node.
+        """
         return [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
