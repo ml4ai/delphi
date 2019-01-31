@@ -25,7 +25,6 @@ import argparse
 from typing import List, Dict
 from delphi.translators.for2py.scripts.fortran_format import *
 
-
 class PrintState:
     def __init__(
         self,
@@ -183,17 +182,26 @@ class PythonCodeGenerator(object):
                 node["name"] = f"math.{node['name']}"
             inRef = 1
 
+        argSize = len(node["args"])
+        assert argSize >= 1
         self.pyStrings.append(f"{node['name']}(")
-        self.printAst(
-            node["args"],
-            printState.copy(
-                sep=", ",
-                add="",
-                printFirst=False,
-                definedVars=[],
-                indexRef=inRef,
-            ),
-        )
+        for arg in range (0, argSize):
+            self.pyStrings.append("[")
+            self.printAst(
+                [node["args"][arg]],
+                printState.copy(
+                    sep=", ",
+                    add="",
+                    printFirst=False,
+                    definedVars=[],
+                    indexRef=inRef,
+                ),
+            )
+            if node["args"][0]["tag"] == "ref" and "subscripts" not in node["args"][0]:
+                self.pyStrings.append("[0]")
+            self.pyStrings.append("]")
+            if arg < argSize - 1:
+                self.pyStrings.append(", ")
         self.pyStrings.append(")")
 
         if not printState.indexRef:
@@ -418,6 +426,9 @@ class PythonCodeGenerator(object):
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
                 index = ""
+                if ind["tag"] == "literal": # Case where using literal value as an array index
+                    index = ind["value"]
+                    self.pyStrings.append(f"{index}")
                 if ind["tag"] == "ref":
                     if 'name' in ind:
                         index = ind["name"]
@@ -489,6 +500,9 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"return {val}")
 
     def printExit(self, node, printState):
+        if node.get("value"):
+            self.pyStrings.append(f"print({node['value']})")
+            self.pyStrings.append(printState.sep)
         self.pyStrings.append("return")
 
     def printReturn(self, node, printState):
@@ -586,9 +600,6 @@ class PythonCodeGenerator(object):
         )
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(f"{file_handle}.write(write_line)")
-
-    def printExit(self, node, printState):
-        self.pyStrings.append("return")
 
     def printFormat(self, node, printState):
         type_list = []
