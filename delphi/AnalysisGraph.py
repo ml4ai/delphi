@@ -393,10 +393,35 @@ class AnalysisGraph(nx.DiGraph):
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
-    def get_timeseries_values_for_indicators(self, n_timesteps = 2):
+    def get_timeseries_values_for_indicators(
+        self,
+        resolution: str = "month",
+        time_points: List[int] = range(1, 5),
+        n_timesteps=3,
+        country: Optional[str] = "South Sudan",
+        state: Optional[str] = None,
+        unit: Optional[str] = None,
+        fallback_aggaxes: List[str] = ["year"],
+        aggfunc: Callable = np.mean,
+    ):
         """ Attach timeseries to indicators, for performing Bayesian inference.
         """
-        pass
+        if resolution == "month":
+            funcs = [
+                partial(get_indicator_value, month=month) for month in time_points
+            ]
+        else:
+            raise NotImplementedError(
+                "Currently, only the 'month' resolution is supported."
+            )
+
+        for n in self.nodes(data=True):
+            for indicator in n[1]["indicators"].values():
+                print(indicator.name)
+                indicator.timeseries = [
+                        func(indicator)[0] for func in funcs 
+                ]
+                print(indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
@@ -955,7 +980,7 @@ class AnalysisGraph(nx.DiGraph):
                 auxiliaryProperties=[],
                 lastUpdated=today,
                 types=["causal"],
-                description=f"{e[0]} influences {e[1]}.",
+                description="",
                 confidence=np.mean(
                     [s.belief for s in e[2]["InfluenceStatements"]]
                 ),
