@@ -23,7 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from delphi.translators.for2py.scripts.fortran_format import *
+from fortran_format import *
 
 
 class PrintState:
@@ -183,17 +183,43 @@ class PythonCodeGenerator(object):
                 node["name"] = f"math.{node['name']}"
             inRef = 1
 
+        argSize = len(node["args"])
+
         self.pyStrings.append(f"{node['name']}(")
-        self.printAst(
-            node["args"],
-            printState.copy(
-                sep=", ",
-                add="",
-                printFirst=False,
-                definedVars=[],
-                indexRef=inRef,
-            ),
-        )
+        if (argSize == 1):  # If number of passing argument is 1 
+            self.pyStrings.append("[")
+            self.printAst(
+                node["args"],
+                printState.copy(
+                    sep=", ",
+                    add="",
+                    printFirst=False,
+                    definedVars=[],
+                    indexRef=inRef,
+                ),
+            )
+            if node["args"][0]["tag"] == "ref" and "subscripts" not in node["args"][0]:
+                self.pyStrings.append("[0]")
+            self.pyStrings.append("]")
+        else:   # If number of passing argument is > 1
+            for arg in range (0, argSize):
+                self.pyStrings.append("[")
+                self.printAst(
+                    [node["args"][arg]],
+                    printState.copy(
+                        sep=", ",
+                        add="",
+                        printFirst=False,
+                        definedVars=[],
+                        indexRef=inRef,
+                    ),
+                )
+                if node["args"][0]["tag"] == "ref" and "subscripts" not in node["args"][0]:
+                    self.pyStrings.append("[0]")
+                self.pyStrings.append("]")
+                if arg < argSize - 1:
+                    self.pyStrings.append(", ")
+
         self.pyStrings.append(")")
 
         if not printState.indexRef:
@@ -418,6 +444,9 @@ class PythonCodeGenerator(object):
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
                 index = ""
+                if ind["tag"] == "literal": # Case where using literal value as an array index
+                    index = ind["value"]
+                    self.pyStrings.append(f"{index}")
                 if ind["tag"] == "ref":
                     if 'name' in ind:
                         index = ind["name"]
