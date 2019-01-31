@@ -6,7 +6,8 @@ from matplotlib import pyplot as plt
 from conftest import G, conflict_string, food_security_string
 import seaborn as sns
 
-def test_inference(G):
+@pytest.mark.skip
+def test_inference_with_synthetic_data(G):
     """ Smokescreen test for sampler. """
     # Generate synthetic data
 
@@ -83,3 +84,6 @@ def test_inference(G):
 
     # This tolerance seems to work for now, so I'm leaving it in.
     assert map_estimate == approx(original_beta, abs=0.1)
+
+def test_inference_with_real_data(G):
+    G.get_timeseries_values_for_indicators()

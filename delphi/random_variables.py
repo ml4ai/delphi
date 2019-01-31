@@ -63,6 +63,7 @@ class Indicator(RV):
         aggregation_method:
             The method of aggregation across the aggregation axes. Currently
             defaults to 'mean'.
+        timeseries: A time series for the indicator.
     """
 
     def __init__(
@@ -76,6 +77,7 @@ class Indicator(RV):
         time: Optional[datetime] = None,
         aggaxes: List[str] = [],
         aggregation_method: str = "mean",
+        timeseries: Optional[List[float]] = None,
     ):
         super().__init__(name)
         self.source = source
@@ -86,6 +88,7 @@ class Indicator(RV):
         self.time = time
         self.aggaxes = aggaxes
         self.aggregation_method = aggregation_method
+        self.timeseries = timeseries
 
     def get_historical_distribution(
         self,
