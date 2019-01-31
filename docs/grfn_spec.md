@@ -75,18 +75,20 @@ More than one identifier can be used to denote the same program element, but an 
 
 ### Grounding
 
-Identifiers play a key role in connecting the model as implemented in source code to the target domain that it models. *Grounding* is the task of inferring what aspect of target domain a program element may correspond to, and identifiers, by their (base) name(s), their declaration and use (where they occur in code -- `scope` and `namespace`), and the doc and comment strings that occur around them, provide clues to what they are intended to refer to. For this reason, we need to associate with identifiers several pieces of information. This information will be collected during program analysis and associated with the identifier declaration:
+Identifiers play a key role in connecting the model as implemented in source code to the target domain that it models. *Grounding* is the task of inferring what aspect of the target domain a program element may correspond to. Identifiers, by their (base) name(s), their declaration and use (i.e., where they occur in code, through their scope and namespace), and the doc and comment strings that occur around them, provide clues to what program elements are intended to represent in the target domain. For this reason, we need to associate with identifiers several pieces of information. This information will be collected during program analysis and associated with the identifier declaration:
 
-- "aliases": It is possible for multiple identifiers to be used to denote the same program element. How this is done differs across languages, according to scoping rules and assignment. Program analysis modules for each language (e.g., the Fortran `for2py` analyzer) will determine this. One general way to assign more than one identifier to the same program element is through a *simple equality assignment*, e.g.: `y = x` means that a new identifier, `y`, denotes the same program element that `x` does. A simple equality assignment just involve one identifier being equated with another, no other operations are applied; if other operations are applied (e.g., `y = x + 1`), then this is a *new* identifier as it does not represent the original value of `x` but a modification of it.
+- "aliases": It is possible for multiple identifiers to be used to denote the same program element. How this is done differs across languages, according to scoping rules and assignment. Program analysis modules for each language (e.g., the Fortran `for2py` analyzer) will determine how aliases are used. One general way to assign more than one identifier to the same program element is through a *simple equality assignment*, e.g.: `y = x` means that a new identifier, `y`, denotes the same program element that `x` does. A simple equality assignment just involves one identifier being equated with another, no other operations are applied; if other operations are applied (e.g., `y = x + 1`), then this is a *new* identifier as it does not represent the original value of `x` but a modification of it.
 
-    CHOICE: Do we declare each identifier separately, or combine them at program analysis time to the a single identifier with aliases.
+    CHOICE: Do we declare each identifier separately, or combine them at program analysis time to treat them as a single identifier with aliases?
     
-    FOR NOW: We will only keep track of a single identifier (the first one encountered by program analysis) but associate any additional `aliases` as the names of any additional identifier introduced in code.
+    FOR NOW: We will only keep track of a single identifier (the first one encountered by program analysis) but associate any additional \"aliases\" as the names of any additional identifier introduced in code.
+    
+	FUTURE: Note that once we consider pointers (e.g., DSSAT has some), it can become impossible in general to determine all aliases *statically*.
 	
 - "source\_references": To facilitate later grounding inference, we will store a reference to the location within the source code where an identifier is declared, using a `<source_code_reference>`:
 
 	```
-    <source_code_reference> := <string>
+    <source_code_reference> ::= <string>
     ```
 
     The string contains information to identify the location of the identifier, which is a single line number if the declaration occurs on a single line, otherwise two line numbers to indicate the span of line numbers containing the declaration. (`<soure_code_references>` will be used to represent the location of other program elements, such as for functions, below.)
@@ -95,21 +97,23 @@ Identifiers play a key role in connecting the model as implemented in source cod
 
 ### Base name
 
-The `base_name` is intended to correspond to the identifier token name as it appears in the source language (e.g., Fortran). The `<lang_string>` is itself a string
+The `<base_name>` is intended to correspond to the identifier token name as it appears in the source language (e.g., Fortran). The `<base_name>` is itself a string
 
-    <lang_string> ::= <string>
+    <base_name> ::= <string>
 
-but follows the conventions of [python identifier specification rules](https://docs.python.org/3/reference/lexical_analysis.html#identifiers) (which includes Fortran naming syntax). (FUTURE: may extend this as more source languages are supported.)
+but follows the conventions of [python identifier specification rules](https://docs.python.org/3/reference/lexical_analysis.html#identifiers) (which includes Fortran naming syntax).
+
+>FUTURE: may extend this as more source languages are supported.
 
 ### Scope and namespace paths
 
-Identifiers may have the same `base_name` (as it appears in source code) but be distinguished by either (or both) the [scope](https://en.wikipedia.org/wiki/Scope_(computer_science)) and [namespace](https://en.wikipedia.org/wiki/Namespace) within which they are defined in the source code.
+Identifiers may have the same `<base_name>` (as it appears in source code) but be distinguished by either (or both) the \"[scope](https://en.wikipedia.org/wiki/Scope_(computer_science))\" and \"[namespace](https://en.wikipedia.org/wiki/Namespace)\" within which they are defined in the source code.
 
-Each source language has its own rules for specifying `scope` and `namespace`, and it will be the responsibility of each program analysis module (e.g., Fortran `for2py`) to identify the hierarchical structure of the context that uniquely identifies the specific `scope` and/or `namespace` within which an identifier `base_name` is defined. However, generally `scope`s and `namespace`s may be defined hierarchically, such that the name for each level of the hierarchy taken together uniquely define the context. A `path` of names appears to be sufficient to generally represent the hierarchical context for either a specific `scope` or `namespace`. In general, a names for a `path` are listed in order from general (highest level in the hierarchy) to specific.
+Each source language has its own rules for specifying scope and namespace, and it will be the responsibility of each program analysis module (e.g., Fortran `for2py`) to identify the hierarchical structure of the context that uniquely identifies the specific scope and/or namespace within which an identifier `<base_name>` is defined. However, generally scopes and namespaces may be defined hierarchically, such that the name for each level of the hierarchy taken together uniquely define the context. A \"path\" of names appears to be sufficient to generally represent the hierarchical context for either a specific scope or namespace. In general, names for a path are listed in order from general (highest level in the hierarchy) to specific.
 
 Examples:
 
-- `scope`: As will be described below, program analysis will assign unique names for scopes (see discussion below under conditional, container and loop\_plate functions). Given these names, the scope of the inner loop within the function `foo` in this example,
+- `<scope_path>`: As will be described below, program analysis will assign unique names for scopes (see discussion below under conditional, container and loop\_plate functions). Given these names, the scope of the inner loop within the function `foo` in this example,
     ```
     def foo():
         for i in range(10):      # assigned name 'loop$1'
@@ -121,13 +125,15 @@ Examples:
     ["foo", "loop$1", "loop$1"]
     ```
     
-    In general, it is not necessary within GrFN to independently declare `scope`s. Instead, we simply specify the `<scope_path>` in an indicator declaration as a list of strings under the "scope" attribute in the identifier declaration (below).
+    In general, it is not necessary within GrFN to independently declare scopes. Instead, we simply specify the `<scope_path>` in an indicator declaration as a list of strings under the "scope" attribute in the identifier declaration (below).
     
     ```
     <scope_path> ::= list of <string>
     ```
     
-- `namespace`: Different languages have different conventions for defining namespaces, but in general they are either (1) explicitly defined within source code by namespace declarations (such as Fortran "modules" or C++ "namespace"s), or (2) implicitly defined by the project directory structure within which a file is located (as in Python). In the case of namespaces defined by project directory structure, two files in different locations in the project directory tree may have the same name. To distinguish these, program analysis will capture the path of the directory tree from the root to the file. The final name in the path, which is the name of the source file, will drop the file extension. For example, the namespace for file `baz.py` within the following directory tree
+	The \"top\" level of the file (i.e., not enclosed within another program block context) will be assigned the default scope name of \"\_TOP\". All other scopes are either explicitly named (such as a named function), or are assigned a unique name by program analysis according to the rules of the type of scope (such as container, loop, conditional, etc), defined below. In such cases other than top, there is no need to include the \"\_TOP\" in the path -- it will be assumed that those named scopes are all within the default top-level scope.
+    
+- `<namespace_path>`: Different languages have different conventions for defining namespaces, but in general they are either (1) explicitly defined within source code by namespace declarations (such as Fortran "modules" or C++ "namespace"s), or (2) implicitly defined by the project directory structure within which a file is located (as in Python). In the case of namespaces defined by project directory structure, two files in different locations in the project directory tree may have the same name. To distinguish these, program analysis will capture the path of the directory tree from the root to the file. The final name in the path, which is the name of the source file, will drop the file extension. For example, the namespace for file `baz.py` within the following directory tree
     ```
     foo/
         bar/
@@ -140,7 +146,7 @@ Examples:
 
 	In the case of declared namespaces, the namespace declaration will determine the path (which may only consist of one string name).
 
-    Again, it is not necessary within GrFN to independently declare a `namesapce`; like the `<scope_path>`, we specify the `<namespace_path>` within an identifier declaration as a list strings under the "namespace" attribute in the identifie declaration:
+    Again, it is not necessary within GrFN to independently declare a namespace; like the `<scope_path>`, we specify the `<namespace_path>` within an identifier declaration as a list strings under the "namespace" attribute in the identifier declaration:
 	
 	```
     <namespace_path> ::= list of <string>
@@ -164,26 +170,28 @@ It will be convenient to be able to express `<scope_path>`s and `<namespace_path
 
 ### Identifier string
 
-Identifiers are uniquely defined by their `base_name`, `scope`, and `namespace`. It will be convenient to refer to any identifier using a single string, outside of the identifier specification declaration. We define an `<identifier_string>` by combining the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `<base_name>` by double-colons:
+Identifiers are uniquely defined by their `<base_name>`, `<scope_path>`, and `<namespace_path>`. It will be convenient to refer unambiguously to any identifier using a single string, outside of the identifier specification declaration (defined below). We define an `<identifier_string>` by combining the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `<base_name>` by double-colons:
 
     <identifier_string> ::= "<namespace_path_string>::<scope_path_string>::<base_name>"
 
+`<identifier_string>`s will be used to denote identifiers as they are used in variable and function specifications (described below).
+
 ### Identifier gensym
 
-One of the outputs of program analysis is a functionally equivalent version of the original source code (e.g., Fortran) and lambda functions, both expressed in the Python (as the intermediate target language). All identifiers in the output Python must match identifiers in GrFN. Since capturing the semantics (particularly the namespace and scope context) results in a representation that does not appear to be consistently expressible in legal Python output, we will use `gensym`s that may be represented (generally more compactly) as legal Python names and associated uniquely with identifiers.
+One of the outputs of program analysis is a functionally equivalent version of the original source code and lambda functions (described below), both expressed in Python (as the intermediate target language). All identifiers in the output Python must match identifiers in GrFN. Since capturing the semantics (particularly the namespace and scope context) results in a representation that does not appear to be consistently expressible in legal Python symbol names, we will use `<gensym>`s that can be represented (generally more compactly) as legal Python names and associated uniquely with identifiers.
 
-FUTURE: create a unique hashing function between `gensym`s and identifiers.
+FUTURE: Create a hashing function that can translate uniquely back and forth between `<gensym>`s and identifier strings.
 
-FOR NOW: Generate Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
+FOR NOW: Generate `<gensym>`s as Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
 
 Each identifier will be associated one-to-one with a unique `<gensym>`.
 
 ### Identifier specification
 
-Each identifier within a GrFN specification will have a single `<identifier_spec>` declaration, and `<identifier_string>`s are then used to denote uses of the identifier elsewhere in the GrFN spec (e.g., in variable and function specs). An identifier will be declared in the GrFN spec JSON by the following attribute-value list:
+Each identifier within a GrFN specification will have a single `<identifier_spec>` declaration. An identifier will be declared in the GrFN spec JSON by the following attribute-value list:
 
     <identifier_spec>[attrval] ::=
-        "base_name" : <lang_string>
+        "base_name" : <base_name>
         "scope" : <scope_path>
         "namespace" : <namespace_path>
         "aliases" : list of <string>
@@ -200,9 +208,9 @@ A variable name will be an identifier:
 
     <variable_name> ::= <identifier_string>
 
-A top level source variable named ABSORPTION would then simply have the `base_name` of "ABSORPTION" plus the relevant `<namespace_path_string>` and `<scope_path_string>`.
+A top level source variable named ABSORPTION would then simply have the `<base_name>` of "ABSORPTION" plus the relevant `<namespace_path_string>` and `<scope_path_string>`.
 
-If there are two (or more) separate instances of new variable declarations in the same context (same namespace and scope) using the same name, then we'll add an underscore and number to the `base_name` to distinguish them. For example, if ABSORPTION is defined twice in the same namespace and scope, then the `base_name` of the first (in order in the source code) is named:
+If there are two (or more) separate instances of new variable declarations in the same context (same namespace and scope) using the same name, then we'll add an underscore and number to the `<base_name>` to distinguish them. For example, if ABSORPTION is defined twice in the same namespace and scope, then the `<base_name>` of the first (in order in the source code) is named:
 
     "ABSORPTION_1"
 
@@ -220,28 +228,28 @@ In addition to capturing source code variable environment context in variable de
 
 ### Function naming conventions
 
-Function names, like variable names, are ultimately identifiers (and therefore include their `namespace` and `scope`), but there are additional rules for determining the function `base_name`. 
+Function names, like variable names, are ultimately identifiers (and therefore include their `<namespace_path>` and `<scope_path>`), but there are additional rules for determining the function `<base_name>` (which we will here refer to as a `<function_base_name>`). 
 
-The general string format for a function `base_name` is:
+The general string format for a `<function_base_name>` is:
 
-    <variable_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
+    <function_base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
 
 The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): \"assign\", \"condition\", \"container\", \"loop\_plate\". In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
 
 The optional `<code_given_name>` is used when the function identified by program analysis has also been given a name within source code. For example, in this python example:
 
-    ```python
+    ```javascript
     def foo():
        ...
     ```
 
-the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `base_name` be
+the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `<function_base_name>` be
 
     "container$foo"
 
 When a `<code_given_name>` is available, it occurs first in the function `base_name`, followed by 2 underscores.
 
-The optional `<var_affected>` will only be relevant for assign and condition function types, and the name of the variable affected will be added after the `<function_type>` and 3 underscores. For example, a condition variable and setting the (inferred) boolean variable IF\_1 would have the `base_name`:
+The optional `<var_affected>` will only be relevant for assign and condition function types, and the name of the variable affected will be added after the `<function_type>` and 3 underscores. For example, a condition variable and setting the (inferred) boolean variable IF\_1 would have the `<function_base_name>`:
 
     "condition$IF_1"
 
@@ -249,9 +257,9 @@ Here are example function names for each function types. In each example, we ass
 
 -   **Assign**: An assignment of the variable with the `<identifier_string>`
     "CROP_YIELD::UPDATE_EST::YIELD\_EST"
-    (which denotes the variable with `base_name` \"YIELD\_EST\" in the scope of 
+    (which denotes the identifier with `<base_name>` \"YIELD\_EST\" in the scope of 
     the function UPDATE\_EST declared in the namespace CROP\_YIELD) has the 
-    `base_name`:
+    `function_base_name>`:
     
     	"assign$CROP_YIELD::UPDATE_EST::YIELD_EST"
     
@@ -270,7 +278,7 @@ Here are example function names for each function types. In each example, we ass
 -   **Container**: A container function declared in source code to have the 
     name CROP\_YIELD would then have the `<code_given_name>` of CROP\_YIELD, 
     and if this was declared at the top level of a file (defining the namespace) 
-    called CROP\_YIELD would have the `base_name`:
+    called CROP\_YIELD would have the `<function_base_name>`:
 
         "container$CROP_YIELD"
     
@@ -282,7 +290,7 @@ Here are example function names for each function types. In each example, we ass
     namespace, the NULL is because it's defined at the top level, and then the
     second occurrence of \"CROP\_YIELD\" is the `<code_given_name>` of CROP\_YIELD.)
 
--   **Loop_plate**: Loops themselves are not assigned identifiers within source code, so identifiers will be assigned during program analysis. As described above, the `base_name` of the loop\_plate function type is "loop" followed by a \'$\' and an integer starting from 1 that distinguishes the loop from any other loops occurring in the same namespace and scope.
+-   **Loop_plate**: Loops themselves are not assigned identifiers within source code, so identifiers will be assigned during program analysis. As described above, the `<function_base_name>` of the loop\_plate function type is "loop" followed by a \'$\' and an integer starting from 1 that distinguishes the loop from any other loops occurring in the same namespace and scope.
 
     -   A single loop within the function CROP\_YIELD of the namespace 
         CROP\_YIELD has the `<identifier_string>`:
@@ -299,41 +307,46 @@ Here are example function names for each function types. In each example, we ass
 
             "CROP_YIELD::CROP_YIELD.loop$2::loop$1"
 
-    -   An assignment of the variable \"CROP\_YIELD::UPDATE\_EST::RAIN\" within
-        a single loop in the CROP\_YIELD function in the CROP\_YIELD namespace:
+    -   An assignment of the variable \"CROP\_YIELD::\_TOP::RAIN\" (i.e., the 
+    	variable \"RAIN\" was defined in the default \"top\" level scope, within 
+    	the namespace CROP\_YIELD) within a single loop in the CROP\_YIELD 
+    	function in the CROP\_YIELD namespace:
 
-            "CROP_YIELD::CROP_YIELD.loop$1::assign$CROP_YIELD::UPDATE_EST::RAIN"
+            "CROP_YIELD::CROP_YIELD.loop$1::assign$CROP_YIELD::_TOP::RAIN"
         
         (Note that the above string is still unambiguous to parse to recover the
         components pieces of the name: the first two names separated by \'::\'
         are the `<namespace_string>` followed by the `<scope_string>`, with the
-        rest being the `base_name` of the function, which itself is an \"assign\"
-        of a variable that itself is a complete `<identifier_string>`)
+        rest being the `<function_base_name>` of the function, which itself is an 
+        \"assign\" of a variable that itself is a complete `<identifier_string>`)
 
 
 Top-level GrFN specification
 ----------------------------
 
-The top-level structure of the GrFN is the `<grfn_spec>` and is itself a
-JSON attribute-value list, with the following schema definition:
+The top-level structure of the GrFN specification is the `<grfn_spec>` and is itself a JSON attribute-value list, with the following schema definition:
 
     <grfn_spec>[attrval] ::=
-        "start": <string>
-        "source" : <string>
         "date_created" : <string>
+        "source" : list of <source_code_file_path>
+        "start": list of <string>
         "identifiers" : list of <identifier_spec>
         "functions" : list of <function_spec>
 
-There will be one GrFN spec file corresponding to each source code file
-analyzed by program analysis.
-
-The \"start\" attribute holds the name of the entry point of the
-(Fortran) source code i.e. the PROGRAM module. In the absence of this
-module, this string will remain empty: \"\". 
-
-The \"source\" attribute is used to uniquely identify the source code file that has been analyzed. The \"source\" is represented the same way as a `<namespace_path>` (as described above) except that the final name (the name of the file itself) _will_ include the file extension.
-
 The \"date\_created\" attribute is a string representing the date+time that the current GrFN was generated (this helps resolve what version of the program analysis code (e.g., for2py) was used).
+
+There may be a single GrFN spec file for multiple source code files.
+
+	CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system sub-program components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
+		- (1) A single GrFN spec for a given program and get the redundancies. 
+		- (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
+		- (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
+
+    FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
+
+	FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
+
+It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). In the absence of any entry point, this value will be an empty list: `[]`.
 
 The \"identifiers\" attributes contains a list of `<identifer_spec>`, as has been defined above in the section on Identifiers.
 
@@ -350,9 +363,9 @@ A (partial) example instance of the JSON generated for a `<grfn_spec>` of an ana
 
 ```javascript
 {
-    "start": "MAIN"
-    "source": ["crop_system", "yield", "crop_yield.py"]
     "dateCreated": "20190127",
+    "source": [["crop_system", "yield", "crop_yield.py"]],
+    "start": ["MAIN"],
     "identifiers": [... identifier_specs go here...]
     "functions": [... function_specs go here...]
 }
@@ -563,7 +576,7 @@ FUTURE: Eventually, we can expand this part of the grammar to accommodate a rest
 
 FOR NOW: have the lambda function reference the source code that does the computation, in the translated Python generated by program analysis. Any variables that are involved in the computation must be listed in the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
 
-As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented int he generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
+As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented in the generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
 
 ### Function Decision specification
 
