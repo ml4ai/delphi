@@ -998,7 +998,7 @@ class AnalysisGraph(nx.DiGraph):
                 confidence=np.mean(
                     [s.belief for s in e[2]["InfluenceStatements"]]
                 ),
-                label=""
+                label="",
                 strength=abs(np.median(e[2]["βs"]) / max_mean_betas),
                 reinforcement=(
                     True
