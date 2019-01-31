@@ -52,14 +52,6 @@ delphi.icm\_api.utils module
     :undoc-members:
     :show-inheritance:
 
-delphi.icm\_api.views module
-----------------------------
-
-.. automodule:: delphi.icm_api.views
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

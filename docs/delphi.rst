@@ -54,14 +54,6 @@ delphi.export module
     :undoc-members:
     :show-inheritance:
 
-delphi.inference module
------------------------
-
-.. automodule:: delphi.inference
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.inspection module
 ------------------------
 
