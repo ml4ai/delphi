@@ -393,6 +393,11 @@ class AnalysisGraph(nx.DiGraph):
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
+    def get_timeseries_values_for_indicators(self, n_timesteps = 2):
+        """ Attach timeseries to indicators, for performing Bayesian inference.
+        """
+        pass
+
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
         self.sample_from_proposal(A)
@@ -424,7 +429,7 @@ class AnalysisGraph(nx.DiGraph):
         crop: Optional[str] = None,
     ):
         """ Infer the distribution of a particular transition matrix
-        coefficient from data. 
+        coefficient from data.
 
         Args:
             source: The source of the edge corresponding to the matrix element
@@ -455,7 +460,7 @@ class AnalysisGraph(nx.DiGraph):
     # ==========================================================================
 
     def create_bmi_config_file(self, filename: str = "bmi_config.txt") -> None:
-        """ Create a BMI config file to initialize the model. 
+        """ Create a BMI config file to initialize the model.
 
         Args:
             filename: The filename with which the config file should be saved.
@@ -464,9 +469,7 @@ class AnalysisGraph(nx.DiGraph):
         s0.to_csv(filename, index_label="variable")
 
     def default_update_function(self, n: Tuple[str, dict]) -> List[float]:
-        """ The default update function for a CAG node. 
-        
-        Args:
+        """ The default update function for a CAG node.
             n: A 2-tuple containing the node name and node data.
 
         Returns:
