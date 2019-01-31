@@ -79,11 +79,11 @@ Identifiers play a key role in connecting the model as implemented in source cod
 
 - "aliases": It is possible for multiple identifiers to be used to denote the same program element. How this is done differs across languages, according to scoping rules and assignment. Program analysis modules for each language (e.g., the Fortran `for2py` analyzer) will determine how aliases are used. One general way to assign more than one identifier to the same program element is through a *simple equality assignment*, e.g.: `y = x` means that a new identifier, `y`, denotes the same program element that `x` does. A simple equality assignment just involves one identifier being equated with another, no other operations are applied; if other operations are applied (e.g., `y = x + 1`), then this is a *new* identifier as it does not represent the original value of `x` but a modification of it.
 
-    CHOICE: Do we declare each identifier separately, or combine them at program analysis time to treat them as a single identifier with aliases?
+    >CHOICE: Do we declare each identifier separately, or combine them at program analysis time to treat them as a single identifier with aliases?
     
-    FOR NOW: We will only keep track of a single identifier (the first one encountered by program analysis) but associate any additional \"aliases\" as the names of any additional identifier introduced in code.
+    >FOR NOW: We will only keep track of a single identifier (the first one encountered by program analysis) but associate any additional \"aliases\" as the names of any additional identifier introduced in code.
     
-	FUTURE: Note that once we consider pointers (e.g., DSSAT has some), it can become impossible in general to determine all aliases *statically*.
+	>FUTURE: Note that once we consider pointers (e.g., DSSAT has some), it can become impossible in general to determine all aliases *statically*.
 	
 - "source\_references": To facilitate later grounding inference, we will store a reference to the location within the source code where an identifier is declared, using a `<source_code_reference>`:
 
@@ -180,9 +180,9 @@ Identifiers are uniquely defined by their `<base_name>`, `<scope_path>`, and `<n
 
 One of the outputs of program analysis is a functionally equivalent version of the original source code and lambda functions (described below), both expressed in Python (as the intermediate target language). All identifiers in the output Python must match identifiers in GrFN. Since capturing the semantics (particularly the namespace and scope context) results in a representation that does not appear to be consistently expressible in legal Python symbol names, we will use `<gensym>`s that can be represented (generally more compactly) as legal Python names and associated uniquely with identifiers.
 
-FUTURE: Create a hashing function that can translate uniquely back and forth between `<gensym>`s and identifier strings.
+>FUTURE: Create a hashing function that can translate uniquely back and forth between `<gensym>`s and identifier strings.
 
-FOR NOW: Generate `<gensym>`s as Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
+>FOR NOW: Generate `<gensym>`s as Python names that start with a letter followed by a unique integer. The letter could be \'g\' for a generic gensym, or \'v\' to indicate a variable identifier and \'f\' to indicate a function identifier.
 
 Each identifier will be associated one-to-one with a unique `<gensym>`.
 
@@ -337,25 +337,20 @@ The \"date\_created\" attribute is a string representing the date+time that the 
 
 There may be a single GrFN spec file for multiple source code files.
 
-	CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system sub-program components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
-		- (1) A single GrFN spec for a given program and get the redundancies. 
-		- (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
-		- (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
+	>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system sub-program components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
+		>- (1) A single GrFN spec for a given program and get the redundancies. 
+		>- (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
+		>- (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
 
-    FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
+    >FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
 
-	FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
+	>FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
 
 It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). In the absence of any entry point, this value will be an empty list: `[]`.
 
 The \"identifiers\" attributes contains a list of `<identifer_spec>`, as has been defined above in the section on Identifiers.
 
-FUTURE:
-
-- It may also be desirable to add an attribute to represent
-  the program analysis code version used to generate the GrFN (as
-  presumably the program analysis code could evolve and have different
-  properties) \-- although \"dateCreated\" may be sufficient.
+>FUTURE: It may also be desirable to add an attribute to represent the program analysis code version used to generate the GrFN (as presumably the program analysis code could evolve and have different properties) \-- although \"dateCreated\" may be sufficient.
 
 NOTE: variables are not declared at the top-level `<grfn_spec>`, but will be defined in `<function_spec>`s, described below.
 
@@ -405,13 +400,12 @@ and restrict ourselves to four types that can be specified as strings:
 the \"support\" of a random variable, although should also correspond to
 standard data types.)
 
->TODO: Need to extend to accommodate arrays.
+>FUTURE: Need to extend to accommodate arrays.
 
-FUTURE:
-
--   May also need to accommodate other structures (How far can this go?
+>FUTURE:
+>-   May also need to accommodate other structures (How far can this go?
     Unions, composite data structures, classes?).
--   We see augmenting the domain specification to also allow
+>-   We see augmenting the domain specification to also allow
     representing whether there are bounds on the values (e.g., positive
     integers, or real values in (0,10\], etc.). When we move to doing
     this, the value of \"domain\" will itself become a new JSON attrval
@@ -423,7 +417,7 @@ specification in Python. Python 3 now provides nascent support for
 explicit typing via [type
 hints](https://docs.Python.org/3/library/typing.html).
 
->TODO: Explore whether/how this gets represented in the AST.
+>FUTURE: Explore whether/how this gets represented in the AST.
 
 For our purposes in the near term, we do want to capture what type and
 value-domain information is available; there are two main sources of
@@ -572,9 +566,9 @@ assigned to the variable in the `<function_assign_spec>`, then
         "name" : <function_name>
         "reference" : <source_code_reference>
 
-FUTURE: Eventually, we can expand this part of the grammar to accommodate a restricted set of arithmetic operations involved in computing the final value (this is now of interest in the World Modelers program and we\'re interested in supporting this in Delphi). 
+>FUTURE: Eventually, we can expand this part of the grammar to accommodate a restricted set of arithmetic operations involved in computing the final value (this is now of interest in the World Modelers program and we\'re interested in supporting this in Delphi). 
 
-FOR NOW: have the lambda function reference the source code that does the computation, in the translated Python generated by program analysis. Any variables that are involved in the computation must be listed in the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
+>FOR NOW: have the lambda function reference the source code that does the computation, in the translated Python generated by program analysis. Any variables that are involved in the computation must be listed in the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
 
 As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented in the generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
 
@@ -679,7 +673,7 @@ The \"input\" list of `<variable_name>` objects should list all variables that a
 
 The current loop\_plate specification is aimed at handling for-loops. (assumes \"index\_variable\" and \"index\_iteration\_range\" are specified)
 
->TODO: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
+>FUTURE: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
 
 The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`:
 
