@@ -36,6 +36,7 @@ class PrintState:
             callSource=None,
             definedVars=[],
             globalVars=[],
+            functionScope='',
             indexRef=True,
             varTypes={},
     ):
@@ -45,6 +46,7 @@ class PrintState:
         self.callSource = callSource
         self.definedVars = definedVars
         self.globalVars = globalVars
+        self.functionScope = functionScope
         self.indexRef = indexRef
         self.varTypes = varTypes
 
@@ -56,6 +58,7 @@ class PrintState:
             callSource=None,
             definedVars=None,
             globalVars=None,
+            functionScope=None,
             indexRef=None,
             varTypes=None,
     ):
@@ -66,6 +69,7 @@ class PrintState:
             self.callSource if callSource == None else callSource,
             self.definedVars if definedVars == None else definedVars,
             self.globalVars if globalVars == None else globalVars,
+            self.functionScope if functionScope == None else functionScope,
             self.indexRef if indexRef == None else indexRef,
             self.varTypes if varTypes == None else varTypes,
         )
@@ -100,6 +104,8 @@ class PythonCodeGenerator(object):
         self.privFunctions = []
         # This dictionary contains the mapping of symbol names to pythonic names
         self.nameMapper = {}
+        # Dictionary to hold functions and its arguments
+        self.funcArgs = {}
         self.mathFuncs = ["exp", "cexp", "cmplx", "cos", "sin", "acos", "asin", "tan", "atan", "sqrt", "log"]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
@@ -171,6 +177,7 @@ class PythonCodeGenerator(object):
     def printFunction(self, node, printState):
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
+        self.funcArgs[self.nameMapper[node['name']]] = [self.nameMapper[x['name']] for x in node['args']]
         self.printAst(
             node["args"],
             printState.copy(
@@ -184,7 +191,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("):")
         if printState.sep != '\n':
             printState.sep = '\n'
-
         self.printAst(
             node["body"],
             printState.copy(
@@ -192,6 +198,7 @@ class PythonCodeGenerator(object):
                 printFirst=True,
                 definedVars=args,
                 indexRef=True,
+                functionScope=self.nameMapper[node['name']],
             ),
         )
 
@@ -345,12 +352,23 @@ class PythonCodeGenerator(object):
             else:
                 print(f"unrecognized type {node['type']}")
                 sys.exit(1)
-            self.pyStrings.append(
-                f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
-            )
+            if printState.functionScope:
+                if not self.nameMapper[node['name']] in self.funcArgs.get(printState.functionScope):
+                    self.pyStrings.append(
+                        f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
+                    )
+                else:
+                    self.pyStrings.append(
+                        f"{self.nameMapper[node['name']]}: List[{varType}]"
+                    )
+            else:
+                self.pyStrings.append(
+                    f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
+                )
 
             # The code below might cause issues on unexpected places.
             # If weird variable declarations appear, check code below
+
             if not printState.sep:
                 printState.sep = '\n'
             self.pyStrings.append(printState.sep)
@@ -473,7 +491,7 @@ class PythonCodeGenerator(object):
         if node.get("subscripts"):
             self.pyStrings.append("(")
             for item in node["subscripts"]:
-                self.printFn[item["tag"]](item, printState)
+                self.printFn[item["tag"]](item, printState.copy(indexRef=False))
                 self.pyStrings.append(", ")
             self.pyStrings.append(")")
         else:
