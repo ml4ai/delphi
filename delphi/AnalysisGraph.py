@@ -408,7 +408,8 @@ class AnalysisGraph(nx.DiGraph):
         """
         if resolution == "month":
             funcs = [
-                partial(get_indicator_value, month=month) for month in time_points
+                partial(get_indicator_value, month=month)
+                for month in time_points
             ]
         else:
             raise NotImplementedError(
@@ -418,9 +419,7 @@ class AnalysisGraph(nx.DiGraph):
         for n in self.nodes(data=True):
             for indicator in n[1]["indicators"].values():
                 print(indicator.name)
-                indicator.timeseries = [
-                        func(indicator)[0] for func in funcs 
-                ]
+                indicator.timeseries = [func(indicator)[0] for func in funcs]
                 print(indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
@@ -642,11 +641,14 @@ class AnalysisGraph(nx.DiGraph):
     # Model parameterization
     # ==========================================================================
 
-    def map_concepts_to_indicators(self, n: int = 1):
+    def map_concepts_to_indicators(
+        self, n: int = 1, min_temporal_res: Optional[str] = None
+    ):
         """ Add indicators to the analysis graph.
 
         Args:
-            n
+            n: Number of matches to keep
+            min_temp_res: Minimum temporal resolution.
         """
 
         mapping = construct_concept_to_indicator_mapping(n)
@@ -662,10 +664,22 @@ class AnalysisGraph(nx.DiGraph):
             else:
                 node_name = node[0]
 
-            results = engine.execute(
-                "select Indicator from concept_to_indicator_mapping where "
-                f"`Concept` like '{node_name}' and `Source` is 'mitre12'"
-            )
+            query_parts = [
+                "select Indicator from concept_to_indicator_mapping",
+                f"where `Concept` like '{node_name}' and `Source` is 'mitre12'",
+            ]
+
+            if min_temporal_res is not None:
+                if min_temporal_res == "month":
+                    query_parts.append("where `Month` is not null")
+                else:
+                    raise NotImplementedError(
+                        "Currently, the only minimum temporal resolution"
+                        "supported is 'month'"
+                    )
+
+            query = "\n".join(query_parts)
+            results = engine.execute(query)
 
             node[1]["indicators"] = {
                 "/".join(x.split("/")[1:]): Indicator(
@@ -984,7 +998,7 @@ class AnalysisGraph(nx.DiGraph):
                 confidence=np.mean(
                     [s.belief for s in e[2]["InfluenceStatements"]]
                 ),
-                label=f"{e[0]} influences {e[1]}.",
+                label=""
                 strength=abs(np.median(e[2]["βs"]) / max_mean_betas),
                 reinforcement=(
                     True
