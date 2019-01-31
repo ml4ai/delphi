@@ -14,7 +14,7 @@ C     lower-bounds.
           do k = 10, 14
             A(i,j,k) = i+j+k     ! initialize the array
           end do
-      end do
+        end do
       end do
 
       ! write out the array

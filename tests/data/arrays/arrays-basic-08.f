@@ -2,8 +2,9 @@
 C     GAUSSIAN ELIMINATION
 C     From: http://users.metu.edu.tr/azulfu/courses/es361/programs/fortran/GAUEL.FOR
 
-      DIMENSION A(20,21)
-      INTEGER I,J
+      IMPLICIT NONE
+      REAL, DIMENSION (20,21) :: A
+      INTEGER :: I, J, N
 
  10   FORMAT(/,' GAUSS ELIMINATION')
       WRITE (*,10)      
@@ -62,33 +63,41 @@ C END INITIALIZATION
       END PROGRAM MAIN
 C*************************************
       SUBROUTINE GAUSS(N,A)
-      INTEGER PV
-      DIMENSION A(20,21)
+
+      REAL, DIMENSION(20,21) :: A
+      INTEGER PV, I, J, K, N, JC, JR, KC, NV
+      REAL :: EPS, EPS2, DET, TM, TEMP, VA
+
       EPS=1.0
-10    IF (1.0+EPS.GT.1.0) THEN
+      DO WHILE (1.0+EPS.GT.1.0) 
           EPS=EPS/2.0
-          GOTO 10
-      END IF
+      END DO
       EPS=EPS*2
       
  11   FORMAT ('      MACHINE EPSILON=',E16.8)
       WRITE(*,11) EPS
       
       EPS2=EPS*2
-1005  DET=1.
+
+1005  DET=1.0
       DO 1010 I=1,N-1
          PV=I
          DO J=I+1,N
             IF (ABS(A(PV,I)) .LT. ABS(A(J,I))) PV=J
          END DO
-         IF (PV.EQ.I) GOTO 1050
-         DO JC=1,N+1
-          TM=A(I,JC)
-          A(I,JC)=A(PV,JC)
-          A(PV,JC)=TM
-        END DO
-1045    DET=-1*DET
-1050    IF (A(I,I).EQ.0.0) GOTO 1200
+         IF (PV.NE.I) THEN
+             DO JC=1,N+1
+              TM=A(I,JC)
+              A(I,JC)=A(PV,JC)
+              A(PV,JC)=TM
+            END DO
+1045        DET=-1*DET
+        END IF
+
+1050    IF (A(I,I).EQ.0.0) THEN
+            STOP 'MATRIX IS SINGULAR'
+        END IF
+
         DO JR=I+1,N
            IF (A(JR,I).NE.0.0) THEN
               R=A(JR,I)/A(I,I)
@@ -107,7 +116,10 @@ C*************************************
  12   FORMAT(/,'  DETERMINANT= ',F16.5,/)
       WRITE(*,12) DET
 
-      IF (A(N,N).EQ.0.0) GOTO 1200
+      IF (A(N,N).EQ.0.0) THEN
+          STOP 'MATRIX IS SINGULAR'
+      END IF
+
       A(N,N+1)=A(N,N+1)/A(N,N)
       DO NV=N-1,1,-1
          VA=A(NV,N+1)
@@ -120,7 +132,4 @@ C*************************************
 1100  CONTINUE
       RETURN
 
- 1200 FORMAT(' MATRIX IS SINGULAR')
-      WRITE(*,1200)
-      
       END

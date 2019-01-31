@@ -17,7 +17,7 @@ C     and an upper bound of 10
           write (*,10) array(i)
       end do
 
- 10   format(I5)
+10    format(I5)
 
       stop
       end program main

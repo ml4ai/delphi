@@ -3,7 +3,17 @@ import pickle
 from datetime import datetime
 from functools import partial
 from itertools import permutations, cycle, chain
-from typing import Dict, List, Optional, Union, Callable, Tuple, List, Iterable
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Union,
+    Callable,
+    Tuple,
+    List,
+    Iterable,
+    Set,
+)
 from uuid import uuid4
 import networkx as nx
 import numpy as np
@@ -14,7 +24,13 @@ from indra.statements.evidence import Evidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .utils.fp import flatMap, ltake, lmap, pairwise
+from .utils.fp import flatMap, take, ltake, lmap, pairwise
+from .utils.indra import (
+    get_valid_statements_for_modeling,
+    get_concepts,
+    get_statements_from_json_list,
+    get_statements_from_json_file,
+)
 from .paths import db_path
 from .db import engine
 from .assembly import (
@@ -22,7 +38,6 @@ from .assembly import (
     get_respdevs,
     make_edges,
     construct_concept_to_indicator_mapping,
-    get_indicators,
     get_indicator_value,
 )
 from future.utils import lzip
@@ -56,7 +71,6 @@ class AnalysisGraph(nx.DiGraph):
     # Constructors
     # ==========================================================================
 
-
     @classmethod
     def from_statements_file(cls, file: str):
         """ Construct an AnalysisGraph object from a pickle file containing a
@@ -70,10 +84,6 @@ class AnalysisGraph(nx.DiGraph):
     @classmethod
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements. """
-        from .utils.indra import (
-            get_valid_statements_for_modeling,
-            get_concepts,
-        )
 
         sts = get_valid_statements_for_modeling(sts)
         node_permutations = permutations(get_concepts(sts), 2)
@@ -104,7 +114,6 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
-        from delphi.utils.indra import get_statements_from_json_list
 
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
@@ -112,7 +121,6 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):
-        from delphi.utils.indra import get_statements_from_json_file
 
         return cls.from_statements(get_statements_from_json_file(file))
 
@@ -455,41 +463,78 @@ class AnalysisGraph(nx.DiGraph):
 
         Args:
             n
-            mapping_file
         """
 
         mapping = construct_concept_to_indicator_mapping(n)
 
-        for n in self.nodes(data=True):
-            n[1]["indicators"] = get_indicators(n[0], mapping)
+        for node in self.nodes(data=True):
 
-    def parameterize(self, time: datetime):
+            # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to
+            # make sure that the intervention nodes are represented consistently
+            # in the mapping (i.e. with spaces vs. with underscores.
+
+            if node[0].split("/")[1] == "interventions":
+                node_name = node[0].replace("_", " ")
+            else:
+                node_name = node[0]
+
+            results = engine.execute(
+                "select Indicator from concept_to_indicator_mapping where "
+                f"`Concept` like '{node_name}' and `Source` is 'mitre12'"
+            )
+
+            node[1]["indicators"] = {
+                "/".join(x.split("/")[1:]): Indicator(
+                    "/".join(x.split("/")[1:]), "MITRE12"
+                )
+                for x in [r[0] for r in take(n, results)]
+            }
+
+    def parameterize(
+        self,
+        country: Optional[str] = "South Sudan",
+        state: Optional[str] = None,
+        year: Optional[int] = None,
+        month: Optional[int] = None,
+        unit: Optional[str] = None,
+        fallback_aggaxes: List[str] = ["year", "month"],
+        aggfunc: Callable = np.mean,
+    ):
         """ Parameterize the analysis graph.
 
         Args:
-            time
+            country
+            year
+            month
+            fallback_aggaxes: 
+                An iterable of strings denoting the axes upon which to perform
+                fallback aggregation if the desired constraints cannot be met.
+            aggfunc: The function that will be called to perform the
+            aggregation if there are multiple matches.
         """
 
-        nodes_with_indicators = [
-            n
-            for n in self.nodes(data=True)
-            if n[1].get("indicators") is not None
-        ]
+        valid_axes = ("country", "state", "year", "month")
 
-        for n in nodes_with_indicators:
-            for indicator_name, indicator in n[1]["indicators"].items():
+        if any(map(lambda axis: axis not in valid_axes, fallback_aggaxes)):
+            raise ValueError(
+                "All elements of the fallback_aggaxes set must be one of the "
+                f"following: {valid_axes}"
+            )
+
+        for n in self.nodes(data=True):
+            for indicator in n[1]["indicators"].values():
                 indicator.mean, indicator.unit = get_indicator_value(
-                    indicator, time
+                    indicator,
+                    country,
+                    state,
+                    year,
+                    month,
+                    unit,
+                    fallback_aggaxes,
+                    aggfunc,
                 )
-                indicator.time = time
-                if not indicator.mean is None:
-                    indicator.stdev = 0.1 * abs(indicator.mean)
-
-            n[1]["indicators"] = {
-                k: v
-                for k, v in n[1]["indicators"].items()
-                if v.mean is not None
-            }
+                indicator.stdev = 0.1 * abs(indicator.mean)
+                print(indicator.__dict__)
 
     # ==========================================================================
     # Manipulation
