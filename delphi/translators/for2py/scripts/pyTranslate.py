@@ -23,8 +23,7 @@ import sys
 import pickle
 import argparse
 from typing import List, Dict
-from fortran_format import *
-
+from delphi.translators.for2py.scripts.fortran_format import *
 
 class PrintState:
     def __init__(
