@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     delphi.GrFN
+    delphi.analysis
     delphi.icm_api
     delphi.utils
 
@@ -49,6 +50,14 @@ delphi.export module
 --------------------
 
 .. automodule:: delphi.export
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.inference module
+-----------------------
+
+.. automodule:: delphi.inference
     :members:
     :undoc-members:
     :show-inheritance:
