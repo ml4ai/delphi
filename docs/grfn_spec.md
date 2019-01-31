@@ -218,6 +218,8 @@ And the second:
 
     "ABSORPTION_2"
 
+Finally, in some cases (described below), program analysis will introduce variables (e.g., when analyzing conditionals). The naming conventions for the `<base_name>` of such introduced variables are described below.
+
 ### Variable Reference
 
     <variable_reference>[attrval] ::= 
@@ -228,7 +230,7 @@ In addition to capturing source code variable environment context in variable de
 
 ### Function naming conventions
 
-Function names, like variable names, are ultimately identifiers (and therefore include their `<namespace_path>` and `<scope_path>`), but there are additional rules for determining the function `<base_name>` (which we will here refer to as a `<function_base_name>`). 
+Function names, like variable names, are ultimately identifiers (and therefore include their `<namespace_path>` and `<scope_path>`), but there are additional rules for determining the `<base_name>` of the function. Because of this particular set of rules, the `<base_name>` of the function name will be referred to as a `<function_base_name>`.
 
 The general string format for a `<function_base_name>` is:
 
