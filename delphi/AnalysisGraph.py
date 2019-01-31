@@ -669,16 +669,10 @@ class AnalysisGraph(nx.DiGraph):
                 f"where `Concept` like '{node_name}' and `Source` is 'mitre12'",
             ]
 
-            if min_temporal_res is not None:
-                if min_temporal_res == "month":
-                    query_parts.append("where `Month` is not null")
-                else:
-                    raise NotImplementedError(
-                        "Currently, the only minimum temporal resolution"
-                        "supported is 'month'"
-                    )
+            # TODO Implement temporal resolution constraints. Need to delve
+            # into SQL/database stuff a bit more deeply for this. Foreign keys?
 
-            query = "\n".join(query_parts)
+            query = "  ".join(query_parts)
             results = engine.execute(query)
 
             node[1]["indicators"] = {
