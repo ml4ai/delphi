@@ -126,14 +126,12 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
-
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):
-
         return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
@@ -244,12 +242,13 @@ class AnalysisGraph(nx.DiGraph):
             for n in self.nodes(data=True):
                 for indicator, value in observed_state[n[0]].items():
                     ind = n[1]["indicators"][indicator]
-                    log_likelihood = np.log(
-                        norm.pdf(
-                            value, latent_state[n[0]] * ind.mean, ind.stdev
+                    if ind.timeseries is not None:
+                        log_likelihood = np.log(
+                            norm.pdf(
+                                value, latent_state[n[0]] * ind.mean, ind.stdev
+                            )
                         )
-                    )
-                    _list.append(log_likelihood)
+                        _list.append(log_likelihood)
 
         self.log_likelihood = sum(_list)
 
@@ -419,6 +418,9 @@ class AnalysisGraph(nx.DiGraph):
         for n in self.nodes(data=True):
             for indicator in n[1]["indicators"].values():
                 indicator.timeseries = [func(indicator, year="2017")[0] for func in funcs]
+                if len(set(indicator.timeseries)) == 1:
+                    indicator.timeseries = None
+                print(n[0], indicator.name, indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
