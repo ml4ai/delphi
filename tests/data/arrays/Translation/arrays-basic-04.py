@@ -6,16 +6,16 @@ def main():
 
     for i in range(1,5+1):
         for j in range(1,5+1):
-            arr.set((i,j), i+j)
+            arr.set_((i,j), i+j)
 
     fmt_obj = Format(['5(I5,X)'])
 
     for i in range(1,5+1):
-        sys.stdout.write(fmt_obj.write_line([arr.get((i,1)),
-                                             arr.get((i,2)),
-                                             arr.get((i,3)),
-                                             arr.get((i,4)),
-                                             arr.get((i,5))]))
+        sys.stdout.write(fmt_obj.write_line([arr.get_((i,1)),
+                                             arr.get_((i,2)),
+                                             arr.get_((i,3)),
+                                             arr.get_((i,4)),
+                                             arr.get_((i,5))]))
 
 
 main()

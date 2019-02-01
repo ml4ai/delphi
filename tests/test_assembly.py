@@ -82,8 +82,6 @@ def test_contains_relevant_concept():
 
 def test_get_indicator_data():
     indicator = Indicator(
-        "Political stability and absence of violence/terrorism (index), Value",
-        "WB",
+        "Value, Political stability and absence of violence/terrorism (index)"
     )
-    t = datetime(2012, 1, 1)
-    assert get_indicator_value(indicator, t)[0] == -1.2
+    assert get_indicator_value(indicator, year = 2012, month = 1)[0] == -1.961666666666667

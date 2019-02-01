@@ -56,6 +56,6 @@ def G():
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.map_concepts_to_indicators()
-    G.parameterize(date(2014, 12, 1))
+    G.parameterize(year = 2014, month = 12)
     G.to_pickle()
     yield G

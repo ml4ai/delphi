@@ -5,12 +5,12 @@ def main():
     arr = Array([(1,10)])
 
     for i in range(1,10+1):
-        arr.set((i,), i*i)
+        arr.set_((i,), i*i)
 
     fmt_obj = Format(['I5'])
 
     for i in range(1,10+1):
-        val = arr.get((i,))
+        val = arr.get_((i,))
         sys.stdout.write(fmt_obj.write_line([val]))
 
 main()

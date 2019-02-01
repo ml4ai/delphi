@@ -2,7 +2,9 @@
 
 import json
 from typing import Dict, List, Set, Tuple
-from indra.statements import Influence, Concept, Evidence
+from indra.statements.concept import Concept
+from indra.statements.statements import Influence
+from indra.statements.evidence import Evidence
 from delphi.utils.fp import flatMap
 from functools import singledispatch
 
@@ -42,7 +44,7 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     return st
 
 
-def get_statements_from_json_dict(_dict: Dict) -> List[Influence]:
+def get_statements_from_json_list(_dict: Dict) -> List[Influence]:
     return [
         influence_stmt_from_dict(d)
         for d in _dict
@@ -51,10 +53,11 @@ def get_statements_from_json_dict(_dict: Dict) -> List[Influence]:
         and d["obj"]["name"] is not None
     ]
 
+
 def get_statements_from_json_file(json_file: str) -> List[Influence]:
     with open(json_file, "r") as f:
-        _dict = json.load(f)
-    return get_statements_from_json_dict(_dict)
+        _list = json.load(f)
+    return get_statements_from_json_list(_list)
 
 
 @singledispatch
@@ -108,6 +111,7 @@ def _(s: Influence, cutoff: float = 0.7) -> bool:
 
     return all(map(lambda c: is_well_grounded(c, cutoff), s.agent_list()))
 
+
 def is_well_grounded_concept(c: Concept, cutoff: float = 0.7) -> bool:
     """Check if a concept has a high grounding score. """
 
@@ -117,7 +121,10 @@ def is_well_grounded_concept(c: Concept, cutoff: float = 0.7) -> bool:
 def is_well_grounded_statement(s: Influence, cutoff: float = 0.7) -> bool:
     """ Returns true if both subj and obj are grounded to the UN ontology. """
 
-    return all(map(lambda c: is_well_grounded_concept(c, cutoff), s.agent_list()))
+    return all(
+        map(lambda c: is_well_grounded_concept(c, cutoff), s.agent_list())
+    )
+
 
 def is_grounded_to_name(c: Concept, name: str, cutoff=0.7) -> bool:
     """ Check if a concept is grounded to a given name. """
@@ -146,9 +153,7 @@ def contains_relevant_concept(
 
 def top_grounding(c: Concept) -> str:
     """ Return the top-scoring grounding from the UN ontology. """
-    return (
-        c.db_refs["UN"][0][0] if "UN" in c.db_refs else c.name
-    )
+    return c.db_refs["UN"][0][0] if "UN" in c.db_refs else c.name
 
 
 def top_grounding_score(c: Concept) -> float:
