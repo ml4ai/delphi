@@ -180,7 +180,7 @@ def createExperiment(uuid: str):
                 # model. MUST FIX ASAP.
                 rv.partial_t = variable["values"]["value"]["value"] - 1
                 for s0 in G.s0:
-                    s0[f"∂({n[0]})/∂t"] = variable["values"]["value"]["value"] - 1
+                    s0[f"∂({n[0]})/∂t"] = rv.partial_t
                 break
 
     id = str(uuid4())
