@@ -197,7 +197,7 @@ class PythonCodeGenerator(object):
                     indexRef=inRef,
                 ),
             )
-            if node["args"][0]["tag"] == "ref" and "subscripts" not in node["args"][0]:
+            if node["args"][arg]["tag"] == "ref" and "subscripts" not in node["args"][arg]:
                 self.pyStrings.append("[0]")
             self.pyStrings.append("]")
             if arg < argSize - 1:
@@ -632,33 +632,31 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def printArray(self, node, printState):
-        if int(node['count']) == 1:
-            if (
-                node["name"] not in printState.definedVars
-                and node["name"] not in printState.globalVars
-            ):
-                printState.definedVars += [node["name"]]
-                loBound = node["low" + node['count']]
-                upBound = node["up" + node['count']]
+        """ Prints out the array declaration in a format of Array class
+            object declaration. 'arrayName = Array(Type, [bounds])'
+        """
+        assert int(node['count']) > 0
+        printState.definedVars += [node["name"]]
 
-                self.pyStrings.append(
-                    f"{node['name']} = Array([({loBound}, {upBound})])"
-                )
-        elif int(node['count']) > 1:
-            printState.definedVars += [node["name"]]
-
-            self.pyStrings.append(f"{node['name']} = Array([")
-            for i in range (0, int(node['count'])):  
-                loBound = node["low" + str(i+1)]
-                upBound = node["up" + str(i+1)]
-                dimensions = f"({loBound}, {upBound})"
-                if i < int(node['count'])-1:
-                    self.pyStrings.append(f"{dimensions}, ")
-                else:
-                    self.pyStrings.append(f"{dimensions}")
-            self.pyStrings.append("])")
-        else:
-            printState.printFirst = False
+        varType = ""
+        if node["type"].upper() == "INTEGER":
+            varType = "int"
+        elif node["type"].upper() in ("DOUBLE", "REAL"):
+            varType = "float"
+        elif node["type"].upper() == "CHARACTER":
+            varType = "str"
+        assert varType != ""
+        
+        self.pyStrings.append(f"{node['name']} = Array({varType}, [")
+        for i in range (0, int(node['count'])):  
+            loBound = node["low" + str(i+1)]
+            upBound = node["up" + str(i+1)]
+            dimensions = f"({loBound}, {upBound})"
+            if i < int(node['count'])-1:
+                self.pyStrings.append(f"{dimensions}, ")
+            else:
+                self.pyStrings.append(f"{dimensions}")
+        self.pyStrings.append("])")
 
     def get_python_source(self):
         return "".join(self.pyStrings)

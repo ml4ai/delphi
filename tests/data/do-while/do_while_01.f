@@ -7,6 +7,7 @@
 
       DO WHILE (MONTH <= 12)
           PRINT *, "Month: ", MONTH
+          MONTH = MONTH + 1
       ENDDO
 
       END PROGRAM DO_WHILE
