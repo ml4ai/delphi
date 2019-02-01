@@ -178,7 +178,7 @@ def createExperiment(uuid: str):
                 # TODO : The subtraction of 1 is a TEMPORARY PATCH to address
                 # the mismatch in semantics between the ICM API and the Delphi
                 # model. MUST FIX ASAP.
-                # rv.partial_t = variable["values"]["value"]["value"] - 1
+                rv.partial_t = variable["values"]["value"]["value"] - 1
                 for s0 in G.s0:
                     s0[f"∂({n[0]})/∂t"] = variable["values"]["value"]["value"] - 1
                 break
