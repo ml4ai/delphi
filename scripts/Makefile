@@ -168,7 +168,7 @@ report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
 	latexmk -lualatex $<
 	latexmk -c $(*F)
 
-insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl
+insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl data/delphi.db
 	python $^
 
 build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG.pkl
@@ -179,5 +179,9 @@ build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG
 data/CauseMosCAG.json: | data
 	curl http://vision.cs.arizona.edu/adarsh/$(@F).gz | gunzip > $@
 
-build/causemos_cag.pkl: evaluations/create_cag_from_causemos_output.py data/CauseMosCAG.json
+CAUSEMOS_CAG := data/8Nodes_v2.json
+build/causemos_cag.pkl: evaluations/create_cag_from_causemos_output.py $(CAUSEMOS_CAG)
 	python $^ $@
+
+insert_causemos_model: evaluations/insert_model_into_db.py build/causemos_cag.pkl data/delphi.db
+	python $^
