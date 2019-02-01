@@ -236,7 +236,7 @@ The general string format for a `<function_base_name>` is:
 
     <function_base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
 
-The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): \"assign\", \"condition\", \"container\", \"loop\_plate\". In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
+The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): \"assign\", \"condition\", , \"decision\", \"container\", \"loop\_plate\". In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
 
 The optional `<code_given_name>` is used when the function identified by program analysis has also been given a name within source code. For example, in this python example:
 
@@ -251,11 +251,11 @@ the function foo is a type of "container" and its `<code_given_name>` is \"foo\"
 
 When a `<code_given_name>` is available, it occurs first in the function `base_name`, followed by 2 underscores.
 
-The optional `<var_affected>` will only be relevant for assign and condition function types, and the name of the variable affected will be added after the `<function_type>` and 3 underscores. For example, a condition variable and setting the (inferred) boolean variable IF\_1 would have the `<function_base_name>`:
+The optional `<var_affected>` will only be relevant for assign, condition and decision function types, and the name of the variable affected will be added after the `<function_type>` and `$`. For example, a condition variable and setting the (inferred) boolean variable IF\_1 would have the `<function_base_name>`:
 
     "condition$IF_1"
 
-Here are example function names for each function types. In each example, we assume the function is defined in the scope of the function UPDATE\_EST and the namespace CROP\_YIELD.
+Here are example function names for each function type. In each example, we assume the function is defined in the scope of the function UPDATE\_EST and the namespace CROP\_YIELD.
 
 -   **Assign**: An assignment of the variable with the `<identifier_string>`
     "CROP_YIELD::UPDATE_EST::YIELD\_EST"
@@ -273,9 +273,18 @@ Here are example function names for each function types. In each example, we ass
 
 -   **Condition**: A condition assigning the (inferred) boolean variable IF\_1
     in the scope of the function UPDATE\_EST of the namespace CROP\_YIELD would
-    be:
+    have the `<identifier_string>`:
 
         "CROP_YIELD::UPDATE_EST::condition$IF_1"
+
+-   **Decision**: A decision function assigns a variable a value based on the 
+    (outcome) state of a condition variable. If the variable \"YIELD\_EST\"
+    (from the namespace \"CROP\_YIELD\" and scope \"UPDATE\_EST\") is 
+    being updated as a result of a conditional outcome in the namespace 
+    \"CROP\_YIELD\" and scope \"DERIVE\_YIELD\", then the 
+    `<identifier_string>` would be:
+    
+    	"CROP_YIELD::DERIVE_YIELD::decision$CROP_YIELD::UPDATE_EST::YIELD_EST"
 
 -   **Container**: A container function declared in source code to have the 
     name CROP\_YIELD would then have the `<code_given_name>` of CROP\_YIELD, 
@@ -339,16 +348,18 @@ The \"date\_created\" attribute is a string representing the date+time that the 
 
 There may be a single GrFN spec file for multiple source code files.
 
-	>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system sub-program components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
-		>- (1) A single GrFN spec for a given program and get the redundancies. 
+	>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system program unit components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
+		>- (1) A single GrFN spec for a given program unit and get the redundancies. 
 		>- (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
 		>- (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
 
     >FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
+    
+    >FUTURE: Add ability for GrFN specs to \"import\" and/or \"use\" other GrFN specs of other modules.
 
 	>FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
 
-It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). In the absence of any entry point, this value will be an empty list: `[]`.
+It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). These will be function `<identifier_string>`s. In the absence of any entry point, this value will be an empty list: `[]`.
 
 The \"identifiers\" attributes contains a list of `<identifer_spec>`, as has been defined above in the section on Identifiers.
 
@@ -375,15 +386,21 @@ Variable specification
         "name" : <variable_name>
         "domain" : <variable_domain_type>
 
-The purpose of the list of `<variable_spec>`\'s in the `<grfn_spec>`
-\"variables\" attribute value is to list all of the variables defined
-within the code we are analyzing, and associate each with their domain
-type. This list should include all variables whose values get updated by
-computation, and will be derived from variables that are explicitly
-asserted in source code, such as those used for explicit value
-assignment or used as loop indices, and other variables that program
-analysis may introduce (infer) as part of analyzing conditionals. 
-As defined above, the `<variable_name>` is itself an `<identifier_string>`.`
+Variables specifications will be associated with the functions, whose 
+scope contain the variable declarations in the source code.
+The list of `<variable_spec>`s should include all variables whose values 
+get updated by computation within the function, and will be derived from 
+variables that are explicitly asserted in source code, such as those used 
+for explicit value assignment or used as loop indices, and other variables 
+that program analysis may introduce (infer) as part of analyzing conditionals. 
+As defined above, the `<variable_name>` is itself an `<identifier_string>`.
+
+Some languages (including Fortran and Python) provide mechanisms for making
+variable declarations private (such as Python's name mangling, by prepending
+an underscore to a variable name).
+
+>FOR NOW: Our hypothesis is that simply prepending another underscore (following
+python [name mangling](https://docs.python.org/2/tutorial/classes.html#private-variables-and-class-local-references)) will make the \"private\" variable `<base_name>` unique from other variable names. Also, program analysis will \"capture\" the semantics of privacy by ensuring there are no outer-scope references to a private variable, and this will carry through in explicit references (or not, in this case) captured in the GrFN spec.
 
 ### Variable value domain
 
@@ -419,7 +436,7 @@ specification in Python. Python 3 now provides nascent support for
 explicit typing via [type
 hints](https://docs.Python.org/3/library/typing.html).
 
->FUTURE: Explore whether/how this gets represented in the AST.
+>FUTURE: Explore whether/how type hints get represented in the AST. This will matter when we get to adding more explicit variable domain semantics in later model analysis.
 
 For our purposes in the near term, we do want to capture what type and
 value-domain information is available; there are two main sources of
@@ -499,7 +516,7 @@ Function naming convention section; as described in that section, the
 function name will include the function type, but having the explicit
 type attribute makes JSON parsing easier.
 
-### Function assign specification
+### Function Assign specification (assign, condition, decision)
 
 A `<function_assign_spec>` denotes the setting of the value of a
 variable. The values are assigned to the \"target\" variable (denoted by
@@ -510,31 +527,28 @@ a lambda function (specified by `<function_assign_body_lambda_spec>`).
 
     <function_assign_spec>[attrval] ::=
         "name" : <function_name>
-        "type" : "assign" | "condition" # note that either is a literal/terminal value 
-                                        # of the grammar
+        "type" : "assign" | "condition" | "decision"
+            # note that the value of the "type" is a literal/terminal 
+            # value of the grammar
         "sources" : list of [ <function_source_reference> | <variable_name> ]
         "target" : <function_source_reference> | <variable_name>
         "body" : <function_assign_body_literal_spec> 
                  | <function_assign_body_lambda_spec>
 
-In the general case of variable assignment/setting, the attribute type
-should be \"assign\". In the special case where we are representing the
-assignment of a boolean value as the result of a condition
-(if-statement), then program analysis will infer a new boolean target
-variable, and the computation of the condition itself will be
-represented by the assignment function; in this case, we will use the
-more specific \"condition\" value for the \"type\" attribute of the
-`<function_assign_spec>`. Semantically, this is nothing more than an
-assignment of a boolean variable, but conceptually it will be useful to
-distinguish assignments used for conditions from other assignments.
+There are three types of assign functions, distinguished by the value of the attribute \"type\".
 
-For \"sources\" and \"target\": when there is no need to refer to the
+- \"assign\": This represents the general case of assignment of a variable to some value.
+
+- \"condition\": In the special case where program analysis is analyzing a conditional (i.e., \"if\") statement, then program analysis will infer a new boolean target variable, and the computation of the condition itself will be represented by the assignment function. Semantically, this is nothing more than an assignment of a boolean variable, but conceptually it will be useful to distinguish assignments used for conditions from other assignments.
+
+- \"decision\": Also as part of analyzing a conditional, any variables whose values are updated as a result of the condition outcome must have their values updated. These will be updated by \"decision\" assignment functions, whose target is the variable being updated, and the computations will involve the state of the conditional variable, the previous state of the variable being updated, and possibly other variable values. Again, semantically this is nothing more than an assignment, but is useful to distinguish from other assignments.
+
+The identifier conventions for assign, condition and decision functions is described above in the section on Function naming conventions.
+
+For \"sources\" and \"target\": When there is no need to refer to the
 variable by its relative index, then `<variable_name>` (itself an 
 `<identifier_string>`) is sufficient, and index will be assumed to be 0 
 (if at all relevant). 
-
->TODO: Review this section on `<function_source_reference>` with the program analysis team.
-
 In other cases, the variables will be referenced using the `<function_source_reference>`, to indicate the return value of the function. There may also be cases where the sources can be a function, either built-in or user-defined. These two will be referenced using `<function_source_reference>` defined as:
 
     <function_source_reference> ::=
@@ -573,16 +587,6 @@ assigned to the variable in the `<function_assign_spec>`, then
 >FOR NOW: have the lambda function reference the source code that does the computation, in the translated Python generated by program analysis. Any variables that are involved in the computation must be listed in the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
 
 As noted above, due to the more semantically rich identifier specification and `<identifier_string>` representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented in the generated Python using their gensym. For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>` (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
-
-### Function Decision specification
-
->TODO: Review this with the program analysis team
-
-Handles representation of simple binary condition block::
-
-    If condition_variable:
-        Condition1 variable_reference
-    Else
 
 ### Function Container Specification
 
@@ -675,7 +679,7 @@ The \"input\" list of `<variable_name>` objects should list all variables that a
 
 The current loop\_plate specification is aimed at handling for-loops. (assumes \"index\_variable\" and \"index\_iteration\_range\" are specified)
 
->FUTURE: Extend to open-ended loops (e.g., do-while loop) by defining `<loop_condition>` and assuming \"condition\" is specified.
+>FUTURE: Generalize to do-while loop by just relying on the \"condition\" `<loop_condition>` to determine when loop completes. We can then remove \"index\_variable\" and \"index\_iteration\_range\". There will still need to be a mechanism for identifying index\_variable(s).
 
 The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`:
 
