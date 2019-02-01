@@ -240,10 +240,10 @@ The `<function_type>` is the string representing which of the four types the fun
 
 The optional `<code_given_name>` is used when the function identified by program analysis has also been given a name within source code. For example, in this python example:
 
-    ```javascript
-    def foo():
-       ...
-    ```
+```javascript
+def foo():
+    ...
+```
 
 the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `<function_base_name>` be
 
