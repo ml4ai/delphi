@@ -24,8 +24,9 @@ class Array:
         lower and upper bounds for the dimensions of the array.  The length
         of the list bounds gives the number of dimensions of the array.
     """
-    def __init__(self, bounds):
+    def __init__(self, types, bounds):
         self._bounds = bounds
+        self._types = types
         self._values = self._mk_uninit_array(bounds)
 
 
