@@ -348,16 +348,16 @@ The \"date\_created\" attribute is a string representing the date+time that the 
 
 There may be a single GrFN spec file for multiple source code files.
 
-	>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system program unit components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
-		>- (1) A single GrFN spec for a given program unit and get the redundancies. 
-		>- (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
-		>- (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
+>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system program unit components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
+	1. A single GrFN spec for a given program unit and get the redundancies. 
+	2. Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
+	3. Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
 
-    >FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
+>FOR NOW: Go with option-1: The main target of a GrFN spec file is all of the source code files involved in defining a program.
     
-    >FUTURE: Add ability for GrFN specs to \"import\" and/or \"use\" other GrFN specs of other modules.
+>FUTURE: Add ability for GrFN specs to \"import\" and/or \"use\" other GrFN specs of other modules.
 
-	>FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
+>FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a `<namespace_path>` (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
 
 It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). These will be function `<identifier_string>`s. In the absence of any entry point, this value will be an empty list: `[]`.
 
