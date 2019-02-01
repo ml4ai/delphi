@@ -84,4 +84,4 @@ def test_get_indicator_data():
     indicator = Indicator(
         "Value, Political stability and absence of violence/terrorism (index)"
     )
-    assert get_indicator_value(indicator, year = 2012, month = 1)[0] == -1.884
+    assert get_indicator_value(indicator, year = 2012, month = 1)[0] == -1.961666666666667
