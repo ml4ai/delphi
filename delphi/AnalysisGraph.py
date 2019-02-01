@@ -418,9 +418,7 @@ class AnalysisGraph(nx.DiGraph):
 
         for n in self.nodes(data=True):
             for indicator in n[1]["indicators"].values():
-                print(indicator.name)
                 indicator.timeseries = [func(indicator, year="2017")[0] for func in funcs]
-                print(indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
@@ -957,7 +955,7 @@ class AnalysisGraph(nx.DiGraph):
                 },
                 range={
                     "baseType": "FloatRange",
-                    "range": {"min": 0, "max": 10, "step": 0.1},
+                    "range": {"min": 0, "max": 5, "step": 0.1},
                 },
             )
             causal_primitives.append(causal_variable)
