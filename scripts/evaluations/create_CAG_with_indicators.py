@@ -6,7 +6,7 @@ def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"
     """ Create a CAG with mapped indicators """
     with open(input, "rb") as f:
         G = pickle.load(f)
-    G.map_concepts_to_indicators()
+    G.map_concepts_to_indicators(min_temporal_res="month")
     G.set_indicator("UN/events/weather/precipitation", "Average Total Daily Rainfall (Maize)", "DSSAT")
     G.set_indicator("UN/events/human/agriculture/food_production", "Production (Maize)", "DSSAT")
     G.set_indicator("UN/entities/human/food/food_security", "IPC Phase Classification", "FEWSNET")

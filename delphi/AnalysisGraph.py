@@ -396,7 +396,7 @@ class AnalysisGraph(nx.DiGraph):
     def get_timeseries_values_for_indicators(
         self,
         resolution: str = "month",
-        time_points: List[int] = range(1, 5),
+        time_points: List[int] = range(6, 9),
         n_timesteps=3,
         country: Optional[str] = "South Sudan",
         state: Optional[str] = None,
@@ -419,7 +419,7 @@ class AnalysisGraph(nx.DiGraph):
         for n in self.nodes(data=True):
             for indicator in n[1]["indicators"].values():
                 print(indicator.name)
-                indicator.timeseries = [func(indicator)[0] for func in funcs]
+                indicator.timeseries = [func(indicator, year="2017")[0] for func in funcs]
                 print(indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:

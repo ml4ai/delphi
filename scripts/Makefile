@@ -119,7 +119,7 @@ TARGET_ONTOLOGY_NAME := MITRE12
 
 data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) data/south_sudan_data.tsv
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
-	cd $(EIDOS); time java -cp target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
+	cd $(EIDOS); time java -Xmx50g -cp target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
 	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
@@ -132,6 +132,7 @@ data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) d
 build:
 	mkdir -p $@
 
+#PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_learnit_after_20190127.json
 PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_20190118.json
 
 build/pruned_corpus.json: evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build

@@ -1,0 +1,22 @@
+{
+    "baseType": "ForwardProjection",
+    "interventions": [ {
+        "id": "27cfdd0e-025e-4605-84bc-411ebcb83432",
+        "values": { 
+            "active": "ACTIVE",
+            "time": "2019-02-21",
+            "value": {
+                "baseType": "IntegerValue",
+                "value": 3
+                }
+            }
+        }],
+    "projection": {
+        "startTime": "2019-01-31",
+        "numSteps": 6,
+        "stepSize": "MONTH"
+    },
+    "options": {
+        "timeout": 60000
+    }
+}

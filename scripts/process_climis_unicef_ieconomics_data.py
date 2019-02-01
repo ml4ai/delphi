@@ -215,15 +215,11 @@ def process_climis_livestock_data(data_dir: str):
     for filename in glob(
         f"{livestock_data_dir}/Livestock Body Condition/*2017.csv"
     ):
-        body_condition_records = process_file_with_single_table(
+        records += process_file_with_single_table(
             filename,
             lambda ind: f"Percentage of {filename.split('_')[-3].lower()} with body condition {ind.lower()}",
             lambda f: f.split("_")[-2],
         )
-        for record in body_condition_records:
-            if isinstance(record["Value"], str):
-                record["Value"] = record["Value"].replace("%", "")
-        records += body_condition_records
 
 
     for filename in glob(
@@ -328,6 +324,11 @@ def process_climis_livestock_data(data_dir: str):
             lambda ind: f"Percentage of {filename.split('_')[-3].lower()} loss accounted for by {ind.lower()}",
             lambda f: f.split("_")[-2],
         )
+
+
+    for record in records:
+        if isinstance(record["Value"], str):
+            record["Value"] = record["Value"].replace("%", "")
 
     livestock_prices_df = pd.concat(
         [
@@ -438,12 +439,29 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
     df = pd.concat([df1, df_new])
     return df
 
+def process_UNHCR_data(data_dir: str):
+    df = pd.read_table(f"{data_dir}/UNHCR Refugee Data/RefugeeData.tsv",
+            index_col=0,
+            parse_dates=True, infer_datetime_format=True)
+    df["Year"] = df.index.year
+    df["Month"] = df.index.month
+    df.rename(columns = {"individuals":"Value"}, inplace=True)
+    df["Country"] = "South Sudan"
+    df["State"] = None
+    df["County"] = None
+    df["Source"] = "UNHCR"
+    df["Unit"] = None
+    df["Variable"] = "Number of refugees"
+    del df["unix_timestamp"]
+    return df
+
 
 def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
     climis_crop_production_df = process_climis_crop_production_data(data_dir)
     climis_livestock_data_df = process_climis_livestock_data(data_dir)
     climis_import_data_df = process_climis_import_data(data_dir)
     climis_rainfall_data_df = process_climis_rainfall_data(data_dir)
+    UNHCR_data_df = process_UNHCR_data(data_dir)
 
     # Severe acute malnutrition and inflation rate indicators from PDFs
     pdf_indicators_df = pd.read_table(f"{data_dir}/indicator_data_from_pdfs.tsv")
@@ -454,7 +472,8 @@ def create_combined_table(data_dir: str, columns: List[str]) -> pd.DataFrame:
             climis_livestock_data_df,
             climis_import_data_df,
             climis_rainfall_data_df,
-            pdf_indicators_df
+            pdf_indicators_df,
+            UNHCR_data_df,
         ],
         sort=True,
     )

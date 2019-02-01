@@ -8,6 +8,7 @@ def create_quantified_CAG(input, output):
     G.res = 100
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
+    G.get_timeseries_values_for_indicators()
     with open(output, "wb") as f:
         pickle.dump(G, f)
 

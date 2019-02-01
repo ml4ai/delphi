@@ -193,6 +193,7 @@ def createExperiment(uuid: str):
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
     for i in range(data["projection"]["numSteps"]):
+        print("Step number", i)
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
@@ -215,12 +216,14 @@ def createExperiment(uuid: str):
                         "time": d.isoformat(),
                         "value": {
                             "baseType": "FloatValue",
-                            "value": np.mean(n[1]["rv"].dataset),
+                            "value": np.mean([s[n[0]] for s in G.s0]),
                         },
                     },
                 }
             )
+            print(n[0], np.mean([s[n[0]] for s in G.s0]))
 
+        print("Updating, step", i)
         G.update()
     db.session.add(result)
     db.session.commit()
