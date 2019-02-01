@@ -11,7 +11,7 @@ with open("results.json", "r") as f:
 ys_precip = [r['intervened']['value']['value'] for r in results if r['id'] == primitives['UN/events/weather/precipitation']['id']]
 ys_fp = [r['intervened']['value']['value'] for r in results if r['id'] == primitives['UN/events/human/agriculture/food_production']['id']]
 tau=1.0
-ys_derivs = [exp(-tau*i) for i in range(len(ys_precip))]
+ys_derivs = [-0.6*exp(-tau*i) for i in range(len(ys_precip))]
 xs = range(len(ys_precip))
 plt.style.use('ggplot')
 plt.plot(xs, ys_precip, label="precipitation")
