@@ -19,7 +19,7 @@ post_request='{
         "id": '\"${precipitation_id}\"',
         "values": { 
             "active": "ACTIVE",
-            "time": "2019-02-21",
+            "time": "2019-01-31",
             "value": {
                 "baseType": "FloatValue",
                 "value": 0.4
