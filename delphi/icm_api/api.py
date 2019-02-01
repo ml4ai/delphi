@@ -178,7 +178,9 @@ def createExperiment(uuid: str):
                 # TODO : The subtraction of 1 is a TEMPORARY PATCH to address
                 # the mismatch in semantics between the ICM API and the Delphi
                 # model. MUST FIX ASAP.
-                rv.partial_t = variable["values"]["value"]["value"] - 1
+                # rv.partial_t = variable["values"]["value"]["value"] - 1
+                for s0 in G.s0:
+                    s0[f"∂({n[0]})/∂t"] = variable["values"]["value"]["value"] - 1
                 break
 
     id = str(uuid4())
@@ -193,7 +195,6 @@ def createExperiment(uuid: str):
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
     for i in range(data["projection"]["numSteps"]):
-        print("Step number", i)
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
@@ -221,9 +222,7 @@ def createExperiment(uuid: str):
                     },
                 }
             )
-            print(n[0], np.mean([s[n[0]] for s in G.s0]))
 
-        print("Updating, step", i)
         G.update()
     db.session.add(result)
     db.session.commit()
