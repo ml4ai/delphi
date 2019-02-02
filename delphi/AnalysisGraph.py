@@ -345,6 +345,7 @@ class AnalysisGraph(nx.DiGraph):
         Returns:
             Observed state vector.
         """
+                    
         return {
             n[0]: {
                 i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
@@ -403,8 +404,7 @@ class AnalysisGraph(nx.DiGraph):
         fallback_aggaxes: List[str] = ["year"],
         aggfunc: Callable = np.mean,
     ):
-        """ Attach timeseries to indicators, for performing Bayesian inference.
-        """
+        """ Attach timeseries to indicators, for performing Bayesian inference. """
         if resolution == "month":
             funcs = [
                 partial(get_indicator_value, month=month)
@@ -420,7 +420,6 @@ class AnalysisGraph(nx.DiGraph):
                 indicator.timeseries = [func(indicator, year="2017")[0] for func in funcs]
                 if len(set(indicator.timeseries)) == 1:
                     indicator.timeseries = None
-                print(n[0], indicator.name, indicator.timeseries)
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution. """
