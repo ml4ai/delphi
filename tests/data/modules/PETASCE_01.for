@@ -127,14 +127,21 @@ C variables used in the computation
 
 !     Aerodynamic roughness and surface resistance daily timestep constants
 !     (ASCE Standard Table 1)
-      SELECT CASE(MEEVP) !
-        CASE('A') !Alfalfa reference
-          Cn = 1600.0 !K mm s^3 Mg^-1 d^-1
-          Cd = 0.38 !s m^-1
-        CASE('G') !Grass reference
-          Cn = 900.0 !K mm s^3 Mg^-1 d^-1
-          Cd = 0.34 !s m^-1
-      END SELECT
+      IF (MEEVP .EQ. 'A') THEN
+        Cn = 1600.0
+        Cd = 0.38
+      ELSE IF (MEEVP .EQ. 'G') THEN
+        Cn = 900.0
+        Cd = 0.34
+      END IF
+!      SELECT CASE(MEEVP) !
+!        CASE('A') !Alfalfa reference
+!          Cn = 1600.0 !K mm s^3 Mg^-1 d^-1
+!          Cd = 0.38 !s m^-1
+!        CASE('G') !Grass reference
+!          Cn = 900.0 !K mm s^3 Mg^-1 d^-1
+!          Cd = 0.34 !s m^-1
+!      END SELECT
 
 !     Standardized reference evapotranspiration (ASCE Standard Eq. 1)
       REFET =0.408*UDELTA*(RN-G)+PSYCON*(Cn/(TAVG+273.0))*WIND2m*(ES-EA)
@@ -167,13 +174,20 @@ C      CALL GET('SPAM', 'KCBMAX', KCBMAX)
       !Maximum crop coefficient (Kcmax) (FAO-56 Eq. 72)
       WND = MAX(1.0,MIN(WIND2m,6.0))
       CHT = MAX(0.001,CANHT)
-      SELECT CASE(MEEVP)
-        CASE('A') !Alfalfa reference
-            KCMAX = MAX(1.0,KCB+0.05)
-        CASE('G') !Grass reference
-            KCMAX = MAX((1.2+(0.04*(WND-2.0)-0.004*(RHMIN-45.0))
+
+      IF (MEEVP .EQ. 'A') THEN
+        KCMAX = MAX(1.0,KCB+0.05)
+      ELSE IF (MEEVP .EQ. 'G') THEN
+        KCMAX = MAX((1.2+(0.04*(WND-2.0)-0.004*(RHMIN-45.0))
      &                      *(CHT/3.0)**(0.3)),KCB+0.05)
-      END SELECT
+      END IF
+!      SELECT CASE(MEEVP)
+!        CASE('A') !Alfalfa reference
+!            KCMAX = MAX(1.0,KCB+0.05)
+!        CASE('G') !Grass reference
+!            KCMAX = MAX((1.2+(0.04*(WND-2.0)-0.004*(RHMIN-45.0))
+!     &                      *(CHT/3.0)**(0.3)),KCB+0.05)
+!      END SELECT
 
       !Effective canopy cover (fc) (FAO-56 Eq. 76)
       IF (KCB .LE. KCBMIN) THEN

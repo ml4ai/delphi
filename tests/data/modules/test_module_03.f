@@ -40,9 +40,9 @@ C   1234    2  3.1416 7753.469
       USE mymod4
       USE mymod5
 
-  10   FORMAT (I7, I5, F8.4, F9.3)
+  10  FORMAT (I7, I5, F8.4)
 
-      write (*,10) X, Y, PI, X*Y*PI
+      write (*,10) X, Y, PI
 
       stop
       end program PGM
