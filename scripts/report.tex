@@ -63,6 +63,10 @@ sake of readability, unless there is a need for disambiguation.
 
 \item All edges pointing inwards to the \texttt{precipitation} node are removed.
 
+\item The polarity of the obj in the sole influence statement corresponding to
+  the edge from `precipitation' to `road' is reversed (bad extraction from
+  CWMS).
+
 \item Since in this scenario, we are concerned with the effects of a
   particularly dry lean season, we extract a subgraph of the original CAG
   centered around the \texttt{precipitation} node by conducting a
@@ -130,12 +134,12 @@ sake of readability, unless there is a need for disambiguation.
   \caption{CAG with indicators and values}
 \end{figure}
 
-\begin{figure}
-  \input{figs.tex}
-  \caption{Relative changes in the values of the real-valued variables
-  representing the abstract concepts in the node, after two time steps. All the
-  variables started out at 1.0, with their partial derivatives with respect to
-  time set to 0.0, with the exception of the precipitation node, which was set
-  to 0.1.}
-\end{figure}
+%\begin{figure}
+  %\input{figs.tex}
+  %\caption{Relative changes in the values of the real-valued variables
+  %representing the abstract concepts in the node, after two time steps. All the
+  %variables started out at 1.0, with their partial derivatives with respect to
+  %time set to 0.0, with the exception of the precipitation node, which was set
+  %to 0.1.}
+%\end{figure}
 \end{document}
