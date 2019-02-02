@@ -281,6 +281,9 @@ class XMLToJSONTranslator(object):
             }
         ]
 
+    # This function checks for an asterisk in the argument of a read/write statement and stores it if found.
+    # An asterisk in the first argument specifies a input through or output to console.
+    # An asterisk in the second argument specifies a read/write without a format (implicit read/writes).
     def process_io_control_spec(self, root, state) -> List[Dict]:
         x = []
         for attr in root.attrib:
@@ -429,6 +432,9 @@ class XMLToJSONTranslator(object):
             close_spec["args"] += self.parseTree(node, state)
         return [close_spec]
 
+    # This function adds the tag for use statements
+    # In case of "USE .. ONLY .." statements, the symbols to be included
+    # are stored in the "include" field of the "use" block
     def process_use(self, root, state) -> List[Dict]:
         tag_spec = {
             "tag": "use",
@@ -443,6 +449,8 @@ class XMLToJSONTranslator(object):
 
         return [tag_spec]
 
+    # This function adds the tag for private symbols
+    # Any variable/function being initialized as private is added in this tag
     def process_private_variable(self, root, state) -> List[Dict]:
         for node in root:
             if node.tag == "name":
