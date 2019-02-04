@@ -78,6 +78,7 @@ class Indicator(RV):
         aggaxes: List[str] = [],
         aggregation_method: str = "mean",
         timeseries: Optional[List[float]] = None,
+        samples: Optional[List[float]] = None,
     ):
         super().__init__(name)
         self.source = source
@@ -89,30 +90,3 @@ class Indicator(RV):
         self.aggaxes = aggaxes
         self.aggregation_method = aggregation_method
         self.timeseries = timeseries
-
-    def get_historical_distribution(
-        self,
-        country: Optional[str] = "South Sudan",
-        state: Optional[str] = None,
-        county: Optional[str] = None,
-        month: Optional[int] = None,
-        source: Optional[str] = None,
-    ):
-        varName = self.name.replace("_", " ")
-        query_components = [
-            f"select * from indicator where `Variable` like '{varName}'",
-            "and `Value` is not null",
-        ]
-        if country is not None:
-            query_components.append(f"and `Country` like '{country}'")
-        if state is not None:
-            query_components.append(f"and `State` like '{state}'")
-        if county is not None:
-            query_components.append(f"and `County` like '{county}'")
-        if month is not None:
-            month = MONTH_DICT.get(month, month)
-            query_components.append(f"and `Month` like '{float(month)}'")
-        if source is not None:
-            query_components.append(f"and `Source` like '{source}'")
-        query = " ".join(query_components)
-        return [float(x["Value"]) for x in engine.execute(query)]
