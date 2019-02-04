@@ -220,7 +220,7 @@ def createExperiment(uuid: str):
                         "time": d.isoformat(),
                         "value": {
                             "baseType": "FloatValue",
-                            "value": np.mean([s[n[0]] for s in G.s0]),
+                            "value": np.median([s[n[0]] for s in G.s0]),
                         },
                     },
                 }
