@@ -922,7 +922,7 @@ class AnalysisGraph(nx.DiGraph):
     # Database-related code
     # ==========================================================================
 
-    def to_sql(self, app=None):
+    def to_sql(self, app=None, last_known_value_date: Optional[date] = None):
         """ Inserts the model into the SQLite3 database associated with Delphi,
         for use with the ICM REST API. """
 
@@ -937,7 +937,10 @@ class AnalysisGraph(nx.DiGraph):
             lastAccessedByUser_id=1,
             lastUpdatedByUser_id=1,
         )
-        today = date.today().isoformat()
+        if last_known_value_date is None:
+            today = date.today().isoformat()
+        else:
+            today = last_known_value_date.isoformat()
         default_latent_var_value = 1.0
         causal_primitives = []
         nodeset = {n.split("/")[-1] for n in self.nodes}

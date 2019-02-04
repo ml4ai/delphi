@@ -21,9 +21,10 @@ def process_dssat_table(variable_str, f):
     if "Harvested Area (ha)" in df.columns:
         del df["Harvested Area (ha)"]
     filename_parts = f.split("/")[-1].split("_")
+    method = filename_parts[2]
     df["State"] = EXPANSION_DICT[filename_parts[0]]
     variable = variable_str.split(" (")[0]
-    df["Variable"] = f"{variable} ({EXPANSION_DICT[filename_parts[1]]})"
+    df["Variable"] = f"{method.capitalize()} {variable} ({EXPANSION_DICT[filename_parts[1]]})"
     df.rename(columns={variable_str: "Value"}, inplace=True)
     df.Value = df.Value.astype(int)
     return df

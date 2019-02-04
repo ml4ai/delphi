@@ -5,7 +5,7 @@ def create_quantified_CAG(input, output):
     with open(input, "rb") as f:
         G = pickle.load(f)
 
-    G.res = 100
+    G.res = 200
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.get_timeseries_values_for_indicators()

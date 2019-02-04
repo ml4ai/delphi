@@ -7,6 +7,7 @@ from delphi.paths import (
     adjectiveData,
     concept_to_indicator_mapping,
 )
+from pathlib import Path
 from sqlalchemy import create_engine
 
 ENGINE = create_engine(f"sqlite:///{sys.argv[3]}", echo=False)
@@ -41,8 +42,21 @@ def create_concept_to_indicator_mapping_table(mapping_table):
 
     insert_table(df, "concept_to_indicator_mapping")
 
+def create_dssat_data_table():
+    state_dict = {"NBG":"Northern Bahr El Ghazal","Unity":"Unity"}
+    crop_dict = {"MAIZ":"maize", "SORG":"sorghum"}
+    dfs = []
+    for filename in ("NBG_MAIZ", "NBG_SORG", "Unity_MAIZ", "Unity_SORG"):
+        df = pd.read_csv(Path("data") / "SSD_csv" / f"{filename}.csv", usecols=[0, 1, 2])
+        state, crop = filename.split("_")
+        df["State"], df["Crop"]  = state_dict[state], crop_dict[crop]
+        df["Source"] = "DSSAT"
+        dfs.append(df)
+
+    insert_table(pd.concat(dfs), "dssat")
 
 if __name__ == "__main__":
+    create_dssat_data_table()
     create_indicator_table(sys.argv[1])
     create_adjectiveData_table()
     create_concept_to_indicator_mapping_table(sys.argv[2])

@@ -7,8 +7,9 @@ def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"
     with open(input, "rb") as f:
         G = pickle.load(f)
     G.map_concepts_to_indicators(min_temporal_res="month")
-    G.set_indicator("UN/events/weather/precipitation", "Average Total Daily Rainfall (Maize)", "DSSAT")
-    G.set_indicator("UN/events/human/agriculture/food_production", "Production (Maize)", "DSSAT")
+    G.set_indicator("UN/events/weather/precipitation", "Historical Average Total Daily Rainfall (Maize)", "DSSAT")
+    G.set_indicator("UN/events/human/agriculture/food_production",
+            "Historical Production (Maize)", "DSSAT")
     G.set_indicator("UN/entities/human/food/food_security", "IPC Phase Classification", "FEWSNET")
     G.set_indicator("UN/entities/food_availability", "Production, Meat indigenous, total", "FAO")
     G.set_indicator("UN/entities/human/financial/economic/market", "Inflation Rate", "ieconomics.com")
