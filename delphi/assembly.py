@@ -46,7 +46,7 @@ def constructConditionalPDF(
     # concepts are on the order of 1.0.
     # TODO Make this more general.
 
-    σ_X = σ_Y = 0.1
+    σ_X = σ_Y = 0.01
 
     for stmt in e[2]["InfluenceStatements"]:
         for ev in stmt.evidence:
@@ -89,6 +89,9 @@ def constructConditionalPDF(
             )
             # TODO - make the setting of σ_X and σ_Y more automated
             θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
+
+    # all_θs.append(θs)
+    # return gaussian_kde(np.concatenate(all_θs))
 
     if len(all_θs) == 0:
         all_θs.append(θs)
@@ -208,7 +211,15 @@ def get_indicator_value(
                 # (alphabetically sorted) set of possible units as a default.
 
                 if not all(map(lambda r: r["Unit"] is None, results)):
-                    unit = sorted(list({r["Unit"] for r in results if r["Unit"] is not None}))[0]
+                    unit = sorted(
+                        list(
+                            {
+                                r["Unit"]
+                                for r in results
+                                if r["Unit"] is not None
+                            }
+                        )
+                    )[0]
                 return (
                     aggfunc(
                         [
