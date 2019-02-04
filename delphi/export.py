@@ -50,7 +50,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     A.node_attr.update(
         {
             "shape": "rectangle",
-            "color": "#650021",
+            "color": "black",
+            # "color": "#650021",
             "style": "rounded",
             "fontname": FONT,
         }
@@ -67,6 +68,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         ]
     )
 
+    nodeset = {n.split("/")[-1] for n in G.nodes}
+    simplified_labels = len(nodeset) == len(G)
     color_str = "#650021"
     for n in G.nodes(data=True):
         if kwargs.get("values"):
@@ -77,8 +80,16 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                 + ")"
             )
         else:
-            node_label = n[0]
+            node_label = (
+                n[0].split("/")[-1].replace("_", " ").capitalize()
+                if simplified_labels
+                else n[0]
+            )
         A.add_node(n[0], label=node_label)
+
+    max_mean_betas = max(
+        [abs(np.mean(e[2]["βs"])) for e in G.edges(data=True)]
+    )
 
     for e in G.edges(data=True):
         # Calculate reinforcement (ad-hoc!)
@@ -93,7 +104,12 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
         c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
-        A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
+        A.add_edge(
+            e[0],
+            e[1],
+            color=c_str,
+            penwidth=4 * abs(np.mean(e[2]["βs"]) / max_mean_betas),
+        )
 
     # Drawing indicator variables
 
@@ -112,9 +128,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                     if ind.mean is not None:
                         ind_value = "{:.2f}".format(ind.mean)
                         node_label = (
-                            f"{node_label}\nValue: {ind_value}"
+                            f"{node_label}\n{ind_value} {ind.unit}"
                             f"\nSource: {ind.source}"
-                            f"\nUnits: {ind.unit}"
                             f"\nAggregation axes: {ind.aggaxes}"
                             f"\nAggregation method: {ind.aggregation_method}"
                         )
