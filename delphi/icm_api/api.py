@@ -166,7 +166,7 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    G.initialize()
+    G.initialize(initialize_indicators = False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
@@ -226,7 +226,7 @@ def createExperiment(uuid: str):
                 }
             )
 
-        G.update()
+        G.update(update_indicators=False)
 
         # Hack for 12-month evaluation - have the partial derivative decay over
         # time to restore equilibrium

@@ -507,7 +507,7 @@ class AnalysisGraph(nx.DiGraph):
             for i in range(self.res)
         ]
 
-    def initialize(self, config_file: str = "bmi_config.txt"):
+    def initialize(self, config_file: str = "bmi_config.txt", initialize_indicators = True):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
@@ -536,12 +536,13 @@ class AnalysisGraph(nx.DiGraph):
             n[1]["update_function"] = self.default_update_function
             rv.dataset = [1.0 for _ in range(self.res)]
             rv.partial_t = self.s0[0][f"∂({n[0]})/∂t"]
-            for indicator in n[1]["indicators"].values():
-                indicator.samples = np.random.normal(
-                    indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
-                )
+            if initialize_indicators:
+                for indicator in n[1]["indicators"].values():
+                    indicator.samples = np.random.normal(
+                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                    )
 
-    def update(self, τ: float = 1.0):
+    def update(self, τ: float = 1.0, update_indicators = True):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -556,10 +557,11 @@ class AnalysisGraph(nx.DiGraph):
                 # self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                     # f"∂({n[0]})/∂t"
                 # ] * exp(-τ * self.t)
-            for indicator in n[1]["indicators"].values():
-                indicator.samples = np.random.normal(
-                    indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
-                )
+            if update_indicators:
+                for indicator in n[1]["indicators"].values():
+                    indicator.samples = np.random.normal(
+                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                    )
 
         self.t += self.Δt
 
