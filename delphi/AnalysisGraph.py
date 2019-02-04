@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 import random
-from math import log
+from math import exp, log
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
@@ -196,8 +196,8 @@ class AnalysisGraph(nx.DiGraph):
             if indicator is not None:
                 indicator_source, indicator_name = (
                     indicator.split("/")[0],
-                    indicator,
-                )
+                    "/".join(indicator.split('/')[1:])
+                    )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
                         G.nodes[concept]["indicators"] = {}
@@ -345,7 +345,7 @@ class AnalysisGraph(nx.DiGraph):
         Returns:
             Observed state vector.
         """
-                    
+
         return {
             n[0]: {
                 i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
@@ -417,7 +417,9 @@ class AnalysisGraph(nx.DiGraph):
 
         for n in self.nodes(data=True):
             for indicator in n[1]["indicators"].values():
-                indicator.timeseries = [func(indicator, year="2017")[0] for func in funcs]
+                indicator.timeseries = [
+                    func(indicator, year="2017")[0] for func in funcs
+                ]
                 if len(set(indicator.timeseries)) == 1:
                     indicator.timeseries = None
 
@@ -467,7 +469,7 @@ class AnalysisGraph(nx.DiGraph):
                 calculated.
         """
         rows = engine.execute(
-            f"select * from dssat where `Crop` like '{crop}'"
+            f"select * from indicator where `Crop` like '{crop}'"
             f" and `State` like '{state}'"
         )
         xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
@@ -514,6 +516,7 @@ class AnalysisGraph(nx.DiGraph):
         Returns:
             AnalysisGraph
         """
+        self.t = 0.0
         if not os.path.isfile(config_file):
             self.create_bmi_config_file(config_file)
 
@@ -523,6 +526,7 @@ class AnalysisGraph(nx.DiGraph):
             )[1]
             for _ in range(self.res)
         ]
+        self.s0_original = self.s0[0].copy(deep=True)
 
         self.latent_state_vector = self.construct_default_initial_state()
 
@@ -532,8 +536,12 @@ class AnalysisGraph(nx.DiGraph):
             n[1]["update_function"] = self.default_update_function
             rv.dataset = [1.0 for _ in range(self.res)]
             rv.partial_t = self.s0[0][f"∂({n[0]})/∂t"]
+            for indicator in n[1]["indicators"].values():
+                indicator.samples = np.random.normal(
+                    indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                )
 
-    def update(self):
+    def update(self, τ: float = 1.0):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -545,6 +553,13 @@ class AnalysisGraph(nx.DiGraph):
         for n in self.nodes(data=True):
             for i in range(self.res):
                 self.s0[i][n[0]] = n[1]["rv"].dataset[i]
+                # self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
+                    # f"∂({n[0]})/∂t"
+                # ] * exp(-τ * self.t)
+            for indicator in n[1]["indicators"].values():
+                indicator.samples = np.random.normal(
+                    indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                )
 
         self.t += self.Δt
 
@@ -925,15 +940,17 @@ class AnalysisGraph(nx.DiGraph):
         today = date.today().isoformat()
         default_latent_var_value = 1.0
         causal_primitives = []
+        nodeset = {n.split("/")[-1] for n in self.nodes}
+        simplified_labels = len(nodeset) == len(self)
         for n in self.nodes(data=True):
             n[1]["rv"] = LatentVar(n[0])
             n[1]["update_function"] = self.default_update_function
             rv = n[1]["rv"]
             rv.dataset = [default_latent_var_value for _ in range(self.res)]
 
-            if n[1].get("indicators") is not None:
-                for ind in n[1]["indicators"].values():
-                    ind.dataset = np.ones(self.res) * ind.mean
+            # if n[1].get("indicators") is not None:
+                # for ind in n[1]["indicators"].values():
+                    # ind.dataset = np.ones(self.res) * ind.mean
 
             causal_variable = CausalVariable(
                 id=n[1]["id"],
@@ -941,8 +958,8 @@ class AnalysisGraph(nx.DiGraph):
                 units="",
                 namespaces={},
                 auxiliaryProperties=[],
-                label=n[0],
-                description=f"Long description of {n[0]}.",
+                label=n[0].split("/")[-1].replace("_", " ").capitalize() if simplified_labels else n[0],
+                description=n[0],
                 lastUpdated=today,
                 confidence=1.0,
                 lastKnownValue={
@@ -1014,7 +1031,8 @@ class AnalysisGraph(nx.DiGraph):
                     evidence = Evidence(
                         id=str(uuid4()),
                         causalrelationship_id=edge[2]["id"],
-                        description=ev.text,
+                        # TODO - make source and target appear in CauseEx HMI
+                        description=(ev.text),
                     )
                     evidences.append(evidence)
 
