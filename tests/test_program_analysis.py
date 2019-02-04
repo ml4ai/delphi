@@ -22,6 +22,7 @@ from typing import Dict
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
+    os.environ["CLASSPATH"] = (str(Path(__file__).parent / "../" / "delphi" / "translators" / "for2py" / "bin" / "*"))
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
     lambdas_filename = stem + "_lambdas.py"
