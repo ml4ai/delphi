@@ -19,10 +19,10 @@ from delphi.visualization import visualize
 from pathlib import Path
 from importlib import import_module
 from typing import Dict
-
+os.environ["CLASSPATH"] = (str(Path(__file__).parent / "../" / "delphi" / "translators" / "for2py" / "bin" / "*"))
+ 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    os.environ["CLASSPATH"] = (str(Path(__file__).parent / "../" / "delphi" / "translators" / "for2py" / "bin" / "*"))
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
     lambdas_filename = stem + "_lambdas.py"
