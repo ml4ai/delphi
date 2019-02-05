@@ -69,8 +69,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     )
 
     nodeset = {n.split("/")[-1] for n in G.nodes}
-    simplified_labels = False
-    # simplified_labels = len(nodeset) == len(G)
+
+    simplified_labels = len(nodeset) == len(G)
     color_str = "#650021"
     for n in G.nodes(data=True):
         if kwargs.get("values"):
@@ -88,8 +88,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
             )
         A.add_node(n[0], label=node_label)
 
-    max_mean_betas = max(
-        [abs(np.mean(e[2]["βs"])) for e in G.edges(data=True)]
+    max_median_betas = max(
+        [abs(np.median(e[2]["βs"])) for e in G.edges(data=True)]
     )
 
     for e in G.edges(data=True):
@@ -104,13 +104,13 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         opacity = total_evidence_pieces / n_max
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
-        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement)))#+ h[4:6]
+        c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
 
         A.add_edge(
             e[0],
             e[1],
             color=c_str,
-            penwidth=4 * abs(np.mean(e[2]["βs"]) / max_mean_betas),
+            penwidth=3 * abs(np.median(e[2]["βs"]) / max_median_betas),
         )
 
     # Drawing indicator variables

@@ -229,7 +229,7 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
     }
 
     for t in range(1, n_timesteps + 1):
-        G.update()
+        G.update(dampen=True)
         for n in G.nodes(data=True):
             # TODO Fix this - make it more general (or justify it theoretically)
             ys = lmap(
@@ -239,12 +239,14 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
             indicator_values[n[0]]["ys"].extend(ys)
             indicator_values[n[0]]["xs"].extend([t for _ in ys])
 
-    for n in G.nodes():
+    for n in G.nodes(data=True):
         fig, ax = plt.subplots()
         sns.lineplot(
-            indicator_values[n]["xs"], indicator_values[n]["ys"], ax=ax, ci=20
+            indicator_values[n[0]]["xs"], indicator_values[n[0]]["ys"], ax=ax,
+            ci=68,
+            estimator=np.median
         )
-        ax.set_ylabel(indicator_values[n]["name"])
+        ax.set_title(f"{indicator_values[n[0]]['name']} ({list(n[1]['indicators'].values())[0].unit})")
         ax.set_xlabel("time step number")
 
 
