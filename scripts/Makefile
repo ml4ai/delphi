@@ -161,7 +161,7 @@ build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
 build/quantified_CAG.pkl: evaluations/create_quantified_CAG.py build/parameterized_CAG.pkl
 	python $^ $@
 
-report.pdf: report.tex apnotes.cls build/parameterized_CAG.pkl
+report.pdf: report.tex apnotes.cls build/quantified_CAG.pkl
 	latexmk -lualatex $<
 	latexmk -c $(*F)
 
