@@ -469,7 +469,7 @@ class AnalysisGraph(nx.DiGraph):
                 calculated.
         """
         rows = engine.execute(
-            f"select * from indicator where `Crop` like '{crop}'"
+            f"select * from dssat where `Crop` like '{crop}'"
             f" and `State` like '{state}'"
         )
         xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
@@ -542,7 +542,7 @@ class AnalysisGraph(nx.DiGraph):
                         indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
                     )
 
-    def update(self, τ: float = 1.0, update_indicators = True):
+    def update(self, τ: float = 1.0, update_indicators = True, dampen=False):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -554,9 +554,10 @@ class AnalysisGraph(nx.DiGraph):
         for n in self.nodes(data=True):
             for i in range(self.res):
                 self.s0[i][n[0]] = n[1]["rv"].dataset[i]
-                # self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
-                    # f"∂({n[0]})/∂t"
-                # ] * exp(-τ * self.t)
+                if dampen:
+                    self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
+                        f"∂({n[0]})/∂t"
+                    ] * exp(-τ * self.t)
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
