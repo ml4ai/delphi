@@ -46,7 +46,7 @@ def constructConditionalPDF(
     # concepts are on the order of 1.0.
     # TODO Make this more general.
 
-    σ_X = σ_Y = 0.01
+    σ_X = σ_Y = 0.1
 
     for stmt in e[2]["InfluenceStatements"]:
         for ev in stmt.evidence:
