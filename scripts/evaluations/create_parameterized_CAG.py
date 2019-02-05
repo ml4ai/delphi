@@ -10,8 +10,6 @@ def create_parameterized_CAG(input, output, filename="CAG_with_indicators_and_va
     G.get_timeseries_values_for_indicators()
     with open(output, "wb") as f:
         pickle.dump(G, f)
-    A = to_agraph(G, indicators=True, indicator_values=True)
-    A.draw(filename, prog="dot")
 
 if __name__ == "__main__":
     create_parameterized_CAG(sys.argv[1], sys.argv[3])

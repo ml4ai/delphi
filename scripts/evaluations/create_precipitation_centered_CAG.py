@@ -3,7 +3,7 @@ import pickle
 from delphi.export import to_agraph
 
 
-def create_precipitation_centered_CAG(input, output, filename="CAG.pdf"):
+def create_precipitation_centered_CAG(input, output):
     """ Get a CAG that examines the downstream effects of changes in precipitation. """
 
     with open(input, "rb") as f:
@@ -18,8 +18,6 @@ def create_precipitation_centered_CAG(input, output, filename="CAG.pdf"):
         "UN/events/weather/precipitation",
         "UN/entities/human/infrastructure/transportation/road",
     ]["InfluenceStatements"][0].obj_delta["polarity"] = -1
-    A = to_agraph(G)
-    A.draw(filename, prog="dot")
     with open(output, "wb") as f:
         pickle.dump(G, f)
 
