@@ -50,7 +50,8 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
     A.node_attr.update(
         {
             "shape": "rectangle",
-            "color": "#650021",
+            "color": "black",
+            # "color": "#650021",
             "style": "rounded",
             "fontname": FONT,
         }
@@ -67,34 +68,59 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
         ]
     )
 
+    nodeset = {n.split("/")[-1] for n in G.nodes}
+
+    simplified_labels = len(nodeset) == len(G)
     color_str = "#650021"
     for n in G.nodes(data=True):
         if kwargs.get("values"):
-            node_label = n[0].capitalize().replace("_", " ") + " ("+str(np.mean(n[1]["rv"].dataset))+")"
+            node_label = (
+                n[0].capitalize().replace("_", " ")
+                + " ("
+                + str(np.mean(n[1]["rv"].dataset))
+                + ")"
+            )
         else:
-            node_label = n[0]
+            node_label = (
+                n[0].split("/")[-1].replace("_", " ").capitalize()
+                if simplified_labels
+                else n[0]
+            )
         A.add_node(n[0], label=node_label)
+
+    max_median_betas = max(
+        [abs(np.median(e[2]["βs"])) for e in G.edges(data=True)]
+    )
 
     for e in G.edges(data=True):
         # Calculate reinforcement (ad-hoc!)
 
         sts = e[2]["InfluenceStatements"]
         total_evidence_pieces = sum([len(s.evidence) for s in sts])
-        reinforcement = sum([stmt.overall_polarity()*len(stmt.evidence) for stmt in sts])/total_evidence_pieces
-        opacity = (
-            total_evidence_pieces / n_max
+        reinforcement = (
+            sum([stmt.overall_polarity() * len(stmt.evidence) for stmt in sts])
+            / total_evidence_pieces
         )
+        opacity = total_evidence_pieces / n_max
         h = (opacity * 255).hex()
         cmap = cm.Greens if reinforcement > 0 else cm.Reds
         c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
-        A.add_edge(e[0], e[1], color=c_str, arrowsize=0.5)
+
+        A.add_edge(
+            e[0],
+            e[1],
+            color=c_str,
+            penwidth=3 * abs(np.median(e[2]["βs"]) / max_median_betas),
+        )
 
     # Drawing indicator variables
 
     if kwargs.get("indicators"):
         for n in nodes_with_indicators:
             for indicator_name, ind in n[1]["indicators"].items():
-                node_label = _insert_line_breaks(ind.name.replace("_", " "))
+                node_label = _insert_line_breaks(
+                    ind.name.replace("_", " "), 30
+                )
                 if kwargs.get("indicator_values"):
                     if ind.unit is not None:
                         units = f" {ind.unit}"
@@ -102,13 +128,19 @@ def to_agraph(G, *args, **kwargs) -> AGraph:
                         units = ""
 
                     if ind.mean is not None:
-                        ind_value = "{:.2f}".format(ind.mean) + f"{units}"
-                        node_label = f"{node_label}\n[{ind_value}]"
+                        ind_value = "{:.2f}".format(ind.mean)
+                        node_label = (
+                            f"{node_label}\n{ind_value} {ind.unit}"
+                            f"\nSource: {ind.source}"
+                            f"\nAggregation axes: {ind.aggaxes}"
+                            f"\nAggregation method: {ind.aggregation_method}"
+                        )
 
                 A.add_node(
-                    indicator_name, style="rounded, filled",
+                    indicator_name,
+                    style="rounded, filled",
                     fillcolor="lightblue",
-                    label=node_label
+                    label=node_label,
                 )
                 A.add_edge(n[0], indicator_name, color="royalblue4")
 
