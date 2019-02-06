@@ -19,7 +19,6 @@ from delphi.visualization import visualize
 from pathlib import Path
 from importlib import import_module
 from typing import Dict
-#os.environ["CLASSPATH"] = (str(Path(__file__).parent / "../" / "delphi" / "translators" / "for2py" / "bin" / "*"))
  
 
 def make_grfn_dict(original_fortran_file) -> Dict:
