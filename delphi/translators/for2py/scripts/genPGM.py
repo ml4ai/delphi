@@ -533,7 +533,7 @@ def genPgm(node, state, fnNames):
         lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
-            "type": "assign",
+            "type": "condition",
             "target": condName,
             "sources": [
                 {"name": src["var"]["variable"], "type": "variable"}
@@ -634,7 +634,7 @@ def genPgm(node, state, fnNames):
             )
             fn = {
                 "name": fnName,
-                "type": "assign",
+                "type": "decision",
                 "target": updatedDef,
                 "sources": [
                     {
