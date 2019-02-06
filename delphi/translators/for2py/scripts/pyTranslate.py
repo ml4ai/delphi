@@ -780,6 +780,7 @@ class PythonCodeGenerator(object):
         #     type_list.append(f"{rep_count}({','.join(values)})")
 
         self.pyStrings.append(printState.sep)
+        self.nameMapper[f"format_{node['label']}"] = f"format_{node['label']}"
         self.printVariable(
             {"name": "format_" + node["label"], "type": "STRING"}, printState
         )
