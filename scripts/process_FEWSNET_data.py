@@ -7,7 +7,6 @@ import shapefile
 from future.utils import lzip
 from delphi.utils.shell import cd
 from delphi.utils.web import download_file
-from delphi.paths import data_dir
 from tqdm import tqdm
 import matplotlib as mpl
 import pandas as pd
@@ -17,30 +16,8 @@ from matplotlib import pyplot as plt
 from shapely.geometry import Polygon, MultiPolygon
 
 
-def download_FEWSNET_admin_boundaries_data():
-    url = "http://shapefiles.fews.net.s3.amazonaws.com/ADMIN/FEWSNET_World_Admin.zip"
-    zipfile_name = Path(data_dir) / url.split("/")[-1]
-    download_file(url, zipfile_name)
-    directory = Path(data_dir) / (url.split("/")[-1].split(".")[0])
-    os.makedirs(directory, exist_ok=True)
-    with zipfile.ZipFile(zipfile_name) as zf:
-        zf.extractall(directory)
-
-
-def download_and_clean_FEWSNET_IPC_data():
-    url = "http://shapefiles.fews.net.s3.amazonaws.com/ALL_HFIC.zip"
-    zipfile_name = Path(data_dir) / url.split("/")[-1]
-    download_file(url, zipfile_name)
-    with zipfile.ZipFile(zipfile_name) as zf:
-        zf.extractall(data_dir)
-    with cd(str(Path(data_dir) / "ALL_HFIC" / "East Africa")):
-        files_to_rename = glob("EA2017*")
-        for f in files_to_rename:
-            os.rename(f, f.replace("EA", "EA_"))
-
-
 def process_FEWSNET_IPC_data(shpfile: str, title: str):
-    admin_boundaries_shapefile = "data/FEWSNET_World_Admin/FEWSNET_Admin2"
+    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     colors = {
         0: "white",
@@ -135,15 +112,13 @@ def get_polygons(shape):
 
 
 def create_food_security_data_table(region: str, country: str):
-    admin_boundaries_shapefile = str(
-        Path(data_dir) / "FEWSNET_World_Admin" / "FEWSNET_Admin2"
-    )
+    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     south_sudan_srs = [
         x for x in sf_admin.shapeRecords() if x.record[3] == country
     ]
 
-    path = str(Path(data_dir) / "ALL_HFIC" / region)
+    path = f"data/FEWSNET/ALL_HFIC/{region}"
     ipc_records = []
     with cd(path):
         shapefiles = glob("*.shp")
@@ -173,11 +148,14 @@ def create_food_security_data_table(region: str, country: str):
                                     "County": sr.record[8],
                                     "Year": year,
                                     "Month": month,
-                                    "IPC Phase": CS,
+                                    "Value": CS,
+                                    "Variable": "IPC Phase Classification",
+                                    "Unit": "IPC Phase",
+                                    "Source": "FEWSNET",
                                 }
                             )
     df = pd.DataFrame(ipc_records)
-    df.to_csv(Path(data_dir) / "ipc_data.tsv", sep="\t")
+    df.to_csv("data/south_sudan_data_fewsnet.tsv", sep="\t", index=False)
 
 
 if __name__ == "__main__":

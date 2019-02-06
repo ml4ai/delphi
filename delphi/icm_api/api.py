@@ -1,4 +1,5 @@
 import json
+from math import exp
 from uuid import uuid4
 import pickle
 from datetime import date, timedelta, datetime
@@ -163,9 +164,9 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
 def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
-    G = DelphiModel.query.filter_by(id=uuid).first().model
     data = json.loads(request.data)
-    G.initialize()
+    G = DelphiModel.query.filter_by(id=uuid).first().model
+    G.initialize(initialize_indicators = False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
@@ -179,6 +180,8 @@ def createExperiment(uuid: str):
                 # the mismatch in semantics between the ICM API and the Delphi
                 # model. MUST FIX ASAP.
                 rv.partial_t = variable["values"]["value"]["value"] - 1
+                for s0 in G.s0:
+                    s0[f"∂({n[0]})/∂t"] = rv.partial_t
                 break
 
     id = str(uuid4())
@@ -192,7 +195,9 @@ def createExperiment(uuid: str):
 
     d = dateutil.parser.parse(data["projection"]["startTime"])
 
-    for i in range(data["projection"]["numSteps"]):
+    n_timesteps = data["projection"]["numSteps"]
+
+    for i in range(n_timesteps):
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
         elif data["projection"]["stepSize"] == "YEAR":
@@ -215,13 +220,25 @@ def createExperiment(uuid: str):
                         "time": d.isoformat(),
                         "value": {
                             "baseType": "FloatValue",
-                            "value": np.mean(n[1]["rv"].dataset),
+                            "value": np.median([s[n[0]] for s in G.s0]),
                         },
                     },
                 }
             )
 
-        G.update()
+        G.update(update_indicators=False)
+
+        # Hack for 12-month evaluation - have the partial derivative decay over
+        # time to restore equilibrium
+
+        tau = 1.0 # Time constant to control the rate of the decay
+        for n in G.nodes(data=True):
+            for variable in data["interventions"]:
+                if n[1]["id"] == variable["id"]:
+                    rv = n[1]["rv"]
+                    for s0 in G.s0:
+                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau*i)
+
     db.session.add(result)
     db.session.commit()
 
