@@ -17,6 +17,17 @@ install:
   - pip install .[test]
   - wget http://vision.cs.arizona.edu/adarsh/delphi.db
 
-script: make test
+script:
+  - make test
+  - cd docs; make apidocs; make html
+
+deploy:
+  local-dir: docs/build/html
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: master
 after_success: coveralls
 cache: pip
