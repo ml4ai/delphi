@@ -1,8 +1,16 @@
-all: data/delphi.db
+# This Makefile has not been fully tested. Please report any errors to
+# adarsh.pyarelal@gmail.com
+
+all: report.pdf
+
+DSSAT_DATA := data/disaggregated_all_20190123_1451
+DSSAT_AGGREGATED_DATA := data/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
-				data/un_to_indicators.tsv
+				data/un_to_indicators.tsv\
+				data/adjectiveData.tsv\
+				$(DSSAT_AGGREGATED_DATA)
 	python $^ $@
 
 data:
@@ -10,14 +18,14 @@ data:
 
 # Intermediate files that will be deleted after they are no longer necessary
 
-DSSAT_DATA := data/disaggregated_all_20190123_1451
 
 .INTERMEDIATE: data/WDI_csv.tar.bz2 \
 			   data/FAOSTAT.zip\
 			   data/FEWSNET/ALL_HFIC.zip\
 			   data/FEWSNET/FEWSNET_World_Admin.zip\
 			   fews\
-			   $(DSSAT_DATA).zip
+			   $(DSSAT_DATA).zip\
+			   $(DSSAT_AGGREGATED_DATA).zip
 
 
 # =============================================================================
@@ -81,12 +89,15 @@ data/south_sudan_data_climis_unicef_ieconomics.tsv: process_climis_unicef_iecono
 data/south_sudan_data_conflict.tsv:
 	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
+$(DSSAT_AGGREGATED_DATA): | data
+	curl http://vision.cs.arizona.edu/adarsh/$(@F).tgz -o $@.tgz
+	cd data; tar -xvzf $(@F).tgz
 
 $(DSSAT_DATA): | data
-	curl http://vision.cs.arizona.edu/adarsh/$(@F).zip -o data/$(@F).zip 
-	unzip $@.zip -d $(DSSAT_DATA)
+	curl http://vision.cs.arizona.edu/adarsh/$(@F).zip -o $@.zip
+	unzip $@.zip -d $@
 
-dssat: $(DSSAT_DATA)
+dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
 data/south_sudan_data_dssat.tsv: process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
@@ -102,10 +113,13 @@ data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
 						   data/south_sudan_data_dssat.tsv
-
 	python $< --combine
 
 data/indicator_flat_list.txt: data/south_sudan_data.tsv
+
+
+data/adjectiveData.tsv: | data
+	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
 # =============================================================================
 # Creation of concept to indicator mapping
@@ -132,7 +146,6 @@ data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) d
 build:
 	mkdir -p $@
 
-#PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_learnit_after_20190127.json
 PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_20190118.json
 
 build/pruned_corpus.json: evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build
@@ -170,17 +183,21 @@ insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl data/
 
 build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG.pkl
 	python $^ $@
-
+	#
 # Via manual construction in the CauseMos HMI ---------------------------------
 
 data/CauseMosCAG.json: | data
 	curl http://vision.cs.arizona.edu/adarsh/$(@F).gz | gunzip > $@
 
 build/causemos_cag.pkl: evaluations/create_cag_from_causemos_output.py\
-						data/CauseMosCAG.json
+						data/CauseMosCAG.json | data/delphi.db
+	mkdir -p build
 	python $^ $@
 
-insert_causemos_model: evaluations/insert_model_into_db.py\
-					   build/causemos_cag.pkl\
-					   data/delphi.db
+# For Uncharted folks - invoke this as 
+#
+# make -o data/delphi.db insert_causemos_model
+#
+# after you have put the newest CauseMos CAG in data/CauseMosCAG.json
+insert_causemos_model: evaluations/insert_model_into_db.py build/causemos_cag.pkl | data/delphi.db
 	python $^
