@@ -534,7 +534,6 @@ class AnalysisGraph(nx.DiGraph):
                     aggfunc,
                 )
                 indicator.stdev = 0.1 * abs(indicator.mean)
-                print(indicator.__dict__)
 
     # ==========================================================================
     # Manipulation
