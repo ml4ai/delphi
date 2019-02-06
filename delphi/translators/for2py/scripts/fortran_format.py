@@ -424,9 +424,9 @@ def list_data_type(type_list):
         if not match:
             reps = 1
             if item[0] in "FfEegG":
-                data_type.append("float")
+                data_type.append("REAL")
             elif item[0] in "Ii":
-                data_type.append("int")
+                data_type.append("INTEGER")
         else:
             reps = match.group(1)
             fmt = match.group(2)

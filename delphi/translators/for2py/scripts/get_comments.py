@@ -131,7 +131,7 @@ def get_comments(src_file_name: str):
 
     # if there's a comment at the very end of the file, make it the foot
     # comment of curr_fn
-    if curr_comment != []:
+    if curr_comment != [] and comments.get(curr_fn):
         comments[curr_fn]["foot"] = curr_comment
         comments["$file_foot"] = curr_comment
     return comments

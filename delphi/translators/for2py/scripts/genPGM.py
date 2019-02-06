@@ -182,6 +182,8 @@ def getDType(val):
         dtype = "integer"
     elif isinstance(val, float):
         dtype = "real"
+    elif isinstance(val, str):
+        dtype = "string"
     else:
         sys.stderr.write(f"num: {type(node.n)}\n")
         sys.exit(1)
@@ -912,6 +914,24 @@ def genPgm(node, state, fnNames):
             pgm = genPgm(cur, state, fnNames)
             pgms += pgm
         return [mergeDicts(pgms)]
+
+    # BoolOp: body
+    elif isinstance(node, ast.BoolOp):
+        pgms = []
+        boolOp = {
+            ast.And: "and",
+            ast.Or: "or"
+            }
+
+        for key in boolOp:
+            if isinstance(node.op, key):
+                pgms.append([{"boolOp": boolOp[key]}])
+
+        for item in node.values:
+            pgms.append(genPgm(item, state, fnNames))
+
+        return pgms
+
 
     elif isinstance(node, ast.AST):
         sys.stderr.write(

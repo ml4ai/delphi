@@ -30,7 +30,7 @@ C  3.1416   0.0175   1   2   2   3   3
 
       REAL, PARAMETER :: 
      &    PI = 3.14159265,
-     &    RAD=PI/180.0
+     &    RAD=0.0174532925
 
       INTEGER, PARAMETER :: 
          !Dynamic variable values
