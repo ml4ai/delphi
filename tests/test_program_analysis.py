@@ -19,7 +19,7 @@ from delphi.visualization import visualize
 from pathlib import Path
 from importlib import import_module
 from typing import Dict
- 
+
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     stem = original_fortran_file.stem
@@ -67,10 +67,12 @@ def petpt_grfn_dict():
     yield make_grfn_dict(Path("tests/data/PETPT.for"))
     os.remove("PETPT_lambdas.py")
 
+
 @pytest.fixture
 def io_grfn_dict():
     yield make_grfn_dict(Path("tests/data/io-tests/iotest_05.for"))
     os.remove("iotest_05_lambdas.py")
+
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
     with open("tests/data/crop_yield_grfn.json", "r") as f:
@@ -86,11 +88,13 @@ def test_petpt_grfn_generation(petpt_grfn_dict):
         json_dict["dateCreated"] = str(date.today())
     assert sorted(petpt_grfn_dict) == sorted(json_dict)
 
+
 def test_io_grfn_generation(io_grfn_dict):
-    with open("tests/data/io-tests/iotest_05_grfn.json","r") as f:
+    with open("tests/data/io-tests/iotest_05_grfn.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
     assert sorted(io_grfn_dict) == sorted(json_dict)
+
 
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas
