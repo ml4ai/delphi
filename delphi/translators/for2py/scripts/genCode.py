@@ -137,6 +137,18 @@ def genCode(node, state):
     # Gt: ()
     elif isinstance(node, ast.Gt):
         codeStr = ">"
+    
+    # GtE: ()
+    elif isinstance(node, ast.GtE):
+        codeStr = ">="
+
+    # And: ()
+    elif isinstance(node, ast.And):
+        codeStr = "and"
+
+    # Or: ()
+    elif isinstance(node, ast.Or):
+        codeStr = "or"
 
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
@@ -208,6 +220,13 @@ def genCode(node, state):
     # Module: body
     elif isinstance(node, ast.Module):
         codeStr = genCode(node.body, state)
+
+    # BoolOp: body
+    elif isinstance(node, ast.BoolOp):
+        codeStr = "({0} {1} {2})".format(
+                          genCode(node.values[0], state),
+                          genCode(node.op, state),
+                          genCode(node.values[1], state))  
 
     elif isinstance(node, ast.AST):
         sys.stderr.write(
