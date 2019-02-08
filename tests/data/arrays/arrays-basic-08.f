@@ -53,7 +53,7 @@ C END INITIALIZATION
 72    FORMAT(5X,I5, F12.6)
 
       DO I=1,N
-          WRITE (*,72) I, A(I,N+1)
+          WRITE (*,72) I, A(I,N+2)
       END DO
 
       WRITE(*,15)
