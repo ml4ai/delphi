@@ -250,7 +250,6 @@ class PythonCodeGenerator(object):
                     indexRef=inRef,
                 ),
             )
-
         else:
             argSize = len(node["args"])
             assert argSize >= 1
@@ -268,7 +267,7 @@ class PythonCodeGenerator(object):
                         indexRef=inRef,
                     ),
                 )
-                if node["args"][0]["tag"] == "ref" and "subscripts" not in node["args"][0]:
+                if node["args"][arg]["tag"] == "ref" and "subscripts" not in node["args"][arg]:
                     self.pyStrings.append("[0]")
                 self.pyStrings.append("]")
                 if arg < argSize - 1:
@@ -543,7 +542,8 @@ class PythonCodeGenerator(object):
             self.pyStrings.append("))")
 
     def printAssignment(self, node, printState):
-        if "subscripts" in node["target"][0]:
+        # Writing a target variable syntax
+        if "subscripts" in node["target"][0]:   # Case where the target is an array
             self.pyStrings.append(f"{node['target'][0]['name']}.set_((")
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
@@ -551,14 +551,15 @@ class PythonCodeGenerator(object):
                 if ind["tag"] == "literal": # Case where using literal value as an array index
                     index = ind["value"]
                     self.pyStrings.append(f"{index}")
-                if ind["tag"] == "ref":
+                if ind["tag"] == "ref": # Case where using variable as an array index
                     if 'name' in ind:
                         index = ind["name"]
                     elif 'value' in ind:
                         index = ind["value"]
                     self.pyStrings.append(f"{index}[0]")
-                if ind["tag"] == "op":
+                if ind["tag"] == "op":  # Case where a literal index has an operator
                     operator = ind["operator"]
+                    # For left index
                     if ind["left"][0]["tag"] == "literal":
                         lIndex = ind["left"][0]["value"]
                         self.pyStrings.append(f"{lIndex}")
@@ -567,7 +568,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(f"{lIndex}[0]")
 
                     self.pyStrings.append(f" {operator} ")
-
+                    # For right index
                     if ind["right"][0]["tag"] == "literal":
                         rIndex = ind["right"][0]["value"]
                         self.pyStrings.append(f"{rIndex}")
@@ -579,12 +580,14 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(", ")
                     length = length - 1
             self.pyStrings.append("), ")
-        else:
+        else:   # Case where the target is a single variable
             self.printAst(
                 node["target"],
                 printState.copy(sep="", add="", printFirst=False, indexRef=True),
             )
             self.pyStrings.append(" = ")
+
+        # Writes a syntax for the source that is right side of the '=' operator
         if "subscripts" in node["value"][0]:
             self.pyStrings.append(f"{node['value'][0]['name']}.get_((")
             arrayLen = len(node["value"][0]["subscripts"])
@@ -800,33 +803,31 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def printArray(self, node, printState):
-        if int(node['count']) == 1:
-            if (
-                node["name"] not in printState.definedVars
-                and node["name"] not in printState.globalVars
-            ):
-                printState.definedVars += [node["name"]]
-                loBound = node["low" + node['count']]
-                upBound = node["up" + node['count']]
+        """ Prints out the array declaration in a format of Array class
+            object declaration. 'arrayName = Array(Type, [bounds])'
+        """
+        assert int(node['count']) > 0
+        printState.definedVars += [node["name"]]
 
-                self.pyStrings.append(
-                    f"{node['name']} = Array([({loBound}, {upBound})])"
-                )
-        elif int(node['count']) > 1:
-            printState.definedVars += [node["name"]]
-
-            self.pyStrings.append(f"{node['name']} = Array([")
-            for i in range (0, int(node['count'])):  
-                loBound = node["low" + str(i+1)]
-                upBound = node["up" + str(i+1)]
-                dimensions = f"({loBound}, {upBound})"
-                if i < int(node['count'])-1:
-                    self.pyStrings.append(f"{dimensions}, ")
-                else:
-                    self.pyStrings.append(f"{dimensions}")
-            self.pyStrings.append("])")
-        else:
-            printState.printFirst = False
+        varType = ""
+        if node["type"].upper() == "INTEGER":
+            varType = "int"
+        elif node["type"].upper() in ("DOUBLE", "REAL"):
+            varType = "float"
+        elif node["type"].upper() == "CHARACTER":
+            varType = "str"
+        assert varType != ""
+        
+        self.pyStrings.append(f"{node['name']} = Array({varType}, [")
+        for i in range (0, int(node['count'])):  
+            loBound = node["low" + str(i+1)]
+            upBound = node["up" + str(i+1)]
+            dimensions = f"({loBound}, {upBound})"
+            if i < int(node['count'])-1:
+                self.pyStrings.append(f"{dimensions}, ")
+            else:
+                self.pyStrings.append(f"{dimensions}")
+        self.pyStrings.append("])")
 
     def get_python_source(self):
         return "".join(self.pyStrings)

@@ -14,6 +14,7 @@ test:
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests
+	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
 
 pypi_upload:
 	rm -rf dist

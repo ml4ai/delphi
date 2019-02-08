@@ -14,9 +14,21 @@ addons:
 install:
   - pip install git+https://github.com/sorgerlab/indra.git
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - pip install .[test]
+  - pip install .[test,docs]
   - wget http://vision.cs.arizona.edu/adarsh/delphi.db
 
-script: make test
+script:
+  - make test
+  - cd docs; make apidocs; make html
+
+deploy:
+  local-dir: docs/_build/html
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  on:
+    branch: master
+
 after_success: coveralls
+
 cache: pip

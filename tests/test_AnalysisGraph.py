@@ -40,7 +40,7 @@ def test_from_pickle(G):
 
 def test_get_subgraph_for_concept(G):
     concept_of_interest = food_security_string
-    sg = G.get_subgraph_for_concept(concept_of_interest)
+    sg = G.get_subgraph_for_concept(concept_of_interest, reverse=True)
     assert set(sg.nodes()) == set([conflict_string, food_security_string])
 
 

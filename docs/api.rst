@@ -3,10 +3,27 @@
 AnalysisGraph API
 =================
 
-The AnalysisGraph is the central data structure for Delphi.
-This page describes different operations that can be performed
-using it.
+The central data structure for Delphi is the AnalysiGraph, which
+represents a directed graph that encodes information about causal
+quantitative relationships between concepts that we are interested in
+modeling.
 
+The AnalysisGraph class currently inherits from the NetworkX DiGraph
+object, but the underlying implementation might be switched out for a
+faster one in the future.
+
+Each node in the graph represents a *concept* - at the time of writing
+this (01/31/2019), this means an entry in an ontology of high-level
+concepts related to food security, like `this one`_.
+
+Each concept is associated with a set of indicators, which correspond to
+real-world, measurable quantities (and importantly, that Delphi has
+access to normalized data for.). In practice, this set of indicators is
+implemented as a dictionary, keyed by the name of the indicator. The
+values of the dictionary are objects of the class
+:class:`delphi.random_variables.Indicator`.
+
+The methods listed on this page constitute the public API for Delphi.
 
 Constructors
 ------------
@@ -79,7 +96,6 @@ Sampling and Inference
 
     AnalysisGraph.assemble_transition_model_from_gradable_adjectives
     AnalysisGraph.sample_from_prior
-    AnalysisGraph.emission_function
     AnalysisGraph.infer_transition_matrix_coefficient_from_data
 
 
@@ -129,3 +145,5 @@ Time functions
     AnalysisGraph.get_time_step
     AnalysisGraph.get_time_units
     AnalysisGraph.get_current_time
+
+.. _this one: https://github.com/clulab/eidos/blob/master/src/main/resources/org/clulab/wm/eidos/english/ontologies/un_ontology.yml

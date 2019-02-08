@@ -90,6 +90,9 @@ def constructConditionalPDF(
             # TODO - make the setting of σ_X and σ_Y more automated
             θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
 
+    # all_θs.append(θs)
+    # return gaussian_kde(np.concatenate(all_θs))
+
     if len(all_θs) == 0:
         all_θs.append(θs)
         return gaussian_kde(all_θs)
@@ -158,6 +161,10 @@ def get_indicator_value(
 
     query_parts = {"base": query_base}
 
+    if aggfunc == np.mean:
+        indicator.aggregation_method = "mean"
+    else:
+        indicator.aggregation_method = "Unknown"
     if country is not None:
         query_parts["country"] = f"and `Country` is '{country}'"
     if state is not None:
@@ -169,9 +176,10 @@ def get_indicator_value(
     if unit is not None:
         query_parts["unit"] = f"and `Unit` is '{unit}'"
 
+    indicator.aggaxes = []
     for constraint in ("country", "state", "year", "month"):
         if constraint not in query_parts:
-            indicator.aggaxes.add(constraint)
+            indicator.aggaxes.append(constraint)
 
     query = " ".join(query_parts.values())
     results = list(engine.execute(query))
@@ -182,7 +190,7 @@ def get_indicator_value(
     else:
         for i, aggregation_axis in enumerate(fallback_aggaxes):
             try:
-                indicator.aggaxes.add(aggregation_axis)
+                indicator.aggaxes.append(aggregation_axis)
                 query = " ".join(
                     [
                         query_parts[k]
@@ -202,7 +210,16 @@ def get_indicator_value(
                 # If there are multiple possible units, use the first in the
                 # (alphabetically sorted) set of possible units as a default.
 
-                unit = sorted(list({r["Unit"] for r in results}))[0]
+                if not all(map(lambda r: r["Unit"] is None, results)):
+                    unit = sorted(
+                        list(
+                            {
+                                r["Unit"]
+                                for r in results
+                                if r["Unit"] is not None
+                            }
+                        )
+                    )[0]
                 return (
                     aggfunc(
                         [

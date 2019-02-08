@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     delphi.GrFN
+    delphi.analysis
     delphi.icm_api
     delphi.utils
 
