@@ -398,6 +398,8 @@ As defined above, the `<variable_name>` is itself an `<identifier_string>`.
 
 The "mutable" attribute specifies whether the variable value _can_ ("True") or _cannot_ ("False") be changed. While model analysis generally does not require inference about whether variables can or cannot be set (this is determined by program analysis), it is the case that model analysis can use this information, for example for determining whether possible ranges of values need to be considered for the variable during sensitivity analysis.
 
+>TODO: Possibly make specification of "mutable" optional, with default value always "True"; so only need to explicitly specify when "False". Does this cause trouble for parsing?
+
 Some languages (including Fortran and Python) provide mechanisms for making
 variable declarations private (such as Python's name mangling, by prepending
 an underscore to a variable name).
