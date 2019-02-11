@@ -698,26 +698,47 @@ class PythonCodeGenerator(object):
             file_handle = "file_" + file_number
         if node["args"][1]["type"] == "int":
             format_label = node["args"][1]["value"]
-        self.pyStrings.append("(")
+        
+        isArray = False
+        tempInd = 0
+        array_len = len(node["args"]) - 2
+        self.pyStrings.append(f"tempVar = [0] * {array_len}")
+        self.pyStrings.append(printState.sep)
+
         ind = 0
+        self.pyStrings.append("(")
         for item in node["args"]:
             if item["tag"] == "ref":
                 var = self.nameMapper[item["name"]]
                 if "subscripts" in item:
-                    self.pyStrings.append(f"{var}.get_((")
-                    self.printAst(
-                        item["subscripts"],
-                        printState.copy(sep=", ", add="", printFirst=False, indexRef=True),
-                    )
-                    self.pyStrings.append("))")
-                    if ind < len(node["args"]) - 1:
-                        self.pyStrings.append(", ")
+                    isArray = True
+                    self.pyStrings.append(f"tempVar[{tempInd}]")
+                    tempInd = tempInd + 1
                 else:
-                    self.pyStrings.append(f"{var}[0],")
+                    self.pyStrings.append(f"{var}[0]")
+                if ind < len(node["args"]) - 1:
+                    self.pyStrings.append(", ")
             ind = ind + 1
         self.pyStrings.append(
             f") = format_{format_label}_obj.read_line({file_handle}.readline())"
         )
+        self.pyStrings.append(printState.sep)
+
+        if isArray == True:
+            tempInd = 0 # Re-initialize to zero for array index
+            for item in node["args"]:
+                if item["tag"] == "ref":
+                    var = self.nameMapper[item["name"]]
+                    if "subscripts" in item:
+                        self.pyStrings.append(f"{var}.set_((")
+                        self.printAst(
+                            item["subscripts"],
+                            printState.copy(sep=", ", add="", printFirst=False, indexRef=True),
+                        )
+                        self.pyStrings.append(f"), tempVar[{tempInd}])")
+                        tempInd = tempInd + 1
+                        self.pyStrings.append(printState.sep)
+                ind = ind + 1
 
     def printWrite(self, node, printState):
         write_string = ""
