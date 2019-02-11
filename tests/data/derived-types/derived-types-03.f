@@ -1,0 +1,40 @@
+C     File: derived-types-03.f
+C     This program uses a derived type whose fields are themselves derived types.
+C The output produced y this program is:
+C  123     12   2583
+C  456     21   5472
+
+
+      program main
+      implicit none
+
+      type mytype_123
+          integer :: ctr = 123
+          integer :: a, b
+      end type mytype_123
+
+      type mytype_456
+          integer :: ctr = 456
+          integer :: c, d
+      end type mytype_456
+
+      type mytype_123_456
+          type (mytype_123) x
+          type (mytype_456) y
+      end type mytype_123_456
+
+      type (mytype_123_456) var
+
+      var % x % a = 12
+      var % y % c = 21
+
+      var % x % b = var % y % c * var % x % ctr
+      var % y % d = var % x % a * var % y % ctr
+
+ 10   format (3(I5,2X))
+      write (*,10) var%x%ctr, var%x%a, var%x%b
+      write (*,10) var%y%ctr, var%y%c, var%y%d
+
+      stop
+      end program main
+      
