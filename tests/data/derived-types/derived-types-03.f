@@ -1,6 +1,6 @@
 C     File: derived-types-03.f
 C     This program uses a derived type whose fields are themselves derived types.
-C The output produced y this program is:
+C The output produced by this program is:
 C  123     12   2583
 C  456     21   5472
 
