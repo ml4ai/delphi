@@ -34,7 +34,7 @@ see [this
 document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
 
 For API documentation, see
-[delphi.readthedocs.io](https://delphi.readthedocs.io).
+[delphi.readthedocs.io](https://ml4ai.github.io/delphi).
 
 Delphi is also part of the
 [AutoMATES](https://ml4ai.github.io/automates/) project.
