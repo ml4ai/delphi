@@ -118,15 +118,22 @@ class XMLToJSONTranslator(object):
         decVars = []
         decDims = []
         decType = {}
+        decDevType = []
+        decDevFields = []
         prog = []
         count = 0
         isArray = True
+        isDevType = False
 
         for node in root:
+            print ("in process_declaration: ", node.tag)
             if node.tag == "format":
                 prog += self.parseTree(node, state)
             if node.tag == "type":
                 decType = {"type": node.attrib["name"]}
+                decDevType += self.parseTree(node, state) # For derived types
+                if len(decDevType) > 1:
+                    isDevType = True
             elif node.tag == "variables":
                 decVars = self.parseTree(node, state)
                 isArray = False
@@ -136,6 +143,8 @@ class XMLToJSONTranslator(object):
             elif node.tag == "dimensions":
                 decDims = self.parseTree(node, state)
                 count = node.attrib["count"]
+            elif node.tag == "component-decl":
+                decDevType.append({"field-id": node.attrib["id"].lower()})
 
         for var in decVars:
             if (
@@ -181,6 +190,23 @@ class XMLToJSONTranslator(object):
                             else:
                                 prog[i]["up" + str(counter + 1)] = ran["high"][0]["value"]
                         counter = counter + 1
+            
+        if isDevType:
+            prog.append({"tag": "derived-type"})
+            field_num = 0
+            field_id_num = 0
+            for i in range (0, len(decDevType)):
+                if "derived-type" in decDevType[i]:
+                    prog[0]["name"] = decDevType[i]["derived-type"]
+                elif "field-type" in decDevType[i]:
+                    prog[0][f"type-{field_num}"] = decDevType[i]["field-type"]
+                    field_num = field_num + 1
+                elif "field-id" in decDevType[i]:
+                    prog[0][f"id-{field_id_num}"] = decDevType[i]["field-id"]
+                    field_id_num = field_id_num + 1
+
+        if (len(prog) > 1):
+            print ("prog: ", prog) 
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -458,6 +484,22 @@ class XMLToJSONTranslator(object):
 
         return []
 
+    # This function is needed for handling derived type declaration
+    # It will recursively traverse down to the deepest 'type' node,
+    # then returns the derived type id as well as the field types
+    def process_type(self, root, state) -> List[Dict]:
+        derived_types = []
+        for node in root:
+            if node.tag == "type":
+                derived_types = self.parseTree(node, state)
+            elif node.tag == "derived-type-stmt":
+                derived_types.append({"derived-type": node.attrib["id"].lower()})
+            elif node.tag == "intrinsic-type-spec":
+                derived_types.append({"field-type": node.attrib["keyword1"].lower()})
+            elif node.tag == "component-decl":
+                derived_types.append({"field-id": node.attrib["id"].lower()})
+
+        return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -557,6 +599,15 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "range":
             return self.process_range(root, state)
+
+        elif root.tag == "type":
+            return self.process_type(root, state)
+
+        elif root.tag == "derived-type-stmt":
+            return self.process_derived_type_stmt(root, state)
+
+        elif root.tag == "component-decl":
+            return self.process_component_decl(root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)

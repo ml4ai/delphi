@@ -76,7 +76,6 @@ class PrintState:
 
 programName = ''
 
-
 class PythonCodeGenerator(object):
     def __init__(self):
         self.printFn = {}
@@ -138,6 +137,7 @@ class PythonCodeGenerator(object):
             "close": self.printClose,
             "private": self.printPrivate,
             "array": self.printArray,
+            "derived-type": self.printDerivedType,
         }
         self.operator_mapping = {
             ".ne.": " != ",
@@ -828,6 +828,35 @@ class PythonCodeGenerator(object):
             else:
                 self.pyStrings.append(f"{dimensions}")
         self.pyStrings.append("])")
+
+    def printDerivedType(self, node, printState):
+        assert node["tag"] == "derived-type"
+        self.pyStrings.append(f"class {node['name']}:")
+        self.pyStrings.append(printState.sep)
+        self.pyStrings.append("    def __init__(self):")
+        self.pyStrings.append(printState.sep)
+
+        curFieldType = ""
+        typeNum = 0
+        idNum = 0
+        for item in node:
+            if f"type-{typeNum}" in item:
+                if node[f'type-{typeNum}'].lower() == "integer":
+                    curFieldType = "int"
+                elif node[f'type-{typeNum}'].lower() in ("double", "real"):
+                    curFieldType = "float"
+                elif node[f'type-{typeNum}'].lower() == "character":
+                    curFieldType = "str"
+                typeNum = typeNum + 1
+            elif f"id-{idNum}" in item:
+                idName = node[f"id-{idNum}"]
+                self.pyStrings.append(f"        self.{idName} :")
+                self.pyStrings.append(f" {curFieldType}")
+                self.pyStrings.append(" = None")
+                self.pyStrings.append(printState.sep)
+                idNum = idNum + 1
+
+        assert typeNum == idNum
 
     def get_python_source(self):
         return "".join(self.pyStrings)
