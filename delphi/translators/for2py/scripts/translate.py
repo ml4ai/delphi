@@ -197,12 +197,18 @@ class XMLToJSONTranslator(object):
 
     def process_do_loop(self, root, state) -> List[Dict]:
         do = {"tag": "do"}
+        do_format = []
         for node in root:
-            if node.tag == "header":
+            if node.tag == "format":
+                do_format = self.parseTree(node, state)
+            elif node.tag == "header":
                 do["header"] = self.parseTree(node, state)
             elif node.tag == "body":
                 do["body"] = self.parseTree(node, state)
-        return [do]
+        if do_format:
+            return [do_format[0], do]
+        else:
+            return [do]
 
     def process_do_while_loop(self, root, state) -> List[Dict]:
         doWhile = {"tag": "do-while"}
