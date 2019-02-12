@@ -30,7 +30,7 @@ C END INITIALIZATION
  12   FORMAT(/,' AUGMENTED MATRIX',/)
       WRITE(*,12)
 
-61    FORMAT(5(1X,5f8.4))
+61    FORMAT(5(1X,f8.4))
       DO I=1,N
       WRITE(*, 61) A(I,1), A(I,2), A(I,3), A(I,4), A(I,5)
       END DO
