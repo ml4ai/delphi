@@ -40,14 +40,19 @@ setup(
         "jupyter",
         "jupyter-contrib-nbextensions",
         "python-dateutil",
-        "ruamel.yaml",
         "salib",
         "tangent",
+        "ruamel.yaml",
     ],
     python_requires=">=3.6",
     extras_require={
         "dev": [
-            "check-manifest", "rise", "shapely", "pyshp", "xlrd",
+            "check-manifest",
+            "rise",
+            "shapely",
+            "pyshp",
+            "xlrd",
+            "fire",
             "pyjnius"
             ],
         "test": [

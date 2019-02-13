@@ -267,7 +267,8 @@ C****************************************************************************
         
         READ(2,10) Lfmax, EMP2,EMP1,PD,nb,rm,fc,tb,intot,n,lai,w,wr,wc
      &     ,p1,sla
-   10   FORMAT(17(1X,F7.4))
+   10   FORMAT(16(1X,F7.4))
+        WRITE(*,*) sla
         CLOSE(2)
 
         WRITE(1,11)
