@@ -7,7 +7,6 @@ from inspect import signature
 from pprint import pprint
 from functools import partial
 from pygraphviz import AGraph
-from IPython.core.display import Image
 from .scopes import Scope
 
 
