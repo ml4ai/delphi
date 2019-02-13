@@ -260,6 +260,8 @@ class XMLToJSONTranslator(object):
                     op["right"] = self.parseTree(node, state)
                 else:
                     op["left"] = self.parseTree(node, state)
+                print ("in process_operation - tag: ", node.tag)
+                print ("in process_operation - op: ", op)
             elif node.tag == "operator":
                 if "operator" in op:
                     newOp = {

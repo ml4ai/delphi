@@ -97,6 +97,7 @@ class PythonCodeGenerator(object):
             "atan",
             "sqrt",
             "log",
+            "abs",
         ]
         self.variableMap = {}
         # This list contains the private functions
@@ -105,7 +106,7 @@ class PythonCodeGenerator(object):
         self.nameMapper = {}
         # Dictionary to hold functions and its arguments
         self.funcArgs = {}
-        self.mathFuncs = ["exp", "cexp", "cmplx", "cos", "sin", "acos", "asin", "tan", "atan", "sqrt", "log"]
+        self.mathFuncs = ["exp", "cexp", "cmplx", "cos", "sin", "acos", "asin", "tan", "atan", "sqrt", "log", "abs"]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
@@ -439,6 +440,7 @@ class PythonCodeGenerator(object):
         for item in node["header"]:
             if item["tag"] != "format":
                 newHeaders.append(item)
+        print ("In printIf: ", newHeaders)
         self.printAst(
             newHeaders,
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
@@ -464,6 +466,8 @@ class PythonCodeGenerator(object):
             )
 
     def printOp(self, node, printState):
+        print ("In printOp:", node)
+        node["left"][0]["op"] = True
         if not printState.indexRef:
             self.pyStrings.append("[")
         if "right" in node:
@@ -508,11 +512,14 @@ class PythonCodeGenerator(object):
 
     def printRef(self, node, printState):
         self.pyStrings.append(self.nameMapper[node["name"]])
-        if printState.indexRef:
+        if printState.indexRef and "subscripts" not in node:
             self.pyStrings.append("[0]")
         # Handles array
-        if node.get("subscripts"):
-            self.pyStrings.append(".get_((")
+        if "subscripts" in node:
+            print ("In printRef: ", node)
+            if node["name"].lower() not in self.libFns:
+                self.pyStrings.append(".get_((")
+            self.pyStrings.append("(")
             value = ""
             subLength = len(node["subscripts"])
             for ind in node["subscripts"]:
