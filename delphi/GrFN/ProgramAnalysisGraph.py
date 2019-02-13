@@ -17,6 +17,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def add_action_node(self, A: AGraph, lambdas, n):
         """ Add an action node to the CAG. """
+        print(n)
+        print(n.attr["label"])
         output, = A.successors(n)
 
         # Only allow LoopVariable and FuncVariable nodes in the DBN
@@ -37,7 +39,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
                 if_var, = [
                     n
                     for n in preds
-                    if list(A.predecessors(n))[0].attr["label"]
+                    if list(A.predecessors(n)) != []
+                    and list(A.predecessors(n))[0].attr["label"]
                     == "__condition__"
                 ]
                 condition_fn, = A.predecessors(if_var)
