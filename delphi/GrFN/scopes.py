@@ -117,7 +117,7 @@ class Scope(metaclass=ABCMeta):
         xml_to_json_translator = translate.XMLToJSONTranslator()
         outputDict = xml_to_json_translator.analyze(trees, comments)
         pySrc = pyTranslate.create_python_string(outputDict)
-        asts = [ast.parse(pySrc)]
+        asts = [ast.parse(pySrc[0][0])]
         pgm_dict = genPGM.create_pgm_dict(
             lambdas_filename, asts, json_filename
         )
