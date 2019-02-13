@@ -17,8 +17,6 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def add_action_node(self, A: AGraph, lambdas, n):
         """ Add an action node to the CAG. """
-        print(n)
-        print(n.attr["label"])
         output, = A.successors(n)
 
         # Only allow LoopVariable and FuncVariable nodes in the DBN
