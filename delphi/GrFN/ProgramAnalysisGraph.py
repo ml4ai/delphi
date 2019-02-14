@@ -138,8 +138,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
         return self
 
     @classmethod
-    def from_fortran_file(cls, fortran_file):
-        A = Scope.from_fortran_file(fortran_file).to_agraph()
+    def from_fortran_file(cls, fortran_file, tmpdir="."):
+        A = Scope.from_fortran_file(fortran_file, tmpdir=tmpdir).to_agraph()
         stem = Path(fortran_file).stem
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_agraph(A, lambdas)
