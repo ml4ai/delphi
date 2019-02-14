@@ -53,7 +53,7 @@ C END INITIALIZATION
 72    FORMAT(5X,I5, F12.6)
 
       DO I=1,N
-          WRITE (*,72) I, A(I,N+2)
+          WRITE (*,72) I, A(I,N+1)
       END DO
 
       WRITE(*,15)
@@ -65,7 +65,7 @@ C*************************************
       SUBROUTINE GAUSS(N,A)
 
       REAL, DIMENSION(20,21) :: A
-      INTEGER PV, I, J, K, N, JC, JR, KC, NV
+      INTEGER PV, I, J, K, N, R, JC, JR, KC, NV
       REAL :: EPS, EPS2, DET, TM, TEMP, VA
 
       EPS=1.0
