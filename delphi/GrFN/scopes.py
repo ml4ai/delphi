@@ -86,10 +86,10 @@ class Scope(metaclass=ABCMeta):
         return root
 
     @classmethod
-    def from_fortran_file(cls, fortran_file):
+    def from_fortran_file(cls, fortran_file, tmpdir="."):
         stem = Path(fortran_file).stem
-        preprocessed_fortran_file = stem + "_preprocessed.f"
-        lambdas_filename = stem + "_lambdas.py"
+        preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
+        lambdas_filename = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
 
         with open(fortran_file, "r") as f:

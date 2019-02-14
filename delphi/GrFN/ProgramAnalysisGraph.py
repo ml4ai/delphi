@@ -176,3 +176,34 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def call(self, inputs):
         pass
+
+    def cyjs_elementsJSON(self) -> str:
+        elements = {
+            "nodes": [
+                {
+                    "data": {
+                        "id": n[0],
+                        "label": n[0],
+                        "parent": "petpt",
+                        "shape": "ellipse",
+                        "color": "black",
+                        "textValign": "center",
+                        "tooltip": "None",
+                    }
+                }
+                for n in self.nodes(data=True)
+            ],
+            "edges": [
+                {
+                    "data": {
+                        "id": f"{edge[0]}_{edge[1]}",
+                        "source": edge[0],
+                        "target": edge[1],
+                    }
+                }
+                for edge in self.edges()
+            ],
+        }
+        json_str = json.dumps(elements, indent=2)
+        return json_str
+
