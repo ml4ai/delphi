@@ -1,17 +1,15 @@
-from delphi.paths import db_path
+import os
+import sys
 from pathlib import Path
 
 # Statement for enabling the development environment
 DEBUG = True
 
-# Define the application directory
-import os
-
 BASE_DIR = Path(__file__).parent
 
 # Define the database - we are working with
 # SQLite for this example
-SQLALCHEMY_DATABASE_URI = f"sqlite:///{db_path}"
+SQLALCHEMY_DATABASE_URI = f"sqlite:////var/www/html/delphi.db"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 
