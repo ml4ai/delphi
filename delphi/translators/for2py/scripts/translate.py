@@ -181,6 +181,15 @@ class XMLToJSONTranslator(object):
                             else:
                                 prog[i]["up" + str(counter + 1)] = ran["high"][0]["value"]
                         counter = counter + 1
+
+        # Set function (subroutine) arguments' types (variable or array)
+        for var in prog:
+            if "name" in var:
+                if var["name"] in state.args:
+                    state.subroutine["args"][state.args.index(var["name"])][
+                            "arg_type"
+                    ] = f"arg_{var['tag']}"
+
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -260,8 +269,6 @@ class XMLToJSONTranslator(object):
                     op["right"] = self.parseTree(node, state)
                 else:
                     op["left"] = self.parseTree(node, state)
-                print ("in process_operation - tag: ", node.tag)
-                print ("in process_operation - op: ", op)
             elif node.tag == "operator":
                 if "operator" in op:
                     newOp = {
