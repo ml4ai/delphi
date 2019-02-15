@@ -124,7 +124,7 @@ def genCode(node, state):
 
     # Eq: ()
     elif isinstance(node, ast.Eq):
-        codeStr = "="
+        codeStr = "=="
 
     # LtE: ()
     elif isinstance(node, ast.LtE):
