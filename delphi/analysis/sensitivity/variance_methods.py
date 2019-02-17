@@ -39,7 +39,7 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         sampling method. This sample will be analyzed to construct a
         sensitivity index.
         """
-        print("Sampling over parameter bounds")
+        # print("Sampling over parameter bounds")
         self.samples = saltelli.sample(self.problem_definition,
                                        num_samples,
                                        calc_second_order=second_order)
@@ -50,7 +50,7 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         if not self.has_samples:
             raise RuntimeError("Attempted to evaluate model without samples")
 
-        print("Evaluating samples")
+        # print("Evaluating samples")
         res = [self.model(*tuple([[a] for a in args])) for args in self.samples]
         self.outputs = np.array(res)
         self.has_outputs = True
@@ -64,7 +64,7 @@ class VarianceAnalyzer(metaclass=ABCMeta):
         if not self.has_outputs:
             raise RuntimeError("Attempting analysis without outputs")
 
-        print("Collecting sensitivity indices")
+        # print("Collecting sensitivity indices")
 
 
 class SobolAnalyzer(VarianceAnalyzer):

@@ -94,6 +94,7 @@ class Format:
         self._out_widths = [sub[2] for sub in output_info if sub[2] is not None]
         self._write_line_init = True
 
+
     def read_line(self, line):
         """
         Match a line of input according to the format specified and return a
@@ -143,6 +144,10 @@ class Format:
 
         if not self._write_line_init:
             self.init_write_line()
+
+        if len(self._out_widths) > len(values):
+            sys.stderr.write(f"ERROR: too few values for format {self._format_list}\n")
+            sys.exit(1)
 
         out_strs = []
         for i in range(len(self._out_widths)):

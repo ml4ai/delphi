@@ -7,7 +7,6 @@ from inspect import signature
 from pprint import pprint
 from functools import partial
 from pygraphviz import AGraph
-from IPython.core.display import Image
 from .scopes import Scope
 
 
@@ -37,7 +36,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
                 if_var, = [
                     n
                     for n in preds
-                    if list(A.predecessors(n))[0].attr["label"]
+                    if list(A.predecessors(n)) != []
+                    and list(A.predecessors(n))[0].attr["label"]
                     == "__condition__"
                 ]
                 condition_fn, = A.predecessors(if_var)
@@ -138,8 +138,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
         return self
 
     @classmethod
-    def from_fortran_file(cls, fortran_file):
-        A = Scope.from_fortran_file(fortran_file).to_agraph()
+    def from_fortran_file(cls, fortran_file, tmpdir="."):
+        A = Scope.from_fortran_file(fortran_file, tmpdir=tmpdir).to_agraph()
         stem = Path(fortran_file).stem
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_agraph(A, lambdas)
@@ -176,3 +176,34 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def call(self, inputs):
         pass
+
+    def cyjs_elementsJSON(self) -> str:
+        elements = {
+            "nodes": [
+                {
+                    "data": {
+                        "id": n[0],
+                        "label": n[0],
+                        "parent": "petpt",
+                        "shape": "ellipse",
+                        "color": "black",
+                        "textValign": "center",
+                        "tooltip": "None",
+                    }
+                }
+                for n in self.nodes(data=True)
+            ],
+            "edges": [
+                {
+                    "data": {
+                        "id": f"{edge[0]}_{edge[1]}",
+                        "source": edge[0],
+                        "target": edge[1],
+                    }
+                }
+                for edge in self.edges()
+            ],
+        }
+        json_str = json.dumps(elements, indent=2)
+        return json_str
+
