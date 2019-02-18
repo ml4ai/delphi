@@ -221,6 +221,14 @@ class XMLToJSONTranslator(object):
             for pro in prog:
                 pro["isDevTypeVar"] = isDevTypeVar
 
+        # Set function (subroutine) arguments' types (variable or array)
+        for var in prog:
+            if "name" in var:
+                if var["name"] in state.args:
+                    state.subroutine["args"][state.args.index(var["name"])][
+                            "arg_type"
+                    ] = f"arg_{var['tag']}"
+
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -237,12 +245,18 @@ class XMLToJSONTranslator(object):
 
     def process_do_loop(self, root, state) -> List[Dict]:
         do = {"tag": "do"}
+        do_format = []
         for node in root:
-            if node.tag == "header":
+            if node.tag == "format":
+                do_format = self.parseTree(node, state)
+            elif node.tag == "header":
                 do["header"] = self.parseTree(node, state)
             elif node.tag == "body":
                 do["body"] = self.parseTree(node, state)
-        return [do]
+        if do_format:
+            return [do_format[0], do]
+        else:
+            return [do]
 
     def process_do_while_loop(self, root, state) -> List[Dict]:
         doWhile = {"tag": "do-while"}
