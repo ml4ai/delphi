@@ -24,7 +24,8 @@ import pickle
 import argparse
 import re
 from typing import List, Dict
-from delphi.translators.for2py.scripts.fortran_format import *
+from fortran_format import *
+# from delphi.translators.for2py.scripts.fortran_format import *
 
 class PrintState:
     def __init__(
@@ -966,26 +967,26 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(printState.sep)
 
         curFieldType = ""
-        typeNum = 0
-        idNum = 0
+        fieldNum = 0
         for item in node:
-            if f"type-{typeNum}" in item:
-                if node[f'type-{typeNum}'].lower() == "integer":
+            if f"field{fieldNum}" == item:
+                if node[item][0]['type'].lower() == "integer":
                     curFieldType = "int"
-                elif node[f'type-{typeNum}'].lower() in ("double", "real"):
+                elif node[item][0]['type'].lower() in ("double", "real"):
                     curFieldType = "float"
-                elif node[f'type-{typeNum}'].lower() == "character":
+                elif node[item][0]['type'].lower() == "character":
                     curFieldType = "str"
-                typeNum = typeNum + 1
-            elif f"id-{idNum}" in item:
-                idName = node[f"id-{idNum}"]
-                self.pyStrings.append(f"        self.{idName} :")
-                self.pyStrings.append(f" {curFieldType}")
-                self.pyStrings.append(" = None")
-                self.pyStrings.append(printState.sep)
-                idNum = idNum + 1
 
-        assert typeNum == idNum
+                if "size" in node[item][0]:
+                    self.pyStrings.append(f"        self.{node[item][0]['name']} = ")
+                    self.pyStrings.append(f" Array([{curFieldType}, ")
+                    self.pyStrings.append(f"1, {node[item][0]['size']}])")
+                else: 
+                    self.pyStrings.append(f"        self.{node[item][0]['name']} :")
+                    self.pyStrings.append(f" {curFieldType}")
+                    self.pyStrings.append(" = None")
+                self.pyStrings.append(printState.sep)
+                fieldNum = fieldNum + 1
 
     def get_python_source(self):
         return "".join(self.pyStrings)
