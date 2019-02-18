@@ -354,21 +354,31 @@ class PythonCodeGenerator(object):
                 initVal = init_val if initial_set else ""
                 varType = "str"
             else:
-                print(f"unrecognized type {node['type']}")
-                sys.exit(1)
-            if printState.functionScope:
-                if not self.nameMapper[node['name']] in self.funcArgs.get(printState.functionScope):
+                if node["isDevTypeVar"] == True:
+                    initVal = init_val if initial_set else 0
+                    varType = node["type"]
+                else:
+                    print(f"unrecognized type {node['type']}")
+                    sys.exit(1)
+
+            if "isDevTypeVar" in node and node["isDevTypeVar"]:
+                self.pyStrings.append(
+                    f"{self.nameMapper[node['name']]} =  {varType}()"
+                )
+            else:
+                if printState.functionScope:
+                    if not self.nameMapper[node['name']] in self.funcArgs.get(printState.functionScope):
+                        self.pyStrings.append(
+                            f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
+                        )
+                    else:
+                        self.pyStrings.append(
+                            f"{self.nameMapper[node['name']]}: List[{varType}]"
+                        )
+                else:
                     self.pyStrings.append(
                         f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
                     )
-                else:
-                    self.pyStrings.append(
-                        f"{self.nameMapper[node['name']]}: List[{varType}]"
-                    )
-            else:
-                self.pyStrings.append(
-                    f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
-                )
 
             # The code below might cause issues on unexpected places.
             # If weird variable declarations appear, check code below
@@ -581,10 +591,13 @@ class PythonCodeGenerator(object):
                     length = length - 1
             self.pyStrings.append("), ")
         else:   # Case where the target is a single variable
-            self.printAst(
-                node["target"],
-                printState.copy(sep="", add="", printFirst=False, indexRef=True),
-            )
+            if node["isDevType"]:
+                self.pyStrings.append(f"{node['target'][0]['name']}")
+            else:
+                self.printAst(
+                    node["target"],
+                    printState.copy(sep="", add="", printFirst=False, indexRef=True),
+                )
             self.pyStrings.append(" = ")
 
         # Writes a syntax for the source that is right side of the '=' operator
@@ -882,6 +895,8 @@ def create_python_string(outputDict):
     program_type = file_count(outputDict["ast"])
     py_sourcelist = []
     main_ast = []
+    derived_type_ast = []
+    has_derived_type = False
     global imports
 
     for file in program_type:
@@ -928,6 +943,22 @@ def create_python_string(outputDict):
             "from for2py_arrays import *",
         ]
     )
+
+    code_generator.pyStrings.extend(["\n\n"])
+
+    # Copy the derived type ast from the main_ast into the separate list,
+    # so it can be printed outside (above) the main method
+    for index in list(main_ast[0]["body"]):
+        if "derived-type" == index["tag"]:
+            has_derived_type = True
+            derived_type_ast.append(index)
+            main_ast[0]["body"].remove(index)
+
+    # Print derived type declaration(s)
+    if has_derived_type == True:
+        code_generator.nameMapping(derived_type_ast)
+        code_generator.printAst(derived_type_ast, PrintState())
+
     code_generator.nameMapping(main_ast)
     code_generator.printAst(main_ast, PrintState())
     imports = ''.join(imports)
