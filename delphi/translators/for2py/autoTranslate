@@ -62,6 +62,7 @@ for file in "$@"; do
     ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pickleFile" -i "$file")
     ( set -x; $PYTRANSLATE scripts/pyTranslate.py -f "$pickleFile" -g "$pyFile")
     pyFiles+=" $pyFile"
+#    pyFiles+=" $pyFile dont_yield.py should_yield.py"
 done
 
 ( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
