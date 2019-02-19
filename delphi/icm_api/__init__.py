@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from delphi.db import db_session
 
 db = SQLAlchemy()
 
