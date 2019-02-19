@@ -39,6 +39,7 @@ import sys, re
 from collections import *
 from delphi.translators.for2py.scripts.fortran_syntax import *
 from typing import Tuple, Optional
+import json
 
 DEBUG = False
 
@@ -64,7 +65,7 @@ DEBUG = False
 # that category is mapped to [] by the comment dictionary for that subprogram.
 #
 # In addition to the subprogram-level comments mentioned above, the comment
-# dictionary also has entries for two "file-level" comments: 
+# dictionary also has entries for two "file-level" comments:
 #
 #    -- any comment at the beginning of the file (before the first function)
 #       can be accessed using the key "$file_head" (this comment is also
@@ -73,7 +74,7 @@ DEBUG = False
 #       can be accessed using the key "$file_foot" (this comment is also
 #       the foot-comment for the last subprogram in the file).
 #
-# If either the file-head or the file-foot comment is missing, the 
+# If either the file-head or the file-foot comment is missing, the
 # corresponding entries in the comment dictionary are [].
 
 
@@ -165,5 +166,9 @@ if __name__ == "__main__":
         sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
         sys.exit(1)
 
-    comments = get_comments(sys.argv[1])
+    filename = sys.argv[1]
+    comments = get_comments(filename)
     print_comments(comments)
+    clean_filename = filename[filename.rfind("/") + 1: filename.rfind(".")]
+    with open("{}_extracted_comments.json".format(clean_filename.lower()), "w") as outfile:
+        json.dump(comments, outfile)
