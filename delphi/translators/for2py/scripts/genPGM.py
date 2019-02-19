@@ -12,7 +12,9 @@ from delphi.translators.for2py.scripts.genCode import *
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
+import os
 
+exclude_list = []
 
 class PGMState:
     def __init__(
@@ -23,6 +25,8 @@ class PGMState:
         lastDefDefault=0,
         fnName=None,
         varTypes: Optional[Dict] = {},
+        start: Optional[Dict] = {},
+        scope_path: Optional[List] = [],
     ):
         self.lastDefs = lastDefs
         self.nextDefs = nextDefs
@@ -30,6 +34,8 @@ class PGMState:
         self.fnName = fnName
         self.varTypes = varTypes
         self.lambdaFile = lambdaFile
+        self.start = start
+        self.scope_path = scope_path
 
     def copy(
         self,
@@ -39,6 +45,8 @@ class PGMState:
         fnName=None,
         varTypes: Optional[Dict] = None,
         lambdaFile: Optional[str] = None,
+        start: Optional[Dict] = None,
+        scope_path: Optional[List] = None,
     ):
         return PGMState(
             self.lambdaFile if lambdaFile == None else lambdaFile,
@@ -47,6 +55,8 @@ class PGMState:
             self.lastDefDefault if lastDefDefault == None else lastDefDefault,
             self.fnName if fnName == None else fnName,
             self.varTypes if varTypes == None else varTypes,
+            self.start if start == None else start,
+            self.scope_path if scope_path == None else scope_path,
         )
 
 
@@ -200,84 +210,111 @@ def make_fn_dict(name, target, sources, lambdaName, node):
     source = []
     fn = {}
 
+    # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
+    bypass_regex = r'^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj.*|^Format$|^list_output_formats$|^write_list_steam$'
+
     # Preprocessing and removing certain Assigns which only pertain to the Python
     # code and do not relate to the FORTRAN code in any way.
-    if target["var"]["variable"] == "write_line":
+    bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
+
+    if bypass_match_target:
+        exclude_list.append(target["var"]["variable"])
         return fn
     for src in sources:
         if "call" in src:
-            if src["call"]["function"] == "Format":
+            # Bypassing identifiers who have I/O constructs on their source fields too.
+            # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
+            # 'i' is bypassed here
+            # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
+            bypass_match_source = re.match(bypass_regex, src["call"]["function"])
+            if bypass_match_source:
+                if "var" in src:
+                    exclude_list.append(src["var"]["variable"])
+                exclude_list.append(target["var"]["variable"])
                 return fn
             for source_ins in make_call_body_dict(src):
                 source.append(source_ins)
         if "var" in src:
             variable = src["var"]["variable"]
             source.append({"name": variable, "type": "variable"})
+
         if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
             # This is a write to a file
-            source.append({"name": "write", "type": "function"})
-            for item in src["list"]:
-                variable = item["var"]["variable"]
-                source.append({"name": variable, "type": "variable"})
-
-    # File Open Check
-    fn.update(
-        {
+            # Can delete from here
+            # source.append({"name": "write", "type": "function"})
+            # for item in src["list"]:
+            #     variable = item["var"]["variable"]
+            #     source.append({"name": variable, "type": "variable"})
+            # To here
+            return fn
+        fn = {
             "name": name,
             "type": "assign",
+            "target": target["var"]["variable"],
             "sources": source,
             "body": [
-                {
-                    "type": "lambda",
-                    "name": lambdaName,
-                    "reference": node.lineno,
-                }
+                {"type": "lambda", "name": lambdaName, "reference": node.lineno}
             ],
         }
-    )
-    if len(source) > 0:
-        if (
-            source[0].get("name") == "open"
-            and source[0].get("type") == "function"
-        ):
-            (file_id, source) = handle_file_open(
-                target["var"]["variable"], source
-            )
-            fn["target"] = file_id
-        else:
-            fn["target"] = target["var"]["variable"]
-    else:
-        fn["target"] = target["var"]["variable"]
+
+    # # File Open Check
+    # fn.update(
+    #     {
+    #         "name": name,
+    #         "type": "assign",
+    #         "sources": source,
+    #         "body": [
+    #             {
+    #                 "type": "lambda",
+    #                 "name": lambdaName,
+    #                 "reference": node.lineno,
+    #             }
+    #         ],
+    #     }
+    # )
+    # if len(source) > 0:
+    #     if (
+    #         source[0].get("name") == "open"
+    #         and source[0].get("type") == "function"
+    #     ):
+    #         (file_id, source) = handle_file_open(
+    #             target["var"]["variable"], source
+    #         )
+    #         fn["target"] = file_id
+    #     else:
+    #         fn["target"] = target["var"]["variable"]
+    # else:
+    #     fn["target"] = target["var"]["variable"]
     return fn
 
 
-def handle_file_open(target, source):
-    # This block maps the 'r' and 'w' modes in python file handling to read and write
-    # commands in the source field.
-    #
-    # Currently, the 'read' and 'write' actions are not included in source field but
-    # this function can handle it if necessary.
-    mode_mapping = {"r": "read", "w": "write"}
-    file_id = re.findall(r".*_(\d+)$", target)[0]
-    source[-1]["name"] = mode_mapping[source[-1]["name"]]
-
-    # Return with 'read'/'write' action. Disabled for now
-    # return (file_id, source)
-
-    # Return without the 'read'/'write' action.
-    return (file_id, source[:-1])
+# def handle_file_open(target, source):
+#     # This block maps the 'r' and 'w' modes in python file handling to read and write
+#     # commands in the source field.
+#     #
+#     # Currently, the 'read' and 'write' actions are not included in source field but
+#     # this function can handle it if necessary.
+#     mode_mapping = {"r": "read", "w": "write"}
+#     file_id = re.findall(r".*_(\d+)$", target)[0]
+#     source[-1]["name"] = mode_mapping[source[-1]["name"]]
+#
+#     # Return with 'read'/'write' action. Disabled for now
+#     # return (file_id, source)
+#
+#     # Return without the 'read'/'write' action.
+#     return (file_id, source[:-1])
 
 
 def make_call_body_dict(source):
     source_list = []
-    if re.match(r"format_\d+_obj\.read_line", source["call"]["function"]):
-        source_list.append({"name": "read", "type": "function"})
-        file_id_reg = r"file_(\d+)\.readline"
-        id_string = source["call"]["inputs"][0][0]["call"]["function"]
-        if re.match(file_id_reg, id_string):
-            match = re.findall(file_id_reg, id_string)
-            source_list.append({"name": match[0], "type": "variable"})
-        return source_list
+    # if re.match(r"format_\d+_obj\.read_line", source["call"]["function"]):
+    #     source_list.append({"name": "read", "type": "function"})
+    #     file_id_reg = r"file_(\d+)\.readline"
+    #     id_string = source["call"]["inputs"][0][0]["call"]["function"]
+    #     if re.match(file_id_reg, id_string):
+    #         match = re.findall(file_id_reg, id_string)
+    #         source_list.append({"name": match[0], "type": "variable"})
+    #     return source_list
 
     name = source["call"]["function"]
     source_list.append({"name": name, "type": "function"})
@@ -296,34 +333,34 @@ def make_call_body_dict(source):
 
 def make_body_dict(name, target, sources):
     source_list = []
-    file_read_index = 2
+    # file_read_index = 2
 
-    file_id_match = re.match(r"file_(\d+)$", target["var"]["variable"])
+    # file_id_match = re.match(r"file_(\d+)$", target["var"]["variable"])
     for src in sources:
         if "var" in src:
             source_list.append(src["var"])
         if "call" in src:
             for ip in src["call"]["inputs"][0]:
-                if "call" in ip:
-                    read_match = re.match(
-                        r"file_(\d+)\.readline", ip["call"]["function"]
-                    )
-                    if read_match:
-                        source_list.append(
-                            {
-                                "variable": read_match.group(1),
-                                "index": file_read_index,
-                            }
-                        )
-                        file_read_index += 1
+                # if "call" in ip:
+                #     read_match = re.match(
+                #         r"file_(\d+)\.readline", ip["call"]["function"]
+                #     )
+                #     if read_match:
+                #         source_list.append(
+                #             {
+                #                 "variable": read_match.group(1),
+                #                 "index": file_read_index,
+                #             }
+                #         )
+                #         file_read_index += 1
                 if "var" in ip:
                     source_list.append(ip["var"])
-            if file_id_match:
-                target["var"]["variable"] = file_id_match.group(1)
-                source_list = source_list[:-1]
-        if "list" in src and re.match(r"^(\d+)$", target["var"]["variable"]):
-            for item in src["list"]:
-                source_list.append(item)
+        #     if file_id_match:
+        #         target["var"]["variable"] = file_id_match.group(1)
+        #         source_list = source_list[:-1]
+        # if "list" in src and re.match(r"^(\d+)$", target["var"]["variable"]):
+        #     for item in src["list"]:
+        #         source_list.append(item)
 
     body = {"name": name, "output": target["var"], "input": source_list}
     return body
@@ -341,10 +378,14 @@ def genPgm(node, state, fnNames):
         ast.Eq,
         ast.LtE,
     )
-
+    # print (node)
     if state.fnName is None and not any(isinstance(node, t) for t in types):
         if isinstance(node, ast.Call):
-            return [{"start": node.func.id}]
+            if state.start.get("start"):
+                state.start["start"].append(node.func.id)
+            else:
+                state.start["start"] = [node.func.id]
+            return [state.start]
         elif isinstance(node, ast.Expr):
             return genPgm(node.value, state, fnNames)
         elif isinstance(node, ast.If):
@@ -362,23 +403,36 @@ def genPgm(node, state, fnNames):
         localDefs = state.lastDefs.copy()
         localNext = state.nextDefs.copy()
         localTypes = state.varTypes.copy()
+        scope_path = state.scope_path.copy()
+        if len(scope_path) == 0:
+            scope_path.append('_TOP')
+        scope_path.append(node.name)
         fnState = state.copy(
             lastDefs=localDefs,
             nextDefs=localNext,
             fnName=node.name,
             varTypes=localTypes,
+            scope_path=scope_path,
         )
+        base_name = node.name
+
         args = genPgm(node.args, fnState, fnNames)
         bodyPgm = genPgm(node.body, fnState, fnNames)
 
         body, fns = get_body_and_functions(bodyPgm)
 
         variables = list(localDefs.keys())
+
         variables_tmp = []
 
+        # Remove all the variables which are in the exclude list
+        # Converting to set and back to list to remove any duplicate elements in exclude_list
+        [variables.remove(item) for item in list(set(exclude_list))]
+
+        # TODO this code section might be redundant. Need to verify
         for item in variables:
             match = re.match(
-                r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|(write_line)",
+                r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|(write_line)|(format_\d+)|^(write_list_stream)$",
                 item,
             )
             if not match:
@@ -390,7 +444,7 @@ def genPgm(node, state, fnNames):
             "name": node.name,
             "type": "container",
             "input": [
-                {"name": arg, "domain": localTypes[arg]} for arg in args
+                {"name": arg, "domain": localTypes[arg[0]]} for arg in args
             ],
             "variables": [
                 {"name": var, "domain": localTypes[var]} for var in variables
@@ -399,7 +453,6 @@ def genPgm(node, state, fnNames):
         }
 
         fns.append(fnDef)
-
         pgm = {"functions": fns}
 
         return [pgm]
@@ -411,7 +464,12 @@ def genPgm(node, state, fnNames):
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
-        return node.arg
+        base_name = node.arg
+        id_spec = {
+            "base_name": base_name,
+            "scope": state.scope_path,
+        }
+        return (node.arg, id_spec)
 
     # Load: ()
     elif isinstance(node, ast.Load):
@@ -826,16 +884,14 @@ def genPgm(node, state, fnNames):
         for target in targets:
             source_list = []
             if target.get("list"):
-                targets = ",".join(
-                    [x["var"]["variable"] for x in target["list"]]
-                )
-                target = {"var": {"variable": targets, "index": 1}}
+                for var in target["list"]:
+                    exclude_list.append(var["var"]["variable"])
+                continue
 
-            # Extracting only file_id from the write list variable
-            match = re.match(r"write_list_(\d+)", target["var"]["variable"])
-            if match:
-                target["var"]["variable"] = match.group(1)
-
+            # # Extracting only file_id from the write list variable
+            # match = re.match(r"write_list_(\d+)", target["var"]["variable"])
+            # if match:
+            #     target["var"]["variable"] = match.group(1)
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
@@ -843,6 +899,7 @@ def genPgm(node, state, fnNames):
                 fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
+
             if len(fn) == 0:
                 return []
             body = make_body_dict(name, target, sources)
@@ -853,6 +910,7 @@ def genPgm(node, state, fnNames):
                     for ip in src["call"]["inputs"][0]:
                         if "var" in ip:
                             source_list.append(ip["var"]["variable"])
+
             genFn(
                 state.lambdaFile,
                 node,
@@ -860,22 +918,20 @@ def genPgm(node, state, fnNames):
                 target["var"]["variable"],
                 source_list,
             )
+
+            # TODO This section might need to be modified depending on working of code
+            # if need to be removed, remove inner if-else block and the dtype and value
+            # will be the ones in the else block. Check history
+
             if not fn["sources"] and len(sources) == 1:
                 if sources[0].get("list"):
-                    dtypes = set()
-                    value = list()
-                    for item in sources[0]["list"]:
-                        dtypes.add(item["dtype"])
-                        value.append(item["value"])
-                    dtype = list(dtypes)
+                    return [pgm]
                 else:
-                    dtype = sources[0]["dtype"]
-                    value = f"{sources[0]['value']}"
-                fn["body"] = {
-                    "type": "literal",
-                    "dtype": dtype,
-                    "value": value,
-                }
+                    fn["body"] = {
+                        "type": "literal",
+                        "dtype": sources[0]["dtype"],
+                        "value": f"{sources[0]['value']}",
+                    }
             pgm["functions"].append(fn)
             pgm["body"].append(body)
         return [pgm]
@@ -891,6 +947,12 @@ def genPgm(node, state, fnNames):
     # Call: ('func', 'args', 'keywords')
     elif isinstance(node, ast.Call):
         if isinstance(node.func, ast.Attribute):
+            if isinstance(node.func.value, ast.Attribute):
+                fnNode = node.func.value
+                if fnNode.value.id == "sys":
+                    return []
+            elif node.func.value.id == "write_stream_obj":
+                return []
             fnNode = node.func
             module = fnNode.value.id
             fnName = fnNode.attr
@@ -949,8 +1011,16 @@ def genPgm(node, state, fnNames):
 def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
+# Get the absolute path of the python files whose PGMs are being generated.
+# TODO: For now the path is started from the directory "for2py" but need further discussion on this
+def get_path(fileName: str, instance: str):
+    absPath = os.path.abspath(fileName)
+    if instance == "namespace":
+        return re.match(r'.*\/(for2py\/.*).py$', absPath).group(1).split('/')
+    elif instance == "source":
+        return re.match(r'.*\/(for2py\/.*$)', absPath).group(1).split('/')
 
-def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
+def create_pgm_dict(lambdaFile: str, asts: List, pgm_file, file_name: str) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
@@ -961,8 +1031,13 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
             pgm["start"] = pgm["start"][0]
         else:
             pgm["start"] = ""
-        pgm["name"] = pgm_file
-        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+        # pgm["name"] = pgm_file
+
+        pgm["source"] = [get_path(file_name, "source")]
+
+        # dateCreated stores the date and time on which the lambda and PGM file was created.
+        # It is stored in YYYMMDD format
+        pgm["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
     return pgm
 
@@ -1009,7 +1084,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args(sys.argv[1:])
     asts = get_asts_from_files(args.files, args.printAst)
-    pgm_dict = create_pgm_dict(args.lambdaFile[0], asts, args.PGMFile[0])
+    for index, inAst in enumerate(asts):
+        lambdaFile = args.files[index][:-3] + '_' + args.lambdaFile[0]
+        pgmFile = args.files[index][:-3] + '_' + args.PGMFile[0]
+        pgm_dict = create_pgm_dict(lambdaFile, [inAst], pgmFile, args.files[index])
 
-    with open(args.PGMFile[0], "w") as f:
-        printPgm(f, pgm_dict)
+        with open(pgmFile, "w") as f:
+            printPgm(f, pgm_dict)
