@@ -1,40 +1,34 @@
-C     File: derived-types-03.f
-C     This program uses a derived type whose fields are themselves derived types.
+C File: derived-types-03.f
+C This file tests multiple adjacent derived type declarations
 C The output produced by this program is:
-C  123     12   2583
-C  456     21   5472
-
+C  123     4.560
+C  246    13.680
 
       program main
       implicit none
 
-      type mytype_123
-          integer :: ctr = 123
-          integer :: a, b
-      end type mytype_123
+      type mytype_1
+          integer:: a
+          real :: b
+      end type mytype_1
 
-      type mytype_456
-          integer :: ctr = 456
-          integer :: c, d
-      end type mytype_456
+      type mytype_2
+          integer:: a
+          real :: b
+      end type mytype_2
 
-      type mytype_123_456
-          type (mytype_123) x
-          type (mytype_456) y
-      end type mytype_123_456
+      type (mytype_1) x
+      type (mytype_2) y
 
-      type (mytype_123_456) var
+      x % a = 123
+      x % b = 4.56
 
-      var % x % a = 12
-      var % y % c = 21
+      y % a = x % a * 2
+      y % b = x % b * 3
 
-      var % x % b = var % y % c * var % x % ctr
-      var % y % d = var % x % a * var % y % ctr
-
- 10   format (3(I5,2X))
-      write (*,10) var%x%ctr, var%x%a, var%x%b
-      write (*,10) var%y%ctr, var%y%c, var%y%d
+ 10   format(I5,3X, F7.3)
+      write (*, 10) x%a, x%b
+      write (*, 10) y%a, y%b
 
       stop
       end program main
-      

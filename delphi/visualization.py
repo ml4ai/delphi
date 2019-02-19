@@ -39,7 +39,7 @@ def _(G: AnalysisGraph, *args, **kwargs):
 @visualize.register(ProgramAnalysisGraph)
 def _(
     G: ProgramAnalysisGraph,
-    show_values=True,
+    show_values=False,
     save=False,
     filename="program_analysis_graph.pdf",
     **kwargs,
