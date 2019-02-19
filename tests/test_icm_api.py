@@ -18,7 +18,7 @@ import numpy as np
 
 @pytest.fixture(scope="module")
 def app(G):
-    app = create_app()
+    app = create_app(debug=True)
     app.testing = True
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
