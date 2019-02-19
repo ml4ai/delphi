@@ -521,7 +521,9 @@ class PythonCodeGenerator(object):
     def printRef(self, node, printState):
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
-            self.pyStrings.append("[0]")
+            # Handles derived type variables
+            if "isDevType" not in node:
+                self.pyStrings.append("[0]")
         # Handles array
         if "subscripts" in node:
             if node["name"].lower() not in self.libFns:
@@ -832,7 +834,8 @@ class PythonCodeGenerator(object):
                             i = i + 1
                     write_string += "))" 
                 if printState.indexRef and "subscripts" not in item:
-                    write_string += "[0]"
+                    if "isDevType" not in item:
+                        write_string += "[0]"
                 write_string += ", "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
@@ -979,8 +982,8 @@ class PythonCodeGenerator(object):
 
                 if "size" in node[item][0]:
                     self.pyStrings.append(f"        self.{node[item][0]['name']} = ")
-                    self.pyStrings.append(f" Array([{curFieldType}, ")
-                    self.pyStrings.append(f"1, {node[item][0]['size']}])")
+                    self.pyStrings.append(f" Array({curFieldType}, [")
+                    self.pyStrings.append(f"(1, {node[item][0]['size']})])")
                 else: 
                     self.pyStrings.append(f"        self.{node[item][0]['name']} :")
                     self.pyStrings.append(f" {curFieldType}")

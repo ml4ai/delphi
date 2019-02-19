@@ -250,7 +250,6 @@ class XMLToJSONTranslator(object):
                     ] = f"arg_{var['tag']}"
 
 
-        print ("in process_declaration: ", prog)
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -273,6 +272,26 @@ class XMLToJSONTranslator(object):
                 do_format = self.parseTree(node, state)
             elif node.tag == "header":
                 do["header"] = self.parseTree(node, state)
+                if do["header"][0]["low"][0]["tag"] == "ref":
+                    lowName = do["header"][0]["low"][0]["name"]
+                    if "%" in lowName:
+                        curName = lowName
+                        devVar = re.findall(r"\"([^\"]+)\"", curName)
+                        percInd = curName.find("%")
+                        fieldVar = curName[percInd+1:len(curName)]
+                        newName = devVar[0] + "." + fieldVar
+                        do["header"][0]["low"][0]["name"] = newName
+                        do["header"][0]["low"][0]["isDevType"] = True
+                if do["header"][0]["high"][0]["tag"] == "ref":
+                    highName = do["header"][0]["high"][0]["name"]
+                    if "%" in highName:
+                        curName = highName
+                        devVar = re.findall(r"\"([^\"]+)\"", curName)
+                        percInd = curName.find("%")
+                        fieldVar = curName[percInd+1:len(curName)]
+                        newName = devVar[0] + "." + fieldVar
+                        do["header"][0]["high"][0]["name"] = newName
+                        do["header"][0]["high"][0]["isDevType"] = True
             elif node.tag == "body":
                 do["body"] = self.parseTree(node, state)
         if do_format:
@@ -391,7 +410,19 @@ class XMLToJSONTranslator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         else:
-            ref = {"tag": "ref", "name": root.attrib["id"].lower()}
+            isDevType = False
+            refName = root.attrib["id"].lower()
+            if "%" in refName:
+                curName = refName
+                devVar = re.findall(r"\"([^\"]+)\"", curName)
+                percInd = curName.find("%")
+                fieldVar = curName[percInd+1:len(curName)]
+                refName = devVar[0] + "." + fieldVar
+                isDevType = True
+            if isDevType:
+                ref = {"tag": "ref", "name": refName, "isDevType": True}
+            else:
+                ref = {"tag": "ref", "name": refName}
             subscripts = []
             for node in root:
                 subscripts += self.parseTree(node, state)
@@ -578,7 +609,6 @@ class XMLToJSONTranslator(object):
             elif node.tag == "derived-type-spec":
                 return node.attrib["typeName"].lower()
 
-        print ("derived_types: ", derived_types)
         return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
@@ -682,12 +712,6 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "type":
             return self.process_type(root, state)
-
-        elif root.tag == "derived-type-stmt":
-            return self.process_derived_type_stmt(root, state)
-
-        elif root.tag == "component-decl":
-            return self.process_component_decl(root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
