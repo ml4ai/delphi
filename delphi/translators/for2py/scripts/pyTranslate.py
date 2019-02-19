@@ -252,7 +252,7 @@ class PythonCodeGenerator(object):
             )
         else:
             argSize = len(node["args"])
-            assert argSize >= 1
+            # assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range (0, argSize):
                 self.pyStrings.append("[")
@@ -344,13 +344,13 @@ class PythonCodeGenerator(object):
                 init_val = node['value'][0]['value']
                 initial_set = True
 
-            if node["type"].upper() == "INTEGER":
+            if node["type"].upper() in ("INTEGER", "INT"):
                 initVal = init_val if initial_set else 0
                 varType = "int"
-            elif node["type"].upper() in ("DOUBLE", "REAL"):
+            elif node["type"].upper() in ("DOUBLE", "REAL", "FLOAT"):
                 initVal = init_val if initial_set else 0.0
                 varType = "float"
-            elif node["type"].upper() == "STRING" or node["type"].upper() == "CHARACTER":
+            elif node["type"].upper() in ("STRING", "CHARACTER", "STR"):
                 initVal = init_val if initial_set else ""
                 varType = "str"
             else:
