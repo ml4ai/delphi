@@ -1,7 +1,6 @@
 from typing import List
 import networkx as nx
 from itertools import product
-
 from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.analysis.comparison.utils as utils
@@ -73,4 +72,17 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             node[1]["fontname"] = FONT
 
         for node_name in self.shared_inputs:
-            self.node[node_name]["style"] = "bold"
+            self.node[node_name]["penwidth"] = 3.0
+
+        # cut_nodes = [n for n in self.orig_graph.nodes if n not in self.nodes]
+        # cut_edges = [e for e in self.orig_graph.edges if e not in self.edges]
+        #
+        # self.add_nodes_from(cut_nodes)
+        # self.add_edges_from(cut_edges)
+        #
+        # for node_name in cut_nodes:
+        #     self.node[node_name]["color"] = "orange"
+        #     self.node[node_name]["fontcolor"] = "orange"
+        #
+        # for source, dest in cut_edges:
+        #     self[source][dest]["color"] = "orange"
