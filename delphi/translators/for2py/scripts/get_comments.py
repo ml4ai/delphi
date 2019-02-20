@@ -94,15 +94,15 @@ def get_comments(src_file_name: str):
             if line_is_comment(line) and collect_comments:
                 curr_comment.append(line)
             else:
+                if curr_fn == None and comments["$file_head"] == []:
+                    comments["$file_head"] = curr_comment
+                
                 f_start, f_name_maybe = line_starts_subpgm(line)
                 if f_start:
                     f_name = f_name_maybe
 
                     if DEBUG:
                         print(f"<<< START: line {lineno}, fn = {f_name}; prev_fn = {str(prev_fn)}")
-
-                    if curr_fn == None:
-                        comments["$file_head"] = curr_comment
 
                     if prev_fn != None:
                         comments[prev_fn]["foot"] = curr_comment
