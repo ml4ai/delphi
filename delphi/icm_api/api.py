@@ -11,12 +11,24 @@ from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
+from delphi.db import engine
 from delphi.icm_api import db
 from delphi.icm_api.models import *
 import numpy as np
 from flask import current_app
 
 bp = Blueprint("icm_api", __name__)
+
+@bp.route("/conceptToIndicatorMapping", methods=["GET"])
+def getConceptToIndicatorMapping():
+    concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
+    mapping = {}
+    for concept in concepts:
+        results = engine.execute("select `Indicator`, `Source`, `Score` from "
+        f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'")
+        mapping[concept[0]] = [dict(r) for r in results]
+
+    return jsonify(mapping)
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
