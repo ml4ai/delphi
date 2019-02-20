@@ -7,20 +7,28 @@ import dateutil
 from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
+from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.icm_api import db
 from delphi.icm_api.models import *
 import numpy as np
+from flask import current_app
 
 bp = Blueprint("icm_api", __name__)
-
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
     """ Create a new ICM"""
-    return "", 415
+    data = json.loads(request.data)
+    G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    G.to_sql(app=current_app)
+    _metadata = ICMMetadata.query.filter_by(id=G.id).first().deserialize()
+    del _metadata["model_id"]
+    return jsonify(_metadata)
 
 
 @bp.route("/icm", methods=["GET"])

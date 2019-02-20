@@ -1,8 +1,8 @@
 C File: derived-types-04.f
 C This program uses a derived type whose fields are themselves derived types.
 C The output produced by this program is:
-C  123     12   2583
-C  456     21   5472
+C  123     12   34
+C  456     21   45
 
 
       program main
@@ -28,8 +28,8 @@ C  456     21   5472
       var % x % a = 12
       var % y % c = 21
 
-      var % x % b = var % y % c * var % x % ctr
-      var % y % d = var % x % a * var % y % ctr
+      var % x % b = 34
+      var % y % d = 45
 
  10   format (3(I5,2X))
       write (*,10) var%x%ctr, var%x%a, var%x%b
