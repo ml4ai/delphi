@@ -35,7 +35,6 @@ from .utils.indra import (
     get_statements_from_json_list,
     get_statements_from_json_file,
 )
-from .paths import db_path
 from .db import engine
 from .assembly import (
     constructConditionalPDF,
