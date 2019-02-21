@@ -136,6 +136,8 @@ class XMLToJSONTranslator(object):
         isDevTypeVar = False
         devTypeHasArrayField = False
 
+        print ("root: ", root)
+
         for node in root:
             if node.tag == "format":
                 prog += self.parseTree(node, state)
@@ -143,9 +145,10 @@ class XMLToJSONTranslator(object):
                 if "name" in node.attrib:
                     decType = {"type": node.attrib["name"]}
                     decDevType += self.parseTree(node, state) # For derived types
+                    print ("decDevType: ", decDevType)
                     if len(decDevType) > 1:
                         isDevType = True
-                else:   # This is the case whre declaring variables for the derived type
+                else:   # This is the case where declaring fields for the derived type
                     if node[0].tag == "derived-type-spec":
                         decType = {"type": self.parseTree(node, state)}
                         isDevTypeVar = True
@@ -427,6 +430,10 @@ class XMLToJSONTranslator(object):
                 isDevType = True
             if isDevType:
                 ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True}
+                if root.attrib["hasSubscripts"] == "true":
+                    ref["hasSubscripts"] = True
+                else:
+                    ref["hasSubscripts"] = False
             else:
                 ref = {"tag": "ref", "name": refName, "isDevType": False}
             subscripts = []
@@ -582,7 +589,9 @@ class XMLToJSONTranslator(object):
     def process_type(self, root, state) -> List[Dict]:
         derived_types = []
         devTypeHasArrayField = False
+        devTypeHasInitValue = False
         devTypeArrayField = {}
+        devTypeVarField = {}
 
         for node in root:
             if node.tag == "type":
@@ -591,13 +600,24 @@ class XMLToJSONTranslator(object):
                 derived_types.append({"derived-type": node.attrib["id"].lower()})
             elif node.tag == "intrinsic-type-spec":
                 derived_types.append({"field-type": node.attrib["keyword1"].lower()})
+            elif node.tag == "derived-type-spec":
+                derived_types.append({"field-type": node.attrib["typeName"].lower()})
             elif node.tag == "explicit-shape-spec-list__begin":
                 devTypeHasArrayField = True
-            elif node.tag == "literal" and devTypeHasArrayField == True:
-                devTypeArrayField["array-size"] = node.attrib["value"]
+            elif node.tag == "literal":
+                if devTypeHasArrayField:
+                    devTypeArrayField["array-size"] = node.attrib["value"]
+                else: 
+                    devTypeVarField["value"] = node.attrib["value"]
+                    devTypeHasInitValue = True
             elif node.tag == "component-decl":
                 if devTypeHasArrayField == False:
-                    derived_types.append({"field-id": node.attrib["id"].lower()})
+                    if devTypeHasInitValue:
+                        devTypeVarField["field-id"] = node.attrib["id"].lower()
+                        derived_types.append(devTypeVarField)
+                        devTypeHasInitValue = False
+                    else:
+                        derived_types.append({"field-id": node.attrib["id"].lower()})
                 else:
                     devTypeArrayField["field-id"] = node.attrib["id"].lower()
                     derived_types.append(devTypeArrayField)
@@ -605,6 +625,7 @@ class XMLToJSONTranslator(object):
             elif node.tag == "derived-type-spec":
                 return node.attrib["typeName"].lower()
 
+        print ("derived_types: ", derived_types)
         return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:

@@ -392,7 +392,6 @@ class PythonCodeGenerator(object):
             printState.printFirst = False
 
     def printDo(self, node, printState):
-        print ("in printDo: ", node["header"])
         self.pyStrings.append("for ")
         self.printAst(
             node["header"],
@@ -520,10 +519,11 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
+        print ("printRef: ", node)
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
-            if "isDevType" not in node:
+            if "isDevType" not in node or node["isDevType"] == False:
                 self.pyStrings.append("[0]")
             if "isDevType" in node and node["isDevType"]:
                 self.pyStrings.append(f".{node['field-name']}")
@@ -577,9 +577,23 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(")")
 
     def printAssignment(self, node, printState):
+        print ("in Assignment: ", node)
         # Writing a target variable syntax
         if "subscripts" in node["target"][0]:   # Case where the target is an array
-            self.pyStrings.append(f"{node['target'][0]['name']}.set_((")
+            if "field-name" in node['target'][0]:
+                if node['target'][0]['hasSubscripts']:
+                    devObj = {"tag": node['target'][0]['tag'], "name": node['target'][0]['name'], "subscripts": [node['target'][0]['subscripts'].pop(0)]}
+                    print ("in devObj: ", devObj)
+                    self.printAst(
+                        [devObj],
+                        printState.copy(
+                            sep="", add="", printFirst=True, indexRef=True
+                        ),
+                    )
+                else:
+                    self.pyStrings.append(f"{node['target'][0]['name']}")
+                self.pyStrings.append(f".{node['target'][0]['field-name']}")
+            self.pyStrings.append(".set_((")
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
                 index = ""
@@ -613,15 +627,10 @@ class PythonCodeGenerator(object):
                     length = length - 1
             self.pyStrings.append("), ")
         else:   # Case where the target is a single variable
-            if node["isDevType"]:
-                self.pyStrings.append(f"{node['target'][0]['name']}")
-                self.pyStrings.append(".")
-                self.pyStrings.append(f"{node['target'][0]['field-name']}")
-            else:
-                self.printAst(
-                    node["target"],
-                    printState.copy(sep="", add="", printFirst=False, indexRef=True),
-                )
+            self.printAst(
+                node["target"],
+                printState.copy(sep="", add="", printFirst=False, indexRef=True),
+            )
             self.pyStrings.append(" = ")
 
         # Writes a syntax for the source that is right side of the '=' operator
@@ -793,9 +802,24 @@ class PythonCodeGenerator(object):
 
         # Check for variable arguments specified to the write statement
         for item in node["args"]:
-            print ("in printWrite: ", item)
+            # print ("in printWrite: ", item)
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
+                if item["isDevType"]:
+                    # If hasSubscripts is true, the derived type object is also an array
+                    # and has following subscripts. Therefore, in order to handle the syntax
+                    # obj.get_((obj_index)).field.get_((field)), the code below handles
+                    # obj.get_((obj_index)) first before the subscripts for the field variables
+                    if "hasSubscripts" in item and item['hasSubscripts']:
+                        devObjSub = [item["subscripts"].pop(0)]
+                        write_string += ".get_(("
+                        for sub in devObjSub:
+                            if sub["tag"] == "ref":
+                                write_string += f"{sub['name']}[0]"
+                            elif sub["tag"] == "literal":
+                                write_string += f"{sub['value']}"
+                        write_string += "))" 
+                    write_string += f".{item['field-name']}"
                 if "subscripts" in item: # Handles array
                     i = 0
                     write_string += ".get_(("
@@ -993,14 +1017,18 @@ class PythonCodeGenerator(object):
                 elif node[item][0]['type'].lower() == "character":
                     curFieldType = "str"
 
+                fieldname = node[item][0]['field-id']
                 if "array-size" in node[item][0]:
-                    self.pyStrings.append(f"        self.{node['name']} = ")
+                    self.pyStrings.append(f"        self.{fieldname} =")
                     self.pyStrings.append(f" Array({curFieldType}, [")
                     self.pyStrings.append(f"(1, {node[item][0]['array-size']})])")
                 else:
-                    self.pyStrings.append(f"        self.{node['name']} :")
+                    self.pyStrings.append(f"        self.{fieldname} :")
                     self.pyStrings.append(f" {curFieldType}")
-                    self.pyStrings.append(" = None")
+                    if "value" in node[item][0]:
+                        self.pyStrings.append(f" = {node[item][0]['value']}")
+                    else:
+                        self.pyStrings.append(" = None")
                 self.pyStrings.append(printState.sep)
                 fieldNum = fieldNum + 1
 
