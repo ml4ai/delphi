@@ -194,8 +194,8 @@ class AnalysisGraph(nx.DiGraph):
         ].items():
             if indicator is not None:
                 indicator_source, indicator_name = (
-                    indicator.split("/")[0],
-                    "/".join(indicator.split('/')[1:])
+                    indicator["name"].split("/")[0],
+                    "/".join(indicator["name"].split('/')[1:])
                     )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
