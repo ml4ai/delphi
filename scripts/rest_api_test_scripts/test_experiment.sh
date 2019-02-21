@@ -7,9 +7,9 @@ icm_endpoint=http://vanga.sista.arizona.edu/delphi/icm
 
 # Get the ICM ID
 icm_id=`curl -s $icm_endpoint | cut -d '"' -f 2`
-curl -s $icm_endpoint/$icm_id/primitive -o primitives.json
 
-# Construct the post request
+#echo $icm_id
+## Construct the post request
 post_request='{
   "baseType": "ForwardProjection",
   "interventions": [],
@@ -25,10 +25,11 @@ post_request='{
 
 echo $post_request > post_request.json
 
-# Get experiment results
-experiment_id=`curl -s -d @post_request.json\
+## Get experiment results
+experiment_id=`curl -X POST -s -d @post_request.json\
                -H "Content-Type:application/json"\
-               $icm_endpoint/$icm_id/experiment\
+               $icm_endpoint/$icm_id/experiment \
                | cut -d '"' -f 4`
+
 rm post_request.json
 curl -s $icm_endpoint/$icm_id/experiment/$experiment_id
