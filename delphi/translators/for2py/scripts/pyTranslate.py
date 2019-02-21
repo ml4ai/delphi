@@ -697,6 +697,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f'open("{file_name}", "{open_state}")')
 
     def printRead(self, node, printState):
+        print ("in printRead: ", node)
         file_number = str(node["args"][0]["value"])
         if node["args"][0]["type"] == "int":
             file_handle = "file_" + file_number
@@ -705,9 +706,10 @@ class PythonCodeGenerator(object):
         
         isArray = False
         tempInd = 0
-        array_len = len(node["args"]) - 2
-        self.pyStrings.append(f"tempVar = [0] * {array_len}")
-        self.pyStrings.append(printState.sep)
+        if "subscripts" in node["args"][2]:
+            array_len = len(node["args"]) - 2
+            self.pyStrings.append(f"tempVar = [0] * {array_len}")
+            self.pyStrings.append(printState.sep)
 
         ind = 0
         self.pyStrings.append("(")
