@@ -392,6 +392,7 @@ class PythonCodeGenerator(object):
             printState.printFirst = False
 
     def printDo(self, node, printState):
+        print ("in printDo: ", node["header"])
         self.pyStrings.append("for ")
         self.printAst(
             node["header"],
@@ -524,6 +525,8 @@ class PythonCodeGenerator(object):
             # Handles derived type variables
             if "isDevType" not in node:
                 self.pyStrings.append("[0]")
+            if "isDevType" in node and node["isDevType"]:
+                self.pyStrings.append(f".{node['field-name']}")
         # Handles array
         if "subscripts" in node:
             if node["name"].lower() not in self.libFns:
@@ -612,6 +615,8 @@ class PythonCodeGenerator(object):
         else:   # Case where the target is a single variable
             if node["isDevType"]:
                 self.pyStrings.append(f"{node['target'][0]['name']}")
+                self.pyStrings.append(".")
+                self.pyStrings.append(f"{node['target'][0]['field-name']}")
             else:
                 self.printAst(
                     node["target"],
@@ -788,6 +793,7 @@ class PythonCodeGenerator(object):
 
         # Check for variable arguments specified to the write statement
         for item in node["args"]:
+            print ("in printWrite: ", item)
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
                 if "subscripts" in item: # Handles array
@@ -836,6 +842,8 @@ class PythonCodeGenerator(object):
                 if printState.indexRef and "subscripts" not in item:
                     if "isDevType" not in item:
                         write_string += "[0]"
+                    elif "isDevType" in item and item["isDevType"]:
+                        write_string += f".{item['field-name']}"
                 write_string += ", "
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
@@ -930,6 +938,8 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def printArray(self, node, printState):
+        print ("in printArray: ", node)
+
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
@@ -949,6 +959,9 @@ class PythonCodeGenerator(object):
                 varType = "float"
             elif node["type"].upper() == "CHARACTER":
                 varType = "str"
+            elif node["isDevTypeVar"] == True:
+                varType = node["type"].lower()
+
             assert varType != ""
             
             self.pyStrings.append(f"{node['name']} = Array({varType}, [")
@@ -980,12 +993,12 @@ class PythonCodeGenerator(object):
                 elif node[item][0]['type'].lower() == "character":
                     curFieldType = "str"
 
-                if "size" in node[item][0]:
-                    self.pyStrings.append(f"        self.{node[item][0]['name']} = ")
+                if "array-size" in node[item][0]:
+                    self.pyStrings.append(f"        self.{node['name']} = ")
                     self.pyStrings.append(f" Array({curFieldType}, [")
-                    self.pyStrings.append(f"(1, {node[item][0]['size']})])")
-                else: 
-                    self.pyStrings.append(f"        self.{node[item][0]['name']} :")
+                    self.pyStrings.append(f"(1, {node[item][0]['array-size']})])")
+                else:
+                    self.pyStrings.append(f"        self.{node['name']} :")
                     self.pyStrings.append(f" {curFieldType}")
                     self.pyStrings.append(" = None")
                 self.pyStrings.append(printState.sep)

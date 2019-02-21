@@ -221,20 +221,26 @@ class XMLToJSONTranslator(object):
             prog.append({"tag": "derived-type"})
             field_num = 0
             field_id_num = 0
-            for i in range (0, len(decDevType)):
+            for field in decDevType:
                 fieldList = []
-                field = {}
-                if "derived-type" in decDevType[i]:
-                    prog[0]["name"] = decDevType[i]["derived-type"]
-                elif "field-type" in decDevType[i]:
-                    field["type"] = decDevType[i]["field-type"]
-                    prog[0][f"field{field_id_num}"] = [field]
-                elif "field-id" in decDevType[i]:
-                    field["name"] = decDevType[i]["field-id"]
-                    if "array-size" in decDevType[i]:
-                        field["size"] = decDevType[i]["array-size"]
-                    prog[0][f"field{field_id_num}"][0].update(field)
+                fields = {}
+                if "derived-type" in field:
+                    prog[0]["name"] = field["derived-type"]
+                elif "field-type" in field:
+                    fields["type"] = field["field-type"]
+                    prog[0][f"field{field_id_num}"] = [fields]
+                elif "field-id" in field:
+                    fields["name"] = field["field-id"]
+                    if "array-size" in field:
+                        fields["size"] = field["array-size"]
+                    if f"field{field_id_num}" in prog[0]:
+                        prog[0][f"field{field_id_num}"][0].update(field)
+                    else:
+                        fields["type"] = prog[0][f"field{field_id_num-1}"][0]["type"]
+                        prog[0][f"field{field_id_num}"] = [fields]
+                        prog[0][f"field{field_id_num}"][0].update(field)
                     field_id_num = field_id_num + 1
+            isDevTypeVar = True
 
         # Adding additional attribute to distinguish derived type variables
         if len(prog) > 0:
@@ -417,12 +423,12 @@ class XMLToJSONTranslator(object):
                 devVar = re.findall(r"\"([^\"]+)\"", curName)
                 percInd = curName.find("%")
                 fieldVar = curName[percInd+1:len(curName)]
-                refName = devVar[0] + "." + fieldVar
+                refName = devVar[0]
                 isDevType = True
             if isDevType:
-                ref = {"tag": "ref", "name": refName, "isDevType": True}
+                ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True}
             else:
-                ref = {"tag": "ref", "name": refName}
+                ref = {"tag": "ref", "name": refName, "isDevType": False}
             subscripts = []
             for node in root:
                 subscripts += self.parseTree(node, state)
@@ -436,18 +442,6 @@ class XMLToJSONTranslator(object):
         for node in root:
             if node.tag == "target":
                 assign["target"] = self.parseTree(node, state)
-                # If it's an assignment for the derived type variables,
-                # the target name for is in id="{varName}"%{fieldName}
-                # Thus, we need to extract the variable and the field names,
-                # then re-add to the target
-                if "%" in assign["target"][0]["name"]:
-                    curName = assign["target"][0]["name"]
-                    devVar = re.findall(r"\"([^\"]+)\"", curName)
-                    percInd = curName.find("%")
-                    fieldVar = curName[percInd+1:len(curName)]
-                    newName = devVar[0] + "." + fieldVar
-                    assign["target"][0]["name"] = newName
-                    devTypeAssignment = True
             elif node.tag == "value":
                 assign["value"] = self.parseTree(node, state)
 
@@ -457,6 +451,8 @@ class XMLToJSONTranslator(object):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
         else:
+            if assign["target"][0]["isDevType"]:
+                devTypeAssignment = True
             assign["isDevType"] = devTypeAssignment
             return [assign]
 
