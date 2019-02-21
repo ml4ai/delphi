@@ -186,7 +186,7 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    G.initialize(initialize_indicators = False)
+    G.initialize(initialize_indicators = False, config_file="/tmp/delphi/bmi_config.txt")
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
