@@ -335,6 +335,7 @@ class PythonCodeGenerator(object):
         printState.definedVars += [self.nameMapper[node["name"]]]
 
     def printVariable(self, node, printState):
+        print ("in printVariable ", node)
         initial_set = False
         if (
                 self.nameMapper[node["name"]] not in printState.definedVars
@@ -819,7 +820,7 @@ class PythonCodeGenerator(object):
                             elif sub["tag"] == "literal":
                                 write_string += f"{sub['value']}"
                         write_string += "))" 
-                    write_string += f".{item['field-name']}"
+                        write_string += f".{item['field-name']}"
                 if "subscripts" in item: # Handles array
                     i = 0
                     write_string += ".get_(("
@@ -984,7 +985,7 @@ class PythonCodeGenerator(object):
             elif node["type"].upper() == "CHARACTER":
                 varType = "str"
             elif node["isDevTypeVar"] == True:
-                varType = node["type"].lower()
+                varType = node["type"].lower() + "()"
 
             assert varType != ""
             

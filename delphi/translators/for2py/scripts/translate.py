@@ -145,7 +145,7 @@ class XMLToJSONTranslator(object):
                 if "name" in node.attrib:
                     decType = {"type": node.attrib["name"]}
                     decDevType += self.parseTree(node, state) # For derived types
-                    print ("decDevType: ", decDevType)
+                    print ("decType: ", decType)
                     if len(decDevType) > 1:
                         isDevType = True
                 else:   # This is the case where declaring fields for the derived type
@@ -225,6 +225,7 @@ class XMLToJSONTranslator(object):
             field_num = 0
             field_id_num = 0
             for field in decDevType:
+                print ("decDevType: ", decDevType)
                 fieldList = []
                 fields = {}
                 if "derived-type" in field:
@@ -600,8 +601,6 @@ class XMLToJSONTranslator(object):
                 derived_types.append({"derived-type": node.attrib["id"].lower()})
             elif node.tag == "intrinsic-type-spec":
                 derived_types.append({"field-type": node.attrib["keyword1"].lower()})
-            elif node.tag == "derived-type-spec":
-                derived_types.append({"field-type": node.attrib["typeName"].lower()})
             elif node.tag == "explicit-shape-spec-list__begin":
                 devTypeHasArrayField = True
             elif node.tag == "literal":
@@ -625,7 +624,6 @@ class XMLToJSONTranslator(object):
             elif node.tag == "derived-type-spec":
                 return node.attrib["typeName"].lower()
 
-        print ("derived_types: ", derived_types)
         return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
