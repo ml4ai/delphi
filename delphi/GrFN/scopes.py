@@ -71,7 +71,7 @@ class Scope(metaclass=ABCMeta):
 
         # Build the nested tree of scopes using recursion
 
-        if data["start"] != "":
+        if scopes.get(data["start"]) is not None:
             root = scopes[data["start"]]
         else:
             non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
