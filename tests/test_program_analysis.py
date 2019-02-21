@@ -131,7 +131,7 @@ def test_io_grfn_generation(io_grfn_dict):
 def test_array_pythonIR_generation(array_python_array_dict):
     with open("tests/data/arrays-basic-06.py", "r") as f:
         python_dict = f.read()
-    assert array_python_array_dict == python_dict
+    assert array_python_array_dict == [(python_dict)]
 
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas

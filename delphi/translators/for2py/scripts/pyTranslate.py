@@ -697,7 +697,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f'open("{file_name}", "{open_state}")')
 
     def printRead(self, node, printState):
-        print ("in printRead: ", node)
         file_number = str(node["args"][0]["value"])
         if node["args"][0]["type"] == "int":
             file_handle = "file_" + file_number
