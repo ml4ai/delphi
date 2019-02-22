@@ -764,7 +764,6 @@ def genPgm(node, state, fnNames):
     # Name: ('id', 'ctx')
     elif isinstance(node, ast.Name):
         lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
-        print(state.lastDefs)
         if isinstance(node.ctx, ast.Store):
             lastDef = getNextDef(
                 node.id, state.lastDefs, state.nextDefs, state.lastDefDefault
