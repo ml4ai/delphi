@@ -151,7 +151,6 @@ def getLastDef(var, lastDefs, lastDefDefault):
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
     index = nextDefs.get(var, lastDefDefault + 1)
-    # print(var)
     nextDefs[var] = index + 1
     lastDefs[var] = index
     return index
@@ -595,19 +594,6 @@ def genPgm(node, state, fnNames):
             or ifDefs[var] != startDefs[var]
             or elseDefs[var] != startDefs[var]
         ]
-
-        # print(set(startDefs))
-        # print('**')
-        # print(ifDefs)
-        # print('**')
-        # print(elseDefs)
-        # print('**')
-        # print(set(startDefs.keys()).union(ifDefs.keys()).union(elseDefs.keys()))
-        # print('---')
-        # print(startDefs)
-        # print(ifDefs)
-        # print(elseDefs)
-        # print('---')
 
         defVersions = {
             key: [
