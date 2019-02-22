@@ -151,6 +151,7 @@ def getLastDef(var, lastDefs, lastDefDefault):
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
     index = nextDefs.get(var, lastDefDefault + 1)
+    # print(var)
     nextDefs[var] = index + 1
     lastDefs[var] = index
     return index
@@ -368,6 +369,7 @@ def genPgm(node, state, fnNames):
             fnName=node.name,
             varTypes=localTypes,
         )
+
         args = genPgm(node.args, fnState, fnNames)
         bodyPgm = genPgm(node.body, fnState, fnNames)
 
@@ -411,6 +413,10 @@ def genPgm(node, state, fnNames):
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
+        if state.lastDefs.get(node.arg):
+            state.lastDefs[node.arg] += 1
+        else:
+            state.lastDefs[node.arg] = 0
         return node.arg
 
     # Load: ()
@@ -590,6 +596,19 @@ def genPgm(node, state, fnNames):
             or elseDefs[var] != startDefs[var]
         ]
 
+        # print(set(startDefs))
+        # print('**')
+        # print(ifDefs)
+        # print('**')
+        # print(elseDefs)
+        # print('**')
+        # print(set(startDefs.keys()).union(ifDefs.keys()).union(elseDefs.keys()))
+        # print('---')
+        # print(startDefs)
+        # print(ifDefs)
+        # print(elseDefs)
+        # print('---')
+
         defVersions = {
             key: [
                 version
@@ -759,6 +778,7 @@ def genPgm(node, state, fnNames):
     # Name: ('id', 'ctx')
     elif isinstance(node, ast.Name):
         lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
+        print(state.lastDefs)
         if isinstance(node.ctx, ast.Store):
             lastDef = getNextDef(
                 node.id, state.lastDefs, state.nextDefs, state.lastDefDefault
