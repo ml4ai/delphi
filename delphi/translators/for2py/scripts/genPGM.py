@@ -368,6 +368,7 @@ def genPgm(node, state, fnNames):
             fnName=node.name,
             varTypes=localTypes,
         )
+
         args = genPgm(node.args, fnState, fnNames)
         bodyPgm = genPgm(node.body, fnState, fnNames)
 
@@ -411,6 +412,10 @@ def genPgm(node, state, fnNames):
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
+        if state.lastDefs.get(node.arg):
+            state.lastDefs[node.arg] += 1
+        else:
+            state.lastDefs[node.arg] = 0
         return node.arg
 
     # Load: ()
