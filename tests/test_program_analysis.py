@@ -51,8 +51,8 @@ def make_grfn_dict(original_fortran_file) -> Dict:
     os.remove(preprocessed_fortran_file)
     xml_to_json_translator = translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
-    pySrc = pyTranslate.create_python_string(outputDict)
-    asts = [ast.parse(pySrc[0][0])]
+    pySrc = pyTranslate.create_python_string(outputDict)[0][0]
+    asts = [ast.parse(pySrc)]
     pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, json_filename)
     return pgm_dict
 
@@ -84,7 +84,7 @@ def make_python_array_dict(original_fortran_file) -> Dict:
     os.remove(preprocessed_fortran_file)
     xml_to_json_translator = translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
-    pySrc = pyTranslate.create_python_string(outputDict)
+    pySrc = pyTranslate.create_python_string(outputDict)[0][0]
     return pySrc
 
 
@@ -131,7 +131,7 @@ def test_io_grfn_generation(io_grfn_dict):
 def test_array_pythonIR_generation(array_python_array_dict):
     with open("tests/data/arrays-basic-06.py", "r") as f:
         python_dict = f.read()
-    # assert array_python_array_dict == python_dict
+    assert array_python_array_dict == python_dict
 
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas
