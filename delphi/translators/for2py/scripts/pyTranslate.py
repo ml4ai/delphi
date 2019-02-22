@@ -335,7 +335,6 @@ class PythonCodeGenerator(object):
         printState.definedVars += [self.nameMapper[node["name"]]]
 
     def printVariable(self, node, printState):
-        print ("in printVariable ", node)
         initial_set = False
         if (
                 self.nameMapper[node["name"]] not in printState.definedVars
@@ -520,7 +519,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
-        print ("printRef: ", node)
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
@@ -578,13 +576,11 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(")")
 
     def printAssignment(self, node, printState):
-        print ("in Assignment: ", node)
         # Writing a target variable syntax
         if "subscripts" in node["target"][0]:   # Case where the target is an array
             if "field-name" in node['target'][0]:
                 if node['target'][0]['hasSubscripts']:
                     devObj = {"tag": node['target'][0]['tag'], "name": node['target'][0]['name'], "subscripts": [node['target'][0]['subscripts'].pop(0)]}
-                    print ("in devObj: ", devObj)
                     self.printAst(
                         [devObj],
                         printState.copy(
@@ -803,7 +799,6 @@ class PythonCodeGenerator(object):
 
         # Check for variable arguments specified to the write statement
         for item in node["args"]:
-            # print ("in printWrite: ", item)
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
                 if item["isDevType"]:
@@ -820,6 +815,7 @@ class PythonCodeGenerator(object):
                             elif sub["tag"] == "literal":
                                 write_string += f"{sub['value']}"
                         write_string += "))" 
+                    if "subscripts" in item:
                         write_string += f".{item['field-name']}"
                 if "subscripts" in item: # Handles array
                     i = 0
@@ -963,8 +959,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"file_{file_id}.close()")
 
     def printArray(self, node, printState):
-        print ("in printArray: ", node)
-
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
@@ -1000,6 +994,14 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(f"{dimensions}")
             self.pyStrings.append("])")
 
+            if node["isDevTypeVar"] == True:
+                self.pyStrings.append(printState.sep)
+                # This may require update later when we have to deal with the multi-dimensional derived type arrays
+                upBound = node["up1"]
+                self.pyStrings.append("for z in range(1, {upBound} + 1):" + printState.sep)
+                self.pyStrings.append(f"    obj = {node['type']}" + printState.sep)
+                self.pyStrings.append(f"    {node['type']}.set_(z, obj)" + printState.sep)
+
     def printDerivedType(self, node, printState):
         assert node["tag"] == "derived-type"
         self.pyStrings.append(f"class {node['name']}:")
@@ -1012,7 +1014,7 @@ class PythonCodeGenerator(object):
         for item in node:
             if f"field{fieldNum}" == item:
                 if node[item][0]['type'].lower() == "integer":
-                    curFieldType = "int"
+                    curFieldType = "int" + printState.sep
                 elif node[item][0]['type'].lower() in ("double", "real"):
                     curFieldType = "float"
                 elif node[item][0]['type'].lower() == "character":

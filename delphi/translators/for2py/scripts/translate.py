@@ -136,8 +136,6 @@ class XMLToJSONTranslator(object):
         isDevTypeVar = False
         devTypeHasArrayField = False
 
-        print ("root: ", root)
-
         for node in root:
             if node.tag == "format":
                 prog += self.parseTree(node, state)
@@ -145,7 +143,6 @@ class XMLToJSONTranslator(object):
                 if "name" in node.attrib:
                     decType = {"type": node.attrib["name"]}
                     decDevType += self.parseTree(node, state) # For derived types
-                    print ("decType: ", decType)
                     if len(decDevType) > 1:
                         isDevType = True
                 else:   # This is the case where declaring fields for the derived type
@@ -225,7 +222,6 @@ class XMLToJSONTranslator(object):
             field_num = 0
             field_id_num = 0
             for field in decDevType:
-                print ("decDevType: ", decDevType)
                 fieldList = []
                 fields = {}
                 if "derived-type" in field:
