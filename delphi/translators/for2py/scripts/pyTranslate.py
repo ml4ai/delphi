@@ -1,5 +1,3 @@
-#!/usr/bin/python3.7
-
 """
 Purpose:
     Convert a Fortran AST representation into a Python
@@ -519,6 +517,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
+        print ("printRef: ", node)
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
@@ -528,53 +527,65 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(f".{node['field-name']}")
         # Handles array
         if "subscripts" in node:
-            if node["name"].lower() not in self.libFns:
-                self.pyStrings.append(".get_((")
-            self.pyStrings.append("(")
-            value = ""
-            subLength = len(node["subscripts"])
-            for ind in node["subscripts"]:
-                if ind["tag"] == "ref":
-                    indName = ind["name"]
-                    self.pyStrings.append(f"{indName}")
-                    if "subscripts" in ind:
-                        self.pyStrings.append(".get_((")
-                        self.printAst(
-                            ind["subscripts"],
-                            printState.copy(
-                                sep=", ", add="", printFirst=False, indexRef=True
-                            ),
-                        )
-                        self.pyStrings.append("))")
-                    else:
-                        self.pyStrings.append("[0]")
-                if ind["tag"] == "op":
-                    if "right" not in ind:
-                        self.pyStrings.append(f"{ind['operator']}{ind['left'][0]['value']}")
-                    else:
-                        self.printAst(
-                            ind["left"],
-                            printState.copy(
-                                sep="", add="", printFirst=True, indexRef=True
-                            ),
-                        )
-                        self.pyStrings.append(f"{ind['operator']}")
-                        self.printAst(
-                            ind["right"],
-                            printState.copy(
-                                sep="", add="", printFirst=True, indexRef=True
-                            ),
-                        )
-                elif ind["tag"] == "literal" and "value" in ind:
-                    indValue = ind["value"]
-                    self.pyStrings.append(f"{indValue}")
-                if (subLength > 1):
-                    self.pyStrings.append(", ")
-                    subLength = subLength - 1
-            if node["name"].lower() not in self.libFns:
-                self.pyStrings.append("))")
-            self.pyStrings.append(")")
-
+            # Check if the node really holds an array. The is because the derive type with
+            # more than 1 field access, for example var%x%y, node holds x%y also under
+            # the subscripts. Thus, in order to avoid non-array derive types to be printed
+            # in an array syntax, this check is necessary
+            if node["hasSubscripts"]:
+                if node["name"].lower() not in self.libFns:
+                    self.pyStrings.append(".get_((")
+                self.pyStrings.append("(")
+                value = ""
+                subLength = len(node["subscripts"])
+                for ind in node["subscripts"]:
+                    if ind["tag"] == "ref":
+                        indName = ind["name"]
+                        self.pyStrings.append(f"{indName}")
+                        if "subscripts" in ind:
+                            self.pyStrings.append(".get_((")
+                            self.printAst(
+                                ind["subscripts"],
+                                printState.copy(
+                                    sep=", ", add="", printFirst=False, indexRef=True
+                                ),
+                            )
+                            self.pyStrings.append("))")
+                        else:
+                            self.pyStrings.append("[0]")
+                    if ind["tag"] == "op":
+                        if "right" not in ind:
+                            self.pyStrings.append(f"{ind['operator']}{ind['left'][0]['value']}")
+                        else:
+                            self.printAst(
+                                ind["left"],
+                                printState.copy(
+                                    sep="", add="", printFirst=True, indexRef=True
+                                ),
+                            )
+                            self.pyStrings.append(f"{ind['operator']}")
+                            self.printAst(
+                                ind["right"],
+                                printState.copy(
+                                    sep="", add="", printFirst=True, indexRef=True
+                                ),
+                            )
+                    elif ind["tag"] == "literal" and "value" in ind:
+                        indValue = ind["value"]
+                        self.pyStrings.append(f"{indValue}")
+                    if (subLength > 1):
+                        self.pyStrings.append(", ")
+                        subLength = subLength - 1
+                if node["name"].lower() not in self.libFns:
+                    self.pyStrings.append("))")
+                self.pyStrings.append(")")
+            else:
+                self.pyStrings.append(".")
+                self.printAst(
+                    node["subscripts"],
+                    printState.copy(
+                        sep=", ", add="", printFirst=False, indexRef=True
+                    ),
+                )
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
         if "subscripts" in node["target"][0]:   # Case where the target is an array
@@ -1014,7 +1025,7 @@ class PythonCodeGenerator(object):
         for item in node:
             if f"field{fieldNum}" == item:
                 if node[item][0]['type'].lower() == "integer":
-                    curFieldType = "int" + printState.sep
+                    curFieldType = "int"
                 elif node[item][0]['type'].lower() in ("double", "real"):
                     curFieldType = "float"
                 elif node[item][0]['type'].lower() == "character":

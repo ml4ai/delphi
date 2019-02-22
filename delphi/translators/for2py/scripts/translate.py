@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 This script converts the XML version of AST of the Fortran
 file into a JSON representation of the AST along with other
@@ -83,6 +81,7 @@ class XMLToJSONTranslator(object):
         self.functionList = []
         self.subroutineList = []
         self.entryPoint = []
+        self.deriveTypeVars = []
 
     def process_subroutine_or_program_module(self, root, state):
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
@@ -152,6 +151,11 @@ class XMLToJSONTranslator(object):
             elif node.tag == "variables":
                 decVars = self.parseTree(node, state)
                 isArray = False
+                # This is a book keeping of derived type variables
+                if isDevTypeVar:
+                    for i in range (0, len(decVars)):
+                        devTypevarName = decVars[i]["name"]
+                        self.deriveTypeVars.append(devTypevarName)
             elif node.tag == "access-spec":
                 if node.attrib["keyword"] == "PRIVATE":
                     decVars = self.process_private_variable(root, state)
@@ -417,6 +421,7 @@ class XMLToJSONTranslator(object):
             return [fn]
         else:
             isDevType = False
+            singleReference = False
             refName = root.attrib["id"].lower()
             if "%" in refName:
                 curName = refName
@@ -425,8 +430,20 @@ class XMLToJSONTranslator(object):
                 fieldVar = curName[percInd+1:len(curName)]
                 refName = devVar[0]
                 isDevType = True
+                singleReference = True
+            print ("self.derive: ", self.deriveTypeVars)
+            # As a solution to handle derived type variable accesses more than 
+            # one field variables (via % in fortran and . in python), for example,
+            # var % x % y, we need to look up the variable name from the variable keep
+            # and mark isDevType attribute as True, so later it can be printed properly
+            # by pyTranslate.py
+            if refName in self.deriveTypeVars:
+                isDevType = True
             if isDevType:
-                ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True}
+                if singleReference:
+                    ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True}
+                else:
+                    ref = {"tag": "ref", "name": refName, "isDevType": True}
                 if root.attrib["hasSubscripts"] == "true":
                     ref["hasSubscripts"] = True
                 else:
@@ -438,6 +455,7 @@ class XMLToJSONTranslator(object):
                 subscripts += self.parseTree(node, state)
             if subscripts:
                 ref["subscripts"] = subscripts
+            print ("ref: ", ref)
             return [ref]
 
     def process_assignment(self, root, state) -> List[Dict]:
