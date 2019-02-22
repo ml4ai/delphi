@@ -408,7 +408,7 @@ class Node(metaclass=ABCMeta):
         return f"{self.name}_{self.index}__{self.scope}"
 
     def get_label(self):
-        return self.name
+        return '_'.join((self.name, str(self.index)))
 
 
 class FuncVariableNode(Node):
