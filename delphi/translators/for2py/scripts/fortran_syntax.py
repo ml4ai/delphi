@@ -56,7 +56,7 @@ def line_is_comment(line: str) -> bool:
 SUB_START = r"\s*subroutine\s+(\w+)\s*\("
 RE_SUB_START = re.compile(SUB_START, re.I)
 
-FN_START = r"\s*function\s+(\w+)\s*\("
+FN_START = r"\s*[a-z]*\s*function\s+(\w+)\s*\("
 RE_FN_START = re.compile(FN_START, re.I)
 
 SUBPGM_END = r"\s*end\s+"

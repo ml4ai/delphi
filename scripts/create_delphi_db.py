@@ -33,6 +33,8 @@ def create_concept_to_indicator_mapping_table(mapping_table):
         },
     )
     df.Indicator = df.Indicator.str.replace("\\\/","/")
+    df = df[df['Source'] == 'mitre12']
+    df.Indicator = df.Indicator.str.replace("MITRE12/","")
 
     insert_table(df, "concept_to_indicator_mapping")
 

@@ -82,6 +82,11 @@ class XMLToJSONTranslator(object):
         self.subroutineList = []
         self.entryPoint = []
         self.deriveTypeVars = []
+        # The purpose of this global dictionary is to track the declared field variables and
+        # mark it's an array or not. For example, var.a.get(1) will be makred as hasSubscripts = False
+        # and arrayStat = "isArray". Thus, hasSubscripts represents the array existence of the very first variable
+        # and arrayStat represents the array existence of the following fields.
+        self.deriveTypeFields = {}
 
     def process_subroutine_or_program_module(self, root, state):
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
@@ -169,8 +174,10 @@ class XMLToJSONTranslator(object):
             elif node.tag == "component-decl":
                 if devTypeHasArrayField == False:
                     decDevType.append({"field-id": node.attrib["id"].lower()})
+                    self.deriveTypeFields[node.attrib["id"].lower()] = "notArray"
                 else:
                     devTypeArrayField["field-id"] = node.attrib["id"].lower()
+                    self.deriveTypeFields[node.attrib["id"].lower()] = "isArray"
                     decDevType.append(devTypeArrayField)
                     devTypeHasArrayField = False
 
@@ -258,8 +265,6 @@ class XMLToJSONTranslator(object):
                     state.subroutine["args"][state.args.index(var["name"])][
                             "arg_type"
                     ] = f"arg_{var['tag']}"
-
-
         return prog
 
     def process_variable(self, root, state) -> List[Dict]:
@@ -431,7 +436,6 @@ class XMLToJSONTranslator(object):
                 refName = devVar[0]
                 isDevType = True
                 singleReference = True
-            print ("self.derive: ", self.deriveTypeVars)
             # As a solution to handle derived type variable accesses more than 
             # one field variables (via % in fortran and . in python), for example,
             # var % x % y, we need to look up the variable name from the variable keep
@@ -441,21 +445,24 @@ class XMLToJSONTranslator(object):
                 isDevType = True
             if isDevType:
                 if singleReference:
-                    ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True}
+                    ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True, "arrayStat": self.deriveTypeFields[fieldVar]}
                 else:
                     ref = {"tag": "ref", "name": refName, "isDevType": True}
+            else:
+                ref = {"tag": "ref", "name": refName, "isDevType": False}
+            # If a very first variable (or the main variable) is an array,
+            # set hasSubscripts to true else false
+            if "hasSubscripts" in root.attrib:
                 if root.attrib["hasSubscripts"] == "true":
                     ref["hasSubscripts"] = True
                 else:
                     ref["hasSubscripts"] = False
-            else:
-                ref = {"tag": "ref", "name": refName, "isDevType": False}
+
             subscripts = []
             for node in root:
                 subscripts += self.parseTree(node, state)
             if subscripts:
                 ref["subscripts"] = subscripts
-            print ("ref: ", ref)
             return [ref]
 
     def process_assignment(self, root, state) -> List[Dict]:
@@ -631,13 +638,15 @@ class XMLToJSONTranslator(object):
                         devTypeHasInitValue = False
                     else:
                         derived_types.append({"field-id": node.attrib["id"].lower()})
+                    self.deriveTypeFields[node.attrib["id"].lower()] = "notArray"
+                    derived_types.append(devTypeArrayField)
                 else:
                     devTypeArrayField["field-id"] = node.attrib["id"].lower()
+                    self.deriveTypeFields[node.attrib["id"].lower()] = "isArray"
                     derived_types.append(devTypeArrayField)
                     devTypeHasArrayField = False
             elif node.tag == "derived-type-spec":
                 return node.attrib["typeName"].lower()
-
         return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:

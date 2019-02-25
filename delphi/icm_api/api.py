@@ -1,3 +1,4 @@
+import os
 import json
 from math import exp
 from uuid import uuid4
@@ -11,12 +12,24 @@ from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
+from delphi.db import engine
 from delphi.icm_api import db
 from delphi.icm_api.models import *
 import numpy as np
 from flask import current_app
 
 bp = Blueprint("icm_api", __name__)
+
+@bp.route("/conceptToIndicatorMapping", methods=["GET"])
+def getConceptToIndicatorMapping():
+    concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
+    mapping = {}
+    for concept in concepts:
+        results = engine.execute("select `Indicator`, `Source`, `Score` from "
+        f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'")
+        mapping[concept[0]] = [dict(r) for r in results]
+
+    return jsonify(mapping)
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
@@ -174,7 +187,12 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    G.initialize(initialize_indicators = False)
+    if os.environ.get("TRAVIS") is not None:
+        config_file="bmi_config.txt"
+    else:
+        config_file="/tmp/delphi/bmi_config.txt"
+        
+    G.initialize(initialize_indicators = False, config_file=config_file)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0

@@ -22,8 +22,7 @@ import pickle
 import argparse
 import re
 from typing import List, Dict
-from fortran_format import *
-# from delphi.translators.for2py.scripts.fortran_format import *
+from delphi.translators.for2py.scripts.fortran_format import *
 
 class PrintState:
     def __init__(
@@ -517,7 +516,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
-        print ("printRef: ", node)
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
@@ -531,7 +529,8 @@ class PythonCodeGenerator(object):
             # more than 1 field access, for example var%x%y, node holds x%y also under
             # the subscripts. Thus, in order to avoid non-array derive types to be printed
             # in an array syntax, this check is necessary
-            if node["hasSubscripts"]:
+            if "hasSubscripts" in node and node["hasSubscripts"]:
+                print ("in print ref node: ", node)
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
@@ -586,12 +585,14 @@ class PythonCodeGenerator(object):
                         sep=", ", add="", printFirst=False, indexRef=True
                     ),
                 )
+
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
         if "subscripts" in node["target"][0]:   # Case where the target is an array
-            if "field-name" in node['target'][0]:
+            if node["isDevType"] and "field-name" in node['target'][0]:
                 if node['target'][0]['hasSubscripts']:
-                    devObj = {"tag": node['target'][0]['tag'], "name": node['target'][0]['name'], "subscripts": [node['target'][0]['subscripts'].pop(0)]}
+                    devObj = {"tag": node['target'][0]['tag'], "name": node['target'][0]['name'], "isDevType": node['target'][0]['isDevType'],
+                              "hasSubscripts":node['target'][0]['isDevType'], "subscripts": [node['target'][0]['subscripts'].pop(0)]}
                     self.printAst(
                         [devObj],
                         printState.copy(
@@ -601,6 +602,8 @@ class PythonCodeGenerator(object):
                 else:
                     self.pyStrings.append(f"{node['target'][0]['name']}")
                 self.pyStrings.append(f".{node['target'][0]['field-name']}")
+            else:
+                self.pyStrings.append(f"{node['target'][0]['name']}")
             self.pyStrings.append(".set_((")
             length = len(node["target"][0]["subscripts"])
             for ind in node["target"][0]["subscripts"]:
@@ -812,67 +815,89 @@ class PythonCodeGenerator(object):
         for item in node["args"]:
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
-                if item["isDevType"]:
-                    # If hasSubscripts is true, the derived type object is also an array
-                    # and has following subscripts. Therefore, in order to handle the syntax
-                    # obj.get_((obj_index)).field.get_((field)), the code below handles
-                    # obj.get_((obj_index)) first before the subscripts for the field variables
-                    if "hasSubscripts" in item and item['hasSubscripts']:
-                        devObjSub = [item["subscripts"].pop(0)]
-                        write_string += ".get_(("
-                        for sub in devObjSub:
-                            if sub["tag"] == "ref":
-                                write_string += f"{sub['name']}[0]"
-                            elif sub["tag"] == "literal":
-                                write_string += f"{sub['value']}"
-                        write_string += "))" 
-                    if "subscripts" in item:
-                        write_string += f".{item['field-name']}"
-                if "subscripts" in item: # Handles array
-                    i = 0
-                    write_string += ".get_(("
-                    for ind in item["subscripts"]:
-                        if "subscripts" in ind:
-                            write_string += f"{ind['name']}.get_(("
-                            for sub in ind["subscripts"]:
+                print ("in write: ", item)
+                # Handles array or a variable that holds following attributes, such as var.x.y
+                if "subscripts" in item: 
+                    # If a variable is derived type
+                    if item["isDevType"]:
+                        # If hasSubscripts is true, the derived type object is also an array
+                        # and has following subscripts. Therefore, in order to handle the syntax
+                        # obj.get_((obj_index)).field.get_((field)), the code below handles
+                        # obj.get_((obj_index)) first before the subscripts for the field variables
+                        if "hasSubscripts" in item and item['hasSubscripts']:
+                            devObjSub = [item["subscripts"].pop(0)]
+                            write_string += ".get_(("
+                            for sub in devObjSub:
                                 if sub["tag"] == "ref":
                                     write_string += f"{sub['name']}[0]"
                                 elif sub["tag"] == "literal":
                                     write_string += f"{sub['value']}"
-                            write_string += "))" 
-                        elif "operator" in ind:
-                            if "right" not in ind:
-                                write_string += f"{ind['operator']}"
+                            write_string += "))"
+                        # This is a case where the very first variable is not an array, but has subscripts,
+                        # which holds information of following derived type field variables. i.e. var.x.y
+                        # HOWEVER, the code below MUST be revisted and fixed. This is a hack of hard coding
+                        # in order to print a format of var.x.y fixed number of 3 times
+                        # In order to fix this, the entire printWrite should be modified that can do a recursion
+                        # or break passed lists from the translate.py to have more clear groups.
+                        # It cannot be handled now as it may cause a butterfly effect on all other I/O handling
+                        if "hasSubscripts" in item and not item["hasSubscripts"] and "subscripts" in item and "arrayStat" not in item:
+                            write_string += f".{item['subscripts'][0]['name']}.{item['subscripts'][0]['field-name']}"
+                            write_string += ", "
+                            write_string += f"{item['subscripts'][1]['name']}"
+                            write_string += f".{item['subscripts'][1]['subscripts'][0]['name']}.{item['subscripts'][1]['subscripts'][0]['field-name']}"
+                            write_string += ", "
+                            write_string += f"{item['subscripts'][1]['subscripts'][1]['name']}"
+                            write_string += f".{item['subscripts'][1]['subscripts'][1]['subscripts'][0]['name']}"
+                            write_string += f".{item['subscripts'][1]['subscripts'][1]['subscripts'][0]['field-name']}"
+                        if "field-name" in item:
+                            write_string += f".{item['field-name']}"
+                    # Handling array
+                    if "arrayStat" in item and item["arrayStat"] == "isArray":
+                        i = 0
+                        write_string += ".get_(("
+                        for ind in item["subscripts"]:
+                            # When an array uses another array's value as its index value
+                            if "subscripts" in ind:
+                                write_string += f"{ind['name']}.get_(("
+                                for sub in ind["subscripts"]:
+                                    if sub["tag"] == "ref":
+                                        write_string += f"{sub['name']}[0]"
+                                    elif sub["tag"] == "literal":
+                                        write_string += f"{sub['value']}"
+                                write_string += "))" 
+                            elif "operator" in ind:
+                                if "right" not in ind:
+                                    write_string += f"{ind['operator']}"
 
-                            if ind["left"][0]["tag"] == "ref":
-                                write_string += f"{ind['left'][0]['name']}[0] "
-                            else:
-                                assert ind["left"][0]["tag"] == "literal"
-                                write_string += f"{ind['left'][0]['value']} "
-
-                            if "right" in ind:
-                                write_string += f"{ind['operator']} "
-
-                                if ind["right"][0]["tag"] == "ref":
-                                    write_string += f"{ind['right'][0]['name']} "
+                                if ind["left"][0]["tag"] == "ref":
+                                    write_string += f"{ind['left'][0]['name']}[0] "
                                 else:
-                                    assert ind["right"][0]["tag"] == "literal"
-                                    write_string += f"{ind['right'][0]['value']} "
-                        else:
-                            if ind["tag"] == "ref":
-                                write_string += f"{ind['name']}[0]"
-                            elif ind["tag"] == "op":
-                                write_string += f"{ind['operator']}"
-                                assert ind["left"][0]["tag"] == "literal"
-                                write_string += f"{ind['left'][0]['value']}"
-                            elif ind["tag"] == "literal":
-                                write_string += f"{ind['value']}"
-                        if i < len(item["subscripts"]) - 1:
-                            write_string += ", " 
-                            i = i + 1
-                    write_string += "))" 
+                                    assert ind["left"][0]["tag"] == "literal"
+                                    write_string += f"{ind['left'][0]['value']} "
+
+                                if "right" in ind:
+                                    write_string += f"{ind['operator']} "
+
+                                    if ind["right"][0]["tag"] == "ref":
+                                        write_string += f"{ind['right'][0]['name']} "
+                                    else:
+                                        assert ind["right"][0]["tag"] == "literal"
+                                        write_string += f"{ind['right'][0]['value']} "
+                            else:
+                                if ind["tag"] == "ref":
+                                    write_string += f"{ind['name']}[0]"
+                                elif ind["tag"] == "op":
+                                    write_string += f"{ind['operator']}"
+                                    assert ind["left"][0]["tag"] == "literal"
+                                    write_string += f"{ind['left'][0]['value']}"
+                                elif ind["tag"] == "literal":
+                                    write_string += f"{ind['value']}"
+                            if i < len(item["subscripts"]) - 1:
+                                write_string += ", " 
+                                i = i + 1
+                        write_string += "))" 
                 if printState.indexRef and "subscripts" not in item:
-                    if "isDevType" not in item:
+                    if "isDevType" not in item or ("isDevType" in item and not item["isDevType"]):
                         write_string += "[0]"
                     elif "isDevType" in item and item["isDevType"]:
                         write_string += f".{item['field-name']}"
@@ -1009,9 +1034,9 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(printState.sep)
                 # This may require update later when we have to deal with the multi-dimensional derived type arrays
                 upBound = node["up1"]
-                self.pyStrings.append("for z in range(1, {upBound} + 1):" + printState.sep)
-                self.pyStrings.append(f"    obj = {node['type']}" + printState.sep)
-                self.pyStrings.append(f"    {node['type']}.set_(z, obj)" + printState.sep)
+                self.pyStrings.append(f"for z in range(1, {upBound}+1):" + printState.sep)
+                self.pyStrings.append(f"    obj = {node['type']}()" + printState.sep)
+                self.pyStrings.append(f"    {node['name']}.set_(z, obj)" + printState.sep)
 
     def printDerivedType(self, node, printState):
         assert node["tag"] == "derived-type"
