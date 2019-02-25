@@ -60,11 +60,12 @@ RE_INTERNAL_COMMENT_MARKER = re.compile(INTERNAL_COMMENT_MARKER, re.I)
 #                                                                              #
 ################################################################################
 
+
 def get_comments(src_file_name: str):
     curr_comment = []
     curr_fn, prev_fn, curr_marker = None, None, None
     in_neck = False
-    #collect_comments = True
+    # collect_comments = True
     comments = OrderedDict()
     lineno = 1
 
@@ -78,7 +79,7 @@ def get_comments(src_file_name: str):
             else:
                 if curr_fn == None and comments["$file_head"] == []:
                     comments["$file_head"] = curr_comment
-                
+
                 f_start, f_name_maybe = line_starts_subpgm(line)
                 if f_start:
                     f_name = f_name_maybe
@@ -89,8 +90,9 @@ def get_comments(src_file_name: str):
                     prev_fn = curr_fn
                     curr_fn = f_name
 
-                    comments[curr_fn] = \
-                        init_comment_map(curr_comment, [], [], OrderedDict())
+                    comments[curr_fn] = init_comment_map(
+                        curr_comment, [], [], OrderedDict()
+                    )
                     curr_comment = []
                     in_neck = True
                 elif line_ends_subpgm(line):
@@ -109,11 +111,11 @@ def get_comments(src_file_name: str):
                             curr_marker = match.group(1)
                             curr_comment = []
                         elif curr_marker != None:
-                            comments[curr_fn]["internal"][curr_marker] = \
-                                                            curr_comment
+                            comments[curr_fn]["internal"][
+                                curr_marker
+                            ] = curr_comment
                             curr_marker = None
                             curr_comment = []
-
 
             lineno += 1
 
@@ -126,21 +128,23 @@ def get_comments(src_file_name: str):
 
 
 def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
-    return {"head": head_cmt,
-            "neck": neck_cmt,
-            "foot": foot_cmt,
-            "internal": internal_cmt}
+    return {
+        "head": head_cmt,
+        "neck": neck_cmt,
+        "foot": foot_cmt,
+        "internal": internal_cmt,
+    }
 
 
 def print_comments(comments):
 
     for fn, comment in comments.items():
-        if fn == "$file_head" or fn == "$file_foot":    # file-level comments
-            print(fn+":")
+        if fn == "$file_head" or fn == "$file_foot":  # file-level comments
+            print(fn + ":")
             for line in comment:
                 print(f"    {line.rstrip()}")
             print("")
-        else:                                           # subprogram comments
+        else:  # subprogram comments
             print(f"Function: {fn}")
             for ccat in ["head", "neck", "foot"]:
                 print(f"  {ccat}:")
@@ -151,7 +155,7 @@ def print_comments(comments):
             if comment["internal"] != {}:
                 print("  internal:")
                 for marker in comment["internal"]:
-                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___"):]
+                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___") :]
                     print(f"  line {comment_line_no}:")
                     for line in comment["internal"][marker]:
                         print(f"    {line.rstrip()}")
@@ -166,6 +170,8 @@ if __name__ == "__main__":
     filename = sys.argv[1]
     comments = get_comments(filename)
     print_comments(comments)
-    clean_filename = filename[filename.rfind("/") + 1: filename.rfind(".")]
-    with open("{}_extracted_comments.json".format(clean_filename.lower()), "w") as outfile:
+    clean_filename = filename[filename.rfind("/") + 1 : filename.rfind(".")]
+    with open(
+        "{}_extracted_comments.json".format(clean_filename.lower()), "w"
+    ) as outfile:
         json.dump(comments, outfile)
