@@ -65,7 +65,6 @@ def get_comments(src_file_name: str):
     curr_comment = []
     curr_fn, prev_fn, curr_marker = None, None, None
     in_neck = False
-    # collect_comments = True
     comments = OrderedDict()
     lineno = 1
 
