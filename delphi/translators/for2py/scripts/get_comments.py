@@ -134,28 +134,26 @@ def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
 
 def print_comments(comments):
 
-    for fn in comments:
-        fn_comment = comments[fn]
-
+    for fn, comment in comments.items():
         if fn == "$file_head" or fn == "$file_foot":    # file-level comments
             print(fn+":")
-            for line in fn_comment:
+            for line in comment:
                 print(f"    {line.rstrip()}")
             print("")
         else:                                           # subprogram comments
             print(f"Function: {fn}")
             for ccat in ["head", "neck", "foot"]:
                 print(f"  {ccat}:")
-                for line in fn_comment[ccat]:
+                for line in comment[ccat]:
                     print(f"    {line.rstrip()}")
                 print("")
 
-            if fn_comment["internal"] != {}:
+            if comment["internal"] != {}:
                 print("  internal:")
-                for marker in fn_comment["internal"]:
+                for marker in comment["internal"]:
                     comment_line_no = marker[len("i_g_n_o_r_e__m_e___"):]
                     print(f"  line {comment_line_no}:")
-                    for line in fn_comment["internal"][marker]:
+                    for line in comment["internal"][marker]:
                         print(f"    {line.rstrip()}")
                     print("")
 
