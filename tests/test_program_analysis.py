@@ -56,7 +56,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
     pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, json_filename)
     return pgm_dict
 
-def make_python_array_dict(original_fortran_file) -> Dict:
+def make_python_IR_test(original_fortran_file) -> Dict:
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
 
@@ -87,7 +87,6 @@ def make_python_array_dict(original_fortran_file) -> Dict:
     pySrc = pyTranslate.create_python_string(outputDict)[0][0]
     return pySrc
 
-
 @pytest.fixture
 def crop_yield_grfn_dict():
     yield make_grfn_dict(Path("tests/data/crop_yield.f"))
@@ -104,8 +103,12 @@ def io_grfn_dict():
     os.remove("iotest_05_lambdas.py")
 
 @pytest.fixture
-def array_python_array_dict():
-    yield make_python_array_dict(Path("tests/data/arrays/arrays-basic-06.f"))
+def array_python_IR_test():
+    yield make_python_IR_test(Path("tests/data/arrays/arrays-basic-06.f"))
+
+@pytest.fixture
+def derived_types_python_IR_test():
+    yield make_python_IR_test(Path("tests/data/derived-types/derived-types-03.f"))
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
     with open("tests/data/crop_yield_grfn.json", "r") as f:
@@ -128,10 +131,15 @@ def test_io_grfn_generation(io_grfn_dict):
         json_dict["dateCreated"] = str(date.today())
     assert sorted(io_grfn_dict) == sorted(json_dict)
 
-def test_array_pythonIR_generation(array_python_array_dict):
+def test_array_pythonIR_generation(array_python_IR_test):
     with open("tests/data/arrays-basic-06.py", "r") as f:
         python_dict = f.read()
-    assert array_python_array_dict == python_dict
+    assert array_python_IR_test == python_dict
+
+def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
+    with open("tests/data/derived-types-03.py", "r") as f:
+        python_dict = f.read()
+    assert derived_types_python_IR_test == python_dict
 
 def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
     import crop_yield_lambdas
