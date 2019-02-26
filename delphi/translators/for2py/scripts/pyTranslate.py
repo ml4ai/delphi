@@ -745,9 +745,10 @@ class PythonCodeGenerator(object):
         
         isArray = False
         tempInd = 0
-        array_len = len(node["args"]) - 2
-        self.pyStrings.append(f"tempVar = [0] * {array_len}")
-        self.pyStrings.append(printState.sep)
+        if "subscripts" in node["args"][2]:
+            array_len = len(node["args"]) - 2
+            self.pyStrings.append(f"tempVar = [0] * {array_len}")
+            self.pyStrings.append(printState.sep)
 
         ind = 0
         self.pyStrings.append("(")
@@ -1142,7 +1143,7 @@ def create_python_string(outputDict):
         ]
     )
 
-    code_generator.pyStrings.extend(["\n\n"])
+    code_generator.pyStrings.extend(["\n"])
 
     # Copy the derived type ast from the main_ast into the separate list,
     # so it can be printed outside (above) the main method
