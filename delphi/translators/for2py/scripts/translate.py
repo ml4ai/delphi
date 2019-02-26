@@ -783,7 +783,7 @@ class XMLToJSONTranslator(object):
         outputDict = {}
         ast = []
 
-        # Parse through the ast once to identify and grab all the funcstions
+        # Parse through the ast once to identify and grab all the functions
         # present in the Fortran file.
         for tree in trees:
             self.loadFunction(tree)
@@ -852,6 +852,5 @@ if __name__ == "__main__":
     comments = get_comments(fortranFile)
     translator = XMLToJSONTranslator()
     outputDict = translator.analyze(trees, comments)
-
     with open(pickleFile, "wb") as f:
         pickle.dump(outputDict, f)

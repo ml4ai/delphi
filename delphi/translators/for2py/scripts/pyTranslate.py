@@ -530,7 +530,6 @@ class PythonCodeGenerator(object):
             # the subscripts. Thus, in order to avoid non-array derive types to be printed
             # in an array syntax, this check is necessary
             if "hasSubscripts" in node and node["hasSubscripts"]:
-                print ("in print ref node: ", node)
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
@@ -815,7 +814,6 @@ class PythonCodeGenerator(object):
         for item in node["args"]:
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
-                print ("in write: ", item)
                 # Handles array or a variable that holds following attributes, such as var.x.y
                 if "subscripts" in item: 
                     # If a variable is derived type
@@ -852,7 +850,7 @@ class PythonCodeGenerator(object):
                         if "field-name" in item:
                             write_string += f".{item['field-name']}"
                     # Handling array
-                    if "arrayStat" in item and item["arrayStat"] == "isArray":
+                    if ("hasSubscripts" in item and item['hasSubscripts']) or ("arrayStat" in item and item["arrayStat"] == "isArray"):
                         i = 0
                         write_string += ".get_(("
                         for ind in item["subscripts"]:
