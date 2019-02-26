@@ -209,7 +209,8 @@ def make_fn_dict(name, target, sources, lambdaName, node):
             if src["call"]["function"] == "Format":
                 return fn
             for source_ins in make_call_body_dict(src):
-                source.append(source_ins)
+                if source_ins["type"] != "function":
+                    source.append(source_ins)
         if "var" in src:
             variable = src["var"]["variable"]
             source.append({"name": variable, "type": "variable"})
