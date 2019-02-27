@@ -107,7 +107,7 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write(f"def {fnName}({', '.join(inputs)}):\n    ")
+    fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
     code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(f"return {code}")
