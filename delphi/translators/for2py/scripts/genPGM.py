@@ -951,7 +951,7 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
+def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json", write_pgm=False) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
@@ -964,6 +964,9 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
             pgm["start"] = ""
         pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+
+        if write_pgm:
+            json.dump(pgm, open(pgm_file, "w"))
 
     return pgm
 
