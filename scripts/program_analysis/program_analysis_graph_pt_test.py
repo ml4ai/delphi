@@ -1,10 +1,13 @@
-from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.scopes import Scope
 from delphi.visualization import visualize
+from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
 
 
 filepath = "../../tests/data/PETPT.for"
-G = ProgramAnalysisGraph.from_fortran_file(filepath)
+G = GroundedFunctionNetwork.from_fortran_file(filepath)
 print(G.nodes)
-print([n for n, d in G.out_degree() if d == 0])
-print([n for n, d in G.in_degree() if d == 0])
-visualize(G, save=True)
+print(G.edges)
+# print(G.nodes)
+# print([n for n, d in G.out_degree() if d == 0])
+# print([n for n, d in G.in_degree() if d == 0])
+# visualize(G, save=True)

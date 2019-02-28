@@ -121,6 +121,7 @@ class Scope(metaclass=ABCMeta):
         pgm_dict = genPGM.create_pgm_dict(
             lambdas_filename, asts, json_filename
         )
+        json.dump(pgm_dict, open("PETPT_grfn.json", "w"))
 
         return cls.from_dict(pgm_dict)
 
