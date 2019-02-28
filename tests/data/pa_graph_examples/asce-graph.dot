@@ -20,7 +20,7 @@ digraph G {
   K_c_max -> {u_2 MEEVP h RH_min K_cb}
   alpha -> {LAI alpha_ms}
   f_cd -> {R_s, R_so}
-  K_cb -> {K_cb_max K_cb_min S_Kc}
+  K_cb -> {K_cb_max K_cb_min S_Kc LAI}
   R_so -> {z R_a}
   R_a -> {d_r delta omega_s phi G_sc}
   {d_r delta} -> J -> {D_M M Y}
