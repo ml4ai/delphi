@@ -55,32 +55,32 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 stmt_type = get_node_type(short_type)
                 stmt_name = stmt["name"]
                 if stmt_type != NodeType.LOOP and stmt_type != NodeType.CONTAINER:
-                    nodes.append({
+                    nodes.append((stmt_name, {
                         "name": stmt_name,
                         # TODO: check to see if the assignment below is right
                         "lambda": getattr(lambdas, lambda_name),
                         "type": stmt_type,
                         "scope": func_name
-                    })
+                    }))
 
                     for var in stmt["input"]:
                         input_node_name = get_variable_name(var)
                         edges.append((input_node_name, stmt_name))
-                        nodes.append({
+                        nodes.append((input_node_name, {
                             "name": input_node_name,
                             "type": NodeType.VARIABLE,
                             "value": None,
                             "scope": func_name
-                        })
+                        }))
 
                     out_node_name = get_variable_name(stmt["output"])
                     edges.append((stmt_name, out_node_name))
-                    nodes.append({
+                    nodes.append((out_node_name, {
                         "name": out_node_name,
                         "type": NodeType.VARIABLE,
                         "value": None,
                         "scope": func_name
-                    })
+                    }))
                 else:
                     contained_graphs.append({
                         "name": stmt_name,
@@ -88,38 +88,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     })
 
         return cls(nodes, edges, subgraphs)
-        # NOTE: old stuff starts here
-        # Make a list of all scopes by scope names
-        # scope_names = list(scopes.keys())
-        #
-        # # Remove pseudo-scopes we wish to not display (such as print)
-        # for scope in scopes.values():
-        #     scope.remove_non_scope_children(scope_names)
-        #
-        # # Build the nested tree of scopes using recursion
-        #
-        # if data["start"] != "":
-        #     root = scopes[data["start"]]
-        # else:
-        #     non_lambdas = [f["name"] for f in data["functions"] if "__" not in f["name"]]
-        #     # TODO Right now, only the first subroutine is taken as the root -
-        #     # in the future, we will need to merge scope trees from multiple
-        #     # subroutines.
-        #     root_func_name = non_lambdas[0]     # There should only ever be one, otherwise we need multiple roots
-        #     root = scopes[root_func_name]
-        #
-        # root.build_scope_tree(scopes)
-        # root.setup_from_json()
-        # return root
 
     @classmethod
     def from_fortran_file(cls, fortran_file):
         stem = Path(fortran_file).stem
         preprocessed_fortran_file = stem + "_preprocessed.f"
-        lambdas_filename = stem + "_lambdas"
+        lambdas_module = stem + "_lambdas"
+        python_lambdas = lambdas_module + ".py"
         json_filename = stem + ".json"
-
-        lambdas = importlib.__import__(lambdas_filename)
 
         with open(fortran_file, "r") as f:
             inputLines = f.readlines()
@@ -148,8 +124,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
         pySrc = pyTranslate.create_python_string(outputDict)
         asts = [ast.parse(pySrc[0][0])]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_filename, asts, json_filename
+            python_lambdas, asts, json_filename, write_pgm=True
         )
+
+        lambdas = importlib.__import__(lambdas_module)
 
         return cls.from_dict(pgm_dict, lambdas)
 
