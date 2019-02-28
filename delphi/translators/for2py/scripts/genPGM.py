@@ -107,7 +107,7 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write(f"def {fnName}({', '.join(inputs)}):\n    ")
+    fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
     code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(f"return {code}")
@@ -209,7 +209,8 @@ def make_fn_dict(name, target, sources, lambdaName, node):
             if src["call"]["function"] == "Format":
                 return fn
             for source_ins in make_call_body_dict(src):
-                source.append(source_ins)
+                if source_ins["type"] != "function":
+                    source.append(source_ins)
         if "var" in src:
             variable = src["var"]["variable"]
             source.append({"name": variable, "type": "variable"})
@@ -368,6 +369,7 @@ def genPgm(node, state, fnNames):
             fnName=node.name,
             varTypes=localTypes,
         )
+
         args = genPgm(node.args, fnState, fnNames)
         bodyPgm = genPgm(node.body, fnState, fnNames)
 
@@ -411,6 +413,10 @@ def genPgm(node, state, fnNames):
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
+        if state.lastDefs.get(node.arg):
+            state.lastDefs[node.arg] += 1
+        else:
+            state.lastDefs[node.arg] = 0
         return node.arg
 
     # Load: ()
@@ -529,7 +535,7 @@ def genPgm(node, state, fnNames):
         state.lastDefs[condName] = 0
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
-   
+
         lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
@@ -570,7 +576,6 @@ def genPgm(node, state, fnNames):
         elseState = state.copy(lastDefs=elseDefs)
         ifPgm = genPgm(node.body, ifState, fnNames)
         elsePgm = genPgm(node.orelse, elseState, fnNames)
-
 
         pgm["functions"] += reduce(
             (lambda x, y: x + y["functions"]), [[]] + ifPgm
@@ -647,14 +652,14 @@ def genPgm(node, state, fnNames):
 
             # Check for buggy __decision__ tag containing of only IF_ blocks
             # More information required on how __decision__ tags are made
-            # This seems to be in development phase and documentation is 
-            # missing from the GrFN spec as well. Actual removal (or not) 
+            # This seems to be in development phase and documentation is
+            # missing from the GrFN spec as well. Actual removal (or not)
             # of this tag depends on further information about this
 
-            if 'IF_' in updatedDef:
+            if "IF_" in updatedDef:
                 count = 0
                 for var in inputs:
-                    if 'IF_' in var['variable']:
+                    if "IF_" in var["variable"]:
                         count += 1
                 if count == len(inputs):
                     continue
@@ -918,10 +923,7 @@ def genPgm(node, state, fnNames):
     # BoolOp: body
     elif isinstance(node, ast.BoolOp):
         pgms = []
-        boolOp = {
-            ast.And: "and",
-            ast.Or: "or"
-            }
+        boolOp = {ast.And: "and", ast.Or: "or"}
 
         for key in boolOp:
             if isinstance(node.op, key):
@@ -931,7 +933,6 @@ def genPgm(node, state, fnNames):
             pgms.append(genPgm(item, state, fnNames))
 
         return pgms
-
 
     elif isinstance(node, ast.AST):
         sys.stderr.write(

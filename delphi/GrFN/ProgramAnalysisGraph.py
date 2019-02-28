@@ -32,15 +32,15 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
             # Otherwise append the predecessor function list
             elif n.attr["label"] == "__decision__":
-                preds = A.predecessors(n)
                 if_var, = [
                     n
-                    for n in preds
-                    if list(A.predecessors(n)) != []
-                    and list(A.predecessors(n))[0].attr["label"]
-                    == "__condition__"
+                    for n in A.predecessors(n)
+                    if "IF" in n
                 ]
                 condition_fn, = A.predecessors(if_var)
+                for pred in A.predecessors(condition_fn):
+                    self.add_edge(pred.attr["cag_label"], oname)
+
                 condition_fn = condition_fn[: condition_fn.rfind("__")]
                 condition_lambda = condition_fn.replace("condition", "lambda")
                 onode["condition_fn"] = getattr(lambdas, condition_lambda)
@@ -52,6 +52,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
                 for i in A.predecessors(n):
                     iname = i.attr["cag_label"]
                     self.add_edge(iname, oname)
+
+
 
     def add_variable_node(self, n):
         """ Add a variable node to the CAG. """
@@ -162,7 +164,6 @@ class ProgramAnalysisGraph(nx.DiGraph):
         """ Initialize the value of input function nodes in the CAG."""
 
         for n in self.nodes():
-            # if self.nodes[n].get("init_fn") is not None:
             if n in self.input_functions:
                 self.nodes[n]["value"] = self.nodes[n]["init_fn"]()
         self.update()

@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 
 data_dir = Path(os.environ.get("DELPHI_DATA", ""))
-db_path = Path(os.environ.get("DELPHI_DB", ""))
+db_path = Path(os.environ.get("DELPHI_DB", "/var/www/html/delphi_data/delphi.db"))
 
 adjectiveData = data_dir / "adjectiveData.tsv"
 south_sudan_data = data_dir / "south_sudan_data.csv"

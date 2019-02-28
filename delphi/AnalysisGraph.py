@@ -35,7 +35,6 @@ from .utils.indra import (
     get_statements_from_json_list,
     get_statements_from_json_file,
 )
-from .paths import db_path
 from .db import engine
 from .assembly import (
     constructConditionalPDF,
@@ -195,8 +194,8 @@ class AnalysisGraph(nx.DiGraph):
         ].items():
             if indicator is not None:
                 indicator_source, indicator_name = (
-                    indicator.split("/")[0],
-                    "/".join(indicator.split('/')[1:])
+                    indicator["name"].split("/")[0],
+                    "/".join(indicator["name"].split('/')[1:])
                     )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
