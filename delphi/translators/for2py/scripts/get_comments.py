@@ -16,10 +16,20 @@ Example:
         comments = get_comments(src_file_name)
 
     The returned value is a dictionary that maps each subprogram name to a
-    comment dictionary; the comment dictionary maps each of the categories
-    'head', 'neck', and 'foot' to a list of comment strings.  If a
-    particular subprogram does not have comments for any of these
-    categories, the corresponding entries in the comment dictionary are [].
+    comment dictionary; the comment dictionary maps each of the following
+    categories to a list of comment strings:
+
+    -- 'head' : whole-line comments just before the subprogram start;
+    -- 'neck' : whole-line comments just after the subprogram start; 
+    -- 'foot' : whole-line comments just after the subprogram ends; and
+    -- 'internal' : comments internal to the function (curently marked
+            by "marker statements" of the form i_g_n_o_r_e__m_e___NNN = .True.
+            where NNN is the line number of the comment.  Internal comments
+            are maintained as a dictionary that maps the variables
+            i_g_n_o_r_e__m_e___NNN to lists of comment strings.
+
+    If a subprogram does not have comments for any of these categories, the
+    corresponding entry in the comment dictionary is [].
 
     In addition to the subprogram-level comments mentioned above, the returned
     dictionary also has entries for two "file-level" comments:
@@ -39,8 +49,10 @@ import sys, re
 from collections import *
 from delphi.translators.for2py.scripts.fortran_syntax import *
 from typing import Tuple, Optional
+import json
 
-DEBUG = False
+INTERNAL_COMMENT_MARKER = r"\s*(i_g_n_o_r_e__m_e___\d+)\s*=\s*\.True\."
+RE_INTERNAL_COMMENT_MARKER = re.compile(INTERNAL_COMMENT_MARKER, re.I)
 
 ################################################################################
 #                                                                              #
@@ -48,40 +60,11 @@ DEBUG = False
 #                                                                              #
 ################################################################################
 
-# This code considers only subprogram-level comments, i.e., whole-line comments
-# that come:
-#     (a) immediately before the subprogram begins (comment type: "head"); or
-#     (b) immediately after the subprogram begins (comment type: "neck"); or
-#     (c) immediately after the subprogram ends (comment type: "foot").
-#
-# A subprogram-level comment that occurs between two subprograms F and G will
-# be considered to be F's foot-comment and G's head-comment.
-#
-# The comments extracted from a file are maintained as a dictionary that maps
-# each subprogram name to a comment dictionary; the comment dictionary maps
-# each of the categories 'head', 'neck' 'foot' to a list of comment strings.
-# If a particular subprogram does not have comments for any of these categories,
-# that category is mapped to [] by the comment dictionary for that subprogram.
-#
-# In addition to the subprogram-level comments mentioned above, the comment
-# dictionary also has entries for two "file-level" comments: 
-#
-#    -- any comment at the beginning of the file (before the first function)
-#       can be accessed using the key "$file_head" (this comment is also
-#       the head-comment for the first subprogram in the file); and
-#    -- any comment at the end of the file (after the last function)
-#       can be accessed using the key "$file_foot" (this comment is also
-#       the foot-comment for the last subprogram in the file).
-#
-# If either the file-head or the file-foot comment is missing, the 
-# corresponding entries in the comment dictionary are [].
-
 
 def get_comments(src_file_name: str):
     curr_comment = []
-    curr_fn, prev_fn = None, None
+    curr_fn, prev_fn, curr_marker = None, None, None
     in_neck = False
-    collect_comments = True
     comments = OrderedDict()
     lineno = 1
 
@@ -90,18 +73,15 @@ def get_comments(src_file_name: str):
 
     with open(src_file_name, "r", encoding="latin-1") as f:
         for line in f:
-            if line_is_comment(line) and collect_comments:
+            if line_is_comment(line):
                 curr_comment.append(line)
             else:
+                if curr_fn == None and comments["$file_head"] == []:
+                    comments["$file_head"] = curr_comment
+
                 f_start, f_name_maybe = line_starts_subpgm(line)
                 if f_start:
                     f_name = f_name_maybe
-
-                    if DEBUG:
-                        print(f"<<< START: line {lineno}, fn = {f_name}; prev_fn = {str(prev_fn)}")
-
-                    if curr_fn == None:
-                        comments["$file_head"] = curr_comment
 
                     if prev_fn != None:
                         comments[prev_fn]["foot"] = curr_comment
@@ -109,15 +89,13 @@ def get_comments(src_file_name: str):
                     prev_fn = curr_fn
                     curr_fn = f_name
 
-                    comments[curr_fn] = init_comment_map(curr_comment, [], [])
+                    comments[curr_fn] = init_comment_map(
+                        curr_comment, [], [], OrderedDict()
+                    )
                     curr_comment = []
                     in_neck = True
                 elif line_ends_subpgm(line):
-                    if DEBUG:
-                        print(f">>> END: line {lineno}, fn = {f_name}")
-
                     curr_comment = []
-                    collect_comments = True
                 elif line_is_continuation(line):
                     lineno += 1
                     continue
@@ -125,7 +103,18 @@ def get_comments(src_file_name: str):
                     if in_neck:
                         comments[curr_fn]["neck"] = curr_comment
                         in_neck = False
-                    collect_comments = False
+                        curr_comment = []
+                    else:
+                        match = re.match(RE_INTERNAL_COMMENT_MARKER, line)
+                        if match != None:
+                            curr_marker = match.group(1)
+                            curr_comment = []
+                        elif curr_marker != None:
+                            comments[curr_fn]["internal"][
+                                curr_marker
+                            ] = curr_comment
+                            curr_marker = None
+                            curr_comment = []
 
             lineno += 1
 
@@ -137,27 +126,39 @@ def get_comments(src_file_name: str):
     return comments
 
 
-def init_comment_map(head_cmt, neck_cmt, foot_cmt):
-    return {"head": head_cmt, "neck": neck_cmt, "foot": foot_cmt}
+def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
+    return {
+        "head": head_cmt,
+        "neck": neck_cmt,
+        "foot": foot_cmt,
+        "internal": internal_cmt,
+    }
 
 
 def print_comments(comments):
 
-    for fn in comments:
-        fn_comment = comments[fn]
-
-        if fn == "$file_head" or fn == "$file_foot":    # file-level comments
-            print(fn+":")
-            for line in fn_comment:
+    for fn, comment in comments.items():
+        if fn == "$file_head" or fn == "$file_foot":  # file-level comments
+            print(fn + ":")
+            for line in comment:
                 print(f"    {line.rstrip()}")
             print("")
-        else:                                           # subprogram comments
+        else:  # subprogram comments
             print(f"Function: {fn}")
             for ccat in ["head", "neck", "foot"]:
                 print(f"  {ccat}:")
-                for line in fn_comment[ccat]:
+                for line in comment[ccat]:
                     print(f"    {line.rstrip()}")
                 print("")
+
+            if comment["internal"] != {}:
+                print("  internal:")
+                for marker in comment["internal"]:
+                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___") :]
+                    print(f"  line {comment_line_no}:")
+                    for line in comment["internal"][marker]:
+                        print(f"    {line.rstrip()}")
+                    print("")
 
 
 if __name__ == "__main__":
@@ -165,5 +166,11 @@ if __name__ == "__main__":
         sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
         sys.exit(1)
 
-    comments = get_comments(sys.argv[1])
+    filename = sys.argv[1]
+    comments = get_comments(filename)
     print_comments(comments)
+    clean_filename = filename[filename.rfind("/") + 1 : filename.rfind(".")]
+    with open(
+        "{}_extracted_comments.json".format(clean_filename.lower()), "w"
+    ) as outfile:
+        json.dump(comments, outfile)

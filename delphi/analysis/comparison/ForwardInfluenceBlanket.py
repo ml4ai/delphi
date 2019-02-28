@@ -1,7 +1,7 @@
+import json
 from typing import List
 import networkx as nx
 from itertools import product
-
 from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.analysis.comparison.utils as utils
@@ -10,6 +10,9 @@ from delphi.utils.misc import choose_font
 
 FONT = choose_font()
 
+
+dodgerblue3 = "#1874CD"
+forestgreen = "#228b22"
 
 class ForwardInfluenceBlanket(nx.DiGraph):
     """
@@ -56,21 +59,67 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         self.add_edges_from(self.cover_edges)
 
         for node_name in self.cover_nodes:
-            self.node[node_name]["color"] = "forestgreen"
-            self.node[node_name]["fontcolor"] = "forestgreen"
+            self.nodes[node_name]["color"] = forestgreen
+            self.nodes[node_name]["fontcolor"] = forestgreen
 
         for node_name in self.shared_nodes:
-            self.node[node_name]["color"] = "dodgerblue3"
-            self.node[node_name]["fontcolor"] = "dodgerblue3"
+            self.nodes[node_name]["color"] = dodgerblue3
+            self.nodes[node_name]["fontcolor"] = dodgerblue3
             for dest in self.successors(node_name):
-                self[node_name][dest]["color"] = "dodgerblue3"
-                self[node_name][dest]["fontcolor"] = "dodgerblue3"
+                self[node_name][dest]["color"] = dodgerblue3
+                self[node_name][dest]["fontcolor"] = dodgerblue3
 
         for source, dest in self.cover_edges:
-            self[source][dest]["color"] = "forestgreen"
+            self[source][dest]["color"] = forestgreen
 
         for node in self.nodes(data=True):
             node[1]["fontname"] = FONT
 
         for node_name in self.shared_inputs:
-            self.node[node_name]["style"] = "bold"
+            self.nodes[node_name]["penwidth"] = 3.0
+
+        # cut_nodes = [n for n in self.orig_graph.nodes if n not in self.nodes]
+        # cut_edges = [e for e in self.orig_graph.edges if e not in self.edges]
+        #
+        # self.add_nodes_from(cut_nodes)
+        # self.add_edges_from(cut_edges)
+        #
+        # for node_name in cut_nodes:
+        #     self.nodes[node_name]["color"] = "orange"
+        #     self.nodes[node_name]["fontcolor"] = "orange"
+        #
+        # for source, dest in cut_edges:
+        #     self[source][dest]["color"] = "orange"
+
+    def cyjs_elementsJSON(self) -> str:
+        for n in self.nodes(data=True):
+            print(n[1].get('color', 'black'))
+
+        elements = {
+            "nodes": [
+                {
+                    "data": {
+                        "id": n[0],
+                        "label": n[0],
+                        "shape": "ellipse",
+                        "color": n[1].get('color', 'black'),
+                        "textValign": "center",
+                        "tooltip": "None",
+                    }
+                }
+                for n in self.nodes(data=True)
+            ],
+            "edges": [
+                {
+                    "data": {
+                        "id": f"{edge[0]}_{edge[1]}",
+                        "source": edge[0],
+                        "target": edge[1],
+                    }
+                }
+                for edge in self.edges()
+            ],
+        }
+        json_str = json.dumps(elements, indent=2)
+        return json_str
+
