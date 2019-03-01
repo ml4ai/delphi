@@ -95,9 +95,14 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_statements(cls, sts: List[Influence]):
-        """ Construct an AnalysisGraph object from a list of INDRA statements. """
+        """ Construct an AnalysisGraph object from a list of INDRA statements.
+        Unknown polarities are set to positive by default."""
 
-        sts = get_valid_statements_for_modeling(sts)
+        for s in sts:
+            for delta in (s.subj_delta, s.obj_delta):
+                if delta["polarity"] is None:
+                    delta["polarity"] = 1
+
         node_permutations = permutations(get_concepts(sts), 2)
         edges = make_edges(sts, node_permutations)
         G = cls(edges)
