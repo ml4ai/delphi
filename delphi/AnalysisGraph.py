@@ -6,17 +6,7 @@ from math import exp, log
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Union,
-    Callable,
-    Tuple,
-    List,
-    Iterable,
-    Set,
-)
+from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
 import numpy as np
@@ -30,17 +20,14 @@ from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate
 from .utils.indra import (
-    get_valid_statements_for_modeling,
-    get_concepts,
     get_statements_from_json_list,
     get_statements_from_json_file,
+    nameTuple,
 )
 from .db import engine
 from .assembly import (
     constructConditionalPDF,
     get_respdevs,
-    make_edges,
-    construct_concept_to_indicator_mapping,
     get_indicator_value,
 )
 from future.utils import lzip
@@ -51,7 +38,6 @@ from .icm_api.models import (
     CausalVariable,
     CausalRelationship,
     DelphiModel,
-    ForwardProjection,
 )
 
 
@@ -66,7 +52,9 @@ class AnalysisGraph(nx.DiGraph):
         self.Δt: float = 1.0
         self.time_unit: str = "Placeholder time unit"
         self.dateCreated = date.today().isoformat()
-        self.name: str = "Linear Dynamical System with Stochastic Transition Model"
+        self.name: str = (
+            "Linear Dynamical System with Stochastic Transition Model"
+        )
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
@@ -404,23 +392,13 @@ class AnalysisGraph(nx.DiGraph):
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
     def get_timeseries_values_for_indicators(
-        self,
-        resolution: str = "month",
-        months: Iterable[int] = range(6, 9),
-        country: Optional[str] = "South Sudan",
-        state: Optional[str] = None,
-        unit: Optional[str] = None,
-        fallback_aggaxes: List[str] = ["year"],
-        aggfunc: Callable = np.mean,
+        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
     ):
-        """ Attach timeseries to indicators, for performing Bayesian inference. """
+        """ Attach timeseries to indicators, for performing Bayesian inference.
+         """
         if resolution == "month":
             funcs = [
-                partial(
-                    get_indicator_value,
-                    month=month,
-                )
-                for month in months
+                partial(get_indicator_value, month=month) for month in months
             ]
         else:
             raise NotImplementedError(
@@ -436,7 +414,7 @@ class AnalysisGraph(nx.DiGraph):
                     indicator.timeseries = None
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
-        """ Run Bayesian inference - sample from the posterior distribution. """
+        """ Run Bayesian inference - sample from the posterior distribution."""
         self.sample_from_proposal(A)
         self.set_latent_state_sequence(A)
         self.update_log_prior(A)
@@ -684,13 +662,12 @@ class AnalysisGraph(nx.DiGraph):
             min_temp_res: Minimum temporal resolution.
         """
 
-        mapping = construct_concept_to_indicator_mapping(n)
-
         for node in self.nodes(data=True):
 
             # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to
-            # make sure that the intervention nodes are represented consistently
-            # in the mapping (i.e. with spaces vs. with underscores.
+            # make sure that the intervention nodes are represented
+            # consistently in the mapping (i.e. with spaces vs. with
+            # underscores.
 
             if node[0].split("/")[1] == "interventions":
                 node_name = node[0].replace("_", " ")
@@ -699,7 +676,8 @@ class AnalysisGraph(nx.DiGraph):
 
             query_parts = [
                 "select Indicator from concept_to_indicator_mapping",
-                f"where `Concept` like '{node_name}' and `Source` is 'mitre12'",
+                f"where `Concept` like '{node_name}' "
+                "and `Source` is 'mitre12'",
             ]
 
             # TODO Implement temporal resolution constraints. Need to delve
@@ -805,8 +783,6 @@ class AnalysisGraph(nx.DiGraph):
             aggressive pruning.
         """
 
-        edges_to_keep = set()
-
         # Remove redundant paths.
         for node_pair in tqdm(list(permutations(self.nodes(), 2))):
             paths = [
@@ -878,20 +854,15 @@ class AnalysisGraph(nx.DiGraph):
         Args:
             concept: The concept that the subgraph will be centered around.
             depth: The depth to which the depth-first search must be performed.
-            flow: The direction of causal influence flow to examine. Setting
-                  this to 'incoming' will search for upstream causal influences, and
-                  setting it to 'outgoing' will search for downstream causal
-                  influences.
-        returns:
+
+            reverse: Sets the direction of causal influence flow to examine.
+                Setting this to False (default) will search for upstream causal
+                influences, and setting it to True will search for
+                downstream causal influences.
+
+        Returns:
             AnalysisGraph
         """
-        flow = "incoming"
-        if flow == "incoming":
-            rev = self.reverse()
-        elif flow == "outgoing":
-            rev = self
-        else:
-            raise ValueError("flow must be one of [incoming|outgoing]")
 
         nodeset = {concept}
 
@@ -998,17 +969,10 @@ class AnalysisGraph(nx.DiGraph):
             )
             causal_primitives.append(causal_variable)
 
-        max_evidences = max(
-            [
-                sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
-                for e in self.edges(data=True)
-            ]
-        )
         max_mean_betas = max(
             [abs(np.median(e[2]["βs"])) for e in self.edges(data=True)]
         )
         for e in self.edges(data=True):
-            causal_relationship_id = e[2]["id"]
             causal_relationship = CausalRelationship(
                 id=e[2]["id"],
                 namespaces={},
