@@ -120,7 +120,10 @@ class AnalysisGraph(nx.DiGraph):
                 else:
                     _dict[concepts] = [s]
 
-        edges = [(*concepts, {"InfluenceStatements": statements}) for concepts, statements in _dict.items()]
+        edges = [
+            (*concepts, {"InfluenceStatements": statements})
+            for concepts, statements in _dict.items()
+        ]
         return cls(edges)
 
     @classmethod
@@ -203,8 +206,8 @@ class AnalysisGraph(nx.DiGraph):
             if indicator is not None:
                 indicator_source, indicator_name = (
                     indicator["name"].split("/")[0],
-                    "/".join(indicator["name"].split('/')[1:])
-                    )
+                    "/".join(indicator["name"].split("/")[1:]),
+                )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
                         G.nodes[concept]["indicators"] = {}
@@ -403,8 +406,7 @@ class AnalysisGraph(nx.DiGraph):
     def get_timeseries_values_for_indicators(
         self,
         resolution: str = "month",
-        time_points: List[int] = range(6, 9),
-        n_timesteps=3,
+        months: Iterable[int] = range(6, 9),
         country: Optional[str] = "South Sudan",
         state: Optional[str] = None,
         unit: Optional[str] = None,
@@ -414,8 +416,11 @@ class AnalysisGraph(nx.DiGraph):
         """ Attach timeseries to indicators, for performing Bayesian inference. """
         if resolution == "month":
             funcs = [
-                partial(get_indicator_value, month=month)
-                for month in time_points
+                partial(
+                    get_indicator_value,
+                    month=month,
+                )
+                for month in months
             ]
         else:
             raise NotImplementedError(
@@ -514,7 +519,9 @@ class AnalysisGraph(nx.DiGraph):
             for i in range(self.res)
         ]
 
-    def initialize(self, config_file: str = "bmi_config.txt", initialize_indicators = True):
+    def initialize(
+        self, config_file: str = "bmi_config.txt", initialize_indicators=True
+    ):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
@@ -546,10 +553,11 @@ class AnalysisGraph(nx.DiGraph):
             if initialize_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
-                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                        indicator.mean * np.array(n[1]["rv"].dataset),
+                        scale=0.01,
                     )
 
-    def update(self, τ: float = 1.0, update_indicators = True, dampen=False):
+    def update(self, τ: float = 1.0, update_indicators=True, dampen=False):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -568,7 +576,8 @@ class AnalysisGraph(nx.DiGraph):
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
-                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                        indicator.mean * np.array(n[1]["rv"].dataset),
+                        scale=0.01,
                     )
 
         self.t += self.Δt
@@ -961,17 +970,15 @@ class AnalysisGraph(nx.DiGraph):
             rv = n[1]["rv"]
             rv.dataset = [default_latent_var_value for _ in range(self.res)]
 
-            # if n[1].get("indicators") is not None:
-                # for ind in n[1]["indicators"].values():
-                    # ind.dataset = np.ones(self.res) * ind.mean
-
             causal_variable = CausalVariable(
                 id=n[1]["id"],
                 model_id=self.id,
                 units="",
                 namespaces={},
                 auxiliaryProperties=[],
-                label=n[0].split("/")[-1].replace("_", " ").capitalize() if simplified_labels else n[0],
+                label=n[0].split("/")[-1].replace("_", " ").capitalize()
+                if simplified_labels
+                else n[0],
                 description=n[0],
                 lastUpdated=today,
                 confidence=1.0,
