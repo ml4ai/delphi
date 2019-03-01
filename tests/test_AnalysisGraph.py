@@ -27,17 +27,6 @@ def test_from_statements_file():
     os.remove(test_statements_file)
 
 
-def test_from_pickle(G):
-    test_model_file = "test_model.pkl"
-    with open(test_model_file, "wb") as f:
-        pickle.dump(G, f)
-    with open(test_model_file, "rb") as f:
-        M = pickle.load(f)
-    assert set(M.nodes()) == set([conflict_string, food_security_string])
-    assert set(M.edges()) == set([(conflict_string, food_security_string)])
-    os.remove(test_model_file)
-
-
 def test_get_subgraph_for_concept(G):
     concept_of_interest = food_security_string
     sg = G.get_subgraph_for_concept(concept_of_interest, reverse=True)
