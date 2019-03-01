@@ -401,7 +401,6 @@ class PythonCodeGenerator(object):
 
             if not printState.sep:
                 printState.sep = "\n"
-            self.pyStrings.append(printState.sep)
             self.variableMap[self.nameMapper[node["name"]]] = node["type"]
         else:
             printState.printFirst = False
@@ -439,7 +438,7 @@ class PythonCodeGenerator(object):
         )
 
     def printIndex(self, node, printState):
-        self.pyStrings.append(f"{self.nameMapper[node['name']]}[0] in range(")
+        self.pyStrings.append(f"{self.nameMapper[node['name']]}.value in range(")
         self.printAst(
             node["low"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
@@ -1224,13 +1223,19 @@ def create_python_string(outputDict):
             continue
             # ast = [outputDict["ast"][program_type[file][1]]]
         code_generator = PythonCodeGenerator()
-        code_generator.pyStrings.extend(
-            [
-                "import sys\n" "from typing import List\n",
-                "import math\n",
-                "from fortran_format import *",
+        code_generator.pyStrings.append(
+            "\n".join([
+                "import sys",
+                "from typing import List",
+                "import math",
+                "from delphi.translators.for2py.scripts.fortran_format import *",
+                "from delphi.translators.for2py.scripts.for2py_arrays import *",
+                "from dataclasses import dataclass",
+                "from ctypes import c_int, c_float",
             ]
+            )
         )
+
         # Fill the name mapper dictionary
         code_generator.nameMapping(ast)
         code_generator.printAst(ast, PrintState())
@@ -1245,14 +1250,17 @@ def create_python_string(outputDict):
 
     # Writing the main program section
     code_generator = PythonCodeGenerator()
-    code_generator.pyStrings.extend(
-        [
-            "import sys\n" "from typing import List\n",
-            "import math\n",
-            "from fortran_format import *\n",
-            "from for2py_arrays import *\n",
+    code_generator.pyStrings.append(
+        "\n".join([
+            "import sys",
+            "from typing import List",
+            "import math",
+            "from delphi.translators.for2py.scripts.fortran_format import *",
+            "from delphi.translators.for2py.scripts.for2py_arrays import *",
             "from dataclasses import dataclass",
+            "from ctypes import c_int, c_float",
         ]
+        )
     )
 
     code_generator.pyStrings.extend(["\n"])

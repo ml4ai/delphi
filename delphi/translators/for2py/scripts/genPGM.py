@@ -172,9 +172,9 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType == "float":
+        if dType == "c_float":
             return "real"
-        if dType == "int":
+        if dType == "c_int":
             return "integer"
         if dType == "list":
             return "array"
