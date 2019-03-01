@@ -18,7 +18,7 @@ from indra.statements.evidence import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate
+from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
 from .utils.indra import (
     get_statements_from_json_list,
     get_statements_from_json_file,
@@ -26,6 +26,7 @@ from .utils.indra import (
 )
 from .db import engine
 from .assembly import (
+    deltas,
     constructConditionalPDF,
     get_respdevs,
     get_indicator_value,
@@ -82,7 +83,8 @@ class AnalysisGraph(nx.DiGraph):
         return cls.from_statements(sts)
 
     @classmethod
-    def from_statements(cls, sts: List[Influence]):
+    def from_statements(cls, sts: List[Influence],
+            assign_default_polarities: bool = True):
         """ Construct an AnalysisGraph object from a list of INDRA statements.
         Unknown polarities are set to positive by default.
 
@@ -96,17 +98,19 @@ class AnalysisGraph(nx.DiGraph):
 
         _dict = {}
         for s in sts:
-            for delta in (s.subj_delta, s.obj_delta):
-                if delta["polarity"] is None:
-                    delta["polarity"] = 1
+            if assign_default_polarities:
+                for delta in deltas(s):
+                    if delta["polarity"] is None:
+                        delta["polarity"] = 1
             concepts = nameTuple(s)
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
-                if concepts in _dict:
-                    _dict[concepts].append(s)
-                else:
-                    _dict[concepts] = [s]
+                if all(map(exists, (delta['polarity'] for delta in deltas(s)))):
+                    if concepts in _dict:
+                        _dict[concepts].append(s)
+                    else:
+                        _dict[concepts] = [s]
 
         edges = [
             (*concepts, {"InfluenceStatements": statements})
@@ -655,7 +659,8 @@ class AnalysisGraph(nx.DiGraph):
     def map_concepts_to_indicators(
         self, n: int = 1, min_temporal_res: Optional[str] = None
     ):
-        """ Add indicators to the analysis graph.
+        """ Map each concept node in the AnalysisGraph instance to one or more
+        tangible quantities, known as 'indicators'.
 
         Args:
             n: Number of matches to keep

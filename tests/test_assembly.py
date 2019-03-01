@@ -9,22 +9,11 @@ from delphi.utils.indra import *
 import pytest
 
 
-def test_make_edge():
-    assert make_edge(STS, (conflict_string, food_security_string)) == (
-        conflict_string,
-        food_security_string,
-        {"InfluenceStatements": [STS[0]]},
-    )
-
-
 def test_deltas():
     assert deltas(s1) == (
         {"adjectives": ["large"], "polarity": 1},
         {"adjectives": ["small"], "polarity": -1},
     )
-
-
-# Not testing get_respdevs
 
 
 def test_nameTuple():
