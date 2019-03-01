@@ -3,6 +3,7 @@ from typing import List
 import math
 from fortran_format import *
 from for2py_arrays import *
+from dataclasses import dataclass
 
 
 def main():
