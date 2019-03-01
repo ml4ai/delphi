@@ -13,6 +13,15 @@ from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
 
+BINOPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Pow: operator.pow,
+    ast.Eq: operator.eq,
+    ast.LtE: operator.le,
+}
 
 class PGMState:
     def __init__(
@@ -158,8 +167,11 @@ def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
 
 def getVarType(annNode):
     # wrapped in list
-    try:
+    if isinstance(annNode, ast.Subscript):
         dType = annNode.slice.value.id
+    else:
+        dType = annNode.id
+    try:
         if dType == "float":
             return "real"
         if dType == "int":
@@ -170,7 +182,7 @@ def getVarType(annNode):
             return "string"
         else:
             sys.stderr.write(
-                "Unsupported type (only float and int supported as of now).\n"
+                "Unsupported type (only float, int, list, and str supported as of now).\n"
             )
     except AttributeError:
         sys.stderr.write("Unsupported type (annNode is None).\n")
@@ -677,19 +689,10 @@ def genPgm(node, state, fnNames):
 
     # BinOp: ('left', 'op', 'right')
     elif isinstance(node, ast.BinOp):
-        binops = {
-            ast.Add: operator.add,
-            ast.Sub: operator.sub,
-            ast.Mult: operator.mul,
-            ast.Div: operator.truediv,
-            ast.Pow: operator.pow,
-            ast.Eq: operator.eq,
-            ast.LtE: operator.le,
-        }
         if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
-            for op in binops:
+            for op in BINOPS:
                 if isinstance(node.op, op):
-                    val = binops[type(node.op)](node.left.n, node.right.n)
+                    val = BINOPS[type(node.op)](node.left.n, node.right.n)
                     return [
                         {
                             "value": val,
@@ -933,6 +936,7 @@ def genPgm(node, state, fnNames):
             pgms.append(genPgm(item, state, fnNames))
 
         return pgms
+
 
     elif isinstance(node, ast.AST):
         sys.stderr.write(

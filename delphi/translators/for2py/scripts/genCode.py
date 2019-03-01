@@ -182,9 +182,7 @@ def genCode(node, state):
 
     # AnnAssign: ('target', 'annotation', 'value', 'simple')
     elif isinstance(node, ast.AnnAssign):
-        codeStr = "{0} = {1}".format(
-            genCode(node.target, state), genCode(node.value, state)
-        )
+        codeStr = genCode(node.value, state)
 
     # Assign: ('targets', 'value')
     elif isinstance(node, ast.Assign):
