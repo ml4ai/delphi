@@ -1,4 +1,4 @@
-from fortran_format import *
+from delphi.translators.for2py.scripts.fortran_format import *
 import sys
 
 class mytype:
