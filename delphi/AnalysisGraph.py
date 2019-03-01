@@ -96,37 +96,33 @@ class AnalysisGraph(nx.DiGraph):
     @classmethod
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements.
-        Unknown polarities are set to positive by default."""
+        Unknown polarities are set to positive by default.
+        """
 
+        _dict = {}
         for s in sts:
             for delta in (s.subj_delta, s.obj_delta):
                 if delta["polarity"] is None:
                     delta["polarity"] = 1
+            concepts = nameTuple(s)
 
-        node_permutations = permutations(get_concepts(sts), 2)
-        edges = make_edges(sts, node_permutations)
-        G = cls(edges)
-        return G
+            # Excluding self-loops for now:
+            if concepts[0] != concepts[1]:
+                if concepts in _dict:
+                    _dict[concepts].append(s)
+                else:
+                    _dict[concepts] = [s]
+
+        edges = [(*concepts, {"InfluenceStatements": statements}) for concepts, statements in _dict.items()]
+        return cls(edges)
 
     @classmethod
     def from_text(cls, text: str):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
+
         eidosProcessor = process_text(text)
         return cls.from_statements(eidosProcessor.statements)
-
-    @classmethod
-    def from_pickle(cls, file: str):
-        """ Load an AnalysisGraph object from a pickle file. """
-        with open(file, "rb") as f:
-            G = pickle.load(f)
-
-        if not isinstance(G, cls):
-            raise TypeError(
-                f"The pickled object in {file} is not an instance of AnalysisGraph"
-            )
-        else:
-            return G
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
