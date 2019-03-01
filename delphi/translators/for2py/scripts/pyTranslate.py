@@ -268,9 +268,6 @@ class PythonCodeGenerator(object):
             assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
-                if node['name'] == 'print':
-                    if node['args'][arg].get('name') is not None:
-                        print(node['args'][arg])
                 self.printAst(
                     [node["args"][arg]],
                     printState.copy(
