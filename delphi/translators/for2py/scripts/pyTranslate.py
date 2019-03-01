@@ -279,6 +279,9 @@ class PythonCodeGenerator(object):
                         indexRef=inRef,
                     ),
                 )
+                if node['name'] == 'print':
+                    if node['args'][arg]['tag'] == 'ref':
+                        self.pyStrings.append('.value')
                 if arg < argSize - 1:
                     self.pyStrings.append(", ")
             self.pyStrings.append(")")
