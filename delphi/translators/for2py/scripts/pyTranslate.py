@@ -1039,9 +1039,9 @@ class PythonCodeGenerator(object):
 
     def printDerivedType(self, node, printState):
         assert node["tag"] == "derived-type"
+        self.pyStrings.append("@dataclass\n")
         self.pyStrings.append(f"class {node['name']}:")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append("    def __init__(self):")
         self.pyStrings.append(printState.sep)
 
         curFieldType = ""
@@ -1057,11 +1057,11 @@ class PythonCodeGenerator(object):
 
                 fieldname = node[item][0]['field-id']
                 if "array-size" in node[item][0]:
-                    self.pyStrings.append(f"        self.{fieldname} =")
+                    self.pyStrings.append(f"        {fieldname} =")
                     self.pyStrings.append(f" Array({curFieldType}, [")
                     self.pyStrings.append(f"(1, {node[item][0]['array-size']})])")
                 else:
-                    self.pyStrings.append(f"        self.{fieldname} :")
+                    self.pyStrings.append(f"        {fieldname} :")
                     self.pyStrings.append(f" {curFieldType}")
                     if "value" in node[item][0]:
                         self.pyStrings.append(f" = {node[item][0]['value']}")
