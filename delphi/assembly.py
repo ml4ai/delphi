@@ -1,23 +1,13 @@
-from datetime import datetime
-from .paths import db_path
-from .utils import exists, flatMap, flatten, get_data_from_url, take
-from .utils.indra import *
+from .utils import exists, take
+from .utils.indra import is_well_grounded
 from .random_variables import Delta, Indicator
-from typing import *
-from indra.statements import Influence, Concept
+from typing import Tuple, List, Dict, Iterable, Optional, Callable
+from indra.statements import Influence
 from fuzzywuzzy import process
-from itertools import permutations
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
 from .db import engine
-
-
-def make_edge(
-    sts: List[Influence], p: Tuple[str, str]
-) -> Tuple[str, str, Dict[str, List[Influence]]]:
-    edge = (*p, {"InfluenceStatements": [s for s in sts if nameTuple(s) == p]})
-    return edge
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
@@ -121,7 +111,14 @@ def get_variable_and_source(x: str):
 
 
 def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
-    """ Create a dictionary mapping high-level concepts to low-level indicators """
+    """ Create a dictionary mapping high-level concepts to low-level indicators
+
+    Args:
+        n: Number of indicators to return
+
+    Returns:
+        Dictionary that maps concept names to lists of indicator names.
+    """
 
     df = pd.read_sql_table("concept_to_indicator_mapping", con=engine)
     gb = df.groupby("Concept")
@@ -131,14 +128,6 @@ def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
         for k, v in gb
     }
     return _dict
-
-
-def make_edges(sts, node_permutations):
-    return [
-        e
-        for e in [make_edge(sts, p) for p in node_permutations]
-        if len(e[2]["InfluenceStatements"]) != 0
-    ]
 
 
 def get_indicator_value(
@@ -155,7 +144,6 @@ def get_indicator_value(
         [
             f"select * from indicator",
             f"where `Variable` like '{indicator.name}'",
-            # "and `Source` like 'mitre12'",
         ]
     )
 
@@ -233,6 +221,6 @@ def get_indicator_value(
 
             except StopIteration:
                 raise ValueError(
-                    f"No data found for the indicator {indicator_name}!"
+                    f"No data found for the indicator {indicator.name}!"
                     "Try using additional aggregation axes."
                 )
