@@ -268,6 +268,9 @@ class PythonCodeGenerator(object):
             assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
+                if node['name'] == 'print':
+                    if node['args'][arg].get('name') is not None:
+                        print(node['args'][arg])
                 self.printAst(
                     [node["args"][arg]],
                     printState.copy(
@@ -375,14 +378,14 @@ class PythonCodeGenerator(object):
                 initVal = init_val if initial_set else ""
                 varType = "str"
             else:
-                if node["isDerivedTypeVar"] == True:
+                if node["isDevTypeVar"] == True:
                     initVal = init_val if initial_set else 0
                     varType = node["type"]
                 else:
                     print(f"unrecognized type {node['type']}")
                     sys.exit(1)
 
-            if "isDerivedTypeVar" in node and node["isDerivedTypeVar"]:
+            if "isDevTypeVar" in node and node["isDevTypeVar"]:
                 self.pyStrings.append(
                     f"{self.nameMapper[node['name']]} =  {varType}()"
                 )
@@ -538,9 +541,9 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
-            if "isDerivedType" not in node or node["isDerivedType"] == False:
+            if "isDevType" not in node or node["isDevType"] == False:
                 self.pyStrings.append(".value")
-            if "isDerivedType" in node and node["isDerivedType"]:
+            if "isDevType" in node and node["isDevType"]:
                 self.pyStrings.append(f".{node['field-name']}")
         # Handles array
         if "subscripts" in node:
@@ -599,7 +602,7 @@ class PythonCodeGenerator(object):
                             )
                     elif ind["tag"] == "literal" and "value" in ind:
                         indValue = ind["value"]
-                        self.pyStrings.append(f"{indValue}")
+                        self.pyStrings.append(str(indValue))
                     if subLength > 1:
                         self.pyStrings.append(", ")
                         subLength = subLength - 1
@@ -620,13 +623,13 @@ class PythonCodeGenerator(object):
         if (
             "subscripts" in node["target"][0]
         ):  # Case where the target is an array
-            if node["isDerivedType"] and "field-name" in node["target"][0]:
+            if node["isDevType"] and "field-name" in node["target"][0]:
                 if node["target"][0]["hasSubscripts"]:
                     derivedObj = {
                         "tag": node["target"][0]["tag"],
                         "name": node["target"][0]["name"],
-                        "isDerivedType": node["target"][0]["isDerivedType"],
-                        "hasSubscripts": node["target"][0]["isDerivedType"],
+                        "isDevType": node["target"][0]["isDevType"],
+                        "hasSubscripts": node["target"][0]["isDevType"],
                         "subscripts": [node["target"][0]["subscripts"].pop(0)],
                     }
                     self.printAst(
@@ -874,7 +877,7 @@ class PythonCodeGenerator(object):
                 # Handles array or a variable that holds following attributes, such as var.x.y
                 if "subscripts" in item:
                     # If a variable is derived type
-                    if item["isDerivedType"]:
+                    if item["isDevType"]:
                         # If hasSubscripts is true, the derived type object is also an array
                         # and has following subscripts. Therefore, in order to handle the syntax
                         # obj.get_((obj_index)).field.get_((field)), the code below handles
@@ -971,11 +974,11 @@ class PythonCodeGenerator(object):
                                 i = i + 1
                         write_string += "))"
                 if printState.indexRef and "subscripts" not in item:
-                    if "isDerivedType" not in item or (
-                        "isDerivedType" in item and not item["isDerivedType"]
+                    if "isDevType" not in item or (
+                        "isDevType" in item and not item["isDevType"]
                     ):
                         write_string += "[0]"
-                    elif "isDerivedType" in item and item["isDerivedType"]:
+                    elif "isDevType" in item and item["isDevType"]:
                         write_string += f".{item['field-name']}"
                 write_string += ", "
         self.pyStrings.append(f"{write_string[:-2]}]")
@@ -1115,7 +1118,7 @@ class PythonCodeGenerator(object):
                 varType = "float"
             elif node["type"].upper() == "CHARACTER":
                 varType = "str"
-            elif node["isDerivedTypeVar"] == True:
+            elif node["isDevTypeVar"] == True:
                 varType = node["type"].lower() + "()"
 
             assert varType != ""
@@ -1131,7 +1134,7 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(f"{dimensions}")
             self.pyStrings.append("])")
 
-            if node["isDerivedTypeVar"] == True:
+            if node["isDevTypeVar"] == True:
                 self.pyStrings.append(printState.sep)
                 # This may require update later when we have to deal with the multi-dimensional derived type arrays
                 upBound = node["up1"]
