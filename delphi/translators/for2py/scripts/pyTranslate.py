@@ -408,7 +408,6 @@ class PythonCodeGenerator(object):
 
             if not printState.sep:
                 printState.sep = "\n"
-            self.pyStrings.append(printState.sep)
             self.variableMap[self.nameMapper[node["name"]]] = node["type"]
         else:
             printState.printFirst = False
@@ -1158,7 +1157,6 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("@dataclass\n")
         self.pyStrings.append(f"class {node['name']}:")
         self.pyStrings.append(printState.sep)
-        self.pyStrings.append(printState.sep)
 
         curFieldType = ""
         fieldNum = 0
@@ -1173,13 +1171,13 @@ class PythonCodeGenerator(object):
 
                 fieldname = node[item][0]["field-id"]
                 if "array-size" in node[item][0]:
-                    self.pyStrings.append(f"        {fieldname} =")
+                    self.pyStrings.append(f"    {fieldname} =")
                     self.pyStrings.append(f" Array({curFieldType}, [")
                     self.pyStrings.append(
                         f"(1, {node[item][0]['array-size']})])"
                     )
                 else:
-                    self.pyStrings.append(f"        {fieldname} :")
+                    self.pyStrings.append(f"    {fieldname}:")
                     self.pyStrings.append(f" {curFieldType}")
                     if "value" in node[item][0]:
                         self.pyStrings.append(f" = {node[item][0]['value']}")
@@ -1192,13 +1190,12 @@ class PythonCodeGenerator(object):
         return "".join(self.pyStrings)
 
 
-"""
-Counts the number of modules in the fortran file including the program file.
-Each module is written out into a separate python file.    
-"""
 
 
 def file_count(root) -> Dict:
+    """ Counts the number of modules in the fortran file including the program
+    file. Each module is written out into a separate python file.  """
+
     file_desc = {}
     for index, node in enumerate(root):
         program_type = node.get("tag")
@@ -1231,13 +1228,17 @@ def create_python_string(outputDict):
             continue
             # ast = [outputDict["ast"][program_type[file][1]]]
         code_generator = PythonCodeGenerator()
-        code_generator.pyStrings.extend(
-            [
-                "import sys\n" "from typing import List\n",
-                "import math\n",
-                "from fortran_format import *",
+        code_generator.pyStrings.append(
+            "\n".join([
+                "import sys",
+                "from typing import List",
+                "import math",
+                "from delphi.translators.scripts.for2py.fortran_format import *",
+                "from delphi.translators.scripts.for2py.for2py_arrays import *",
+                "from dataclasses import dataclass",
             ]
-        )
+        ))
+
         # Fill the name mapper dictionary
         code_generator.nameMapping(ast)
         code_generator.printAst(ast, PrintState())
@@ -1245,24 +1246,23 @@ def create_python_string(outputDict):
         if len(imports) != 0:
             code_generator.pyStrings.insert(1, imports)
         if programName != "":
-            code_generator.pyStrings.extend([f"\n\n{programName}()\n"])
+            code_generator.pyStrings.append(f"\n\n{programName}()\n")
         py_sourcelist.append(
             (code_generator.get_python_source(), file, program_type[file][0])
         )
 
     # Writing the main program section
     code_generator = PythonCodeGenerator()
-    code_generator.pyStrings.extend(
-        [
-            "import sys\n" "from typing import List\n",
-            "import math\n",
-            "from fortran_format import *\n",
-            "from for2py_arrays import *\n",
-            "from dataclasses import dataclass",
+    code_generator.pyStrings.append(
+        "\n".join([
+            "import sys",
+            "from typing import List",
+            "import math",
+            "from delphi.translators.scripts.for2py.fortran_format import *",
+            "from delphi.translators.scripts.for2py.for2py_arrays import *",
+            "from dataclasses import dataclass\n",
         ]
-    )
-
-    code_generator.pyStrings.extend(["\n"])
+    ))
 
     # Copy the derived type ast from the main_ast into the separate list,
     # so it can be printed outside (above) the main method
@@ -1283,7 +1283,7 @@ def create_python_string(outputDict):
     if len(imports) != 0:
         code_generator.pyStrings.insert(1, imports)
     if programName != "":
-        code_generator.pyStrings.extend([f"\n\n{programName}()\n"])
+        code_generator.pyStrings.append(f"\n\n{programName}()\n")
     py_sourcelist.append(
         (code_generator.get_python_source(), main_ast, "program")
     )
