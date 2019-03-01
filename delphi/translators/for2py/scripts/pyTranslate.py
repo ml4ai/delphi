@@ -11,8 +11,8 @@ Example:
 
         python pyTranslate -f <pickle_file> -g <python_file>
 
-pickle_file: Pickled file containing the ast represenatation of the Fortran file
-along with other non-source code information.
+pickle_file: Pickled file containing the ast represenatation of the Fortran
+file along with other non-source code information.
 
 python_file: The Python file on which to write the resulting python script.
 """
@@ -21,8 +21,8 @@ import sys
 import pickle
 import argparse
 import re
-from typing import List, Dict
-from delphi.translators.for2py.scripts.fortran_format import *
+from typing import Dict
+from delphi.translators.for2py.scripts.fortran_format import list_data_type
 
 
 class PrintState:
@@ -61,15 +61,15 @@ class PrintState:
         varTypes=None,
     ):
         return PrintState(
-            self.sep if sep == None else sep,
-            self.add if add == None else add,
-            self.printFirst if printFirst == None else printFirst,
-            self.callSource if callSource == None else callSource,
-            self.definedVars if definedVars == None else definedVars,
-            self.globalVars if globalVars == None else globalVars,
-            self.functionScope if functionScope == None else functionScope,
-            self.indexRef if indexRef == None else indexRef,
-            self.varTypes if varTypes == None else varTypes,
+            self.sep if sep is None else sep,
+            self.add if add is None else add,
+            self.printFirst if printFirst is None else printFirst,
+            self.callSource if callSource is None else callSource,
+            self.definedVars if definedVars is None else definedVars,
+            self.globalVars if globalVars is None else globalVars,
+            self.functionScope if functionScope is None else functionScope,
+            self.indexRef if indexRef is None else indexRef,
+            self.varTypes if varTypes is None else varTypes,
         )
 
 
@@ -101,7 +101,8 @@ class PythonCodeGenerator(object):
         self.variableMap = {}
         # This list contains the private functions
         self.privFunctions = []
-        # This dictionary contains the mapping of symbol names to pythonic names
+        # This dictionary contains the mapping of symbol names to pythonic
+        # names
         self.nameMapper = {}
         # Dictionary to hold functions and its arguments
         self.funcArgs = {}
@@ -375,7 +376,7 @@ class PythonCodeGenerator(object):
                 initVal = init_val if initial_set else ""
                 varType = "str"
             else:
-                if node["isDevTypeVar"] == True:
+                if node["isDevTypeVar"]:
                     initVal = init_val if initial_set else 0
                     varType = node["type"]
                 else:
@@ -392,7 +393,8 @@ class PythonCodeGenerator(object):
                         printState.functionScope
                     ):
                         self.pyStrings.append(
-                            f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
+                            f"{self.nameMapper[node['name']]}: List[{varType}]"
+                            f" = [{initVal}]"
                         )
                     else:
                         self.pyStrings.append(
@@ -400,7 +402,8 @@ class PythonCodeGenerator(object):
                         )
                 else:
                     self.pyStrings.append(
-                        f"{self.nameMapper[node['name']]}: List[{varType}] = [{initVal}]"
+                        f"{self.nameMapper[node['name']]}: List[{varType}] = "
+                        f"[{initVal}]"
                     )
 
             # The code below might cause issues on unexpected places.
@@ -545,21 +548,21 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
-            if "isDevType" not in node or node["isDevType"] == False:
+            if "isDevType" not in node or not node["isDevType"]:
                 self.pyStrings.append("[0]")
             if "isDevType" in node and node["isDevType"]:
                 self.pyStrings.append(f".{node['field-name']}")
         # Handles array
         if "subscripts" in node:
-            # Check if the node really holds an array. The is because the derive type with
-            # more than 1 field access, for example var%x%y, node holds x%y also under
-            # the subscripts. Thus, in order to avoid non-array derive types to be printed
-            # in an array syntax, this check is necessary
+            # Check if the node really holds an array. The is because the
+            # derive type with more than 1 field access, for example var%x%y,
+            # node holds x%y also under the subscripts. Thus, in order to avoid
+            # non-array derive types to be printed in an array syntax, this
+            # check is necessary
             if "hasSubscripts" in node and node["hasSubscripts"]:
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
-                value = ""
                 subLength = len(node["subscripts"])
                 for ind in node["subscripts"]:
                     if ind["tag"] == "ref":
@@ -739,7 +742,8 @@ class PythonCodeGenerator(object):
     def printUse(self, node, printState):
         if node.get("include"):
             imports.append(
-                f"from m_{node['arg'].lower()} import {', '.join(node['include'])}\n"
+                f"from m_{node['arg'].lower()} "
+                f"import {', '.join(node['include'])}\n"
             )
         else:
             imports.append(f"from m_{node['arg'].lower()} import *\n")
@@ -823,11 +827,12 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(", ")
             ind = ind + 1
         self.pyStrings.append(
-            f") = format_{format_label}_obj.read_line({file_handle}.readline())"
+            f") = format_{format_label}_obj."
+            f"read_line({file_handle}.readline())"
         )
         self.pyStrings.append(printState.sep)
 
-        if isArray == True:
+        if isArray:
             tempInd = 0  # Re-initialize to zero for array index
             for item in node["args"]:
                 if item["tag"] == "ref":
@@ -878,14 +883,17 @@ class PythonCodeGenerator(object):
         for item in node["args"]:
             if item["tag"] == "ref":
                 write_string += f"{self.nameMapper[item['name']]}"
-                # Handles array or a variable that holds following attributes, such as var.x.y
+                # Handles array or a variable that holds following attributes,
+                # such as var.x.y
                 if "subscripts" in item:
                     # If a variable is derived type
                     if item["isDevType"]:
-                        # If hasSubscripts is true, the derived type object is also an array
-                        # and has following subscripts. Therefore, in order to handle the syntax
-                        # obj.get_((obj_index)).field.get_((field)), the code below handles
-                        # obj.get_((obj_index)) first before the subscripts for the field variables
+                        # If hasSubscripts is true, the derived type object is
+                        # also an array and has following subscripts.
+                        # Therefore, in order to handle the syntax
+                        # obj.get_((obj_index)).field.get_((field)), the code
+                        # below handles obj.get_((obj_index)) first before the
+                        # subscripts for the field variables
                         if "hasSubscripts" in item and item["hasSubscripts"]:
                             devObjSub = [item["subscripts"].pop(0)]
                             write_string += ".get_(("
@@ -895,27 +903,49 @@ class PythonCodeGenerator(object):
                                 elif sub["tag"] == "literal":
                                     write_string += f"{sub['value']}"
                             write_string += "))"
-                        # This is a case where the very first variable is not an array, but has subscripts,
-                        # which holds information of following derived type field variables. i.e. var.x.y
-                        # HOWEVER, the code below MUST be revisted and fixed. This is a hack of hard coding
-                        # in order to print a format of var.x.y fixed number of 3 times
-                        # In order to fix this, the entire printWrite should be modified that can do a recursion
-                        # or break passed lists from the translate.py to have more clear groups.
-                        # It cannot be handled now as it may cause a butterfly effect on all other I/O handling
+                        # This is a case where the very first variable is not
+                        # an array, but has subscripts, which holds information
+                        # of following derived type field variables. i.e.
+                        # var.x.y HOWEVER, the code below MUST be revisted and
+                        # fixed. This is a hack of hard coding in order to
+                        # print a format of var.x.y fixed number of 3 times In
+                        # order to fix this, the entire printWrite should be
+                        # modified that can do a recursion or break passed
+                        # lists from the translate.py to have more clear
+                        # groups.  It cannot be handled now as it may cause a
+                        # butterfly effect on all other I/O handling
                         if (
                             "hasSubscripts" in item
                             and not item["hasSubscripts"]
                             and "subscripts" in item
                             and "arrayStat" not in item
                         ):
-                            write_string += f".{item['subscripts'][0]['name']}.{item['subscripts'][0]['field-name']}"
-                            write_string += ", "
-                            write_string += f"{item['subscripts'][1]['name']}"
-                            write_string += f".{item['subscripts'][1]['subscripts'][0]['name']}.{item['subscripts'][1]['subscripts'][0]['field-name']}"
-                            write_string += ", "
-                            write_string += f"{item['subscripts'][1]['subscripts'][1]['name']}"
-                            write_string += f".{item['subscripts'][1]['subscripts'][1]['subscripts'][0]['name']}"
-                            write_string += f".{item['subscripts'][1]['subscripts'][1]['subscripts'][0]['field-name']}"
+                            isubs = item["subscripts"]
+                            isubs2 = isubs[1]["subscripts"]
+                            write_string += "".join(
+                                (
+                                    f".{isubs[0]['name']}",
+                                    f".{isubs[0]['field-name']}",
+                                    ", ",
+                                    ".".join(
+                                        (
+                                            isubs[1]["name"],
+                                            isubs2[0]["name"],
+                                            isubs2[0]["field-name"],
+                                        )
+                                    ),
+                                    ", ",
+                                    ".".join(
+                                        (
+                                            isubs2[1]["name"],
+                                            isubs2[1]["subscripts"][0]["name"],
+                                            isubs2[1]["subscripts"][0][
+                                                "field-name"
+                                            ],
+                                        )
+                                    ),
+                                )
+                            )
                         if "field-name" in item:
                             write_string += f".{item['field-name']}"
                     # Handling array
@@ -925,7 +955,8 @@ class PythonCodeGenerator(object):
                         i = 0
                         write_string += ".get_(("
                         for ind in item["subscripts"]:
-                            # When an array uses another array's value as its index value
+                            # When an array uses another array's value as its
+                            # index value
                             if "subscripts" in ind:
                                 write_string += f"{ind['name']}.get_(("
                                 for sub in ind["subscripts"]:
@@ -988,11 +1019,13 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"{write_string[:-2]}]")
         self.pyStrings.append(printState.sep)
 
-        # If format specified and output in a file, execute write_line on file handler
+        # If format specified and output in a file, execute write_line on file
+        # handler
         if write_target == "file":
             if format_type == "specifier":
                 self.pyStrings.append(
-                    f"write_line = format_{format_label}_obj.write_line(write_list_{file_id})"
+                    f"write_line = format_{format_label}_obj."
+                    f"write_line(write_list_{file_id})"
                 )
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"{file_handle}.write(write_line)")
@@ -1012,7 +1045,8 @@ class PythonCodeGenerator(object):
                     "write_stream_obj = Format(output_fmt)" + printState.sep
                 )
                 self.pyStrings.append(
-                    f"write_line = write_stream_obj.write_line(write_list_{file_id})"
+                    "write_line = write_stream_obj."
+                    f"write_line(write_list_{file_id})"
                 )
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"{file_handle}.write(write_line)")
@@ -1035,13 +1069,15 @@ class PythonCodeGenerator(object):
                     "write_stream_obj = Format(output_fmt)" + printState.sep
                 )
                 self.pyStrings.append(
-                    "write_line = write_stream_obj.write_line(write_list_stream)"
+                    "write_line = write_stream_obj."
+                    + "write_line(write_list_stream)"
                     + printState.sep
                 )
                 self.pyStrings.append("sys.stdout.write(write_line)")
             elif format_type == "specifier":
                 self.pyStrings.append(
-                    f"write_line = format_{format_label}_obj.write_line(write_list_stream)"
+                    f"write_line = format_{format_label}_obj."
+                    "write_line(write_list_stream)"
                 )
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"sys.stdout.write(write_line)")
@@ -1106,7 +1142,6 @@ class PythonCodeGenerator(object):
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
-        initial_set = False
         if (
             self.nameMapper[node["name"]] not in printState.definedVars
             and self.nameMapper[node["name"]] not in printState.globalVars
@@ -1122,7 +1157,7 @@ class PythonCodeGenerator(object):
                 varType = "float"
             elif node["type"].upper() == "CHARACTER":
                 varType = "str"
-            elif node["isDevTypeVar"] == True:
+            elif node["isDevTypeVar"]:
                 varType = node["type"].lower() + "()"
 
             assert varType != ""
@@ -1138,9 +1173,10 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(f"{dimensions}")
             self.pyStrings.append("])")
 
-            if node["isDevTypeVar"] == True:
+            if node["isDevTypeVar"]:
                 self.pyStrings.append(printState.sep)
-                # This may require update later when we have to deal with the multi-dimensional derived type arrays
+                # This may require update later when we have to deal with the
+                # multi-dimensional derived type arrays
                 upBound = node["up1"]
                 self.pyStrings.append(
                     f"for z in range(1, {upBound}+1):" + printState.sep
@@ -1190,8 +1226,6 @@ class PythonCodeGenerator(object):
         return "".join(self.pyStrings)
 
 
-
-
 def file_count(root) -> Dict:
     """ Counts the number of modules in the fortran file including the program
     file. Each module is written out into a separate python file.  """
@@ -1223,21 +1257,17 @@ def create_python_string(outputDict):
             ast = [outputDict["ast"][program_type[file][1]]]
         else:
             main_ast.append(outputDict["ast"][program_type[file][1]])
-            if [program_type[file][0]] == "program":
-                main_name = file
             continue
-            # ast = [outputDict["ast"][program_type[file][1]]]
         code_generator = PythonCodeGenerator()
-        code_generator.pyStrings.append(
-            "\n".join([
-                "import sys",
-                "from typing import List",
-                "import math",
-                "from delphi.translators.scripts.for2py.fortran_format import *",
-                "from delphi.translators.scripts.for2py.for2py_arrays import *",
-                "from dataclasses import dataclass",
-            ]
-        ))
+        import_lines = [
+            "import sys",
+            "from typing import List",
+            "import math",
+            "from delphi.translators.scripts.for2py.fortran_format import *",
+            "from delphi.translators.scripts.for2py.for2py_arrays import *",
+            "from dataclasses import dataclass\n",
+        ]
+        code_generator.pyStrings.append("\n".join(import_lines))
 
         # Fill the name mapper dictionary
         code_generator.nameMapping(ast)
@@ -1253,16 +1283,15 @@ def create_python_string(outputDict):
 
     # Writing the main program section
     code_generator = PythonCodeGenerator()
-    code_generator.pyStrings.append(
-        "\n".join([
-            "import sys",
-            "from typing import List",
-            "import math",
-            "from delphi.translators.scripts.for2py.fortran_format import *",
-            "from delphi.translators.scripts.for2py.for2py_arrays import *",
-            "from dataclasses import dataclass\n",
-        ]
-    ))
+    import_lines = [
+        "import sys",
+        "from typing import List",
+        "import math",
+        "from delphi.translators.scripts.for2py.fortran_format import *",
+        "from delphi.translators.scripts.for2py.for2py_arrays import *",
+        "from dataclasses import dataclass\n",
+    ]
+    code_generator.pyStrings.append("\n".join(import_lines))
 
     # Copy the derived type ast from the main_ast into the separate list,
     # so it can be printed outside (above) the main method
@@ -1273,7 +1302,7 @@ def create_python_string(outputDict):
             main_ast[0]["body"].remove(index)
 
     # Print derived type declaration(s)
-    if has_derived_type == True:
+    if has_derived_type:
         code_generator.nameMapping(derived_type_ast)
         code_generator.printAst(derived_type_ast, PrintState())
 
@@ -1304,7 +1333,10 @@ if __name__ == "__main__":
         "--files",
         nargs="+",
         required=True,
-        help="Pickled version of the asts together with non-source code information",
+        help=(
+            "Pickled version of the asts together with non-source code"
+            "information"
+        ),
     )
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
