@@ -659,37 +659,41 @@ class AnalysisGraph(nx.DiGraph):
 
         Args:
             n: Number of matches to keep
-            min_temp_res: Minimum temporal resolution.
+            min_temporal_res: Minimum temporal resolution that the indicators
+            must have data for.
         """
 
         for node in self.nodes(data=True):
-
-            # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to
-            # make sure that the intervention nodes are represented
-            # consistently in the mapping (i.e. with spaces vs. with
-            # underscores.
-
-            if node[0].split("/")[1] == "interventions":
-                node_name = node[0].replace("_", " ")
-            else:
-                node_name = node[0]
-
             query_parts = [
                 "select Indicator from concept_to_indicator_mapping",
-                f"where `Concept` like '{node_name}' "
-                "and `Source` is 'mitre12'",
+                f"where `Concept` like '{node[0]}'",
             ]
 
-            # TODO Implement temporal resolution constraints. Need to delve
-            # into SQL/database stuff a bit more deeply for this. Foreign keys?
+            # TODO May need to delve into SQL/database stuff a bit more deeply
+            # for this. Foreign keys perhaps?
 
             query = "  ".join(query_parts)
             results = engine.execute(query)
 
+            if min_temporal_res is not None:
+                if min_temporal_res not in ["month"]:
+                    raise ValueError("min_temporal_res must be 'month'")
+
+                vars_with_required_temporal_resolution = [
+                    r[0]
+                    for r in engine.execute(
+                        "select distinct `Variable` from indicator where "
+                        f"`{min_temporal_res.capitalize()}` is not null"
+                    )
+                ]
+                results = [
+                    r
+                    for r in results
+                    if r[0] in vars_with_required_temporal_resolution
+                ]
+
             node[1]["indicators"] = {
-                "/".join(x.split("/")[1:]): Indicator(
-                    "/".join(x.split("/")[1:]), "MITRE12"
-                )
+                x: Indicator(x, "MITRE12")
                 for x in [r[0] for r in take(n, results)]
             }
 
