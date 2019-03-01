@@ -3,16 +3,19 @@ from typing import List
 import math
 from fortran_format import *
 from for2py_arrays import *
+from dataclasses import dataclass
 
+@dataclass
 class mytype_1:
-    def __init__(self):
-        self.a : int = None
-        self.b : float = None
 
+        a : int = None
+        b : float = None
+
+@dataclass
 class mytype_2:
-    def __init__(self):
-        self.a : int = None
-        self.b : float = None
+
+        a : int = None
+        b : float = None
 
 
 def main():
