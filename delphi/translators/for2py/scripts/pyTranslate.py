@@ -1139,7 +1139,8 @@ def create_python_string(outputDict):
             "from typing import List\n",
             "import math\n",
             "from fortran_format import *\n",
-            "from for2py_arrays import *",
+            "from for2py_arrays import *\n",
+            "from dataclasses import dataclass",
         ]
     )
 
