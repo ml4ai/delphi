@@ -86,10 +86,18 @@ class Scope(metaclass=ABCMeta):
         return root
 
     @classmethod
+    def from_python_src(cls, pySrc, lambdas_path, json_filename):
+        asts = [ast.parse(pySrc)]
+        pgm_dict = genPGM.create_pgm_dict(
+            lambdas_path, asts, json_filename
+        )
+        return cls.from_dict(pgm_dict)
+
+    @classmethod
     def from_fortran_file(cls, fortran_file, tmpdir="."):
         stem = Path(fortran_file).stem
         preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
-        lambdas_filename = f"{tmpdir}/{stem}_lambdas.py"
+        lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
 
         with open(fortran_file, "r") as f:
@@ -116,13 +124,8 @@ class Scope(metaclass=ABCMeta):
         os.remove(preprocessed_fortran_file)
         xml_to_json_translator = translate.XMLToJSONTranslator()
         outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_string(outputDict)
-        asts = [ast.parse(pySrc[0][0])]
-        pgm_dict = genPGM.create_pgm_dict(
-            lambdas_filename, asts, json_filename
-        )
-
-        return cls.from_dict(pgm_dict)
+        pySrc = pyTranslate.create_python_string(outputDict)[0][0]
+        return cls.from_python_src(pySrc, lambdas_path, json_filename)
 
     def __repr__(self):
         return self.__str__()
