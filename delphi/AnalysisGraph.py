@@ -97,6 +97,13 @@ class AnalysisGraph(nx.DiGraph):
     def from_statements(cls, sts: List[Influence]):
         """ Construct an AnalysisGraph object from a list of INDRA statements.
         Unknown polarities are set to positive by default.
+
+        Args:
+            sts: A list of INDRA Statements
+
+        Returns:
+            An AnalysisGraph instance constructed from a list of INDRA
+            statements.
         """
 
         _dict = {}
