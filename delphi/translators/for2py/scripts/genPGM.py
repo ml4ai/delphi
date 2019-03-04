@@ -6,9 +6,9 @@ import tokenize
 from datetime import datetime
 import re
 import argparse
-from functools import *
+from functools import reduce
 import json
-from delphi.translators.for2py.scripts.genCode import *
+from delphi.translators.for2py.scripts.genCode import genCode, PrintState
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -22,6 +22,7 @@ BINOPS = {
     ast.Eq: operator.eq,
     ast.LtE: operator.le,
 }
+
 
 class PGMState:
     def __init__(
@@ -50,12 +51,12 @@ class PGMState:
         lambdaFile: Optional[str] = None,
     ):
         return PGMState(
-            self.lambdaFile if lambdaFile == None else lambdaFile,
-            self.lastDefs if lastDefs == None else lastDefs,
-            self.nextDefs if nextDefs == None else nextDefs,
-            self.lastDefDefault if lastDefDefault == None else lastDefDefault,
-            self.fnName if fnName == None else fnName,
-            self.varTypes if varTypes == None else varTypes,
+            self.lambdaFile if lambdaFile is None else lambdaFile,
+            self.lastDefs if lastDefs is None else lastDefs,
+            self.nextDefs if nextDefs is None else nextDefs,
+            self.lastDefDefault if lastDefDefault is None else lastDefDefault,
+            self.fnName if fnName is None else fnName,
+            self.varTypes if varTypes is None else varTypes,
         )
 
 
@@ -63,9 +64,9 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
-    for fields.  This makes the code impossible to evaluate, so if evaluation is
-    wanted *annotate_fields* must be set to False.  Attributes such as line
-    numbers and column offsets are not dumped by default.  If this is wanted,
+    for fields.  This makes the code impossible to evaluate, so if evaluation
+    is wanted *annotate_fields* must be set to False.  Attributes such as line
+    numbers and column offsets are not dumped by default. If this is wanted,
     *include_attributes* can be set to True.
     """
 
@@ -117,9 +118,9 @@ def printPgm(pgmFile, pgm):
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
     fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
-    # If a `decision` tag comes up, override the call to genCode to manually enter the python script for the lambda
-    # file.
-    if '__decision__' in fnName:
+    # If a `decision` tag comes up, override the call to genCode to manually
+    # enter the python script for the lambda file.
+    if "__decision__" in fnName:
         code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
     else:
         code = genCode(node, PrintState("\n    "))
@@ -187,7 +188,8 @@ def getVarType(annNode):
             return "string"
         else:
             sys.stderr.write(
-                "Unsupported type (only float, int, list, and str supported as of now).\n"
+                "Unsupported type (only float, int, list, and str"
+                "supported as of now).\n"
             )
     except AttributeError:
         sys.stderr.write("Unsupported type (annNode is None).\n")
@@ -202,7 +204,7 @@ def getDType(val):
     elif isinstance(val, str):
         dtype = "string"
     else:
-        sys.stderr.write(f"num: {type(node.n)}\n")
+        sys.stderr.write(f"num: {type(val)}\n")
         sys.exit(1)
     return dtype
 
@@ -217,8 +219,8 @@ def make_fn_dict(name, target, sources, lambdaName, node):
     source = []
     fn = {}
 
-    # Preprocessing and removing certain Assigns which only pertain to the Python
-    # code and do not relate to the FORTRAN code in any way.
+    # Preprocessing and removing certain Assigns which only pertain to the
+    # Python code and do not relate to the FORTRAN code in any way.
     if target["var"]["variable"] == "write_line":
         return fn
     for src in sources:
@@ -264,11 +266,11 @@ def make_fn_dict(name, target, sources, lambdaName, node):
 
 
 def handle_file_open(target, source):
-    # This block maps the 'r' and 'w' modes in python file handling to read and write
-    # commands in the source field.
+    # This block maps the 'r' and 'w' modes in python file handling to read and
+    # write commands in the source field.
     #
-    # Currently, the 'read' and 'write' actions are not included in source field but
-    # this function can handle it if necessary.
+    # Currently, the 'read' and 'write' actions are not included in source
+    # field but this function can handle it if necessary.
     mode_mapping = {"r": "read", "w": "write"}
     file_id = re.findall(r".*_(\d+)$", target)[0]
     source[-1]["name"] = mode_mapping[source[-1]["name"]]
@@ -417,7 +419,8 @@ def genPgm(node, state, fnNames):
 
         return [pgm]
 
-    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
+    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg',
+    # 'defaults')
     elif isinstance(node, ast.arguments):
         return [genPgm(arg, state, fnNames) for arg in node.args]
 
@@ -547,7 +550,9 @@ def genPgm(node, state, fnNames):
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
+        lambdaName = getFnName(
+            fnNames, f"{state.fnName}__condition__{condName}"
+        )
         fn = {
             "name": fnName,
             "type": "condition",
@@ -942,15 +947,16 @@ def genPgm(node, state, fnNames):
 
         return pgms
 
-
     elif isinstance(node, ast.AST):
         sys.stderr.write(
-            f"No handler for AST.{node.__class__.__name__} in genPgm, fields: {node._fields}\n"
+            f"No handler for AST.{node.__class__.__name__} in genPgm, "
+            f"fields: {node._fields}\n"
         )
 
     else:
         sys.stderr.write(
-            f"No handler for {node.__class__.__name__} in genPgm, value: {str(node)}\n"
+            f"No handler for {node.__class__.__name__} in genPgm, "
+            f"value: {str(node)}\n"
         )
 
     return []
@@ -960,7 +966,9 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json", save_file=False) -> Dict:
+def create_pgm_dict(
+    lambdaFile: str, asts: List, pgm_file="pgm.json", save_file=False
+) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
