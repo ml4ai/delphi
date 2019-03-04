@@ -117,7 +117,12 @@ def printPgm(pgmFile, pgm):
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
     fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
-    code = genCode(node, PrintState("\n    "))
+    # If a `decision` tag comes up, override the call to genCode to manually enter the python script for the lambda
+    # file.
+    if '__decision__' in fnName:
+        code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
+    else:
+        code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(f"return {code}")
     else:
@@ -238,14 +243,8 @@ def make_fn_dict(name, target, sources, lambdaName, node):
         {
             "name": name,
             "type": "assign",
+            "reference": node.lineno,
             "sources": source,
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": lambdaName,
-                    "reference": node.lineno,
-                }
-            ],
         }
     )
     if len(source) > 0:
@@ -548,22 +547,16 @@ def genPgm(node, state, fnNames):
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
+        lambdaName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         fn = {
             "name": fnName,
             "type": "condition",
             "target": condName,
+            "reference": node.lineno,
             "sources": [
                 {"name": src["var"]["variable"], "type": "variable"}
                 for src in condSrcs
                 if "var" in src
-            ],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": lambdaName,
-                    "reference": node.lineno,
-                }
             ],
         }
         body = {
@@ -649,10 +642,14 @@ def genPgm(node, state, fnNames):
             fnName = getFnName(
                 fnNames, f"{state.fnName}__decision__{updatedDef}"
             )
+            lambdaName = getFnName(
+                fnNames, f"{state.fnName}__decision__{updatedDef}"
+            )
             fn = {
                 "name": fnName,
                 "type": "decision",
                 "target": updatedDef,
+                "reference": node.lineno,
                 "sources": [
                     {
                         "name": f"{var['variable']}_{var['index']}",
@@ -677,6 +674,14 @@ def genPgm(node, state, fnNames):
                     continue
 
             body = {"name": fnName, "output": output, "input": inputs}
+
+            genFn(
+                state.lambdaFile,
+                node,
+                lambdaName,
+                updatedDef,
+                [f"{src['variable']}_{src['index']}" for src in inputs],
+            )
 
             pgm["functions"].append(fn)
             pgm["body"].append(body)
@@ -797,7 +802,7 @@ def genPgm(node, state, fnNames):
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
-                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
             body = make_body_dict(name, target, sources)
@@ -848,7 +853,7 @@ def genPgm(node, state, fnNames):
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             lambdaName = getFnName(
-                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
             if len(fn) == 0:
