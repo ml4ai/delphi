@@ -215,7 +215,7 @@ def get_body_and_functions(pgm):
     return body, fns
 
 
-def make_fn_dict(name, target, sources, lambdaName, node):
+def make_fn_dict(name, target, sources, node):
     source = []
     fn = {}
 
@@ -550,9 +550,6 @@ def genPgm(node, state, fnNames):
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(
-            fnNames, f"{state.fnName}__condition__{condName}"
-        )
         fn = {
             "name": fnName,
             "type": "condition",
@@ -574,7 +571,7 @@ def genPgm(node, state, fnNames):
         genFn(
             state.lambdaFile,
             node.test,
-            lambdaName,
+            fnName,
             None,
             [src["var"]["variable"] for src in condSrcs if "var" in src],
         )
@@ -647,9 +644,6 @@ def genPgm(node, state, fnNames):
             fnName = getFnName(
                 fnNames, f"{state.fnName}__decision__{updatedDef}"
             )
-            lambdaName = getFnName(
-                fnNames, f"{state.fnName}__decision__{updatedDef}"
-            )
             fn = {
                 "name": fnName,
                 "type": "decision",
@@ -683,7 +677,7 @@ def genPgm(node, state, fnNames):
             genFn(
                 state.lambdaFile,
                 node,
-                lambdaName,
+                fnName,
                 updatedDef,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
             )
@@ -806,16 +800,13 @@ def genPgm(node, state, fnNames):
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
-            )
-            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            fn = make_fn_dict(name, target, sources, node)
             body = make_body_dict(name, target, sources)
 
             genFn(
                 state.lambdaFile,
                 node,
-                lambdaName,
+                name,
                 target["var"]["variable"],
                 [src["var"]["variable"] for src in sources if "var" in src],
             )
@@ -857,10 +848,7 @@ def genPgm(node, state, fnNames):
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
-            )
-            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            fn = make_fn_dict(name, target, sources, node)
             if len(fn) == 0:
                 return []
             body = make_body_dict(name, target, sources)
@@ -874,7 +862,7 @@ def genPgm(node, state, fnNames):
             genFn(
                 state.lambdaFile,
                 node,
-                lambdaName,
+                name,
                 target["var"]["variable"],
                 source_list,
             )
