@@ -960,7 +960,7 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
+def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json", save_file=False) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
@@ -974,6 +974,9 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
         pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 
+    # View the PGM file that will be used to build a scope tree
+    if save_file:
+        json.dump(pgm, open(pgm_file, "w"))
     return pgm
 
 
