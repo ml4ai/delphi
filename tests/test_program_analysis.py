@@ -56,7 +56,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename = get_python_source(original_fortran_file)
     asts = [ast.parse(pySrc)]
-    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, json_filename, save_file=True)
+    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, json_filename, save_file=False)
     return pgm_dict
 
 
