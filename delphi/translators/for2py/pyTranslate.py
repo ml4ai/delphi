@@ -22,7 +22,7 @@ import pickle
 import argparse
 import re
 from typing import Dict
-from delphi.translators.for2py.scripts.fortran_format import list_data_type
+from delphi.translators.for2py.fortran_format import list_data_type
 
 
 class PrintState:
@@ -1263,8 +1263,8 @@ def create_python_string(outputDict):
             "import sys",
             "from typing import List",
             "import math",
-            "from delphi.translators.scripts.for2py.fortran_format import *",
-            "from delphi.translators.scripts.for2py.for2py_arrays import *",
+            "from delphi.translators.for2py.fortran_format import *",
+            "from delphi.translators.for2py.for2py_arrays import *",
             "from dataclasses import dataclass\n",
         ]
         code_generator.pyStrings.append("\n".join(import_lines))
@@ -1287,8 +1287,8 @@ def create_python_string(outputDict):
         "import sys",
         "from typing import List",
         "import math",
-        "from delphi.translators.scripts.for2py.fortran_format import *",
-        "from delphi.translators.scripts.for2py.for2py_arrays import *",
+        "from delphi.translators.for2py.fortran_format import *",
+        "from delphi.translators.for2py.for2py_arrays import *",
         "from dataclasses import dataclass\n",
     ]
     code_generator.pyStrings.append("\n".join(import_lines))
