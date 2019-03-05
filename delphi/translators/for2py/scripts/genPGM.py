@@ -23,11 +23,21 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
+UNNECESSARY_TYPES = (
+    ast.Mult,
+    ast.Add,
+    ast.Sub,
+    ast.Pow,
+    ast.Div,
+    ast.USub,
+    ast.Eq,
+    ast.LtE,
+)
 
 class PGMState:
     def __init__(
         self,
-        lambdaFile: Optional[str],
+        lambdaStrings: Optional[List[str]],
         lastDefs: Optional[Dict] = {},
         nextDefs: Optional[Dict] = {},
         lastDefDefault=0,
@@ -39,7 +49,7 @@ class PGMState:
         self.lastDefDefault = lastDefDefault
         self.fnName = fnName
         self.varTypes = varTypes
-        self.lambdaFile = lambdaFile
+        self.lambdaStrings = lambdaStrings
 
     def copy(
         self,
@@ -48,10 +58,10 @@ class PGMState:
         lastDefDefault=None,
         fnName=None,
         varTypes: Optional[Dict] = None,
-        lambdaFile: Optional[str] = None,
+        lambdaStrings: Optional[List[str]] = None,
     ):
         return PGMState(
-            self.lambdaFile if lambdaFile is None else lambdaFile,
+            self.lambdaStrings if lambdaStrings is None else lambdaStrings,
             self.lastDefs if lastDefs is None else lastDefs,
             self.nextDefs if nextDefs is None else nextDefs,
             self.lastDefDefault if lastDefDefault is None else lastDefDefault,
@@ -116,8 +126,8 @@ def printPgm(pgmFile, pgm):
     pgmFile.write(json.dumps(pgm, indent=2))
 
 
-def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
+def genFn(lambdaStrings, node, fnName, returnVal, inputs):
+    lambdaStrings.append(f"def {fnName}({', '.join(set(inputs))}):\n    ")
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
     if "__decision__" in fnName:
@@ -125,13 +135,13 @@ def genFn(fnFile, node, fnName, returnVal, inputs):
     else:
         code = genCode(node, PrintState("\n    "))
     if returnVal:
-        fnFile.write(f"return {code}")
+        lambdaStrings.append(f"return {code}")
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
         lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
-        fnFile.write("\n".join(lines))
-    fnFile.write("\n\n")
+        lambdaStrings.append("\n".join(lines))
+    lambdaStrings.append("\n\n")
 
 
 def mergeDicts(dicts: Iterable[Dict]) -> Dict:
@@ -345,16 +355,6 @@ def make_body_dict(name, target, sources):
 
 def genPgm(node, state, fnNames):
     types = (list, ast.Module, ast.FunctionDef)
-    unnecessary_types = (
-        ast.Mult,
-        ast.Add,
-        ast.Sub,
-        ast.Pow,
-        ast.Div,
-        ast.USub,
-        ast.Eq,
-        ast.LtE,
-    )
 
     if state.fnName is None and not any(isinstance(node, t) for t in types):
         if isinstance(node, ast.Call):
@@ -569,7 +569,7 @@ def genPgm(node, state, fnNames):
         pgm["functions"].append(fn)
         pgm["body"].append(body)
         genFn(
-            state.lambdaFile,
+            state.lambdaStrings,
             node.test,
             fnName,
             None,
@@ -675,7 +675,7 @@ def genPgm(node, state, fnNames):
             body = {"name": fnName, "output": output, "input": inputs}
 
             genFn(
-                state.lambdaFile,
+                state.lambdaStrings,
                 node,
                 fnName,
                 updatedDef,
@@ -711,7 +711,7 @@ def genPgm(node, state, fnNames):
 
     # Mult: ()
 
-    elif any(isinstance(node, nodetype) for nodetype in unnecessary_types):
+    elif any(isinstance(node, nodetype) for nodetype in UNNECESSARY_TYPES):
         t = node.__repr__().split()[0][2:]
         sys.stdout.write(f"Found {t}, which should be unnecessary\n")
 
@@ -804,7 +804,7 @@ def genPgm(node, state, fnNames):
             body = make_body_dict(name, target, sources)
 
             genFn(
-                state.lambdaFile,
+                state.lambdaStrings,
                 node,
                 name,
                 target["var"]["variable"],
@@ -860,7 +860,7 @@ def genPgm(node, state, fnNames):
                         if "var" in ip:
                             source_list.append(ip["var"]["variable"])
             genFn(
-                state.lambdaFile,
+                state.lambdaStrings,
                 node,
                 name,
                 target["var"]["variable"],
@@ -959,16 +959,18 @@ def create_pgm_dict(
 ) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
+    lambdaStrings = ["import math\n\n"]
+    state = PGMState(lambdaStrings)
+    pgm = genPgm(asts, state, {})[0]
+    if pgm.get("start"):
+        pgm["start"] = pgm["start"][0]
+    else:
+        pgm["start"] = ""
+    pgm["name"] = pgm_file
+    pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+
     with open(lambdaFile, "w") as f:
-        f.write("import math\n\n")
-        state = PGMState(f)
-        pgm = genPgm(asts, state, {})[0]
-        if pgm.get("start"):
-            pgm["start"] = pgm["start"][0]
-        else:
-            pgm["start"] = ""
-        pgm["name"] = pgm_file
-        pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
+        f.write("".join(lambdaStrings))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
