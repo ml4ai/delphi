@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import date
-from delphi.translators.for2py.scripts import (
+from delphi.translators.for2py import (
     f2py_pp,
     translate,
     get_comments,
