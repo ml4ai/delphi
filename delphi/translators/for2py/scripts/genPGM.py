@@ -6,9 +6,9 @@ import tokenize
 from datetime import datetime
 import re
 import argparse
-from functools import *
+from functools import reduce
 import json
-from delphi.translators.for2py.scripts.genCode import *
+from delphi.translators.for2py.scripts.genCode import genCode, PrintState
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -22,6 +22,7 @@ BINOPS = {
     ast.Eq: operator.eq,
     ast.LtE: operator.le,
 }
+
 
 class PGMState:
     def __init__(
@@ -50,12 +51,12 @@ class PGMState:
         lambdaFile: Optional[str] = None,
     ):
         return PGMState(
-            self.lambdaFile if lambdaFile == None else lambdaFile,
-            self.lastDefs if lastDefs == None else lastDefs,
-            self.nextDefs if nextDefs == None else nextDefs,
-            self.lastDefDefault if lastDefDefault == None else lastDefDefault,
-            self.fnName if fnName == None else fnName,
-            self.varTypes if varTypes == None else varTypes,
+            self.lambdaFile if lambdaFile is None else lambdaFile,
+            self.lastDefs if lastDefs is None else lastDefs,
+            self.nextDefs if nextDefs is None else nextDefs,
+            self.lastDefDefault if lastDefDefault is None else lastDefDefault,
+            self.fnName if fnName is None else fnName,
+            self.varTypes if varTypes is None else varTypes,
         )
 
 
@@ -63,9 +64,9 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
-    for fields.  This makes the code impossible to evaluate, so if evaluation is
-    wanted *annotate_fields* must be set to False.  Attributes such as line
-    numbers and column offsets are not dumped by default.  If this is wanted,
+    for fields.  This makes the code impossible to evaluate, so if evaluation
+    is wanted *annotate_fields* must be set to False.  Attributes such as line
+    numbers and column offsets are not dumped by default. If this is wanted,
     *include_attributes* can be set to True.
     """
 
@@ -117,7 +118,12 @@ def printPgm(pgmFile, pgm):
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
     fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
-    code = genCode(node, PrintState("\n    "))
+    # If a `decision` tag comes up, override the call to genCode to manually
+    # enter the python script for the lambda file.
+    if "__decision__" in fnName:
+        code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
+    else:
+        code = genCode(node, PrintState("\n    "))
     if returnVal:
         fnFile.write(f"return {code}")
     else:
@@ -182,7 +188,8 @@ def getVarType(annNode):
             return "string"
         else:
             sys.stderr.write(
-                "Unsupported type (only float, int, list, and str supported as of now).\n"
+                "Unsupported type (only float, int, list, and str"
+                "supported as of now).\n"
             )
     except AttributeError:
         sys.stderr.write("Unsupported type (annNode is None).\n")
@@ -197,7 +204,7 @@ def getDType(val):
     elif isinstance(val, str):
         dtype = "string"
     else:
-        sys.stderr.write(f"num: {type(node.n)}\n")
+        sys.stderr.write(f"num: {type(val)}\n")
         sys.exit(1)
     return dtype
 
@@ -208,12 +215,12 @@ def get_body_and_functions(pgm):
     return body, fns
 
 
-def make_fn_dict(name, target, sources, lambdaName, node):
+def make_fn_dict(name, target, sources, node):
     source = []
     fn = {}
 
-    # Preprocessing and removing certain Assigns which only pertain to the Python
-    # code and do not relate to the FORTRAN code in any way.
+    # Preprocessing and removing certain Assigns which only pertain to the
+    # Python code and do not relate to the FORTRAN code in any way.
     if target["var"]["variable"] == "write_line":
         return fn
     for src in sources:
@@ -238,14 +245,8 @@ def make_fn_dict(name, target, sources, lambdaName, node):
         {
             "name": name,
             "type": "assign",
+            "reference": node.lineno,
             "sources": source,
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": lambdaName,
-                    "reference": node.lineno,
-                }
-            ],
         }
     )
     if len(source) > 0:
@@ -265,11 +266,11 @@ def make_fn_dict(name, target, sources, lambdaName, node):
 
 
 def handle_file_open(target, source):
-    # This block maps the 'r' and 'w' modes in python file handling to read and write
-    # commands in the source field.
+    # This block maps the 'r' and 'w' modes in python file handling to read and
+    # write commands in the source field.
     #
-    # Currently, the 'read' and 'write' actions are not included in source field but
-    # this function can handle it if necessary.
+    # Currently, the 'read' and 'write' actions are not included in source
+    # field but this function can handle it if necessary.
     mode_mapping = {"r": "read", "w": "write"}
     file_id = re.findall(r".*_(\d+)$", target)[0]
     source[-1]["name"] = mode_mapping[source[-1]["name"]]
@@ -418,7 +419,8 @@ def genPgm(node, state, fnNames):
 
         return [pgm]
 
-    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
+    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg',
+    # 'defaults')
     elif isinstance(node, ast.arguments):
         return [genPgm(arg, state, fnNames) for arg in node.args]
 
@@ -548,22 +550,15 @@ def genPgm(node, state, fnNames):
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
 
-        lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
             "type": "condition",
             "target": condName,
+            "reference": node.lineno,
             "sources": [
                 {"name": src["var"]["variable"], "type": "variable"}
                 for src in condSrcs
                 if "var" in src
-            ],
-            "body": [
-                {
-                    "type": "lambda",
-                    "name": lambdaName,
-                    "reference": node.lineno,
-                }
             ],
         }
         body = {
@@ -576,7 +571,7 @@ def genPgm(node, state, fnNames):
         genFn(
             state.lambdaFile,
             node.test,
-            lambdaName,
+            fnName,
             None,
             [src["var"]["variable"] for src in condSrcs if "var" in src],
         )
@@ -653,6 +648,7 @@ def genPgm(node, state, fnNames):
                 "name": fnName,
                 "type": "decision",
                 "target": updatedDef,
+                "reference": node.lineno,
                 "sources": [
                     {
                         "name": f"{var['variable']}_{var['index']}",
@@ -677,6 +673,14 @@ def genPgm(node, state, fnNames):
                     continue
 
             body = {"name": fnName, "output": output, "input": inputs}
+
+            genFn(
+                state.lambdaFile,
+                node,
+                fnName,
+                updatedDef,
+                [f"{src['variable']}_{src['index']}" for src in inputs],
+            )
 
             pgm["functions"].append(fn)
             pgm["body"].append(body)
@@ -796,16 +800,13 @@ def genPgm(node, state, fnNames):
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
-            )
-            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            fn = make_fn_dict(name, target, sources, node)
             body = make_body_dict(name, target, sources)
 
             genFn(
                 state.lambdaFile,
                 node,
-                lambdaName,
+                name,
                 target["var"]["variable"],
                 [src["var"]["variable"] for src in sources if "var" in src],
             )
@@ -847,10 +848,7 @@ def genPgm(node, state, fnNames):
             name = getFnName(
                 fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
             )
-            lambdaName = getFnName(
-                fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
-            )
-            fn = make_fn_dict(name, target, sources, lambdaName, node)
+            fn = make_fn_dict(name, target, sources, node)
             if len(fn) == 0:
                 return []
             body = make_body_dict(name, target, sources)
@@ -864,7 +862,7 @@ def genPgm(node, state, fnNames):
             genFn(
                 state.lambdaFile,
                 node,
-                lambdaName,
+                name,
                 target["var"]["variable"],
                 source_list,
             )
@@ -937,15 +935,16 @@ def genPgm(node, state, fnNames):
 
         return pgms
 
-
     elif isinstance(node, ast.AST):
         sys.stderr.write(
-            f"No handler for AST.{node.__class__.__name__} in genPgm, fields: {node._fields}\n"
+            f"No handler for AST.{node.__class__.__name__} in genPgm, "
+            f"fields: {node._fields}\n"
         )
 
     else:
         sys.stderr.write(
-            f"No handler for {node.__class__.__name__} in genPgm, value: {str(node)}\n"
+            f"No handler for {node.__class__.__name__} in genPgm, "
+            f"value: {str(node)}\n"
         )
 
     return []
@@ -955,7 +954,9 @@ def importAst(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
+def create_pgm_dict(
+    lambdaFile: str, asts: List, pgm_file="pgm.json", save_file=False
+) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
     with open(lambdaFile, "w") as f:
@@ -969,6 +970,9 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file="pgm.json") -> Dict:
         pgm["name"] = pgm_file
         pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 
+    # View the PGM file that will be used to build a scope tree
+    if save_file:
+        json.dump(pgm, open(pgm_file, "w"))
     return pgm
 
 

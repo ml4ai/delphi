@@ -431,8 +431,6 @@ class ActionNode(Node):
         self.shape = "rectangle"
         self.lambda_fn = (
             "_".join((name, idx))
-            .replace("assign", "lambda")
-            .replace("condition", "lambda")
         )
 
     def get_label(self):

@@ -42,8 +42,7 @@ class ProgramAnalysisGraph(nx.DiGraph):
                     self.add_edge(pred.attr["cag_label"], oname)
 
                 condition_fn = condition_fn[: condition_fn.rfind("__")]
-                condition_lambda = condition_fn.replace("condition", "lambda")
-                onode["condition_fn"] = getattr(lambdas, condition_lambda)
+                onode["condition_fn"] = getattr(lambdas, condition_fn)
             else:
                 onode["pred_fns"].append(getattr(lambdas, n.attr["lambda_fn"]))
 
