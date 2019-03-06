@@ -2,7 +2,7 @@ import os
 import json
 from datetime import date
 from delphi.translators.for2py import (
-    f2py_pp,
+    preprocessor,
     translate,
     get_comments,
     pyTranslate,
@@ -29,7 +29,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
         inputLines = f.readlines()
 
     with open(preprocessed_fortran_file, "w") as f:
-        f.write(f2py_pp.process(inputLines))
+        f.write(preprocessor.process(inputLines))
 
     xml_string = sp.run(
         [

@@ -1,7 +1,7 @@
 import sys
 from typing import List
 import math
-from delphi.translators.for2py.fortran_format import *
+from delphi.translators.for2py.format import *
 from delphi.translators.for2py.for2py_arrays import *
 from dataclasses import dataclass
 
