@@ -90,7 +90,7 @@ def derived_types_python_IR_test():
 
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open("tests/data/crop_yield_grfn.json", "r") as f:
+    with open("tests/data/crop_yield.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
 
@@ -98,7 +98,7 @@ def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
 
 
 def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open("tests/data/PETPT_grfn.json", "r") as f:
+    with open("tests/data/PETPT.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
     assert sorted(petpt_grfn_dict) == sorted(json_dict)
