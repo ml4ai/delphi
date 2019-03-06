@@ -1,196 +1,174 @@
 {
+  "start": "crop_yield",
   "functions": [
     {
-      "name": "UPDATE_EST__assign__TOTAL_RAIN_0",
+      "name": "update_est__assign__total_rain_0",
       "type": "assign",
-      "target": "TOTAL_RAIN",
+      "reference": 10,
       "sources": [
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "type": "variable"
         },
         {
-          "name": "RAIN",
+          "name": "rain",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "UPDATE_EST__lambda__TOTAL_RAIN_0",
-          "reference": 5
-        }
-      ]
+      "target": "total_rain"
     },
     {
-      "name": "UPDATE_EST__condition__IF_1_0",
-      "type": "assign",
+      "name": "update_est__condition__IF_1_0",
+      "type": "condition",
       "target": "IF_1",
+      "reference": 11,
       "sources": [
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "type": "variable"
-        }
-      ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "UPDATE_EST__lambda__IF_1_0",
-          "reference": 6
         }
       ]
     },
     {
-      "name": "UPDATE_EST__assign__YIELD_EST_0",
+      "name": "update_est__assign__yield_est_0",
       "type": "assign",
-      "target": "YIELD_EST",
+      "reference": 12,
       "sources": [
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "UPDATE_EST__lambda__YIELD_EST_0",
-          "reference": 7
-        }
-      ]
+      "target": "yield_est"
     },
     {
-      "name": "UPDATE_EST__assign__YIELD_EST_1",
+      "name": "update_est__assign__yield_est_1",
       "type": "assign",
-      "target": "YIELD_EST",
+      "reference": 14,
       "sources": [
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "UPDATE_EST__lambda__YIELD_EST_1",
-          "reference": 9
-        }
-      ]
+      "target": "yield_est"
     },
     {
-      "name": "UPDATE_EST__decision__YIELD_EST_0",
-      "type": "assign",
-      "target": "YIELD_EST",
+      "name": "update_est__decision__yield_est_0",
+      "type": "decision",
+      "target": "yield_est",
+      "reference": 11,
       "sources": [
         {
           "name": "IF_1_0",
           "type": "variable"
         },
         {
-          "name": "YIELD_EST_2",
+          "name": "yield_est_2",
           "type": "variable"
         },
         {
-          "name": "YIELD_EST_1",
+          "name": "yield_est_1",
           "type": "variable"
         }
       ]
     },
     {
-      "name": "UPDATE_EST",
+      "name": "update_est",
       "type": "container",
       "input": [
         {
-          "name": "RAIN",
+          "name": "rain",
           "domain": "real"
         },
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "domain": "real"
         },
         {
-          "name": "YIELD_EST",
+          "name": "yield_est",
           "domain": "real"
         }
       ],
       "variables": [
         {
-          "name": "TOTAL_RAIN",
+          "name": "rain",
           "domain": "real"
         },
         {
-          "name": "RAIN",
+          "name": "total_rain",
+          "domain": "real"
+        },
+        {
+          "name": "yield_est",
           "domain": "real"
         },
         {
           "name": "IF_1",
           "domain": "boolean"
-        },
-        {
-          "name": "YIELD_EST",
-          "domain": "real"
         }
       ],
       "body": [
         {
-          "name": "UPDATE_EST__assign__TOTAL_RAIN_0",
+          "name": "update_est__assign__total_rain_0",
           "output": {
-            "variable": "TOTAL_RAIN",
+            "variable": "total_rain",
             "index": 1
           },
           "input": [
             {
-              "variable": "TOTAL_RAIN",
+              "variable": "total_rain",
               "index": 0
             },
             {
-              "variable": "RAIN",
+              "variable": "rain",
               "index": 0
             }
           ]
         },
         {
-          "name": "UPDATE_EST__condition__IF_1_0",
+          "name": "update_est__condition__IF_1_0",
           "output": {
             "variable": "IF_1",
             "index": 0
           },
           "input": [
             {
-              "variable": "TOTAL_RAIN",
+              "variable": "total_rain",
               "index": 1
             }
           ]
         },
         {
-          "name": "UPDATE_EST__assign__YIELD_EST_0",
+          "name": "update_est__assign__yield_est_0",
           "output": {
-            "variable": "YIELD_EST",
+            "variable": "yield_est",
             "index": 1
           },
           "input": [
             {
-              "variable": "TOTAL_RAIN",
+              "variable": "total_rain",
               "index": 1
             }
           ]
         },
         {
-          "name": "UPDATE_EST__assign__YIELD_EST_1",
+          "name": "update_est__assign__yield_est_1",
           "output": {
-            "variable": "YIELD_EST",
+            "variable": "yield_est",
             "index": 2
           },
           "input": [
             {
-              "variable": "TOTAL_RAIN",
+              "variable": "total_rain",
               "index": 1
             }
           ]
         },
         {
-          "name": "UPDATE_EST__decision__YIELD_EST_0",
+          "name": "update_est__decision__yield_est_0",
           "output": {
-            "variable": "YIELD_EST",
+            "variable": "yield_est",
             "index": 3
           },
           "input": [
@@ -199,11 +177,11 @@
               "index": 0
             },
             {
-              "variable": "YIELD_EST",
+              "variable": "yield_est",
               "index": 2
             },
             {
-              "variable": "YIELD_EST",
+              "variable": "yield_est",
               "index": 1
             }
           ]
@@ -211,10 +189,11 @@
       ]
     },
     {
-      "name": "CROP_YIELD__assign__MAX_RAIN_0",
+      "name": "crop_yield__assign__max_rain_0",
       "type": "assign",
-      "target": "MAX_RAIN",
+      "reference": 24,
       "sources": [],
+      "target": "max_rain",
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -222,10 +201,11 @@
       }
     },
     {
-      "name": "CROP_YIELD__assign__CONSISTENCY_0",
+      "name": "crop_yield__assign__consistency_0",
       "type": "assign",
-      "target": "CONSISTENCY",
+      "reference": 25,
       "sources": [],
+      "target": "consistency",
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -233,10 +213,11 @@
       }
     },
     {
-      "name": "CROP_YIELD__assign__ABSORPTION_0",
+      "name": "crop_yield__assign__absorption_0",
       "type": "assign",
-      "target": "ABSORPTION",
+      "reference": 26,
       "sources": [],
+      "target": "absorption",
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -244,10 +225,11 @@
       }
     },
     {
-      "name": "CROP_YIELD__assign__YIELD_EST_0",
+      "name": "crop_yield__assign__yield_est_0",
       "type": "assign",
-      "target": "YIELD_EST",
+      "reference": 27,
       "sources": [],
+      "target": "yield_est",
       "body": {
         "type": "literal",
         "dtype": "integer",
@@ -255,10 +237,11 @@
       }
     },
     {
-      "name": "CROP_YIELD__assign__TOTAL_RAIN_0",
+      "name": "crop_yield__assign__total_rain_0",
       "type": "assign",
-      "target": "TOTAL_RAIN",
+      "reference": 28,
       "sources": [],
+      "target": "total_rain",
       "body": {
         "type": "literal",
         "dtype": "integer",
@@ -266,47 +249,41 @@
       }
     },
     {
-      "name": "CROP_YIELD__assign__RAIN_0",
+      "name": "crop_yield__assign__rain_0",
       "type": "assign",
-      "target": "RAIN",
+      "reference": 30,
       "sources": [
         {
-          "name": "DAY",
+          "name": "day",
           "type": "variable"
         },
         {
-          "name": "CONSISTENCY",
+          "name": "consistency",
           "type": "variable"
         },
         {
-          "name": "MAX_RAIN",
+          "name": "max_rain",
           "type": "variable"
         },
         {
-          "name": "ABSORPTION",
+          "name": "absorption",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "CROP_YIELD__lambda__RAIN_0",
-          "reference": 25
-        }
-      ]
+      "target": "rain"
     },
     {
-      "name": "CROP_YIELD__loop_plate__DAY_0",
+      "name": "crop_yield__loop_plate__day_0",
       "type": "loop_plate",
       "input": [
-        "CONSISTENCY",
-        "MAX_RAIN",
-        "ABSORPTION",
-        "RAIN",
-        "TOTAL_RAIN",
-        "YIELD_EST"
+        "consistency",
+        "max_rain",
+        "absorption",
+        "rain",
+        "total_rain",
+        "yield_est"
       ],
-      "index_variable": "DAY",
+      "index_variable": "day",
       "index_iteration_range": {
         "start": {
           "type": "literal",
@@ -321,44 +298,44 @@
       },
       "body": [
         {
-          "name": "CROP_YIELD__assign__RAIN_0",
+          "name": "crop_yield__assign__rain_0",
           "output": {
-            "variable": "RAIN",
+            "variable": "rain",
             "index": 0
           },
           "input": [
             {
-              "variable": "DAY",
+              "variable": "day",
               "index": -1
             },
             {
-              "variable": "CONSISTENCY",
+              "variable": "consistency",
               "index": -1
             },
             {
-              "variable": "MAX_RAIN",
+              "variable": "max_rain",
               "index": -1
             },
             {
-              "variable": "ABSORPTION",
+              "variable": "absorption",
               "index": -1
             }
           ]
         },
         {
-          "function": "UPDATE_EST",
+          "function": "update_est",
           "output": {},
           "input": [
             {
-              "variable": "RAIN",
+              "variable": "rain",
               "index": 0
             },
             {
-              "variable": "TOTAL_RAIN",
+              "variable": "total_rain",
               "index": -1
             },
             {
-              "variable": "YIELD_EST",
+              "variable": "yield_est",
               "index": -1
             }
           ]
@@ -368,11 +345,11 @@
           "output": {},
           "input": [
             {
-              "variable": "DAY",
+              "variable": "day",
               "index": -1
             },
             {
-              "variable": "YIELD_EST",
+              "variable": "yield_est",
               "index": -1
             }
           ]
@@ -380,89 +357,89 @@
       ]
     },
     {
-      "name": "CROP_YIELD",
+      "name": "crop_yield",
       "type": "container",
       "input": [],
       "variables": [
         {
-          "name": "DAY",
+          "name": "day",
           "domain": "integer"
         },
         {
-          "name": "RAIN",
+          "name": "rain",
           "domain": "real"
         },
         {
-          "name": "YIELD_EST",
+          "name": "yield_est",
           "domain": "real"
         },
         {
-          "name": "TOTAL_RAIN",
+          "name": "total_rain",
           "domain": "real"
         },
         {
-          "name": "MAX_RAIN",
+          "name": "max_rain",
           "domain": "real"
         },
         {
-          "name": "CONSISTENCY",
+          "name": "consistency",
           "domain": "real"
         },
         {
-          "name": "ABSORPTION",
+          "name": "absorption",
           "domain": "real"
         }
       ],
       "body": [
         {
-          "name": "CROP_YIELD__assign__MAX_RAIN_0",
+          "name": "crop_yield__assign__max_rain_0",
           "output": {
-            "variable": "MAX_RAIN",
+            "variable": "max_rain",
             "index": 2
           },
           "input": []
         },
         {
-          "name": "CROP_YIELD__assign__CONSISTENCY_0",
+          "name": "crop_yield__assign__consistency_0",
           "output": {
-            "variable": "CONSISTENCY",
+            "variable": "consistency",
             "index": 2
           },
           "input": []
         },
         {
-          "name": "CROP_YIELD__assign__ABSORPTION_0",
+          "name": "crop_yield__assign__absorption_0",
           "output": {
-            "variable": "ABSORPTION",
+            "variable": "absorption",
             "index": 2
           },
           "input": []
         },
         {
-          "name": "CROP_YIELD__assign__YIELD_EST_0",
+          "name": "crop_yield__assign__yield_est_0",
           "output": {
-            "variable": "YIELD_EST",
+            "variable": "yield_est",
             "index": 2
           },
           "input": []
         },
         {
-          "name": "CROP_YIELD__assign__TOTAL_RAIN_0",
+          "name": "crop_yield__assign__total_rain_0",
           "output": {
-            "variable": "TOTAL_RAIN",
+            "variable": "total_rain",
             "index": 2
           },
           "input": []
         },
         {
-          "name": "CROP_YIELD__loop_plate__DAY_0",
+          "name": "crop_yield__loop_plate__day_0",
           "inputs": [
-            "CONSISTENCY",
-            "MAX_RAIN",
-            "ABSORPTION",
-            "RAIN",
-            "TOTAL_RAIN",
-            "YIELD_EST"
+            "consistency",
+            "max_rain",
+            "absorption",
+            "rain",
+            "total_rain",
+            "yield_est"
           ],
           "output": {}
         },
@@ -471,7 +448,7 @@
           "output": {},
           "input": [
             {
-              "variable": "YIELD_EST",
+              "variable": "yield_est",
               "index": 2
             }
           ]
@@ -479,7 +456,6 @@
       ]
     }
   ],
-  "start": "CROP_YIELD",
   "name": "crop_yield.json",
-  "dateCreated": "2018-12-13"
+  "dateCreated": "2019-03-06"
 }
