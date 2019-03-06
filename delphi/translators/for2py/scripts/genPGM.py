@@ -117,7 +117,7 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write(f"def {fnName}({', '.join(set(inputs))}):\n    ")
+    fnFile.write(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
     if "__decision__" in fnName:
@@ -616,7 +616,6 @@ def genPgm(node, state, fnNames):
         }
 
         for updatedDef in defVersions:
-            name = "test1"
             versions = defVersions[updatedDef]
             inputs = (
                 [
@@ -640,7 +639,6 @@ def genPgm(node, state, fnNames):
                     state.lastDefDefault,
                 ),
             }
-
             fnName = getFnName(
                 fnNames, f"{state.fnName}__decision__{updatedDef}"
             )
