@@ -143,7 +143,17 @@ def mergeDicts(dicts: Iterable[Dict]) -> Dict:
 
 
 def getFnName(fnNames, basename):
-    fnId = fnNames.get(basename, 0)
+    # First, check whether the basename is a 'decision' block. If it is, we need to get it's index from the index of
+    # its corresponding identifier's 'assign' block. We do not use the index of the 'decision' block as that will not
+    # correspond with that of the 'assign' block.
+    # For example: for petpt__decision__albedo, its index will be the index of the latest petpt__assign__albedo + 1
+    if '__decision__' in basename:
+        part_match = re.match(r'(?P<body>\S+)__decision__(?P<identifier>\S+)', basename)
+        if part_match:
+            new_basename = part_match.group('body') + '__assign__' + part_match.group('identifier')
+    else:
+        new_basename = basename
+    fnId = fnNames.get(new_basename, 0)
     fnName = f"{basename}_{fnId}"
     fnNames[basename] = fnId + 1
     return fnName
@@ -606,7 +616,10 @@ def genPgm(node, state, fnNames):
             or ifDefs[var] != startDefs[var]
             or elseDefs[var] != startDefs[var]
         ]
-
+        # print(updatedDefs)
+        # print(startDefs)
+        # print(ifDefs)
+        # print(elseDefs)
         defVersions = {
             key: [
                 version
@@ -619,9 +632,8 @@ def genPgm(node, state, fnNames):
             ]
             for key in updatedDefs
         }
-
+        print(defVersions)
         for updatedDef in defVersions:
-            name = "test1"
             versions = defVersions[updatedDef]
             inputs = (
                 [
@@ -635,7 +647,7 @@ def genPgm(node, state, fnNames):
                     {"variable": updatedDef, "index": versions[0]},
                 ]
             )
-
+            print(inputs)
             output = {
                 "variable": updatedDef,
                 "index": getNextDef(
@@ -645,10 +657,11 @@ def genPgm(node, state, fnNames):
                     state.lastDefDefault,
                 ),
             }
-
             fnName = getFnName(
                 fnNames, f"{state.fnName}__decision__{updatedDef}"
             )
+            print(fnNames)
+
             fn = {
                 "name": fnName,
                 "type": "decision",
