@@ -24,7 +24,6 @@ import sys
 import argparse
 import pickle
 import re
-from collections import *
 import xml.etree.ElementTree as ET
 from delphi.translators.for2py.get_comments import get_comments
 from typing import List, Dict
