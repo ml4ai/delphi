@@ -47,7 +47,7 @@ Example:
 
 import sys, re
 from collections import *
-from delphi.translators.for2py.fortran_syntax import *
+from delphi.translators.for2py.syntax import *
 from typing import Tuple, Optional
 import json
 
