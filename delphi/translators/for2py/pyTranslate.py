@@ -1255,8 +1255,8 @@ def create_python_string(outputDict):
                 "import sys",
                 "from typing import List",
                 "import math",
-                "from delphi.translators.for2py.scripts.fortran_format import *",
-                "from delphi.translators.for2py.scripts.for2py_arrays import *",
+                "from delphi.translators.for2py.format import *",
+                "from delphi.translators.for2py.arrays import *",
                 "from dataclasses import dataclass",
                 "from ctypes import c_int, c_float, c_wchar_p",
             ]
@@ -1282,8 +1282,8 @@ def create_python_string(outputDict):
             "import sys",
             "from typing import List",
             "import math",
-            "from delphi.translators.for2py.scripts.fortran_format import *",
-            "from delphi.translators.for2py.scripts.for2py_arrays import *",
+            "from delphi.translators.for2py.format import *",
+            "from delphi.translators.for2py.arrays import *",
             "from dataclasses import dataclass",
             "from ctypes import c_int, c_float, c_wchar_p",
         ]
