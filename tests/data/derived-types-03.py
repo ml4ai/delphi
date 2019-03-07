@@ -4,6 +4,7 @@ import math
 from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from dataclasses import dataclass
+from ctypes import c_int, c_float, c_wchar_p
 
 @dataclass
 class mytype_1:
@@ -17,7 +18,7 @@ class mytype_2:
 
 
 def main():
-    format_10: List[str] = []
+    format_10: c_wchar_p = c_wchar_p()
     format_10 = ['I5', '3X', 'F7.3']
     format_10_obj = Format(format_10)
     
