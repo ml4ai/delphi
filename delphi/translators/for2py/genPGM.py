@@ -174,7 +174,7 @@ def getFnName(fnNames, basename, target):
     else:
         new_basename = basename
     fnId = fnNames.get(new_basename, 0)
-    if len(target)>0:
+    if len(target) > 0:
         if target.get("var"):
             fnId = target["var"]["index"]
         elif target.get("variable"):
@@ -529,7 +529,7 @@ def genPgm(node, state, fnNames):
 
         loopLastDef = {}
         loopState = state.copy(
-            lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
+            lastDefs=loopLastDef, nextDefs={}, lastDefDefault=0
         )
         loop = genPgm(node.body, loopState, fnNames)
         loopBody, loopFns = get_body_and_functions(loop)
@@ -551,7 +551,6 @@ def genPgm(node, state, fnNames):
 
         loopCall = {"name": loopName, "inputs": variables, "output": {}}
         pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
-
         return [pgm]
 
     # If: ('test', 'body', 'orelse')
@@ -868,7 +867,6 @@ def genPgm(node, state, fnNames):
             [genPgm(target, state, fnNames) for target in node.targets],
         )
         pgm = {"functions": [], "body": []}
-
         for target in targets:
             source_list = []
             if target.get("list"):
