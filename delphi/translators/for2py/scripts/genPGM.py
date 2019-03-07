@@ -23,6 +23,8 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
+has_elif = False
+elif_input = ''
 
 class PGMState:
     def __init__(
@@ -148,7 +150,7 @@ def mergeDicts(dicts: Iterable[Dict]) -> Dict:
     return merged_dict
 
 
-def getFnName(fnNames, basename):
+def getFnName(fnNames, basename, target):
     # First, check whether the basename is a 'decision' block. If it is, we need to get it's index from the index of
     # its corresponding identifier's 'assign' block. We do not use the index of the 'decision' block as that will not
     # correspond with that of the 'assign' block.
@@ -160,6 +162,11 @@ def getFnName(fnNames, basename):
     else:
         new_basename = basename
     fnId = fnNames.get(new_basename, 0)
+    if len(target)>0:
+        if target.get("var"):
+            fnId = target["var"]["index"]
+        elif target.get("variable"):
+            fnId = target["index"]
     fnName = f"{basename}_{fnId}"
     fnNames[basename] = fnId + 1
     return fnName
@@ -175,7 +182,7 @@ def getLastDef(var, lastDefs, lastDefDefault):
 
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
-    index = nextDefs.get(var, lastDefDefault + 1)
+    index = nextDefs.get(var, lastDefDefault)
     nextDefs[var] = index + 1
     lastDefs[var] = index
     return index
@@ -529,7 +536,7 @@ def genPgm(node, state, fnNames):
 
         # variables: see what changes?
         loopName = getFnName(
-            fnNames, f"{state.fnName}__loop_plate__{indexName}"
+            fnNames, f"{state.fnName}__loop_plate__{indexName}",{}
         )
         loopFn = {
             "name": loopName,
@@ -547,6 +554,7 @@ def genPgm(node, state, fnNames):
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
+        global has_elif, elif_input
         pgm = {"functions": [], "body": []}
 
         condSrcs = genPgm(node.test, state, fnNames)
@@ -557,7 +565,7 @@ def genPgm(node, state, fnNames):
         condName = f"IF_{condNum}"
         state.varTypes[condName] = "boolean"
         state.lastDefs[condName] = 0
-        fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
+        fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}", {})
         condOutput = {"variable": condName, "index": 0}
 
         fn = {
@@ -585,7 +593,6 @@ def genPgm(node, state, fnNames):
             None,
             [src["var"]["variable"] for src in condSrcs if "var" in src],
         )
-
         startDefs = state.lastDefs.copy()
         ifDefs = startDefs.copy()
         elseDefs = startDefs.copy()
@@ -611,10 +618,6 @@ def genPgm(node, state, fnNames):
             or ifDefs[var] != startDefs[var]
             or elseDefs[var] != startDefs[var]
         ]
-        # print(updatedDefs)
-        # print(startDefs)
-        # print(ifDefs)
-        # print(elseDefs)
         defVersions = {
             key: [
                 version
@@ -627,7 +630,6 @@ def genPgm(node, state, fnNames):
             ]
             for key in updatedDefs
         }
-        print(defVersions)
         for updatedDef in defVersions:
             versions = defVersions[updatedDef]
             inputs = (
@@ -642,7 +644,21 @@ def genPgm(node, state, fnNames):
                     {"variable": updatedDef, "index": versions[0]},
                 ]
             )
-            print(inputs)
+
+            # Replace the "eo_\d+" format with a "decision_eo_\d+" format if an elif exists
+            inputs_copy = inputs[:]
+            for input in inputs_copy:
+                ip_tag = input["variable"] + "_" + str(input["index"])
+                if has_elif:
+                    if ip_tag in elif_input:
+                        inputs.remove(input)
+                        inputs.append({"variable":"decision__"+input["variable"], "index": input["index"]})
+                        elif_input = ''
+                        has_elif = False
+                        break
+                    else:
+                        continue
+
             output = {
                 "variable": updatedDef,
                 "index": getNextDef(
@@ -653,10 +669,8 @@ def genPgm(node, state, fnNames):
                 ),
             }
             fnName = getFnName(
-                fnNames, f"{state.fnName}__decision__{updatedDef}"
+                fnNames, f"{state.fnName}__decision__{updatedDef}", output
             )
-            print(fnNames)
-
             fn = {
                 "name": fnName,
                 "type": "decision",
@@ -697,6 +711,17 @@ def genPgm(node, state, fnNames):
 
             pgm["functions"].append(fn)
             pgm["body"].append(body)
+
+            # Check whether the elsePgm immediately consists of another if statement. This would mean an elif block is
+            # present.
+            if len(pgm) > 0:
+                if "__condition__IF_" in pgm["functions"][0]["name"]:
+                    for block in pgm["functions"]:
+                        if "__decision__" in block["name"]:
+                            input_match = re.search(r'\S+__(?P<catch_input>\S+__.*)$', block["name"])
+                            if input_match:
+                                elif_input = input_match.group('catch_input')
+                                has_elif = True
 
         return [pgm]
 
@@ -770,7 +795,6 @@ def genPgm(node, state, fnNames):
             sys.exit(1)
 
         val = genPgm(node.value, state, fnNames)
-
         if isinstance(node.ctx, ast.Store):
             val[0]["var"]["index"] = getNextDef(
                 val[0]["var"]["variable"],
@@ -778,7 +802,6 @@ def genPgm(node, state, fnNames):
                 state.nextDefs,
                 state.lastDefDefault,
             )
-
         return val
 
     # Name: ('id', 'ctx')
@@ -788,7 +811,6 @@ def genPgm(node, state, fnNames):
             lastDef = getNextDef(
                 node.id, state.lastDefs, state.nextDefs, state.lastDefDefault
             )
-
         return [{"var": {"variable": node.id, "index": lastDef}}]
 
     # AnnAssign: ('target', 'annotation', 'value', 'simple')
@@ -811,7 +833,7 @@ def genPgm(node, state, fnNames):
                 node.annotation
             )
             name = getFnName(
-                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}", {}
             )
             fn = make_fn_dict(name, target, sources, node)
             body = make_body_dict(name, target, sources)
@@ -859,7 +881,7 @@ def genPgm(node, state, fnNames):
                 target["var"]["variable"] = match.group(1)
 
             name = getFnName(
-                fnNames, f"{state.fnName}__assign__{target['var']['variable']}"
+                fnNames, f"{state.fnName}__assign__{target['var']['variable']}", target
             )
             fn = make_fn_dict(name, target, sources, node)
             if len(fn) == 0:
