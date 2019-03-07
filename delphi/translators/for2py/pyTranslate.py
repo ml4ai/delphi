@@ -9,9 +9,9 @@ Example:
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:::
 
-        python pyTranslate -f <pickle_file> -g <python_file>
+        python pyTranslate.py -f <pickle_file> -g <python_file>
 
-pickle_file: Pickled file containing the ast represenatation of the Fortran
+pickle_file: Pickled file containing the ast representation of the Fortran
 file along with other non-source code information.
 
 python_file: The Python file on which to write the resulting python script.
@@ -22,7 +22,7 @@ import pickle
 import argparse
 import re
 from typing import Dict
-from delphi.translators.for2py.scripts.fortran_format import list_data_type
+from delphi.translators.for2py.format import list_data_type
 
 
 class PrintState:
@@ -73,11 +73,9 @@ class PrintState:
         )
 
 
-programName = ""
-
-
 class PythonCodeGenerator(object):
     def __init__(self):
+        self.programName = ""
         self.printFn = {}
         self.libFns = [
             "mod",
@@ -232,9 +230,8 @@ class PythonCodeGenerator(object):
         )
 
     def printProgram(self, node, printState):
-        global programName
         self.printSubroutine(node, printState)
-        programName = self.nameMapper[node["name"]]
+        self.programName = self.nameMapper[node["name"]]
 
     def printCall(self, node: Dict[str, str], printState: PrintState):
         if not printState.indexRef:
@@ -1263,8 +1260,8 @@ def create_python_string(outputDict):
             "import sys",
             "from typing import List",
             "import math",
-            "from delphi.translators.scripts.for2py.fortran_format import *",
-            "from delphi.translators.scripts.for2py.for2py_arrays import *",
+            "from delphi.translators.for2py.format import *",
+            "from delphi.translators.for2py.arrays import *",
             "from dataclasses import dataclass\n",
         ]
         code_generator.pyStrings.append("\n".join(import_lines))
@@ -1275,8 +1272,8 @@ def create_python_string(outputDict):
         imports = "".join(imports)
         if len(imports) != 0:
             code_generator.pyStrings.insert(1, imports)
-        if programName != "":
-            code_generator.pyStrings.append(f"\n\n{programName}()\n")
+        if self.programName != "":
+            code_generator.pyStrings.append(f"\n\n{self.programName}()\n")
         py_sourcelist.append(
             (code_generator.get_python_source(), file, program_type[file][0])
         )
@@ -1287,8 +1284,8 @@ def create_python_string(outputDict):
         "import sys",
         "from typing import List",
         "import math",
-        "from delphi.translators.scripts.for2py.fortran_format import *",
-        "from delphi.translators.scripts.for2py.for2py_arrays import *",
+        "from delphi.translators.for2py.format import *",
+        "from delphi.translators.for2py.arrays import *",
         "from dataclasses import dataclass\n",
     ]
     code_generator.pyStrings.append("\n".join(import_lines))
@@ -1311,8 +1308,8 @@ def create_python_string(outputDict):
     imports = "".join(imports)
     if len(imports) != 0:
         code_generator.pyStrings.insert(1, imports)
-    if programName != "":
-        code_generator.pyStrings.append(f"\n\n{programName}()\n")
+    if code_generator.programName != "":
+        code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
     py_sourcelist.append(
         (code_generator.get_python_source(), main_ast, "program")
     )
