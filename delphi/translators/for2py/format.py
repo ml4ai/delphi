@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-File: fortran_format.py
+File: format.py
 Purpose: Process a string (obtained from a data file) according to
          a Fortran FORMAT.
 
