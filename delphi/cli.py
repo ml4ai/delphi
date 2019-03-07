@@ -39,7 +39,8 @@ def execute(args):
     from pandas import read_csv
 
     print("Executing model")
-    G = AnalysisGraph.from_pickle(args.input_dressed_cag)
+    with open(args.input_dressed_cag, 'rb') as f:
+        G = pickle.load(f)
 
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()

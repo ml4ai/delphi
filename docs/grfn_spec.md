@@ -97,13 +97,19 @@ Identifiers play a key role in connecting the model as implemented in source cod
 
 ### Base Name
 
-The `<base_name>` is intended to correspond to the identifier token name as it appears in the source language (e.g., Fortran). The `<base_name>` is itself a string
+The `<base_name>` is intended to correspond (when available) to the identifier token name as it appears in the source language (e.g., Fortran). The `<base_name>` is itself a string
 
     <base_name> ::= <string>
 
 but follows the conventions of [python identifier specification rules](https://docs.python.org/3/reference/lexical_analysis.html#identifiers) (which includes Fortran naming syntax).
 
 >FUTURE: may extend this as more source languages are supported.
+
+Below, we specify the conventions for `<base_name>`s for identifiers that do not originate in the source code:
+
+- [Variable Naming Convention](#variable-naming-convention)
+
+- [Function Naming Conventions](#function-naming-conventions)
 
 ### Scope and Namespace Paths
 

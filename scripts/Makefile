@@ -75,15 +75,15 @@ fews: data/FEWSNET/FEWSNET_World_Admin data/FEWSNET/ALL_HFIC
 # =============================================================================
 
 data/south_sudan_data_fao.tsv: data/FAOSTAT
-	python process_FAO_and_WDI_data.py --fao
+	python data_processing/process_FAO_and_WDI_data.py --fao
 
 data/south_sudan_data_wdi.tsv: data/WDI_csv/WDIData.csv
-	python process_FAO_and_WDI_data.py --wdi
+	python data_processing/process_FAO_and_WDI_data.py --wdi
 
-data/south_sudan_data_fewsnet.tsv: process_FEWSNET_data.py fews
+data/south_sudan_data_fewsnet.tsv: data_processing/process_FEWSNET_data.py fews
 	python $<
 
-data/south_sudan_data_climis_unicef_ieconomics.tsv: process_climis_unicef_ieconomics_data.py
+data/south_sudan_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
 	python $<
 
 data/south_sudan_data_conflict.tsv:
@@ -99,14 +99,14 @@ $(DSSAT_DATA): | data
 
 dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
-data/south_sudan_data_dssat.tsv: process_dssat_data.py $(DSSAT_DATA)
+data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
 
-data/south_sudan_data.tsv: process_FAO_and_WDI_data.py\
+data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_fao.tsv\
 						   data/south_sudan_data_wdi.tsv\
 						   data/south_sudan_data_conflict.tsv\

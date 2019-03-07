@@ -1,24 +1,20 @@
 import sys
 from typing import List
 import math
-from fortran_format import *
-from for2py_arrays import *
+from delphi.translators.for2py.format import *
+from delphi.translators.for2py.arrays import *
 from dataclasses import dataclass
 
 
 def main():
     format_10: List[str] = []
-    
     format_10 = ['5(I5,X)']
     format_10_obj = Format(format_10)
     
     a = Array(int, [(-3, 1), (1, 5), (10, 14)])
     i: List[int] = [0]
-    
     j: List[int] = [0]
-    
     k: List[int] = [0]
-    
     for i[0] in range(-(3), 1+1):
         for j[0] in range(1, 5+1):
             for k[0] in range(10, 14+1):

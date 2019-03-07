@@ -16,6 +16,21 @@ test:
 	  delphi tests
 	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
 
+test_local:
+	pytest \
+	  -s\
+	  --cov-report term-missing:skip-covered --cov=delphi\
+	  --doctest-module\
+	  --ignore=delphi/program_analysis/pa_unit_tests \
+	  --ignore=delphi/program_analysis/data\
+	  --ignore=delphi/analysis/sensitivity/tests\
+	  --ignore=delphi/translators/for2py/data\
+	  --ignore=tests/data\
+	  --ignore=delphi/jupyter_tools.py\
+	  --ignore=delphi/inspection.py\
+	  delphi tests
+	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
+
 pypi_upload:
 	rm -rf dist
 	python setup.py sdist bdist_wheel
