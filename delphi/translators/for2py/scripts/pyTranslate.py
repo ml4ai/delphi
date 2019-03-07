@@ -250,7 +250,7 @@ class PythonCodeGenerator(object):
         if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             toFind = node["args"][1]["value"]
-            self.pyStrings.append(f"{var}[0].find({toFind})")
+            self.pyStrings.append(f"{var}.value.find({toFind})")
 
         elif node["name"] == "mod":
             self.printAst(
@@ -280,7 +280,7 @@ class PythonCodeGenerator(object):
                     ),
                 )
                 if node['name'] == 'print':
-                    if node['args'][arg]['tag'] == 'ref':
+                    if node['args'][arg]['tag'] == 'ref' and "subscripts" not in node['args'][arg]:
                         self.pyStrings.append('.value')
                 if arg < argSize - 1:
                     self.pyStrings.append(", ")
@@ -376,7 +376,7 @@ class PythonCodeGenerator(object):
                 or node["type"].upper() == "CHARACTER"
             ):
                 initVal = init_val if initial_set else ""
-                varType = "str"
+                varType = "wchar_p"
             else:
                 if node["isDevTypeVar"] == True:
                     initVal = init_val if initial_set else 0
@@ -574,7 +574,7 @@ class PythonCodeGenerator(object):
                             )
                             self.pyStrings.append("))")
                         else:
-                            self.pyStrings.append("[0]")
+                            self.pyStrings.append(".value")
                     if ind["tag"] == "op":
                         if "right" not in ind:
                             self.pyStrings.append(
@@ -656,7 +656,7 @@ class PythonCodeGenerator(object):
                     ind["tag"] == "ref"
                 ):  # Case where using variable as an array index
                     index = ind["name"]
-                    self.pyStrings.append(f"{index}[0]")
+                    self.pyStrings.append(f"{index}.value")
                 if (
                     ind["tag"] == "op"
                 ):  # Case where a literal index has an operator
@@ -667,7 +667,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(f"{lIndex}")
                     elif ind["left"][0]["tag"] == "ref":
                         lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
+                        self.pyStrings.append(f"{lIndex}.value")
 
                     self.pyStrings.append(f" {operator} ")
                     # For right index
@@ -676,7 +676,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(f"{rIndex}")
                     elif ind["right"][0]["tag"] == "ref":
                         rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
+                        self.pyStrings.append(f"{rIndex}.value")
 
                 if length > 1:
                     self.pyStrings.append(", ")
@@ -697,7 +697,7 @@ class PythonCodeGenerator(object):
             arrayLen = len(node["value"][0]["subscripts"])
             for ind in node["value"][0]["subscripts"]:
                 if "name" in ind:
-                    self.pyStrings.append(f"{ind['name']}[0]")
+                    self.pyStrings.append(f"{ind['name']}.value")
                 elif "operator" in ind:
                     # For left index
                     if ind["left"][0]["tag"] == "literal":
@@ -705,7 +705,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(f"{lIndex}")
                     elif ind["left"][0]["tag"] == "ref":
                         lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
+                        self.pyStrings.append(f"{lIndex}.value")
 
                     self.pyStrings.append(f" {ind['operator']} ")
                     # For right index
@@ -714,7 +714,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(f"{rIndex}")
                     elif ind["right"][0]["tag"] == "ref":
                         rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
+                        self.pyStrings.append(f"{rIndex}.value")
                 else:
                     assert ind["tag"] == "literal"
                     self.pyStrings.append(f"{ind['value']}")
@@ -747,7 +747,7 @@ class PythonCodeGenerator(object):
                 self.printCall(node, printState)
                 return
             if node.get("name") is not None:
-                val = self.nameMapper[node["name"]] + "[0]"
+                val = self.nameMapper[node["name"]] + ".value"
             else:
                 val = node["value"]
         else:
@@ -814,7 +814,7 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(f"tempVar[{tempInd}]")
                     tempInd = tempInd + 1
                 else:
-                    self.pyStrings.append(f"{var}[0]")
+                    self.pyStrings.append(f"{var}.value")
                 if ind < len(node["args"]) - 1:
                     self.pyStrings.append(", ")
             ind = ind + 1
@@ -887,7 +887,7 @@ class PythonCodeGenerator(object):
                             write_string += ".get_(("
                             for sub in derivedObjSub:
                                 if sub["tag"] == "ref":
-                                    write_string += f"{sub['name']}[0]"
+                                    write_string += f"{sub['name']}.value"
                                 elif sub["tag"] == "literal":
                                     write_string += f"{sub['value']}"
                             write_string += "))"
@@ -926,7 +926,7 @@ class PythonCodeGenerator(object):
                                 write_string += f"{ind['name']}.get_(("
                                 for sub in ind["subscripts"]:
                                     if sub["tag"] == "ref":
-                                        write_string += f"{sub['name']}[0]"
+                                        write_string += f"{sub['name']}.value"
                                     elif sub["tag"] == "literal":
                                         write_string += f"{sub['value']}"
                                 write_string += "))"
@@ -936,7 +936,7 @@ class PythonCodeGenerator(object):
 
                                 if ind["left"][0]["tag"] == "ref":
                                     write_string += (
-                                        f"{ind['left'][0]['name']}[0] "
+                                        f"{ind['left'][0]['name']}.value "
                                     )
                                 else:
                                     assert ind["left"][0]["tag"] == "literal"
@@ -960,7 +960,7 @@ class PythonCodeGenerator(object):
                                         )
                             else:
                                 if ind["tag"] == "ref":
-                                    write_string += f"{ind['name']}[0]"
+                                    write_string += f"{ind['name']}.value"
                                 elif ind["tag"] == "op":
                                     write_string += f"{ind['operator']}"
                                     assert ind["left"][0]["tag"] == "literal"
@@ -977,7 +977,7 @@ class PythonCodeGenerator(object):
                     if "isDevType" not in item or (
                         "isDevType" in item and not item["isDevType"]
                     ):
-                        write_string += "[0]"
+                        write_string += ".value"
                     elif "isDevType" in item and item["isDevType"]:
                         write_string += f".{item['field-name']}"
                 write_string += ", "
@@ -1234,7 +1234,7 @@ def create_python_string(outputDict):
                 "from delphi.translators.for2py.scripts.fortran_format import *",
                 "from delphi.translators.for2py.scripts.for2py_arrays import *",
                 "from dataclasses import dataclass",
-                "from ctypes import c_int, c_float",
+                "from ctypes import c_int, c_float, c_wchar_p",
             ]
             )
         )
@@ -1261,7 +1261,7 @@ def create_python_string(outputDict):
             "from delphi.translators.for2py.scripts.fortran_format import *",
             "from delphi.translators.for2py.scripts.for2py_arrays import *",
             "from dataclasses import dataclass",
-            "from ctypes import c_int, c_float",
+            "from ctypes import c_int, c_float, c_wchar_p",
         ]
         )
     )
