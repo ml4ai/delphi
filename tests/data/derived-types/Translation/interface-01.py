@@ -1,4 +1,4 @@
-from delphi.translators.for2py.scripts.fortran_format import *
+from delphi.translators.for2py.format import *
 from M_mymod import *
 
 def main():

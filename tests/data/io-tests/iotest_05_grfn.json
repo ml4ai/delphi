@@ -1,11 +1,12 @@
 {
-  "start": "MAIN",
+  "start": "main",
   "functions": [
     {
-      "name": "MAIN__assign__format_30_0",
+      "name": "main__assign__format_30_0",
       "type": "assign",
-      "target": "format_30",
+      "reference": 11,
       "sources": [],
+      "target": "format_30",
       "body": {
         "type": "literal",
         "dtype": [
@@ -21,10 +22,11 @@
       }
     },
     {
-      "name": "MAIN__assign__format_10_0",
+      "name": "main__assign__format_10_0",
       "type": "assign",
-      "target": "format_10",
+      "reference": 15,
       "sources": [],
+      "target": "format_10",
       "body": {
         "type": "literal",
         "dtype": "string",
@@ -32,125 +34,91 @@
       }
     },
     {
-      "name": "MAIN__assign__file_10_0",
+      "name": "main__assign__file_10_0",
       "type": "assign",
-      "target": "10",
+      "reference": 22,
       "sources": [
-        {
-          "name": "open",
-          "type": "function"
-        },
         {
           "name": "infile3",
           "type": "variable"
-        }
-      ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "MAIN__lambda__file_10_0",
-          "reference": 18
-        }
-      ]
-    },
-    {
-      "name": "MAIN__assign__file_20_0",
-      "type": "assign",
-      "target": "20",
-      "sources": [
-        {
-          "name": "open",
-          "type": "function"
         },
         {
-          "name": "outfile3",
+          "name": "r",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "MAIN__lambda__file_20_0",
-          "reference": 19
-        }
-      ]
+      "target": "file_10"
     },
     {
-      "name": "MAIN__assign__I,X,J,Y_0",
+      "name": "main__assign__file_20_0",
       "type": "assign",
-      "target": "I,X,J,Y",
+      "reference": 23,
       "sources": [
         {
-          "name": "read",
-          "type": "function"
+          "name": "outfile3",
+          "type": "variable"
         },
+        {
+          "name": "w",
+          "type": "variable"
+        }
+      ],
+      "target": "file_20"
+    },
+    {
+      "name": "main__assign__i,x,j,y_0",
+      "type": "assign",
+      "reference": 25,
+      "sources": [
         {
           "name": "10",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "MAIN__lambda__I,X,J,Y_0",
-          "reference": 21
-        }
-      ]
+      "target": "i,x,j,y"
     },
     {
-      "name": "MAIN__assign__20_0",
+      "name": "main__assign__20_0",
       "type": "assign",
-      "target": "20",
+      "reference": 27,
       "sources": [
         {
           "name": "write",
           "type": "function"
         },
         {
-          "name": "X",
+          "name": "x",
           "type": "variable"
         },
         {
-          "name": "J",
+          "name": "j",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "MAIN__lambda__20_0",
-          "reference": 22
-        }
-      ]
+      "target": "20"
     },
     {
-      "name": "MAIN__assign__20_1",
+      "name": "main__assign__20_1",
       "type": "assign",
-      "target": "20",
+      "reference": 30,
       "sources": [
         {
           "name": "write",
           "type": "function"
         },
         {
-          "name": "Y",
+          "name": "y",
           "type": "variable"
         },
         {
-          "name": "I",
+          "name": "i",
           "type": "variable"
         }
       ],
-      "body": [
-        {
-          "type": "lambda",
-          "name": "MAIN__lambda__20_1",
-          "reference": 25
-        }
-      ]
+      "target": "20"
     },
     {
-      "name": "MAIN",
+      "name": "main",
       "type": "container",
       "input": [],
       "variables": [
@@ -163,25 +131,25 @@
           "domain": "string"
         },
         {
-          "name": "I",
+          "name": "i",
           "domain": "integer"
         },
         {
-          "name": "X",
+          "name": "x",
           "domain": "real"
         },
         {
-          "name": "J",
+          "name": "j",
           "domain": "integer"
         },
         {
-          "name": "Y",
+          "name": "y",
           "domain": "real"
         }
       ],
       "body": [
         {
-          "name": "MAIN__assign__format_30_0",
+          "name": "main__assign__format_30_0",
           "output": {
             "variable": "format_30",
             "index": 2
@@ -189,7 +157,7 @@
           "input": []
         },
         {
-          "name": "MAIN__assign__format_10_0",
+          "name": "main__assign__format_10_0",
           "output": {
             "variable": "format_10",
             "index": 2
@@ -197,7 +165,7 @@
           "input": []
         },
         {
-          "name": "MAIN__assign__file_10_0",
+          "name": "main__assign__file_10_0",
           "output": {
             "variable": "10",
             "index": 1
@@ -205,7 +173,7 @@
           "input": []
         },
         {
-          "name": "MAIN__assign__file_20_0",
+          "name": "main__assign__file_20_0",
           "output": {
             "variable": "20",
             "index": 1
@@ -213,9 +181,9 @@
           "input": []
         },
         {
-          "name": "MAIN__assign__I,X,J,Y_0",
+          "name": "main__assign__i,x,j,y_0",
           "output": {
-            "variable": "I,X,J,Y",
+            "variable": "i,x,j,y",
             "index": 1
           },
           "input": [
@@ -226,7 +194,7 @@
           ]
         },
         {
-          "name": "MAIN__assign__20_0",
+          "name": "main__assign__20_0",
           "output": {
             "variable": "20",
             "index": 1
@@ -234,20 +202,20 @@
           "input": [
             {
               "var": {
-                "variable": "X",
+                "variable": "x",
                 "index": 2
               }
             },
             {
               "var": {
-                "variable": "J",
+                "variable": "j",
                 "index": 2
               }
             }
           ]
         },
         {
-          "name": "MAIN__assign__20_1",
+          "name": "main__assign__20_1",
           "output": {
             "variable": "20",
             "index": 2
@@ -255,13 +223,13 @@
           "input": [
             {
               "var": {
-                "variable": "Y",
+                "variable": "y",
                 "index": 2
               }
             },
             {
               "var": {
-                "variable": "I",
+                "variable": "i",
                 "index": 2
               }
             }
@@ -270,6 +238,6 @@
       ]
     }
   ],
-  "name": "pgm.json",
-  "dateCreated": "2019-01-10"
+  "name": "iotest_05.json",
+  "dateCreated": "2019-03-06"
 }

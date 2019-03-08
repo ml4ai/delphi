@@ -8,8 +8,8 @@ import platform
 from typing import Dict
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py.scripts import (
-    f2py_pp,
+from delphi.translators.for2py import (
+    preprocessor,
     translate,
     get_comments,
     pyTranslate,
@@ -104,7 +104,7 @@ class Scope(metaclass=ABCMeta):
             inputLines = f.readlines()
 
         with open(preprocessed_fortran_file, "w") as f:
-            f.write(f2py_pp.process(inputLines))
+            f.write(preprocessor.process(inputLines))
 
         xml_string = sp.run(
             [

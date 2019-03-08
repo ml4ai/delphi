@@ -1,8 +1,8 @@
 import os
 import json
 from datetime import date
-from delphi.translators.for2py.scripts import (
-    f2py_pp,
+from delphi.translators.for2py import (
+    preprocessor,
     translate,
     get_comments,
     pyTranslate,
@@ -29,7 +29,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
         inputLines = f.readlines()
 
     with open(preprocessed_fortran_file, "w") as f:
-        f.write(f2py_pp.process(inputLines))
+        f.write(preprocessor.process(inputLines))
 
     xml_string = sp.run(
         [
@@ -90,25 +90,25 @@ def derived_types_python_IR_test():
 
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open("tests/data/crop_yield_grfn.json", "r") as f:
+    with open("tests/data/crop_yield.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
 
-    assert sorted(crop_yield_grfn_dict) == sorted(json_dict)
+    assert crop_yield_grfn_dict == json_dict
 
 
 def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open("tests/data/PETPT_grfn.json", "r") as f:
+    with open("tests/data/PETPT.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
-    assert sorted(petpt_grfn_dict) == sorted(json_dict)
+    assert petpt_grfn_dict == json_dict
 
 
 def test_io_grfn_generation(io_grfn_dict):
     with open("tests/data/io-tests/iotest_05_grfn.json", "r") as f:
         json_dict = json.load(f)
         json_dict["dateCreated"] = str(date.today())
-    assert sorted(io_grfn_dict) == sorted(json_dict)
+    assert io_grfn_dict == json_dict
 
 
 def test_array_pythonIR_generation(array_python_IR_test):
