@@ -650,20 +650,6 @@ def genPgm(node, state, fnNames, source):
                 ]
             )
 
-            # Replace the "eo_\d+" format with a "decision_eo_\d+" format if an elif exists
-            inputs_copy = inputs[:]
-            for input in inputs_copy:
-                ip_tag = input["variable"] + "_" + str(input["index"])
-                if HAS_ELIF:
-                    if ip_tag in ELIF_INPUT:
-                        inputs.remove(input)
-                        inputs.append({"variable":"decision__"+input["variable"], "index": input["index"]})
-                        ELIF_INPUT = ''
-                        HAS_ELIF = False
-                        break
-                    else:
-                        continue
-
             output = {
                 "variable": updatedDef,
                 "index": getNextDef(
