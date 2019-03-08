@@ -126,8 +126,8 @@ def printPgm(pgmFile, pgm):
     pgmFile.write(json.dumps(pgm, indent=2))
 
 
-def genFn(fnFile, node, fnName, returnVal, inputs):
-    fnFile.write(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
+def genFn(lambdaStrings, node, fnName, returnVal, inputs):
+    lambdaStrings.append(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
     if "__decision__" in fnName:
