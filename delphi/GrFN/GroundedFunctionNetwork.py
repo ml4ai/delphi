@@ -10,8 +10,8 @@ import ast
 
 import networkx as nx
 
-from delphi.translators.for2py.scripts import (
-    f2py_pp,
+from delphi.translators.for2py import (
+    preprocessor,
     translate,
     get_comments,
     pyTranslate,
@@ -50,7 +50,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             contained_graphs = list()
             # TODO: check how to do subgraphs with scopes
             for stmt in obj["body"]:
-                lambda_name = re.sub(reg_patt, "__lambda__", stmt["name"])
+                lambda_name = stmt["name"]      # re.sub(reg_patt, "__lambda__", stmt["name"])
                 short_type = stmt["name"][stmt["name"].find("__") + 2: stmt["name"].rfind("__")]
                 stmt_type = get_node_type(short_type)
                 stmt_name = stmt["name"]
@@ -90,18 +90,26 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls(nodes, edges, subgraphs)
 
     @classmethod
-    def from_fortran_file(cls, fortran_file):
+    def from_python_src(cls, pySrc, lambdas_path, json_filename, stem):
+        asts = [ast.parse(pySrc)]
+        pgm_dict = genPGM.create_pgm_dict(
+            lambdas_path, asts, json_filename, save_file=True,
+        )
+        lambdas = importlib.__import__(stem + "_lambdas")
+        return cls.from_dict(pgm_dict, lambdas)
+
+    @classmethod
+    def from_fortran_file(cls, fortran_file, tmpdir="."):
         stem = Path(fortran_file).stem
-        preprocessed_fortran_file = stem + "_preprocessed.f"
-        lambdas_module = stem + "_lambdas"
-        python_lambdas = lambdas_module + ".py"
+        preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
+        lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
 
         with open(fortran_file, "r") as f:
             inputLines = f.readlines()
 
         with open(preprocessed_fortran_file, "w") as f:
-            f.write(f2py_pp.process(inputLines))
+            f.write(preprocessor.process(inputLines))
 
         xml_string = sp.run(
             [
@@ -115,21 +123,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
             ],
             stdout=sp.PIPE,
         ).stdout
-
         trees = [ET.fromstring(xml_string)]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
         xml_to_json_translator = translate.XMLToJSONTranslator()
         outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_string(outputDict)
-        asts = [ast.parse(pySrc[0][0])]
-        pgm_dict = genPGM.create_pgm_dict(
-            python_lambdas, asts, json_filename, write_pgm=True
-        )
+        pySrc = pyTranslate.create_python_string(outputDict)[0][0]
 
-        lambdas = importlib.__import__(lambdas_module)
-
-        return cls.from_dict(pgm_dict, lambdas)
+        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
 
 class NodeType(Enum):
