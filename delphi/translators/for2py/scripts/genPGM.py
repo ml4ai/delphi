@@ -13,8 +13,11 @@ from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
 import os
+import uuid
 
 exclude_list = []
+mode_mapper = {}
+alias_dict = {}
 
 class PGMState:
     def __init__(
@@ -47,6 +50,7 @@ class PGMState:
         lambdaFile: Optional[str] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
+
     ):
         return PGMState(
             self.lambdaFile if lambdaFile == None else lambdaFile,
@@ -201,17 +205,148 @@ def getDType(val):
 
 
 def get_body_and_functions(pgm):
+
     body = list(chain.from_iterable(stmt["body"] for stmt in pgm))
     fns = list(chain.from_iterable(stmt["functions"] for stmt in pgm))
-    return body, fns
+    iden_spec = list(chain.from_iterable(stmt["identifiers"] for stmt in pgm))
+    return body, fns, iden_spec
 
+# This function checks whether an assignment is an alias created. An alias is created when an assignment of the form
+# y=x happens such that y is now an alias of x because it is an exact copy of x. If it is an alias assignment,
+# the dictionary alias_dict will get populated.
+def check_alias(target, sources):
+    global alias_dict
+    target_index = target["var"]["variable"] + "_" + str(target["var"]["index"])
+    if len(sources) == 1 and sources[0].get("var") != None:
+        if alias_dict.get(target_index):
+            alias_dict[target_index].append(sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"]))
+        else:
+            alias_dict[target_index] = [sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"])]
+
+
+def generage_gensysm(tag):
+
+    # The gensym is used to uniquely identify any identifier in the program. Python's uuid library is used to
+    # generate a unique 12 digit HEX string. The uuid4() function of 'uuid' focuses on randomness. Each and every bit
+    # of a UUID v4 is generated randomly and with no inherent logic. To every gensym, we add a tag signifying the
+    # data type it represents. 'v' is for variables and 'h' is for holders.
+
+    return uuid.uuid4().hex[:12] + '_'+ tag
+
+
+def make_iden_dict(name, targets, scope_path, holder):
+    global alias_dict
+
+    # Check for aliases
+    if isinstance(targets, dict):
+        aliases = alias_dict.get(targets["variable"] + "_" + str(targets["index"]), "None")
+    elif isinstance(targets, str):
+        aliases = alias_dict.get(targets, "None")
+
+    # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
+    # Assign the base_name accordingly
+
+    if holder == "body":
+        # If we are making the identifier specification of a body holder, the base_name will be the holder
+        if isinstance(targets, dict):
+            base_name = name + '$' + targets["variable"] + "_" + str(targets["index"])
+        elif isinstance(targets, str):
+            base_name = name + '$' + targets
+        gensyms_tag = 'h'
+
+    elif holder == "variable":
+        # The base name will just be the name of the identifier
+        base_name = targets
+        gensyms_tag = 'v'
+
+    # The name space should get the entire directory scope of the fortran file under which it is defined.
+    # For PETASCE.for, all modules are defined in the same fortran file so the namespace will be the same
+    # for all identifiers
+
+    # TODO handle multiple file namespaces that handle multiple fortran file namespacing
+
+    # TODO in the GrFN spec, the namespace is defined to capture the path of the directory tree from the
+    #  root to the file. Should module namespaces be incorporated in this as well? --> NO for now
+
+    # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
+    #  the intermediate python file's path
+    name_space = mode_mapper["FileName"][1].split('/')
+    name_space = '.'.join(name_space)
+
+    # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
+    if scope_path[0] == "_TOP":
+        scope_path.remove("_TOP")
+    scope_path = '.'.join(scope_path)
+
+    # TODO Support aliases
+    # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
+    #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
+
+    source_reference = name_space
+
+    iden_dict = {
+        "base_name": base_name,
+        "scope": scope_path,
+        "namespace": name_space,
+        "aliases": aliases,
+        "source_references": source_reference,
+        "gensyms": generage_gensysm(gensyms_tag)
+    }
+
+    return iden_dict
+
+# Create the identifier specification for each identifier
+def make_identifier_spec(name, targets, sources, state):
+
+    scope_path = state.scope_path
+    for_id = 1
+    if_id = 1
+    identifier_list = []
+
+    for item, scope in enumerate(scope_path):
+        if scope == "loop":
+            scope_path[item] = scope + '$' + str(for_id)
+            for_id += 1
+        elif scope == "if":
+            scope_path[item] = scope + '$' + str(for_id)
+            if_id += 1
+
+    # Identify which kind of identifier it is
+    name_regex = r'(?P<scope>\w+)__(?P<type>\w+)__(?P<basename>\w+)'
+    match = re.match(name_regex, name)
+    if match:
+        if match.group('type') == "assign":
+            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
+            identifier_list.append(iden_dict)
+            if len(sources) > 0:
+                # print(1)
+                for item in sources:
+                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                    identifier_list.append(iden_dict)
+        elif match.group('type') == "condition":
+            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
+            identifier_list.append(iden_dict)
+            if len(sources) > 0:
+                for item in sources:
+                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                    identifier_list.append(iden_dict)
+        elif match.group('type') == "loop_plate":
+            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
+            identifier_list.append(iden_dict)
+            if len(sources) > 0:
+                for item in sources:
+                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                    identifier_list.append(iden_dict)
+
+        return identifier_list
 
 def make_fn_dict(name, target, sources, lambdaName, node):
     source = []
     fn = {}
 
     # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
-    bypass_regex = r'^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj.*|^Format$|^list_output_formats$|^write_list_steam$'
+    bypass_regex = r'^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj' \
+                   r'.*|^Format$|^list_output_formats$|^write_list_steam$'
 
     # Preprocessing and removing certain Assigns which only pertain to the Python
     # code and do not relate to the FORTRAN code in any way.
@@ -247,6 +382,7 @@ def make_fn_dict(name, target, sources, lambdaName, node):
             #     source.append({"name": variable, "type": "variable"})
             # To here
             return fn
+
         fn = {
             "name": name,
             "type": "assign",
@@ -331,7 +467,7 @@ def make_call_body_dict(source):
     return source_list
 
 
-def make_body_dict(name, target, sources):
+def make_body_dict(name, target, sources, state):
     source_list = []
     # file_read_index = 2
 
@@ -362,8 +498,10 @@ def make_body_dict(name, target, sources):
         #     for item in src["list"]:
         #         source_list.append(item)
 
+    id_spec = make_identifier_spec(name, target["var"], source_list, state)
+
     body = {"name": name, "output": target["var"], "input": source_list}
-    return body
+    return [body, id_spec]
 
 
 def genPgm(node, state, fnNames):
@@ -378,7 +516,7 @@ def genPgm(node, state, fnNames):
         ast.Eq,
         ast.LtE,
     )
-    # print (node)
+    # print(node)
     if state.fnName is None and not any(isinstance(node, t) for t in types):
         if isinstance(node, ast.Call):
             if state.start.get("start"):
@@ -403,7 +541,7 @@ def genPgm(node, state, fnNames):
         localDefs = state.lastDefs.copy()
         localNext = state.nextDefs.copy()
         localTypes = state.varTypes.copy()
-        scope_path = state.scope_path.copy()
+        scope_path = state.scope_path.copy() # Tracks the scope of the identifier
         if len(scope_path) == 0:
             scope_path.append('_TOP')
         scope_path.append(node.name)
@@ -412,14 +550,13 @@ def genPgm(node, state, fnNames):
             nextDefs=localNext,
             fnName=node.name,
             varTypes=localTypes,
-            scope_path=scope_path,
+            scope_path=scope_path
         )
-        base_name = node.name
 
         args = genPgm(node.args, fnState, fnNames)
         bodyPgm = genPgm(node.body, fnState, fnNames)
 
-        body, fns = get_body_and_functions(bodyPgm)
+        body, fns, iden_spec = get_body_and_functions(bodyPgm)
 
         variables = list(localDefs.keys())
 
@@ -444,7 +581,7 @@ def genPgm(node, state, fnNames):
             "name": node.name,
             "type": "container",
             "input": [
-                {"name": arg, "domain": localTypes[arg[0]]} for arg in args
+                {"name": arg, "domain": localTypes[arg]} for arg in args
             ],
             "variables": [
                 {"name": var, "domain": localTypes[var]} for var in variables
@@ -453,7 +590,7 @@ def genPgm(node, state, fnNames):
         }
 
         fns.append(fnDef)
-        pgm = {"functions": fns}
+        pgm = {"functions": fns, "identifiers": iden_spec}
 
         return [pgm]
 
@@ -464,12 +601,13 @@ def genPgm(node, state, fnNames):
     # arg: ('arg', 'annotation')
     elif isinstance(node, ast.arg):
         state.varTypes[node.arg] = getVarType(node.annotation)
-        base_name = node.arg
-        id_spec = {
-            "base_name": base_name,
-            "scope": state.scope_path,
-        }
-        return (node.arg, id_spec)
+        # base_name = node.arg
+        # id_spec = {
+        #     "base_name": base_name,
+        #     "scope": state.scope_path,
+        # }
+        # return (node.arg, id_spec)
+        return node.arg
 
     # Load: ()
     elif isinstance(node, ast.Load):
@@ -505,6 +643,23 @@ def genPgm(node, state, fnNames):
 
     # For: ('target', 'iter', 'body', 'orelse')
     elif isinstance(node, ast.For):
+
+        scope_path = state.scope_path.copy()
+        if len(scope_path) == 0:
+            scope_path.append('_TOP')
+        scope_path.append('loop')
+
+        state = state.copy(
+            lastDefs=state.lastDefs.copy(),
+            nextDefs=state.nextDefs.copy(),
+            lastDefDefault=state.lastDefDefault,
+            fnName=state.fnName,
+            varTypes=state.varTypes.copy(),
+            lambdaFile=state.lambdaFile,
+            start=state.start.copy(),
+            scope_path=scope_path
+        )
+
         if genPgm(node.orelse, state, fnNames):
             sys.stderr.write("For/Else in for not supported\n")
             sys.exit(1)
@@ -548,10 +703,10 @@ def genPgm(node, state, fnNames):
 
         loopLastDef = {}
         loopState = state.copy(
-            lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
+            lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1, scope_path=scope_path
         )
         loop = genPgm(node.body, loopState, fnNames)
-        loopBody, loopFns = get_body_and_functions(loop)
+        loopBody, loopFns, iden_spec = get_body_and_functions(loop)
 
         variables = [x for x in loopLastDef if x != indexName]
 
@@ -568,14 +723,36 @@ def genPgm(node, state, fnNames):
             "body": loopBody,
         }
 
+        id_specList = make_identifier_spec(loopName, indexName, {}, state)
+
         loopCall = {"name": loopName, "inputs": variables, "output": {}}
-        pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
+        pgm = {"functions": loopFns + [loopFn], "body": [loopCall], "identifiers": []}
+
+        for id_spec in id_specList:
+            pgm["identifiers"].append(id_spec)
 
         return [pgm]
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
-        pgm = {"functions": [], "body": []}
+
+        scope_path = state.scope_path.copy()
+        if len(scope_path) == 0:
+            scope_path.append('_TOP')
+        scope_path.append('if')
+
+        state = state.copy(
+            lastDefs=state.lastDefs.copy(),
+            nextDefs=state.nextDefs.copy(),
+            lastDefDefault=state.lastDefDefault,
+            fnName=state.fnName,
+            varTypes=state.varTypes.copy(),
+            lambdaFile=state.lambdaFile,
+            start=state.start.copy(),
+            scope_path=scope_path
+        )
+
+        pgm = {"functions": [], "body": [], "identifiers": []}
 
         condSrcs = genPgm(node.test, state, fnNames)
 
@@ -587,7 +764,7 @@ def genPgm(node, state, fnNames):
         state.lastDefs[condName] = 0
         fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}")
         condOutput = {"variable": condName, "index": 0}
-   
+
         lambdaName = getFnName(fnNames, f"{state.fnName}__lambda__{condName}")
         fn = {
             "name": fnName,
@@ -606,6 +783,12 @@ def genPgm(node, state, fnNames):
                 }
             ],
         }
+
+        id_specList = make_identifier_spec(fnName, condOutput, [src["var"] for src in condSrcs if "var" in src], state)
+
+        for id_spec in id_specList:
+            pgm["identifiers"].append(id_spec)
+
         body = {
             "name": fnName,
             "output": condOutput,
@@ -624,8 +807,8 @@ def genPgm(node, state, fnNames):
         startDefs = state.lastDefs.copy()
         ifDefs = startDefs.copy()
         elseDefs = startDefs.copy()
-        ifState = state.copy(lastDefs=ifDefs)
-        elseState = state.copy(lastDefs=elseDefs)
+        ifState = state.copy(lastDefs=ifDefs, scope_path=scope_path)
+        elseState = state.copy(lastDefs=elseDefs, scope_path=scope_path)
         ifPgm = genPgm(node.body, ifState, fnNames)
         elsePgm = genPgm(node.orelse, elseState, fnNames)
 
@@ -705,8 +888,8 @@ def genPgm(node, state, fnNames):
 
             # Check for buggy __decision__ tag containing of only IF_ blocks
             # More information required on how __decision__ tags are made
-            # This seems to be in development phase and documentation is 
-            # missing from the GrFN spec as well. Actual removal (or not) 
+            # This seems to be in development phase and documentation is
+            # missing from the GrFN spec as well. Actual removal (or not)
             # of this tag depends on further information about this
 
             if 'IF_' in updatedDef:
@@ -764,7 +947,7 @@ def genPgm(node, state, fnNames):
     # Expr: ('value',)
     elif isinstance(node, ast.Expr):
         exprs = genPgm(node.value, state, fnNames)
-        pgm = {"functions": [], "body": []}
+        pgm = {"functions": [], "body": [], "identifiers": []}
         for expr in exprs:
             if "call" in expr:
                 call = expr["call"]
@@ -837,7 +1020,7 @@ def genPgm(node, state, fnNames):
         sources = genPgm(node.value, state, fnNames)
         targets = genPgm(node.target, state, fnNames)
 
-        pgm = {"functions": [], "body": []}
+        pgm = {"functions": [], "body": [], "identifiers": []}
 
         for target in targets:
             state.varTypes[target["var"]["variable"]] = getVarType(
@@ -850,7 +1033,7 @@ def genPgm(node, state, fnNames):
                 fnNames, f"{state.fnName}__lambda__{target['var']['variable']}"
             )
             fn = make_fn_dict(name, target, sources, lambdaName, node)
-            body = make_body_dict(name, target, sources)
+            body = make_body_dict(name, target, sources, state)
 
             genFn(
                 state.lambdaFile,
@@ -867,8 +1050,11 @@ def genPgm(node, state, fnNames):
                     "value": f"{sources[0]['value']}",
                 }
 
+            for id_spec in body[1]:
+                pgm["identifiers"].append(id_spec)
+
             pgm["functions"].append(fn)
-            pgm["body"].append(body)
+            pgm["body"].append(body[0])
 
         return [pgm]
 
@@ -879,7 +1065,7 @@ def genPgm(node, state, fnNames):
             (lambda x, y: x.append(y)),
             [genPgm(target, state, fnNames) for target in node.targets],
         )
-        pgm = {"functions": [], "body": []}
+        pgm = {"functions": [], "body": [], "identifiers": []}
 
         for target in targets:
             source_list = []
@@ -887,6 +1073,9 @@ def genPgm(node, state, fnNames):
                 for var in target["list"]:
                     exclude_list.append(var["var"]["variable"])
                 continue
+
+            # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
+            check_alias(target, sources)
 
             # # Extracting only file_id from the write list variable
             # match = re.match(r"write_list_(\d+)", target["var"]["variable"])
@@ -902,7 +1091,7 @@ def genPgm(node, state, fnNames):
 
             if len(fn) == 0:
                 return []
-            body = make_body_dict(name, target, sources)
+            body = make_body_dict(name, target, sources, state)
             for src in sources:
                 if "var" in src:
                     source_list.append(src["var"]["variable"])
@@ -910,6 +1099,7 @@ def genPgm(node, state, fnNames):
                     for ip in src["call"]["inputs"][0]:
                         if "var" in ip:
                             source_list.append(ip["var"]["variable"])
+
 
             genFn(
                 state.lambdaFile,
@@ -932,8 +1122,12 @@ def genPgm(node, state, fnNames):
                         "dtype": sources[0]["dtype"],
                         "value": f"{sources[0]['value']}",
                     }
+
+            for id_spec in body[1]:
+                pgm["identifiers"].append(id_spec)
+
             pgm["functions"].append(fn)
-            pgm["body"].append(body)
+            pgm["body"].append(body[0])
         return [pgm]
 
     # Tuple: ('elts', 'ctx')
@@ -1020,6 +1214,7 @@ def get_path(fileName: str, instance: str):
     elif instance == "source":
         return re.match(r'.*\/(for2py\/.*$)', absPath).group(1).split('/')
 
+
 def create_pgm_dict(lambdaFile: str, asts: List, pgm_file, file_name: str) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
@@ -1027,11 +1222,11 @@ def create_pgm_dict(lambdaFile: str, asts: List, pgm_file, file_name: str) -> Di
         f.write("import math\n\n")
         state = PGMState(f)
         pgm = genPgm(asts, state, {})[0]
+        # print(pgm)
         if pgm.get("start"):
             pgm["start"] = pgm["start"][0]
         else:
             pgm["start"] = ""
-        # pgm["name"] = pgm_file
 
         pgm["source"] = [get_path(file_name, "source")]
 
@@ -1084,6 +1279,12 @@ if __name__ == "__main__":
     )
     args = parser.parse_args(sys.argv[1:])
     asts = get_asts_from_files(args.files, args.printAst)
+
+    # Read the mode_gen file containing all the identifier mappings
+    file_handle = open('mod_gen.json', 'r')
+    mode_mapper = file_handle.read()
+    mode_mapper = json.loads(mode_mapper)
+
     for index, inAst in enumerate(asts):
         lambdaFile = args.files[index][:-3] + '_' + args.lambdaFile[0]
         pgmFile = args.files[index][:-3] + '_' + args.PGMFile[0]

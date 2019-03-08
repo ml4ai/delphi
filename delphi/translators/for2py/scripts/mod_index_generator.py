@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """
 Generates a module index file. This file describes each module used in a program run.
 The information about each module is represented as a json dictionary and has the
@@ -34,6 +32,8 @@ class moduleGenerator(object):
         self.entryPoint = []
         self.current_context = ''
         self.fileName = ''
+        self.main = ''
+        self.path = ''
 
         # Initialize all the dictionaries which we will be writing to our file
         self.modules = []
@@ -46,14 +46,26 @@ class moduleGenerator(object):
         self.syms = {}
 
     def parseTree(self, root) -> bool:
+
+        # Find function name
         for item in root.iter():
+            if item.tag == "program":
+                self.main = item.attrib["name"].lower()
+
+        for item in root.iter():
+            print(item.tag)
             if item.tag == "file":
                 file_name = item.attrib["path"]
-                file_name = file_name.split('/')[-1]
+                file = file_name.split('/')[-1]
                 file_reg = r'^(.*)_processed(\..*)$'
-                match = re.match(file_reg, file_name)
+                path_reg = r'^.*(delphi/[^delphi].*)/\w+'
+                match = re.match(file_reg, file)
                 if match:
                     self.fileName = match.group(1) + match.group(2)
+                match = re.match(path_reg, file_name)
+                if match:
+                    self.path = match.group(1)
+
 
             elif item.tag.lower() in ["module", "program"]:
                 self.current_context = item.attrib["name"].lower()
@@ -61,12 +73,16 @@ class moduleGenerator(object):
 
             elif item.tag.lower() == "variable":
                 if item.attrib.get("name"):
+                    if self.current_context == "":
+                        self.current_context = self.main
                     if self.public.get(self.current_context):
                         self.public[self.current_context].append(item.attrib["name"].lower())
                     else:
                         self.public[self.current_context] = [item.attrib["name"].lower()]
 
             elif item.tag.lower() in ["subroutine", "function"]:
+                if self.current_context == "":
+                    self.current_context = self.main
                 if self.subpgms.get(self.current_context):
                     self.subpgms[self.current_context].append(item.attrib["name"].lower())
                 else:
@@ -85,6 +101,8 @@ class moduleGenerator(object):
                             if innerChild.tag.lower() == "name" and hasOnly:
                                 only_symbols.append(innerChild.attrib["id"].lower())
 
+                if self.current_context == "":
+                    self.current_context = self.main
                 if self.uses.get(self.current_context):
                     if len(only_symbols) != 0:
                         self.uses[self.current_context].append({item.attrib["name"].lower(): only_symbols})
@@ -132,6 +150,8 @@ class moduleGenerator(object):
             if child.tag.lower() == "access-spec" and child.attrib.get("keyword").lower() == "private":
                 private_status = True
             if child.tag.lower() == "name" and private_status:
+                if self.current_context == "":
+                    self.current_context = self.main
                 if self.private.get(self.current_context):
                     self.private[self.current_context].append(child.attrib["id"].lower())
                 else:
@@ -141,7 +161,7 @@ class moduleGenerator(object):
         status = self.parseTree(tree)
         outputDict = {}
         if status:
-            outputDict['FileName'] = self.fileName
+            outputDict['FileName'] = [self.fileName, self.path]
             outputDict['Modules'] = self.modules
             outputDict['Exports'] = self.exports
             outputDict['Uses'] = self.uses
