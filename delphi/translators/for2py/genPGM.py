@@ -132,7 +132,7 @@ def printPgm(pgmFile, pgm):
 
 
 def genFn(lambdaStrings, node, fnName, returnVal, inputs):
-    lambdaStrings.append(f"def {fnName}({', '.join(set(inputs))}):\n    ")
+    lambdaStrings.append(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
     if "__decision__" in fnName:
