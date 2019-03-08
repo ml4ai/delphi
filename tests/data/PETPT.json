@@ -1,7 +1,7 @@
 {
   "functions": [
     {
-      "name": "petpt__assign__td_0",
+      "name": "petpt__assign__td_1",
       "type": "assign",
       "reference": 14,
       "sources": [
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "name": "petpt__assign__albedo_0",
+      "name": "petpt__assign__albedo_1",
       "type": "assign",
       "reference": 16,
       "sources": [
@@ -41,7 +41,7 @@
       "target": "albedo"
     },
     {
-      "name": "petpt__assign__albedo_1",
+      "name": "petpt__assign__albedo_2",
       "type": "assign",
       "reference": 18,
       "sources": [
@@ -57,7 +57,7 @@
       "target": "albedo"
     },
     {
-      "name": "petpt__decision__albedo_0",
+      "name": "petpt__decision__albedo_3",
       "type": "decision",
       "target": "albedo",
       "reference": 15,
@@ -67,17 +67,17 @@
           "type": "variable"
         },
         {
-          "name": "albedo_3",
+          "name": "albedo_2",
           "type": "variable"
         },
         {
-          "name": "albedo_2",
+          "name": "albedo_1",
           "type": "variable"
         }
       ]
     },
     {
-      "name": "petpt__assign__slang_0",
+      "name": "petpt__assign__slang_1",
       "type": "assign",
       "reference": 19,
       "sources": [
@@ -89,7 +89,7 @@
       "target": "slang"
     },
     {
-      "name": "petpt__assign__eeq_0",
+      "name": "petpt__assign__eeq_1",
       "type": "assign",
       "reference": 20,
       "sources": [
@@ -177,7 +177,7 @@
       "target": "eo"
     },
     {
-      "name": "petpt__decision__eo_0",
+      "name": "petpt__decision__eo_3",
       "type": "decision",
       "target": "eo",
       "reference": 25,
@@ -187,27 +187,7 @@
           "type": "variable"
         },
         {
-          "name": "eo_1",
-          "type": "variable"
-        },
-        {
-          "name": "eo_3",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petpt__decision__eo_1",
-      "type": "decision",
-      "target": "eo",
-      "reference": 22,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "eo_4",
+          "name": "eo_0",
           "type": "variable"
         },
         {
@@ -217,7 +197,27 @@
       ]
     },
     {
-      "name": "petpt__assign__eo_3",
+      "name": "petpt__decision__eo_4",
+      "type": "decision",
+      "target": "eo",
+      "reference": 22,
+      "sources": [
+        {
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "eo_1",
+          "type": "variable"
+        },
+        {
+          "name": "decision__eo_3",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__eo_5",
       "type": "assign",
       "reference": 27,
       "sources": [
@@ -313,10 +313,10 @@
       ],
       "body": [
         {
-          "name": "petpt__assign__td_0",
+          "name": "petpt__assign__td_1",
           "output": {
             "variable": "td",
-            "index": 2
+            "index": 1
           },
           "input": [
             {
@@ -343,10 +343,10 @@
           ]
         },
         {
-          "name": "petpt__assign__albedo_0",
+          "name": "petpt__assign__albedo_1",
           "output": {
             "variable": "albedo",
-            "index": 2
+            "index": 1
           },
           "input": [
             {
@@ -356,10 +356,10 @@
           ]
         },
         {
-          "name": "petpt__assign__albedo_1",
+          "name": "petpt__assign__albedo_2",
           "output": {
             "variable": "albedo",
-            "index": 3
+            "index": 2
           },
           "input": [
             {
@@ -373,10 +373,10 @@
           ]
         },
         {
-          "name": "petpt__decision__albedo_0",
+          "name": "petpt__decision__albedo_3",
           "output": {
             "variable": "albedo",
-            "index": 4
+            "index": 3
           },
           "input": [
             {
@@ -385,19 +385,19 @@
             },
             {
               "variable": "albedo",
-              "index": 3
+              "index": 2
             },
             {
               "variable": "albedo",
-              "index": 2
+              "index": 1
             }
           ]
         },
         {
-          "name": "petpt__assign__slang_0",
+          "name": "petpt__assign__slang_1",
           "output": {
             "variable": "slang",
-            "index": 2
+            "index": 1
           },
           "input": [
             {
@@ -407,23 +407,23 @@
           ]
         },
         {
-          "name": "petpt__assign__eeq_0",
+          "name": "petpt__assign__eeq_1",
           "output": {
             "variable": "eeq",
-            "index": 2
+            "index": 1
           },
           "input": [
             {
               "variable": "slang",
-              "index": 2
+              "index": 1
             },
             {
               "variable": "albedo",
-              "index": 4
+              "index": 3
             },
             {
               "variable": "td",
-              "index": 2
+              "index": 1
             }
           ]
         },
@@ -431,12 +431,12 @@
           "name": "petpt__assign__eo_0",
           "output": {
             "variable": "eo",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "eeq",
-              "index": 2
+              "index": 1
             }
           ]
         },
@@ -457,12 +457,12 @@
           "name": "petpt__assign__eo_1",
           "output": {
             "variable": "eo",
-            "index": 2
+            "index": 1
           },
           "input": [
             {
               "variable": "eeq",
-              "index": 2
+              "index": 1
             },
             {
               "variable": "tmax",
@@ -487,12 +487,12 @@
           "name": "petpt__assign__eo_2",
           "output": {
             "variable": "eo",
-            "index": 3
+            "index": 2
           },
           "input": [
             {
               "variable": "eeq",
-              "index": 2
+              "index": 1
             },
             {
               "variable": "tmax",
@@ -501,10 +501,10 @@
           ]
         },
         {
-          "name": "petpt__decision__eo_0",
+          "name": "petpt__decision__eo_3",
           "output": {
             "variable": "eo",
-            "index": 4
+            "index": 3
           },
           "input": [
             {
@@ -513,28 +513,7 @@
             },
             {
               "variable": "eo",
-              "index": 1
-            },
-            {
-              "variable": "eo",
-              "index": 3
-            }
-          ]
-        },
-        {
-          "name": "petpt__decision__eo_1",
-          "output": {
-            "variable": "eo",
-            "index": 5
-          },
-          "input": [
-            {
-              "variable": "IF_2",
               "index": 0
-            },
-            {
-              "variable": "eo",
-              "index": 4
             },
             {
               "variable": "eo",
@@ -543,15 +522,36 @@
           ]
         },
         {
-          "name": "petpt__assign__eo_3",
+          "name": "petpt__decision__eo_4",
           "output": {
             "variable": "eo",
-            "index": 6
+            "index": 4
+          },
+          "input": [
+            {
+              "variable": "IF_2",
+              "index": 0
+            },
+            {
+              "variable": "eo",
+              "index": 1
+            },
+            {
+              "variable": "decision__eo",
+              "index": 3
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_5",
+          "output": {
+            "variable": "eo",
+            "index": 5
           },
           "input": [
             {
               "variable": "eo",
-              "index": 5
+              "index": 4
             }
           ]
         }
@@ -559,6 +559,6 @@
     }
   ],
   "start": "",
-  "name": "PETPT.json",
-  "dateCreated": "2019-03-06"
+  "name": "pgm.json",
+  "dateCreated": "2019-03-07"
 }
