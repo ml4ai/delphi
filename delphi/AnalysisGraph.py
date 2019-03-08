@@ -6,17 +6,7 @@ from math import exp, log
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Union,
-    Callable,
-    Tuple,
-    List,
-    Iterable,
-    Set,
-)
+from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
 import numpy as np
@@ -28,19 +18,17 @@ from indra.statements.evidence import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
-from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate
+from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
 from .utils.indra import (
-    get_valid_statements_for_modeling,
-    get_concepts,
     get_statements_from_json_list,
     get_statements_from_json_file,
+    nameTuple,
 )
 from .db import engine
 from .assembly import (
+    deltas,
     constructConditionalPDF,
     get_respdevs,
-    make_edges,
-    construct_concept_to_indicator_mapping,
     get_indicator_value,
 )
 from future.utils import lzip
@@ -51,7 +39,6 @@ from .icm_api.models import (
     CausalVariable,
     CausalRelationship,
     DelphiModel,
-    ForwardProjection,
 )
 
 
@@ -66,7 +53,9 @@ class AnalysisGraph(nx.DiGraph):
         self.Δt: float = 1.0
         self.time_unit: str = "Placeholder time unit"
         self.dateCreated = date.today().isoformat()
-        self.name: str = "Linear Dynamical System with Stochastic Transition Model"
+        self.name: str = (
+            "Linear Dynamical System with Stochastic Transition Model"
+        )
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
@@ -94,34 +83,48 @@ class AnalysisGraph(nx.DiGraph):
         return cls.from_statements(sts)
 
     @classmethod
-    def from_statements(cls, sts: List[Influence]):
-        """ Construct an AnalysisGraph object from a list of INDRA statements. """
+    def from_statements(cls, sts: List[Influence],
+            assign_default_polarities: bool = True):
+        """ Construct an AnalysisGraph object from a list of INDRA statements.
+        Unknown polarities are set to positive by default.
 
-        sts = get_valid_statements_for_modeling(sts)
-        node_permutations = permutations(get_concepts(sts), 2)
-        edges = make_edges(sts, node_permutations)
-        G = cls(edges)
-        return G
+        Args:
+            sts: A list of INDRA Statements
+
+        Returns:
+            An AnalysisGraph instance constructed from a list of INDRA
+            statements.
+        """
+
+        _dict = {}
+        for s in sts:
+            if assign_default_polarities:
+                for delta in deltas(s):
+                    if delta["polarity"] is None:
+                        delta["polarity"] = 1
+            concepts = nameTuple(s)
+
+            # Excluding self-loops for now:
+            if concepts[0] != concepts[1]:
+                if all(map(exists, (delta['polarity'] for delta in deltas(s)))):
+                    if concepts in _dict:
+                        _dict[concepts].append(s)
+                    else:
+                        _dict[concepts] = [s]
+
+        edges = [
+            (*concepts, {"InfluenceStatements": statements})
+            for concepts, statements in _dict.items()
+        ]
+        return cls(edges)
 
     @classmethod
     def from_text(cls, text: str):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
+
         eidosProcessor = process_text(text)
         return cls.from_statements(eidosProcessor.statements)
-
-    @classmethod
-    def from_pickle(cls, file: str):
-        """ Load an AnalysisGraph object from a pickle file. """
-        with open(file, "rb") as f:
-            G = pickle.load(f)
-
-        if not isinstance(G, cls):
-            raise TypeError(
-                f"The pickled object in {file} is not an instance of AnalysisGraph"
-            )
-        else:
-            return G
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
@@ -195,8 +198,8 @@ class AnalysisGraph(nx.DiGraph):
             if indicator is not None:
                 indicator_source, indicator_name = (
                     indicator["name"].split("/")[0],
-                    "/".join(indicator["name"].split('/')[1:])
-                    )
+                    "/".join(indicator["name"].split("/")[1:]),
+                )
                 if concept in G:
                     if G.nodes[concept].get("indicators") is None:
                         G.nodes[concept]["indicators"] = {}
@@ -393,21 +396,13 @@ class AnalysisGraph(nx.DiGraph):
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
     def get_timeseries_values_for_indicators(
-        self,
-        resolution: str = "month",
-        time_points: List[int] = range(6, 9),
-        n_timesteps=3,
-        country: Optional[str] = "South Sudan",
-        state: Optional[str] = None,
-        unit: Optional[str] = None,
-        fallback_aggaxes: List[str] = ["year"],
-        aggfunc: Callable = np.mean,
+        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
     ):
-        """ Attach timeseries to indicators, for performing Bayesian inference. """
+        """ Attach timeseries to indicators, for performing Bayesian inference.
+         """
         if resolution == "month":
             funcs = [
-                partial(get_indicator_value, month=month)
-                for month in time_points
+                partial(get_indicator_value, month=month) for month in months
             ]
         else:
             raise NotImplementedError(
@@ -423,7 +418,7 @@ class AnalysisGraph(nx.DiGraph):
                     indicator.timeseries = None
 
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
-        """ Run Bayesian inference - sample from the posterior distribution. """
+        """ Run Bayesian inference - sample from the posterior distribution."""
         self.sample_from_proposal(A)
         self.set_latent_state_sequence(A)
         self.update_log_prior(A)
@@ -506,7 +501,9 @@ class AnalysisGraph(nx.DiGraph):
             for i in range(self.res)
         ]
 
-    def initialize(self, config_file: str = "bmi_config.txt", initialize_indicators = True):
+    def initialize(
+        self, config_file: str = "bmi_config.txt", initialize_indicators=True
+    ):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
@@ -538,10 +535,11 @@ class AnalysisGraph(nx.DiGraph):
             if initialize_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
-                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                        indicator.mean * np.array(n[1]["rv"].dataset),
+                        scale=0.01,
                     )
 
-    def update(self, τ: float = 1.0, update_indicators = True, dampen=False):
+    def update(self, τ: float = 1.0, update_indicators=True, dampen=False):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -560,7 +558,8 @@ class AnalysisGraph(nx.DiGraph):
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
-                        indicator.mean * np.array(n[1]["rv"].dataset), scale=0.01
+                        indicator.mean * np.array(n[1]["rv"].dataset),
+                        scale=0.01,
                     )
 
         self.t += self.Δt
@@ -660,41 +659,46 @@ class AnalysisGraph(nx.DiGraph):
     def map_concepts_to_indicators(
         self, n: int = 1, min_temporal_res: Optional[str] = None
     ):
-        """ Add indicators to the analysis graph.
+        """ Map each concept node in the AnalysisGraph instance to one or more
+        tangible quantities, known as 'indicators'.
 
         Args:
             n: Number of matches to keep
-            min_temp_res: Minimum temporal resolution.
+            min_temporal_res: Minimum temporal resolution that the indicators
+            must have data for.
         """
 
-        mapping = construct_concept_to_indicator_mapping(n)
-
         for node in self.nodes(data=True):
-
-            # TODO Coordinate with Uncharted (Pascale) and CLULab (Becky) to
-            # make sure that the intervention nodes are represented consistently
-            # in the mapping (i.e. with spaces vs. with underscores.
-
-            if node[0].split("/")[1] == "interventions":
-                node_name = node[0].replace("_", " ")
-            else:
-                node_name = node[0]
-
             query_parts = [
                 "select Indicator from concept_to_indicator_mapping",
-                f"where `Concept` like '{node_name}' and `Source` is 'mitre12'",
+                f"where `Concept` like '{node[0]}'",
             ]
 
-            # TODO Implement temporal resolution constraints. Need to delve
-            # into SQL/database stuff a bit more deeply for this. Foreign keys?
+            # TODO May need to delve into SQL/database stuff a bit more deeply
+            # for this. Foreign keys perhaps?
 
             query = "  ".join(query_parts)
             results = engine.execute(query)
 
+            if min_temporal_res is not None:
+                if min_temporal_res not in ["month"]:
+                    raise ValueError("min_temporal_res must be 'month'")
+
+                vars_with_required_temporal_resolution = [
+                    r[0]
+                    for r in engine.execute(
+                        "select distinct `Variable` from indicator where "
+                        f"`{min_temporal_res.capitalize()}` is not null"
+                    )
+                ]
+                results = [
+                    r
+                    for r in results
+                    if r[0] in vars_with_required_temporal_resolution
+                ]
+
             node[1]["indicators"] = {
-                "/".join(x.split("/")[1:]): Indicator(
-                    "/".join(x.split("/")[1:]), "MITRE12"
-                )
+                x: Indicator(x, "MITRE12")
                 for x in [r[0] for r in take(n, results)]
             }
 
@@ -788,8 +792,6 @@ class AnalysisGraph(nx.DiGraph):
             aggressive pruning.
         """
 
-        edges_to_keep = set()
-
         # Remove redundant paths.
         for node_pair in tqdm(list(permutations(self.nodes(), 2))):
             paths = [
@@ -861,20 +863,15 @@ class AnalysisGraph(nx.DiGraph):
         Args:
             concept: The concept that the subgraph will be centered around.
             depth: The depth to which the depth-first search must be performed.
-            flow: The direction of causal influence flow to examine. Setting
-                  this to 'incoming' will search for upstream causal influences, and
-                  setting it to 'outgoing' will search for downstream causal
-                  influences.
-        returns:
+
+            reverse: Sets the direction of causal influence flow to examine.
+                Setting this to False (default) will search for upstream causal
+                influences, and setting it to True will search for
+                downstream causal influences.
+
+        Returns:
             AnalysisGraph
         """
-        flow = "incoming"
-        if flow == "incoming":
-            rev = self.reverse()
-        elif flow == "outgoing":
-            rev = self
-        else:
-            raise ValueError("flow must be one of [incoming|outgoing]")
 
         nodeset = {concept}
 
@@ -953,17 +950,15 @@ class AnalysisGraph(nx.DiGraph):
             rv = n[1]["rv"]
             rv.dataset = [default_latent_var_value for _ in range(self.res)]
 
-            # if n[1].get("indicators") is not None:
-                # for ind in n[1]["indicators"].values():
-                    # ind.dataset = np.ones(self.res) * ind.mean
-
             causal_variable = CausalVariable(
                 id=n[1]["id"],
                 model_id=self.id,
                 units="",
                 namespaces={},
                 auxiliaryProperties=[],
-                label=n[0].split("/")[-1].replace("_", " ").capitalize() if simplified_labels else n[0],
+                label=n[0].split("/")[-1].replace("_", " ").capitalize()
+                if simplified_labels
+                else n[0],
                 description=n[0],
                 lastUpdated=today,
                 confidence=1.0,
@@ -983,17 +978,10 @@ class AnalysisGraph(nx.DiGraph):
             )
             causal_primitives.append(causal_variable)
 
-        max_evidences = max(
-            [
-                sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
-                for e in self.edges(data=True)
-            ]
-        )
         max_mean_betas = max(
             [abs(np.median(e[2]["βs"])) for e in self.edges(data=True)]
         )
         for e in self.edges(data=True):
-            causal_relationship_id = e[2]["id"]
             causal_relationship = CausalRelationship(
                 id=e[2]["id"],
                 namespaces={},

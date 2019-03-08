@@ -1,5 +1,5 @@
-from fortran_format import *
-from for2py_arrays import *
+from delphi.translators.for2py.format import *
+from delphi.translators.for2py.arrays import *
 
 def main():
     arr = Array([(-5,5)])

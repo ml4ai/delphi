@@ -24,11 +24,8 @@ import sys
 import argparse
 import pickle
 import re
-from collections import *
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py.scripts.get_comments import (
-    get_comments,
-)
+from delphi.translators.for2py.get_comments import get_comments
 from typing import List, Dict
 from collections import OrderedDict
 
@@ -49,7 +46,7 @@ class ParseState(object):
 
     def copy(self, subroutine=None):
         return ParseState(
-            self.subroutine if subroutine == None else subroutine
+            self.subroutine if subroutine is None else subroutine
         )
 
 
@@ -82,10 +79,12 @@ class XMLToJSONTranslator(object):
         self.subroutineList = []
         self.entryPoint = []
         self.deriveTypeVars = []
-        # The purpose of this global dictionary is to track the declared field variables and
-        # mark it's an array or not. For example, var.a.get(1) will be makred as hasSubscripts = False
-        # and arrayStat = "isArray". Thus, hasSubscripts represents the array existence of the very first variable
-        # and arrayStat represents the array existence of the following fields.
+        # The purpose of this global dictionary is to track the declared field
+        # variables and mark it's an array or not. For example, var.a.get(1)
+        # will be makred as hasSubscripts = False and arrayStat = "isArray".
+        # Thus, hasSubscripts represents the array existence of the very first
+        # variable and arrayStat represents the array existence of the
+        # following fields.
         self.deriveTypeFields = {}
 
     def process_subroutine_or_program_module(self, root, state):
@@ -129,10 +128,10 @@ class XMLToJSONTranslator(object):
         decDevType = []
         decDevFields = []
         decDevTypeVars = []
-        
+
         devTypeArrayField = {}
         decType = {}
-        
+
         count = 0
 
         isArray = True
@@ -146,10 +145,14 @@ class XMLToJSONTranslator(object):
             if node.tag == "type":
                 if "name" in node.attrib:
                     decType = {"type": node.attrib["name"]}
-                    decDevType += self.parseTree(node, state) # For derived types
+                    decDevType += self.parseTree(
+                        node, state
+                    )  # For derived types
                     if len(decDevType) > 1:
                         isDevType = True
-                else:   # This is the case where declaring fields for the derived type
+                else:
+                    # This is the case where declaring fields for the derived
+                    # type
                     if node[0].tag == "derived-type-spec":
                         decType = {"type": self.parseTree(node, state)}
                         isDevTypeVar = True
@@ -158,7 +161,7 @@ class XMLToJSONTranslator(object):
                 isArray = False
                 # This is a book keeping of derived type variables
                 if isDevTypeVar:
-                    for i in range (0, len(decVars)):
+                    for i in range(0, len(decVars)):
                         devTypevarName = decVars[i]["name"]
                         self.deriveTypeVars.append(devTypevarName)
             elif node.tag == "access-spec":
@@ -167,17 +170,29 @@ class XMLToJSONTranslator(object):
             elif node.tag == "dimensions":
                 decDims = self.parseTree(node, state)
                 count = node.attrib["count"]
-            elif node.tag == "explicit-shape-spec-list__begin": # Check if the last derived type declaration field is an array field
+            elif (
+                node.tag == "explicit-shape-spec-list__begin"
+            ):
+                # Check if the last derived type declaration field is an array
+                # field
                 devTypeHasArrayField = True
-            elif node.tag == "literal" and devTypeHasArrayField == True: # If the last field is an array field, get the value from the literal that is size
+            elif (
+                node.tag == "literal" and devTypeHasArrayField
+            ):
+                # If the last field is an array field, get the value from the
+                # literal that is size
                 devTypeArrayField["array-size"] = node.attrib["value"]
             elif node.tag == "component-decl":
-                if devTypeHasArrayField == False:
+                if not devTypeHasArrayField:
                     decDevType.append({"field-id": node.attrib["id"].lower()})
-                    self.deriveTypeFields[node.attrib["id"].lower()] = "notArray"
+                    self.deriveTypeFields[
+                        node.attrib["id"].lower()
+                    ] = "notArray"
                 else:
                     devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[node.attrib["id"].lower()] = "isArray"
+                    self.deriveTypeFields[
+                        node.attrib["id"].lower()
+                    ] = "isArray"
                     decDevType.append(devTypeArrayField)
                     devTypeHasArrayField = False
 
@@ -199,7 +214,7 @@ class XMLToJSONTranslator(object):
 
         # If the statement is for declaring array
         if decDims:
-            for i in range (0, len(prog)):
+            for i in range(0, len(prog)):
                 counter = 0
                 for dim in decDims:
                     if "literal" in dim:
@@ -218,16 +233,21 @@ class XMLToJSONTranslator(object):
                                 value = ran["low"][0]["left"][0]["value"]
                                 prog[i]["low" + str(counter + 1)] = op + value
                             else:
-                                prog[i]["low" + str(counter + 1)] = ran["low"][0]["value"]
+                                prog[i]["low" + str(counter + 1)] = ran["low"][
+                                    0
+                                ]["value"]
                             if "operator" in ran["high"][0]:
                                 op = ran["high"][0]["operator"]
                                 value = ran["high"][0]["left"][0]["value"]
                                 prog[i]["up" + str(counter + 1)] = op + value
                             else:
-                                prog[i]["up" + str(counter + 1)] = ran["high"][0]["value"]
+                                prog[i]["up" + str(counter + 1)] = ran["high"][
+                                    0
+                                ]["value"]
                         counter = counter + 1
 
-        # If the statement is for declaring derived type, which is a class in python
+        # If the statement is for declaring derived type, which is a class in
+        # python
         if isDevType:
             prog.append({"tag": "derived-type"})
             field_num = 0
@@ -247,7 +267,9 @@ class XMLToJSONTranslator(object):
                     if f"field{field_id_num}" in prog[0]:
                         prog[0][f"field{field_id_num}"][0].update(field)
                     else:
-                        fields["type"] = prog[0][f"field{field_id_num-1}"][0]["type"]
+                        fields["type"] = prog[0][f"field{field_id_num-1}"][0][
+                            "type"
+                        ]
                         prog[0][f"field{field_id_num}"] = [fields]
                         prog[0][f"field{field_id_num}"][0].update(field)
                     field_id_num = field_id_num + 1
@@ -263,7 +285,7 @@ class XMLToJSONTranslator(object):
             if "name" in var:
                 if var["name"] in state.args:
                     state.subroutine["args"][state.args.index(var["name"])][
-                            "arg_type"
+                        "arg_type"
                     ] = f"arg_{var['tag']}"
         return prog
 
@@ -273,7 +295,9 @@ class XMLToJSONTranslator(object):
             for node in root:
                 if node.tag == "initial-value":
                     value = self.parseTree(node, state)
-                    return [{"tag": "variable", "name": var_name, "value": value}]
+                    return [
+                        {"tag": "variable", "name": var_name, "value": value}
+                    ]
                 else:
                     return [{"tag": "variable", "name": var_name}]
         except:
@@ -293,7 +317,7 @@ class XMLToJSONTranslator(object):
                         curName = lowName
                         devVar = re.findall(r"\"([^\"]+)\"", curName)
                         percInd = curName.find("%")
-                        fieldVar = curName[percInd+1:len(curName)]
+                        fieldVar = curName[percInd + 1 : len(curName)]
                         newName = devVar[0] + "." + fieldVar
                         do["header"][0]["low"][0]["name"] = newName
                         do["header"][0]["low"][0]["isDevType"] = True
@@ -303,7 +327,7 @@ class XMLToJSONTranslator(object):
                         curName = highName
                         devVar = re.findall(r"\"([^\"]+)\"", curName)
                         percInd = curName.find("%")
-                        fieldVar = curName[percInd+1:len(curName)]
+                        fieldVar = curName[percInd + 1 : len(curName)]
                         newName = devVar[0] + "." + fieldVar
                         do["header"][0]["high"][0]["name"] = newName
                         do["header"][0]["high"][0]["isDevType"] = True
@@ -391,20 +415,16 @@ class XMLToJSONTranslator(object):
             }
         ]
 
-    # This function checks for an asterisk in the argument of a read/write statement and stores it if found.
-    # An asterisk in the first argument specifies a input through or output to console.
-    # An asterisk in the second argument specifies a read/write without a format (implicit read/writes).
+    # This function checks for an asterisk in the argument of a read/write
+    # statement and stores it if found.  An asterisk in the first argument
+    # specifies a input through or output to console.  An asterisk in the
+    # second argument specifies a read/write without a format (implicit
+    # read/writes).
     def process_io_control_spec(self, root, state) -> List[Dict]:
         x = []
         for attr in root.attrib:
             if attr == "hasAsterisk" and root.attrib[attr] == "true":
-                x = [
-                    {
-                        "tag": "literal",
-                        "type": "char",
-                        "value": "*",
-                    }
-                ]
+                x = [{"tag": "literal", "type": "char", "value": "*"}]
         return x
 
     def process_stop(self, root, state) -> List[Dict]:
@@ -432,20 +452,26 @@ class XMLToJSONTranslator(object):
                 curName = refName
                 devVar = re.findall(r"\"([^\"]+)\"", curName)
                 percInd = curName.find("%")
-                fieldVar = curName[percInd+1:len(curName)]
+                fieldVar = curName[percInd + 1 : len(curName)]
                 refName = devVar[0]
                 isDevType = True
                 singleReference = True
-            # As a solution to handle derived type variable accesses more than 
-            # one field variables (via % in fortran and . in python), for example,
-            # var % x % y, we need to look up the variable name from the variable keep
-            # and mark isDevType attribute as True, so later it can be printed properly
-            # by pyTranslate.py
+            # As a solution to handle derived type variable accesses more than
+            # one field variables (via % in fortran and . in python), for
+            # example, var % x % y, we need to look up the variable name from
+            # the variable keep and mark isDevType attribute as True, so later
+            # it can be printed properly by pyTranslate.py
             if refName in self.deriveTypeVars:
                 isDevType = True
             if isDevType:
                 if singleReference:
-                    ref = {"tag": "ref", "name": refName, "field-name": fieldVar, "isDevType": True, "arrayStat": self.deriveTypeFields[fieldVar]}
+                    ref = {
+                        "tag": "ref",
+                        "name": refName,
+                        "field-name": fieldVar,
+                        "isDevType": True,
+                        "arrayStat": self.deriveTypeFields[fieldVar],
+                    }
                 else:
                     ref = {"tag": "ref", "name": refName, "isDevType": True}
             else:
@@ -474,7 +500,10 @@ class XMLToJSONTranslator(object):
             elif node.tag == "value":
                 assign["value"] = self.parseTree(node, state)
 
-        if (assign["target"][0]["name"] in [x.lower() for x in self.functionList]) and (
+        if (
+            assign["target"][0]["name"]
+            in [x.lower() for x in self.functionList]
+        ) and (
             assign["target"][0]["name"] == state.subroutine["name"].lower()
         ):
             assign["value"][0]["tag"] = "ret"
@@ -527,29 +556,29 @@ class XMLToJSONTranslator(object):
         for node in root:
             fn["args"] += self.parseTree(node, state)
         return [fn]
-    
+
     def process_keyword_argument(self, root, state) -> List[Dict]:
         x = []
-        if (root.attrib and root.attrib['argument-name'] != ''):
-            x = [{"arg_name": root.attrib['argument-name']}]
+        if root.attrib and root.attrib["argument-name"] != "":
+            x = [{"arg_name": root.attrib["argument-name"]}]
         for node in root:
             x += self.parseTree(node, state)
         return x
 
     def process_open(self, root, state) -> List[Dict]:
-        open_st = {"tag":root.tag, "args":[]}
+        open_st = {"tag": root.tag, "args": []}
         for node in root:
             open_st["args"] += self.parseTree(node, state)
         return [open_st]
 
     def process_read(self, root, state) -> List[Dict]:
-        read_st = {"tag":root.tag, "args":[]}
+        read_st = {"tag": root.tag, "args": []}
         for node in root:
             read_st["args"] += self.parseTree(node, state)
         return [read_st]
 
     def process_write(self, root, state) -> List[Dict]:
-        write_st = {"tag":root.tag, "args":[]}
+        write_st = {"tag": root.tag, "args": []}
         for node in root:
             write_st["args"] += self.parseTree(node, state)
         return [write_st]
@@ -564,17 +593,14 @@ class XMLToJSONTranslator(object):
 
     def process_format_item(self, root, state) -> List[Dict]:
         variable_spec = {
-                "tag": "literal",
-                "type": "char",
-                "value": root.attrib["descOrDigit"]
+            "tag": "literal",
+            "type": "char",
+            "value": root.attrib["descOrDigit"],
         }
         return [variable_spec]
 
     def process_close(self, root, state) -> List[Dict]:
-        close_spec = {
-            "tag": "close",
-            "args": []
-        }
+        close_spec = {"tag": "close", "args": []}
         for node in root:
             close_spec["args"] += self.parseTree(node, state)
         return [close_spec]
@@ -583,10 +609,7 @@ class XMLToJSONTranslator(object):
     # In case of "USE .. ONLY .." statements, the symbols to be included
     # are stored in the "include" field of the "use" block
     def process_use(self, root, state) -> List[Dict]:
-        tag_spec = {
-            "tag": "use",
-            "arg": root.attrib["name"]
-        }
+        tag_spec = {"tag": "use", "arg": root.attrib["name"]}
         for node in root:
             if node.tag == "only":
                 tag_spec["include"] = []
@@ -619,30 +642,40 @@ class XMLToJSONTranslator(object):
             if node.tag == "type":
                 derived_types = self.parseTree(node, state)
             elif node.tag == "derived-type-stmt":
-                derived_types.append({"derived-type": node.attrib["id"].lower()})
+                derived_types.append(
+                    {"derived-type": node.attrib["id"].lower()}
+                )
             elif node.tag == "intrinsic-type-spec":
-                derived_types.append({"field-type": node.attrib["keyword1"].lower()})
+                derived_types.append(
+                    {"field-type": node.attrib["keyword1"].lower()}
+                )
             elif node.tag == "explicit-shape-spec-list__begin":
                 devTypeHasArrayField = True
             elif node.tag == "literal":
                 if devTypeHasArrayField:
                     devTypeArrayField["array-size"] = node.attrib["value"]
-                else: 
+                else:
                     devTypeVarField["value"] = node.attrib["value"]
                     devTypeHasInitValue = True
             elif node.tag == "component-decl":
-                if devTypeHasArrayField == False:
+                if not devTypeHasArrayField:
                     if devTypeHasInitValue:
                         devTypeVarField["field-id"] = node.attrib["id"].lower()
                         derived_types.append(devTypeVarField)
                         devTypeHasInitValue = False
                     else:
-                        derived_types.append({"field-id": node.attrib["id"].lower()})
-                    self.deriveTypeFields[node.attrib["id"].lower()] = "notArray"
+                        derived_types.append(
+                            {"field-id": node.attrib["id"].lower()}
+                        )
+                    self.deriveTypeFields[
+                        node.attrib["id"].lower()
+                    ] = "notArray"
                     derived_types.append(devTypeArrayField)
                 else:
                     devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[node.attrib["id"].lower()] = "isArray"
+                    self.deriveTypeFields[
+                        node.attrib["id"].lower()
+                    ] = "isArray"
                     derived_types.append(devTypeArrayField)
                     devTypeHasArrayField = False
             elif node.tag == "derived-type-spec":
@@ -741,7 +774,7 @@ class XMLToJSONTranslator(object):
 
         elif root.tag == "use":
             return self.process_use(root, state)
-   
+
         elif root.tag == "dimension":
             return self.process_dimension(root, state)
 
@@ -753,7 +786,7 @@ class XMLToJSONTranslator(object):
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
- 
+
         else:
             prog = []
             for node in root:

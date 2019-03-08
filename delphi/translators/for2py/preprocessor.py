@@ -9,7 +9,7 @@ as seen below.
 Example:
     To invoke this script, do: ::
 
-        ./f2py_pp.py <infile> <outfile>
+        ./preprocessor.py <infile> <outfile>
 
 where `infile` is the name of the input file, and `outfile` is the name of the
 file to which the preprocessed code will be written.
@@ -20,7 +20,7 @@ Author:
 
 import sys
 from typing import List
-from delphi.translators.for2py.scripts.fortran_syntax import *
+from delphi.translators.for2py.syntax import *
 
 
 def process(lines: List[str]) -> str:
@@ -100,7 +100,7 @@ def rm_trailing_comment(line: str) -> str:
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: f2py_pp.py <infile> <outfile>\n")
+        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
         sys.exit(1)
 
     infile, outfile = sys.argv[1], sys.argv[2]
