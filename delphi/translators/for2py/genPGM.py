@@ -23,9 +23,9 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
-has_elif = False
-elif_input = ''
-annassigned_list = []
+HAS_ELIF = False
+ELIF_INPUT = ''
+ANNASSIGNED_LIST = []
 
 UNNECESSARY_TYPES = (
     ast.Mult,
@@ -197,7 +197,6 @@ def getLastDef(var, lastDefs, lastDefDefault):
 
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
-    global annassigned_list
     index = nextDefs.get(var, lastDefDefault+1)
     nextDefs[var] = index + 1
     lastDefs[var] = index
@@ -559,7 +558,7 @@ def genPgm(node, state, fnNames, source):
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
-        global has_elif, elif_input
+        global HAS_ELIF, ELIF_INPUT
         pgm = {"functions": [], "body": []}
 
         condSrcs = genPgm(node.test, state, fnNames, "if")
@@ -655,12 +654,12 @@ def genPgm(node, state, fnNames, source):
             inputs_copy = inputs[:]
             for input in inputs_copy:
                 ip_tag = input["variable"] + "_" + str(input["index"])
-                if has_elif:
-                    if ip_tag in elif_input:
+                if HAS_ELIF:
+                    if ip_tag in ELIF_INPUT:
                         inputs.remove(input)
                         inputs.append({"variable":"decision__"+input["variable"], "index": input["index"]})
-                        elif_input = ''
-                        has_elif = False
+                        ELIF_INPUT = ''
+                        HAS_ELIF = False
                         break
                     else:
                         continue
@@ -726,8 +725,8 @@ def genPgm(node, state, fnNames, source):
                         if "__decision__" in block["name"]:
                             input_match = re.search(r'\S+__(?P<catch_input>\S+__.*)$', block["name"])
                             if input_match:
-                                elif_input = input_match.group('catch_input')
-                                has_elif = True
+                                ELIF_INPUT = input_match.group('catch_input')
+                                HAS_ELIF = True
 
         return [pgm]
 
@@ -796,14 +795,14 @@ def genPgm(node, state, fnNames, source):
 
     # Subscript: ('value', 'slice', 'ctx')
     elif isinstance(node, ast.Subscript):
-        global annassigned_list
+        global ANNASSIGNED_LIST
         if not isinstance(node.slice.value, ast.Num):
             sys.stderr.write("can't handle arrays right now\n")
             sys.exit(1)
 
         val = genPgm(node.value, state, fnNames, "subscript")
 
-        if val[0]["var"]["variable"] in annassigned_list:
+        if val[0]["var"]["variable"] in ANNASSIGNED_LIST:
             if isinstance(node.ctx, ast.Store):
                 val[0]["var"]["index"] = getNextDef(
                     val[0]["var"]["variable"],
@@ -812,7 +811,7 @@ def genPgm(node, state, fnNames, source):
                     state.lastDefDefault,
                 )
         else:
-           annassigned_list.append(val[0]["var"]["variable"])
+           ANNASSIGNED_LIST.append(val[0]["var"]["variable"])
         return val
 
     # Name: ('id', 'ctx')
@@ -826,15 +825,14 @@ def genPgm(node, state, fnNames, source):
 
     # AnnAssign: ('target', 'annotation', 'value', 'simple')
     elif isinstance(node, ast.AnnAssign):
-        # global annassigned_list
         if isinstance(node.value, ast.List):
             targets = genPgm(node.target, state, fnNames, "annassign")
             for target in targets:
                 state.varTypes[target["var"]["variable"]] = getVarType(
                     node.annotation
                 )
-                if target['var']['variable'] not in annassigned_list:
-                    annassigned_list.append(target['var']['variable'])
+                if target['var']['variable'] not in ANNASSIGNED_LIST:
+                    ANNASSIGNED_LIST.append(target['var']['variable'])
             return []
 
         sources = genPgm(node.value, state, fnNames, "annassign")
