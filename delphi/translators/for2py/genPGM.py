@@ -22,10 +22,8 @@ BINOPS = {
     ast.Eq: operator.eq,
     ast.LtE: operator.le,
 }
-
-HAS_ELIF = False
-ELIF_INPUT = ''
 ANNASSIGNED_LIST = []
+ELIF_PGM = []
 
 UNNECESSARY_TYPES = (
     ast.Mult,
@@ -375,7 +373,7 @@ def make_body_dict(name, target, sources):
     return body
 
 
-def genPgm(node, state, fnNames, source):
+def genPgm(node, state, fnNames, call_source):
     types = (list, ast.Module, ast.FunctionDef)
 
     if state.fnName is None and not any(isinstance(node, t) for t in types):
@@ -390,7 +388,7 @@ def genPgm(node, state, fnNames, source):
 
     if isinstance(node, list):
         return list(
-            chain.from_iterable([genPgm(cur, state, fnNames, "list") for cur in node])
+            chain.from_iterable([genPgm(cur, state, fnNames, call_source) for cur in node])
         )
 
     # Function: name, args, body, decorator_list, returns
@@ -558,7 +556,43 @@ def genPgm(node, state, fnNames, source):
 
     # If: ('test', 'body', 'orelse')
     elif isinstance(node, ast.If):
-        global HAS_ELIF, ELIF_INPUT
+        global ELIF_PGM
+
+        if call_source == "if":
+            pgm = {"functions": [], "body": []}
+
+            condSrcs = genPgm(node.test, state, fnNames, "if")
+
+            startDefs = state.lastDefs.copy()
+            ifDefs = startDefs.copy()
+            elseDefs = startDefs.copy()
+            ifState = state.copy(lastDefs=ifDefs)
+            elseState = state.copy(lastDefs=elseDefs)
+            ifPgm = genPgm(node.body, ifState, fnNames, "if")
+            elsePgm = genPgm(node.orelse, elseState, fnNames, "if")
+
+            updatedDefs = [
+                var
+                for var in set(startDefs.keys())
+                    .union(ifDefs.keys())
+                    .union(elseDefs.keys())
+                if var not in startDefs
+                   or ifDefs[var] != startDefs[var]
+                   or elseDefs[var] != startDefs[var]
+            ]
+
+            pgm["functions"] += reduce(
+                (lambda x, y: x + y["functions"]), [[]] + ifPgm
+            ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
+
+            pgm["body"] += reduce(
+                (lambda x, y: x + y["body"]), [[]] + ifPgm
+            ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
+
+            ELIF_PGM = [pgm, condSrcs, node.test, node.lineno, node, updatedDefs, ifDefs]
+
+            return []
+
         pgm = {"functions": [], "body": []}
 
         condSrcs = genPgm(node.test, state, fnNames, "if")
@@ -597,6 +631,7 @@ def genPgm(node, state, fnNames, source):
             None,
             [src["var"]["variable"] for src in condSrcs if "var" in src],
         )
+
         startDefs = state.lastDefs.copy()
         ifDefs = startDefs.copy()
         elseDefs = startDefs.copy()
@@ -635,6 +670,7 @@ def genPgm(node, state, fnNames, source):
             ]
             for key in updatedDefs
         }
+
         for updatedDef in defVersions:
             versions = defVersions[updatedDef]
             inputs = (
@@ -703,16 +739,138 @@ def genPgm(node, state, fnNames, source):
             pgm["functions"].append(fn)
             pgm["body"].append(body)
 
-            # Check whether the elsePgm immediately consists of another if statement. This would mean an elif block is
-            # present.
-            if len(pgm) > 0:
-                if "__condition__IF_" in pgm["functions"][0]["name"]:
-                    for block in pgm["functions"]:
-                        if "__decision__" in block["name"]:
-                            input_match = re.search(r'\S+__(?P<catch_input>\S+__.*)$', block["name"])
-                            if input_match:
-                                ELIF_INPUT = input_match.group('catch_input')
-                                HAS_ELIF = True
+            # Previous ELIF Block is filled??
+            if len(ELIF_PGM) > 0:
+
+                condSrcs = ELIF_PGM[1]
+
+                pgm["functions"].append(ELIF_PGM[0]["functions"])
+                pgm["body"].append(ELIF_PGM[0]["body"])
+
+                condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
+                state.nextDefs["#cond"] = condNum + 1
+
+                condName = f"IF_{condNum}"
+                state.varTypes[condName] = "boolean"
+                state.lastDefs[condName] = 0
+                fnName = getFnName(fnNames, f"{state.fnName}__condition__{condName}", {})
+                condOutput = {"variable": condName, "index": 0}
+
+                fn = {
+                    "name": fnName,
+                    "type": "condition",
+                    "target": condName,
+                    "reference": ELIF_PGM[3],
+                    "sources": [
+                        {"name": src["var"]["variable"], "type": "variable"}
+                        for src in condSrcs
+                        if "var" in src
+                    ],
+                }
+                body = {
+                    "name": fnName,
+                    "output": condOutput,
+                    "input": [src["var"] for src in condSrcs if "var" in src],
+                }
+                pgm["functions"].append(fn)
+                pgm["body"].append(body)
+
+                genFn(
+                    state.lambdaStrings,
+                    ELIF_PGM[2],
+                    fnName,
+                    None,
+                    [src["var"]["variable"] for src in condSrcs if "var" in src],
+                )
+
+                startDefs = state.lastDefs.copy()
+                ifDefs = ELIF_PGM[6]
+                elseDefs = startDefs.copy()
+
+                updatedDefs = ELIF_PGM[5]
+
+                defVersions = {
+                    key: [
+                        version
+                        for version in [
+                            startDefs.get(key),
+                            ifDefs.get(key),
+                            elseDefs.get(key),
+                        ]
+                        if version is not None
+                    ]
+                    for key in updatedDefs
+                }
+
+                for updatedDef in defVersions:
+                    versions = defVersions[updatedDef]
+                    inputs = (
+                        [
+                            condOutput,
+                            {"variable": updatedDef, "index": versions[-1]},
+                            {"variable": updatedDef, "index": versions[-2]},
+                        ]
+                        if len(versions) > 1
+                        else [
+                            condOutput,
+                            {"variable": updatedDef, "index": versions[0]},
+                        ]
+                    )
+
+                    output = {
+                        "variable": updatedDef,
+                        "index": getNextDef(
+                            updatedDef,
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        ),
+                    }
+                    fnName = getFnName(
+                        fnNames, f"{state.fnName}__decision__{updatedDef}", output
+                    )
+                    fn = {
+                        "name": fnName,
+                        "type": "decision",
+                        "target": updatedDef,
+                        "reference": ELIF_PGM[3],
+                        "sources": [
+                            {
+                                "name": f"{var['variable']}_{var['index']}",
+                                "type": "variable",
+                            }
+                            for var in inputs
+                        ],
+                    }
+
+                    # Check for buggy __decision__ tag containing of only IF_ blocks
+                    # More information required on how __decision__ tags are made
+                    # This seems to be in development phase and documentation is
+                    # missing from the GrFN spec as well. Actual removal (or not)
+                    # of this tag depends on further information about this
+
+                    if "IF_" in updatedDef:
+                        count = 0
+                        for var in inputs:
+                            if "IF_" in var["variable"]:
+                                count += 1
+                        if count == len(inputs):
+                            continue
+
+                    body = {"name": fnName, "output": output, "input": inputs}
+
+                    genFn(
+                        state.lambdaStrings,
+                        ELIF_PGM[4],
+                        fnName,
+                        updatedDef,
+                        [f"{src['variable']}_{src['index']}" for src in inputs],
+                    )
+
+                    pgm["functions"].append(fn)
+                    pgm["body"].append(body)
+
+                    ELIF_PGM = []
 
         return [pgm]
 
