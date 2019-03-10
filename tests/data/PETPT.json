@@ -168,24 +168,22 @@
         }
       ]
     },
-    [
-      {
-        "name": "petpt__assign__eo_2",
-        "type": "assign",
-        "reference": 26,
-        "sources": [
-          {
-            "name": "eeq",
-            "type": "variable"
-          },
-          {
-            "name": "tmax",
-            "type": "variable"
-          }
-        ],
-        "target": "eo"
-      }
-    ],
+    {
+      "name": "petpt__assign__eo_2",
+      "type": "assign",
+      "reference": 26,
+      "sources": [
+        {
+          "name": "eeq",
+          "type": "variable"
+        },
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ],
+      "target": "eo"
+    },
     {
       "name": "petpt__condition__IF_3_0",
       "type": "condition",
@@ -493,25 +491,23 @@
             }
           ]
         },
-        [
-          {
-            "name": "petpt__assign__eo_2",
-            "output": {
-              "variable": "eo",
-              "index": 2
+        {
+          "name": "petpt__assign__eo_2",
+          "output": {
+            "variable": "eo",
+            "index": 2
+          },
+          "input": [
+            {
+              "variable": "eeq",
+              "index": 1
             },
-            "input": [
-              {
-                "variable": "eeq",
-                "index": 1
-              },
-              {
-                "variable": "tmax",
-                "index": 0
-              }
-            ]
-          }
-        ],
+            {
+              "variable": "tmax",
+              "index": 0
+            }
+          ]
+        },
         {
           "name": "petpt__condition__IF_3_0",
           "output": {
@@ -564,5 +560,5 @@
   ],
   "start": "",
   "name": "PETPT.json",
-  "dateCreated": "2019-03-09"
+  "dateCreated": "2019-03-10"
 }
