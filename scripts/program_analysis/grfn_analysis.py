@@ -11,9 +11,7 @@ from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
 lambdas = importlib.__import__("PETPT_lambdas")
 pgm = json.load(open("PETPT.json", "r"))
 G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
-print(G.nodes)
-print(G.edges)
-
-# print([n for n, d in G.out_degree() if d == 0])
-# print([n for n, d in G.in_degree() if d == 0])
-visualize(G, save=True, filename="petpt.pdf")
+# print(G)
+values = {name: 1 for name in G.inputs}
+G.run(values)
+# visualize(G, save=True, filename="petpt.pdf")

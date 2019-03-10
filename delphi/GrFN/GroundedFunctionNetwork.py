@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict
 from enum import Enum
 import importlib
+import inspect
 import json
 import re
 import os
@@ -32,6 +33,27 @@ class GroundedFunctionNetwork(nx.DiGraph):
         self.add_edges_from(edges)
         self.scopes = subgraphs
 
+        self.inputs = [n for n, d in self.in_degree() if d == 0]
+        self.outputs = [n for n, d in self.out_degree() if d == 0]
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.traverse_nodes(self.inputs)
+
+    def traverse_nodes(self, node_set, depth=0):
+        tab = "  "
+        result = ""
+        for n in node_set:
+            repr = self.nodes[n]["name"] \
+                if self.nodes[n]["type"] == NodeType.VARIABLE else \
+                f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
+
+            result += f"{tab * depth}{repr}\n"
+            result += self.traverse_nodes(self.successors(n), depth=depth+1)
+        return result
+
     @classmethod
     def from_json(cls, file: str):
         with open(file, "r") as f:
@@ -42,29 +64,24 @@ class GroundedFunctionNetwork(nx.DiGraph):
     @classmethod
     def from_dict(cls, data: Dict, lambdas):
         nodes, edges, subgraphs = list(), list(), dict()
-        containers_and_plates = [obj for obj in data["functions"] if obj["type"] in ["container", "loop_plate"]]
-        reg_patt = r"(__assign__|__decision__|__condition__)"
+        containers_and_plates = [obj for obj in data["functions"]
+                                 if obj["type"] in ["container", "loop_plate"]]
+
         for obj in containers_and_plates:
-            func_type = get_node_type(obj["type"])
+            # func_type = get_node_type(obj["type"])
             func_name = obj["name"]
             contained_graphs = list()
             # TODO: check how to do subgraphs with scopes
             for stmt in obj["body"]:
-                lambda_name = stmt["name"]      # re.sub(reg_patt, "__lambda__", stmt["name"])
+                lambda_name = stmt["name"]
                 short_type = stmt["name"][stmt["name"].find("__") + 2: stmt["name"].rfind("__")]
                 stmt_type = get_node_type(short_type)
                 stmt_name = stmt["name"]
                 if stmt_type != NodeType.LOOP and stmt_type != NodeType.CONTAINER:
-                    nodes.append((stmt_name, {
-                        "name": stmt_name,
-                        # TODO: check to see if the assignment below is right
-                        "lambda": getattr(lambdas, lambda_name),
-                        "type": stmt_type,
-                        "scope": func_name
-                    }))
-
+                    ordered_inputs = list()
                     for var in stmt["input"]:
                         input_node_name = get_variable_name(var)
+                        ordered_inputs.append(input_node_name)
                         edges.append((input_node_name, stmt_name))
                         nodes.append((input_node_name, {
                             "name": input_node_name,
@@ -72,6 +89,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             "value": None,
                             "scope": func_name
                         }))
+
+                    nodes.append((stmt_name, {
+                        "name": stmt_name,
+                        "type": stmt_type,
+                        "lambda": getattr(lambdas, lambda_name),
+                        "func_inputs": ordered_inputs,
+                        "scope": func_name
+                    }))
 
                     out_node_name = get_variable_name(stmt["output"])
                     edges.append((stmt_name, out_node_name))
@@ -131,6 +156,42 @@ class GroundedFunctionNetwork(nx.DiGraph):
         pySrc = pyTranslate.create_python_string(outputDict)[0][0]
 
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+
+    def run(self, inputs):
+        if len(inputs) != len(self.inputs):
+            raise ValueError("Incorrect number of inputs.")
+
+        defined_variables = inputs
+        function_stack = dict()
+        for node_name, val in inputs.items():
+            self.nodes[node_name]["value"] = val
+            for func_node in self.successors(node_name):
+                function_stack[func_node] = (self.nodes[func_node]["func_inputs"], self.nodes[func_node]["lambda"])
+
+        outputs = list()
+        remaining_functions = dict()
+        print(inputs)
+        for name, (func_inputs, lambda_fn) in function_stack.items():
+            args = list()
+            bad_func = False
+            for inp in func_inputs:
+                if inp not in inputs:
+                    remaining_functions[name] = (func_inputs, lambda_fn)
+                    bad_func = True
+                    break
+                else:
+                    args.append(inputs[inp])
+            if bad_func:
+                continue
+            print(args)
+            res = lambda_fn(*args)
+            print(res)
+            output_node = list(self.successors(node_name))[0]
+            self.nodes[output_node]["value"] = res
+            outputs.append(output_node)
+        print(outputs)
+
+        return
 
 
 class NodeType(Enum):
