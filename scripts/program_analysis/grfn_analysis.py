@@ -13,5 +13,6 @@ pgm = json.load(open("PETPT.json", "r"))
 G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 # print(G)
 values = {name: 1 for name in G.inputs}
-G.run(values)
+result = G.run(values)
+print(f"Final result: {result}")
 # visualize(G, save=True, filename="petpt.pdf")

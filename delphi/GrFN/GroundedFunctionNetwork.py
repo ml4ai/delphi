@@ -35,6 +35,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         self.inputs = [n for n, d in self.in_degree() if d == 0]
         self.outputs = [n for n, d in self.out_degree() if d == 0]
+        self.output_node = self.outputs[0]
 
     def __repr__(self):
         return self.__str__()
@@ -157,41 +158,47 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
+    def clear(self):
+        for n in self.nodes():
+            if self.nodes[n]["type"] == NodeType.VARIABLE:
+                self.nodes[n]["value"] = None
+
     def run(self, inputs):
         if len(inputs) != len(self.inputs):
             raise ValueError("Incorrect number of inputs.")
+
+        def update_function_stack(stack, successors):
+            for n in successors:
+                paths = nx.all_simple_paths(self, n, self.output_node)
+                dist = max([len(p) for p in paths])
+                if dist in stack:
+                    if n not in stack[dist]:
+                        stack[dist].append(n)
+                else:
+                    stack[dist] = [n]
 
         defined_variables = inputs
         function_stack = dict()
         for node_name, val in inputs.items():
             self.nodes[node_name]["value"] = val
-            for func_node in self.successors(node_name):
-                function_stack[func_node] = (self.nodes[func_node]["func_inputs"], self.nodes[func_node]["lambda"])
+            update_function_stack(function_stack, self.successors(node_name))
 
-        outputs = list()
-        remaining_functions = dict()
-        print(inputs)
-        for name, (func_inputs, lambda_fn) in function_stack.items():
-            args = list()
-            bad_func = False
-            for inp in func_inputs:
-                if inp not in inputs:
-                    remaining_functions[name] = (func_inputs, lambda_fn)
-                    bad_func = True
-                    break
-                else:
-                    args.append(inputs[inp])
-            if bad_func:
-                continue
-            print(args)
-            res = lambda_fn(*args)
-            print(res)
-            output_node = list(self.successors(node_name))[0]
-            self.nodes[output_node]["value"] = res
-            outputs.append(output_node)
-        print(outputs)
+        while len(function_stack) > 0:
+            max_dist = max(function_stack.keys())
+            outputs = list()
+            for func_name in function_stack[max_dist]:
+                signature = self.nodes[func_name]["func_inputs"]
+                lambda_fn = self.nodes[func_name]["lambda"]
+                res = lambda_fn(*tuple(defined_variables[n] for n in signature))
+                output_node = list(self.successors(func_name))[0]
+                self.nodes[output_node]["value"] = res
+                defined_variables[output_node] = res
+                outputs.append(output_node)
+            del function_stack[max_dist]
+            all_successors = list(set(n for node in outputs for n in self.successors(node)))
+            update_function_stack(function_stack, all_successors)
 
-        return
+        return self.nodes[self.output_node]["value"]
 
 
 class NodeType(Enum):
