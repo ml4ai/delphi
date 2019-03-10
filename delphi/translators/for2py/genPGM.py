@@ -744,8 +744,11 @@ def genPgm(node, state, fnNames, call_source):
 
                 condSrcs = ELIF_PGM[1]
 
-                pgm["functions"].append(ELIF_PGM[0]["functions"])
-                pgm["body"].append(ELIF_PGM[0]["body"])
+                for item in ELIF_PGM[0]["functions"]:
+                    pgm["functions"].append(item)
+
+                for item in ELIF_PGM[0]["body"]:
+                    pgm["body"].append(item)
 
                 condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
                 state.nextDefs["#cond"] = condNum + 1
