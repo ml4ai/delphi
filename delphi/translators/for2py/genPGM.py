@@ -22,6 +22,7 @@ BINOPS = {
     ast.Eq: operator.eq,
     ast.LtE: operator.le,
 }
+
 ANNASSIGNED_LIST = []
 ELIF_PGM = []
 FUNCTION_DEFS = []
@@ -130,22 +131,25 @@ def printPgm(pgmFile, pgm):
     pgmFile.write(json.dumps(pgm, indent=2))
 
 
-def genFn(lambdaStrings, node, fnName, returnVal, inputs):
-    lambdaStrings.append(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
+def genFn(node, fnName: str, returnVal: bool, inputs):
+    lambda_strings = []
+    lambda_strings.append(f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    ")
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
     if "__decision__" in fnName:
         code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
     else:
         code = genCode(node, PrintState("\n    "))
+
     if returnVal:
-        lambdaStrings.append(f"return {code}")
+        lambda_strings.append(f"return {code}")
     else:
         lines = code.split("\n")
         indent = re.search("[^ ]", lines[-1]).start()
         lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
-        lambdaStrings.append("\n".join(lines))
-    lambdaStrings.append("\n\n")
+        lambda_strings.append("\n".join(lines))
+    lambda_strings.append("\n\n")
+    return "".join(lambda_strings)
 
 
 def mergeDicts(dicts: Iterable[Dict]) -> Dict:
@@ -630,13 +634,13 @@ def genPgm(node, state, fnNames, call_source):
         }
         pgm["functions"].append(fn)
         pgm["body"].append(body)
-        genFn(
-            state.lambdaStrings,
+        lambda_string = genFn(
             node.test,
             fnName,
             None,
             [src["var"]["variable"] for src in condSrcs if "var" in src],
         )
+        state.lambdaStrings.append(lambda_string)
 
         startDefs = state.lastDefs.copy()
         ifDefs = startDefs.copy()
@@ -734,13 +738,13 @@ def genPgm(node, state, fnNames, call_source):
 
             body = {"name": fnName, "output": output, "input": inputs}
 
-            genFn(
-                state.lambdaStrings,
+            lambda_string = genFn(
                 node,
                 fnName,
                 updatedDef,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
             )
+            state.lambdaStrings.append(lambda_string)
 
             pgm["functions"].append(fn)
             pgm["body"].append(body)
@@ -784,13 +788,13 @@ def genPgm(node, state, fnNames, call_source):
                 pgm["functions"].append(fn)
                 pgm["body"].append(body)
 
-                genFn(
-                    state.lambdaStrings,
+                lambda_string = genFn(
                     ELIF_PGM[2],
                     fnName,
                     None,
                     [src["var"]["variable"] for src in condSrcs if "var" in src],
                 )
+                state.lambdaStrings.append(lambda_string)
 
                 startDefs = state.lastDefs.copy()
                 ifDefs = ELIF_PGM[6]
@@ -868,13 +872,13 @@ def genPgm(node, state, fnNames, call_source):
 
                     body = {"name": fnName, "output": output, "input": inputs}
 
-                    genFn(
-                        state.lambdaStrings,
+                    lambda_string = genFn(
                         ELIF_PGM[4],
                         fnName,
                         updatedDef,
                         [f"{src['variable']}_{src['index']}" for src in inputs],
                     )
+                    state.lambdaStrings.append(lambda_string)
 
                     pgm["functions"].append(fn)
                     pgm["body"].append(body)
@@ -1002,13 +1006,13 @@ def genPgm(node, state, fnNames, call_source):
             fn = make_fn_dict(name, target, sources, node)
             body = make_body_dict(name, target, sources)
 
-            genFn(
-                state.lambdaStrings,
+            lambda_string = genFn(
                 node,
                 name,
                 target["var"]["variable"],
                 [src["var"]["variable"] for src in sources if "var" in src],
             )
+            state.lambdaStrings.append(lambda_string)
 
             if not fn["sources"] and len(sources) == 1:
                 fn["body"] = {
@@ -1061,13 +1065,13 @@ def genPgm(node, state, fnNames, call_source):
                     for ip in src["call"]["inputs"][0]:
                         if "var" in ip:
                             source_list.append(ip["var"]["variable"])
-            genFn(
-                state.lambdaStrings,
+            lambda_string = genFn(
                 node,
                 name,
                 target["var"]["variable"],
                 source_list,
             )
+            state.lambdaStrings.append(lambda_string)
             if not fn["sources"] and len(sources) == 1:
                 if sources[0].get("list"):
                     dtypes = set()
