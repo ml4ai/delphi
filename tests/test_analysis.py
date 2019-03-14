@@ -8,6 +8,7 @@ from delphi.analysis.sensitivity.reporter import Reporter
 from delphi.translators.for2py.data.PETASCE import PETASCE
 from delphi.translators.for2py.data.Plant_pgm import MAIN
 from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
+from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis
 
 
 def test_PETASCE():
@@ -64,15 +65,19 @@ def test_PETPT_GrFN():
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Ns = 100000000                      # TODO: Khan, experiment with this value
-    analyzer = methods.SobolAnalyzer(G.run, prob_def=problem)
-    analyzer.sample(num_samples=Ns)
-    analyzer.evaluate()
-    Si = analyzer.analyze(parallel=False,
-                          print_to_console=False,
-                          n_processors=None)
+    Ns = 1000                      # TODO: Khan, experiment with this value
+    Si = sobol_analysis(G, Ns, problem)
+    assert len(Si.keys()) == 6
+    assert len(Si["S1"]) == len(args)
+
+    Si = FAST_analysis(G, Ns, problem)
+    assert len(Si.keys()) == 2
+    assert len(Si["S1"]) == len(args)
 
     # TODO: Khan -- add some good asserts here that test the Si outputs
+    # TODO: Khan -- be sure to test the results we get from Sobol and from FAST
+    #               in particular I would like to know how much faster FAST is
+    #               is than Sobol and what penalty we are paying in terms of accuracy
 
 
 def test_PLANT_reporter():
