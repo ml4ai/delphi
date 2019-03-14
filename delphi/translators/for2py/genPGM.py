@@ -24,6 +24,7 @@ BINOPS = {
 }
 ANNASSIGNED_LIST = []
 ELIF_PGM = []
+FUNCTION_DEFS = []
 
 UNNECESSARY_TYPES = (
     ast.Mult,
@@ -393,6 +394,11 @@ def genPgm(node, state, fnNames, call_source):
 
     # Function: name, args, body, decorator_list, returns
     elif isinstance(node, ast.FunctionDef):
+        global FUNCTION_DEFS
+
+        # List out all the function definitions in the ast
+        FUNCTION_DEFS.append(node.name)
+
         localDefs = state.lastDefs.copy()
         localNext = state.nextDefs.copy()
         localTypes = state.varTypes.copy()
@@ -744,8 +750,11 @@ def genPgm(node, state, fnNames, call_source):
 
                 condSrcs = ELIF_PGM[1]
 
-                pgm["functions"].append(ELIF_PGM[0]["functions"])
-                pgm["body"].append(ELIF_PGM[0]["body"])
+                for item in ELIF_PGM[0]["functions"]:
+                    pgm["functions"].append(item)
+
+                for item in ELIF_PGM[0]["body"]:
+                    pgm["body"].append(item)
 
                 condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
                 state.nextDefs["#cond"] = condNum + 1
@@ -1158,7 +1167,7 @@ def create_pgm_dict(
     if pgm.get("start"):
         pgm["start"] = pgm["start"][0]
     else:
-        pgm["start"] = ""
+        pgm["start"] = FUNCTION_DEFS[-1]
     pgm["name"] = pgm_file
     pgm["dateCreated"] = f"{datetime.today().strftime('%Y-%m-%d')}"
 

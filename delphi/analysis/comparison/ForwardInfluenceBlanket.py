@@ -92,9 +92,6 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         #     self[source][dest]["color"] = "orange"
 
     def cyjs_elementsJSON(self) -> str:
-        for n in self.nodes(data=True):
-            print(n[1].get('color', 'black'))
-
         elements = {
             "nodes": [
                 {
