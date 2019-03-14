@@ -42,6 +42,7 @@ setup(
         "python-dateutil",
         "salib",
         "tangent",
+        "torch",
         "ruamel.yaml",
     ],
     python_requires=">=3.6",
