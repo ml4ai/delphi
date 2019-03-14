@@ -72,19 +72,12 @@ class XMLToJSONTranslator(object):
             "log",
         ]
         self.handled_tags = [
-            "access-spec", 
-            "argument"
-            "assignment"
-            "call"
-            "close"
-            "component-decl",
-            "declaration"
-            "dimension"
-            "dimensions",
-            "exit", 
+            "access-spec",
+            "argument" "assignment" "call" "close" "component-decl",
+            "declaration" "dimension" "dimensions",
+            "exit",
             "explicit-shape-spec-list__begin",
-            "format"
-            "format", 
+            "format" "format",
             "format-item"
             "function"
             "if"
@@ -93,23 +86,12 @@ class XMLToJSONTranslator(object):
             "keyword-argument"
             "literal"
             "literal",
-            "loop" 
-            "module"
-            "name"
-            "open"
-            "operation"
-            "program", 
-            "range"
-            "read"
-            "return", 
-            "stop"
-            "subroutine", 
-            "type"
-            "type", 
-            "use"
-            "variable"
-            "variables", 
-            "write"
+            "loop" "module" "name" "open" "operation" "program",
+            "range" "read" "return",
+            "stop" "subroutine",
+            "type" "type",
+            "use" "variable" "variables",
+            "write",
         ]
         self.handled_tags += self.libRtns
 
@@ -159,7 +141,7 @@ class XMLToJSONTranslator(object):
     def process_argument(self, root, state) -> List[Dict]:
         return [{"tag": "arg", "name": root.attrib["name"].lower()}]
 
-    # *** This method is in desperate need of cleanup.  
+    # *** This method is in desperate need of cleanup.
     # *** TODO after Apr deadline.
     def process_declaration(self, root, state) -> List[Dict]:
         prog = []
@@ -216,15 +198,11 @@ class XMLToJSONTranslator(object):
             elif node.tag == "dimensions":
                 decDims = self.parseTree(node, state)
                 count = node.attrib["count"]
-            elif (
-                node.tag == "explicit-shape-spec-list__begin"
-            ):
+            elif node.tag == "explicit-shape-spec-list__begin":
                 # Check if the last derived type declaration field is an array
                 # field
                 devTypeHasArrayField = True
-            elif (
-                node.tag == "literal" and devTypeHasArrayField
-            ):
+            elif node.tag == "literal" and devTypeHasArrayField:
                 # If the last field is an array field, get the value from the
                 # literal that is size
                 devTypeArrayField["array-size"] = node.attrib["value"]
@@ -569,7 +547,6 @@ class XMLToJSONTranslator(object):
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
-
     def process_dimension(self, root, state) -> List[Dict]:
         dimension = {"tag": "dimension"}
         for node in root:
@@ -602,26 +579,20 @@ class XMLToJSONTranslator(object):
             fn["args"] += self.parseTree(node, state)
         return [fn]
 
-    #########################################################################
-    #                                                                       #
-    # process_direct_map(): handles tags that are mapped directly from xml  #
-    # to IR with no additional processing other than recursive translation  #
-    # of any child nodes.                                                   #
-    #                                                                       #
-    #########################################################################
     def process_direct_map(self, root, state) -> List[Dict]:
+        """Handles tags that are mapped directly from xml to IR with no
+        additional processing other than recursive translation of any child
+        nodes."""
+
         val = {"tag": root.tag, "args": []}
         for node in root:
             val["args"] += self.parseTree(node, state)
         return [val]
 
-    #########################################################################
-    #                                                                       #
-    # process_terminal(): handles tags that terminate the computation of a  #
-    # program unit, namely, "return", "stop", and "exit".                   #
-    #                                                                       #
-    #########################################################################
     def process_terminal(self, root, state) -> List[Dict]:
+        """Handles tags that terminate the computation of a
+        program unit, namely, "return", "stop", and "exit" """
+
         return [{"tag": root.tag}]
 
     def process_format(self, root, state) -> List[Dict]:
@@ -810,7 +781,7 @@ class XMLToJSONTranslator(object):
         else:
             prog = []
             for node in root:
-                #sys.stderr.write(f"WARNING: xml tag {root.tag} not explicitly handled\n")
+                # sys.stderr.write(f"WARNING: xml tag {root.tag} not explicitly handled\n")
                 prog += self.parseTree(node, state)
             return prog
 
@@ -824,8 +795,8 @@ class XMLToJSONTranslator(object):
         Returns:
             None
 
-        Does not return anything but populates a list (self.functionList) that contains all
-        the functions in the Fortran File.
+        Does not return anything but populates a list (self.functionList) that
+        contains all the functions in the Fortran File.
         """
         for element in root.iter():
             if element.tag == "function":
@@ -842,21 +813,20 @@ class XMLToJSONTranslator(object):
         for tree in trees:
             self.loadFunction(tree)
 
-        # Parse through the ast tree a second time to convert the XML ast format to
-        # a format that can be used to generate python statements.
+        # Parse through the ast tree a second time to convert the XML ast
+        # format to a format that can be used to generate Python statements.
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
         """
-
         Find the entry point for the Fortran file.
-        The entry point for a conventional Fortran file is always the PROGRAM section.
-        This 'if' statement checks for the presence of a PROGRAM segment.
+        The entry point for a conventional Fortran file is always the PROGRAM
+        section. This 'if' statement checks for the presence of a PROGRAM
+        segment.
 
-        If not found, the entry point can be any of the functions or subroutines
-        in the file. So, all the functions and subroutines of the program are listed
-        and included as the possible entry point.
-
+        If not found, the entry point can be any of the functions or
+        subroutines in the file. So, all the functions and subroutines of the
+        program are listed and included as the possible entry point.
         """
         if self.entryPoint:
             entry = {"program": self.entryPoint[0]}
@@ -867,17 +837,19 @@ class XMLToJSONTranslator(object):
             if self.subroutineList:
                 entry["subroutine"] = self.subroutineList
 
-        # Load the functions list and Fortran ast to a single data structure which
-        # can be pickled and hence is portable across various scripts and usages.
+        # Load the functions list and Fortran ast to a single data structure
+        # which can be pickled and hence is portable across various scripts and
+        # usages.
         outputDict["ast"] = ast
         outputDict["functionList"] = self.functionList
         outputDict["comments"] = comments
         return outputDict
 
-
     def print_unhandled_tags(self):
         if self.unhandled_tags != set():
-            sys.stderr.write("WARNING: input contains the following unhandled tags:\n")
+            sys.stderr.write(
+                "WARNING: input contains the following unhandled tags:\n"
+            )
             for tag in self.unhandled_tags:
                 sys.stderr.write(f"    {tag}\n")
 
