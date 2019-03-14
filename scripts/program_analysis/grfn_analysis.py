@@ -47,7 +47,7 @@ if torch.cuda.is_available():
     t_values = {k: v.cuda() for k, v in t_values.items()}
 result = G.run(t_values)
 print(f"Torch Final result: {result}")
-print(f"Torch Size of final result: {result[0].size()}")
+print(f"Torch Size of final result: {result.size()}")
 
 # visualize(G, save=True, filename="petpt.pdf")
 # visualize(G, save=True, filename="petpt_numpy.pdf")
