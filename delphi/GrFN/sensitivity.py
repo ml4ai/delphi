@@ -16,11 +16,11 @@ def sobol_analysis(network, num_samples, prob_def):
 
 
 def FAST_analysis(network, num_samples, prob_def):
-    print("Sampling...")
+    print("Sampling via FAST sampler...")
     samples = fast_sampler.sample(prob_def, num_samples)
     samples = np.split(samples, samples.shape[1], axis=1)
     values = {n: torch.tensor(s) for n, s in zip(prob_def["names"], samples)}
     print("Running GrFN...")
     Y = network.run(values).numpy()
-    print("Getting sensitivity indicies...")
+    print("Analyzing via FAST...")
     return fast.analyze(prob_def, Y, print_to_console=True)
