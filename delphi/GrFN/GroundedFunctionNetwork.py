@@ -184,6 +184,13 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls(nodes, edges, subgraphs)
 
     @classmethod
+    def from_python_file(cls, python_file, lambdas_path, json_filename, stem):
+        """Builds GrFN object from Python file."""
+        with open(python_file, "r") as f:
+            pySrc = f.read()
+        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+
+    @classmethod
     def from_python_src(cls, pySrc, lambdas_path, json_filename, stem):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
