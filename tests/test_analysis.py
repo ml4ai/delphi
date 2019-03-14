@@ -1,9 +1,13 @@
 import inspect
+import importlib
+import json
+import sys
 
 import delphi.analysis.sensitivity.variance_methods as methods
 from delphi.analysis.sensitivity.reporter import Reporter
 from delphi.translators.for2py.data.PETASCE import PETASCE
 from delphi.translators.for2py.data.Plant_pgm import MAIN
+from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
 
 
 def test_PETASCE():
@@ -37,6 +41,38 @@ def test_PETASCE():
     expected_num_rows = Ns * (2*num_args + 2)
     assert analyzer.samples.shape[0] == expected_num_rows
     assert analyzer.samples.shape[1] == num_args
+
+
+def test_PETPT_GrFN():
+    sys.path.insert(0, "tests/data/GrFN/")
+    lambdas = importlib.__import__("PETPT_torch_lambdas")
+    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+
+    args = G.inputs
+    bounds = {
+        "petpt::msalb_0": [x1, x2],      # TODO: Khan set proper values for x1, x2
+        "petpt::srad_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
+        "petpt::tmax_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
+        "petpt::tmin_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
+        "petpt::xhlai_0": [x1, x2],      # TODO: Khan set proper values for x1, x2
+    }
+
+    problem = {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    }
+
+    Ns = 100000000                      # TODO: Khan, experiment with this value
+    analyzer = methods.SobolAnalyzer(G.run, prob_def=problem)
+    analyzer.sample(num_samples=Ns)
+    analyzer.evaluate()
+    Si = analyzer.analyze(parallel=False,
+                          print_to_console=False,
+                          n_processors=None)
+
+    # TODO: Khan -- add some good asserts here that test the Si outputs
 
 
 def test_PLANT_reporter():

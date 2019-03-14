@@ -6,9 +6,11 @@ import numpy as np
 
 from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork, NodeType
 
+data_dir = "tests/data/GrFN/"
+
 
 def test_crop_yield_creation_and_execution():
-    filepath = "../../tests/data/crop_yield.f"
+    filepath = "tests/data/crop_yield.f"
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
     assert isinstance(G, GroundedFunctionNetwork)
@@ -21,7 +23,7 @@ def test_crop_yield_creation_and_execution():
 
 
 def test_petpt_creation():
-    filepath = "../../tests/data/PETPT.for"
+    filepath = "tests/data/PETPT.for"
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
     assert isinstance(G, GroundedFunctionNetwork)
@@ -30,8 +32,8 @@ def test_petpt_creation():
 
 
 def test_petpt_execution():
-    lambdas = importlib.__import__("PETPT_lambdas")
-    pgm = json.load(open("PETPT.json", "r"))
+    lambdas = importlib.__import__("tests.data.GrFN.PETPT_lambdas")
+    pgm = json.load(open(data_dir + "PETPT.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     values = {name: 1 for name in G.inputs}
     res = G.run(values)
@@ -39,8 +41,8 @@ def test_petpt_execution():
 
 
 def test_petpt_numpy_execution():
-    lambdas = importlib.__import__("PETPT_numpy_lambdas")
-    pgm = json.load(open("PETPT_numpy.json", "r"))
+    lambdas = importlib.__import__("tests.data.GrFN.PETPT_numpy_lambdas")
+    pgm = json.load(open(data_dir + "PETPT_numpy.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     values = {
         "petpt::msalb_0": np.random.rand(1000),

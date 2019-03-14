@@ -25,12 +25,13 @@ lambdas = importlib.__import__("PETPT_numpy_lambdas")
 pgm = json.load(open("PETPT_numpy.json", "r"))
 G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
+num_samples = 1000000
 values = {
-    "petpt::msalb_0": np.random.rand(1000000),
-    "petpt::srad_0": np.random.randint(1, 100, size=1000000),
-    "petpt::tmax_0": np.random.randint(30, 40, size=1000000),
-    "petpt::tmin_0": np.random.randint(10, 15, size=1000000),
-    "petpt::xhlai_0": np.random.rand(1000000)
+    "petpt::msalb_0": np.random.rand(num_samples),
+    "petpt::srad_0": np.random.randint(1, 100, size=num_samples),
+    "petpt::tmax_0": np.random.randint(30, 40, size=num_samples),
+    "petpt::tmin_0": np.random.randint(10, 15, size=num_samples),
+    "petpt::xhlai_0": np.random.rand(num_samples)
 }
 result = G.run(values)
 print(f"Numpy Final result: {result}")
