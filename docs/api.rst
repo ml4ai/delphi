@@ -34,7 +34,6 @@ Constructors
 
     AnalysisGraph.from_statements
     AnalysisGraph.from_statements_file
-    AnalysisGraph.from_pickle
     AnalysisGraph.from_text
     AnalysisGraph.from_json_serialized_statements_list
     AnalysisGraph.from_json_serialized_statements_file

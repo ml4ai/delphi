@@ -15,12 +15,13 @@ C  3   6.000   2.000   2.500   3.000
       
       type mytype
           integer:: i
-          real :: a(3)    !  <<< derived type element that is an array
+          real, dimension(3) :: a    !  <<< derived type element that is an array
       end type mytype
 
       integer i, j
 
-      type (mytype) var, x(3)    ! <<< x: array of derived type values
+      type (mytype) var
+      type (mytype), dimension(3) :: x    ! <<< x: array of derived type values
 
       var%i = 3
       

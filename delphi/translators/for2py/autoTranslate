@@ -55,7 +55,7 @@ for file in "$@"; do
     processedFile="$base"_processed."$extension"
     pickleFile="$base"_pickle
     astFile="$base".xml
-    ( set -x; $PYTRANSLATE scripts/f2py_pp.py "$file" "$processedFile") 
+    ( set -x; $PYTRANSLATE scripts/preprocessor.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
 
     pyFile="$base".py

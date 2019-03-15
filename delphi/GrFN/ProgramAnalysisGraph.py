@@ -7,7 +7,6 @@ from inspect import signature
 from pprint import pprint
 from functools import partial
 from pygraphviz import AGraph
-from IPython.core.display import Image
 from .scopes import Scope
 
 
@@ -33,17 +32,17 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
             # Otherwise append the predecessor function list
             elif n.attr["label"] == "__decision__":
-                preds = A.predecessors(n)
                 if_var, = [
                     n
-                    for n in preds
-                    if list(A.predecessors(n))[0].attr["label"]
-                    == "__condition__"
+                    for n in A.predecessors(n)
+                    if "IF" in n
                 ]
                 condition_fn, = A.predecessors(if_var)
+                for pred in A.predecessors(condition_fn):
+                    self.add_edge(pred.attr["cag_label"], oname)
+
                 condition_fn = condition_fn[: condition_fn.rfind("__")]
-                condition_lambda = condition_fn.replace("condition", "lambda")
-                onode["condition_fn"] = getattr(lambdas, condition_lambda)
+                onode["condition_fn"] = getattr(lambdas, condition_fn)
             else:
                 onode["pred_fns"].append(getattr(lambdas, n.attr["lambda_fn"]))
 
@@ -52,6 +51,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
                 for i in A.predecessors(n):
                     iname = i.attr["cag_label"]
                     self.add_edge(iname, oname)
+
+
 
     def add_variable_node(self, n):
         """ Add a variable node to the CAG. """
@@ -138,8 +139,8 @@ class ProgramAnalysisGraph(nx.DiGraph):
         return self
 
     @classmethod
-    def from_fortran_file(cls, fortran_file):
-        A = Scope.from_fortran_file(fortran_file).to_agraph()
+    def from_fortran_file(cls, fortran_file, tmpdir="."):
+        A = Scope.from_fortran_file(fortran_file, tmpdir=tmpdir).to_agraph()
         stem = Path(fortran_file).stem
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_agraph(A, lambdas)
@@ -162,7 +163,6 @@ class ProgramAnalysisGraph(nx.DiGraph):
         """ Initialize the value of input function nodes in the CAG."""
 
         for n in self.nodes():
-            # if self.nodes[n].get("init_fn") is not None:
             if n in self.input_functions:
                 self.nodes[n]["value"] = self.nodes[n]["init_fn"]()
         self.update()
@@ -176,3 +176,34 @@ class ProgramAnalysisGraph(nx.DiGraph):
 
     def call(self, inputs):
         pass
+
+    def cyjs_elementsJSON(self) -> str:
+        elements = {
+            "nodes": [
+                {
+                    "data": {
+                        "id": n[0],
+                        "label": n[0],
+                        "parent": "petpt",
+                        "shape": "ellipse",
+                        "color": "black",
+                        "textValign": "center",
+                        "tooltip": "None",
+                    }
+                }
+                for n in self.nodes(data=True)
+            ],
+            "edges": [
+                {
+                    "data": {
+                        "id": f"{edge[0]}_{edge[1]}",
+                        "source": edge[0],
+                        "target": edge[1],
+                    }
+                }
+                for edge in self.edges()
+            ],
+        }
+        json_str = json.dumps(elements, indent=2)
+        return json_str
+

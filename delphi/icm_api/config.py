@@ -1,11 +1,10 @@
-from delphi.paths import db_path
+import os
+import sys
 from pathlib import Path
+from delphi.paths import db_path
 
 # Statement for enabling the development environment
 DEBUG = True
-
-# Define the application directory
-import os
 
 BASE_DIR = Path(__file__).parent
 

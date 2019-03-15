@@ -1,13 +1,13 @@
 Grounded Function Network (GrFN) JSON Specification
 ===================================================
 
-**Version 0.1.m3**
+**Version 0.1.m5**
+
+In progress. Release date: April 1, 2019
 
 Changes from previous version:
-- Revision of Introduction
-- Addition of identifiers: `<identifier_spec>`, `<identifier_string>`, and `<gensym>` (for identifiers in generated code)
-- Updates to naming conventions for variables and functions
-- General cleanup of discussion throughout
+
+- Added "mutable" attribute to `<variable_spec>`
 
 
 Introduction
@@ -97,13 +97,19 @@ Identifiers play a key role in connecting the model as implemented in source cod
 
 ### Base Name
 
-The `<base_name>` is intended to correspond to the identifier token name as it appears in the source language (e.g., Fortran). The `<base_name>` is itself a string
+The `<base_name>` is intended to correspond (when available) to the identifier token name as it appears in the source language (e.g., Fortran). The `<base_name>` is itself a string
 
     <base_name> ::= <string>
 
 but follows the conventions of [python identifier specification rules](https://docs.python.org/3/reference/lexical_analysis.html#identifiers) (which includes Fortran naming syntax).
 
 >FUTURE: may extend this as more source languages are supported.
+
+Below, we specify the conventions for `<base_name>`s for identifiers that do not originate in the source code:
+
+- [Variable Naming Convention](#variable-naming-convention)
+
+- [Function Naming Conventions](#function-naming-conventions)
 
 ### Scope and Namespace Paths
 
@@ -385,6 +391,7 @@ Variable Specification
     <variable_spec>[attrval] ::=
         "name" : <variable_name>
         "domain" : <variable_domain_type>
+        "mutable" : "True" | "False"
 
 Variables specifications will be associated with the functions, whose 
 scope contain the variable declarations in the source code.
@@ -394,6 +401,10 @@ variables that are explicitly asserted in source code, such as those used
 for explicit value assignment or used as loop indices, and other variables 
 that program analysis may introduce (infer) as part of analyzing conditionals. 
 As defined above, the `<variable_name>` is itself an `<identifier_string>`.
+
+The "mutable" attribute specifies whether the variable value _can_ ("True") or _cannot_ ("False") be changed. While model analysis generally does not require inference about whether variables can or cannot be set (this is determined by program analysis), it is the case that model analysis can use this information, for example for determining whether possible ranges of values need to be considered for the variable during sensitivity analysis.
+
+>TODO: Possibly make specification of "mutable" optional, with default value always "True"; so only need to explicitly specify when "False". Does this cause trouble for parsing?
 
 Some languages (including Fortran and Python) provide mechanisms for making
 variable declarations private (such as Python's name mangling, by prepending

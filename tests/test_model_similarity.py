@@ -14,6 +14,15 @@ def test_pt_asce_comparison():
     cmb_asce = ForwardInfluenceBlanket(asce, shared_nodes)
     cmb_pt = ForwardInfluenceBlanket(pt, shared_nodes)
 
-    expected_cover_set = ['u_2', 'C_d', 'C_n', 'e_a', 'gamma', 'G', 'R_so', 'K_e']
+    utils.draw_graph(cmb_asce, "tests/asce-fib.pdf")
+    utils.draw_graph(cmb_pt, "tests/pt-fib.pdf")
+
+    expected_cover_set = ["R_so", "K_cb_min", "S_Kc", "K_cb_max", "h", "RH_min",
+                          "MEEVP", "u_2", "K_c_min", "f_w", "C_d", "G", "gamma",
+                          "e_a", "C_n", "K_r"]
+
     assert set(expected_cover_set) == set(cmb_asce.cover_nodes)
     assert set() == set(cmb_pt.cover_nodes)
+
+
+test_pt_asce_comparison()
