@@ -6,7 +6,7 @@ def PETASCE(CANHT: List[float], DOY: List[int], MSALB: List[float],
             MEEVP: List[str], SRAD: List[float], TDEW: List[float],
             TMAX: List[float], TMIN: List[float], WINDHT: List[float],
             WINDRUN: List[float], XHLAI: List[float], XLAT: List[float],
-            XELEV: List[float]):
+            XELEV: List[float], EO: List[float]):
 
     # DOY: List[int] = [0]
 
@@ -134,6 +134,7 @@ def PETASCE(CANHT: List[float], DOY: List[int], MSALB: List[float],
     # CALL GET('SPAM', 'KCBMIN', KCBMIN)
     # CALL GET('SPAM', 'KCBMAX', KCBMAX)
 
+    # TODO: Update these values
     SKC: List[float] = [1.0]
     KCBMIN: List[float] = [1.0]
     KCBMAX: List[float] = [1.0]
@@ -172,5 +173,3 @@ def PETASCE(CANHT: List[float], DOY: List[int], MSALB: List[float],
     # CALL PUT('SPAM', 'KCB', KCB)
     # CALL PUT('SPAM', 'KE', KE)
     # CALL PUT('SPAM', 'KC', KC)
-
-    return EO[0]
