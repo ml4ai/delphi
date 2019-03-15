@@ -7,13 +7,11 @@ import importlib
 import inspect
 import time
 import json
-import re
 import os
 import ast
 
 import networkx as nx
 
-from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -347,6 +345,11 @@ class GroundedFunctionNetwork(nx.DiGraph):
         PAG.add_nodes_from(nodes)
         PAG.add_edges_from(edges)
         return PAG
+
+
+class ProgramAnalysisGraph(nx.DiGraph):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class NodeType(Enum):

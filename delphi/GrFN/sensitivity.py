@@ -3,7 +3,7 @@ from SALib.analyze import sobol, fast
 import numpy as np
 import torch
 
-from delphi.GrFN.GroundedFunctionNetwork import timeit
+from delphi.GrFN.networks import timeit
 
 
 @timeit

@@ -1,25 +1,24 @@
 import importlib
 import pytest
 import json
+import sys
 
 import numpy as np
 
-from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork, NodeType
+from delphi.GrFN.networks import GroundedFunctionNetwork, NodeType
 
 data_dir = "tests/data/GrFN/"
+sys.path.insert(0, "tests/data/GrFN/")
 
 
 def test_crop_yield_creation_and_execution():
-    filepath = "tests/data/crop_yield.f"
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
+    lambdas = importlib.__import__("crop_yield_lambdas")
+    pgm = json.load(open(data_dir + "crop_yield.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
     assert isinstance(G, GroundedFunctionNetwork)
-    assert len(G.inputs) == 3
-    assert len(G.outputs) == 1
-
-    values = {name: 1 for name in G.inputs}
-    res = G.run(values)
-    assert res == -1       # TODO: update this with a good value
+    assert len(G.inputs) == 6           # TODO: update this later
+    assert len(G.outputs) == 2          # TODO: update this later
 
 
 def test_petpt_creation():
@@ -32,7 +31,7 @@ def test_petpt_creation():
 
 
 def test_petpt_execution():
-    lambdas = importlib.__import__("tests.data.GrFN.PETPT_lambdas")
+    lambdas = importlib.__import__("PETPT_lambdas")
     pgm = json.load(open(data_dir + "PETPT.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     values = {name: 1 for name in G.inputs}
@@ -41,7 +40,7 @@ def test_petpt_execution():
 
 
 def test_petpt_numpy_execution():
-    lambdas = importlib.__import__("tests.data.GrFN.PETPT_numpy_lambdas")
+    lambdas = importlib.__import__("PETPT_numpy_lambdas")
     pgm = json.load(open(data_dir + "PETPT_numpy.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     values = {
@@ -53,8 +52,8 @@ def test_petpt_numpy_execution():
     }
     result = G.run(values)
     assert result.shape == (1000,)
-    assert all([G[n]["value"] is not None for n in G.nodes()
-                if G[n]["type"]] == NodeType.VARIABLE)
+    assert all([G.nodes[n]["value"] is not None for n in G.nodes()
+                if G.nodes[n]["type"] == NodeType.VARIABLE])
     G.clear()
-    assert all([G[n]["value"] is None for n in G.nodes()
-                if G[n]["type"]] == NodeType.VARIABLE)
+    assert all([G.nodes[n]["value"] is None for n in G.nodes()
+                if G.nodes[n]["type"] == NodeType.VARIABLE])

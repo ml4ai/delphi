@@ -119,4 +119,3 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         }
         json_str = json.dumps(elements, indent=2)
         return json_str
-

@@ -8,7 +8,7 @@ import subprocess as sp
 import ast
 import pytest
 
-from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
+from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.visualization import visualize
 from delphi.translators.for2py import (
     preprocessor,

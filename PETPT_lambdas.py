@@ -30,17 +30,18 @@ def petpt__condition__IF_2_0(tmax):
 def petpt__assign__eo_1(eeq, tmax):
     return (eeq*(((tmax-35.0)*0.05)+1.1))
 
-def petpt__condition__IF_3_0(tmax):
-    return (tmax<5.0)
-
 def petpt__assign__eo_2(eeq, tmax):
     return ((eeq*0.01)*math.exp((0.18*(tmax+20.0))))
 
 def petpt__decision__eo_3(IF_2_0, eo_0, eo_1):
     return eo_1 if IF_2_0 else eo_0
 
-def petpt__decision__eo_4(IF_3_0, eo_2, eo_3):
+def petpt__condition__IF_3_0(tmax):
+    return (tmax<5.0)
+
+def petpt__decision__eo_4(IF_3_0, eo_3, eo_2):
     return eo_2 if IF_3_0 else eo_3
 
 def petpt__assign__eo_5(eo):
     return max(eo, 0.0001)
+
