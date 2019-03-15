@@ -391,7 +391,7 @@ Variable Specification
     <variable_spec>[attrval] ::=
         "name" : <variable_name>
         "domain" : <variable_domain_type>
-        "mutable" : "True" | "False"
+        "mutable" : TRUE | FALSE
 
 Variables specifications will be associated with the functions, whose 
 scope contain the variable declarations in the source code.
@@ -402,9 +402,9 @@ for explicit value assignment or used as loop indices, and other variables
 that program analysis may introduce (infer) as part of analyzing conditionals. 
 As defined above, the `<variable_name>` is itself an `<identifier_string>`.
 
-The "mutable" attribute specifies whether the variable value _can_ ("True") or _cannot_ ("False") be changed. While model analysis generally does not require inference about whether variables can or cannot be set (this is determined by program analysis), it is the case that model analysis can use this information, for example for determining whether possible ranges of values need to be considered for the variable during sensitivity analysis.
+The "mutable" attribute specifies whether the variable value _can_ (TRUE) or _cannot_ (FALSE) be changed. (Note that the values TRUE and FALSE are JSON Boolean values.) While model analysis generally does not require inference about whether variables can or cannot be set (this is determined by program analysis), it is the case that model analysis can use this information, for example for determining whether possible ranges of values need to be considered for the variable during sensitivity analysis.
 
->TODO: Possibly make specification of "mutable" optional, with default value always "True"; so only need to explicitly specify when "False". Does this cause trouble for parsing?
+>TODO: Possibly make specification of "mutable" optional, with default value always TRUE; so only need to explicitly specify when FALSE. Does this cause trouble for parsing?
 
 Some languages (including Fortran and Python) provide mechanisms for making
 variable declarations private (such as Python's name mangling, by prepending
