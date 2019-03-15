@@ -66,7 +66,7 @@
       "target": "file_20"
     },
     {
-      "name": "main__assign__i,x,j,y_0",
+      "name": "main__assign__i,x,j,y_1",
       "type": "assign",
       "reference": 25,
       "sources": [
@@ -98,7 +98,7 @@
       "target": "20"
     },
     {
-      "name": "main__assign__20_1",
+      "name": "main__assign__20_0",
       "type": "assign",
       "reference": 30,
       "sources": [
@@ -152,7 +152,7 @@
           "name": "main__assign__format_30_0",
           "output": {
             "variable": "format_30",
-            "index": 2
+            "index": 0
           },
           "input": []
         },
@@ -160,7 +160,7 @@
           "name": "main__assign__format_10_0",
           "output": {
             "variable": "format_10",
-            "index": 2
+            "index": 0
           },
           "input": []
         },
@@ -168,7 +168,7 @@
           "name": "main__assign__file_10_0",
           "output": {
             "variable": "10",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
@@ -176,12 +176,12 @@
           "name": "main__assign__file_20_0",
           "output": {
             "variable": "20",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "main__assign__i,x,j,y_0",
+          "name": "main__assign__i,x,j,y_1",
           "output": {
             "variable": "i,x,j,y",
             "index": 1
@@ -197,40 +197,40 @@
           "name": "main__assign__20_0",
           "output": {
             "variable": "20",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "var": {
                 "variable": "x",
-                "index": 2
+                "index": 1
               }
             },
             {
               "var": {
                 "variable": "j",
-                "index": 2
+                "index": 1
               }
             }
           ]
         },
         {
-          "name": "main__assign__20_1",
+          "name": "main__assign__20_0",
           "output": {
             "variable": "20",
-            "index": 2
+            "index": 0
           },
           "input": [
             {
               "var": {
                 "variable": "y",
-                "index": 2
+                "index": 1
               }
             },
             {
               "var": {
                 "variable": "i",
-                "index": 2
+                "index": 1
               }
             }
           ]
@@ -239,5 +239,5 @@
     }
   ],
   "name": "iotest_05.json",
-  "dateCreated": "2019-03-06"
+  "dateCreated": "2019-03-07"
 }

@@ -71,8 +71,31 @@ class XMLToJSONTranslator(object):
             "sqrt",
             "log",
         ]
-        self.inputFns = ["read"]
-        self.outputFns = ["write"]
+        self.handled_tags = [
+            "access-spec",
+            "argument" "assignment" "call" "close" "component-decl",
+            "declaration" "dimension" "dimensions",
+            "exit",
+            "explicit-shape-spec-list__begin",
+            "format" "format",
+            "format-item"
+            "function"
+            "if"
+            "index-variable"
+            "io-control-spec"
+            "keyword-argument"
+            "literal"
+            "literal",
+            "loop" "module" "name" "open" "operation" "program",
+            "range" "read" "return",
+            "stop" "subroutine",
+            "type" "type",
+            "use" "variable" "variables",
+            "write",
+        ]
+        self.handled_tags += self.libRtns
+
+        self.unhandled_tags = set()  # unhandled xml tags in the current input
         self.summaries = {}
         self.asts = {}
         self.functionList = []
@@ -118,6 +141,8 @@ class XMLToJSONTranslator(object):
     def process_argument(self, root, state) -> List[Dict]:
         return [{"tag": "arg", "name": root.attrib["name"].lower()}]
 
+    # *** This method is in desperate need of cleanup.
+    # *** TODO after Apr deadline.
     def process_declaration(self, root, state) -> List[Dict]:
         prog = []
 
@@ -140,6 +165,9 @@ class XMLToJSONTranslator(object):
         devTypeHasArrayField = False
 
         for node in root:
+            if node.tag not in self.handled_tags:
+                self.unhandled_tags.add(node.tag)
+
             if node.tag == "format":
                 prog += self.parseTree(node, state)
             if node.tag == "type":
@@ -170,15 +198,11 @@ class XMLToJSONTranslator(object):
             elif node.tag == "dimensions":
                 decDims = self.parseTree(node, state)
                 count = node.attrib["count"]
-            elif (
-                node.tag == "explicit-shape-spec-list__begin"
-            ):
+            elif node.tag == "explicit-shape-spec-list__begin":
                 # Check if the last derived type declaration field is an array
                 # field
                 devTypeHasArrayField = True
-            elif (
-                node.tag == "literal" and devTypeHasArrayField
-            ):
+            elif node.tag == "literal" and devTypeHasArrayField:
                 # If the last field is an array field, get the value from the
                 # literal that is size
                 devTypeArrayField["array-size"] = node.attrib["value"]
@@ -427,9 +451,6 @@ class XMLToJSONTranslator(object):
                 x = [{"tag": "literal", "type": "char", "value": "*"}]
         return x
 
-    def process_stop(self, root, state) -> List[Dict]:
-        return [{"tag": "stop"}]
-
     def process_name(self, root, state) -> List[Dict]:
         if root.attrib["id"].lower() in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
@@ -526,13 +547,6 @@ class XMLToJSONTranslator(object):
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
-    def process_exit(self, root, state) -> List[Dict]:
-        return [{"tag": "exit"}]
-
-    def process_return(self, root, state) -> List[Dict]:
-        ret = {"tag": "return"}
-        return [ret]
-
     def process_dimension(self, root, state) -> List[Dict]:
         dimension = {"tag": "dimension"}
         for node in root:
@@ -551,12 +565,6 @@ class XMLToJSONTranslator(object):
                 ran["high"] = self.parseTree(node, state)
         return [ran]
 
-    def process_libRtn(self, root, state) -> List[Dict]:
-        fn = {"tag": "call", "name": root.tag, "args": []}
-        for node in root:
-            fn["args"] += self.parseTree(node, state)
-        return [fn]
-
     def process_keyword_argument(self, root, state) -> List[Dict]:
         x = []
         if root.attrib and root.attrib["argument-name"] != "":
@@ -565,23 +573,27 @@ class XMLToJSONTranslator(object):
             x += self.parseTree(node, state)
         return x
 
-    def process_open(self, root, state) -> List[Dict]:
-        open_st = {"tag": root.tag, "args": []}
+    def process_libRtn(self, root, state) -> List[Dict]:
+        fn = {"tag": "call", "name": root.tag, "args": []}
         for node in root:
-            open_st["args"] += self.parseTree(node, state)
-        return [open_st]
+            fn["args"] += self.parseTree(node, state)
+        return [fn]
 
-    def process_read(self, root, state) -> List[Dict]:
-        read_st = {"tag": root.tag, "args": []}
-        for node in root:
-            read_st["args"] += self.parseTree(node, state)
-        return [read_st]
+    def process_direct_map(self, root, state) -> List[Dict]:
+        """Handles tags that are mapped directly from xml to IR with no
+        additional processing other than recursive translation of any child
+        nodes."""
 
-    def process_write(self, root, state) -> List[Dict]:
-        write_st = {"tag": root.tag, "args": []}
+        val = {"tag": root.tag, "args": []}
         for node in root:
-            write_st["args"] += self.parseTree(node, state)
-        return [write_st]
+            val["args"] += self.parseTree(node, state)
+        return [val]
+
+    def process_terminal(self, root, state) -> List[Dict]:
+        """Handles tags that terminate the computation of a
+        program unit, namely, "return", "stop", and "exit" """
+
+        return [{"tag": root.tag}]
 
     def process_format(self, root, state) -> List[Dict]:
         format_spec = {"tag": "format", "args": []}
@@ -598,12 +610,6 @@ class XMLToJSONTranslator(object):
             "value": root.attrib["descOrDigit"],
         }
         return [variable_spec]
-
-    def process_close(self, root, state) -> List[Dict]:
-        close_spec = {"tag": "close", "args": []}
-        for node in root:
-            close_spec["args"] += self.parseTree(node, state)
-        return [close_spec]
 
     # This function adds the tag for use statements
     # In case of "USE .. ONLY .." statements, the symbols to be included
@@ -733,8 +739,8 @@ class XMLToJSONTranslator(object):
         elif root.tag == "io-control-spec":
             return self.process_io_control_spec(root, state)
 
-        elif root.tag == "stop":
-            return self.process_stop(root, state)
+        elif root.tag in ("exit", "return", "stop"):
+            return self.process_terminal(root, state)
 
         elif root.tag == "name":
             return self.process_name(root, state)
@@ -745,32 +751,17 @@ class XMLToJSONTranslator(object):
         elif root.tag == "function":
             return self.process_function(root, state)
 
-        elif root.tag == "exit":
-            return self.process_exit(root, state)
-
-        elif root.tag == "return":
-            return self.process_return(root, state)
-
         elif root.tag == "keyword-argument":
             return self.process_keyword_argument(root, state)
 
-        elif root.tag == "open":
-            return self.process_open(root, state)
-
-        elif root.tag == "read":
-            return self.process_read(root, state)
-
-        elif root.tag == "write":
-            return self.process_write(root, state)
+        elif root.tag in ("open", "close", "read", "write"):
+            return self.process_direct_map(root, state)
 
         elif root.tag == "format":
             return self.process_format(root, state)
 
         elif root.tag == "format-item":
             return self.process_format_item(root, state)
-
-        elif root.tag == "close":
-            return self.process_close(root, state)
 
         elif root.tag == "use":
             return self.process_use(root, state)
@@ -790,6 +781,7 @@ class XMLToJSONTranslator(object):
         else:
             prog = []
             for node in root:
+                # sys.stderr.write(f"WARNING: xml tag {root.tag} not explicitly handled\n")
                 prog += self.parseTree(node, state)
             return prog
 
@@ -803,8 +795,8 @@ class XMLToJSONTranslator(object):
         Returns:
             None
 
-        Does not return anything but populates a list (self.functionList) that contains all
-        the functions in the Fortran File.
+        Does not return anything but populates a list (self.functionList) that
+        contains all the functions in the Fortran File.
         """
         for element in root.iter():
             if element.tag == "function":
@@ -821,21 +813,20 @@ class XMLToJSONTranslator(object):
         for tree in trees:
             self.loadFunction(tree)
 
-        # Parse through the ast tree a second time to convert the XML ast format to
-        # a format that can be used to generate python statements.
+        # Parse through the ast tree a second time to convert the XML ast
+        # format to a format that can be used to generate Python statements.
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
         """
-
         Find the entry point for the Fortran file.
-        The entry point for a conventional Fortran file is always the PROGRAM section.
-        This 'if' statement checks for the presence of a PROGRAM segment.
+        The entry point for a conventional Fortran file is always the PROGRAM
+        section. This 'if' statement checks for the presence of a PROGRAM
+        segment.
 
-        If not found, the entry point can be any of the functions or subroutines
-        in the file. So, all the functions and subroutines of the program are listed
-        and included as the possible entry point.
-
+        If not found, the entry point can be any of the functions or
+        subroutines in the file. So, all the functions and subroutines of the
+        program are listed and included as the possible entry point.
         """
         if self.entryPoint:
             entry = {"program": self.entryPoint[0]}
@@ -846,12 +837,21 @@ class XMLToJSONTranslator(object):
             if self.subroutineList:
                 entry["subroutine"] = self.subroutineList
 
-        # Load the functions list and Fortran ast to a single data structure which
-        # can be pickled and hence is portable across various scripts and usages.
+        # Load the functions list and Fortran ast to a single data structure
+        # which can be pickled and hence is portable across various scripts and
+        # usages.
         outputDict["ast"] = ast
         outputDict["functionList"] = self.functionList
         outputDict["comments"] = comments
         return outputDict
+
+    def print_unhandled_tags(self):
+        if self.unhandled_tags != set():
+            sys.stderr.write(
+                "WARNING: input contains the following unhandled tags:\n"
+            )
+            for tag in self.unhandled_tags:
+                sys.stderr.write(f"    {tag}\n")
 
 
 def get_trees(files: List[str]) -> List[ET.ElementTree]:
@@ -885,5 +885,7 @@ if __name__ == "__main__":
     comments = get_comments(fortranFile)
     translator = XMLToJSONTranslator()
     outputDict = translator.analyze(trees, comments)
+    translator.print_unhandled_tags()
+
     with open(pickleFile, "wb") as f:
         pickle.dump(outputDict, f)

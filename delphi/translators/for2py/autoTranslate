@@ -55,14 +55,14 @@ for file in "$@"; do
     processedFile="$base"_processed."$extension"
     pickleFile="$base"_pickle
     astFile="$base".xml
-    ( set -x; $PYTRANSLATE scripts/preprocessor.py "$file" "$processedFile") 
+    ( set -x; $PYTRANSLATE preprocessor.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
 
     pyFile="$base".py
-    ( set -x; $PYTRANSLATE scripts/translate.py -f "$astFile" -g "$pickleFile" -i "$file")
-    ( set -x; $PYTRANSLATE scripts/pyTranslate.py -f "$pickleFile" -g "$pyFile")
+    ( set -x; $PYTRANSLATE translate.py -f "$astFile" -g "$pickleFile" -i "$file")
+    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile")
     pyFiles+=" $pyFile"
 #    pyFiles+=" $pyFile dont_yield.py should_yield.py"
 done
 
-( set -x; $PYTRANSLATE scripts/genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
+( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
