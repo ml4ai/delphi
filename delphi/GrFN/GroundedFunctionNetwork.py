@@ -13,6 +13,7 @@ import ast
 
 import networkx as nx
 
+from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -322,6 +323,30 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         # return the output
         return self.nodes[self.output_node]["value"]
+
+    def to_ProgramAnalysisGraph(self):
+        def gather_nodes_and_edges(prev_name, inputs, nodes, edges):
+            for name in inputs:
+                uniq_name = name[name.find("::") + 2: name.rfind("_")]
+                nodes.append((uniq_name, {
+                    "name": name,
+                    "cag_label": uniq_name,
+                    "value": self.nodes[name]["value"]
+                }))
+
+                if prev_name is not None:
+                    edges.append((prev_name, uniq_name))
+
+                next_inputs = list(set([v for f in self.successors(name)
+                                        for v in self.successors(f)]))
+                gather_nodes_and_edges(uniq_name, next_inputs, nodes, edges)
+            return nodes, edges
+
+        nodes, edges = gather_nodes_and_edges(None, self.inputs, [], [])
+        PAG = ProgramAnalysisGraph()
+        PAG.add_nodes_from(nodes)
+        PAG.add_edges_from(edges)
+        return PAG
 
 
 class NodeType(Enum):

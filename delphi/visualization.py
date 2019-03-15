@@ -69,7 +69,7 @@ def _(
     color_str = "#650021"
 
     for n in G.nodes():
-        A.add_node(n, label=n)
+        A.add_node(n, label=G.nodes[n]["cag_label"])
 
     for e in G.edges(data=True):
         A.add_edge(e[0], e[1], color=color_str, arrowsize=0.5)

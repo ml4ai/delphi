@@ -1,6 +1,15 @@
 import os
 import json
+import sys
 from datetime import date
+import importlib
+import xml.etree.ElementTree as ET
+import subprocess as sp
+import ast
+import pytest
+
+from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
+from delphi.visualization import visualize
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -8,13 +17,7 @@ from delphi.translators.for2py import (
     pyTranslate,
     genPGM,
 )
-from delphi.GrFN.scopes import Scope
-from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
-import xml.etree.ElementTree as ET
-import subprocess as sp
-import ast
-import pytest
-from delphi.visualization import visualize
+
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -123,11 +126,10 @@ def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
     assert derived_types_python_IR_test == python_dict
 
 
-def test_ProgramAnalysisGraph_crop_yield(crop_yield_grfn_dict):
-    import crop_yield_lambdas
-
-    A = Scope.from_dict(crop_yield_grfn_dict).to_agraph()
-    G = ProgramAnalysisGraph.from_agraph(A, crop_yield_lambdas)
-    G.initialize()
-    visualize(G)
-    os.remove("crop_yield_lambdas.py")
+def test_ProgramAnalysisGraph_from_GrFN():
+    sys.path.insert(0, "tests/data/GrFN/")
+    lambdas = importlib.__import__("PETPT_torch_lambdas")
+    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+    PAG = G.to_ProgramAnalysisGraph()
+    visualize(PAG, save=True, filename="petpt_pag.pdf")
