@@ -29,6 +29,6 @@ deploy:
   on:
     branch: master
 
-after_success: coveralls
+after_success: bash <(curl -s https://codecov.io/bash)
 
 cache: pip
