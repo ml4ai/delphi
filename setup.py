@@ -60,7 +60,6 @@ setup(
             "pytest-cov",
             "pytest-sugar",
             "pytest-xdist",
-            "coveralls",
             "mypy",
         ],
         "docs": [
