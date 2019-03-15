@@ -52,11 +52,11 @@ def test_PETPT_GrFN():
 
     args = G.inputs
     bounds = {
-        "petpt::msalb_0": [x1, x2],      # TODO: Khan set proper values for x1, x2
-        "petpt::srad_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
-        "petpt::tmax_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
-        "petpt::tmin_0": [x1, x2],       # TODO: Khan set proper values for x1, x2
-        "petpt::xhlai_0": [x1, x2],      # TODO: Khan set proper values for x1, x2
+        "petpt::msalb_0": [0, 1],      # TODO: Khan set proper values for x1, x2
+        "petpt::srad_0": [1, 20],       # TODO: Khan set proper values for x1, x2
+        "petpt::tmax_0": [-30, 60],       # TODO: Khan set proper values for x1, x2
+        "petpt::tmin_0": [-30, 60],       # TODO: Khan set proper values for x1, x2
+        "petpt::xhlai_0": [0, 20],      # TODO: Khan set proper values for x1, x2
     }
 
     problem = {
@@ -78,6 +78,9 @@ def test_PETPT_GrFN():
     # TODO: Khan -- be sure to test the results we get from Sobol and from FAST
     #               in particular I would like to know how much faster FAST is
     #               is than Sobol and what penalty we are paying in terms of accuracy
+
+
+test_PETPT_GrFN()
 
 
 def test_PLANT_reporter():
