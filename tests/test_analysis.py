@@ -65,7 +65,7 @@ def test_PETPT_GrFN():
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Ns = 1000                      # TODO: Khan, experiment with this value
+    Ns = 100000                      # TODO: Khan, experiment with this value
     Si = sobol_analysis(G, Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
