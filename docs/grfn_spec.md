@@ -172,7 +172,7 @@ Examples:
     
     Like the `<scope_path>`, the string names of the path uniquely defining the namespace are in in order from general to specific, with the last string name either being the implicit namespace defined by the source code file, or the user-defined name of the namespace.
 
-#### Path Strings
+### Path Strings
 
 It will be convenient to be able to express [`<scope_path>`](#scope-and-namespace-paths)s and [`<namespace_path>`](#scope-and-namespace-paths)s using single strings within GrFN (particularly when building an identifier string). For this we introduce a special string notation in which the string names that make up a path are expressed in order but separated by periods. These representations will be referred to as the `<scope_path_string>` and `<namespace_path_string>`, respectively. The string representations of the [`<scope_path>`](#scope-and-namespace-paths) and [`<namespace_path>`](#scope-and-namespace-paths) examples above would be:
 
