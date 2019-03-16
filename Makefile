@@ -8,8 +8,6 @@ test:
 	  -s\
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
-	  --ignore=delphi/program_analysis/pa_unit_tests \
-	  --ignore=delphi/program_analysis/data\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
@@ -21,8 +19,6 @@ test_local:
 	  -s\
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
-	  --ignore=delphi/program_analysis/pa_unit_tests \
-	  --ignore=delphi/program_analysis/data\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
