@@ -9,7 +9,8 @@ Changes from previous version:
 
 - Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
 - Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house [`<variable_spec>`](#variable-specification)s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_string>`s](#identifier-string)).
-- Removed specification of identifier "aliases". To be handled later as part of pointer/reference analysis.
+- Clarified distinction between [`<source_code_reference>`](#grounding-and-source-code-reference)s (linking identifiers to where they are used in the analyzed source code) and [`<lambda_function_reference>`](#function-assign-body-lambda)s (which denote functions in the Program Analysis-generated lambdas file source code); previously these two concepts were ambiguous.
+- Removed [`<identifier_spec>`](#identifier-specification) "aliases" attribute. To be handled later as part of pointer/reference analysis.
 - Added links to help topic navigation.
 
 
@@ -57,6 +58,19 @@ The system is decomposed into a set of individual states (represented as random 
 Identifiers: grounding, scopes, namespaces and gensyms
 ------------------------------------------------------
 
+### Preamble
+
+The current GrFN design strategy is to separate identifiers (any program symbol used to denote a program element) from the program elements themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
+
+A critical role of identifiers is in facilitating linking to information extracted by Text and Equation Reading. In particular, identifiers capture two types of information useful for this task:
+
+1. Information about the name and context of the indicator as it appears in source context -- to help connect to other textual sources based on string similarity;
+2. Information about where the indicator is used in source code (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- to help connect to other texture sources as docstrings and comments based on locality in the source code.
+
+Variables (and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an indicator means a denotation of the variable. So when information is associated with indicators from text and equation sources, this information can then be associated with variables themselves (e.g., the domain concept variable corresponds to (the "definition" of the variable), and eventually type information and possible value constraints).
+
+### Identifier
+
 An identifier is a symbol used to uniquely identify a program element in code, where a *program element* is a 
 
 - variable (or constant)
@@ -71,13 +85,13 @@ More than one identifier can be used to denote the same program element, but an 
     
 >FUTURE: General handling of pointers/references (related to the concept of having an "alias") will require care, as this introduces the possiblity of multiple identifiers being used to refer to the same program element, and also a single identifier being used to refer to different program elements in different contexts. In the general case it is not possible to determine all pointer references *statically*. (DSSAT does include some pointers.)
 	
-"source\_references": To facilitate grounding inference, the [`<identifier_spec>`](#identifier-specification) will have a "source\_references" attribute whose value is a list of `<source_code_reference>`s:
+To facilitate grounding inference, the [`<identifier_spec>`](#identifier-specification) will have a "source\_references" attribute whose value is a list of `<source_code_reference>`s:
 
 	<source_code_reference> ::= <string>
 
 The string contains information to indicate the location within the source code where an identifier was used. 
 
->TODO: Program Analysis and Text Reading (NLP processing of comments and source literature) will determine how source code references are represented within the string. It may be sufficient to have a single line number to represent the source code line within which the identifier was used.
+>TODO: Program Analysis and Text and Equation Reading (NLP processing of comments and source literature) will determine how source code references are represented within the string. It may be sufficient to have a single line number to represent the source code line within which the identifier was used.
 
 ### Base Name
 
@@ -89,7 +103,7 @@ but follows the conventions of [python identifier specification rules](https://d
 
 >FUTURE: may extend this as more source languages are supported.
 
-Below, we specify the conventions for `<base_name>`s for identifiers that do not originate in the source code:
+Below, we specify the conventions for `<base_name>`s of identifiers that do not originate in the source code:
 
 - [Variable Naming Convention](#variable-naming-convention)
 
@@ -629,6 +643,10 @@ def foo(): #fortran function
 The `<function_reference_spec>` defines the "wiring" between functions and their input and output variable(s).
 
 ### Function Loop Plate Specification
+
+The concept behind a "loop plate" is a generalization of the [probabilistic graphical model](https://en.wikipedia.org/wiki/Graphical_model) convention for [plate notation](https://en.wikipedia.org/wiki/Plate_notation), extended to represent dynamic processes (a specification of a sequence of state changes).
+
+>TODO: Provide more background on the "loop plate" concept.
 
     <function_loop_plate>[attrval] ::=
         "name" : <function_name>
