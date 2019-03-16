@@ -7,8 +7,9 @@ In progress. Release date: April 1, 2019
 
 Changes from previous version:
 
-- Added "mutable" attribute to [`<variable_spec>`](#variable-specification)
-- Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house `<variable_spec>`s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_strings>`](#identifier-strings))
+- Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
+- Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house `<variable_spec>`s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_string>`s](#identifier-string)).
+- Added links to help topic navigation.
 
 
 Introduction
@@ -81,7 +82,7 @@ More than one identifier can be used to denote the same program element, but an 
     
 >FUTURE: General handling of pointers/references (e.g., DSSAT has some) will require care, as this introduces the possiblity of multiple identifiers being used to refer to the same program element, and also a single identifier being used to refer to different program elements in different contexts. In the general case it is not possible to determine all pointer references *statically*. 
 	
-"source\_references": To facilitate grounding inference, the `<identifier_spec>` will have an "source\_references" attribute whose value is a list of `<source_code_reference>`s:
+"source\_references": To facilitate grounding inference, the [`<identifier_spec>`](#identifier-specification) will have an "source\_references" attribute whose value is a list of `<source_code_reference>`s:
 
 	```
 	<source_code_reference> ::= <string>
@@ -109,9 +110,9 @@ Below, we specify the conventions for `<base_name>`s for identifiers that do not
 
 ### Scope and Namespace Paths
 
-Identifiers may have the same `<base_name>` (as it appears in source code) but be distinguished by either (or both) the \"[scope](https://en.wikipedia.org/wiki/Scope_(computer_science))\" and \"[namespace](https://en.wikipedia.org/wiki/Namespace)\" within which they are defined in the source code.
+Identifiers may have the same [`<base_name>`](#base-name) (as it appears in source code) but be distinguished by either (or both) the "[scope](https://en.wikipedia.org/wiki/Scope_(computer_science))" and "[namespace](https://en.wikipedia.org/wiki/Namespace)" within which they are defined in the source code.
 
-Each source language has its own rules for specifying scope and namespace, and it will be the responsibility of each program analysis module (e.g., Fortran `for2py`) to identify the hierarchical structure of the context that uniquely identifies the specific scope and/or namespace within which an identifier `<base_name>` is defined. However, generally scopes and namespaces may be defined hierarchically, such that the name for each level of the hierarchy taken together uniquely define the context. A \"path\" of names appears to be sufficient to generally represent the hierarchical context for either a specific scope or namespace. In general, names for a path are listed in order from general (highest level in the hierarchy) to specific.
+Each source language has its own rules for specifying scope and namespace, and it will be the responsibility of each program analysis module (e.g., Fortran `for2py`) to identify the hierarchical structure of the context that uniquely identifies the specific scope and/or namespace within which an identifier [`<base_name>`](#base-name) is defined. However, generally scopes and namespaces may be defined hierarchically, such that the name for each level of the hierarchy taken together uniquely define the context. A "path" of names appears to be sufficient to generally represent the hierarchical context for either a specific scope or namespace. In general, names for a path are listed in order from general (highest level in the hierarchy) to specific.
 
 Examples:
 
@@ -144,7 +145,7 @@ Examples:
     <scope_path> ::= list of <string>
     ```
     
-	The \"top\" level of the file (i.e., not enclosed within another program block context) will be assigned the default scope name of \"\_TOP\". All other scopes are either explicitly named (such as a named function), or are assigned a unique name by program analysis according to the rules of the type of scope (such as container, loop, conditional, etc), defined below. In such cases other than top, there is no need to include the \"\_TOP\" in the path -- it will be assumed that those named scopes are all within the default top-level scope.
+	The "top" level of the file (i.e., not enclosed within another program block context) will be assigned the default scope name of "\_TOP". All other scopes are either explicitly named (such as a named function), or are assigned a unique name by program analysis according to the rules of the type of scope (such as container, loop, conditional, etc), defined below. In such cases other than top, there is no need to include the "\_TOP" in the path -- it will be assumed that those named scopes are all within the default top-level scope.
     
 - `<namespace_path>`: Different languages have different conventions for defining namespaces, but in general they are either (1) explicitly defined within source code by namespace declarations (such as Fortran "modules" or C++ "namespace"s), or (2) implicitly defined by the project directory structure within which a file is located (as in Python). In the case of namespaces defined by project directory structure, two files in different locations in the project directory tree may have the same name. To distinguish these, program analysis will capture the path of the directory tree from the root to the file. The final name in the path, which is the name of the source file, will drop the file extension. For example, the namespace for file `baz.py` within the following directory tree
     
@@ -172,7 +173,7 @@ Examples:
 
 #### Path Strings
 
-It will be convenient to be able to express `<scope_path>`s and `<namespace_path>`s using single strings within GrFN (particularly when building an identifier string). For this we introduce a special string notation in which the string names that make up a path are expressed in order but separated by periods. These representations will be referred to as the `<scope_path_string>` and `<namespace_path_string>`, respectively. The string representations of the `<scope_path>` and `<namespace_path>` examples above would be:
+It will be convenient to be able to express [`<scope_path>`](#scope-and-namespace-paths)s and [`<namespace_path>`](#scope-and-namespace-paths)s using single strings within GrFN (particularly when building an identifier string). For this we introduce a special string notation in which the string names that make up a path are expressed in order but separated by periods. These representations will be referred to as the `<scope_path_string>` and `<namespace_path_string>`, respectively. The string representations of the `<scope_path>` and `<namespace_path>` examples above would be:
 
 - Example `<scope_path_string>`:
     
@@ -194,7 +195,7 @@ It will be convenient to be able to express `<scope_path>`s and `<namespace_path
 
 ### Identifier String
 
-Identifiers are uniquely defined by their `<base_name>`, `<scope_path>`, and `<namespace_path>`. It will be convenient to refer unambiguously to any identifier using a single string, outside of the identifier specification declaration (defined below). We define an `<identifier_string>` by combining the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and `<base_name>` by double-colons:
+Identifiers are uniquely defined by their [`<base_name>`](#base-name), [`<scope_path>`](#scope-and-namespace-paths), and [`<namespace_path>`](#scope-and-namespace-paths). It will be convenient to refer unambiguously to any identifier using a single string, outside of the identifier specification declaration (defined below). We define an `<identifier_string>` by combining the `namespace`, `scope` and `base_name` (in that order) within a single string by separating the `<namespace_path_string>`, `<scope_path_string>` and [`<base_name>`](#base-name) by double-colons:
 
     <identifier_string> ::= "<namespace_path_string>::<scope_path_string>::<base_name>"
 
@@ -233,7 +234,7 @@ A variable name will be an [`<identifier_string>`](#identifier-string):
 
 A top level source variable named ABSORPTION would then simply have the [`<base_name>`](#base-name) of "ABSORPTION" plus the relevant [`<namespace_path_string>`](#path-strings) and [`<scope_path_string>`](#path-strings).
 
-When there are two (or more) separate instances of new variable declarations in the same context (same namespace and scope) using the same name, then we'll add an underscore and number to the `<base_name>` to distinguish them. For example, if ABSORPTION is defined twice in the same namespace and scope, then the `<base_name>` of the first (in order in the source code) is named:
+When there are two (or more) separate instances of new variable declarations in the same context (same namespace and scope) using the same name, then we'll add an underscore and number to the [`<base_name>`](#base-name) to distinguish them. For example, if ABSORPTION is defined twice in the same namespace and scope, then the [`<base_name>`](#base-name) of the first (in order in the source code) is named:
 
     "ABSORPTION_1"
 
@@ -241,7 +242,7 @@ And the second:
 
     "ABSORPTION_2"
 
-Finally, in some cases (described below), program analysis will introduce variables (e.g., when analyzing conditionals). The naming conventions for the `<base_name>` of such introduced variables are described below.
+Finally, in some cases (described below), program analysis will introduce variables (e.g., when analyzing conditionals). The naming conventions for the [`<base_name>`](#base-name) of such introduced variables are described below.
 
 ### Variable Reference
 
@@ -249,7 +250,7 @@ Finally, in some cases (described below), program analysis will introduce variab
         "variable" : <variable_name>
         "index" : <integer>
 
-In addition to capturing source code variable environment context in variable declarations, we also need a mechanism to disambiguate specific instances of *use* of the same variable within the same context to accurately capture the logical order of variable value updates. In this case, we consider this as a repeated reference to the same variable. The semantics of repeated reference is captured by the variable \"index\" attribute of a `<variable_reference>`. The index integer serves to disambiguate the execution order of the variable state references, as determined during program analysis.
+In addition to capturing source code variable environment context in variable declarations, we also need a mechanism to disambiguate specific instances of *use* of the same variable within the same context to accurately capture the logical order of variable value updates. In this case, we consider this as a repeated reference to the same variable. The semantics of repeated reference is captured by the variable "index" attribute of a `<variable_reference>`. The index integer serves to disambiguate the execution order of the variable state references, as determined during program analysis.
 
 ### Function Naming Conventions
 
@@ -257,13 +258,13 @@ Function names, like variable names, are also ultimately [identifiers](#identifi
 
     <function_name> ::= <identifier_string>
 
-However, there are additional rules for determining the `<base_name>` of the function. Because of this particular set of rules, the `<base_name>` of the function name will be referred to as a `<function_base_name>`.
+However, there are additional rules for determining the [`<base_name>`](#base-name) of the function. Because of this particular set of rules, the [`<base_name>`](#base-name) of the function name will be referred to as a `<function_base_name>`.
 
 The general string format for a `<function_base_name>` is:
 
     <function_base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
 
-The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): [\"assign\"](#function-assign-specification), [\"condition\"](#function-assign-specification), [\"decision\"](#function-assign-specification), [\"container\"](#function-container-specification), [\"loop\_plate\"](#function-loop-plate-specification). In the case of a loop\_plate, we will name the specific loop using the generic name \"loop\" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
+The `<function_type>` is the string representing which of the four types the function belongs to (the types are described in more detail, below): ["assign"](#function-assign-specification), ["condition"](#function-assign-specification), ["decision"](#function-assign-specification), ["container"](#function-container-specification), ["loop\_plate"](#function-loop-plate-specification). In the case of a loop\_plate, we will name the specific loop using the generic name "loop" along with an integer (starting with value 1) uniquely distinguishing loops within the same namespace and scope.
 
 The optional `<code_given_name>` is used when the function identified by program analysis has also been given a name within source code. For example, in this python example:
 
@@ -272,7 +273,7 @@ def foo():
     ...
 ```
 
-the function foo is a type of "container" and its `<code_given_name>` is \"foo\", making the `<function_base_name>` be
+the function foo is a type of "container" and its `<code_given_name>` is "foo", making the `<function_base_name>` be
 
     "container$foo"
 
@@ -286,7 +287,7 @@ Here are example function names for each function type. In each example, we assu
 
 -   [**Assign**](#function-assign-specification): An assignment of the variable with the `<identifier_string>`
     "CROP_YIELD::UPDATE_EST::YIELD\_EST"
-    (which denotes the identifier with `<base_name>` \"YIELD\_EST\" in the scope of 
+    (which denotes the identifier with `<base_name>` "YIELD\_EST" in the scope of 
     the function UPDATE\_EST declared in the namespace CROP\_YIELD) has the 
     `function_base_name>`:
     
@@ -305,10 +306,10 @@ Here are example function names for each function type. In each example, we assu
         "CROP_YIELD::UPDATE_EST::condition$IF_1"
 
 -   [**Decision**](#function-assign-specification): A decision function assigns a variable a value based on the 
-    (outcome) state of a condition variable. If the variable \"YIELD\_EST\"
-    (from the namespace \"CROP\_YIELD\" and scope \"UPDATE\_EST\") is 
+    (outcome) state of a condition variable. If the variable "YIELD\_EST"
+    (from the namespace "CROP\_YIELD" and scope "UPDATE\_EST") is 
     being updated as a result of a conditional outcome in the namespace 
-    \"CROP\_YIELD\" and scope \"DERIVE\_YIELD\", then the 
+    "CROP\_YIELD" and scope "DERIVE\_YIELD", then the 
     `<identifier_string>` would be:
     
     	"CROP_YIELD::DERIVE_YIELD::decision$CROP_YIELD::UPDATE_EST::YIELD_EST"
@@ -324,11 +325,11 @@ Here are example function names for each function type. In each example, we assu
     
         "CROP_YIELD::NULL::container$CROP_YIELD"
     
-    (Note that the first occurrence of \"CROP\_YIELD\" in the string is for the 
+    (Note that the first occurrence of "CROP\_YIELD" in the string is for the 
     namespace, the NULL is because it's defined at the top level, and then the
-    second occurrence of \"CROP\_YIELD\" is the `<code_given_name>` of CROP\_YIELD.)
+    second occurrence of "CROP\_YIELD" is the `<code_given_name>` of CROP\_YIELD.)
 
--   [**Loop_plate**](#function-loop-plate-specification): Loops themselves are not assigned identifiers within source code, so identifiers will be assigned during program analysis. As described above, the `<function_base_name>` of the loop\_plate function type is "loop" followed by a \'$\' and an integer starting from 1 that distinguishes the loop from any other loops occurring in the same namespace and scope.
+-   [**Loop_plate**](#function-loop-plate-specification): Loops themselves are not assigned identifiers within source code, so identifiers will be assigned during program analysis. As described above, the `<function_base_name>` of the loop\_plate function type is "loop" followed by a '$' and an integer starting from 1 that distinguishes the loop from any other loops occurring in the same namespace and scope.
 
     -   A single loop within the function CROP\_YIELD of the namespace 
         CROP\_YIELD has the `<identifier_string>`:
@@ -340,13 +341,13 @@ Here are example function names for each function type. In each example, we assu
 
             "CROP_YIELD::CROP_YIELD::loop$3"
 
-    -   A loop nested in the context of the second loop, \"loop$2\", in the 
+    -   A loop nested in the context of the second loop, "loop$2", in the 
         CROP\_YIELD function within the CROP\_YIELD namespace:
 
             "CROP_YIELD::CROP_YIELD.loop$2::loop$1"
 
-    -   An assignment of the variable \"CROP\_YIELD::\_TOP::RAIN\" (i.e., the 
-    	variable \"RAIN\" was defined in the default \"top\" level scope, within 
+    -   An assignment of the variable "CROP\_YIELD::\_TOP::RAIN" (i.e., the 
+    	variable "RAIN" was defined in the default "top" level scope, within 
     	the namespace CROP\_YIELD) within a single loop in the CROP\_YIELD 
     	function in the CROP\_YIELD namespace:
 
@@ -354,9 +355,9 @@ Here are example function names for each function type. In each example, we assu
         
         (Note that the above string is still unambiguous to parse to recover the
         components pieces of the name: the first two names separated by \'::\'
-        are the `<namespace_string>` followed by the `<scope_string>`, with the
+        are the [`<namespace_path_string>`](#path-strings) followed by the [`<scope_path_string>`](#path-strings), with the
         rest being the `<function_base_name>` of the function, which itself is an 
-        \"assign\" of a variable that itself is a complete `<identifier_string>`)
+        "assign" of a variable that itself is a complete [`<identifier_string>`](#identifier-string))
 
 
 Top-level GrFN Specification
@@ -372,32 +373,32 @@ The top-level structure of the GrFN specification is the `<grfn_spec>` and is it
         "variables" : list of <variable_spec>
         "functions" : list of <function_spec>
 
-The \"date\_created\" attribute is a string representing the date+time that the current GrFN was generated (this helps resolve what version of the program analysis code (e.g., for2py) was used).
+The "date\_created" attribute is a string representing the date+time that the current GrFN was generated (this helps resolve what version of the program analysis code (e.g., for2py) was used).
 
 There may be a single GrFN spec file for multiple source code files.
 
->CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system program unit components. If we have a single GrFN spec for each \"Program\", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
+>CHOICE: The issue is that there are some source files that define many identifiers and program elements that may be used in many system program unit components. If we have a single GrFN spec for each "Program", then we will be redundantly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
 (1) A single GrFN spec for a given program unit and get the redundancies. 
 (2) Have a single GrFN spec for each source progam file, and develop method for importing/using GrFN specs that are used by other GrFN specs.
 (3) Develop an alternative mapping of source code to GrFN representation that allows for single GrFN spects for reused components that could be imported/used by other GrFN files, but still grouping source files by program.
 
 >FOR NOW: Go with Option (1): The main target of a GrFN spec file is all of the source code files involved in defining a program.
     
->FUTURE: Add ability for GrFN specs to \"import\" and/or \"use\" other GrFN specs of other modules.
+>FUTURE: Add ability for GrFN specs to "import" and/or "use" other GrFN specs of other modules.
 
->FOR NOW: the \"source\" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a [`<namespace_path>`](#scope-and-namespace-paths) (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
+>FOR NOW: the "source" attribute is a list of one or more `<source_code_file_path>`s. The `<source_code_file_path>` identifying a source file is represented the same way as a [`<namespace_path>`](#scope-and-namespace-paths) (as described above), except that the final name (the name of the file itself) _will_ include the file extension.
 
-It is also the case that there may be multiple \"start\" points (or none at all) for a given program. For this reason, the \"start\" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). These will be function `<identifier_string>`s. In the absence of any entry point, this value will be an empty list: `[]`.
+It is also the case that there may be multiple "start" points (or none at all) for a given program. For this reason, the "start" attribute is a list of zero or more names of the entry point(s) of the (Fortran) source code (for example, the PROGRAM module). These will be function [`<identifier_string>`](#identifier-string)s. In the absence of any entry point, this value will be an empty list: `[]`.
 
-The \"identifiers\" attributes contains a list of [`<identifer_spec>`](#identifier-specification), as has been defined above in the section on Identifiers.
+The "identifiers" attributes contains a list of [`<identifer_spec>`](#identifier-specification), as has been defined above in the section on Identifiers.
 
->FUTURE: It may also be desirable to add an attribute to represent the program analysis code version used to generate the GrFN (as presumably the program analysis code could evolve and have different properties) \-- although \"dateCreated\" may be sufficient.
+>FUTURE: It may also be desirable to add an attribute to represent the program analysis code version used to generate the GrFN (as presumably the program analysis code could evolve and have different properties) \-- although "dateCreated" may be sufficient.
 
-The \"variables\" attribute contains a list of [`<variable_spec>`](#variable-specification).
+The "variables" attribute contains a list of [`<variable_spec>`](#variable-specification).
 
-NOTE: `<variables_spec>`s were previously defined in the context of `<function_spec>`s, but with the need to iterate over variables (e.g. when doing inference about associating comments and text with variable definitions), it is more convenient to group variable specifications at the top level. Now references to variables within functions within GrFN will use `<identifier_string>`s.
+NOTE: [`<variable_spec>`](#variable-specification)s were previously defined in the context of [`<function_spec>`](#function-specification)s, but with the need to iterate over variables (e.g. when doing inference for associating comments and text with variable definitions), it is more convenient to group variable specifications at the top level. Now references to variables within functions within GrFN will use [`<identifier_string>`](#identifier-string)s.
 
-A (partial) example instance of the JSON generated for a `<grfn_spec>` of an analyzed file in the path \'crop\_system/yield/crop\_yield.py\' is:
+A (partial) example instance of the JSON generated for a `<grfn_spec>` of an analyzed file in the path 'crop\_system/yield/crop\_yield.py' is:
 
 ```javascript
 {
@@ -436,38 +437,32 @@ variable declarations private (such as Python's name mangling, by prepending
 an underscore to a variable name).
 
 >FOR NOW: Our hypothesis is that simply prepending another underscore (following
-python [name mangling](https://docs.python.org/2/tutorial/classes.html#private-variables-and-class-local-references)) will make the \"private\" variable `<base_name>` unique from other variable names. Also, program analysis will \"capture\" the semantics of privacy by ensuring there are no outer-scope references to a private variable, and this will carry through in explicit references (or not, in this case) captured in the GrFN spec.
+python [name mangling](https://docs.python.org/2/tutorial/classes.html#private-variables-and-class-local-references)) will make the "private" variable [`<base_name>`](#base-name) unique from other variable names. Also, program analysis will "capture" the semantics of privacy by ensuring there are no outer-scope references to a private variable, and this will carry through in explicit references (or not, in this case) captured in the GrFN spec.
 
 ### Variable Value Domain
 
     <variable_domain_type> ::= <string>
 
-The \"domain\" attribute of a `<variable_spec>` specifies what values
-the variable can be assigned to. To start, we will keep things simple
-and restrict ourselves to four types that can be specified as strings:
+The "domain" attribute of a [`<variable_spec>`](#variable-specification) specifies what values the variable can be assigned to. To start, we will keep things simple and restrict ourselves to four types that can be specified as strings:
 
--   \"real\" (i.e. a floating-point number)
--   \"integer\"
--   \"boolean\"
--   \"string\"
+-   "real" (i.e. a floating-point number)
+-   "integer"
+-   "boolean"
+-   "string"
 
 (The idea of the variable domain is intended to be close to the idea of
-the \"support\" of a random variable, although should also correspond to
+the "support" of a random variable, although should also correspond to
 standard data types.)
 
->FUTURE: Need to extend to accommodate arrays.
+>FUTURE: Extend to accommodate arrays.
 
 >FUTURE:
->-   May also need to accommodate other structures (How far can this go?
-    Unions, composite data structures, classes?).
->-   We see augmenting the domain specification to also allow
-    representing whether there are bounds on the values (e.g., positive
-    integers, or real values in (0,10\], etc.). When we move to doing
-    this, the value of \"domain\" will itself become a new JSON attrval
-    type.
+
+>-  Possibly accommodate other structures (Unions, composite data structures, classes).
+>-  We see augmenting the domain specification to also allow representing whether there are bounds on the values (e.g., positive integers, or real values in (0,10\], etc.). When we move to doing this, the value of "domain" will itself become a new JSON attrval type.
 
 Python is a strongly-typed language, but is also a dynamically typed
-language. However, that\'s not to say that there is no type
+language. However, that's not to say that there is no type
 specification in Python. Python 3 now provides nascent support for
 explicit typing via [type
 hints](https://docs.Python.org/3/library/typing.html).
@@ -490,7 +485,7 @@ this information:
 
 Here are three examples of `<variable_spec>` objects:
 
--   Example of a \"standard\" variable MAX\_RAIN within the CROP\_YIELD
+-   Example of a "standard" variable MAX\_RAIN within the CROP\_YIELD
     function of the CROP namespace:
 
     ```javascript
@@ -531,32 +526,29 @@ Next we have the `<function_spec>`.
 
 All `<function_spec>`s include a [`<function_name>`](#function-naming-conventions), following the [naming conventions described above](#function-naming-conventions).
 
-There are five types of functions; two types can be expressed using the same attributes in their JSON attribute-value list (`<function_assign_spec>`), while the others (`<function_container_spec>`, `<function_loop_plate>`) require different attributes. So this means there are three specializations of the \<function\_spec\>, one of which (`<function_assign_spec>`) will be used for two function types.
+There are five types of functions; three types can be expressed using the same attributes in their JSON attribute-value list ([`<function_assign_spec>`](#function-assign-specification)), while the others ([`<function_container_spec>`](#function-container-specification), [`<function_loop_plate_spec>`](#function-loop-plate-specification)) require different attributes. So this means there are three specializations of the \<function\_spec\>, one of which ([`<function_assign_spec>`](#function-assign-specification)) will be used for three function types.
 
     <function_spec> ::=
-        <function_assign_spec>       # either type "assign" or "condition:
-        | <function_container_spec>  # type "container"
-        | <function_loop_plate>      # type "loop_plate"
+        <function_assign_spec>         # either type "assign" or "condition"
+        | <function_container_spec>    # type "container"
+        | <function_loop_plate_spec>   # type "loop_plate"
 
-All three specs will have a \"type\" attribute that will unambiguously identify which type of function is being specified. The five possible types are:
+All three specs will have a "type" attribute that will unambiguously identify which type of function is being specified. The five possible types are:
 
 -   [Assign](#function-assign-specification)
-    -   Condition (a special case of Assign)
-    -   Decision  (a special case of Assign)
+    -   [Condition](#function-assign-specification) (a special case of Assign)
+    -   [Decision](#function-assign-specification)  (a special case of Assign)
 -   [Container](#function-container-specification)
 -   [Loop\_plate](#function-loop-plate-specification)
 
-All \<function\_spec\>s will also have a \"name\" attribute with a unique
-`<identifier_string>` (across \<function\_spec\>s), as described above under the
-Function naming convention section; as described in that section, the
-function name will include the function type, but having the explicit
-type attribute makes JSON parsing easier.
+All `<function_spec>`s will also have a "name" attribute with a unique
+[`<identifier_string>`](#identifier-string) (across `<function_spec>`s), as described above under the [Function Naming Conventions](#function-naming-conventions) section; as described in that section, the function name will include the function type, but having the explicit type attribute makes JSON parsing easier.
 
 ### Function Assign Specification
 
 A `<function_assign_spec>` denotes the setting of the value of a
-variable. The values are assigned to the \"target\" variable (denoted by
-a [`<variable_reference>`](#variable-reference) or [`<variable_name>`](#variable-naming-convention)) and the value is determined by the \"body\" of the assignment, which itself may either be a literal value (specified by [`<function_assign_body_literal_spec>`](#function-assign-body-literal)) or a lambda function (specified by [`<function_assign_body_lambda_spec>`](#function-assign-body-lambda)).
+variable. The values are assigned to the "target" variable (denoted by
+a [`<variable_reference>`](#variable-reference) or [`<variable_name>`](#variable-naming-convention)) and the value is determined by the "body" of the assignment, which itself may either be a literal value (specified by [`<function_assign_body_literal_spec>`](#function-assign-body-literal)) or a lambda function (specified by [`<function_assign_body_lambda_spec>`](#function-assign-body-lambda)).
 
     <function_assign_spec>[attrval] ::=
         "name" : <function_name>
@@ -568,17 +560,17 @@ a [`<variable_reference>`](#variable-reference) or [`<variable_name>`](#variable
         "body" : <function_assign_body_literal_spec> 
                  | <function_assign_body_lambda_spec>
 
-There are three types of assign functions, distinguished by the value of the attribute \"type\".
+There are three types of assign functions, distinguished by the value of the attribute "type".
 
-- \"assign\": This represents the general case of assignment of a variable to some value.
+- "assign": This represents the general case of assignment of a variable to some value.
 
-- \"condition\": In the special case where program analysis is analyzing a conditional (i.e., \"if\") statement, then program analysis will infer a new boolean target variable, and the computation of the condition itself will be represented by the assignment function. Semantically, this is nothing more than an assignment of a boolean variable, but conceptually it will be useful to distinguish assignments used for conditions from other assignments.
+- "condition": In the special case where program analysis is analyzing a conditional (i.e., "if") statement, then program analysis will infer a new boolean target variable, and the computation of the condition itself will be represented by the assignment function. Semantically, this is nothing more than an assignment of a boolean variable, but conceptually it will be useful to distinguish assignments used for conditions from other assignments.
 
-- \"decision\": Also as part of analyzing a conditional, any variables whose values are updated as a result of the condition outcome must have their values updated. These will be updated by \"decision\" assignment functions, whose target is the variable being updated, and the computations will involve the state of the conditional variable, the previous state of the variable being updated, and possibly other variable values. Again, semantically this is nothing more than an assignment, but is useful to distinguish from other assignments.
+- "decision": Also as part of analyzing a conditional, any variables whose values are updated as a result of the condition outcome must have their values updated. These will be updated by "decision" assignment functions, whose target is the variable being updated, and the computations will involve the state of the conditional variable, the previous state of the variable being updated, and possibly other variable values. Again, semantically this is nothing more than an assignment, but is useful to distinguish from other assignments.
 
 The identifier conventions for assign, condition and decision functions is described above in the section on Function naming conventions.
 
-For \"sources\" and \"target\": When there is no need to refer to the variable by its relative index, then [`<variable_name>`](#variable-naming-convention) (itself an [`<identifier_string>`](#identifier-string)) is sufficient, and index will be assumed to be 0 (if at all relevant). 
+For "sources" and "target": When there is no need to refer to the variable by its relative index, then [`<variable_name>`](#variable-naming-convention) (itself an [`<identifier_string>`](#identifier-string)) is sufficient, and index will be assumed to be 0 (if at all relevant). 
 In other cases, the variables will be referenced using the `<function_source_reference>`, to indicate the return value of the function. There may also be cases where the sources can be a function, either built-in or user-defined. These two will be referenced using `<function_source_reference>` defined as:
 
     <function_source_reference> ::=
@@ -612,17 +604,19 @@ When more computation is done to determine the value that is being assigned to t
 
 >FUTURE: Eventually, we can expand this part of the grammar to accommodate a restricted set of arithmetic operations involved in computing the final value (this is now of interest in the World Modelers program and we\'re interested in supporting this in Delphi). 
 
->FOR NOW: have the `<function_assign_body_lambda_spec>` reference the source code function in the `lambdas.py` file that does the computation, in the translated Python generated by program analysis. This reference is done by the `<lambda_function_reference>`.
+The `<lambda_function_reference>` references the source code function in the `lambdas.py` file that does the computation, in the translated Python generated by program analysis.
 
->NOTE: The `<lambda_function_reference>`, which refers to the post-analysis lambdas function is *NOT* to be confused with a [`<source_code_reference>`](#grounding-and-source-code-reference), which refers to the original source code *being* analyzed (such as the original Fortran source).
+	<lambda_function_reference> ::= <string>
 
-Any variables that are required as arguments to the lambda function must correspond to the \"source\" list of variables (\<variable\_name\> references) in the \<function\_assign\_spec\>.
+>NOTE: The `<lambda_function_reference>`, which refers to the post-analysis lambdas function created by Program Analysis is *NOT* to be confused with a [`<source_code_reference>`](#grounding-and-source-code-reference), which refers to the original source code that was analyzed (i.e., the original Fortran source code).
 
-As noted above, due to the more semantically rich identifier specification and [`<identifier_string>`](#identifier-string) representation, it is not straightforward to use the `<identifier_string>` as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented in the generated Python using their [gensym](#identifier-gensym). For debugging and visualization purposes, the generated Python code may be displayed with `<identifier_string>`s (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create \"safe\" Python names directly from `<identifier_string>`s).
+Any variables that are required as arguments to the lambda function must correspond to the "source" list of variables ([`<variable_name>`](#variable-naming-convention) references) in the [`<function_assign_spec>`](#function-assign-specification).
+
+As noted above, due to the more semantically rich identifier specification and [`<identifier_string>`](#identifier-string) representation, it is not straightforward to use the [`<identifier_string>`](#identifier-string) as the python symbol in the translated Python generated by program analysis. Instead, function and variable identifiers will be represented in the generated Python using their [gensym](#identifier-gensym). For debugging and visualization purposes, the generated Python code may be displayed with [`<identifier_string>`](#identifier-string)s (or some version that is closer to legal Python naming, although in general it does not appear to be possible to create "safe" Python names directly from [`<identifier_string>`](#identifier-string)s).
 
 ### Function Container Specification
 
-A `<function_container_spec>` represents the grouping of a set of variables and how they are updated by functions. Generally the \"function container\" corresponds to functions (or subroutines) defined in source code. A \"function container\" is also defined for the \"top\" level of a source code file.
+A `<function_container_spec>` represents the grouping of a set of variables and how they are updated by functions. Generally the "function container" corresponds to functions (or subroutines) defined in source code. A "function container" is also defined for the "top" level of a source code file.
 
     <function_container_spec>[attrval] ::=
         "name" : <function_name>
@@ -632,9 +626,9 @@ A `<function_container_spec>` represents the grouping of a set of variables and 
         "output" : list of <variable_reference> | <variable_name>
         "body" : list of <function_reference_spec>
 
-There will be a container function for each source code function. For this reason, we need an \"input\" variable list (of 0 or more variables) as well as an \"output\" variable. In Python, a function only returns a value if there is an explicit return expression. Otherwise it returns `None`.
+There will be a container function for each source code function. For this reason, we need an "input" variable list (of 0 or more variables) as well as an "output" variable. In Python, a function only returns a value if there is an explicit return expression. Otherwise it returns `None`.
 
-The \"body\" is specified by a list of [`<function_reference_spec>`](#function-reference-specification)
+The "body" is specified by a list of [`<function_reference_spec>`](#function-reference-specification)
 
 Case 1: subroutine
 
@@ -695,7 +689,7 @@ def foo(): #fortran function
         "input" : list of [ <variable_reference> | <variable_name> ]
         "output" : <variable_reference> | <variable_name>
 
-The `<function_reference_spec>` defines the \"wiring\" between functions and their input and output variable(s).
+The `<function_reference_spec>` defines the "wiring" between functions and their input and output variable(s).
 
 ### Function Loop Plate Specification
 
@@ -708,13 +702,13 @@ The `<function_reference_spec>` defines the \"wiring\" between functions and the
         "condition" : <loop_condition>
         "body" : list of <function_reference_spec>
 
-The \"input\" list of `<variable_name>` objects should list all variables that are set in the scope outside of the loop\_plate.
+The "input" list of [`<variable_name>`](#variable-naming-convention) objects should list all variables that are set in the scope outside of the loop\_plate.
 
-The current loop\_plate specification is aimed at handling for-loops. (assumes \"index\_variable\" and \"index\_iteration\_range\" are specified)
+The current loop\_plate specification is aimed at handling for-loops. (assumes "index\_variable" and "index\_iteration\_range" are specified)
 
->FUTURE: Generalize to do-while loop by just relying on the \"condition\" `<loop_condition>` to determine when loop completes. We can then remove \"index\_variable\" and \"index\_iteration\_range\". There will still need to be a mechanism for identifying index\_variable(s).
+>FUTURE: Generalize to do-while loop by just relying on the "condition" `<loop_condition>` to determine when loop completes. We can then remove "index\_variable" and "index\_iteration\_range". There will still need to be a mechanism for identifying index\_variable(s).
 
-The \"index\_variable\" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`:
+The "index\_variable" is the named variable that stores the iteration state of the loop; the naming convention of this variable is described above, in the Variable naming convention section. The only new element introduced is the `<index_range>`:
 
     <index_range>[attrval] ::=
         "start" : <integer> | <variable_reference> | <variable_name>
