@@ -349,7 +349,7 @@ There may be a single GrFN spec file for multiple source code files.
 >CHOICE: A source file may define identifiers and program elements that are then referenced/used in many other system program unit components (other files). We can defined the concepts of a "Program" as the collection of source code from a file plus any other files containing source code that it references/uses. If we have a single GrFN spec for each "Program", then we will be repeatedly reproducing many identifiers and other program element declarations (variables, functions). The alternatives are:
 
 >1. A single GrFN spec for a given "Program" and live with the redundant re-representation of source code that is shared across different units. 
-2. Have a single GrFN spec for each individual file and develop method for importing/using GrFN specs that are used by other GrFN specs. (A variant of this approach could allow only including GrFN spec for the parts of the shared source code that are directly relevant to a "Program".)
+>2. Have a single GrFN spec for each individual file and develop method for importing/using GrFN specs that are used by other GrFN specs. (A variant of this approach could allow only including GrFN spec for the parts of the shared source code that are directly relevant to a "Program".)
 
 >FOR NOW: Go with Option (1): The main target of a GrFN spec file is _all_ of the source code files involved in defining a "Program".
     
