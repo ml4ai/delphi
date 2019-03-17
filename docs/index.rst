@@ -16,7 +16,7 @@ textual evidence.
 
   self
   model
-  api
+  AnalysisGraph_API
   grfn_spec
 
 
