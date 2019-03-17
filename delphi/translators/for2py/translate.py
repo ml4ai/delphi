@@ -73,27 +73,59 @@ class XMLToJSONTranslator(object):
         ]
         self.handled_tags = [
             "access-spec",
-            "argument" "assignment" "call" "close" "component-decl",
-            "declaration" "dimension" "dimensions",
+            "argument", "assignment", "call", "close", "component-decl",
+            "declaration", "dimension", "dimensions",
             "exit",
             "explicit-shape-spec-list__begin",
-            "format" "format",
-            "format-item"
-            "function"
-            "if"
-            "index-variable"
-            "io-control-spec"
-            "keyword-argument"
-            "literal"
+            "format",
+            "format-item",
+            "function",
+            "if",
+            "index-variable",
+            "io-control-spec",
+            "keyword-argument",
             "literal",
-            "loop" "module" "name" "open" "operation" "program",
-            "range" "read" "return",
-            "stop" "subroutine",
-            "type" "type",
-            "use" "variable" "variables",
-            "write",
+            "loop", "module", "name", "open", "operation", "program",
+            "range", "read", "return",
+            "stop", "subroutine",
+            "type",
+            "use", "variable", "variables",
+            "write"
         ]
         self.handled_tags += self.libRtns
+
+        self.AST_TAG_HANDLERS = {
+            "argument": self.process_argument,
+            "assignment": self.process_assignment,
+            "call": self.process_call,
+            "close" : self.process_direct_map,
+            "declaration": self.process_declaration,
+            "dimension": self.process_dimension,
+            "exit" : self.process_terminal,
+            "format-item": self.process_format_item,
+            "format": self.process_format,
+            "function": self.process_function,
+            "if": self.process_if,
+            "index-variable": self.process_index_variable,
+            "io-control-spec": self.process_io_control_spec,
+            "keyword-argument": self.process_keyword_argument,
+            "literal": self.process_literal,
+            "loop" : self.process_loop,
+            "module" : self.process_subroutine_or_program_module,
+            "name": self.process_name,
+            "open" : self.process_direct_map,
+            "operation": self.process_operation,
+            "program" : self.process_subroutine_or_program_module,
+            "range": self.process_range,
+            "read" : self.process_direct_map,
+            "return" : self.process_terminal,
+            "stop" : self.process_terminal,
+            "subroutine": self.process_subroutine_or_program_module,
+            "type": self.process_type,
+            "use": self.process_use,
+            "variable": self.process_variable,
+            "write" : self.process_direct_map
+        }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
         self.summaries = {}
@@ -327,49 +359,52 @@ class XMLToJSONTranslator(object):
         except:
             return []
 
-    def process_do_loop(self, root, state) -> List[Dict]:
-        do = {"tag": "do"}
-        do_format = []
-        for node in root:
-            if node.tag == "format":
-                do_format = self.parseTree(node, state)
-            elif node.tag == "header":
-                do["header"] = self.parseTree(node, state)
-                if do["header"][0]["low"][0]["tag"] == "ref":
-                    lowName = do["header"][0]["low"][0]["name"]
-                    if "%" in lowName:
-                        curName = lowName
-                        devVar = re.findall(r"\"([^\"]+)\"", curName)
-                        percInd = curName.find("%")
-                        fieldVar = curName[percInd + 1 : len(curName)]
-                        newName = devVar[0] + "." + fieldVar
-                        do["header"][0]["low"][0]["name"] = newName
-                        do["header"][0]["low"][0]["isDevType"] = True
-                if do["header"][0]["high"][0]["tag"] == "ref":
-                    highName = do["header"][0]["high"][0]["name"]
-                    if "%" in highName:
-                        curName = highName
-                        devVar = re.findall(r"\"([^\"]+)\"", curName)
-                        percInd = curName.find("%")
-                        fieldVar = curName[percInd + 1 : len(curName)]
-                        newName = devVar[0] + "." + fieldVar
-                        do["header"][0]["high"][0]["name"] = newName
-                        do["header"][0]["high"][0]["isDevType"] = True
-            elif node.tag == "body":
-                do["body"] = self.parseTree(node, state)
-        if do_format:
-            return [do_format[0], do]
+    def process_loop(self, root, state) -> List[Dict]:
+        if root.attrib["type"] == "do":
+            do = {"tag": "do"}
+            do_format = []
+            for node in root:
+                if node.tag == "format":
+                    do_format = self.parseTree(node, state)
+                elif node.tag == "header":
+                    do["header"] = self.parseTree(node, state)
+                    if do["header"][0]["low"][0]["tag"] == "ref":
+                        lowName = do["header"][0]["low"][0]["name"]
+                        if "%" in lowName:
+                            curName = lowName
+                            devVar = re.findall(r"\"([^\"]+)\"", curName)
+                            percInd = curName.find("%")
+                            fieldVar = curName[percInd + 1 : len(curName)]
+                            newName = devVar[0] + "." + fieldVar
+                            do["header"][0]["low"][0]["name"] = newName
+                            do["header"][0]["low"][0]["isDevType"] = True
+                    if do["header"][0]["high"][0]["tag"] == "ref":
+                        highName = do["header"][0]["high"][0]["name"]
+                        if "%" in highName:
+                            curName = highName
+                            devVar = re.findall(r"\"([^\"]+)\"", curName)
+                            percInd = curName.find("%")
+                            fieldVar = curName[percInd + 1 : len(curName)]
+                            newName = devVar[0] + "." + fieldVar
+                            do["header"][0]["high"][0]["name"] = newName
+                            do["header"][0]["high"][0]["isDevType"] = True
+                elif node.tag == "body":
+                    do["body"] = self.parseTree(node, state)
+            if do_format:
+                return [do_format[0], do]
+            else:
+                return [do]
+        elif root.attrib["type"] == "do-while":
+            doWhile = {"tag": "do-while"}
+            for node in root:
+                if node.tag == "header":
+                    doWhile["header"] = self.parseTree(node, state)
+                elif node.tag == "body":
+                    doWhile["body"] = self.parseTree(node, state)
+            return [doWhile]
         else:
-            return [do]
-
-    def process_do_while_loop(self, root, state) -> List[Dict]:
-        doWhile = {"tag": "do-while"}
-        for node in root:
-            if node.tag == "header":
-                doWhile["header"] = self.parseTree(node, state)
-            elif node.tag == "body":
-                doWhile["body"] = self.parseTree(node, state)
-        return [doWhile]
+            self.unhandled_tags.add(root.attrib["type"])
+            return []
 
     def process_index_variable(self, root, state) -> List[Dict]:
         ind = {"tag": "index", "name": root.attrib["name"].lower()}
@@ -703,77 +738,8 @@ class XMLToJSONTranslator(object):
                 ast: A JSON ast that defines the structure of the Fortran file.
         """
 
-        if root.tag in ("subroutine", "program", "module"):
-            return self.process_subroutine_or_program_module(root, state)
-
-        elif root.tag == "call":
-            return self.process_call(root, state)
-
-        elif root.tag == "argument":
-            return self.process_argument(root, state)
-
-        elif root.tag == "declaration":
-            return self.process_declaration(root, state)
-
-        elif root.tag == "variable":
-            return self.process_variable(root, state)
-
-        elif root.tag == "loop" and root.attrib["type"] == "do":
-            return self.process_do_loop(root, state)
-
-        elif root.tag == "loop" and root.attrib["type"] == "do-while":
-            return self.process_do_while_loop(root, state)
-
-        elif root.tag == "index-variable":
-            return self.process_index_variable(root, state)
-
-        elif root.tag == "if":
-            return self.process_if(root, state)
-
-        elif root.tag == "operation":
-            return self.process_operation(root, state)
-
-        elif root.tag == "literal":
-            return self.process_literal(root, state)
-
-        elif root.tag == "io-control-spec":
-            return self.process_io_control_spec(root, state)
-
-        elif root.tag in ("exit", "return", "stop"):
-            return self.process_terminal(root, state)
-
-        elif root.tag == "name":
-            return self.process_name(root, state)
-
-        elif root.tag == "assignment":
-            return self.process_assignment(root, state)
-
-        elif root.tag == "function":
-            return self.process_function(root, state)
-
-        elif root.tag == "keyword-argument":
-            return self.process_keyword_argument(root, state)
-
-        elif root.tag in ("open", "close", "read", "write"):
-            return self.process_direct_map(root, state)
-
-        elif root.tag == "format":
-            return self.process_format(root, state)
-
-        elif root.tag == "format-item":
-            return self.process_format_item(root, state)
-
-        elif root.tag == "use":
-            return self.process_use(root, state)
-
-        elif root.tag == "dimension":
-            return self.process_dimension(root, state)
-
-        elif root.tag == "range":
-            return self.process_range(root, state)
-
-        elif root.tag == "type":
-            return self.process_type(root, state)
+        if root.tag in self.AST_TAG_HANDLERS:
+            return self.AST_TAG_HANDLERS[root.tag](root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
@@ -781,7 +747,6 @@ class XMLToJSONTranslator(object):
         else:
             prog = []
             for node in root:
-                # sys.stderr.write(f"WARNING: xml tag {root.tag} not explicitly handled\n")
                 prog += self.parseTree(node, state)
             return prog
 
