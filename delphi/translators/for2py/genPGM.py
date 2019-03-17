@@ -774,6 +774,12 @@ class GrFNGenerator(object):
 
         # Assign: ('targets', 'value')
         elif isinstance(node, ast.Assign):
+
+            scope_path = state.scope_path.copy()
+            if len(scope_path) == 0:
+                scope_path.append('_TOP')
+            state.scope_path = scope_path
+
             sources = self.genPgm(node.value, state, fnNames, "assign")
             targets = reduce(
                 (lambda x, y: x.append(y)),
@@ -810,6 +816,7 @@ class GrFNGenerator(object):
                         for ip in src["call"]["inputs"][0]:
                             if "var" in ip:
                                 source_list.append(ip["var"]["variable"])
+
                 lambda_string = genFn(
                     node,
                     name,
@@ -1178,21 +1185,18 @@ def make_iden_dict(name, targets, scope_path, holder):
 
     # TODO handle multiple file namespaces that handle multiple fortran file namespacing
 
-    # TODO in the GrFN spec, the namespace is defined to capture the path of the directory tree from the
-    #  root to the file. Should module namespaces be incorporated in this as well? --> NO for now
-
     # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
     #  the intermediate python file's path
     name_space = mode_mapper["FileName"][1].split('/')
     name_space = '.'.join(name_space)
 
     # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
-    # print(scope_path)
-    # if scope_path[0] == "_TOP":
-    #     scope_path.remove("_TOP")
-    # scope_path = '.'.join(scope_path)
+    if len(scope_path) == 0:
+        scope_path.append("_TOP")
+    elif scope_path[0] == "_TOP" and len(scope_path) > 1:
+        scope_path.remove("_TOP")
+    scope_path = '.'.join(scope_path)
 
-    # TODO Support aliases
     # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
     #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
 
@@ -1211,8 +1215,6 @@ def make_iden_dict(name, targets, scope_path, holder):
 
 # Create the identifier specification for each identifier
 def make_identifier_spec(name, targets, sources, state):
-
-    print(name)
 
     scope_path = state.scope_path
     for_id = 1
