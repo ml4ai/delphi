@@ -80,6 +80,10 @@ class GrFNGenerator(object):
             localDefs = state.lastDefs.copy()
             localNext = state.nextDefs.copy()
             localTypes = state.varTypes.copy()
+            scope_path = state.scope_path.copy()  # Tracks the scope of the identifier
+            if len(scope_path) == 0:
+                scope_path.append('_TOP')
+            scope_path.append(node.name)
             fnState = state.copy(
                 lastDefs=localDefs,
                 nextDefs=localNext,
@@ -90,7 +94,7 @@ class GrFNGenerator(object):
             args = self.genPgm(node.args, fnState, fnNames, "functiondef")
             bodyPgm = self.genPgm(node.body, fnState, fnNames, "functiondef")
 
-            body, fns = get_body_and_functions(bodyPgm)
+            body, fns, iden_spec = get_body_and_functions(bodyPgm)
 
             variables = list(localDefs.keys())
             variables_tmp = []
@@ -119,7 +123,7 @@ class GrFNGenerator(object):
 
             fns.append(fnDef)
 
-            pgm = {"functions": fns}
+            pgm = {"functions": fns, "identifiers": iden_spec}
 
             return [pgm]
 
@@ -171,6 +175,23 @@ class GrFNGenerator(object):
 
         # For: ('target', 'iter', 'body', 'orelse')
         elif isinstance(node, ast.For):
+
+            scope_path = state.scope_path.copy()
+            if len(scope_path) == 0:
+                scope_path.append('_TOP')
+            scope_path.append('loop')
+
+            state = state.copy(
+                lastDefs=state.lastDefs.copy(),
+                nextDefs=state.nextDefs.copy(),
+                lastDefDefault=state.lastDefDefault,
+                fnName=state.fnName,
+                varTypes=state.varTypes.copy(),
+                lambdaStrings=state.lambdaStrings,
+                start=state.start.copy(),
+                scope_path=scope_path
+            )
+
             if self.genPgm(node.orelse, state, fnNames, "for"):
                 sys.stderr.write("For/Else in for not supported\n")
                 sys.exit(1)
@@ -217,7 +238,7 @@ class GrFNGenerator(object):
                 lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
             )
             loop = self.genPgm(node.body, loopState, fnNames, "for")
-            loopBody, loopFns = get_body_and_functions(loop)
+            loopBody, loopFns, iden_spec = get_body_and_functions(loop)
 
             variables = [x for x in loopLastDef if x != indexName]
 
@@ -234,15 +255,37 @@ class GrFNGenerator(object):
                 "body": loopBody,
             }
 
+            id_specList = make_identifier_spec(loopName, indexName, {}, state)
+
             loopCall = {"name": loopName, "inputs": variables, "output": {}}
-            pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
+            pgm = {"functions": loopFns + [loopFn], "body": [loopCall], "identifiers": []}
+
+            for id_spec in id_specList:
+                pgm["identifiers"].append(id_spec)
+
             return [pgm]
 
         # If: ('test', 'body', 'orelse')
         elif isinstance(node, ast.If):
 
+            scope_path = state.scope_path.copy()
+            if len(scope_path) == 0:
+                scope_path.append('_TOP')
+            scope_path.append('if')
+
+            state = state.copy(
+                lastDefs=state.lastDefs.copy(),
+                nextDefs=state.nextDefs.copy(),
+                lastDefDefault=state.lastDefDefault,
+                fnName=state.fnName,
+                varTypes=state.varTypes.copy(),
+                lambdaStrings=state.lambdaStrings,
+                start=state.start.copy(),
+                scope_path=scope_path
+            )
+
             if call_source == "if":
-                pgm = {"functions": [], "body": []}
+                pgm = {"functions": [], "body": [], "identifiers": []}
 
                 condSrcs = self.genPgm(node.test, state, fnNames, "if")
 
@@ -276,7 +319,7 @@ class GrFNGenerator(object):
 
                 return []
 
-            pgm = {"functions": [], "body": []}
+            pgm = {"functions": [], "body": [], "identifiers": []}
 
             condSrcs = self.genPgm(node.test, state, fnNames, "if")
 
@@ -300,6 +343,13 @@ class GrFNGenerator(object):
                     if "var" in src
                 ],
             }
+
+            id_specList = make_identifier_spec(fnName, condOutput, [src["var"] for src in condSrcs if "var" in src],
+                                               state)
+
+            for id_spec in id_specList:
+                pgm["identifiers"].append(id_spec)
+
             body = {
                 "name": fnName,
                 "output": condOutput,
@@ -411,6 +461,12 @@ class GrFNGenerator(object):
 
                 body = {"name": fnName, "output": output, "input": inputs}
 
+                id_specList = make_identifier_spec(fnName, output,
+                                                   inputs, state)
+
+                for id_spec in id_specList:
+                    pgm["identifiers"].append(id_spec)
+
                 lambda_string = genFn(
                     node,
                     fnName,
@@ -453,6 +509,13 @@ class GrFNGenerator(object):
                             if "var" in src
                         ],
                     }
+
+                    id_specList = make_identifier_spec(fnName, condOutput,
+                                                       [src["var"] for src in condSrcs if "var" in src], state)
+
+                    for id_spec in id_specList:
+                        pgm["identifiers"].append(id_spec)
+
                     body = {
                         "name": fnName,
                         "output": condOutput,
@@ -545,6 +608,12 @@ class GrFNGenerator(object):
 
                         body = {"name": fnName, "output": output, "input": inputs}
 
+                        id_specList = make_identifier_spec(fnName, output,
+                                                           inputs, state)
+
+                        for id_spec in id_specList:
+                            pgm["identifiers"].append(id_spec)
+
                         lambda_string = genFn(
                             self.elif_pgm[4],
                             fnName,
@@ -591,7 +660,7 @@ class GrFNGenerator(object):
         # Expr: ('value',)
         elif isinstance(node, ast.Expr):
             exprs = self.genPgm(node.value, state, fnNames, "expr")
-            pgm = {"functions": [], "body": []}
+            pgm = {"functions": [], "body": [], "identifiers": []}
             for expr in exprs:
                 if "call" in expr:
                     call = expr["call"]
@@ -666,7 +735,8 @@ class GrFNGenerator(object):
 
             sources = self.genPgm(node.value, state, fnNames, "annassign")
             targets = self.genPgm(node.target, state, fnNames, "annassign")
-            pgm = {"functions": [], "body": []}
+
+            pgm = {"functions": [], "body": [], "identifiers": []}
 
             for target in targets:
                 state.varTypes[target["var"]["variable"]] = getVarType(
@@ -676,7 +746,7 @@ class GrFNGenerator(object):
                     fnNames, f"{state.fnName}__assign__{target['var']['variable']}", {}
                 )
                 fn = make_fn_dict(name, target, sources, node)
-                body = make_body_dict(name, target, sources)
+                body = make_body_dict(name, target, sources, state)
 
                 lambda_string = genFn(
                     node,
@@ -693,8 +763,12 @@ class GrFNGenerator(object):
                         "value": f"{sources[0]['value']}",
                     }
 
+                for id_spec in body[1]:
+                    print(id_spec)
+                    pgm["identifiers"].append(id_spec)
+
                 pgm["functions"].append(fn)
-                pgm["body"].append(body)
+                pgm["body"].append(body[0])
 
             return [pgm]
 
@@ -705,7 +779,8 @@ class GrFNGenerator(object):
                 (lambda x, y: x.append(y)),
                 [self.genPgm(target, state, fnNames, "assign") for target in node.targets],
             )
-            pgm = {"functions": [], "body": []}
+            pgm = {"functions": [], "body": [], "identifiers": []}
+
             for target in targets:
                 source_list = []
                 if target.get("list"):
@@ -714,10 +789,8 @@ class GrFNGenerator(object):
                     )
                     target = {"var": {"variable": targets, "index": 1}}
 
-                # Extracting only file_id from the write list variable
-                match = re.match(r"write_list_(\d+)", target["var"]["variable"])
-                if match:
-                    target["var"]["variable"] = match.group(1)
+                # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
+                check_alias(target, sources)
 
                 name = getFnName(
                     fnNames, f"{state.fnName}__assign__{target['var']['variable']}", target
@@ -729,7 +802,7 @@ class GrFNGenerator(object):
                 fn = make_fn_dict(name, target, sources, node)
                 if len(fn) == 0:
                     return []
-                body = make_body_dict(name, target, sources)
+                body = make_body_dict(name, target, sources, state)
                 for src in sources:
                     if "var" in src:
                         source_list.append(src["var"]["variable"])
@@ -760,8 +833,12 @@ class GrFNGenerator(object):
                         "dtype": dtype,
                         "value": value,
                     }
+
+                for id_spec in body[1]:
+                    pgm["identifiers"].append(id_spec)
+
                 pgm["functions"].append(fn)
-                pgm["body"].append(body)
+                pgm["body"].append(body[0])
             return [pgm]
 
         # Tuple: ('elts', 'ctx')
@@ -1042,7 +1119,6 @@ def getDType(val):
 
 
 def get_body_and_functions(pgm):
-
     body = list(chain.from_iterable(stmt["body"] for stmt in pgm))
     fns = list(chain.from_iterable(stmt["functions"] for stmt in pgm))
     iden_spec = list(chain.from_iterable(stmt["identifiers"] for stmt in pgm))
@@ -1111,9 +1187,10 @@ def make_iden_dict(name, targets, scope_path, holder):
     name_space = '.'.join(name_space)
 
     # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
-    if scope_path[0] == "_TOP":
-        scope_path.remove("_TOP")
-    scope_path = '.'.join(scope_path)
+    # print(scope_path)
+    # if scope_path[0] == "_TOP":
+    #     scope_path.remove("_TOP")
+    # scope_path = '.'.join(scope_path)
 
     # TODO Support aliases
     # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
@@ -1134,6 +1211,8 @@ def make_iden_dict(name, targets, scope_path, holder):
 
 # Create the identifier specification for each identifier
 def make_identifier_spec(name, targets, sources, state):
+
+    print(name)
 
     scope_path = state.scope_path
     for_id = 1
@@ -1156,7 +1235,6 @@ def make_identifier_spec(name, targets, sources, state):
             iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
             identifier_list.append(iden_dict)
             if len(sources) > 0:
-                # print(1)
                 for item in sources:
                     iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
                     identifier_list.append(iden_dict)
@@ -1174,10 +1252,17 @@ def make_identifier_spec(name, targets, sources, state):
                 for item in sources:
                     iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
                     identifier_list.append(iden_dict)
+        elif match.group('type') == "decision":
+            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
+            identifier_list.append(iden_dict)
+            if len(sources) > 0:
+                for item in sources:
+                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                    identifier_list.append(iden_dict)
 
         return identifier_list
 
-def make_fn_dict(name, target, sources, lambdaName, node):
+def make_fn_dict(name, target, sources, node):
     source = []
     fn = {}
 
@@ -1220,9 +1305,7 @@ def make_fn_dict(name, target, sources, lambdaName, node):
             "type": "assign",
             "target": target["var"]["variable"],
             "sources": source,
-            "body": [
-                {"type": "lambda", "name": lambdaName, "reference": node.lineno}
-            ],
+            "reference": node.lineno,
         }
 
     return fn
