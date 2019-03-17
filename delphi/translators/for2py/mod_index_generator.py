@@ -53,7 +53,6 @@ class moduleGenerator(object):
                 self.main = item.attrib["name"].lower()
 
         for item in root.iter():
-            print(item.tag)
             if item.tag == "file":
                 file_name = item.attrib["path"]
                 file = file_name.split('/')[-1]
