@@ -1164,7 +1164,7 @@ class PythonCodeGenerator(object):
 
             if node["isDevTypeVar"]:
                 self.pyStrings.append(printState.sep)
-                # This may require update later when we have to deal with the
+                # This may require updating later when we have to deal with the
                 # multi-dimensional derived type arrays
                 upBound = node["up1"]
                 self.pyStrings.append(
@@ -1261,7 +1261,11 @@ def create_python_source_list(outputDict: Dict):
         code_generator.nameMapping(ast)
         code_generator.printAst(ast, PrintState())
         py_sourcelist.append(
-            (code_generator.get_python_source(), module, module_index_dict[module][0])
+            (
+                code_generator.get_python_source(),
+                module,
+                module_index_dict[module][0],
+            )
         )
 
     # Writing the main program section
@@ -1271,7 +1275,7 @@ def create_python_source_list(outputDict: Dict):
     # Copy the derived type ast from the main_ast into the separate list,
     # so it can be printed outside (above) the main method
     for index in list(main_ast[0]["body"]):
-        if "derived-type" == index["tag"]:
+        if index["tag"] == "derived-type":
             has_derived_type = True
             derived_type_ast.append(index)
             main_ast[0]["body"].remove(index)
@@ -1311,10 +1315,11 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
         outputDict = pickle.load(f)
+
     python_source_list = create_python_source_list(outputDict)
     for item in python_source_list:
         if item[2] == "module":
-            with open("m_" + item[1].lower() + ".py", "w") as f:
+            with open(f"m_{item[1].lower()}.py", "w") as f:
                 f.write(item[0])
         else:
             with open(args.gen[0], "w") as f:
