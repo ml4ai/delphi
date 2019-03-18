@@ -2,16 +2,15 @@ import xml.etree.ElementTree as ET
 from copy import deepcopy
 from pathlib import Path
 from typing import Dict
-from enum import Enum
 import importlib
 import inspect
-import time
 import json
 import os
 import ast
 
 import networkx as nx
 
+import delphi.GrFN.utils as utils
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -23,21 +22,9 @@ from delphi.translators.for2py import (
 import subprocess as sp
 
 
-def timeit(method):
-    """Timing wrapper for exectuion comparison."""
-    def timed(*args, **kw):
-        ts = time.time()
-        result = method(*args)
-        te = time.time()
-        print(f"{method.__name__}:\t{((te - ts) * 1000):2.4f}ms")
-        return result
-
-    return timed
-
-
 class GroundedFunctionNetwork(nx.DiGraph):
     """
-    Stub for the Grounded Function Network class
+    Representation of a GrFN model as a DiGraph with a set of input nodes and currently a single output. The DiGraph is composed of variable nodes and function nodes. Function nodes store an actual Python function with the expected set of ordered input arguments that correspond to the variable inputs of that node. Variable nodes store a value. This value can be any data type found in Python. When no value exists for a variable the value key will be set to None. Importantly only function nodes can be children or parents of variable nodes, and the reverse is also true. Both variable and function nodes can be inputs, but the output will always be a variable node.
     """
 
     def __init__(self, nodes, edges, subgraphs):
@@ -57,21 +44,40 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return self.traverse_nodes(self.inputs)
 
     def traverse_nodes(self, node_set, depth=0):
-        """BFS traversal of nodes that returns name traversal as large string."""
+        """BFS traversal of nodes that returns name traversal as large string.
+
+        Args:
+            node_set: Set of input nodes to begin traversal.
+            depth: Current traversal depth for child node viewing.
+
+        Returns:
+            type: String containing tabbed traversal view.
+
+        """
+
         tab = "  "
-        result = ""
+        result = list()
         for n in node_set:
             repr = self.nodes[n]["name"] \
-                if self.nodes[n]["type"] == NodeType.VARIABLE else \
+                if self.nodes[n]["type"] == utils.NodeType.VARIABLE else \
                 f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
 
-            result += f"{tab * depth}{repr}\n"
+            result += [f"{tab * depth}{repr}"]
             result += self.traverse_nodes(self.successors(n), depth=depth+1)
-        return result
+        return "\n".join(result)
 
     @classmethod
     def from_json(cls, file: str):
-        """Builds a GrFN from a JSON object."""
+        """Builds a GrFN from a JSON object.
+
+        Args:
+            cls: The class variable for object creation.
+            file: Filename of a GrFN JSON file.
+
+        Returns:
+            type: A GroundedFunctionNetwork object.
+
+        """
         with open(file, "r") as f:
             data = json.load(f)
 
@@ -79,15 +85,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
     @classmethod
     def from_dict(cls, data: Dict, lambdas):
-        """
-        Builds a GrFN object from a set of extracted function data objects and
-        an associated file of lambda functions.
+        """Builds a GrFN object from a set of extracted function data objects and an associated file of lambda functions.
 
-        :param data: [dict] A set of function data object that specify the
-                            wiring of a GrFN object
-        :param lambdas: [Module] A python module containing actual python
-                                 functions to be computed during GrFN execution
-        :returns: [GroundedFunctionNetwork] A new GrFN object
+        Args:
+            cls: The class variable for object creation.
+            data: [dict] A set of function data object that specify the wiring of a GrFN object.
+            lambdas: [Module] A python module containing actual python functions to be computed during GrFN execution.
+
+        Returns:
+            type: A GroundedFunctionNetwork object.
+
         """
         nodes, edges, subgraphs = list(), list(), dict()
 
@@ -96,13 +103,15 @@ class GroundedFunctionNetwork(nx.DiGraph):
                       if obj["type"] in ["container", "loop_plate"]}
 
         def process_container(container, inputs):
-            """
-            Wires the body statements found in a given container/loop plate.
+            """Wires the body statements found in a given container/loop plate.
 
-            :param container: [dict] The container object containing the body
-                                     statements that specify GrFN wiring.
-            :param inputs: [dict: str->Var] A dict of input variables from the
-                                            outer container
+            Args:
+                container: [dict] The container object containing the body statements that specify GrFN wiring.
+                inputs: [dict: str->Var] A dict of input variables from the outer container.
+
+            Returns:
+                type: None.
+
             """
             con_name = container["name"]
             subgraphs[con_name] = list()
@@ -114,11 +123,11 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     # Get the type information for identification of stmt type
                     # TODO: replace this with simple lookup from functions
                     short_type = stmt_name[stmt_name.find("__") + 2: stmt_name.rfind("__")]
-                    stmt_type = get_node_type(short_type)
+                    stmt_type = utils.get_node_type(short_type)
                 else:                           # Found a container (non loop plate)
                     stmt_name = stmt["function"]
                     is_container = True
-                if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
+                if is_container or stmt_type == utils.NodeType.LOOP:  # Handle container or loop plate
                     container_name = stmt_name
 
                     # Skip over unmentioned containers
@@ -127,7 +136,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
                     # Get input set to send into new container
                     new_inputs = {
-                        var["variable"]: get_variable_name(var, con_name)
+                        var["variable"]: utils.get_variable_name(var, con_name)
                         if var["index"] != -1 else inputs[var["variable"]]
                         for var in stmt["input"]
                     }
@@ -143,7 +152,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         if var["index"] == -1:
                             input_node_name = inputs[var["variable"]]
                         else:
-                            input_node_name = get_variable_name(var, con_name)
+                            input_node_name = utils.get_variable_name(var, con_name)
 
                         # Add input node and node unique name to edges, subgraph set, and arg set
                         ordered_inputs.append(input_node_name)
@@ -151,7 +160,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         edges.append((input_node_name, stmt_name))
                         nodes.append((input_node_name, {
                             "name": input_node_name,
-                            "type": NodeType.VARIABLE,
+                            "type": utils.NodeType.VARIABLE,
                             "value": None,
                             "scope": con_name
                         }))
@@ -167,12 +176,12 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     }))
 
                     # Add output node and node unique name to edges, subgraph set, and arg set
-                    out_node_name = get_variable_name(stmt["output"], con_name)
+                    out_node_name = utils.get_variable_name(stmt["output"], con_name)
                     subgraphs[con_name].append(out_node_name)
                     edges.append((stmt_name, out_node_name))
                     nodes.append((out_node_name, {
                         "name": out_node_name,
-                        "type": NodeType.VARIABLE,
+                        "type": utils.NodeType.VARIABLE,
                         "value": None,
                         "scope": con_name
                     }))
@@ -194,7 +203,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, save_file=True,
+            lambdas_path, asts, json_filename,
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -203,6 +212,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def from_fortran_file(cls, fortran_file, tmpdir="."):
         """Builds GrFN object from a Fortran program."""
         stem = Path(fortran_file).stem
+        if tmpdir == "." and "/" in fortran_file:
+            tmpdir = Path(fortran_file).parent
         preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
         lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
@@ -237,19 +248,19 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def clear(self):
         """Clear variable node for next computation."""
         for n in self.nodes():
-            if self.nodes[n]["type"] == NodeType.VARIABLE:
+            if self.nodes[n]["type"] == utils.NodeType.VARIABLE:
                 self.nodes[n]["value"] = None
 
-    @timeit
+    @utils.timeit
     def run(self, inputs):
-        """
-        Executes the GrFN over a particular set of inputs and returns the result.
+        """Executes the GrFN over a particular set of inputs and returns the result.
 
-        :param inputs: [dict: str->{float, iterable}] Input set where keys are
-                       the names of input nodes in the GrFN and each key points
-                       to a set of input values (or just one)
-        :returns: [{float, iterable}] A set of outputs from executing the GrFN,
-                                      one for every set of inputs.
+        Args:
+            inputs: [dict: str->{float, iterable}] Input set where keys are the names of input nodes in the GrFN and each key points to a set of input values (or just one).
+
+        Returns:
+            type: [{float, iterable}] A set of outputs from executing the GrFN, one for every set of inputs.
+
         """
         # Abort run if inputs does not match our expected input set
         if len(inputs) != len(self.inputs):
@@ -323,7 +334,25 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return self.nodes[self.output_node]["value"]
 
     def to_ProgramAnalysisGraph(self):
-        def gather_nodes_and_edges(prev_name, inputs, nodes, edges):
+        """Returns a variable-node-only view of the GrFN in the form of a ProgramAnalysisGraph (PAG).
+
+        Returns:
+            type: A PAG constructed via variable influence in the GrFN object.
+
+        """
+        nodes, edges = list(), list()
+
+        def gather_nodes_and_edges(prev_name, inputs):
+            """Recursively constructs PAG node and edge sets via variable lists.
+
+            Args:
+                prev_name: Parent variable of the input variable set.
+                inputs: set of current variables.
+
+            Returns:
+                type: None.
+
+            """
             for name in inputs:
                 uniq_name = name[name.find("::") + 2: name.rfind("_")]
                 nodes.append((uniq_name, {
@@ -337,10 +366,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
                 next_inputs = list(set([v for f in self.successors(name)
                                         for v in self.successors(f)]))
-                gather_nodes_and_edges(uniq_name, next_inputs, nodes, edges)
-            return nodes, edges
+                gather_nodes_and_edges(uniq_name, next_inputs)
 
-        nodes, edges = gather_nodes_and_edges(None, self.inputs, [], [])
+        gather_nodes_and_edges(None, self.inputs)
         PAG = ProgramAnalysisGraph()
         PAG.add_nodes_from(nodes)
         PAG.add_edges_from(edges)
@@ -350,34 +378,3 @@ class GroundedFunctionNetwork(nx.DiGraph):
 class ProgramAnalysisGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-
-class NodeType(Enum):
-    """Enum for the identification/tracking of a JSON function objects type."""
-    CONTAINER = 0
-    LOOP = 1
-    ASSIGN = 2
-    CONDITION = 3
-    DECISION = 4
-    VARIABLE = 5
-
-
-def get_variable_name(var_dict, container_name):
-    """Returnns the unique node name of a variable."""
-    return f"{container_name}::{var_dict['variable']}_{var_dict['index']}"
-
-
-def get_node_type(type_str):
-    """Returns the NodeType given a name of a JSON function object."""
-    if type_str == "container":
-        return NodeType.CONTAINER
-    elif type_str == "loop_plate":
-        return NodeType.LOOP
-    elif type_str == "assign":
-        return NodeType.ASSIGN
-    elif type_str == "condition":
-        return NodeType.CONDITION
-    elif type_str == "decision":
-        return NodeType.DECISION
-    else:
-        raise ValueError("Unrecognized type string: ", type_str)
