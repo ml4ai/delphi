@@ -189,7 +189,7 @@ class PythonCodeGenerator(object):
             ),
         )
 
-    def printFunction(self, node, printState):
+    def printFunction(self, node, printState: PrintState):
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
         self.funcArgs[self.nameMapper[node["name"]]] = [
@@ -219,7 +219,7 @@ class PythonCodeGenerator(object):
             ),
         )
 
-    def printModule(self, node, printState):
+    def printModule(self, node, printState: PrintState):
 
         self.pyStrings.append("\n")
         args = []
@@ -230,7 +230,7 @@ class PythonCodeGenerator(object):
             ),
         )
 
-    def printProgram(self, node, printState):
+    def printProgram(self, node, printState: PrintState):
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
@@ -285,7 +285,7 @@ class PythonCodeGenerator(object):
         if not printState.indexRef:
             self.pyStrings.append("]")
 
-    def printAst(self, root, printState):
+    def printAst(self, root, printState: PrintState):
         for node in root:
             if node.get("tag"):
                 if node["tag"] == "format":
@@ -312,7 +312,7 @@ class PythonCodeGenerator(object):
         self.privFunctions.append(node["name"])
         self.nameMapper[node["name"]] = "_" + node["name"]
 
-    def initializeFileVars(self, node, printState):
+    def initializeFileVars(self, node, printState: PrintState):
         label = node["args"][1]["value"]
         data_type = list_data_type(self.format_dict[label])
         index = 0
@@ -332,7 +332,7 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(printState.sep)
                 index += 1
 
-    def printArg(self, node, printState):
+    def printArg(self, node, printState: PrintState):
         if node["type"].upper() == "INTEGER":
             varType = "int"
         elif node["type"].upper() in ("DOUBLE", "REAL"):
@@ -350,7 +350,7 @@ class PythonCodeGenerator(object):
             )
         printState.definedVars += [self.nameMapper[node["name"]]]
 
-    def printVariable(self, node, printState):
+    def printVariable(self, node, printState: PrintState):
         initial_set = False
         if (
             self.nameMapper[node["name"]] not in printState.definedVars
@@ -413,7 +413,7 @@ class PythonCodeGenerator(object):
         else:
             printState.printFirst = False
 
-    def printDo(self, node, printState):
+    def printDo(self, node, printState: PrintState):
         self.pyStrings.append("for ")
         self.printAst(
             node["header"],
@@ -429,7 +429,7 @@ class PythonCodeGenerator(object):
             ),
         )
 
-    def printDoWhile(self, node, printState):
+    def printDoWhile(self, node, printState: PrintState):
         self.pyStrings.append("while ")
         self.printAst(
             node["header"],
@@ -445,7 +445,7 @@ class PythonCodeGenerator(object):
             ),
         )
 
-    def printIndex(self, node, printState):
+    def printIndex(self, node, printState: PrintState):
         self.pyStrings.append(f"{self.nameMapper[node['name']]}[0] in range(")
         self.printAst(
             node["low"],
@@ -468,7 +468,7 @@ class PythonCodeGenerator(object):
         else:
             self.pyStrings.append("+1)")
 
-    def printIf(self, node, printState):
+    def printIf(self, node, printState: PrintState):
         self.pyStrings.append("if ")
         newHeaders = []
         for item in node["header"]:
@@ -498,7 +498,7 @@ class PythonCodeGenerator(object):
                 ),
             )
 
-    def printOp(self, node, printState):
+    def printOp(self, node, printState: PrintState):
         node["left"][0]["op"] = True
         if not printState.indexRef:
             self.pyStrings.append("[")
@@ -535,14 +535,14 @@ class PythonCodeGenerator(object):
         if not printState.indexRef:
             self.pyStrings.append("]")
 
-    def printLiteral(self, node, printState):
+    def printLiteral(self, node, printState: PrintState):
         # if printState.callSource == "Call":
         #     self.pyStrings.append(f"[{node['value']}]")
         # else:
         #     self.pyStrings.append(node["value"])
         self.pyStrings.append(node["value"])
 
-    def printRef(self, node, printState):
+    def printRef(self, node, printState: PrintState):
         self.pyStrings.append(self.nameMapper[node["name"]])
         if printState.indexRef and "subscripts" not in node:
             # Handles derived type variables
@@ -623,7 +623,7 @@ class PythonCodeGenerator(object):
                     ),
                 )
 
-    def printAssignment(self, node, printState):
+    def printAssignment(self, node, printState: PrintState):
         # Writing a target variable syntax
         if (
             "subscripts" in node["target"][0]
@@ -737,7 +737,7 @@ class PythonCodeGenerator(object):
         if "subscripts" in node["target"][0]:
             self.pyStrings.append(")")
 
-    def printUse(self, node, printState):
+    def printUse(self, node, printState: PrintState):
         if node.get("include"):
             self.imports.append(
                 f"from m_{node['arg'].lower()} "
@@ -746,7 +746,7 @@ class PythonCodeGenerator(object):
         else:
             self.imports.append(f"from m_{node['arg'].lower()} import *\n")
 
-    def printFuncReturn(self, node, printState):
+    def printFuncReturn(self, node, printState: PrintState):
         if printState.indexRef:
             if node.get("args"):
                 self.pyStrings.append(f"return ")
@@ -766,16 +766,16 @@ class PythonCodeGenerator(object):
                     val = "None"
         self.pyStrings.append(f"return {val}")
 
-    def printExit(self, node, printState):
+    def printExit(self, node, printState: PrintState):
         if node.get("value"):
             self.pyStrings.append(f"print({node['value']})")
             self.pyStrings.append(printState.sep)
         self.pyStrings.append("return")
 
-    def printReturn(self, node, printState):
+    def printReturn(self, node, printState: PrintState):
         self.pyStrings.append("")
 
-    def printOpen(self, node, printState):
+    def printOpen(self, node, printState: PrintState):
         if node["args"][0].get("arg_name") == "UNIT":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
@@ -796,7 +796,7 @@ class PythonCodeGenerator(object):
 
         self.pyStrings.append(f'open("{file_name}", "{open_state}")')
 
-    def printRead(self, node, printState):
+    def printRead(self, node, printState: PrintState):
         file_number = str(node["args"][0]["value"])
         if node["args"][0]["type"] == "int":
             file_handle = "file_" + file_number
@@ -851,7 +851,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(printState.sep)
                 ind = ind + 1
 
-    def printWrite(self, node, printState):
+    def printWrite(self, node, printState: PrintState):
         write_string = ""
         # Check whether write to file or output stream
         if str(node["args"][0].get("value")) == "*":
@@ -1088,7 +1088,7 @@ class PythonCodeGenerator(object):
                 if isinstance(item[inner], list):
                     self.nameMapping(item[inner])
 
-    def printFormat(self, node, printState):
+    def printFormat(self, node, printState: PrintState):
         type_list = []
         temp_list = []
         _re_int = re.compile(r"^\d+$")
@@ -1119,7 +1119,7 @@ class PythonCodeGenerator(object):
             ]
         )
 
-    def printClose(self, node, printState):
+    def printClose(self, node, printState: PrintState):
         file_id = (
             node["args"][0]["value"]
             if node["args"][0].get("value")
@@ -1127,7 +1127,7 @@ class PythonCodeGenerator(object):
         )
         self.pyStrings.append(f"file_{file_id}.close()")
 
-    def printArray(self, node, printState):
+    def printArray(self, node, printState: PrintState):
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
@@ -1177,7 +1177,7 @@ class PythonCodeGenerator(object):
                     f"    {node['name']}.set_(z, obj)" + printState.sep
                 )
 
-    def printDerivedType(self, node, printState):
+    def printDerivedType(self, node, printState: PrintState):
         assert node["tag"] == "derived-type"
         self.pyStrings.append("@dataclass\n")
         self.pyStrings.append(f"class {node['name']}:")
