@@ -12,7 +12,7 @@ test:
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests
-	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
+	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl betas.pdf betas_dist.pdf
 
 test_local:
 	pytest \
@@ -25,7 +25,7 @@ test_local:
 	  --ignore=delphi/jupyter_tools.py\
 	  --ignore=delphi/inspection.py\
 	  delphi tests
-	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
+	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl betas.pdf betas_dist.pdf
 
 pypi_upload:
 	rm -rf dist
