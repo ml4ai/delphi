@@ -12,9 +12,8 @@ import networkx as nx
 import numpy as np
 from scipy.stats import gaussian_kde, norm
 import pandas as pd
-from indra.statements.statements import Influence
-from indra.statements.concept import Concept
-from indra.statements.evidence import Evidence as INDRAEvidence
+from indra.statements import Influence, Concept
+from indra.statements import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
