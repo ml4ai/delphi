@@ -1238,7 +1238,6 @@ def create_python_source_list(outputDict: Dict):
     py_sourcelist = []
     main_ast = []
     derived_type_ast = []
-    has_derived_type = False
     import_lines = [
         "import sys",
         "from typing import List",
@@ -1274,6 +1273,7 @@ def create_python_source_list(outputDict: Dict):
 
     # Copy the derived type ast from the main_ast into the separate list,
     # so it can be printed outside (above) the main method
+    has_derived_type = False
     for index in list(main_ast[0]["body"]):
         if index["tag"] == "derived-type":
             has_derived_type = True
