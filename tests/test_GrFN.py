@@ -21,22 +21,28 @@ def test_crop_yield_creation_and_execution():
     assert len(G.outputs) == 2          # TODO: update this later
 
 
-def test_petpt_creation():
-    filepath = "tests/data/PETPT.for"
+def test_petpt_creation_and_execution():
+    filepath = "tests/data/GrFN/PETPT.for"
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
+    print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
     assert len(G.inputs) == 5
     assert len(G.outputs) == 1
 
-
-def test_petpt_execution():
-    lambdas = importlib.__import__("PETPT_lambdas")
-    pgm = json.load(open(data_dir + "PETPT.json", "r"))
-    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     values = {name: 1 for name in G.inputs}
     res = G.run(values)
     assert res == 0.02998371219618677
+
+# TODO: Figure this thing out
+# def test_petasce_creation():
+#     filepath = "delph/translators/for2py/data/PETASCE.py"
+#     stem = Path(filepath).stem
+#     lambdas_path = f"tests/data/GrFN/{stem}_lambdas.py"
+#     json_filename = f"tests/data/GrFN/{stem}.json"
+#     G = GroundedFunctionNetwork.from_python_src(filepath, lambdas_path, json_filename)
+#
+#     assert isinstance(G, GroundedFunctionNetwork)
 
 
 def test_petpt_numpy_execution():
