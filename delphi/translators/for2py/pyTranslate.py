@@ -1103,15 +1103,6 @@ class PythonCodeGenerator(object):
         if len(type_list) == 0:
             type_list = temp_list
 
-        # try:
-        #     rep_count = int(node["args"][-1]["value"])
-        # except ValueError:
-        #     for item in node["args"]:
-        #         type_list.append(item["value"])
-        # else:
-        #     values = [item["value"] for item in node["args"][:-1]]
-        #     type_list.append(f"{rep_count}({','.join(values)})")
-
         self.pyStrings.append(printState.sep)
         self.nameMapper[f"format_{node['label']}"] = f"format_{node['label']}"
         self.printVariable(
