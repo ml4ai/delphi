@@ -29,8 +29,9 @@ def FAST_analysis(network, num_samples, prob_def):
     print("Analyzing via FAST...")
     return fast.analyze(prob_def, Y, print_to_console=True)
 
+
 @timeit
-def RBD_FAST_analysis(network, num_samples,  prob_def):
+def RBD_FAST_analysis(network, num_samples, prob_def):
     print("Sampling via RBD-FAST...")
     samples = latin.sample(prob_def, num_samples)
     X = samples
