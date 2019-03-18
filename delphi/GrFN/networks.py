@@ -376,5 +376,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
 
 class ProgramAnalysisGraph(nx.DiGraph):
+    """
+    DiGraph showing variable node influence of a GrFN model
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
