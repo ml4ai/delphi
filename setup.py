@@ -22,6 +22,7 @@ setup(
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     install_requires=[
+        "indra",
         "tqdm",
         "numpy",
         "scipy",
