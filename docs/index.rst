@@ -6,16 +6,12 @@
 Home
 ====
 
-.. image:: delphi_logo.png
-   :width: 50%
-   :alt: Delphi logo
-
 Modeling complex phenomena such as food insecurity requires reasoning
 over multiple levels of abstraction and fully utilizing expert
 knowledge about multiple disparate domains, ranging from the
 environmental to the sociopolitical.
 
-Delphi is a framework for assembling causal, dynamic, probabilistic
+Delphi is a Python library (3.6+) for assembling causal, dynamic, probabilistic
 models from information extracted from two sources:
 
 - *Text*: Delphi utilizes causal relations extracted using machine

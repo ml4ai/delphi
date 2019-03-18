@@ -217,3 +217,6 @@ add_module_names = False
 
 def setup(app):
     app.add_stylesheet('css/custom.css')
+
+# Adding a logo
+html_logo = "delphi_logo.png"
