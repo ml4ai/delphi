@@ -1085,7 +1085,7 @@ class PythonCodeGenerator(object):
             if item.get("name"):
                 self.nameMapper[item["name"]] = item["name"]
             for inner in item:
-                if type(item[inner]) == list:
+                if isinstance(item[inner], list):
                     self.nameMapping(item[inner])
 
     def printFormat(self, node, printState):
