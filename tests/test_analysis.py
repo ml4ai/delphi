@@ -8,7 +8,7 @@ import sys
 # from delphi.translators.for2py.data.PETASCE import PETASCE
 # from delphi.translators.for2py.data.Plant_pgm import MAIN
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis
+from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_analysis
 
 
 # def test_PETASCE():
@@ -74,12 +74,17 @@ def test_PETPT_GrFN():
     assert len(Si.keys()) == 3
     assert len(Si["S1"]) == len(args)
 
+    Si = RBD_FAST_analysis(G, Ns, problem)
+    #print(Si.keys())
+    assert len(Si.keys()) == 2
+    assert len(Si["S1"]) == len(args)
+
     # TODO: Khan -- add some good asserts here that test the Si outputs
     # TODO: Khan -- be sure to test the results we get from Sobol and from FAST
     #               in particular I would like to know how much faster FAST is
     #               is than Sobol and what penalty we are paying in terms of accuracy
 
-
+test_PETPT_GrFN()
 
 # def test_PLANT_reporter():
 #     def PLANT_wrapper(DOY, TMAX, TMIN, SWFAC1, PT, di, N, dN):
