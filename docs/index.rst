@@ -21,6 +21,8 @@ models from information extracted from two sources:
   abstracted representations of scientific models from code that
   implements them, and convert these into probabilistic models.
 
+Delphi builds upon `INDRA <https://indra.bio>`_ and `Eidos <https://github.com/clulab/eidos>`_.
+
 For a detailed description of our procedure to convert text to models,
 see `this document <http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf>`_.
 
@@ -55,8 +57,17 @@ If you use Delphi, please cite the following:
   AnalysisGraph_API
   for2py_API
   grfn_spec
-  license_and_funding
   CONTRIBUTING
+
+License and Funding
+-------------------
+
+Delphi is licensed under the Apache License 2.0.
+
+The development of Delphi was supported by the Defense Advanced Research
+Projects Agency (DARPA) under the World Modelers (grant no. W911NF1810014) and
+Automated Scientific Knowledge Extraction (agreement no. HR00111990011)
+programs.
 
 
 Indices and tables

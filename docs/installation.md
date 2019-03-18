@@ -1,4 +1,6 @@
-## Installation
+# Installation
+
+## Users
 
 Delphi is under active development in an academic, rather than a
 commercial setting, so we do not have the resources to test it out on
@@ -71,7 +73,7 @@ the following while within the virtual environment):
     ``` 
 
 
-### Additional installation for developers
+## Developers
 
 If you are developing Delphi and want to run tests or compile the
 documentation, then also do the following (from the root of Delphi): 
