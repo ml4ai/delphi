@@ -97,6 +97,7 @@ class PythonCodeGenerator(object):
             "abs",
         ]
         self.variableMap = {}
+        self.imports = []
         # This list contains the private functions
         self.privFunctions = []
         # This dictionary contains the mapping of symbol names to pythonic
@@ -738,12 +739,12 @@ class PythonCodeGenerator(object):
 
     def printUse(self, node, printState):
         if node.get("include"):
-            imports.append(
+            self.imports.append(
                 f"from m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
-            imports.append(f"from m_{node['arg'].lower()} import *\n")
+            self.imports.append(f"from m_{node['arg'].lower()} import *\n")
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
@@ -1217,69 +1218,37 @@ class PythonCodeGenerator(object):
                     else:
                         self.pyStrings.append(" = None")
                 self.pyStrings.append(printState.sep)
-                fieldNum = fieldNum + 1
+                fieldNum += 1
 
     def get_python_source(self):
+        imports = "".join(self.imports)
+        if len(imports) != 0:
+            self.pyStrings.insert(1, imports)
+        if self.programName != "":
+            self.pyStrings.append(f"\n\n{self.programName}()\n")
+
         return "".join(self.pyStrings)
 
 
-def file_count(root) -> Dict:
-    """ Counts the number of modules in the fortran file including the program
-    file. Each module is written out into a separate python file.  """
+def index_modules(root) -> Dict:
+    """ Counts the number of modules in the Fortran file including the program
+    file. Each module is written out into a separate Python file.  """
 
-    file_desc = {}
-    for index, node in enumerate(root):
-        program_type = node.get("tag")
-        if program_type and program_type in (
-            "module",
-            "program",
-            "subroutine",
-        ):
-            file_desc[node["name"]] = (program_type, index)
+    module_index_dict = {
+        node["name"]: (node.get("tag"), index)
+        for index, node in enumerate(root)
+        if node.get("tag") in ("module", "program", "subroutine")
+    }
 
-    return file_desc
+    return module_index_dict
 
 
-def create_python_string(outputDict):
-    program_type = file_count(outputDict["ast"])
+def create_python_source_list(outputDict: Dict):
+    module_index_dict = index_modules(outputDict["ast"])
     py_sourcelist = []
     main_ast = []
     derived_type_ast = []
     has_derived_type = False
-    global imports
-
-    for file in program_type:
-        imports = []
-        if "module" in program_type[file]:
-            ast = [outputDict["ast"][program_type[file][1]]]
-        else:
-            main_ast.append(outputDict["ast"][program_type[file][1]])
-            continue
-        code_generator = PythonCodeGenerator()
-        import_lines = [
-            "import sys",
-            "from typing import List",
-            "import math",
-            "from delphi.translators.for2py.format import *",
-            "from delphi.translators.for2py.arrays import *",
-            "from dataclasses import dataclass\n",
-        ]
-        code_generator.pyStrings.append("\n".join(import_lines))
-
-        # Fill the name mapper dictionary
-        code_generator.nameMapping(ast)
-        code_generator.printAst(ast, PrintState())
-        imports = "".join(imports)
-        if len(imports) != 0:
-            code_generator.pyStrings.insert(1, imports)
-        if self.programName != "":
-            code_generator.pyStrings.append(f"\n\n{self.programName}()\n")
-        py_sourcelist.append(
-            (code_generator.get_python_source(), file, program_type[file][0])
-        )
-
-    # Writing the main program section
-    code_generator = PythonCodeGenerator()
     import_lines = [
         "import sys",
         "from typing import List",
@@ -1288,6 +1257,25 @@ def create_python_string(outputDict):
         "from delphi.translators.for2py.arrays import *",
         "from dataclasses import dataclass\n",
     ]
+
+    for module in module_index_dict:
+        if "module" in module_index_dict[module]:
+            ast = [outputDict["ast"][module_index_dict[module][1]]]
+        else:
+            main_ast.append(outputDict["ast"][module_index_dict[module][1]])
+            continue
+        code_generator = PythonCodeGenerator()
+        code_generator.pyStrings.append("\n".join(import_lines))
+
+        # Fill the name mapper dictionary
+        code_generator.nameMapping(ast)
+        code_generator.printAst(ast, PrintState())
+        py_sourcelist.append(
+            (code_generator.get_python_source(), module, module_index_dict[module][0])
+        )
+
+    # Writing the main program section
+    code_generator = PythonCodeGenerator()
     code_generator.pyStrings.append("\n".join(import_lines))
 
     # Copy the derived type ast from the main_ast into the separate list,
@@ -1305,11 +1293,6 @@ def create_python_string(outputDict):
 
     code_generator.nameMapping(main_ast)
     code_generator.printAst(main_ast, PrintState())
-    imports = "".join(imports)
-    if len(imports) != 0:
-        code_generator.pyStrings.insert(1, imports)
-    if code_generator.programName != "":
-        code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
     py_sourcelist.append(
         (code_generator.get_python_source(), main_ast, "program")
     )
@@ -1338,8 +1321,8 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
         outputDict = pickle.load(f)
-    pySrc = create_python_string(outputDict)
-    for item in pySrc:
+    python_source_list = create_python_source_list(outputDict)
+    for item in python_source_list:
         if item[2] == "module":
             with open("m_" + item[1].lower() + ".py", "w") as f:
                 f.write(item[0])
