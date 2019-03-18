@@ -1178,7 +1178,6 @@ class PythonCodeGenerator(object):
                 )
 
     def printDerivedType(self, node, printState: PrintState):
-        assert node["tag"] == "derived-type"
         self.pyStrings.append("@dataclass\n")
         self.pyStrings.append(f"class {node['name']}:")
         self.pyStrings.append(printState.sep)
