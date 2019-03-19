@@ -63,3 +63,13 @@ def test_petpt_numpy_execution():
     G.clear()
     assert all([G.nodes[n]["value"] is None for n in G.nodes()
                 if G.nodes[n]["type"] == NodeType.VARIABLE])
+
+
+def test_ProgramAnalysisGraph_from_GrFN():
+    sys.path.insert(0, "tests/data/GrFN/")
+    lambdas = importlib.__import__("PETPT_torch_lambdas")
+    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+    A = G.to_agraph()
+    CAG = G.to_CAG_agraph()
+    CG = G.to_call_agraph()
