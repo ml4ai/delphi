@@ -234,13 +234,17 @@ class GrFNGenerator(object):
                 "body": loopBody,
             }
 
-            loopCall = {"name": loopName, "input": [
+            loopCall = {
+                "name": loopName,
+                "input": [
                     {
                       "name": variable,
-                      "domain": state.varTypes[variable]
+                      "index": -1,
                     }
                     for variable in variables
-                ], "output": {}}
+                ],
+                "output": {}
+            }
             pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
             return [pgm]
 
@@ -985,10 +989,13 @@ def mergeDicts(dicts: Iterable[Dict]) -> Dict:
 
 
 def getFnName(fnNames, basename, target):
-    # First, check whether the basename is a 'decision' block. If it is, we need to get it's index from the index of
-    # its corresponding identifier's 'assign' block. We do not use the index of the 'decision' block as that will not
-    # correspond with that of the 'assign' block.
-    # For example: for petpt__decision__albedo, its index will be the index of the latest petpt__assign__albedo + 1
+    # First, check whether the basename is a 'decision' block. If it is, we
+    # need to get it's index from the index of its corresponding identifier's
+    # 'assign' block. We do not use the index of the 'decision' block as that
+    # will not correspond with that of the 'assign' block.  For example: for
+    # petpt__decision__albedo, its index will be the index of the latest
+    # petpt__assign__albedo + 1
+
     if '__decision__' in basename:
         part_match = re.match(r'(?P<body>\S+)__decision__(?P<identifier>\S+)', basename)
         if part_match:
