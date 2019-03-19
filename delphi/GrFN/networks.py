@@ -7,6 +7,7 @@ import inspect
 import json
 import os
 import ast
+import sys
 
 import networkx as nx
 
@@ -41,14 +42,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
                              if self.nodes[n]["type"] == NodeType.VARIABLE]
         self.output_node = self.outputs[-1]
 
-        # self.build_call_graph()
-        # self.build_function_sets()
+        self.build_call_graph()
+        self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return self.traverse_nodes(self.inputs)
+        return "\n".join(self.traverse_nodes(self.inputs))
 
     def traverse_nodes(self, node_set, depth=0):
         """BFS traversal of nodes that returns name traversal as large string.
@@ -69,9 +70,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 if self.nodes[n]["type"] == NodeType.VARIABLE else \
                 f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
 
-            result += [f"{tab * depth}{repr}"]
-            result += self.traverse_nodes(self.successors(n), depth=depth+1)
-        return "\n".join(result)
+            result.append(f"{tab * depth}{repr}")
+            result.extend(self.traverse_nodes(self.successors(n), depth=depth+1))
+        return result
 
     @classmethod
     def from_json(cls, file: str):
@@ -177,7 +178,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     nodes.append((stmt_name, {
                         "name": stmt_name,
                         "type": stmt_type,
-                        "visited": False,
+                        "func_visited": False,
                         "lambda": getattr(lambdas, stmt_name),  # Gets the lambda function
                         "func_inputs": ordered_inputs,          # saves indexed arg ordering
                         "scope": con_name
@@ -220,8 +221,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def from_fortran_file(cls, fortran_file, tmpdir="."):
         """Builds GrFN object from a Fortran program."""
         stem = Path(fortran_file).stem
-        # if tmpdir == "." and "/" in fortran_file:
-        #     tmpdir = Path(fortran_file).parent
+        if tmpdir == "." and "/" in fortran_file:
+            tmpdir = Path(fortran_file).parent
         preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
         lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
@@ -244,7 +245,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
             ],
             stdout=sp.PIPE,
         ).stdout
-        print(xml_string)
         trees = [ET.fromstring(xml_string)]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
@@ -260,41 +260,43 @@ class GroundedFunctionNetwork(nx.DiGraph):
             if self.nodes[n]["type"] == NodeType.VARIABLE:
                 self.nodes[n]["value"] = None
             elif self.nodes[n]["type"].is_function_node():
-                self.nodes[n]["visited"] = False
+                self.nodes[n]["func_visited"] = False
 
     def build_call_graph(self):
-        self.call_graph = nx.DiGraph()
+        edges = list()
 
         def update_edge_set(cur_fns):
-            fns = list()
             for c in cur_fns:
-                self.nodes[c]["visited"] = True
-                prv_fns = [p for v in self.predecessors(c)
-                           for p in self.predecessors(v)]
-                self.call_graph.add_edges_from([(p, c) for p in prv_fns])
-                fns.extend(prv_fns)
-            nxt = list({fn for fn in fns if not self.nodes[fn]["visited"]})
-            update_edge_set(nxt)
+                nxt_fns = [p for v in self.successors(c)
+                           for p in self.successors(v)]
+                edges.extend([(c, n) for n in nxt_fns])
+                update_edge_set(list(set(nxt_fns)))
 
-        update_edge_set(self.predecessors(self.output_node))
+        update_edge_set(list({n for v in self.inputs for n in self.successors(v)}))
+        self.call_graph = nx.DiGraph()
+        self.call_graph.add_edges_from(edges)
 
     def build_function_sets(self):
-        final_funcs = [n for n, d in self.call_graph.out_degree() if d == 0]
+        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
         distances = dict()
 
         def find_distances(funcs, dist):
+            all_successors = list()
             for func in funcs:
                 distances[func] = dist
-                find_distances(self.call_graph.predecessors(func), dist+1)
+                all_successors.extend(self.call_graph.successors(func))
+            if len(all_successors) > 0:
+                find_distances(list(set(all_successors)), dist+1)
 
-        find_distances(final_funcs, 0)
+        find_distances(initial_funcs, 0)
         call_sets = dict()
         for func_name, call_dist in distances.items():
             if call_dist in call_sets:
                 call_sets[call_dist].add(func_name)
             else:
                 call_sets[call_dist] = {func_name}
-        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])), reverse=True)
+
+        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
     @utils.timeit
@@ -312,80 +314,20 @@ class GroundedFunctionNetwork(nx.DiGraph):
         if len(inputs) != len(self.model_inputs):
             raise ValueError("Incorrect number of inputs.")
 
-        # def update_function_heap(stack, successors):
-        #     """
-        #     Adds all new functions from the successors of the output variables to their proper location in the function heap. Position is determined by the maximum distance needed to be traveled to get to the output from a given function node.
-        #
-        #     :param stack: [dict: int->str] The function stack to be updated
-        #     :param successors: [list: str] The list of successor node names
-        #     """
-        #     for n in successors:
-        #         # Get all paths from the function node to an output
-        #         paths = list(nx.all_simple_paths(self, n, self.output_node))
-        #
-        #         # No paths found, this node does not lead to the output
-        #         if len(paths) == 0:
-        #             continue
-        #
-        #         # Use the maximum distance as hash value to place function in stack
-        #         dist = max([len(p) for p in paths])
-        #
-        #         # Add function to the stack
-        #         if dist in stack:
-        #             if n not in stack[dist]:        # Do not add if already in the stack
-        #                 stack[dist].append(n)
-        #         else:
-        #             stack[dist] = [n]
-        #
-        # # Use deepcopy to avoid ever exanding input set on second run
-        # function_heap = dict()
-
-        # Build initial function heap from inputs
+        # Set input values
         for node_name, val in inputs.items():
             self.nodes[node_name]["value"] = val
-            # update_function_heap(function_heap, self.successors(node_name))
 
         for func_set in self.function_sets:
             for func_name in func_set:
                 # Get function arguments via signature derived from JSON
                 signature = self.nodes[func_name]["func_inputs"]
                 lambda_fn = self.nodes[func_name]["lambda"]
-
-                # Run the lambda function
-                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
-
-                # Get the output node for this function
-                # TODO: extend this to handle multiple outputs in the future
                 output_node = list(self.successors(func_name))[0]
 
-                # Save the output
+                # Run the lambda function and save the output
+                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
                 self.nodes[output_node]["value"] = res
-
-        # while len(function_heap) > 0:
-        #     # We will calculate the functions that are farthest away first to
-        #     # ensure all values are populated before computing with them
-        #     max_dist = max(function_heap.keys())
-        #     outputs = list()
-        #     for func_name in function_heap[max_dist]:
-        #         # Get function arguments via signature derived from JSON
-        #         signature = self.nodes[func_name]["func_inputs"]
-        #         lambda_fn = self.nodes[func_name]["lambda"]
-        #
-        #         # Run the lambda function
-        #         res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
-        #
-        #         # Get the output node for this function
-        #         # TODO: extend this to handle multiple outputs in the future
-        #         output_node = list(self.successors(func_name))[0]
-        #
-        #         # Save the output
-        #         self.nodes[output_node]["value"] = res
-        #         outputs.append(output_node)             # Use this to build successors
-        #     del function_heap[max_dist]                # Done processing this layer
-        #
-        #     # Add new successors from computed outputs
-        #     all_successors = list(set(n for node in outputs for n in self.successors(node)))
-        #     update_function_heap(function_heap, all_successors)
 
         # return the output
         return self.nodes[self.output_node]["value"]
