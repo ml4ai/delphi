@@ -276,12 +276,30 @@
       "name": "crop_yield__loop_plate__day_0",
       "type": "loop_plate",
       "input": [
-        "consistency",
-        "max_rain",
-        "absorption",
-        "rain",
-        "total_rain",
-        "yield_est"
+        {
+          "name": "consistency",
+          "domain": "real"
+        },
+        {
+          "name": "max_rain",
+          "domain": "real"
+        },
+        {
+          "name": "absorption",
+          "domain": "real"
+        },
+        {
+          "name": "rain",
+          "domain": "real"
+        },
+        {
+          "name": "total_rain",
+          "domain": "real"
+        },
+        {
+          "name": "yield_est",
+          "domain": "real"
+        }
       ],
       "index_variable": "day",
       "index_iteration_range": {
@@ -433,13 +451,31 @@
         },
         {
           "name": "crop_yield__loop_plate__day_0",
-          "inputs": [
-            "consistency",
-            "max_rain",
-            "absorption",
-            "rain",
-            "total_rain",
-            "yield_est"
+          "input": [
+            {
+              "name": "consistency",
+              "domain": "real"
+            },
+            {
+              "name": "max_rain",
+              "domain": "real"
+            },
+            {
+              "name": "absorption",
+              "domain": "real"
+            },
+            {
+              "name": "rain",
+              "domain": "real"
+            },
+            {
+              "name": "total_rain",
+              "domain": "real"
+            },
+            {
+              "name": "yield_est",
+              "domain": "real"
+            }
           ],
           "output": {}
         },
@@ -457,5 +493,5 @@
     }
   ],
   "name": "crop_yield.json",
-  "dateCreated": "2019-03-07"
+  "dateCreated": "2019-03-19"
 }
