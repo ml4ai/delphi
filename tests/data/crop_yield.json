@@ -1,5 +1,4 @@
 {
-  "start": "crop_yield",
   "functions": [
     {
       "name": "update_est__assign__total_rain_1",
@@ -454,27 +453,27 @@
           "input": [
             {
               "name": "consistency",
-              "domain": "real"
+              "index": -1
             },
             {
               "name": "max_rain",
-              "domain": "real"
+              "index": -1
             },
             {
               "name": "absorption",
-              "domain": "real"
+              "index": -1
             },
             {
               "name": "rain",
-              "domain": "real"
+              "index": -1
             },
             {
               "name": "total_rain",
-              "domain": "real"
+              "index": -1
             },
             {
               "name": "yield_est",
-              "domain": "real"
+              "index": -1
             }
           ],
           "output": {}
@@ -492,6 +491,7 @@
       ]
     }
   ],
+  "start": "crop_yield",
   "name": "crop_yield.json",
   "dateCreated": "2019-03-19"
 }
