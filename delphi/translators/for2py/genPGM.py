@@ -228,7 +228,7 @@ class GrFNGenerator(object):
                 "body": loopBody,
             }
 
-            loopCall = {"name": loopName, "inputs": variables, "output": {}}
+            loopCall = {"name": loopName, "input": variables, "output": {}}
             pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
             return [pgm]
 
