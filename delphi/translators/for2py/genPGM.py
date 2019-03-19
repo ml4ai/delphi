@@ -222,13 +222,25 @@ class GrFNGenerator(object):
             loopFn = {
                 "name": loopName,
                 "type": "loop_plate",
-                "input": variables,
+                "input": [
+                    {
+                      "name": variable,
+                      "domain": state.varTypes[variable]
+                    }
+                    for variable in variables
+                ],
                 "index_variable": indexName,
                 "index_iteration_range": iterationRange,
                 "body": loopBody,
             }
 
-            loopCall = {"name": loopName, "input": variables, "output": {}}
+            loopCall = {"name": loopName, "input": [
+                    {
+                      "name": variable,
+                      "domain": state.varTypes[variable]
+                    }
+                    for variable in variables
+                ], "output": {}}
             pgm = {"functions": loopFns + [loopFn], "body": [loopCall]}
             return [pgm]
 
