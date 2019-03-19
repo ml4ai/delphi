@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from copy import deepcopy
+# from copy import deepcopy
 from pathlib import Path
 from typing import Dict
 import importlib
@@ -11,6 +11,7 @@ import ast
 import networkx as nx
 
 import delphi.GrFN.utils as utils
+from delphi.GrFN.utils import NodeType
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -35,7 +36,13 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         self.inputs = [n for n, d in self.in_degree() if d == 0]
         self.outputs = [n for n, d in self.out_degree() if d == 0]
+
+        self.model_inputs = [n for n in self.inputs
+                             if self.nodes[n]["type"] == NodeType.VARIABLE]
         self.output_node = self.outputs[-1]
+
+        # self.build_call_graph()
+        # self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
@@ -59,7 +66,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         result = list()
         for n in node_set:
             repr = self.nodes[n]["name"] \
-                if self.nodes[n]["type"] == utils.NodeType.VARIABLE else \
+                if self.nodes[n]["type"] == NodeType.VARIABLE else \
                 f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
 
             result += [f"{tab * depth}{repr}"]
@@ -127,7 +134,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 else:                           # Found a container (non loop plate)
                     stmt_name = stmt["function"]
                     is_container = True
-                if is_container or stmt_type == utils.NodeType.LOOP:  # Handle container or loop plate
+                if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
                     container_name = stmt_name
 
                     # Skip over unmentioned containers
@@ -160,7 +167,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         edges.append((input_node_name, stmt_name))
                         nodes.append((input_node_name, {
                             "name": input_node_name,
-                            "type": utils.NodeType.VARIABLE,
+                            "type": NodeType.VARIABLE,
                             "value": None,
                             "scope": con_name
                         }))
@@ -170,6 +177,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     nodes.append((stmt_name, {
                         "name": stmt_name,
                         "type": stmt_type,
+                        "visited": False,
                         "lambda": getattr(lambdas, stmt_name),  # Gets the lambda function
                         "func_inputs": ordered_inputs,          # saves indexed arg ordering
                         "scope": con_name
@@ -181,7 +189,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     edges.append((stmt_name, out_node_name))
                     nodes.append((out_node_name, {
                         "name": out_node_name,
-                        "type": utils.NodeType.VARIABLE,
+                        "type": NodeType.VARIABLE,
                         "value": None,
                         "scope": con_name
                     }))
@@ -212,8 +220,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def from_fortran_file(cls, fortran_file, tmpdir="."):
         """Builds GrFN object from a Fortran program."""
         stem = Path(fortran_file).stem
-        if tmpdir == "." and "/" in fortran_file:
-            tmpdir = Path(fortran_file).parent
+        # if tmpdir == "." and "/" in fortran_file:
+        #     tmpdir = Path(fortran_file).parent
         preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
         lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
         json_filename = stem + ".json"
@@ -236,6 +244,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             ],
             stdout=sp.PIPE,
         ).stdout
+        print(xml_string)
         trees = [ET.fromstring(xml_string)]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
@@ -248,8 +257,45 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def clear(self):
         """Clear variable node for next computation."""
         for n in self.nodes():
-            if self.nodes[n]["type"] == utils.NodeType.VARIABLE:
+            if self.nodes[n]["type"] == NodeType.VARIABLE:
                 self.nodes[n]["value"] = None
+            elif self.nodes[n]["type"].is_function_node():
+                self.nodes[n]["visited"] = False
+
+    def build_call_graph(self):
+        self.call_graph = nx.DiGraph()
+
+        def update_edge_set(cur_fns):
+            fns = list()
+            for c in cur_fns:
+                self.nodes[c]["visited"] = True
+                prv_fns = [p for v in self.predecessors(c)
+                           for p in self.predecessors(v)]
+                self.call_graph.add_edges_from([(p, c) for p in prv_fns])
+                fns.extend(prv_fns)
+            nxt = list({fn for fn in fns if not self.nodes[fn]["visited"]})
+            update_edge_set(nxt)
+
+        update_edge_set(self.predecessors(self.output_node))
+
+    def build_function_sets(self):
+        final_funcs = [n for n, d in self.call_graph.out_degree() if d == 0]
+        distances = dict()
+
+        def find_distances(funcs, dist):
+            for func in funcs:
+                distances[func] = dist
+                find_distances(self.call_graph.predecessors(func), dist+1)
+
+        find_distances(final_funcs, 0)
+        call_sets = dict()
+        for func_name, call_dist in distances.items():
+            if call_dist in call_sets:
+                call_sets[call_dist].add(func_name)
+            else:
+                call_sets[call_dist] = {func_name}
+        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])), reverse=True)
+        self.function_sets = [func_set for _, func_set in function_set_dists]
 
     @utils.timeit
     def run(self, inputs):
@@ -263,58 +309,50 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         """
         # Abort run if inputs does not match our expected input set
-        if len(inputs) != len(self.inputs):
+        if len(inputs) != len(self.model_inputs):
             raise ValueError("Incorrect number of inputs.")
 
-        def update_function_stack(stack, successors):
-            """
-            Adds all new functions from the successors of the output variables
-            to their proper location in the function stack. Position is
-            determined by the maximum distance needed to be traveled to get to
-            the output from a given function node.
+        # def update_function_heap(stack, successors):
+        #     """
+        #     Adds all new functions from the successors of the output variables to their proper location in the function heap. Position is determined by the maximum distance needed to be traveled to get to the output from a given function node.
+        #
+        #     :param stack: [dict: int->str] The function stack to be updated
+        #     :param successors: [list: str] The list of successor node names
+        #     """
+        #     for n in successors:
+        #         # Get all paths from the function node to an output
+        #         paths = list(nx.all_simple_paths(self, n, self.output_node))
+        #
+        #         # No paths found, this node does not lead to the output
+        #         if len(paths) == 0:
+        #             continue
+        #
+        #         # Use the maximum distance as hash value to place function in stack
+        #         dist = max([len(p) for p in paths])
+        #
+        #         # Add function to the stack
+        #         if dist in stack:
+        #             if n not in stack[dist]:        # Do not add if already in the stack
+        #                 stack[dist].append(n)
+        #         else:
+        #             stack[dist] = [n]
+        #
+        # # Use deepcopy to avoid ever exanding input set on second run
+        # function_heap = dict()
 
-            :param stack: [dict: int->str] The function stack to be updated
-            :param successors: [list: str] The list of successor node names
-            """
-            for n in successors:
-                # Get all paths from the function node to an output
-                paths = list(nx.all_simple_paths(self, n, self.output_node))
-
-                # No paths found, this node does not lead to the output
-                if len(paths) == 0:
-                    continue
-
-                # Use the maximum distance as hash value to place function in stack
-                dist = max([len(p) for p in paths])
-
-                # Add function to the stack
-                if dist in stack:
-                    if n not in stack[dist]:        # Do not add if already in the stack
-                        stack[dist].append(n)
-                else:
-                    stack[dist] = [n]
-
-        # Use deepcopy to avoid ever exanding input set on second run
-        defined_variables = deepcopy(inputs)
-        function_stack = dict()
-
-        # Build initial function stack from inputs
+        # Build initial function heap from inputs
         for node_name, val in inputs.items():
             self.nodes[node_name]["value"] = val
-            update_function_stack(function_stack, self.successors(node_name))
+            # update_function_heap(function_heap, self.successors(node_name))
 
-        while len(function_stack) > 0:
-            # We will calculate the functions that are farthest away first to
-            # ensure all values are populated before computing with them
-            max_dist = max(function_stack.keys())
-            outputs = list()
-            for func_name in function_stack[max_dist]:
+        for func_set in self.function_sets:
+            for func_name in func_set:
                 # Get function arguments via signature derived from JSON
                 signature = self.nodes[func_name]["func_inputs"]
                 lambda_fn = self.nodes[func_name]["lambda"]
 
                 # Run the lambda function
-                res = lambda_fn(*tuple(defined_variables[n] for n in signature))
+                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
 
                 # Get the output node for this function
                 # TODO: extend this to handle multiple outputs in the future
@@ -322,28 +360,62 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
                 # Save the output
                 self.nodes[output_node]["value"] = res
-                defined_variables[output_node] = res
-                outputs.append(output_node)             # Use this to build successors
-            del function_stack[max_dist]                # Done processing this layer
 
-            # Add new successors from computed outputs
-            all_successors = list(set(n for node in outputs for n in self.successors(node)))
-            update_function_stack(function_stack, all_successors)
+        # while len(function_heap) > 0:
+        #     # We will calculate the functions that are farthest away first to
+        #     # ensure all values are populated before computing with them
+        #     max_dist = max(function_heap.keys())
+        #     outputs = list()
+        #     for func_name in function_heap[max_dist]:
+        #         # Get function arguments via signature derived from JSON
+        #         signature = self.nodes[func_name]["func_inputs"]
+        #         lambda_fn = self.nodes[func_name]["lambda"]
+        #
+        #         # Run the lambda function
+        #         res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
+        #
+        #         # Get the output node for this function
+        #         # TODO: extend this to handle multiple outputs in the future
+        #         output_node = list(self.successors(func_name))[0]
+        #
+        #         # Save the output
+        #         self.nodes[output_node]["value"] = res
+        #         outputs.append(output_node)             # Use this to build successors
+        #     del function_heap[max_dist]                # Done processing this layer
+        #
+        #     # Add new successors from computed outputs
+        #     all_successors = list(set(n for node in outputs for n in self.successors(node)))
+        #     update_function_heap(function_heap, all_successors)
 
         # return the output
         return self.nodes[self.output_node]["value"]
 
-    def to_ProgramAnalysisGraph(self):
-        """Returns a variable-node-only view of the GrFN in the form of a ProgramAnalysisGraph (PAG).
+    def to_agraph(self):
+        A = nx.nx_agraph.to_agraph(self)
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.node_attr.update({
+            "shape": "rectangle",
+            "color": "#650021",
+            "style": "rounded",
+            "fontname": "Gill Sans",
+        })
+        A.edge_attr.update({
+            "color": "#650021",
+            "arrowsize": 0.5
+        })
+        return A
+
+    def to_CAG_agraph(self):
+        """Returns a variable-only view of the GrFN in the form of an AGraph.
 
         Returns:
-            type: A PAG constructed via variable influence in the GrFN object.
+            type: A CAG constructed via variable influence in the GrFN object.
 
         """
         nodes, edges = list(), list()
 
         def gather_nodes_and_edges(prev_name, inputs):
-            """Recursively constructs PAG node and edge sets via variable lists.
+            """Recursively constructs CAG node and edge sets via variable lists.
 
             Args:
                 prev_name: Parent variable of the input variable set.
@@ -355,11 +427,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             """
             for name in inputs:
                 uniq_name = name[name.find("::") + 2: name.rfind("_")]
-                nodes.append((uniq_name, {
-                    "name": name,
-                    "cag_label": uniq_name,
-                    "value": self.nodes[name]["value"]
-                }))
+                nodes.append(uniq_name)
 
                 if prev_name is not None:
                     edges.append((prev_name, uniq_name))
@@ -368,16 +436,44 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                         for v in self.successors(f)]))
                 gather_nodes_and_edges(uniq_name, next_inputs)
 
-        gather_nodes_and_edges(None, self.inputs)
-        PAG = ProgramAnalysisGraph()
-        PAG.add_nodes_from(nodes)
-        PAG.add_edges_from(edges)
-        return PAG
+        gather_nodes_and_edges(None, self.model_inputs)
+        CAG = nx.DiGraph()
+        CAG.add_nodes_from(nodes)
+        CAG.add_edges_from(edges)
 
+        A = nx.nx_agraph.to_agraph(CAG)
+        A.graph_attr.update({
+            "dpi": 227,
+            "fontsize": 20,
+            "fontname": "Menlo"
+        })
+        A.node_attr.update({
+            "shape": "rectangle",
+            "color": "#650021",
+            "style": "rounded",
+            "fontname": "Gill Sans",
+        })
+        A.edge_attr.update({
+            "color": "#650021",
+            "arrowsize": 0.5
+        })
+        return A
 
-class ProgramAnalysisGraph(nx.DiGraph):
-    """
-    DiGraph showing variable node influence of a GrFN model
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def to_call_agraph(self):
+        A = nx.nx_agraph.to_agraph(self.call_graph)
+        A.graph_attr.update({
+            "dpi": 227,
+            "fontsize": 20,
+            "fontname": "Menlo"
+        })
+        A.node_attr.update({
+            "shape": "rectangle",
+            "color": "#650021",
+            "style": "rounded",
+            "fontname": "Gill Sans",
+        })
+        A.edge_attr.update({
+            "color": "#650021",
+            "arrowsize": 0.5
+        })
+        return A

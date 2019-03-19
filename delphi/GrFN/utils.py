@@ -23,6 +23,9 @@ class NodeType(Enum):
     DECISION = 4
     VARIABLE = 5
 
+    def is_function_node(self):
+        return 2 <= self.value <= 4
+
 
 def get_variable_name(var_dict, container_name):
     """Returnns the unique node name of a variable."""
