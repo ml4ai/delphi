@@ -264,7 +264,6 @@ class PythonCodeGenerator(object):
             )
         else:
             argSize = len(node["args"])
-            assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
                 self.printAst(
@@ -339,6 +338,8 @@ class PythonCodeGenerator(object):
             varType = "float"
         elif node["type"].upper() == "CHARACTER":
             varType = "str"
+        elif node["type"].upper() == "LOGICAL":
+            varType = "bool"
         else:
             raise For2PyError(f"unrecognized type {node['type']}")
         if node["arg_type"] == "arg_array":
@@ -372,6 +373,9 @@ class PythonCodeGenerator(object):
             ):
                 initVal = init_val if initial_set else ""
                 varType = "str"
+            elif node["type"].upper() in ("LOGICAL"):
+                initVal = init_val if initial_set else False
+                varType = "bool"
             else:
                 if node["isDevTypeVar"]:
                     initVal = init_val if initial_set else 0
@@ -548,14 +552,19 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("[0]")
             if "isDevType" in node and node["isDevType"]:
                 self.pyStrings.append(f".{node['field-name']}")
-        # Handles array
+
         if "subscripts" in node:
             # Check if the node really holds an array. The is because the
             # derive type with more than 1 field access, for example var%x%y,
             # node holds x%y also under the subscripts. Thus, in order to avoid
             # non-array derive types to be printed in an array syntax, this
             # check is necessary
-            if "hasSubscripts" in node and node["hasSubscripts"]:
+            if (
+                "isArray" in node
+                and node["isArray"] is True
+                and "hasSubscripts" in node
+                and node["hasSubscripts"]
+            ):
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
@@ -613,13 +622,17 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append("))")
                 self.pyStrings.append(")")
             else:
-                self.pyStrings.append(".")
+                if "isDevType" in node and node["isDevType"]:
+                    self.pyStrings.append(".")
+                else:
+                    self.pyStrings.append("(")
                 self.printAst(
                     node["subscripts"],
                     printState.copy(
-                        sep=", ", add="", printFirst=False, indexRef=True
+                        sep=", ", add="", printFirst=False, indexRef=False
                     ),
                 )
+                self.pyStrings.append(")")
 
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
@@ -945,7 +958,12 @@ class PythonCodeGenerator(object):
                         if "field-name" in item:
                             write_string += f".{item['field-name']}"
                     # Handling array
-                    if ("hasSubscripts" in item and item["hasSubscripts"]) or (
+                    if (
+                        "hasSubscripts" in item
+                        and item["hasSubscripts"]
+                        and "isArray" in item
+                        and item["isArray"]
+                    ) or (
                         "arrayStat" in item and item["arrayStat"] == "isArray"
                     ):
                         i = 0
@@ -1271,8 +1289,10 @@ def create_python_string(outputDict):
         imports = "".join(imports)
         if len(imports) != 0:
             code_generator.pyStrings.insert(1, imports)
-        if self.programName != "":
-            code_generator.pyStrings.append(f"\n\n{self.programName}()\n")
+        if code_generator.programName != "":
+            code_generator.pyStrings.append(
+                f"\n\n{code_generator.programName}()\n"
+            )
         py_sourcelist.append(
             (code_generator.get_python_source(), file, program_type[file][0])
         )
@@ -1308,7 +1328,9 @@ def create_python_string(outputDict):
     if len(imports) != 0:
         code_generator.pyStrings.insert(1, imports)
     if code_generator.programName != "":
-        code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
+        code_generator.pyStrings.append(
+            f"\n\n{code_generator.programName}()\n"
+        )
     py_sourcelist.append(
         (code_generator.get_python_source(), main_ast, "program")
     )
