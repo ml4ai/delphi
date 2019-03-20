@@ -7,6 +7,7 @@ from delphi.translators.for2py import (
     get_comments,
     pyTranslate,
     genPGM,
+    mod_index_generator,
 )
 from delphi.GrFN.scopes import Scope
 from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
@@ -19,7 +20,7 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 
-def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
+def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, dict]:
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
     lambdas_filename = stem + "_lambdas.py"
@@ -49,15 +50,18 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
     comments = get_comments.get_comments(preprocessed_fortran_file)
     os.remove(preprocessed_fortran_file)
     xml_to_json_translator = translate.XMLToJSONTranslator()
+    mode_mapper_tree = ET.fromstring(xml_string)
+    generator = mod_index_generator.moduleGenerator()
+    mode_mapper_dict = generator.analyze(mode_mapper_tree)
     outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_string(outputDict)[0][0]
-    return pySrc, lambdas_filename, json_filename, python_filename
+    return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename, python_filename = get_python_source(original_fortran_file)
+    pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
     asts = [ast.parse(pySrc)]
-    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, save_file=False)
+    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
     return pgm_dict
 
 
