@@ -59,11 +59,11 @@ for file in "$@"; do
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
 
     pyFile="$base".py
+    outputFileList="$base"_outputList.txt
     ( set -x; $PYTRANSLATE mod_index_generator.py "$astFile")
     ( set -x; $PYTRANSLATE translate.py -f "$astFile" -g "$pickleFile" -i "$file")
-    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile")
+    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -o "$outputFileList")
     pyFiles+=" $pyFile"
-#    pyFiles+=" $pyFile dont_yield.py should_yield.py"
 done
 
-( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p pgm.json -l lambdas.py)
+( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList)
