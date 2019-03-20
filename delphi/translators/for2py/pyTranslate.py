@@ -626,7 +626,7 @@ class PythonCodeGenerator(object):
                 self.printAst(
                     node["subscripts"],
                     printState.copy(
-                        sep=", ", add="", printFirst=False, indexRef=True
+                        sep=", ", add="", printFirst=False, indexRef=False
                     ),
                 )
 
