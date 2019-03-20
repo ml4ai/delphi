@@ -264,7 +264,6 @@ class PythonCodeGenerator(object):
             )
         else:
             argSize = len(node["args"])
-            # assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
                 self.printAst(
