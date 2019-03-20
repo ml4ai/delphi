@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from itertools import product
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Iterable, Union
 import importlib
 import inspect
 import json
@@ -26,7 +26,16 @@ import subprocess as sp
 
 class GroundedFunctionNetwork(nx.DiGraph):
     """
-    Representation of a GrFN model as a DiGraph with a set of input nodes and currently a single output. The DiGraph is composed of variable nodes and function nodes. Function nodes store an actual Python function with the expected set of ordered input arguments that correspond to the variable inputs of that node. Variable nodes store a value. This value can be any data type found in Python. When no value exists for a variable the value key will be set to None. Importantly only function nodes can be children or parents of variable nodes, and the reverse is also true. Both variable and function nodes can be inputs, but the output will always be a variable node.
+    Representation of a GrFN model as a DiGraph with a set of input nodes and
+    currently a single output. The DiGraph is composed of variable nodes and
+    function nodes. Function nodes store an actual Python function with the
+    expected set of ordered input arguments that correspond to the variable
+    inputs of that node. Variable nodes store a value. This value can be any
+    data type found in Python. When no value exists for a variable the value
+    key will be set to None. Importantly only function nodes can be children or
+    parents of variable nodes, and the reverse is also true. Both variable and
+    function nodes can be inputs, but the output will always be a variable
+    node.
     """
 
     def __init__(self, nodes, edges, subgraphs):
@@ -93,15 +102,18 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
     @classmethod
     def from_dict(cls, data: Dict, lambdas):
-        """Builds a GrFN object from a set of extracted function data objects and an associated file of lambda functions.
+        """Builds a GrFN object from a set of extracted function data objects
+        and an associated file of lambda functions.
 
         Args:
             cls: The class variable for object creation.
-            data: [dict] A set of function data object that specify the wiring of a GrFN object.
-            lambdas: [Module] A python module containing actual python functions to be computed during GrFN execution.
+            data: A set of function data object that specify the wiring of a
+                  GrFN object.
+            lambdas: [Module] A python module containing actual python
+                     functions to be computed during GrFN execution.
 
         Returns:
-            type: A GroundedFunctionNetwork object.
+            A GroundedFunctionNetwork object.
 
         """
         nodes, edges, subgraphs = list(), list(), dict()
@@ -110,15 +122,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
         containers = {obj["name"]: obj for obj in data["functions"]
                       if obj["type"] in ["container", "loop_plate"]}
 
-        def process_container(container, inputs):
+        def process_container(container: Dict, inputs: Dict[str, Dict[str, str]]) -> None:
             """Wires the body statements found in a given container/loop plate.
 
             Args:
-                container: [dict] The container object containing the body statements that specify GrFN wiring.
-                inputs: [dict: str->Var] A dict of input variables from the outer container.
+                container: The container object containing the body
+                    statements that specify GrFN wiring.
+                inputs: A dict of input variables from the outer container.
 
             Returns:
-                type: None.
+                None
 
             """
             con_name = container["name"]
@@ -201,14 +214,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls(nodes, edges, subgraphs)
 
     @classmethod
-    def from_python_file(cls, python_file, lambdas_path, json_filename, stem):
+    def from_python_file(cls, python_file, lambdas_path, json_filename: str, stem: str):
         """Builds GrFN object from Python file."""
         with open(python_file, "r") as f:
             pySrc = f.read()
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
     @classmethod
-    def from_python_src(cls, pySrc, lambdas_path, json_filename, stem):
+    def from_python_src(cls, pySrc, lambdas_path, json_filename: str, stem: str):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
@@ -218,7 +231,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
-    def from_fortran_file(cls, fortran_file, tmpdir="."):
+    def from_fortran_file(cls, fortran_file: str, tmpdir: str="."):
         """Builds GrFN object from a Fortran program."""
         stem = Path(fortran_file).stem
         if tmpdir == "." and "/" in fortran_file:
@@ -255,7 +268,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
     def clear(self):
-        """Clear variable node for next computation."""
+        """Clear variable nodes for next computation."""
         for n in self.nodes():
             if self.nodes[n]["type"] == NodeType.VARIABLE:
                 self.nodes[n]["value"] = None
@@ -300,14 +313,17 @@ class GroundedFunctionNetwork(nx.DiGraph):
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
     @utils.timeit
-    def run(self, inputs):
-        """Executes the GrFN over a particular set of inputs and returns the result.
+    def run(self, inputs: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
+        """Executes the GrFN over a particular set of inputs and returns the
+        result.
 
         Args:
-            inputs: [dict: str->{float, iterable}] Input set where keys are the names of input nodes in the GrFN and each key points to a set of input values (or just one).
+            inputs: Input set where keys are the names of input nodes in the
+              GrFN and each key points to a set of input values (or just one).
 
         Returns:
-            type: [{float, iterable}] A set of outputs from executing the GrFN, one for every set of inputs.
+            A set of outputs from executing the GrFN, one for every set of
+            inputs.
 
         """
         # Abort run if inputs does not match our expected input set
@@ -482,7 +498,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         })
         return A
 
-    def to_call_agraph(self):
+    def to_call_agraph(self) -> nx.DiGraph:
         A = nx.nx_agraph.to_agraph(self.call_graph)
         A.graph_attr.update({
             "dpi": 227,
