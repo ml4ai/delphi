@@ -1383,7 +1383,7 @@ def get_path(fileName: str, instance: str):
 
 
 def create_pgm_dict(
-    lambdaFile: str, asts: List, file_name: str
+    lambdaFile: str, asts: List, file_name: str, save_file=False
 ) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
@@ -1404,6 +1404,10 @@ def create_pgm_dict(
 
     with open(lambdaFile, "w") as f:
         f.write("".join(lambdaStrings))
+
+    # View the PGM file that will be used to build a scope tree
+    if save_file:
+        json.dump(pgm, open(file_name[:-3]+".json", "w"))
 
     return pgm
 
@@ -1476,13 +1480,3 @@ if __name__ == "__main__":
 
         with open(pgmFile, "w") as f:
             printPgm(f, pgm_dict)
-
-    # asts = get_asts_from_files(args.files, args.printAst)
-    # for index, inAst in enumerate(asts):
-    #     lambdaFile = args.files[index][:-3] + '_' + args.lambdaFile[0]
-    #     pgmFile = args.files[index][:-3] + '_' + args.PGMFile[0]
-    #     pgm_dict = create_pgm_dict(lambdaFile, [inAst], args.files[index])
-    #
-    #     with open(pgmFile, "w") as f:
-    #         printPgm(f, pgm_dict)
-
