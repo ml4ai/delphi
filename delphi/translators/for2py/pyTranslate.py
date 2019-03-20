@@ -23,6 +23,7 @@ import argparse
 import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
+from . import For2PyError
 
 
 class PrintState:
@@ -339,8 +340,7 @@ class PythonCodeGenerator(object):
         elif node["type"].upper() == "CHARACTER":
             varType = "str"
         else:
-            print(f"unrecognized type {node['type']}")
-            sys.exit(1)
+            raise For2PyError(f"unrecognized type {node['type']}")
         if node["arg_type"] == "arg_array":
             self.pyStrings.append(f"{self.nameMapper[node['name']]}")
         else:
@@ -377,8 +377,7 @@ class PythonCodeGenerator(object):
                     initVal = init_val if initial_set else 0
                     varType = node["type"]
                 else:
-                    print(f"unrecognized type {node['type']}")
-                    sys.exit(1)
+                    raise For2PyError(f"unrecognized type {node['type']}")
 
             if "isDevTypeVar" in node and node["isDevTypeVar"]:
                 self.pyStrings.append(
