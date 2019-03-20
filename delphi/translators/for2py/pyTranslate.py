@@ -629,6 +629,7 @@ class PythonCodeGenerator(object):
                         sep=", ", add="", printFirst=False, indexRef=False
                     ),
                 )
+                self.pyStrings.append(")")
 
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
