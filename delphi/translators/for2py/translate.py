@@ -551,6 +551,10 @@ class XMLToJSONTranslator(object):
                 ref["subscripts"] = subscripts
                 if (ref["name"] in self.arrays):
                     ref["isArray"] = True
+
+            if "arrayStat" in ref and ref["arrayStat"] == "isArray":
+                ref["isArray"] = True
+
             return [ref]
 
     def process_assignment(self, root, state) -> List[Dict]:
