@@ -134,7 +134,8 @@ class GrFNGenerator(object):
 
         # arg: ('arg', 'annotation')
         elif isinstance(node, ast.arg):
-            state.varTypes[node.arg] = getVarType(node.annotation)
+            if node.annotation != None:
+                state.varTypes[node.arg] = getVarType(node.annotation)
             if state.lastDefs.get(node.arg):
                 state.lastDefs[node.arg] += 1
             else:
@@ -201,7 +202,6 @@ class GrFNGenerator(object):
                 sys.stderr.write("Only one index variable is supported\n")
                 sys.exit(1)
             indexName = indexVar[0]["var"]["variable"]
-
             loopIter = self.genPgm(node.iter, state, fnNames, "for")
             if (
                 len(loopIter) != 1
@@ -212,26 +212,35 @@ class GrFNGenerator(object):
                 sys.exit(1)
 
             rangeCall = loopIter[0]["call"]
-            if (
-                len(rangeCall["inputs"]) != 2
-                or len(rangeCall["inputs"][0]) != 1
-                or len(rangeCall["inputs"][1]) != 1
-                or (
-                    "type" in rangeCall["inputs"][0]
-                    and rangeCall["inputs"][0]["type"] == "literal"
-                )
-                or (
-                    "type" in rangeCall["inputs"][1]
-                    and rangeCall["inputs"][1]["type"] == "literal"
-                )
-            ):
-                sys.stderr.write("Can only iterate over a constant range\n")
-                sys.exit(1)
+            # if (
+            #     len(rangeCall["inputs"]) > 3
+            #     or len(rangeCall["inputs"][0]) != 1
+            #     or len(rangeCall["inputs"][1]) != 1
+            #     or len(rangeCall["in"])
+            #     or (
+            #         "type" in rangeCall["inputs"][0]
+            #         and rangeCall["inputs"][0]["type"] == "literal"
+            #     )
+            #     or (
+            #         "type" in rangeCall["inputs"][1]
+            #         and rangeCall["inputs"][1]["type"] == "literal"
+            #     )
+            # ):
+            #     sys.stderr.write("Can only iterate over a constant range\n")
+            #     sys.exit(1)
 
-            iterationRange = {
-                "start": rangeCall["inputs"][0][0],
-                "end": rangeCall["inputs"][1][0],
-            }
+            if len(rangeCall["inputs"]) == 2:
+                iterationRange = {
+                    "start": rangeCall["inputs"][0][0],
+                    "end": rangeCall["inputs"][1][0],
+                }
+            elif len(rangeCall["inputs"]) == 3:
+                iterationRange = {
+                    "start": rangeCall["inputs"][0][0],
+                    "end": rangeCall["inputs"][1][0],
+                    "step": rangeCall["inputs"][2][0],
+                }
+
 
             loopLastDef = {}
             loopState = state.copy(
@@ -625,7 +634,7 @@ class GrFNGenerator(object):
                         pgm["functions"].append(fn)
                         pgm["body"].append(body)
 
-                        self.elif_pgm = []
+                    self.elif_pgm = []
 
             return [pgm]
 
@@ -748,14 +757,22 @@ class GrFNGenerator(object):
                 fn = make_fn_dict(name, target, sources, node)
                 body = make_body_dict(name, target, sources, state)
 
-                lambda_string = genFn(
-                    node,
-                    name,
-                    target["var"]["variable"],
-                    [src["var"]["variable"] for src in sources if "var" in src],
-                )
-                state.lambdaStrings.append(lambda_string)
+                if len(sources) > 0:
+                    lambda_string = genFn(
+                        node,
+                        name,
+                        target["var"]["variable"],
+                        [src["var"]["variable"] for src in sources if "var" in src],
+                    )
+                    state.lambdaStrings.append(lambda_string)
 
+                # In the case of assignments of the form:    "ud: List[float]"
+                # an assignment function will be created with an empty input list.
+                # Also, the function dictionary will be empty. We do not want such
+                # assignments in the GrFN so check for an empty <fn> dictionary and
+                # return [] if found
+                if len(fn) == 0:
+                    return []
                 if not fn["sources"] and len(sources) == 1:
                     fn["body"] = {
                         "type": "literal",
@@ -764,7 +781,6 @@ class GrFNGenerator(object):
                     }
 
                 for id_spec in body[1]:
-                    print(id_spec)
                     pgm["identifiers"].append(id_spec)
 
                 pgm["functions"].append(fn)
@@ -859,6 +875,10 @@ class GrFNGenerator(object):
         # Call: ('func', 'args', 'keywords')
         elif isinstance(node, ast.Call):
             if isinstance(node.func, ast.Attribute):
+                # Check if there is a <sys> call. Bypass it if exists.
+                if isinstance(node.func.value, ast.Attribute):
+                    if node.func.value.value.id == "sys":
+                        return []
                 fnNode = node.func
                 module = fnNode.value.id
                 fnName = fnNode.attr
@@ -1021,7 +1041,6 @@ def genFn(node, fnName: str, returnVal: bool, inputs):
         code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
     else:
         code = genCode(node, PrintState("\n    "))
-
     if returnVal:
         lambda_strings.append(f"return {code}")
     else:
@@ -1102,9 +1121,11 @@ def getVarType(annNode):
             return "array"
         if dType == "str":
             return "string"
+        if dType == "bool":
+            return "bool"
         else:
             sys.stderr.write(
-                "Unsupported type (only float, int, list, and str"
+                "Unsupported type (only float, int, list, and str " 
                 "supported as of now).\n"
             )
     except AttributeError:
@@ -1421,6 +1442,13 @@ if __name__ == "__main__":
         help="Filename for output lambda functions",
     )
     parser.add_argument(
+        "-o",
+        "--out",
+        nargs=1,
+        required=True,
+        help="Text file containing the list of output python files being generated",
+    )
+    parser.add_argument(
         "-a",
         "--printAst",
         action="store_true",
@@ -1428,17 +1456,33 @@ if __name__ == "__main__":
         help="Print ASTs",
     )
     args = parser.parse_args(sys.argv[1:])
-    asts = get_asts_from_files(args.files, args.printAst)
+
 
     # Read the mode_gen file containing all the identifier mappings
     file_handle = open('mod_gen.json', 'r')
     mode_mapper = file_handle.read()
     mode_mapper = json.loads(mode_mapper)
 
+    with open(args.out[0], "r") as f:
+        pythonFiles = f.read()
+
+    pythonFileList = pythonFiles.rstrip().split(" ")
+
+    asts = get_asts_from_files(pythonFileList, args.printAst)
     for index, inAst in enumerate(asts):
-        lambdaFile = args.files[index][:-3] + '_' + args.lambdaFile[0]
-        pgmFile = args.files[index][:-3] + '_' + args.PGMFile[0]
-        pgm_dict = create_pgm_dict(lambdaFile, [inAst], args.files[index])
+        lambdaFile = pythonFileList[index][:-3] + '_' + args.lambdaFile[0]
+        pgmFile = pythonFileList[index][:-3] + '_' + args.PGMFile[0]
+        pgm_dict = create_pgm_dict(lambdaFile, [inAst], pythonFileList[index])
 
         with open(pgmFile, "w") as f:
             printPgm(f, pgm_dict)
+
+    # asts = get_asts_from_files(args.files, args.printAst)
+    # for index, inAst in enumerate(asts):
+    #     lambdaFile = args.files[index][:-3] + '_' + args.lambdaFile[0]
+    #     pgmFile = args.files[index][:-3] + '_' + args.PGMFile[0]
+    #     pgm_dict = create_pgm_dict(lambdaFile, [inAst], args.files[index])
+    #
+    #     with open(pgmFile, "w") as f:
+    #         printPgm(f, pgm_dict)
+
