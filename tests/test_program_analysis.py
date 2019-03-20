@@ -24,6 +24,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
     preprocessed_fortran_file = stem + "_preprocessed.f"
     lambdas_filename = stem + "_lambdas.py"
     json_filename = stem + ".json"
+    python_filename = stem + ".py"
 
     with open(original_fortran_file, "r") as f:
         inputLines = f.readlines()
@@ -50,13 +51,13 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str]:
     xml_to_json_translator = translate.XMLToJSONTranslator()
     outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_string(outputDict)[0][0]
-    return pySrc, lambdas_filename, json_filename
+    return pySrc, lambdas_filename, json_filename, python_filename
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename = get_python_source(original_fortran_file)
+    pySrc, lambdas_filename, json_filename, python_filename = get_python_source(original_fortran_file)
     asts = [ast.parse(pySrc)]
-    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, json_filename, save_file=False)
+    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, save_file=False)
     return pgm_dict
 
 
