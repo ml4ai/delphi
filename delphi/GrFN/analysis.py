@@ -1,9 +1,18 @@
 import numpy as np
 from tqdm import tqdm
+import torch
 
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib import cm
+
+from delphi.GrFN.sensitivity import sobol_analysis
+
+
+def get_forward_influence_blankets(GrFN1, GrFN2):
+    FIB1 = GrFN1.to_FIB(GrFN2)
+    FIB2 = GrFN2.to_FIB(GrFN1)
+    return FIB1, FIB2
 
 
 def get_S2_ranks(S2_mat):
@@ -29,44 +38,50 @@ def get_max_s2_sensitivity(S2_mat):
     return max(get_S2_ranks(S2_mat), key=lambda tup: abs(tup[0]))
 
 
-def get_sensitivity_surface(var_indices, bounds, dims, presets, GrFN):
-    (var1_idx, var2_idx) = var_indices
-    ((x_low, x_high), (y_low, y_high)) = bounds
-    (x_dim, y_dim) = dims
+def max_S2_sensitivity_surface(G, num_samples, sizes, bounds, presets):
+    """Calculates the sensitivity surface of a GrFN for the two variables with the highest S2 index.
 
-    X = np.arange(x_low, x_high, (x_high - x_low) / x_dim)
-    Y = np.arange(y_low, y_high, (y_high - y_low) / y_dim)
-    X, Y = np.meshgrid(X, Y)
+    Args:
+        G: A GrFN.
+        num_samples: Number of samples for sensitivity analysis.
+        sizes: Tuple of (number of x inputs, number of y inputs).
+        bounds: Set of bounds for GrFN inputs.
+        presets: Set of standard values for GrFN inputs.
 
-    args = GrFN.get_model_args()
+    Returns:
+        Tuple:
+            Tuple: The names of the two variables that were selected
+            Tuple: The X, Y vectors of eval values
+            Z: The numpy matrix of output evaluations
 
-    surface = np.zeros((len(X), len(Y)))
-    for r in tqdm(range(len(X)), desc="Eval PLANT"):
-        for c in range(len(X[0])):
-            eval_args = list()
-            for idx, arg in enumerate(args):
-                if idx == var1_idx:
-                    eval_args.append([X[r][c]])
-                elif idx == var2_idx:
-                    eval_args.append([Y[r][c]])
-                else:
-                    eval_args.append(presets[idx])
+    """
+    args = G.inputs
+    Si = sobol_analysis(G, num_samples, {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    })
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
 
-            surface[r][c] = self.analyzer.eval_sample(tuple(eval_args))
-    print("finished evaluating meshgrid")
-    return (X, Y, surface)
+    x_var = args[v1]
+    x_bounds = bounds[x_var]
+    X = np.linspace(*x_bounds, sizes[0])
 
+    y_var = args[v2]
+    y_bounds = bounds[y_var]
+    Y = np.linspace(*y_bounds, sizes[1])
 
-def visualize_surface(var_indices, X, Y, surface):
-    (var1_idx, var2_idx) = var_indices
-    args = self.analyzer.get_model_args()
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.set_title("S2 surface visualization")
-    ax.set_xlabel("{}".format(args[var1_idx]))
-    ax.set_ylabel("{}".format(args[var2_idx]))
-    ax.plot_surface(X, Y, surface, cmap=cm.viridis_r,
-                    linewidth=0, antialiased=False)
-    # ax.plot_wireframe(X, Y, Z)
-    # plt.show()
-    return plt
+    Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
+    inputs = {
+        x_var: Xm,
+        y_var: Ym
+    }
+
+    for i, arg in enumerate(args):
+        if i != v1 and i != v2:
+            inputs[arg] = torch.full_like(Xm, presets[arg])
+
+    Z = G.run(inputs)
+
+    return (x_var, y_var), (X, Y), Z.numpy()

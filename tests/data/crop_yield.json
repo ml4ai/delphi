@@ -113,16 +113,16 @@
           "name": "update_est__assign__total_rain_1",
           "output": {
             "variable": "total_rain",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "total_rain",
-              "index": 0
+              "index": -1
             },
             {
               "variable": "rain",
-              "index": 0
+              "index": -1
             }
           ]
         },

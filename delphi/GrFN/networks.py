@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-# from copy import deepcopy
+from itertools import product
 from pathlib import Path
 from typing import Dict
 import importlib
@@ -7,9 +7,9 @@ import inspect
 import json
 import os
 import ast
-import sys
 
 import networkx as nx
+from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import NodeType
@@ -332,28 +332,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         # return the output
         return self.nodes[self.output_node]["value"]
 
-    def to_agraph(self):
-        A = nx.nx_agraph.to_agraph(self)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
-        A.node_attr.update({
-            "shape": "rectangle",
-            "color": "#650021",
-            "style": "rounded",
-            "fontname": "Gill Sans",
-        })
-        A.edge_attr.update({
-            "color": "#650021",
-            "arrowsize": 0.5
-        })
-        return A
-
-    def to_CAG_agraph(self):
-        """Returns a variable-only view of the GrFN in the form of an AGraph.
-
-        Returns:
-            type: A CAG constructed via variable influence in the GrFN object.
-
-        """
+    def to_CAG(self):
         nodes, edges = list(), list()
 
         def gather_nodes_and_edges(prev_name, inputs):
@@ -382,7 +361,109 @@ class GroundedFunctionNetwork(nx.DiGraph):
         CAG = nx.DiGraph()
         CAG.add_nodes_from(nodes)
         CAG.add_edges_from(edges)
+        return CAG
 
+    def to_FIB(self, other):
+        if not isinstance(other, GroundedFunctionNetwork):
+            raise TypeError(f"Expected GroundedFunctionNetwork, but got {type(other)}")
+
+        def var_shortname(var):
+            return var[var.find("::") + 2: var.rfind("_")]
+
+        def get_vars_with_shortname(graph, shortname):
+            return [v for v in graph.nodes() if shortname in v]
+
+
+        # CAG1 = self.to_CAG()
+        # CAG2 = other.to_CAG()
+        # shared_vars = set(CAG1.nodes()).intersection(set(CAG2.nodes()))
+        this_var_nodes = [var_shortname(n) for (n, d) in self.nodes(data=True) if d["type"] == NodeType.VARIABLE]
+        other_var_nodes = [var_shortname(n) for (n, d) in other.nodes(data=True) if d["type"] == NodeType.VARIABLE]
+        shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
+
+        this_shared_vars = [full_var for shared_var in shared_vars for full_var in get_vars_with_shortname(self, shared_var)]
+
+        shared_inputs = list(set(self.model_inputs).intersection(shared_vars))
+
+        FIB = nx.DiGraph()
+        # Get all paths from shared inputs to shared outputs
+        new_inputs = list(set(shared_vars) - set(self.output_node))
+        io_pairs = [(inp, self.output_node) for inp in new_inputs]
+        paths = [p for (i, o) in io_pairs for p in all_simple_paths(self, i, o)]
+
+        # Get all edges needed to blanket the included nodes
+        main_nodes = list({node for path in paths for node in path})
+        cover_nodes, cover_edges = list(), list()
+        for node in main_nodes:
+            for prev_node in self.predecessors(node):
+                if prev_node not in main_nodes:
+                    cover_nodes.append(prev_node)
+                    cover_edges.append((prev_node, node))
+
+        cover_nodes = [node for node, _ in cover_edges]
+
+        for path in paths:
+            FIB.add_edges_from(list(zip(path, path[1:])))
+        FIB.add_edges_from(cover_edges)
+
+        for node_name in cover_nodes:
+            FIB.nodes[node_name]["color"] = forestgreen
+            FIB.nodes[node_name]["fontcolor"] = forestgreen
+
+        for node_name in shared_vars:
+            FIB.nodes[node_name]["color"] = dodgerblue3
+            FIB.nodes[node_name]["fontcolor"] = dodgerblue3
+            for dest in FIB.successors(node_name):
+                FIB[node_name][dest]["color"] = dodgerblue3
+                FIB[node_name][dest]["fontcolor"] = dodgerblue3
+
+        for source, dest in cover_edges:
+            FIB[source][dest]["color"] = forestgreen
+
+        for node in FIB.nodes(data=True):
+            node[1]["fontname"] = FONT
+
+        for node_name in shared_inputs:
+            FIB.nodes[node_name]["penwidth"] = 3.0
+
+        cut_nodes = [n for n in self.nodes if n not in FIB.nodes]
+        cut_edges = [e for e in self.edges if e not in FIB.edges]
+
+        FIB.add_nodes_from(cut_nodes)
+        FIB.add_edges_from(cut_edges)
+
+        for node_name in cut_nodes:
+            FIB.nodes[node_name]["color"] = "orange"
+            FIB.nodes[node_name]["fontcolor"] = "orange"
+
+        for source, dest in cut_edges:
+            FIB[source][dest]["color"] = "orange"
+
+        return FIB
+
+    def to_agraph(self):
+        A = nx.nx_agraph.to_agraph(self)
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.node_attr.update({
+            "shape": "rectangle",
+            "color": "#650021",
+            "style": "rounded",
+            "fontname": "Gill Sans",
+        })
+        A.edge_attr.update({
+            "color": "#650021",
+            "arrowsize": 0.5
+        })
+        return A
+
+    def to_CAG_agraph(self):
+        """Returns a variable-only view of the GrFN in the form of an AGraph.
+
+        Returns:
+            type: A CAG constructed via variable influence in the GrFN object.
+
+        """
+        CAG = self.to_CAG()
         A = nx.nx_agraph.to_agraph(CAG)
         A.graph_attr.update({
             "dpi": 227,
