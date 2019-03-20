@@ -60,7 +60,6 @@ for file in "$@"; do
 
     pyFile="$base".py
     outputFileList="$base"_outputList.txt
-    ( set -x; $PYTRANSLATE mod_index_generator.py "$astFile")
     ( set -x; $PYTRANSLATE translate.py -f "$astFile" -g "$pickleFile" -i "$file")
     ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -o "$outputFileList")
     pyFiles+=" $pyFile"

@@ -9,15 +9,16 @@ import argparse
 from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
+from delphi.translators.for2py.mod_index_generator import get_index
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
 import os
 import uuid
 
-exclude_list = []
-mode_mapper = {}
-alias_dict = {}
+EXCLUDE_LIST = []
+MODE_MAPPER = {}
+ALIAS_DICT = {}
 
 BINOPS = {
     ast.Add: operator.add,
@@ -1156,13 +1157,13 @@ def get_body_and_functions(pgm):
 # y=x happens such that y is now an alias of x because it is an exact copy of x. If it is an alias assignment,
 # the dictionary alias_dict will get populated.
 def check_alias(target, sources):
-    global alias_dict
+    global ALIAS_DICT
     target_index = target["var"]["variable"] + "_" + str(target["var"]["index"])
     if len(sources) == 1 and sources[0].get("var") != None:
-        if alias_dict.get(target_index):
-            alias_dict[target_index].append(sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"]))
+        if ALIAS_DICT.get(target_index):
+            ALIAS_DICT[target_index].append(sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"]))
         else:
-            alias_dict[target_index] = [sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"])]
+            ALIAS_DICT[target_index] = [sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"])]
 
 
 def generage_gensysm(tag):
@@ -1176,13 +1177,13 @@ def generage_gensysm(tag):
 
 
 def make_iden_dict(name, targets, scope_path, holder):
-    global alias_dict
+    global ALIAS_DICT
 
     # Check for aliases
     if isinstance(targets, dict):
-        aliases = alias_dict.get(targets["variable"] + "_" + str(targets["index"]), "None")
+        aliases = ALIAS_DICT.get(targets["variable"] + "_" + str(targets["index"]), "None")
     elif isinstance(targets, str):
-        aliases = alias_dict.get(targets, "None")
+        aliases = ALIAS_DICT.get(targets, "None")
 
     # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
     # Assign the base_name accordingly
@@ -1208,7 +1209,7 @@ def make_iden_dict(name, targets, scope_path, holder):
 
     # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
     #  the intermediate python file's path
-    name_space = mode_mapper["FileName"][1].split('/')
+    name_space = MODE_MAPPER["FileName"][1].split('/')
     name_space = '.'.join(name_space)
 
     # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
@@ -1298,7 +1299,7 @@ def make_fn_dict(name, target, sources, node):
     bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
 
     if bypass_match_target:
-        exclude_list.append(target["var"]["variable"])
+        EXCLUDE_LIST.append(target["var"]["variable"])
         return fn
 
     for src in sources:
@@ -1310,8 +1311,8 @@ def make_fn_dict(name, target, sources, node):
             bypass_match_source = re.match(bypass_regex, src["call"]["function"])
             if bypass_match_source:
                 if "var" in src:
-                    exclude_list.append(src["var"]["variable"])
-                exclude_list.append(target["var"]["variable"])
+                    EXCLUDE_LIST.append(src["var"]["variable"])
+                EXCLUDE_LIST.append(target["var"]["variable"])
                 return fn
             for source_ins in make_call_body_dict(src):
                 source.append(source_ins)
@@ -1377,16 +1378,26 @@ def importAst(filename: str):
 def get_path(fileName: str, instance: str):
     absPath = os.path.abspath(fileName)
     if instance == "namespace":
-        return re.match(r'.*\/(for2py\/.*).py$', absPath).group(1).split('/')
+        if re.match(r'.*\/(for2py\/.*).py$', absPath):
+            return re.match(r'.*\/(for2py\/.*).py$', absPath).group(1).split('/')
+        else:
+            return fileName
     elif instance == "source":
-        return re.match(r'.*\/(for2py\/.*$)', absPath).group(1).split('/')
+        if re.match(r'.*\/(for2py\/.*$)', absPath):
+            return re.match(r'.*\/(for2py\/.*$)', absPath).group(1).split('/')
+        else:
+            return fileName
 
 
 def create_pgm_dict(
-    lambdaFile: str, asts: List, file_name: str, save_file=False
+    lambdaFile: str, asts: List, file_name: str, mode_mapper_dict: dict, save_file=False
 ) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
+    global MODE_MAPPER
+
+    MODE_MAPPER = mode_mapper_dict
+
     lambdaStrings = ["import math\n\n"]
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
@@ -1461,12 +1472,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args(sys.argv[1:])
 
-
-    # Read the mode_gen file containing all the identifier mappings
-    file_handle = open('mod_gen.json', 'r')
-    mode_mapper = file_handle.read()
-    mode_mapper = json.loads(mode_mapper)
-
     with open(args.out[0], "r") as f:
         pythonFiles = f.read()
 
@@ -1474,9 +1479,12 @@ if __name__ == "__main__":
 
     asts = get_asts_from_files(pythonFileList, args.printAst)
     for index, inAst in enumerate(asts):
+        # Read the mode_gen file containing all the identifier mappings
+        mode_mapperDict = get_index(pythonFileList[index][:-3] + ".xml")
+
         lambdaFile = pythonFileList[index][:-3] + '_' + args.lambdaFile[0]
         pgmFile = pythonFileList[index][:-3] + '_' + args.PGMFile[0]
-        pgm_dict = create_pgm_dict(lambdaFile, [inAst], pythonFileList[index])
+        pgm_dict = create_pgm_dict(lambdaFile, [inAst], pythonFileList[index], mode_mapperDict)
 
         with open(pgmFile, "w") as f:
             printPgm(f, pgm_dict)
