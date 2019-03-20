@@ -9,6 +9,7 @@ import argparse
 from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
+from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -133,13 +134,11 @@ class GrFNGenerator(object):
 
         # Load: ()
         elif isinstance(node, ast.Load):
-            sys.stderr.write("Found ast.Load, which should not happen\n")
-            sys.exit(1)
+            raise For2PyError("Found ast.Load, which should not happen")
 
         # Store: ()
         elif isinstance(node, ast.Store):
-            sys.stderr.write("Found ast.Store, which should not happen\n")
-            sys.exit(1)
+            raise For2PyError("Found ast.Store, which should not happen\n")
 
         # Index: ('value',)
         elif isinstance(node, ast.Index):
@@ -166,13 +165,11 @@ class GrFNGenerator(object):
         # For: ('target', 'iter', 'body', 'orelse')
         elif isinstance(node, ast.For):
             if self.genPgm(node.orelse, state, fnNames, "for"):
-                sys.stderr.write("For/Else in for not supported\n")
-                sys.exit(1)
+                raise For2PyError("For/Else in for not supported\n")
 
             indexVar = self.genPgm(node.target, state, fnNames, "for")
             if len(indexVar) != 1 or "var" not in indexVar[0]:
-                sys.stderr.write("Only one index variable is supported\n")
-                sys.exit(1)
+                raise For2PyError("Only one index variable is supported\n")
             indexName = indexVar[0]["var"]["variable"]
 
             loopIter = self.genPgm(node.iter, state, fnNames, "for")
@@ -181,8 +178,7 @@ class GrFNGenerator(object):
                 or "call" not in loopIter[0]
                 or loopIter[0]["call"]["function"] != "range"
             ):
-                sys.stderr.write("Can only iterate over a range\n")
-                sys.exit(1)
+                raise For2PyError("Can only iterate over a range\n")
 
             rangeCall = loopIter[0]["call"]
             if (
@@ -198,8 +194,7 @@ class GrFNGenerator(object):
                     and rangeCall["inputs"][1]["type"] == "literal"
                 )
             ):
-                sys.stderr.write("Can only iterate over a constant range\n")
-                sys.exit(1)
+                raise For2PyError("Can only iterate over a constant range\n")
 
             iterationRange = {
                 "start": rangeCall["inputs"][0][0],
@@ -601,14 +596,12 @@ class GrFNGenerator(object):
                             if "var" in arg[0]:
                                 body["input"].append(arg[0]["var"])
                         else:
-                            sys.stderr.write(
+                            raise For2PyError(
                                 "Only 1 input per argument supported right now\n"
                             )
-                            sys.exit(1)
                     pgm["body"].append(body)
                 else:
-                    sys.stderr.write(f"Unsupported expr: {expr}\n")
-                    sys.exit(1)
+                    raise For2PyError(f"Unsupported expr: {expr}\n")
             return [pgm]
 
         # Compare: ('left', 'ops', 'comparators')
@@ -620,8 +613,7 @@ class GrFNGenerator(object):
         # Subscript: ('value', 'slice', 'ctx')
         elif isinstance(node, ast.Subscript):
             if not isinstance(node.slice.value, ast.Num):
-                sys.stderr.write("can't handle arrays right now\n")
-                sys.exit(1)
+                raise For2PyError("can't handle arrays right now\n")
 
             val = self.genPgm(node.value, state, fnNames, "subscript")
 
@@ -1033,8 +1025,7 @@ def getVarType(annNode):
                 "supported as of now).\n"
             )
     except AttributeError:
-        sys.stderr.write("Unsupported type (annNode is None).\n")
-    sys.exit(1)
+        raise For2PyError("Unsupported type (annNode is None).\n")
 
 
 def getDType(val):
@@ -1045,8 +1036,7 @@ def getDType(val):
     elif isinstance(val, str):
         dtype = "string"
     else:
-        sys.stderr.write(f"num: {type(val)}\n")
-        sys.exit(1)
+        raise For2PyError(f"num: {type(val)}\n")
     return dtype
 
 
