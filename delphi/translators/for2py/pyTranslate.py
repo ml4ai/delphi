@@ -1373,4 +1373,3 @@ if __name__ == "__main__":
     with open(args.out[0], "w") as f:
         for fileName in outputList:
             f.write(fileName+" ")
-
