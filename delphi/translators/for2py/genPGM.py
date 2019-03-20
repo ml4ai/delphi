@@ -9,7 +9,7 @@ import argparse
 from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
-from delphi.translators.for2py import For2PyError
+from . import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -134,11 +134,11 @@ class GrFNGenerator(object):
 
         # Load: ()
         elif isinstance(node, ast.Load):
-            raise For2PyError("Found ast.Load, which should not happen")
+            raise For2PyError("Found ast.Load, which should not happen.")
 
         # Store: ()
         elif isinstance(node, ast.Store):
-            raise For2PyError("Found ast.Store, which should not happen\n")
+            raise For2PyError("Found ast.Store, which should not happen.")
 
         # Index: ('value',)
         elif isinstance(node, ast.Index):
@@ -165,11 +165,11 @@ class GrFNGenerator(object):
         # For: ('target', 'iter', 'body', 'orelse')
         elif isinstance(node, ast.For):
             if self.genPgm(node.orelse, state, fnNames, "for"):
-                raise For2PyError("For/Else in for not supported\n")
+                raise For2PyError("For/Else in for not supported.")
 
             indexVar = self.genPgm(node.target, state, fnNames, "for")
             if len(indexVar) != 1 or "var" not in indexVar[0]:
-                raise For2PyError("Only one index variable is supported\n")
+                raise For2PyError("Only one index variable is supported.")
             indexName = indexVar[0]["var"]["variable"]
 
             loopIter = self.genPgm(node.iter, state, fnNames, "for")
@@ -178,7 +178,7 @@ class GrFNGenerator(object):
                 or "call" not in loopIter[0]
                 or loopIter[0]["call"]["function"] != "range"
             ):
-                raise For2PyError("Can only iterate over a range\n")
+                raise For2PyError("Can only iterate over a range.")
 
             rangeCall = loopIter[0]["call"]
             if (
@@ -194,7 +194,7 @@ class GrFNGenerator(object):
                     and rangeCall["inputs"][1]["type"] == "literal"
                 )
             ):
-                raise For2PyError("Can only iterate over a constant range\n")
+                raise For2PyError("Can only iterate over a constant range.")
 
             iterationRange = {
                 "start": rangeCall["inputs"][0][0],
@@ -597,11 +597,11 @@ class GrFNGenerator(object):
                                 body["input"].append(arg[0]["var"])
                         else:
                             raise For2PyError(
-                                "Only 1 input per argument supported right now\n"
+                                "Only 1 input per argument supported right now."
                             )
                     pgm["body"].append(body)
                 else:
-                    raise For2PyError(f"Unsupported expr: {expr}\n")
+                    raise For2PyError(f"Unsupported expr: {expr}.")
             return [pgm]
 
         # Compare: ('left', 'ops', 'comparators')
@@ -613,7 +613,7 @@ class GrFNGenerator(object):
         # Subscript: ('value', 'slice', 'ctx')
         elif isinstance(node, ast.Subscript):
             if not isinstance(node.slice.value, ast.Num):
-                raise For2PyError("can't handle arrays right now\n")
+                raise For2PyError("can't handle arrays right now.")
 
             val = self.genPgm(node.value, state, fnNames, "subscript")
 
@@ -1025,7 +1025,7 @@ def getVarType(annNode):
                 "supported as of now).\n"
             )
     except AttributeError:
-        raise For2PyError("Unsupported type (annNode is None).\n")
+        raise For2PyError("Unsupported type (annNode is None).")
 
 
 def getDType(val):
@@ -1036,7 +1036,7 @@ def getDType(val):
     elif isinstance(val, str):
         dtype = "string"
     else:
-        raise For2PyError(f"num: {type(val)}\n")
+        raise For2PyError(f"num: {type(val)}.")
     return dtype
 
 
