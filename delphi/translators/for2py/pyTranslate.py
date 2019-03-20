@@ -263,7 +263,7 @@ class PythonCodeGenerator(object):
             )
         else:
             argSize = len(node["args"])
-            assert argSize >= 1
+            # assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
                 self.printAst(
@@ -338,6 +338,8 @@ class PythonCodeGenerator(object):
             varType = "float"
         elif node["type"].upper() == "CHARACTER":
             varType = "str"
+        elif node["type"].upper() == "LOGICAL":
+            varType = "bool"
         else:
             print(f"unrecognized type {node['type']}")
             sys.exit(1)
@@ -369,6 +371,9 @@ class PythonCodeGenerator(object):
             elif node["type"].upper() in ("STRING", "CHARACTER", "STR"):
                 initVal = init_val if initial_set else ""
                 varType = "str"
+            elif node["type"].upper() == "LOGICAL":
+                initVal = init_val if initial_set else False
+                varType = "bool"
             else:
                 if node["isDevTypeVar"]:
                     initVal = init_val if initial_set else 0
@@ -536,6 +541,11 @@ class PythonCodeGenerator(object):
         #     self.pyStrings.append(f"[{node['value']}]")
         # else:
         #     self.pyStrings.append(node["value"])
+
+        # Check if the value is a bool and convert to Title case if it is
+        if node["type"] == "bool":
+            node["value"] = node["value"].title()
+
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState):
@@ -546,14 +556,14 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("[0]")
             if "isDevType" in node and node["isDevType"]:
                 self.pyStrings.append(f".{node['field-name']}")
-        # Handles array
+
         if "subscripts" in node:
             # Check if the node really holds an array. The is because the
             # derive type with more than 1 field access, for example var%x%y,
             # node holds x%y also under the subscripts. Thus, in order to avoid
             # non-array derive types to be printed in an array syntax, this
             # check is necessary
-            if "hasSubscripts" in node and node["hasSubscripts"]:
+            if "isArray" in node and node["isArray"] is True and "hasSubscripts" in node and node["hasSubscripts"]:
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
@@ -611,13 +621,18 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append("))")
                 self.pyStrings.append(")")
             else:
-                self.pyStrings.append(".")
+                if "isDevType" in node and node["isDevType"]:
+                    self.pyStrings.append(".")
+                else:
+                    self.pyStrings.append("(")
                 self.printAst(
                     node["subscripts"],
                     printState.copy(
-                        sep=", ", add="", printFirst=False, indexRef=True
+                        sep=", ", add="", printFirst=False, indexRef=False
                     ),
                 )
+                self.pyStrings.append(")")
+
 
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
@@ -736,11 +751,11 @@ class PythonCodeGenerator(object):
     def printUse(self, node, printState):
         if node.get("include"):
             imports.append(
-                f"from m_{node['arg'].lower()} "
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
-            imports.append(f"from m_{node['arg'].lower()} import *\n")
+            imports.append(f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n")
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
@@ -943,8 +958,10 @@ class PythonCodeGenerator(object):
                         if "field-name" in item:
                             write_string += f".{item['field-name']}"
                     # Handling array
-                    if ("hasSubscripts" in item and item["hasSubscripts"]) or (
-                        "arrayStat" in item and item["arrayStat"] == "isArray"
+                    if (
+                            ("hasSubscripts" in item and item["hasSubscripts"] and "isArray" in item and item[
+                                "isArray"]) or
+                            ("arrayStat" in item and item["arrayStat"] == "isArray")
                     ):
                         i = 0
                         write_string += ".get_(("
@@ -1269,8 +1286,8 @@ def create_python_string(outputDict):
         imports = "".join(imports)
         if len(imports) != 0:
             code_generator.pyStrings.insert(1, imports)
-        if self.programName != "":
-            code_generator.pyStrings.append(f"\n\n{self.programName}()\n")
+        if code_generator.programName != "":
+            code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
         py_sourcelist.append(
             (code_generator.get_python_source(), file, program_type[file][0])
         )
@@ -1332,14 +1349,28 @@ if __name__ == "__main__":
             "information"
         ),
     )
+    parser.add_argument(
+        "-o",
+        "--out",
+        nargs="+",
+        help="Text file containing the list of output python files being generated",
+    )
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
         outputDict = pickle.load(f)
     pySrc = create_python_string(outputDict)
+    outputList = []
     for item in pySrc:
         if item[2] == "module":
             with open("m_" + item[1].lower() + ".py", "w") as f:
+                outputList.append("m_" + item[1].lower() + ".py")
                 f.write(item[0])
         else:
             with open(args.gen[0], "w") as f:
+                outputList.append(args.gen[0])
                 f.write(item[0])
+
+    with open(args.out[0], "w") as f:
+        for fileName in outputList:
+            f.write(fileName+" ")
+

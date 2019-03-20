@@ -136,11 +136,12 @@ class XMLToJSONTranslator(object):
         self.deriveTypeVars = []
         # The purpose of this global dictionary is to track the declared field
         # variables and mark it's an array or not. For example, var.a.get(1)
-        # will be makred as hasSubscripts = False and arrayStat = "isArray".
+        # will be marked as hasSubscripts = False and arrayStat = "isArray".
         # Thus, hasSubscripts represents the array existence of the very first
         # variable and arrayStat represents the array existence of the
         # following fields.
         self.deriveTypeFields = {}
+        self.arrays = []
 
     def process_subroutine_or_program_module(self, root, state):
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
@@ -271,6 +272,8 @@ class XMLToJSONTranslator(object):
         # If the statement is for declaring array
         if decDims:
             for i in range(0, len(prog)):
+                if prog[i]["name"] not in self.arrays: # Checks if a name exists in the array tracker. If not, add it for later use
+                    self.arrays.append(prog[i]["name"])
                 counter = 0
                 for dim in decDims:
                     if "literal" in dim:
@@ -540,11 +543,18 @@ class XMLToJSONTranslator(object):
                 else:
                     ref["hasSubscripts"] = False
 
+            ref["isArray"] = False
             subscripts = []
             for node in root:
                 subscripts += self.parseTree(node, state)
             if subscripts:
                 ref["subscripts"] = subscripts
+                if (ref["name"] in self.arrays):
+                    ref["isArray"] = True
+
+            if "arrayStat" in ref and ref["arrayStat"] == "isArray":
+                ref["isArray"] = True
+
             return [ref]
 
     def process_assignment(self, root, state) -> List[Dict]:
