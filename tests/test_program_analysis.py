@@ -54,7 +54,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, dict]:
     generator = mod_index_generator.moduleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
     outputDict = xml_to_json_translator.analyze(trees, comments)
-    pySrc = pyTranslate.create_python_string(outputDict)[0][0]
+    pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
     return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
 
 
@@ -129,8 +129,8 @@ def test_io_grfn_generation(io_grfn_dict):
 
 def test_array_pythonIR_generation(array_python_IR_test):
     with open("tests/data/arrays-basic-06.py", "r") as f:
-        python_dict = f.read()
-    assert array_python_IR_test == python_dict
+        python_src = f.read()
+    assert array_python_IR_test == python_src
 
 
 def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
