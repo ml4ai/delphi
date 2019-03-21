@@ -536,6 +536,94 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         # for source, dest in cut_edges:
         #     self[source][dest]["color"] = "orange"
 
+        self.build_call_graph()
+        self.build_function_sets()
+
+    def build_call_graph(self):
+        edges = list()
+
+        def update_edge_set(cur_fns):
+            for c in cur_fns:
+                nxt_fns = [p for v in self.successors(c)
+                           for p in self.successors(v)]
+                edges.extend([(c, n) for n in nxt_fns])
+                update_edge_set(list(set(nxt_fns)))
+
+        update_edge_set(
+            list({
+                n for v in self.inputs for n in self.successors(v)
+            }.union({
+                n for v in self.cover_nodes for n in self.successors(v)
+            }))
+        )
+        self.call_graph = nx.DiGraph()
+        self.call_graph.add_edges_from(edges)
+
+    def build_function_sets(self):
+        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
+        distances = dict()
+
+        def find_distances(funcs, dist):
+            all_successors = list()
+            for func in funcs:
+                distances[func] = dist
+                all_successors.extend(self.call_graph.successors(func))
+            if len(all_successors) > 0:
+                find_distances(list(set(all_successors)), dist+1)
+
+        find_distances(initial_funcs, 0)
+        call_sets = dict()
+        for func_name, call_dist in distances.items():
+            if call_dist in call_sets:
+                call_sets[call_dist].add(func_name)
+            else:
+                call_sets[call_dist] = {func_name}
+
+        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
+        self.function_sets = [func_set for _, func_set in function_set_dists]
+
+    @utils.timeit
+    def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
+        """Executes the GrFN over a particular set of inputs and returns the
+        result.
+
+        Args:
+            inputs: Input set where keys are the names of input nodes in the
+              GrFN and each key points to a set of input values (or just one).
+
+        Returns:
+            A set of outputs from executing the GrFN, one for every set of
+            inputs.
+
+        """
+        # Abort run if inputs does not match our expected input set
+        if len(inputs) != len(self.model_inputs):
+            raise ValueError("Incorrect number of inputs.")
+
+        if len(covers) != len(self.cover_nodes):
+            raise ValueError("Incorrect number of cover values.")
+
+        # Set input values
+        for node_name, val in inputs.items():
+            self.nodes[node_name]["value"] = val
+
+        for node_name, val in covers.items():
+            self.nodes[node_name]["value"] = val
+
+        for func_set in self.function_sets:
+            for func_name in func_set:
+                # Get function arguments via signature derived from JSON
+                signature = self.nodes[func_name]["func_inputs"]
+                lambda_fn = self.nodes[func_name]["lambda"]
+                output_node = list(self.successors(func_name))[0]
+
+                # Run the lambda function and save the output
+                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
+                self.nodes[output_node]["value"] = res
+
+        # return the output
+        return self.nodes[self.output_node]["value"]
+
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
