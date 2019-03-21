@@ -55,7 +55,6 @@ If you use Delphi, please cite the following:
   usage
   model
   AnalysisGraph_API
-  for2py_API
   grfn_spec
   CONTRIBUTING
 
