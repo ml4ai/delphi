@@ -61,9 +61,20 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, dict]:
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
     asts = [ast.parse(pySrc)]
-    pgm_dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
-    return pgm_dict
+    _dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
+    for identifier in _dict["identifiers"]:
+        del identifier["gensyms"]
 
+    return _dict
+
+
+def postprocess_test_data_grfn_dict(_dict):
+    """ Postprocess the test data grfn dict to change the date to the date of
+    execution, and also remove the randomly generated gensyms """
+    _dict["dateCreated"] = "".join(str(date.today()).split("-"))
+    for identifier in _dict["identifiers"]:
+        if "gensyms" in identifier:
+            del identifier["gensyms"]
 
 @pytest.fixture
 def crop_yield_grfn_dict():
@@ -97,7 +108,7 @@ def derived_types_python_IR_test():
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
     with open("tests/data/crop_yield.json", "r") as f:
         json_dict = json.load(f)
-        json_dict["dateCreated"] = str(date.today())
+        postprocess_test_data_grfn_dict(json_dict)
 
     assert crop_yield_grfn_dict == json_dict
 
@@ -105,14 +116,14 @@ def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
 def test_petpt_grfn_generation(petpt_grfn_dict):
     with open("tests/data/PETPT.json", "r") as f:
         json_dict = json.load(f)
-        json_dict["dateCreated"] = str(date.today())
+        postprocess_test_data_grfn_dict(json_dict)
     assert petpt_grfn_dict == json_dict
 
 
 def test_io_grfn_generation(io_grfn_dict):
     with open("tests/data/io-tests/iotest_05_grfn.json", "r") as f:
         json_dict = json.load(f)
-        json_dict["dateCreated"] = str(date.today())
+        postprocess_test_data_grfn_dict(json_dict)
     assert io_grfn_dict == json_dict
 
 

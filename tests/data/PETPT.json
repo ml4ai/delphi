@@ -3,251 +3,251 @@
     {
       "base_name": "assign$td_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "ad150eb6b29b_h"
     },
     {
       "base_name": "tmax_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "a5e410c7ff02_v"
     },
     {
       "base_name": "tmin_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "ce3758f547be_v"
     },
     {
       "base_name": "condition$IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "31cf3bef726a_h"
     },
     {
       "base_name": "xhlai_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "feb5f29a79f5_v"
     },
     {
       "base_name": "decision$albedo_3",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "92c3b6b64477_h"
     },
     {
       "base_name": "IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "7147eb31198a_v"
     },
     {
       "base_name": "albedo_2",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "9a1bed71d550_v"
     },
     {
       "base_name": "albedo_1",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": [
         "msalb_0"
       ],
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "09190fd2cec9_v"
     },
     {
       "base_name": "assign$slang_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "b35f1ef8b22e_h"
     },
     {
       "base_name": "srad_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "4d8595521c68_v"
     },
     {
       "base_name": "assign$eeq_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "7adbb9828934_h"
     },
     {
       "base_name": "slang_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "14f7fc13e92c_v"
     },
     {
       "base_name": "albedo_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "c89642a75d0a_v"
     },
     {
       "base_name": "td_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "a234e560fd9a_v"
     },
     {
       "base_name": "assign$eo_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "a452502fe3cb_h"
     },
     {
       "base_name": "eeq_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "8ba6992a65b8_v"
     },
     {
       "base_name": "condition$IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "f77b2bb807c2_h"
     },
     {
       "base_name": "tmax_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "ea3f8a110018_v"
     },
     {
       "base_name": "decision$eo_2",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "c56075f3d406_h"
     },
     {
       "base_name": "IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "09f55f87283a_v"
     },
     {
       "base_name": "eo_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "453bc13f6c6c_v"
     },
     {
       "base_name": "eo_1",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "730c34a609f4_v"
     },
     {
       "base_name": "condition$IF_2_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "28c7dab1e086_h"
     },
     {
       "base_name": "tmax_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "d1bdcfe70bda_v"
     },
     {
       "base_name": "decision$eo_3",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "8ea6bb5d4c3d_h"
     },
     {
       "base_name": "IF_2_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "8d1902a46b21_v"
     },
     {
       "base_name": "eo_2",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "c12beba51a96_v"
     },
     {
       "base_name": "eo_2",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "7af698b899c2_v"
     },
     {
       "base_name": "assign$eo_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "6ff679c8f62d_h"
     },
     {
       "base_name": "eo_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "8b6a3a2045d4_v"
     }
   ],

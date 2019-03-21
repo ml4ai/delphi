@@ -3,121 +3,121 @@
     {
       "base_name": "assign$total_rain_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "2a0ea187e0a7_h"
     },
     {
       "base_name": "total_rain_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "69648416d5a3_v"
     },
     {
       "base_name": "rain_0",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "5e13bc05d4dd_v"
     },
     {
       "base_name": "condition$IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "b3986da6fb29_h"
     },
     {
       "base_name": "total_rain_1",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "b630f9176b79_v"
     },
     {
       "base_name": "decision$yield_est_2",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "2dde0d91d900_h"
     },
     {
       "base_name": "IF_1_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "45d55efc2f40_v"
     },
     {
       "base_name": "yield_est_1",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "679f51bc5822_v"
     },
     {
       "base_name": "yield_est_0",
       "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "5124c9c49fda_v"
     },
     {
       "base_name": "assign$max_rain_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "1ec05c1a23fb_h"
     },
     {
       "base_name": "assign$consistency_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "5b2a8cd03b0b_h"
     },
     {
       "base_name": "assign$absorption_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "a4b242344848_h"
     },
     {
       "base_name": "assign$yield_est_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "081805c52271_h"
     },
     {
       "base_name": "assign$total_rain_1",
       "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "ce03d62d5c83_h"
     },
     {
       "base_name": "loop_plate$day",
       "scope": "loop$1",
-      "namespace": "delphi.translators.for2py",
+      "namespace": "",
       "aliases": "None",
-      "source_references": "delphi.translators.for2py",
+      "source_references": "",
       "gensyms": "00fdf6c3fe1e_h"
     }
   ],
