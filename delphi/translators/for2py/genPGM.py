@@ -16,9 +16,6 @@ import operator
 import os
 import uuid
 
-EXCLUDE_LIST = []
-MODE_MAPPER = {}
-ALIAS_DICT = {}
 
 BINOPS = {
     ast.Add: operator.add,
@@ -53,6 +50,9 @@ class GrFNGenerator(object):
         self.annassigned_list = annassigned_list
         self.elif_pgm = elif_pgm
         self.function_defs = function_defs
+        self.exclude_list = []
+        self.mode_mapper = {}
+        self.alias_dict = {}
 
     def genPgm(self, node, state, fnNames, call_source):
         types = (list, ast.Module, ast.FunctionDef)
@@ -265,7 +265,7 @@ class GrFNGenerator(object):
                 "body": loopBody,
             }
 
-            id_specList = make_identifier_spec(loopName, indexName, {}, state)
+            id_specList = self.make_identifier_spec(loopName, indexName, {}, state)
 
             loopCall = {"name": loopName, "inputs": variables, "output": {}}
             pgm = {"functions": loopFns + [loopFn], "body": [loopCall], "identifiers": []}
@@ -354,7 +354,7 @@ class GrFNGenerator(object):
                 ],
             }
 
-            id_specList = make_identifier_spec(fnName, condOutput, [src["var"] for src in condSrcs if "var" in src],
+            id_specList = self.make_identifier_spec(fnName, condOutput, [src["var"] for src in condSrcs if "var" in src],
                                                state)
 
             for id_spec in id_specList:
@@ -471,7 +471,7 @@ class GrFNGenerator(object):
 
                 body = {"name": fnName, "output": output, "input": inputs}
 
-                id_specList = make_identifier_spec(fnName, output,
+                id_specList = self.make_identifier_spec(fnName, output,
                                                    inputs, state)
 
                 for id_spec in id_specList:
@@ -520,7 +520,7 @@ class GrFNGenerator(object):
                         ],
                     }
 
-                    id_specList = make_identifier_spec(fnName, condOutput,
+                    id_specList = self.make_identifier_spec(fnName, condOutput,
                                                        [src["var"] for src in condSrcs if "var" in src], state)
 
                     for id_spec in id_specList:
@@ -618,7 +618,7 @@ class GrFNGenerator(object):
 
                         body = {"name": fnName, "output": output, "input": inputs}
 
-                        id_specList = make_identifier_spec(fnName, output,
+                        id_specList = self.make_identifier_spec(fnName, output,
                                                            inputs, state)
 
                         for id_spec in id_specList:
@@ -755,8 +755,8 @@ class GrFNGenerator(object):
                 name = getFnName(
                     fnNames, f"{state.fnName}__assign__{target['var']['variable']}", {}
                 )
-                fn = make_fn_dict(name, target, sources, node)
-                body = make_body_dict(name, target, sources, state)
+                fn = self.make_fn_dict(name, target, sources, node)
+                body = self.make_body_dict(name, target, sources, state)
 
                 if len(sources) > 0:
                     lambda_string = genFn(
@@ -813,7 +813,7 @@ class GrFNGenerator(object):
                     target = {"var": {"variable": targets, "index": 1}}
 
                 # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
-                check_alias(target, sources)
+                self.check_alias(target, sources)
 
                 name = getFnName(
                     fnNames, f"{state.fnName}__assign__{target['var']['variable']}", target
@@ -822,10 +822,10 @@ class GrFNGenerator(object):
                 # if target["var"]["index"] < 0:
                 #     target["var"]["index"] = name[-1]
 
-                fn = make_fn_dict(name, target, sources, node)
+                fn = self.make_fn_dict(name, target, sources, node)
                 if len(fn) == 0:
                     return []
-                body = make_body_dict(name, target, sources, state)
+                body = self.make_body_dict(name, target, sources, state)
                 for src in sources:
                     if "var" in src:
                         source_list.append(src["var"]["variable"])
@@ -931,6 +931,189 @@ class GrFNGenerator(object):
             )
 
         return []
+
+    # This function checks whether an assignment is an alias created. An alias
+    # is created when an assignment of the form y=x happens such that y is now
+    # an alias of x because it is an exact copy of x. If it is an alias
+    # assignment, the dictionary alias_dict will get populated.
+
+    def check_alias(self, target, sources):
+        target_index = target["var"]["variable"] + "_" + str(target["var"]["index"])
+        if len(sources) == 1 and sources[0].get("var") != None:
+            if self.alias_dict.get(target_index):
+                self.alias_dict[target_index].append(sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"]))
+            else:
+                self.alias_dict[target_index] = [sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"])]
+
+    def make_iden_dict(self, name, targets, scope_path, holder):
+        # Check for aliases
+        if isinstance(targets, dict):
+            aliases = self.alias_dict.get(targets["variable"] + "_" + str(targets["index"]), "None")
+        elif isinstance(targets, str):
+            aliases = self.alias_dict.get(targets, "None")
+
+        # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
+        # Assign the base_name accordingly
+
+        if holder == "body":
+            # If we are making the identifier specification of a body holder, the base_name will be the holder
+            if isinstance(targets, dict):
+                base_name = name + '$' + targets["variable"] + "_" + str(targets["index"])
+            elif isinstance(targets, str):
+                base_name = name + '$' + targets
+            gensyms_tag = 'h'
+
+        elif holder == "variable":
+            # The base name will just be the name of the identifier
+            base_name = targets
+            gensyms_tag = 'v'
+
+        # The name space should get the entire directory scope of the fortran file under which it is defined.
+        # For PETASCE.for, all modules are defined in the same fortran file so the namespace will be the same
+        # for all identifiers
+
+        # TODO handle multiple file namespaces that handle multiple fortran file namespacing
+
+        # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
+        #  the intermediate python file's path
+        name_space = self.mode_mapper["FileName"][1].split('/')
+        name_space = '.'.join(name_space)
+
+        # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
+        if len(scope_path) == 0:
+            scope_path.append("_TOP")
+        elif scope_path[0] == "_TOP" and len(scope_path) > 1:
+            scope_path.remove("_TOP")
+        scope_path = '.'.join(scope_path)
+
+        # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
+        #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
+
+        source_reference = name_space
+
+        iden_dict = {
+            "base_name": base_name,
+            "scope": scope_path,
+            "namespace": name_space,
+            "aliases": aliases,
+            "source_references": source_reference,
+            "gensyms": generage_gensysm(gensyms_tag)
+        }
+
+        return iden_dict
+
+    # Create the identifier specification for each identifier
+    def make_identifier_spec(self, name, targets, sources, state):
+        scope_path = state.scope_path
+        for_id = 1
+        if_id = 1
+        identifier_list = []
+
+        for item, scope in enumerate(scope_path):
+            if scope == "loop":
+                scope_path[item] = scope + '$' + str(for_id)
+                for_id += 1
+            elif scope == "if":
+                scope_path[item] = scope + '$' + str(for_id)
+                if_id += 1
+
+        # Identify which kind of identifier it is
+        name_regex = r'(?P<scope>\w+)__(?P<type>\w+)__(?P<basename>\w+)'
+        match = re.match(name_regex, name)
+        if match:
+            if match.group('type') == "assign":
+                iden_dict = self.make_iden_dict(match.group('type'), targets, scope_path, "body")
+                identifier_list.append(iden_dict)
+                if len(sources) > 0:
+                    for item in sources:
+                        iden_dict = self.make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                        identifier_list.append(iden_dict)
+            elif match.group('type') == "condition":
+                iden_dict = self.make_iden_dict(match.group('type'), targets, scope_path, "body")
+                identifier_list.append(iden_dict)
+                if len(sources) > 0:
+                    for item in sources:
+                        iden_dict = self.make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                        identifier_list.append(iden_dict)
+            elif match.group('type') == "loop_plate":
+                iden_dict = self.make_iden_dict(match.group('type'), targets, scope_path, "body")
+                identifier_list.append(iden_dict)
+                if len(sources) > 0:
+                    for item in sources:
+                        iden_dict = self.make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                        identifier_list.append(iden_dict)
+            elif match.group('type') == "decision":
+                iden_dict = self.make_iden_dict(match.group('type'), targets, scope_path, "body")
+                identifier_list.append(iden_dict)
+                if len(sources) > 0:
+                    for item in sources:
+                        iden_dict = self.make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
+                        identifier_list.append(iden_dict)
+
+            return identifier_list
+
+    def make_body_dict(self, name, target, sources, state):
+        source_list = []
+        for src in sources:
+            if "var" in src:
+                source_list.append(src["var"])
+            if "call" in src:
+                for ip in src["call"]["inputs"][0]:
+                    if "var" in ip:
+                        source_list.append(ip["var"])
+
+        id_spec = self.make_identifier_spec(name, target["var"], source_list, state)
+
+        body = {"name": name, "output": target["var"], "input": source_list}
+        return [body, id_spec]
+
+    def make_fn_dict(self, name, target, sources, node):
+        source = []
+        fn = {}
+
+        # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
+        bypass_regex = r'^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj' \
+                    r'.*|^Format$|^list_output_formats$|^write_list_steam$'
+
+        # Preprocessing and removing certain Assigns which only pertain to the
+        # Python code and do not relate to the FORTRAN code in any way.
+        bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
+
+        if bypass_match_target:
+            self.exclude_list.append(target["var"]["variable"])
+            return fn
+
+        for src in sources:
+            if "call" in src:
+                # Bypassing identifiers who have I/O constructs on their source fields too.
+                # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
+                # 'i' is bypassed here
+                # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
+                bypass_match_source = re.match(bypass_regex, src["call"]["function"])
+                if bypass_match_source:
+                    if "var" in src:
+                        self.exclude_list.append(src["var"]["variable"])
+                    self.exclude_list.append(target["var"]["variable"])
+                    return fn
+                for source_ins in make_call_body_dict(src):
+                    source.append(source_ins)
+            if "var" in src:
+                variable = src["var"]["variable"]
+                source.append({"name": variable, "type": "variable"})
+
+            if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
+                # This is a write to a file
+                return fn
+
+            fn = {
+                "name": name,
+                "type": "assign",
+                "target": target["var"]["variable"],
+                "sources": source,
+                "reference": node.lineno,
+            }
+
+        return fn
 
 class PGMState:
     def __init__(
@@ -1153,17 +1336,6 @@ def get_body_and_functions(pgm):
     iden_spec = list(chain.from_iterable(stmt["identifiers"] for stmt in pgm))
     return body, fns, iden_spec
 
-# This function checks whether an assignment is an alias created. An alias is created when an assignment of the form
-# y=x happens such that y is now an alias of x because it is an exact copy of x. If it is an alias assignment,
-# the dictionary alias_dict will get populated.
-def check_alias(target, sources):
-    global ALIAS_DICT
-    target_index = target["var"]["variable"] + "_" + str(target["var"]["index"])
-    if len(sources) == 1 and sources[0].get("var") != None:
-        if ALIAS_DICT.get(target_index):
-            ALIAS_DICT[target_index].append(sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"]))
-        else:
-            ALIAS_DICT[target_index] = [sources[0]["var"]["variable"] + "_" + str(sources[0]["var"]["index"])]
 
 
 def generage_gensysm(tag):
@@ -1176,163 +1348,8 @@ def generage_gensysm(tag):
     return uuid.uuid4().hex[:12] + '_'+ tag
 
 
-def make_iden_dict(name, targets, scope_path, holder):
-    global ALIAS_DICT
 
-    # Check for aliases
-    if isinstance(targets, dict):
-        aliases = ALIAS_DICT.get(targets["variable"] + "_" + str(targets["index"]), "None")
-    elif isinstance(targets, str):
-        aliases = ALIAS_DICT.get(targets, "None")
 
-    # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
-    # Assign the base_name accordingly
-
-    if holder == "body":
-        # If we are making the identifier specification of a body holder, the base_name will be the holder
-        if isinstance(targets, dict):
-            base_name = name + '$' + targets["variable"] + "_" + str(targets["index"])
-        elif isinstance(targets, str):
-            base_name = name + '$' + targets
-        gensyms_tag = 'h'
-
-    elif holder == "variable":
-        # The base name will just be the name of the identifier
-        base_name = targets
-        gensyms_tag = 'v'
-
-    # The name space should get the entire directory scope of the fortran file under which it is defined.
-    # For PETASCE.for, all modules are defined in the same fortran file so the namespace will be the same
-    # for all identifiers
-
-    # TODO handle multiple file namespaces that handle multiple fortran file namespacing
-
-    # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
-    #  the intermediate python file's path
-    name_space = MODE_MAPPER["FileName"][1].split('/')
-    name_space = '.'.join(name_space)
-
-    # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
-    if len(scope_path) == 0:
-        scope_path.append("_TOP")
-    elif scope_path[0] == "_TOP" and len(scope_path) > 1:
-        scope_path.remove("_TOP")
-    scope_path = '.'.join(scope_path)
-
-    # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
-    #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
-
-    source_reference = name_space
-
-    iden_dict = {
-        "base_name": base_name,
-        "scope": scope_path,
-        "namespace": name_space,
-        "aliases": aliases,
-        "source_references": source_reference,
-        "gensyms": generage_gensysm(gensyms_tag)
-    }
-
-    return iden_dict
-
-# Create the identifier specification for each identifier
-def make_identifier_spec(name, targets, sources, state):
-
-    scope_path = state.scope_path
-    for_id = 1
-    if_id = 1
-    identifier_list = []
-
-    for item, scope in enumerate(scope_path):
-        if scope == "loop":
-            scope_path[item] = scope + '$' + str(for_id)
-            for_id += 1
-        elif scope == "if":
-            scope_path[item] = scope + '$' + str(for_id)
-            if_id += 1
-
-    # Identify which kind of identifier it is
-    name_regex = r'(?P<scope>\w+)__(?P<type>\w+)__(?P<basename>\w+)'
-    match = re.match(name_regex, name)
-    if match:
-        if match.group('type') == "assign":
-            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
-            identifier_list.append(iden_dict)
-            if len(sources) > 0:
-                for item in sources:
-                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
-                    identifier_list.append(iden_dict)
-        elif match.group('type') == "condition":
-            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
-            identifier_list.append(iden_dict)
-            if len(sources) > 0:
-                for item in sources:
-                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
-                    identifier_list.append(iden_dict)
-        elif match.group('type') == "loop_plate":
-            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
-            identifier_list.append(iden_dict)
-            if len(sources) > 0:
-                for item in sources:
-                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
-                    identifier_list.append(iden_dict)
-        elif match.group('type') == "decision":
-            iden_dict = make_iden_dict(match.group('type'), targets, scope_path, "body")
-            identifier_list.append(iden_dict)
-            if len(sources) > 0:
-                for item in sources:
-                    iden_dict = make_iden_dict(name, item["variable"]+"_"+str(item["index"]), scope_path, "variable")
-                    identifier_list.append(iden_dict)
-
-        return identifier_list
-
-def make_fn_dict(name, target, sources, node):
-    source = []
-    fn = {}
-
-    # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
-    bypass_regex = r'^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj' \
-                   r'.*|^Format$|^list_output_formats$|^write_list_steam$'
-
-    # Preprocessing and removing certain Assigns which only pertain to the
-    # Python code and do not relate to the FORTRAN code in any way.
-    bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
-
-    if bypass_match_target:
-        EXCLUDE_LIST.append(target["var"]["variable"])
-        return fn
-
-    for src in sources:
-        if "call" in src:
-            # Bypassing identifiers who have I/O constructs on their source fields too.
-            # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
-            # 'i' is bypassed here
-            # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
-            bypass_match_source = re.match(bypass_regex, src["call"]["function"])
-            if bypass_match_source:
-                if "var" in src:
-                    EXCLUDE_LIST.append(src["var"]["variable"])
-                EXCLUDE_LIST.append(target["var"]["variable"])
-                return fn
-            for source_ins in make_call_body_dict(src):
-                source.append(source_ins)
-        if "var" in src:
-            variable = src["var"]["variable"]
-            source.append({"name": variable, "type": "variable"})
-
-        if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
-            # This is a write to a file
-            return fn
-
-        fn = {
-            "name": name,
-            "type": "assign",
-            "target": target["var"]["variable"],
-            "sources": source,
-            "reference": node.lineno,
-        }
-
-    return fn
 
 def make_call_body_dict(source):
     source_list = []
@@ -1351,20 +1368,6 @@ def make_call_body_dict(source):
     return source_list
 
 
-def make_body_dict(name, target, sources, state):
-    source_list = []
-    for src in sources:
-        if "var" in src:
-            source_list.append(src["var"])
-        if "call" in src:
-            for ip in src["call"]["inputs"][0]:
-                if "var" in ip:
-                    source_list.append(ip["var"])
-
-    id_spec = make_identifier_spec(name, target["var"], source_list, state)
-
-    body = {"name": name, "output": target["var"], "input": source_list}
-    return [body, id_spec]
 
 
 def importAst(filename: str):
@@ -1394,20 +1397,18 @@ def create_pgm_dict(
 ) -> Dict:
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
-    global MODE_MAPPER
-
-    MODE_MAPPER = mode_mapper_dict
 
     lambdaStrings = ["import math\n\n"]
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
+    generator.mode_mapper = mode_mapper_dict
     pgm = generator.genPgm(asts, state, {}, "")[0]
     if pgm.get("start"):
         pgm["start"] = pgm["start"][0]
     else:
         pgm["start"] = generator.function_defs[-1]
 
-    pgm["source"] = [get_path(file_name, "source")]
+    pgm["source"] = [[get_path(file_name, "source")]]
 
     # dateCreated stores the date and time on which the lambda and PGM file was created.
     # It is stored in YYYMMDD format
