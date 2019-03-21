@@ -224,22 +224,6 @@ class GrFNGenerator(object):
                 sys.exit(1)
 
             rangeCall = loopIter[0]["call"]
-            # if (
-            #     len(rangeCall["inputs"]) > 3
-            #     or len(rangeCall["inputs"][0]) != 1
-            #     or len(rangeCall["inputs"][1]) != 1
-            #     or len(rangeCall["in"])
-            #     or (
-            #         "type" in rangeCall["inputs"][0]
-            #         and rangeCall["inputs"][0]["type"] == "literal"
-            #     )
-            #     or (
-            #         "type" in rangeCall["inputs"][1]
-            #         and rangeCall["inputs"][1]["type"] == "literal"
-            #     )
-            # ):
-            #     sys.stderr.write("Can only iterate over a constant range\n")
-            #     sys.exit(1)
 
             if len(rangeCall["inputs"]) == 2:
                 iterationRange = {
