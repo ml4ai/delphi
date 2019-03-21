@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
-from itertools import product
 from pathlib import Path
-from typing import Dict, Iterable, Union
+from typing import Dict, Iterable, Union, Set
+import subprocess as sp
 import importlib
 import inspect
 import json
@@ -13,6 +13,7 @@ from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import NodeType
+from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -21,7 +22,10 @@ from delphi.translators.for2py import (
     genPGM,
 )
 
-import subprocess as sp
+FONT = choose_font()
+
+dodgerblue3 = "#1874CD"
+forestgreen = "#228b22"
 
 
 class GroundedFunctionNetwork(nx.DiGraph):
@@ -383,79 +387,22 @@ class GroundedFunctionNetwork(nx.DiGraph):
         if not isinstance(other, GroundedFunctionNetwork):
             raise TypeError(f"Expected GroundedFunctionNetwork, but got {type(other)}")
 
-        def var_shortname(var):
+        def shortname(var):
             return var[var.find("::") + 2: var.rfind("_")]
 
-        def get_vars_with_shortname(graph, shortname):
+        def shortname_vars(graph, shortname):
             return [v for v in graph.nodes() if shortname in v]
 
+        this_var_nodes = [shortname(n) for (n, d) in self.nodes(data=True)
+                          if d["type"] == NodeType.VARIABLE]
+        other_var_nodes = [shortname(n) for (n, d) in other.nodes(data=True)
+                           if d["type"] == NodeType.VARIABLE]
 
-        # CAG1 = self.to_CAG()
-        # CAG2 = other.to_CAG()
-        # shared_vars = set(CAG1.nodes()).intersection(set(CAG2.nodes()))
-        this_var_nodes = [var_shortname(n) for (n, d) in self.nodes(data=True) if d["type"] == NodeType.VARIABLE]
-        other_var_nodes = [var_shortname(n) for (n, d) in other.nodes(data=True) if d["type"] == NodeType.VARIABLE]
         shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
+        full_shared_vars = {full_var for shared_var in shared_vars
+                            for full_var in shortname_vars(self, shared_var)}
 
-        this_shared_vars = [full_var for shared_var in shared_vars for full_var in get_vars_with_shortname(self, shared_var)]
-
-        shared_inputs = list(set(self.model_inputs).intersection(shared_vars))
-
-        FIB = nx.DiGraph()
-        # Get all paths from shared inputs to shared outputs
-        new_inputs = list(set(shared_vars) - set(self.output_node))
-        io_pairs = [(inp, self.output_node) for inp in new_inputs]
-        paths = [p for (i, o) in io_pairs for p in all_simple_paths(self, i, o)]
-
-        # Get all edges needed to blanket the included nodes
-        main_nodes = list({node for path in paths for node in path})
-        cover_nodes, cover_edges = list(), list()
-        for node in main_nodes:
-            for prev_node in self.predecessors(node):
-                if prev_node not in main_nodes:
-                    cover_nodes.append(prev_node)
-                    cover_edges.append((prev_node, node))
-
-        cover_nodes = [node for node, _ in cover_edges]
-
-        for path in paths:
-            FIB.add_edges_from(list(zip(path, path[1:])))
-        FIB.add_edges_from(cover_edges)
-
-        for node_name in cover_nodes:
-            FIB.nodes[node_name]["color"] = forestgreen
-            FIB.nodes[node_name]["fontcolor"] = forestgreen
-
-        for node_name in shared_vars:
-            FIB.nodes[node_name]["color"] = dodgerblue3
-            FIB.nodes[node_name]["fontcolor"] = dodgerblue3
-            for dest in FIB.successors(node_name):
-                FIB[node_name][dest]["color"] = dodgerblue3
-                FIB[node_name][dest]["fontcolor"] = dodgerblue3
-
-        for source, dest in cover_edges:
-            FIB[source][dest]["color"] = forestgreen
-
-        for node in FIB.nodes(data=True):
-            node[1]["fontname"] = FONT
-
-        for node_name in shared_inputs:
-            FIB.nodes[node_name]["penwidth"] = 3.0
-
-        cut_nodes = [n for n in self.nodes if n not in FIB.nodes]
-        cut_edges = [e for e in self.edges if e not in FIB.edges]
-
-        FIB.add_nodes_from(cut_nodes)
-        FIB.add_edges_from(cut_edges)
-
-        for node_name in cut_nodes:
-            FIB.nodes[node_name]["color"] = "orange"
-            FIB.nodes[node_name]["fontcolor"] = "orange"
-
-        for source, dest in cut_edges:
-            FIB[source][dest]["color"] = "orange"
-
-        return FIB
+        return ForwardInfluenceBlanket(self, full_shared_vars)
 
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)
@@ -513,6 +460,93 @@ class GroundedFunctionNetwork(nx.DiGraph):
         })
         A.edge_attr.update({
             "color": "#650021",
+            "arrowsize": 0.5
+        })
+        return A
+
+
+class ForwardInfluenceBlanket(nx.DiGraph):
+    """
+    This class takes a network and a list of a shared nodes between the input network and a secondary network. From this list a shared nodes and blanket network is created including all of the nodes between any input/output pair in the shared nodes, as well as all nodes required to blanket the network for forward influence. This class itself becomes the blanket and inherits from the NetworkX DiGraph class.
+    """
+    def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
+        super(ForwardInfluenceBlanket, self).__init__()
+        self.inputs = set(G.model_inputs).intersection(shared_nodes)
+        self.output_node = G.output_node
+
+        # Get all paths from shared inputs to shared outputs
+        path_inputs = shared_nodes - {self.output_node}
+        io_pairs = [(inp, self.output_node) for inp in path_inputs]
+        paths = [p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)]
+
+        # Get all edges needed to blanket the included nodes
+        main_nodes = {node for path in paths for node in path} - self.inputs - {self.output_node}
+        main_edges = {(n1, n2) for p in paths for n1, n2 in zip(p, p[1:])}
+        self.cover_nodes, cover_edges = set(), set()
+        for path in paths:
+            first_node = path[0]
+            for func_node in G.predecessors(first_node):
+                for var_node in G.predecessors(func_node):
+                    if var_node not in main_nodes:
+                        self.cover_nodes.add(var_node)
+                        main_nodes.add(func_node)
+                        cover_edges.add((var_node, func_node))
+                        main_edges.add((func_node, first_node))
+
+        orig_nodes = G.nodes(data=True)
+        self.add_nodes_from(
+            [(n, d) for n, d in orig_nodes if n in self.inputs],
+            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
+            penwidth=3.0
+        )
+        self.add_node(
+            (self.output_node, G.nodes[self.output_node]),
+            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
+        )
+        self.add_nodes_from(
+            [(n, d) for n, d in orig_nodes if n in main_nodes],
+            fontname=FONT
+        )
+        self.add_nodes_from(
+            [(n, d) for n, d in orig_nodes if n in self.cover_nodes],
+            color=forestgreen, fontcolor=forestgreen, fontname=FONT,
+        )
+        self.add_edges_from(main_edges)
+        self.add_edges_from(
+            cover_edges, color=forestgreen,
+            fontcolor=forestgreen, fontname=FONT,
+        )
+
+        for node_name in shared_nodes:
+            for dest in self.successors(node_name):
+                self[node_name][dest]["color"] = dodgerblue3
+                self[node_name][dest]["fontcolor"] = dodgerblue3
+
+        # NOTE: Adding cut nodes as needed for display only!!
+        # cut_nodes = [n for n in G.nodes if n not in self.nodes]
+        # cut_edges = [e for e in G.edges if e not in self.edges]
+        #
+        # self.add_nodes_from(cut_nodes)
+        # self.add_edges_from(cut_edges)
+        #
+        # for node_name in cut_nodes:
+        #     self.nodes[node_name]["color"] = "orange"
+        #     self.nodes[node_name]["fontcolor"] = "orange"
+        #
+        # for source, dest in cut_edges:
+        #     self[source][dest]["color"] = "orange"
+
+    def to_agraph(self):
+        A = nx.nx_agraph.to_agraph(self)
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.node_attr.update({
+            "shape": "rectangle",
+            # "color": "#650021",
+            "style": "rounded",
+            # "fontname": "Gill Sans",
+        })
+        A.edge_attr.update({
+            # "color": "#650021",
             "arrowsize": 0.5
         })
         return A
