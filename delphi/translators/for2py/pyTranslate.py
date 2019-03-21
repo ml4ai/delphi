@@ -362,19 +362,16 @@ class PythonCodeGenerator(object):
                 init_val = node["value"][0]["value"]
                 initial_set = True
 
-            if node["type"].upper() == "INTEGER":
+            if node["type"].upper() in ("INTEGER", "INT"):
                 initVal = init_val if initial_set else 0
                 varType = "int"
-            elif node["type"].upper() in ("DOUBLE", "REAL"):
+            elif node["type"].upper() in ("DOUBLE", "REAL", "FLOAT"):
                 initVal = init_val if initial_set else 0.0
                 varType = "float"
-            elif (
-                node["type"].upper() == "STRING"
-                or node["type"].upper() == "CHARACTER"
-            ):
+            elif node["type"].upper() in ("STRING", "CHARACTER", "STR"):
                 initVal = init_val if initial_set else ""
                 varType = "str"
-            elif node["type"].upper() in ("LOGICAL"):
+            elif node["type"].upper() == "LOGICAL":
                 initVal = init_val if initial_set else False
                 varType = "bool"
             else:
@@ -543,6 +540,11 @@ class PythonCodeGenerator(object):
         #     self.pyStrings.append(f"[{node['value']}]")
         # else:
         #     self.pyStrings.append(node["value"])
+
+        # Check if the value is a bool and convert to Title case if it is
+        if node["type"] == "bool":
+            node["value"] = node["value"].title()
+
         self.pyStrings.append(node["value"])
 
     def printRef(self, node, printState: PrintState):
@@ -562,7 +564,7 @@ class PythonCodeGenerator(object):
             # check is necessary
             if (
                 "isArray" in node
-                and node["isArray"] is True
+                and node["isArray"]
                 and "hasSubscripts" in node
                 and node["hasSubscripts"]
             ):
@@ -751,12 +753,14 @@ class PythonCodeGenerator(object):
 
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
-            self.imports.append(
-                f"from m_{node['arg'].lower()} "
+            imports.append(
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
-            self.imports.append(f"from m_{node['arg'].lower()} import *\n")
+            imports.append(
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
+            )
 
     def printFuncReturn(self, node, printState: PrintState):
         if printState.indexRef:
@@ -1329,15 +1333,27 @@ if __name__ == "__main__":
             "information"
         ),
     )
+    parser.add_argument(
+        "-o",
+        "--out",
+        nargs="+",
+        help="Text file containing the list of output python files being generated",
+    )
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
         outputDict = pickle.load(f)
-
     python_source_list = create_python_source_list(outputDict)
+    outputList = []
     for item in python_source_list:
         if item[2] == "module":
             with open(f"m_{item[1].lower()}.py", "w") as f:
+                outputList.append("m_" + item[1].lower() + ".py")
                 f.write(item[0])
         else:
             with open(args.gen[0], "w") as f:
+                outputList.append(args.gen[0])
                 f.write(item[0])
+
+    with open(args.out[0], "w") as f:
+        for fileName in outputList:
+            f.write(fileName + " ")

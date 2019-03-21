@@ -136,7 +136,7 @@ class XMLToJSONTranslator(object):
         self.deriveTypeVars = []
         # The purpose of this global dictionary is to track the declared field
         # variables and mark it's an array or not. For example, var.a.get(1)
-        # will be makred as hasSubscripts = False and arrayStat = "isArray".
+        # will be marked as hasSubscripts = False and arrayStat = "isArray".
         # Thus, hasSubscripts represents the array existence of the very first
         # variable and arrayStat represents the array existence of the
         # following fields.
