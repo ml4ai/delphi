@@ -9,6 +9,7 @@
 import copy
 import itertools
 import sys
+from . import For2PyError
 
 _GET_ = 0
 _SET_ = 1
@@ -36,8 +37,7 @@ class Array:
             the size specified by the bounds with each element set to the value
             None."""
         if len(bounds) == 0:
-            sys.stderr.write("Zero-length arrays current not handled!\n")
-            sys.exit(1)
+            raise For2PyError("Zero-length arrays current not handled!.")
 
         this_dim = bounds[0]
         lo,hi = this_dim[0],this_dim[1]
@@ -94,8 +94,7 @@ class Array:
             subs = (subs,)
 
         if len(subs) == 0:
-            sys.stderr.write("Zero-length arrays currently not handled\n")
-            sys.exit(1)
+            raise For2PyError("Zero-length arrays currently not handled.")
 
         bounds = self._bounds
         sub_arr = self._values

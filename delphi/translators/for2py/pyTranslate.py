@@ -23,6 +23,7 @@ import argparse
 import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
+from . import For2PyError
 
 
 class PrintState:
@@ -263,7 +264,6 @@ class PythonCodeGenerator(object):
             )
         else:
             argSize = len(node["args"])
-            # assert argSize >= 1
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
                 self.printAst(
@@ -341,8 +341,7 @@ class PythonCodeGenerator(object):
         elif node["type"].upper() == "LOGICAL":
             varType = "bool"
         else:
-            print(f"unrecognized type {node['type']}")
-            sys.exit(1)
+            raise For2PyError(f"unrecognized type {node['type']}")
         if node["arg_type"] == "arg_array":
             self.pyStrings.append(f"{self.nameMapper[node['name']]}")
         else:
@@ -379,8 +378,7 @@ class PythonCodeGenerator(object):
                     initVal = init_val if initial_set else 0
                     varType = node["type"]
                 else:
-                    print(f"unrecognized type {node['type']}")
-                    sys.exit(1)
+                    raise For2PyError(f"unrecognized type {node['type']}")
 
             if "isDevTypeVar" in node and node["isDevTypeVar"]:
                 self.pyStrings.append(
@@ -563,7 +561,12 @@ class PythonCodeGenerator(object):
             # node holds x%y also under the subscripts. Thus, in order to avoid
             # non-array derive types to be printed in an array syntax, this
             # check is necessary
-            if "isArray" in node and node["isArray"] is True and "hasSubscripts" in node and node["hasSubscripts"]:
+            if (
+                "isArray" in node
+                and node["isArray"]
+                and "hasSubscripts" in node
+                and node["hasSubscripts"]
+            ):
                 if node["name"].lower() not in self.libFns:
                     self.pyStrings.append(".get_((")
                 self.pyStrings.append("(")
@@ -632,7 +635,6 @@ class PythonCodeGenerator(object):
                     ),
                 )
                 self.pyStrings.append(")")
-
 
     def printAssignment(self, node, printState):
         # Writing a target variable syntax
@@ -755,7 +757,9 @@ class PythonCodeGenerator(object):
                 f"import {', '.join(node['include'])}\n"
             )
         else:
-            imports.append(f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n")
+            imports.append(
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
+            )
 
     def printFuncReturn(self, node, printState):
         if printState.indexRef:
@@ -959,9 +963,12 @@ class PythonCodeGenerator(object):
                             write_string += f".{item['field-name']}"
                     # Handling array
                     if (
-                            ("hasSubscripts" in item and item["hasSubscripts"] and "isArray" in item and item[
-                                "isArray"]) or
-                            ("arrayStat" in item and item["arrayStat"] == "isArray")
+                        "hasSubscripts" in item
+                        and item["hasSubscripts"]
+                        and "isArray" in item
+                        and item["isArray"]
+                    ) or (
+                        "arrayStat" in item and item["arrayStat"] == "isArray"
                     ):
                         i = 0
                         write_string += ".get_(("
@@ -1287,7 +1294,9 @@ def create_python_string(outputDict):
         if len(imports) != 0:
             code_generator.pyStrings.insert(1, imports)
         if code_generator.programName != "":
-            code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
+            code_generator.pyStrings.append(
+                f"\n\n{code_generator.programName}()\n"
+            )
         py_sourcelist.append(
             (code_generator.get_python_source(), file, program_type[file][0])
         )
@@ -1323,7 +1332,9 @@ def create_python_string(outputDict):
     if len(imports) != 0:
         code_generator.pyStrings.insert(1, imports)
     if code_generator.programName != "":
-        code_generator.pyStrings.append(f"\n\n{code_generator.programName}()\n")
+        code_generator.pyStrings.append(
+            f"\n\n{code_generator.programName}()\n"
+        )
     py_sourcelist.append(
         (code_generator.get_python_source(), main_ast, "program")
     )
@@ -1372,4 +1383,4 @@ if __name__ == "__main__":
 
     with open(args.out[0], "w") as f:
         for fileName in outputList:
-            f.write(fileName+" ")
+            f.write(fileName + " ")
