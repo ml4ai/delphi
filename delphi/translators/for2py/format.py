@@ -50,6 +50,7 @@ Usage:
 """
 
 import re, sys
+from . import For2PyError
 
 
 class Format:
@@ -125,11 +126,11 @@ class Format:
                     val = int(match_str)
                 else:
                     sys.stderr.write(
-                        "Unrecognized conversion function: {}\n".format(cvt_fn)
+                        f"Unrecognized conversion function: {cvt_fn}\n"
                     )
             else:
                 sys.stderr.write(
-                    "Format conversion failed: {}\n".format(match_str)
+                    f"Format conversion failed: {match_str}\n"
                 )
 
             matched_values.append(val)
@@ -146,8 +147,7 @@ class Format:
             self.init_write_line()
 
         if len(self._out_widths) > len(values):
-            sys.stderr.write(f"ERROR: too few values for format {self._format_list}\n")
-            sys.exit(1)
+            raise For2PyError(f"ERROR: too few values for format {self._format_list}\n")
 
         out_strs = []
         for i in range(len(self._out_widths)):
@@ -248,10 +248,9 @@ class Format:
                 rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
-                sys.stderr.write(
-                    "ERROR: Unrecognized format specifier {}\n".format(fmt)
+                raise For2PyError(
+                    f"ERROR: Unrecognized format specifier {fmt}\n"
                 )
-                sys.exit(1)
 
         # replicate the regular expression by the repetition factor in the format
         rexp *= reps
@@ -327,7 +326,7 @@ class Format:
                 # the exponent width -- but if it's there, we need to extract
                 # the sequence of digits before it.
                 m = re.match("(\d+).*", suffix)
-                assert m is not None, 'Improper format? "{}"'.format(fmt)
+                assert m is not None, f"Improper format? '{fmt}'"
                 prec = m.group(1)
                 gen_fmt = "{}"
                 cvt_fmt = "{:" + sz + "." + prec + fmt[0] + "}"
@@ -349,10 +348,9 @@ class Format:
                 rexp = [(gen_fmt, None, None)]
 
             else:
-                sys.stderr.write(
-                    "ERROR: Unrecognized format specifier {}\n".format(fmt)
+                raise For2PyError(
+                    f"ERROR: Unrecognized format specifier {fmt}\n"
                 )
-                sys.exit(1)
 
         # replicate the regular expression by the repetition factor in the format
         rexp *= reps
@@ -486,11 +484,11 @@ def example_1():
     rexp1 = Format(format1)
     (DATE, SRAD, TMAX, TMIN, RAIN, PAR) = rexp1.read_line(input1)
 
-    print("FORMAT: {}".format(format1))
-    print('regexp_str = "{}"'.format(rexp1))
+    print(f"FORMAT: {format1}")
+    print(f"regexp_str = '{rexp1}'")
 
     vars1 = (DATE, SRAD, TMAX, TMIN, RAIN, PAR)
-    print("vars1 = {}".format(vars1))
+    print(f"vars1 = {vars1}")
     print("")
 
 

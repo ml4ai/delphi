@@ -54,7 +54,7 @@
       MAX_RAIN = 4.0
       CONSISTENCY = 64.0
       ABSORPTION = 0.6
-      
+
       YIELD_EST = 0
       TOTAL_RAIN = 0
  

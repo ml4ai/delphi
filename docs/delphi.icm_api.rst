@@ -28,6 +28,14 @@ delphi.icm\_api.icm\_api\_skeleton\_generator module
     :undoc-members:
     :show-inheritance:
 
+delphi.icm\_api.make\_plots module
+----------------------------------
+
+.. automodule:: delphi.icm_api.make_plots
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 delphi.icm\_api.models module
 -----------------------------
 
