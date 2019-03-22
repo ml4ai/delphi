@@ -753,12 +753,12 @@ class PythonCodeGenerator(object):
 
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
-            imports.append(
+            self.imports.append(
                 f"from delphi.translators.for2py.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
-            imports.append(
+            self.imports.append(
                 f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
             )
 
