@@ -12,14 +12,22 @@ from delphi.translators.for2py import (
     get_comments,
     pyTranslate,
     genPGM,
-    For2PyError
+    For2PyError,
 )
 from delphi.utils.fp import flatten
-from delphi.GrFN.scopes import Scope
-from delphi.GrFN.ProgramAnalysisGraph import ProgramAnalysisGraph
+from delphi.GrFN.networks import GroundedFunctionNetwork
+from delphi.GrFN.utils import NodeType, get_node_type
 import delphi.paths
 import xml.etree.ElementTree as ET
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    jsonify,
+    flash,
+)
 from flask_wtf import FlaskForm
 from flask_codemirror.fields import CodeMirrorField
 from wtforms.fields import SubmitField
@@ -37,7 +45,8 @@ class MyForm(FlaskForm):
         language="fortran",
         config={"lineNumbers": "true", "viewportMargin": 800},
     )
-    submit = SubmitField("Submit", render_kw={"class":"btn btn-primary"})
+    submit = SubmitField("Submit", render_kw={"class": "btn btn-primary"})
+
 
 LEXER = PythonLexer()
 FORMATTER = HtmlFormatter()
@@ -85,10 +94,7 @@ def get_tooltip(n, lambdas):
             src_lines = src.split("\n")
             symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
             ltx = (
-                src_lines[0]
-                .split("__")[2]
-                .split("(")[0]
-                .replace("_", "\_")
+                src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
                 + " = "
                 + latex(
                     sympify(src_lines[1][10:].replace("math.exp", "e^"))
@@ -119,7 +125,9 @@ def get_tooltip(n, lambdas):
                     {src}
                 </div>
             </div>
-            """.format(ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n)
+            """.format(
+                ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
+            )
     else:
         return json.dumps({"index": n.attr["index"]}, indent=2)
 
@@ -162,7 +170,7 @@ def index():
     form = MyForm()
     if form.validate_on_submit():
         text = form.source_code.data
-    return render_template("index.html", form=form, code='')
+    return render_template("index.html", form=form, code="")
 
 
 @app.errorhandler(For2PyError)
@@ -172,11 +180,44 @@ def handle_invalid_usage(error):
     flash(response.json["message"])
     return render_template("index.html", code=app.code)
 
+
+def to_cyjs(G):
+    elements = {
+        "nodes": [
+            {
+                "data": {
+                    "id": n,
+                    "label": n,
+                    "parent": "parent",
+                    "shape": n.attr["shape"],
+                    "color": n.attr["color"],
+                    "textValign": "center",
+                    "tooltip": "tooltips",
+                }
+            }
+            for n in G.nodes()
+        ],
+        # + flatten(get_cluster_nodes(A)),
+        "edges": [
+            {
+                "data": {
+                    "id": f"{edge[0]}_{edge[1]}",
+                    "source": edge[0],
+                    "target": edge[1],
+                }
+            }
+            for edge in G.edges()
+        ],
+    }
+    json_str = json.dumps(elements, indent=2)
+    return json_str
+
+
 @app.route("/processCode", methods=["POST"])
 def processCode():
     form = MyForm()
     code = form.source_code.data
-    app.code=code
+    app.code = code
     if code == "":
         return render_template("index.html", form=form)
     lines = [
@@ -184,7 +225,7 @@ def processCode():
         for line in [line for line in code.split("\n")]
         if line != ""
     ]
-    filename=f"input_code_{str(uuid4())}"
+    filename = f"input_code_{str(uuid4())}"
     input_code_tmpfile = f"/tmp/automates/{filename}.f"
 
     with open(input_code_tmpfile, "w") as f:
@@ -212,17 +253,12 @@ def processCode():
     lambdas = f"{filename}_lambdas"
     lambdas_path = f"/tmp/automates/{lambdas}.py"
     sys.path.insert(0, "/tmp/automates")
-    root = Scope.from_python_src(pySrc, lambdas_path, f"{filename}.json")
-    scopetree_graph = root.to_agraph()
+    G = GroundedFunctionNetwork.from_python_src(
+        pySrc, lambdas_path, f"{filename}.json", filename
+    )
 
-    scopeTree_elementsJSON = get_cyjs_elementsJSON_from_ScopeTree(
-        scopetree_graph, importlib.__import__(lambdas)
-    )
-    programAnalysisGraph = ProgramAnalysisGraph.from_agraph(
-        scopetree_graph,
-        importlib.__import__(lambdas)
-    )
-    program_analysis_graph_elementsJSON = programAnalysisGraph.cyjs_elementsJSON()
+    scopeTree_elementsJSON = to_cyjs(G.to_agraph())
+    program_analysis_graph_elementsJSON = to_cyjs(G.to_CAG_agraph())
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
@@ -235,16 +271,23 @@ def processCode():
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
 
+
 @app.route("/modelAnalysis")
 def modelAnalysis():
     import delphi.analysis.comparison.utils as utils
-    from delphi.analysis.comparison.ForwardInfluenceBlanket import ForwardInfluenceBlanket
+    from delphi.analysis.comparison.ForwardInfluenceBlanket import (
+        ForwardInfluenceBlanket,
+    )
 
     THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-    asce = utils.nx_graph_from_dotfile(os.path.join(THIS_FOLDER,
-        "static/graphviz_dot_files/asce-graph.dot"))
-    pt = utils.nx_graph_from_dotfile(os.path.join(THIS_FOLDER,
-        "static/graphviz_dot_files/priestley-taylor-graph.dot"))
+    asce = utils.nx_graph_from_dotfile(
+        os.path.join(THIS_FOLDER, "static/graphviz_dot_files/asce-graph.dot")
+    )
+    pt = utils.nx_graph_from_dotfile(
+        os.path.join(
+            THIS_FOLDER, "static/graphviz_dot_files/priestley-taylor-graph.dot"
+        )
+    )
     shared_nodes = utils.get_shared_nodes(asce, pt)
 
     cmb_asce = ForwardInfluenceBlanket(asce, shared_nodes).cyjs_elementsJSON()
@@ -252,9 +295,10 @@ def modelAnalysis():
 
     return render_template(
         "modelAnalysis.html",
-        model1_elementsJSON = cmb_asce,
-        model2_elementsJSON = cmb_pt,
+        model1_elementsJSON=cmb_asce,
+        model2_elementsJSON=cmb_pt,
     )
+
 
 if __name__ == "__main__":
     app.run()

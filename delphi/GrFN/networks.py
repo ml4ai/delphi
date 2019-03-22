@@ -229,7 +229,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename,
+                lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -407,16 +407,13 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
-        A.node_attr.update({
-            "shape": "rectangle",
-            "color": "#650021",
-            "style": "rounded",
-            "fontname": "Gill Sans",
-        })
-        A.edge_attr.update({
-            "color": "#650021",
-            "arrowsize": 0.5
-        })
+        A.node_attr.update({ "fontname": FONT })
+        for n in A.nodes():
+            if self.nodes[n]["type"] == NodeType.VARIABLE:
+                A.add_node(n, color="maroon", shape="ellipse")
+            else:
+                A.add_node(n, color="black", shape="rectangle")
+
         return A
 
     def to_CAG_agraph(self):
@@ -467,7 +464,12 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
 class ForwardInfluenceBlanket(nx.DiGraph):
     """
-    This class takes a network and a list of a shared nodes between the input network and a secondary network. From this list a shared nodes and blanket network is created including all of the nodes between any input/output pair in the shared nodes, as well as all nodes required to blanket the network for forward influence. This class itself becomes the blanket and inherits from the NetworkX DiGraph class.
+    This class takes a network and a list of a shared nodes between the input
+    network and a secondary network. From this list a shared nodes and blanket
+    network is created including all of the nodes between any input/output pair
+    in the shared nodes, as well as all nodes required to blanket the network
+    for forward influence. This class itself becomes the blanket and inherits
+    from the NetworkX DiGraph class.
     """
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
         super(ForwardInfluenceBlanket, self).__init__()
