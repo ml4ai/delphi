@@ -140,6 +140,7 @@ C      HACK: adding initialized values due to possible undefined behavior
       WND = MAX(1.0,MIN(WIND2m,6.0))
       CHT = MAX(0.001,CANHT)
 
+      KCMAX = 0.0
       IF (MEEVP .EQ. 'A') THEN
         KCMAX = MAX(1.0,KCB+0.05)
       ELSE IF (MEEVP .EQ. 'G') THEN
