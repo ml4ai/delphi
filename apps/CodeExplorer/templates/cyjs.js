@@ -10,9 +10,10 @@
                         'border-color': 'data(color)',
                         'border-width': '3pt',
                         'font-family': 'PT Sans, sans-serif',
-                        'width':'label',
+                        'width': 'data(width)',
+                        'height': 'data(height)',
                         'text-valign': 'data(textValign)',
-                        'padding': 15,
+                        'padding': 6,
                     } 
                   }, { 
                     selector: 'edge',
@@ -27,7 +28,7 @@
                     } 
                   }
               ],
-          layout: { name: 'dagre' , rankDir: 'TB'},
+          layout: { name: 'dagre' , rankDir: 'LR'},
           maxZoom : 2,
           minZoom : 0.1,
           selectionType: 'additive'
@@ -95,9 +96,10 @@
                         'border-color': 'data(color)',
                         'border-width': '3pt',
                         'font-family': 'PT Sans, sans-serif',
-                        'width':'label',
+                        'width':'data(width)',
+                        'height':'data(height)',
                         'text-valign': 'data(textValign)',
-                        'padding': 15,
+                        'padding': 6,
                     } 
                   }, { 
                     selector: 'edge',
@@ -113,8 +115,9 @@
                     } 
                   }
               ],
-          layout: { name: 'dagre' , rankDir: 'TB'},
+          layout: { name: 'dagre' , rankDir: 'LR'},
           maxZoom : 1,
           minZoom : 0.1,
           selectionType: 'single'
         });
+       causal_analysis_graph.pan({x:50,y:50});

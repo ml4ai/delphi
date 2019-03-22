@@ -267,7 +267,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         os.remove(preprocessed_fortran_file)
         xml_to_json_translator = translate.XMLToJSONTranslator()
         outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_string(outputDict)[0][0]
+        pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
 
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
