@@ -23,7 +23,7 @@ import argparse
 import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
-from . import For2PyError
+from delphi.translators.for2py import For2PyError
 
 
 class PrintState:

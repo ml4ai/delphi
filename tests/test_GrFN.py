@@ -34,6 +34,22 @@ def test_petpt_creation_and_execution():
     res = G.run(values)
     assert res == 0.02998371219618677
 
+
+def test_petasce_creation_and_execution():
+    filepath = "tests/data/GrFN/PETASCE_simple.for"
+    G = GroundedFunctionNetwork.from_fortran_file(filepath)
+    print(G)        # Shadow testing
+
+    assert isinstance(G, GroundedFunctionNetwork)
+    assert len(G.inputs) == 13
+    assert len(G.outputs) == 1
+
+    values = {name: 1 for name in G.inputs}
+    res = G.run(values)
+    assert res == 0.02998371219618677
+
+test_petasce_creation_and_execution()
+
 # TODO: Figure this thing out
 # def test_petasce_creation():
 #     filepath = "delph/translators/for2py/data/PETASCE.py"

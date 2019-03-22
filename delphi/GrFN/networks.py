@@ -55,6 +55,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
                              if self.nodes[n]["type"] == NodeType.VARIABLE]
         self.output_node = self.outputs[-1]
 
+        # A = self.to_agraph()
+        # A.draw("petasce.pdf", prog="dot")
+
         self.build_call_graph()
         self.build_function_sets()
 
@@ -229,7 +232,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-                lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=True    # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -289,7 +292,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 edges.extend([(c, n) for n in nxt_fns])
                 update_edge_set(list(set(nxt_fns)))
 
-        update_edge_set(list({n for v in self.inputs for n in self.successors(v)}))
+        for inp in self.model_inputs:
+            print(inp)
+        print(len(self.model_inputs))
+        update_edge_set(list({n for v in self.model_inputs for n in self.successors(v)}))
         self.call_graph = nx.DiGraph()
         self.call_graph.add_edges_from(edges)
 
