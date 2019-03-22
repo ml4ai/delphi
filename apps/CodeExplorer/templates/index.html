@@ -1,0 +1,106 @@
+<html>
+  {% include "head.html" %}
+  <body class="theme-base-08">
+    <div class="container-fluid"> 
+      {% include "navbar.html" %}
+      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
+      {% include "about.html" %}
+      <div class="col-lg-4">
+		<div class="dropdown">
+		  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+				  id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+				  aria-expanded="false">
+			Choose model
+		  </button>
+		  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+			<a id="cropYield" class="dropdown-item" href="#">Crop Yield</a>
+			<a id="petPT" class="dropdown-item" href="#">Priestley-Taylor model of Evapotranspiration (DSSAT)</a>
+		  </div>
+		</div>
+        <form method="POST" action="{{ url_for('processCode') }}">
+          <textarea id="flask-codemirror-source_code" name="source_code">{{ code | safe }}</textarea>
+          <script>
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+            var editor_for_source_code = CodeMirror.fromTextArea(
+            document.getElementById('flask-codemirror-source_code'), {
+                  "lineNumbers": "true",
+                  "viewportMargin": 800,
+                  "mode": "fortran"
+              }
+            );
+            function getCode(programName) {
+              fetch('static/example_programs/'+programName+'.f')
+                .then(
+                  function(response) {
+                    if (response.status !== 200) {
+                      console.log('Looks like there was a problem. Status Code: ' +
+                        response.status);
+                      return;
+                    }
+
+                    // Examine the text in the response
+                    response.text().then(function(data) {
+                      editor_for_source_code.getDoc().setValue(data);
+                    });
+                  }
+                )
+                .catch(function(err) {
+                  console.log('Fetch Error :-S', err);
+                });
+            }
+            $("#cropYield").click(function(){
+              getCode("cropYield");
+            });
+            $("#petPT").click(function(){
+              getCode("petPT");
+            });
+		  </script>
+          <br>
+          <input type="submit" value="Submit" class="btn btn-outline-primary btn-sm">
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-danger">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      </div>
+      <div id="viewpane" class="col-lg-6">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="computational_graph-tab" data-toggle="tab" href="#computational_graph" 
+              role="tab" aria-controls="computational_graph" aria-selected="true">
+              Function Network
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="causal_analysis_graph-tab" data-toggle="tab" href="#causal_analysis_graph" 
+               role="tab" aria-controls="causal_analysis_graph" aria-selected="true">
+              Causal Analysis Graph
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="python-code-tab" data-toggle="tab" href="#python-code" 
+               role="tab" aria-controls="python-code" aria-selected="true">
+              Equivalent Python Code
+            </a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="computational_graph" role="tabpanel"
+               class="tab-pane show active border-left border-right border-bottom"
+               aria-labelledby="computational_graph-tab" style="height:82%;"></div>
+          <div id="causal_analysis_graph" role="tabpanel" 
+               class="tab-pane border-left border-right border-bottom"
+               aria-labelledby="causal_analysis_graph-tab" style="height:82%;"></div>
+          <div id="python-code" role="tabpanel" 
+               class="tab-pane border-left border-right border-bottom"
+               aria-labelledby="python-code-tab" style="height:82%;">
+            {{ python_code | safe }}
+          </div>
+        </div>
+      </div>
+      <script> {% include "cyjs.js" %} </script>
+  </body>
+</html>

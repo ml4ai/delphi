@@ -1,0 +1,118 @@
+<html>
+  {% include "head.html" %}
+  <body class="theme-base-08">
+    <div class="container-fluid"> 
+      {% include "navbar.html" %}
+      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
+        <div id="model1" class="col-6 border" style="height:50%;">ASCE potential evapotranspiration model</div>
+        <div id="model2" class="col-6 border" style="height:50%;">Priestley-Taylor potential evapotranspiration model</div>
+      </div>
+      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
+        Sensitivity surface
+      </div>
+      <div id="surfacePlot" class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;"></div>
+    </div>
+    <script type="text/javascript">
+        // Create and populate a data table.
+        var data = new vis.DataSet();
+        // create some nice looking data with sin/cos
+        var counter = 0;
+        var steps = 50;  // number of datapoints will be steps*steps
+        var axisMax = 314;
+        var axisStep = axisMax / steps;
+        for (var x = 0; x < axisMax; x+=axisStep) {
+            for (var y = 0; y < axisMax; y+=axisStep) {
+                var value = (Math.sin(x/50) * Math.cos(y/50) * 50 + 50);
+                data.add({id:counter++,x:x,y:y,z:value,style:value});
+            }
+        }
+
+        // specify options
+        var options = {
+            width:  '500px',
+            height: '552px',
+            style: 'surface',
+            showPerspective: true,
+            showGrid: true,
+            showShadow: false,
+            keepAspectRatio: true,
+            verticalRatio: 0.5
+        };
+
+        // Instantiate our graph object.
+        var container = document.getElementById("surfacePlot");
+        var graph3d = new vis.Graph3d(container, data, options);
+    </script>
+      <script>
+        var model1 = cytoscape({
+          container: document.getElementById('model1'),
+            elements: {{ model1_elementsJSON | safe }},
+            style: [
+                    { selector: 'node',
+                      style: { 
+                          'label': 'data(label)',
+                          'shape': 'data(shape)',
+                          'background-color': 'white',
+                          'border-color': 'data(color)',
+                          'border-width': '3pt',
+                          'font-family': 'PT Sans, sans-serif',
+                          'width':'label',
+                          'text-valign': 'data(textValign)',
+                          'padding': 15,
+                      } 
+                    }, { 
+                      selector: 'edge',
+                      style: { 
+                        'curve-style' : 'bezier',
+                        'target-arrow-shape': 'triangle',
+                      } 
+                    }, { 
+                      selector: '.selectedNode',
+                      style: { 
+                        'background-color': '#d3d3d3',
+                      } 
+                    }
+                ],
+            layout: { name: 'dagre' , rankDir: 'TB'},
+            maxZoom : 10,
+            minZoom : 0.1,
+            selectionType: 'single'
+          });
+
+        var model2 = cytoscape({
+          container: document.getElementById('model2'),
+            elements: {{ model2_elementsJSON | safe }},
+            style: [
+                    { selector: 'node',
+                      style: { 
+                          'label': 'data(label)',
+                          'shape': 'data(shape)',
+                          'background-color': 'white',
+                          'border-color': 'data(color)',
+                          'border-width': '3pt',
+                          'font-family': 'PT Sans, sans-serif',
+                          'width':'label',
+                          'text-valign': 'data(textValign)',
+                          'padding': 15,
+                      } 
+                    }, { 
+                      selector: 'edge',
+                      style: { 
+                        'curve-style' : 'bezier',
+                        'target-arrow-shape': 'triangle',
+                      } 
+                    }, { 
+                      selector: '.selectedNode',
+                      style: { 
+                        'background-color': '#d3d3d3',
+                      } 
+                    }
+                ],
+            layout: { name: 'dagre' , rankDir: 'TB'},
+            maxZoom : 10,
+            minZoom : 0.1,
+            selectionType: 'single'
+          });
+      </script>
+  </body>
+</html>

@@ -89,7 +89,8 @@ class Scope(metaclass=ABCMeta):
     def from_python_src(cls, pySrc, lambdas_path, json_filename):
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename
+            # This is a hack! Will be replaced when GrFN class comes around.
+            lambdas_path, asts, json_filename, {"FileName": "tmp.f"}
         )
         return cls.from_dict(pgm_dict)
 
