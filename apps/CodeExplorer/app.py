@@ -16,6 +16,7 @@ from delphi.translators.for2py import (
 )
 from delphi.utils.fp import flatten
 from delphi.GrFN.networks import GroundedFunctionNetwork
+from delphi.GrFN.analysis import max_S2_sensitivity_surface
 from delphi.GrFN.utils import NodeType, get_node_type
 import delphi.paths
 import xml.etree.ElementTree as ET
@@ -84,52 +85,47 @@ def get_cluster_nodes(A):
     return cluster_nodes
 
 
-def get_tooltip(n, lambdas):
-    if n.attr["node_type"] == "ActionNode":
-        x = getattr(lambdas, n.attr["lambda_fn"], None)
-        if x is None:
+def get_tooltip(n, src):
+    if src is None:
             return "None"
-        else:
-            src = inspect.getsource(x)
-            src_lines = src.split("\n")
-            symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
-            ltx = (
-                src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
-                + " = "
-                + latex(
-                    sympify(src_lines[1][10:].replace("math.exp", "e^"))
-                ).replace("_", "\_")
-            )
-            return """
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
-                        data-toggle="tab" href="#nav-eq-{n}" role="tab"
-                        aria-controls="nav-eq-{n}" aria-selected="true">
-                        Equation
-                    </a>
-                    <a class="nav-item nav-link" id="nav-code-tab-{n}"
-                        data-toggle="tab" href="#nav-code-{n}" role="tab"
-                        aria-controls="nav-code-{n}" aria-selected="false">
-                        Lambda Function
-                    </a>
-                </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
-                <div class="tab-pane fade show active" id="nav-eq-{n}"
-                    role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
-                    \({ltx}\)
-                </div>
-                <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
-                    aria-labelledby="nav-code-tab-{n}">
-                    {src}
-                </div>
-            </div>
-            """.format(
-                ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
-            )
     else:
-        return json.dumps({"index": n.attr["index"]}, indent=2)
+        src_lines = src.split("\n")
+        symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
+        ltx = (
+            src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
+            + " = "
+            + latex(
+                sympify(src_lines[1][10:].replace("math.exp", "e^"))
+            ).replace("_", "\_")
+        )
+        return """
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
+                <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
+                    data-toggle="tab" href="#nav-eq-{n}" role="tab"
+                    aria-controls="nav-eq-{n}" aria-selected="true">
+                    Equation
+                </a>
+                <a class="nav-item nav-link" id="nav-code-tab-{n}"
+                    data-toggle="tab" href="#nav-code-{n}" role="tab"
+                    aria-controls="nav-code-{n}" aria-selected="false">
+                    Lambda Function
+                </a>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
+            <div class="tab-pane fade show active" id="nav-eq-{n}"
+                role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
+                \({ltx}\)
+            </div>
+            <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
+                aria-labelledby="nav-code-tab-{n}">
+                {src}
+            </div>
+        </div>
+        """.format(
+            ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
+        )
 
 
 def get_cyjs_elementsJSON_from_ScopeTree(A, lambdas) -> str:
@@ -181,21 +177,26 @@ def handle_invalid_usage(error):
     return render_template("index.html", code=app.code)
 
 
-def to_cyjs(G):
+
+def to_cyjs_grfn(G):
     elements = {
         "nodes": [
             {
                 "data": {
-                    "id": n,
-                    "label": n,
+                    "id": n[0],
+                    "label": n[0].split("::")[1] if n[1]["type"] == NodeType.VARIABLE else n[0].split("__")[1][0].upper(),
                     "parent": "parent",
-                    "shape": n.attr["shape"],
-                    "color": n.attr["color"],
-                    "textValign": "center",
-                    "tooltip": "tooltips",
+                    "shape": "ellipse" if n[1]["type"] == NodeType.VARIABLE else "rectangle",
+                    "color": "maroon" if n[1]["type"] == NodeType.VARIABLE else "black",
+                    "textValign": "top" if n[1]["type"] == NodeType.VARIABLE else "center",
+                    "tooltip": get_tooltip(n[0], None if n[1]["type"] ==
+                        NodeType.VARIABLE else
+                        inspect.getsource(n[1]["lambda"])),
+                    "width": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
+                    "height": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
                 }
             }
-            for n in G.nodes()
+            for n in G.nodes(data=True)
         ],
         # + flatten(get_cluster_nodes(A)),
         "edges": [
@@ -212,6 +213,38 @@ def to_cyjs(G):
     json_str = json.dumps(elements, indent=2)
     return json_str
 
+def to_cyjs_cag(G):
+    elements = {
+        "nodes": [
+            {
+                "data": {
+                    "id": n[0],
+                    "label": n[0],
+                    "parent": "parent",
+                    "shape": "ellipse",
+                    "color": "maroon",
+                    "textValign": "top",
+                    "tooltip": n[0],
+                    "width": 10,
+                    "height": 10,
+                }
+            }
+            for n in G.nodes(data=True)
+        ],
+        # + flatten(get_cluster_nodes(A)),
+        "edges": [
+            {
+                "data": {
+                    "id": f"{edge[0]}_{edge[1]}",
+                    "source": edge[0],
+                    "target": edge[1],
+                }
+            }
+            for edge in G.edges()
+        ],
+    }
+    json_str = json.dumps(elements, indent=2)
+    return json_str
 
 @app.route("/processCode", methods=["POST"])
 def processCode():
@@ -246,8 +279,7 @@ def processCode():
 
     trees = [ET.fromstring(xml_string)]
     comments = get_comments.get_comments(input_code_tmpfile)
-    xml_to_json_translator = translate.XMLToJSONTranslator()
-    outputDict = xml_to_json_translator.analyze(trees, comments)
+    outputDict = translate.XMLToJSONTranslator().analyze(trees, comments)
     pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
 
     lambdas = f"{filename}_lambdas"
@@ -257,8 +289,27 @@ def processCode():
         pySrc, lambdas_path, f"{filename}.json", filename
     )
 
-    scopeTree_elementsJSON = to_cyjs(G.to_agraph())
-    program_analysis_graph_elementsJSON = to_cyjs(G.to_CAG_agraph())
+    # bounds = {
+        # "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
+        # "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2
+        # "petpt::tmax_0": [-30, 60], # TODO: Khan set proper values for x1, x2
+        # "petpt::tmin_0": [-30, 60], # TODO: Khan set proper values for x1, x2
+        # "petpt::xhlai_0": [0, 20],  # TODO: Khan set proper values for x1, x2
+    # }
+
+    # presets = {
+        # "petpt::msalb_0": 0.5,
+        # "petpt::srad_0": 10,
+        # "petpt::tmax_0": 20,
+        # "petpt::tmin_0": 10,
+        # "petpt::xhlai_0": 10,
+    # }
+
+    # xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
+    # print(xy_names, xy_vectors, z_mat)
+
+    scopeTree_elementsJSON = to_cyjs_grfn(G)
+    program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
@@ -271,6 +322,9 @@ def processCode():
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
 
+@app.route("/sensitivityAnalysis")
+def sensitivityAnalysis():
+    return render_template("sensitivityAnalysis.html")
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
