@@ -10,7 +10,7 @@ from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
-from . import For2PyError
+from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
