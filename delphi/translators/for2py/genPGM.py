@@ -266,7 +266,7 @@ class GrFNGenerator(object):
                 "type": "loop_plate",
                 "input": [
                     {
-                      "name": variable,
+                      "variable": variable,
                       "domain": state.varTypes[variable]
                     }
                     for variable in variables
@@ -284,7 +284,7 @@ class GrFNGenerator(object):
                 "name": loopName,
                 "input": [
                     {
-                      "name": variable,
+                      "variable": variable,
                       "index": -1,
                     }
                     for variable in variables
