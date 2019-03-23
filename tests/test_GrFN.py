@@ -27,7 +27,7 @@ def test_petpt_creation_and_execution():
     print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
-    assert len(G.inputs) == 5
+    assert len(G.model_inputs) == 5
     assert len(G.outputs) == 1
 
     values = {name: 1 for name in G.inputs}
@@ -39,29 +39,44 @@ def test_petasce_creation_and_execution():
     lambdas = importlib.__import__("PETASCE_simple_lambdas")
     pgm = json.load(open(data_dir + "PETASCE_simple.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
-    # filepath = "tests/data/GrFN/PETASCE_simple.for"
-    # G = GroundedFunctionNetwork.from_fortran_file(filepath)
     print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
-    assert len(G.inputs) == 13
+    assert len(G.model_inputs) == 13
     assert len(G.outputs) == 1
 
-    values = {name: 1 for name in G.inputs}
+    # bounds = {
+    #     "petasce::msalb_0": [0, 1],
+    #     "petasce::srad_0": [1, 30],
+    #     "petasce::tmax_0": [-30, 60],
+    #     "petasce::tmin_0": [-30, 60],
+    #     "petasce::xhlai_0": [0, 20],
+    #     "petasce::tdew_0": [-30, 60],
+    #     "petasce::windht_0": [0, 10],
+    #     "petasce::windrun_0": [0, 900],
+    #     "petasce::xlat_0": [0, 90],
+    #     "petasce::xelev_0": [0, 6000],
+    #     "petasce::canht_0": [0.001, 3],
+    # }
+
+    values = {
+        "petasce::doy_0": 20,
+        "petasce::meevp_0": "A",
+        "petasce::msalb_0": 0.5,
+        "petasce::srad_0": 15,
+        "petasce::tmax_0": 10,
+        "petasce::tmin_0": -10,
+        "petasce::xhlai_0": 10,
+        "petasce::tdew_0": 20,
+        "petasce::windht_0": 5,
+        "petasce::windrun_0": 450,
+        "petasce::xlat_0": 45,
+        "petasce::xelev_0": 3000,
+        "petasce::canht_0": 2,
+    }
+
     res = G.run(values)
-    assert res == 0.02998371219618677
-
-test_petasce_creation_and_execution()
-
-# TODO: Figure this thing out
-# def test_petasce_creation():
-#     filepath = "delph/translators/for2py/data/PETASCE.py"
-#     stem = Path(filepath).stem
-#     lambdas_path = f"tests/data/GrFN/{stem}_lambdas.py"
-#     json_filename = f"tests/data/GrFN/{stem}.json"
-#     G = GroundedFunctionNetwork.from_python_src(filepath, lambdas_path, json_filename)
-#
-#     assert isinstance(G, GroundedFunctionNetwork)
+    assert res == 0.00012496980836348878
 
 
 def test_petpt_numpy_execution():

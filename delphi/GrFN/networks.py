@@ -55,9 +55,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                              if self.nodes[n]["type"] == NodeType.VARIABLE]
         self.output_node = self.outputs[-1]
 
-        A = self.to_agraph()
-        A.draw("petasce.pdf", prog="dot")
-
         self.build_call_graph()
         self.build_function_sets()
 
@@ -287,15 +284,22 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         def update_edge_set(cur_fns):
             for c in cur_fns:
+                self.nodes[c]["func_visited"] = True
                 nxt_fns = [p for v in self.successors(c)
                            for p in self.successors(v)]
                 edges.extend([(c, n) for n in nxt_fns])
-                update_edge_set(list(set(nxt_fns)))
+                update_edge_set(list({n for n in nxt_fns if not self.nodes[n]["func_visited"]}))
 
-        for inp in self.model_inputs:
-            print(inp)
-        print(len(self.model_inputs))
-        update_edge_set(list({n for v in self.model_inputs for n in self.successors(v)}))
+        start_funcs = list(
+            {
+                n for v in self.model_inputs for n in self.successors(v)
+            }.union({
+                inp for inp in self.inputs
+                if self.nodes[inp]["type"].is_function_node()
+            })
+        )
+
+        update_edge_set(start_funcs)
         self.call_graph = nx.DiGraph()
         self.call_graph.add_edges_from(edges)
 
@@ -353,6 +357,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
                 # Run the lambda function and save the output
                 res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
+                if isinstance(res, complex):
+                    print(output_node, res)
                 self.nodes[output_node]["value"] = res
 
         # return the output
@@ -413,7 +419,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
-        A.node_attr.update({ "fontname": FONT })
+        A.node_attr.update({"fontname": FONT})
         for n in A.nodes():
             if self.nodes[n]["type"] == NodeType.VARIABLE:
                 A.add_node(n, color="maroon", shape="ellipse")
