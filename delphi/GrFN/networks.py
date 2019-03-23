@@ -145,7 +145,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
             subgraphs[con_name] = list()
             for stmt in container["body"]:
                 is_container = False
-                if "name" in stmt:              # Found something other than a container
+                if "name" in stmt:
+                    # Found something other than a container, i.e. an assign,
+                    # condition, or decision
+
                     stmt_name = stmt["name"]
 
                     # Get the type information for identification of stmt type
@@ -165,7 +168,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     # Get input set to send into new container
                     new_inputs = {
                         var["variable"]: utils.get_variable_name(var, con_name)
-                        if var["index"] != -1 else inputs[var["variable"]]
+                        if var["index"] != -1 else inputs.get(var["variable"], utils.get_variable_name(var, con_name))
                         for var in stmt["input"]
                     }
 
@@ -177,10 +180,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     ordered_inputs = list()
                     for var in stmt["input"]:
                         # Check if the node is an input node from an outer container
-                        if var["index"] == -1:
-                            input_node_name = inputs[var["variable"]]
-                        else:
-                            input_node_name = utils.get_variable_name(var, con_name)
+                        input_node_name = utils.get_variable_name(
+                            var, con_name
+                        ) if var["index"] != -1 else inputs.get(var["variable"], utils.get_variable_name(var, con_name))
 
                         # Add input node and node unique name to edges, subgraph set, and arg set
                         ordered_inputs.append(input_node_name)
@@ -217,7 +219,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         # Use the start field to find the starting container and begin building
         # the GrFN. Building in containers will occur recursively from this call
-        process_container(containers[data["start"]], [])
+        process_container(containers[data["start"]], {})
         return cls(nodes, edges, subgraphs)
 
     @classmethod
