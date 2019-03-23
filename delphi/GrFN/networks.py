@@ -129,6 +129,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         containers = {obj["name"]: obj for obj in data["functions"]
                       if obj["type"] in ["container", "loop_plate"]}
 
+        loop_indices = set()
         def process_container(container: Dict, inputs: Dict[str, Dict[str, str]]) -> None:
             """Wires the body statements found in a given container/loop plate.
 
@@ -156,35 +157,49 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     # TODO: replace this with simple lookup from functions
                     short_type = stmt_name[stmt_name.find("__") + 2: stmt_name.rfind("__")]
                     stmt_type = utils.get_node_type(short_type)
+                    if stmt_type == NodeType.LOOP:
+                        loop_index = containers[stmt['name']]['index_variable']
+                        loop_indices.add(loop_index)
                 else:                           # Found a container (non loop plate)
                     stmt_name = stmt["function"]
                     is_container = True
 
                 if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
                     container_name = stmt_name
+                    print(f"Found container/loop named {container_name}")
 
                     # Skip over unmentioned containers
                     if container_name not in containers:
                         continue
 
                     # Get input set to send into new container
+                    print("INPUTS: ", inputs)
                     new_inputs = {
-                        var["variable"]: utils.get_variable_name(var, con_name)
-                        if var["index"] != -1 else inputs.get(var["variable"], utils.get_variable_name(var, con_name))
+                        var["variable"]: inputs.get(var["variable"], utils.get_variable_name(var, con_name))
+                        # if var["index"] != -1 else inputs[var["variable"]]
                         for var in stmt["input"]
                     }
 
                     # Do wiring of the call to this container
                     process_container(containers[container_name], new_inputs)
                 else:                                           # Handle regular statement
+                    print(f"stmt {stmt_name} is not a container!")
                     # Need to wire all inputs to their lambda function and
                     # preserve the input argument order for execution
+                    inputs[stmt["output"]["variable"]] = utils.get_variable_name(stmt["output"], con_name)
                     ordered_inputs = list()
                     for var in stmt["input"]:
                         # Check if the node is an input node from an outer container
-                        input_node_name = utils.get_variable_name(
-                            var, con_name
-                        ) if var["index"] != -1 else inputs.get(var["variable"], utils.get_variable_name(var, con_name))
+                        # If the node is not an input node, we construct the
+                        # name using the utility (concatenate scope, variable
+                        # name, and index. If it *is* an input node, then we
+                        # just take the variable name from the dictionary of
+                        # input nodes that was passed into process_container. 
+
+                        if var["index"] != -1 or var["variable"] in loop_indices:
+                            input_node_name = utils.get_variable_name(var, con_name)
+                        else:
+                            input_node_name = inputs[var["variable"]]
 
                         # Add input node and node unique name to edges, subgraph set, and arg set
                         ordered_inputs.append(input_node_name)
