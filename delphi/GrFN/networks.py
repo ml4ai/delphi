@@ -55,8 +55,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
                              if self.nodes[n]["type"] == NodeType.VARIABLE]
         self.output_node = self.outputs[-1]
 
-        # A = self.to_agraph()
-        # A.draw("petasce.pdf", prog="dot")
+        A = self.to_agraph()
+        A.draw("petasce.pdf", prog="dot")
 
         self.build_call_graph()
         self.build_function_sets()

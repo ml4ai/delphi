@@ -91,6 +91,9 @@
 !     Wind speed (ASCE Standard Eq. 33)
       WINDSP = WINDRUN * 1000.0 / 24.0 / 60.0 / 60.0 !m/s
       WIND2m = WINDSP * (4.87/LOG(67.8*WINDHT-5.42))
+C      HACK: adding initialized values due to possible undefined behavior
+      Cn = 0.0
+      Cd = 0.0
       IF (MEEVP .EQ. 'A') THEN
         Cn = 1600.0
         Cd = 0.38
@@ -137,6 +140,7 @@
       WND = MAX(1.0,MIN(WIND2m,6.0))
       CHT = MAX(0.001,CANHT)
 
+      KCMAX = 0.0
       IF (MEEVP .EQ. 'A') THEN
         KCMAX = MAX(1.0,KCB+0.05)
       ELSE IF (MEEVP .EQ. 'G') THEN

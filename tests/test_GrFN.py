@@ -36,8 +36,11 @@ def test_petpt_creation_and_execution():
 
 
 def test_petasce_creation_and_execution():
-    filepath = "tests/data/GrFN/PETASCE_simple.for"
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
+    lambdas = importlib.__import__("PETASCE_simple_lambdas")
+    pgm = json.load(open(data_dir + "PETASCE_simple.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+    # filepath = "tests/data/GrFN/PETASCE_simple.for"
+    # G = GroundedFunctionNetwork.from_fortran_file(filepath)
     print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
