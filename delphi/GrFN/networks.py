@@ -145,9 +145,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
             subgraphs[con_name] = list()
             for stmt in container["body"]:
                 is_container = False
+
                 if "name" in stmt:
                     # Found something other than a container, i.e. an assign,
-                    # condition, or decision
+                    # condition, decision, or loop
 
                     stmt_name = stmt["name"]
 
@@ -158,6 +159,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 else:                           # Found a container (non loop plate)
                     stmt_name = stmt["function"]
                     is_container = True
+
                 if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
                     container_name = stmt_name
 
