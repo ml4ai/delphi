@@ -20,6 +20,7 @@ from delphi.GrFN.analysis import max_S2_sensitivity_surface
 from delphi.GrFN.utils import NodeType, get_node_type
 import delphi.paths
 import xml.etree.ElementTree as ET
+
 from flask import (
     Flask,
     render_template,
@@ -33,13 +34,20 @@ from flask_wtf import FlaskForm
 from flask_codemirror.fields import CodeMirrorField
 from wtforms.fields import SubmitField
 from flask_codemirror import CodeMirror
+
 import inspect
+
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
-from sympy import sympify, latex, symbols
+import plotly.graph_objs as go
+import plotly
 
+import numpy as np
+import pandas as pd
+
+from sympy import sympify, latex, symbols
 
 class MyForm(FlaskForm):
     source_code = CodeMirrorField(
@@ -286,27 +294,26 @@ def processCode():
     lambdas_path = f"/tmp/automates/{lambdas}.py"
     sys.path.insert(0, "/tmp/automates")
     G = GroundedFunctionNetwork.from_python_src(
-        pySrc, lambdas_path, f"{filename}.json", filename
+        pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
 
-    # bounds = {
-        # "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
-        # "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2
-        # "petpt::tmax_0": [-30, 60], # TODO: Khan set proper values for x1, x2
-        # "petpt::tmin_0": [-30, 60], # TODO: Khan set proper values for x1, x2
-        # "petpt::xhlai_0": [0, 20],  # TODO: Khan set proper values for x1, x2
-    # }
+    bounds = {
+        "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
+        "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2
+        "petpt::tmax_0": [-30, 60], # TODO: Khan set proper values for x1, x2
+        "petpt::tmin_0": [-30, 60], # TODO: Khan set proper values for x1, x2
+        "petpt::xhlai_0": [0, 20],  # TODO: Khan set proper values for x1, x2
+    }
 
-    # presets = {
-        # "petpt::msalb_0": 0.5,
-        # "petpt::srad_0": 10,
-        # "petpt::tmax_0": 20,
-        # "petpt::tmin_0": 10,
-        # "petpt::xhlai_0": 10,
-    # }
+    presets = {
+        "petpt::msalb_0": 0.5,
+        "petpt::srad_0": 10,
+        "petpt::tmax_0": 20,
+        "petpt::tmin_0": 10,
+        "petpt::xhlai_0": 10,
+    }
 
     # xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
-    # print(xy_names, xy_vectors, z_mat)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
@@ -324,7 +331,30 @@ def processCode():
 
 @app.route("/sensitivityAnalysis")
 def sensitivityAnalysis():
-    return render_template("sensitivityAnalysis.html")
+    # Read data from a csv
+    z_data = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv')
+
+    data = [
+        go.Surface(
+            z=z_data.as_matrix()
+        )
+    ]
+    layout = go.Layout(
+        title='Mt Bruno Elevation',
+        autosize=False,
+        width=500,
+        height=500,
+        margin=dict(
+            l=65,
+            r=50,
+            b=65,
+            t=90
+        )
+    )
+
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template("sensitivityAnalysis.html", graphJSON = graphJSON)
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
