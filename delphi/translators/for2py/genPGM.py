@@ -260,10 +260,17 @@ class GrFNGenerator(object):
             loopName = getFnName(
                 fnNames, f"{state.fnName}__loop_plate__{indexName}", {}
             )
+
             loopFn = {
                 "name": loopName,
                 "type": "loop_plate",
-                "input": variables,
+                "input": [
+                    {
+                      "variable": variable,
+                      "domain": state.varTypes[variable]
+                    }
+                    for variable in variables
+                ],
                 "index_variable": indexName,
                 "index_iteration_range": iterationRange,
                 "body": loopBody,
@@ -273,7 +280,17 @@ class GrFNGenerator(object):
                 loopName, indexName, {}, state
             )
 
-            loopCall = {"name": loopName, "inputs": variables, "output": {}}
+            loopCall = {
+                "name": loopName,
+                "input": [
+                    {
+                      "variable": variable,
+                      "index": -1,
+                    }
+                    for variable in variables
+                ],
+                "output": {}
+            }
             pgm = {
                 "functions": loopFns + [loopFn],
                 "body": [loopCall],

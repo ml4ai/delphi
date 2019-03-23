@@ -54,8 +54,8 @@ setup(
             "shapely",
             "pyshp",
             "xlrd",
-            "fire",
-            "pyjnius"
+            "pyjnius",
+            "plotly"
             ],
         "test": [
             "pytest>=3.6.0",
