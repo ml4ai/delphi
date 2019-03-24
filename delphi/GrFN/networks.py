@@ -123,19 +123,20 @@ class GroundedFunctionNetwork(nx.DiGraph):
         functions = {d["name"]: d for d in data["functions"]}
 
         scope_tree = nx.DiGraph()
-        def add_variable_node(node_name, basename, parent, is_loop_index = False):
+        def add_variable_node(basename, parent, index,is_loop_index = False):
             G.add_node(
-                node_name,
+                f"{parent}::{basename}_{index}",
                 type="variable",
                 color="maroon",
                 parent=parent,
-                label=node_name,
+                label=f"{basename}_{index}",
                 basename = basename,
                 is_loop_index = is_loop_index,
                 padding=15,
             )
 
         def process_container(container, loop_index_variable = None, inputs = {}):
+            parent=container['name']
             for stmt in container["body"]:
                 if "name" in stmt:
                     stmt_type = functions[stmt["name"]]["type"]
@@ -150,9 +151,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             padding=10,
                         )
                         output = stmt['output']
-                        output_node= f"{output['variable']}_{output['index']}"
-                        add_variable_node(output_node, output['variable'], container["name"])
-                        G.add_edge(stmt["name"], output_node, )
+                        add_variable_node(output['variable'], parent, output['index'])
+                        G.add_edge(stmt["name"],
+                                f"{parent}::{output['variable']}_{output['index']}")
 
                         for input in stmt.get("input", []):
                             if (
@@ -163,12 +164,12 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                 # input["index"] += 2 # HACK
                             input_node = f"{input['variable']}_{input['index']}"
                             add_variable_node(
-                                input_node,
                                 input['variable'],
                                 container["name"],
+                                input['index'],
                                 input["variable"] == loop_index_variable
                             )
-                            G.add_edge(input_node, stmt["name"])
+                            G.add_edge(f"{parent}::{input['variable']}_{input['index']}", stmt["name"])
 
                     elif stmt_type == "loop_plate":
                         index_variable = functions[stmt["name"]]["index_variable"]
