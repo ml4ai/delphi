@@ -42,22 +42,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
     node.
     """
 
-    def __init__(self, nodes, edges, scope_tree):
-        super(GroundedFunctionNetwork, self).__init__()
-        self.add_nodes_from(nodes)
-        self.add_edges_from(edges)
+    def __init__(self, G, scope_tree):
+        super().__init__(G)
         self.scope_tree = scope_tree
-
+        A = self.to_agraph()
+        A.draw('crop_yield.pdf', prog='dot')
         self.inputs = [n for n, d in self.in_degree() if d == 0]
         self.outputs = [n for n, d in self.out_degree() if d == 0]
-
         self.model_inputs = [n for n in self.inputs
                              if self.nodes[n].get("type") == "variable"]
         self.output_node = self.outputs[-1]
-
-        # A = self.to_agraph()
-        # A.draw("petasce.pdf", prog="dot")
-
         self.build_call_graph()
         self.build_function_sets()
 
@@ -125,13 +119,21 @@ class GroundedFunctionNetwork(nx.DiGraph):
             A GroundedFunctionNetwork object.
 
         """
-        G = nx.DiGraph(rankdir="LR")
+        G = nx.DiGraph()
         functions = {d["name"]: d for d in data["functions"]}
 
         scope_tree = nx.DiGraph()
-        def add_variable_node(node_name, parent):
-            G.add_node(node_name, type="variable", color="maroon",
-                    parent=parent, label=node_name)
+        def add_variable_node(node_name, basename, parent, is_loop_index = False):
+            G.add_node(
+                node_name,
+                type="variable",
+                color="maroon",
+                parent=parent,
+                label=node_name,
+                basename = basename,
+                is_loop_index = is_loop_index,
+                padding=15,
+            )
 
         def process_container(container, loop_index_variable = None, inputs = {}):
             for stmt in container["body"]:
@@ -141,16 +143,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         # Assignment statements
                         G.add_node(stmt["name"],
                             type="function",
-                            lambda_fn = stmt["name"],
-                            # lambda_fn = getattr(lambdas, stmt["name"]),
+                            lambda_fn = getattr(lambdas, stmt["name"]),
                             shape="rectangle",
                             parent=container["name"],
-                            label=stmt_type,
+                            label=stmt_type[0].upper(),
+                            padding=10,
                         )
                         output = stmt['output']
                         output_node= f"{output['variable']}_{output['index']}"
-                        add_variable_node(output_node, parent=container["name"])
-                        G.add_edge(stmt["name"], output_node)
+                        add_variable_node(output_node, output['variable'], container["name"])
+                        G.add_edge(stmt["name"], output_node, )
 
                         for input in stmt.get("input", []):
                             if (
@@ -159,12 +161,18 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             ):
                                 input["index"] += 2 # HACK
                             input_node = f"{input['variable']}_{input['index']}"
-                            add_variable_node(input_node, parent=container["name"])
+                            add_variable_node(
+                                input_node,
+                                input['variable'],
+                                container["name"],
+                                input["variable"] == loop_index_variable
+                            )
                             G.add_edge(input_node, stmt["name"])
 
                     elif stmt_type == "loop_plate":
                         # Loop plate
                         index_variable = functions[stmt["name"]]["index_variable"]
+                        scope_tree.add_node(stmt["name"], color="blue")
                         scope_tree.add_edge(container["name"], stmt["name"])
                         process_container(
                             functions[stmt["name"]],
@@ -173,6 +181,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     else:
                         print(stmt_type)
                 elif "function" in stmt and stmt["function"] != "print":
+                    scope_tree.add_node(stmt["function"], color="green")
                     scope_tree.add_edge(container["name"], stmt["function"])
                     process_container(
                         functions[stmt["function"]],
@@ -181,31 +190,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         root=data["start"]
         starting_container = functions[root]
-        scope_tree.add_node(root)
+        scope_tree.add_node(root, color="green")
         process_container(starting_container)
-        A = nx.nx_agraph.to_agraph(G)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
-        A.node_attr.update({ "fontname": "Menlo" })
-
-        def build_tree(cluster_name, root_graph):
-            subgraph_nodes = [
-                n[0]
-                for n in G.nodes(data=True)
-                if n[1]["parent"] == cluster_name
-            ]
-            root_graph.add_nodes_from(subgraph_nodes)
-            subgraph = root_graph.add_subgraph(
-                subgraph_nodes,
-                name=f"cluster_{cluster_name}",
-                label=cluster_name,
-                style="bold, rounded",
-            )
-            for n in scope_tree.successors(cluster_name):
-                build_tree(n, subgraph)
-
-        build_tree(root, A)
-
-        A.draw("crop_yield.pdf", prog="dot")
 
         # nodes, edges, subgraphs = list(), list(), dict()
 
@@ -257,19 +243,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         # continue
 
                     # # Get input set to send into new container
-                    # # print("INPUTS: ", inputs)
-                    # # print("STMT_INPUT", stmt["input"])
-                    # # print("STMT_NAME", stmt["name"])
-                    # new_inputs = {}
-
-                    # for var in stmt["input"]:
-                        # print(var)
-                        # if var["variable"] not in inputs:
-                            # print(var["variable"], " not in inputs")
-                            # new_inputs[var["variable"]] = utils.get_variable_name(var, con_name)
-                        # else:
-                            # print(var["variable"], " in inputs")
-                            # new_inputs[var["variable"]] = inputs[var["variable"]]
 
                     # # new_inputs = {
                             # # var_name: inputs.get(var_name,
@@ -281,7 +254,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     # # Do wiring of the call to this container
                     # process_container(containers[container_name], new_inputs)
                 # else:                                           # Handle regular statement
-                    # print(f"stmt {stmt_name} is not a container!")
                     # # Need to wire all inputs to their lambda function and
                     # # preserve the input argument order for execution
                     # inputs[stmt["output"]["variable"]] = utils.get_variable_name(stmt["output"], con_name)
@@ -335,7 +307,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         # # Use the start field to find the starting container and begin building
         # # the GrFN. Building in containers will occur recursively from this call
         # process_container(containers[data["start"]], {})
-        return cls(list(G.nodes(data=True)), list(G.edges()), scope_tree)
+        return cls(G, scope_tree)
 
     @classmethod
     def from_python_file(cls, python_file, lambdas_path, json_filename: str, stem: str):
@@ -476,35 +448,24 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return self.nodes[self.output_node]["value"]
 
     def to_CAG(self):
-        nodes, edges = list(), list()
+        variable_nodes = [
+            n[0]
+            for n in self.nodes(data=True)
+            if n[1]["type"] == "variable"
+        ]
+        G=nx.DiGraph()
+        for n in variable_nodes:
+            for pred_fn in self.predecessors(n):
+                if not any(s in pred_fn for s in ("condition", "decision")):
+                    for pred_var in self.predecessors(pred_fn):
+                        G.add_edge(
+                            self.nodes[pred_var]['basename'],
+                            self.nodes[n]['basename']
+                        )
+            if self.nodes[n]["is_loop_index"]:
+                G.add_edge(self.nodes[n]['basename'], self.nodes[n]['basename'])
 
-        def gather_nodes_and_edges(prev_name, inputs):
-            """Recursively constructs CAG node and edge sets via variable lists.
-
-            Args:
-                prev_name: Parent variable of the input variable set.
-                inputs: set of current variables.
-
-            Returns:
-                type: None.
-
-            """
-            for name in inputs:
-                uniq_name = name[name.find("::") + 2: name.rfind("_")]
-                nodes.append(uniq_name)
-
-                if prev_name is not None:
-                    edges.append((prev_name, uniq_name))
-
-                next_inputs = list(set([v for f in self.successors(name)
-                                        for v in self.successors(f)]))
-                gather_nodes_and_edges(uniq_name, next_inputs)
-
-        gather_nodes_and_edges(None, self.model_inputs)
-        CAG = nx.DiGraph()
-        CAG.add_nodes_from(nodes)
-        CAG.add_edges_from(edges)
-        return CAG
+        return G
 
     def to_FIB(self, other):
         if not isinstance(other, GroundedFunctionNetwork):
@@ -529,14 +490,34 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
-        A.node_attr.update({ "fontname": FONT })
-        for n in A.nodes():
-            if self.nodes[n]["type"] == NodeType.VARIABLE:
-                A.add_node(n, color="maroon", shape="ellipse")
-            else:
-                A.add_node(n, color="black", shape="rectangle")
+        A.graph_attr.update(
+            {
+                "dpi": 227,
+                "fontsize": 20,
+                "fontname": "Menlo",
+                "rankdir": "LR",
+            }
+        )
+        A.node_attr.update({ "fontname": "Menlo" })
 
+        def build_tree(cluster_name, root_graph):
+            subgraph_nodes = [
+                n[0]
+                for n in self.nodes(data=True)
+                if n[1]["parent"] == cluster_name
+            ]
+            root_graph.add_nodes_from(subgraph_nodes)
+            subgraph = root_graph.add_subgraph(
+                subgraph_nodes,
+                name=f"cluster_{cluster_name}",
+                label=cluster_name,
+                style="bold, rounded",
+            )
+            for n in self.scope_tree.successors(cluster_name):
+                build_tree(n, subgraph)
+
+        root = [n for n, d in self.scope_tree.in_degree() if d==0][0]
+        build_tree(root, A)
         return A
 
     def to_CAG_agraph(self):

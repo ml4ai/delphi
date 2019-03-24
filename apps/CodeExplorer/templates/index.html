@@ -3,7 +3,8 @@
   <body class="theme-base-08">
     <div class="container-fluid"> 
       {% include "navbar.html" %}
-      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
+      <div class="row justify-content-md-center" 
+           style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
       <div class="col-lg-3">
         <div class="row" style="padding-left: 15px; padding-right: 15px;">
           <div class="dropdown">
@@ -72,42 +73,36 @@
       </div>
       <div id="viewpane" class="col-lg-9">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
+          {% for id, label in {
+            'computational_graph': 'Function Network',
+            'causal_analysis_graph': 'Causal Analysis Graph',
+            'python_code': 'Equivalent Python Code'
+          }.items() %}
           <li class="nav-item">
-            <a class="nav-link active" id="computational_graph-tab" data-toggle="tab" href="#computational_graph" 
-              role="tab" aria-controls="computational_graph" aria-selected="true">
-              Function Network
+            <a class="nav-link {% if id=='computational_graph' %}active{% endif %}"
+               id="{{ id }}-tab" data-toggle="tab" href="#{{ id }}" 
+               role="tab" aria-controls="{{ id }}" aria-selected="true">
+              {{ label }}
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="causal_analysis_graph-tab" data-toggle="tab" href="#causal_analysis_graph" 
-               role="tab" aria-controls="causal_analysis_graph" aria-selected="true">
-              Causal Analysis Graph
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="python-code-tab" data-toggle="tab" href="#python-code" 
-               role="tab" aria-controls="python-code" aria-selected="true">
-              Equivalent Python Code
-            </a>
-          </li>
+          {% endfor %}
         </ul>
         <div class="tab-content">
-          <div id="computational_graph" role="tabpanel"
-               class="tab-pane show active border-left border-right border-bottom"
-               aria-labelledby="computational_graph-tab" style="height:82%;"></div>
-          <div id="causal_analysis_graph" role="tabpanel" 
-               class="tab-pane border-left border-right border-bottom"
-               aria-labelledby="causal_analysis_graph-tab" style="height:82%;"></div>
-          <div id="python-code" role="tabpanel" 
-               class="tab-pane border-left border-right border-bottom"
-               aria-labelledby="python-code-tab" style="height:82%; padding: 1.5rem;">
-            {{ python_code | safe }}
-          </div>
+          {% for id in ('computational_graph', 'causal_analysis_graph', 'python_code') %}
+            <div id="{{ id }}" role="tabpanel"
+                 class="tab-pane {% if id=='computational_graph' %}show active{% endif %} 
+                        border-left border-right border-bottom"
+               aria-labelledby="{{ id }}-tab" 
+               style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}">
+              {% if id=='python_code' %}{{ python_code | safe }}{% endif %}
+            </div>
+          {% endfor %}
         </div>
       </div>
       <script> {% include "cyjs.js" %} </script>
       <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+           aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -155,7 +150,8 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary"
+                      data-dismiss="modal">Close</button>
             </div>
           </div>
         </div>

@@ -72,27 +72,6 @@ app.config.from_object(__name__)
 codemirror = CodeMirror(app)
 
 
-def get_cluster_nodes(A):
-    cluster_nodes = []
-    for subgraph in A.subgraphs():
-        cluster_nodes.append(
-            {
-                "data": {
-                    "id": subgraph.name,
-                    "label": subgraph.name.replace("cluster_", ""),
-                    "shape": "roundrectangle",
-                    "parent": A.name,
-                    "color": subgraph.graph_attr["border_color"],
-                    "textValign": "top",
-                    "tooltip": None,
-                }
-            }
-        )
-        cluster_nodes.append(get_cluster_nodes(subgraph))
-
-    return cluster_nodes
-
-
 def get_tooltip(n, src):
     if src is None:
             return "None"
@@ -136,39 +115,6 @@ def get_tooltip(n, src):
         )
 
 
-def get_cyjs_elementsJSON_from_ScopeTree(A, lambdas) -> str:
-    elements = {
-        "nodes": [
-            {
-                "data": {
-                    "id": n,
-                    "label": n.attr["label"],
-                    "parent": n.attr["parent"],
-                    "shape": n.attr["shape"],
-                    "color": n.attr["color"],
-                    "textValign": "center",
-                    "tooltip": get_tooltip(n, lambdas)
-                    # "tooltip": highlight(get_tooltip(n, lambdas), LEXER, FORMATTER),
-                }
-            }
-            for n in A.nodes()
-        ]
-        + flatten(get_cluster_nodes(A)),
-        "edges": [
-            {
-                "data": {
-                    "id": f"{edge[0]}_{edge[1]}",
-                    "source": edge[0],
-                    "target": edge[1],
-                }
-            }
-            for edge in A.edges()
-        ],
-    }
-    json_str = json.dumps(elements, indent=2)
-    return json_str
-
-
 @app.route("/")
 def index():
     form = MyForm()
@@ -196,18 +142,35 @@ def to_cyjs_grfn(G):
                     "parent": n[1]['parent'],
                     "shape": "ellipse" if n[1].get('type') == "variable" else "rectangle",
                     "color": "maroon" if n[1].get('type') == "variable" else "black",
-                    # "textValign": "top" if n[1]["type"] == NodeType.VARIABLE else "center",
-                    "textValign": "top",
-                    "tooltip":n[0],
-                    # "tooltip": get_tooltip(n[0], None if n[1].get('type') == "variable" else
-                        # inspect.getsource(n[1]["lambda_fn"])),
+                    "textValign": "center",
+                    "tooltip": get_tooltip(n[0], None if n[1].get('type') == "variable" else
+                        inspect.getsource(n[1]["lambda_fn"])),
                     "width": 10 if n[1].get('type') == "variable" else 7,
                     "height": 10 if n[1].get('type') == "variable" else 7,
+                    "padding": n[1]["padding"]
                 }
             }
             for n in G.nodes(data=True)
+        ] + [
+                {
+                    "data" : {
+                        "id":n[0],
+                        "label": n[0],
+                        "shape": "roundrectangle",
+                        "color": n[1]["color"],
+                        "textValign": "top",
+                        "tooltip":n[0],
+                        "width": "label",
+                        "height": "label",
+                        "padding": 10,
+                        "parent": (
+                            list(G.scope_tree.predecessors(n[0]))[0]
+                            if len(list(G.scope_tree.predecessors(n[0]))) != 0
+                            else n[0]
+                        )
+                    }
+                } for n in G.scope_tree.nodes(data=True)
         ],
-        # + flatten(get_cluster_nodes(A)),
         "edges": [
             {
                 "data": {
@@ -240,7 +203,6 @@ def to_cyjs_cag(G):
             }
             for n in G.nodes(data=True)
         ],
-        # + flatten(get_cluster_nodes(A)),
         "edges": [
             {
                 "data": {
@@ -298,6 +260,8 @@ def processCode():
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
 
+    A = G.to_agraph()
+    A.draw('crop_yield.pdf', prog='dot')
     bounds = {
         "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
         "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2

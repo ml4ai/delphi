@@ -1,38 +1,39 @@
         var computational_graph = cytoscape({
-        container: document.getElementById('computational_graph'),
-          elements: {{ scopeTree_elementsJSON | safe }},
-          style: [
-                  { selector: 'node',
-                    style: { 
-                        'label': 'data(label)',
-                        'shape': 'data(shape)',
-                        'background-color': 'white',
-                        'border-color': 'data(color)',
-                        'border-width': '3pt',
-                        'font-family': 'PT Sans, sans-serif',
-                        'width': 'label',
-                        'height': 'data(height)',
-                        'text-valign': 'center',
-                        'padding': 10,
-                    } 
-                  }, { 
-                    selector: 'edge',
-                    style: { 
-                      'curve-style' : 'bezier',
-                      'target-arrow-shape': 'triangle',
-                    } 
-                  }, { 
-                    selector: '.selectedNode',
-                    style: { 
-                      'background-color': '#d3d3d3',
-                    } 
-                  }
-              ],
-          layout: { name: 'dagre' , rankDir: 'TB'},
-          maxZoom : 2,
-          minZoom : 0.1,
-          selectionType: 'additive'
+          container: document.getElementById('computational_graph'),
+            elements: {{ scopeTree_elementsJSON | safe }},
+            style: [
+                    { selector: 'node',
+                      style: { 
+                          'label': 'data(label)',
+                          'shape': 'data(shape)',
+                          'background-color': 'white',
+                          'border-color': 'data(color)',
+                          'border-width': '3pt',
+                          'font-family': 'Menlo, PT Sans, sans-serif',
+                          'width': 'label',
+                          'height': 'data(height)',
+                          'text-valign': 'data(textValign)',
+                          'padding': 'data(padding)',
+                      } 
+                    }, { 
+                      selector: 'edge',
+                      style: { 
+                        'curve-style' : 'bezier',
+                        'target-arrow-shape': 'triangle',
+                      } 
+                    }, { 
+                      selector: '.selectedNode',
+                      style: { 
+                        'background-color': '#d3d3d3',
+                      } 
+                    }
+                ],
+            layout: { name: 'dagre' , rankDir: 'TB'},
+            maxZoom : 2,
+            minZoom : 0.1,
+            selectionType: 'additive'
         });
+
         var api = computational_graph.expandCollapse({
             fisheye: false, undoable: false
         });
@@ -115,9 +116,9 @@
                     } 
                   }
               ],
-          layout: { name: 'dagre' , rankDir: 'LR'},
+          layout: { name: 'dagre' , rankDir: 'TB'},
           maxZoom : 1,
           minZoom : 0.1,
           selectionType: 'single'
         });
-       causal_analysis_graph.pan({x:50,y:50});
+       causal_analysis_graph.pan({x:70,y:70});
