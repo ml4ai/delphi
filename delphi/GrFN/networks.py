@@ -42,21 +42,21 @@ class GroundedFunctionNetwork(nx.DiGraph):
     node.
     """
 
-    def __init__(self, nodes, edges, subgraphs):
+    def __init__(self, nodes, edges, scope_tree):
         super(GroundedFunctionNetwork, self).__init__()
         self.add_nodes_from(nodes)
         self.add_edges_from(edges)
-        self.scopes = subgraphs
+        self.scope_tree = scope_tree
 
         self.inputs = [n for n, d in self.in_degree() if d == 0]
         self.outputs = [n for n, d in self.out_degree() if d == 0]
 
         self.model_inputs = [n for n in self.inputs
-                             if self.nodes[n]["type"] == NodeType.VARIABLE]
+                             if self.nodes[n].get("type") == "variable"]
         self.output_node = self.outputs[-1]
 
-        A = self.to_agraph()
-        A.draw("petasce.pdf", prog="dot")
+        # A = self.to_agraph()
+        # A.draw("petasce.pdf", prog="dot")
 
         self.build_call_graph()
         self.build_function_sets()
@@ -83,7 +83,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         result = list()
         for n in node_set:
             repr = self.nodes[n]["name"] \
-                if self.nodes[n]["type"] == NodeType.VARIABLE else \
+                if self.nodes[n]["type"] == "variable" else \
                 f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
 
             result.append(f"{tab * depth}{repr}")
@@ -107,6 +107,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         return cls.from_dict(data)
 
+
+
     @classmethod
     def from_dict(cls, data: Dict, lambdas):
         """Builds a GrFN object from a set of extracted function data objects
@@ -123,121 +125,217 @@ class GroundedFunctionNetwork(nx.DiGraph):
             A GroundedFunctionNetwork object.
 
         """
-        nodes, edges, subgraphs = list(), list(), dict()
+        G = nx.DiGraph(rankdir="LR")
+        functions = {d["name"]: d for d in data["functions"]}
 
-        # Get a list of all container/loop plates contained in the data object
-        containers = {obj["name"]: obj for obj in data["functions"]
-                      if obj["type"] in ["container", "loop_plate"]}
+        scope_tree = nx.DiGraph()
+        def add_variable_node(node_name, parent):
+            G.add_node(node_name, type="variable", color="maroon",
+                    parent=parent, label=node_name)
 
-        loop_indices = set()
-        def process_container(container: Dict, inputs: Dict[str, Dict[str, str]]) -> None:
-            """Wires the body statements found in a given container/loop plate.
-
-            Args:
-                container: The container object containing the body
-                    statements that specify GrFN wiring.
-                inputs: A dict of input variables from the outer container.
-
-            Returns:
-                None
-
-            """
-            con_name = container["name"]
-            subgraphs[con_name] = list()
+        def process_container(container, loop_index_variable = None, inputs = {}):
             for stmt in container["body"]:
-                is_container = False
-
                 if "name" in stmt:
-                    # Found something other than a container, i.e. an assign,
-                    # condition, decision, or loop
+                    stmt_type = functions[stmt["name"]]["type"]
+                    if stmt_type in ("assign", "condition", "decision"):
+                        # Assignment statements
+                        G.add_node(stmt["name"],
+                            type="function",
+                            lambda_fn = stmt["name"],
+                            # lambda_fn = getattr(lambdas, stmt["name"]),
+                            shape="rectangle",
+                            parent=container["name"],
+                            label=stmt_type,
+                        )
+                        output = stmt['output']
+                        output_node= f"{output['variable']}_{output['index']}"
+                        add_variable_node(output_node, parent=container["name"])
+                        G.add_edge(stmt["name"], output_node)
 
-                    stmt_name = stmt["name"]
+                        for input in stmt.get("input", []):
+                            if (
+                                input["index"] == -1
+                                and input["variable"] != loop_index_variable
+                            ):
+                                input["index"] += 2 # HACK
+                            input_node = f"{input['variable']}_{input['index']}"
+                            add_variable_node(input_node, parent=container["name"])
+                            G.add_edge(input_node, stmt["name"])
 
-                    # Get the type information for identification of stmt type
-                    # TODO: replace this with simple lookup from functions
-                    short_type = stmt_name[stmt_name.find("__") + 2: stmt_name.rfind("__")]
-                    stmt_type = utils.get_node_type(short_type)
-                    if stmt_type == NodeType.LOOP:
-                        loop_index = containers[stmt['name']]['index_variable']
-                        loop_indices.add(loop_index)
-                else:                           # Found a container (non loop plate)
-                    stmt_name = stmt["function"]
-                    is_container = True
+                    elif stmt_type == "loop_plate":
+                        # Loop plate
+                        index_variable = functions[stmt["name"]]["index_variable"]
+                        scope_tree.add_edge(container["name"], stmt["name"])
+                        process_container(
+                            functions[stmt["name"]],
+                            loop_index_variable = index_variable
+                        )
+                    else:
+                        print(stmt_type)
+                elif "function" in stmt and stmt["function"] != "print":
+                    scope_tree.add_edge(container["name"], stmt["function"])
+                    process_container(
+                        functions[stmt["function"]],
+                    )
 
-                if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
-                    container_name = stmt_name
-                    print(f"Found container/loop named {container_name}")
 
-                    # Skip over unmentioned containers
-                    if container_name not in containers:
-                        continue
+        root=data["start"]
+        starting_container = functions[root]
+        scope_tree.add_node(root)
+        process_container(starting_container)
+        A = nx.nx_agraph.to_agraph(G)
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.node_attr.update({ "fontname": "Menlo" })
 
-                    # Get input set to send into new container
-                    print("INPUTS: ", inputs)
-                    new_inputs = {
-                        var["variable"]: inputs.get(var["variable"], utils.get_variable_name(var, con_name))
-                        # if var["index"] != -1 else inputs[var["variable"]]
-                        for var in stmt["input"]
-                    }
+        def build_tree(cluster_name, root_graph):
+            subgraph_nodes = [
+                n[0]
+                for n in G.nodes(data=True)
+                if n[1]["parent"] == cluster_name
+            ]
+            root_graph.add_nodes_from(subgraph_nodes)
+            subgraph = root_graph.add_subgraph(
+                subgraph_nodes,
+                name=f"cluster_{cluster_name}",
+                label=cluster_name,
+                style="bold, rounded",
+            )
+            for n in scope_tree.successors(cluster_name):
+                build_tree(n, subgraph)
 
-                    # Do wiring of the call to this container
-                    process_container(containers[container_name], new_inputs)
-                else:                                           # Handle regular statement
-                    print(f"stmt {stmt_name} is not a container!")
-                    # Need to wire all inputs to their lambda function and
-                    # preserve the input argument order for execution
-                    inputs[stmt["output"]["variable"]] = utils.get_variable_name(stmt["output"], con_name)
-                    ordered_inputs = list()
-                    for var in stmt["input"]:
-                        # Check if the node is an input node from an outer container
-                        # If the node is not an input node, we construct the
-                        # name using the utility (concatenate scope, variable
-                        # name, and index. If it *is* an input node, then we
-                        # just take the variable name from the dictionary of
-                        # input nodes that was passed into process_container. 
+        build_tree(root, A)
 
-                        if var["index"] != -1 or var["variable"] in loop_indices:
-                            input_node_name = utils.get_variable_name(var, con_name)
-                        else:
-                            input_node_name = inputs[var["variable"]]
+        A.draw("crop_yield.pdf", prog="dot")
 
-                        # Add input node and node unique name to edges, subgraph set, and arg set
-                        ordered_inputs.append(input_node_name)
-                        subgraphs[con_name].append(input_node_name)
-                        edges.append((input_node_name, stmt_name))
-                        nodes.append((input_node_name, {
-                            "name": input_node_name,
-                            "type": NodeType.VARIABLE,
-                            "value": None,
-                            "scope": con_name
-                        }))
+        # nodes, edges, subgraphs = list(), list(), dict()
 
-                    # Add function node name to subgraph set and create function node
-                    subgraphs[con_name].append(stmt_name)
-                    nodes.append((stmt_name, {
-                        "name": stmt_name,
-                        "type": stmt_type,
-                        "func_visited": False,
-                        "lambda": getattr(lambdas, stmt_name),  # Gets the lambda function
-                        "func_inputs": ordered_inputs,          # saves indexed arg ordering
-                        "scope": con_name
-                    }))
+        # # Get a list of all container/loop plates contained in the data object
+        # containers = {obj["name"]: obj for obj in data["functions"]
+                      # if obj["type"] in ["container", "loop_plate"]}
 
-                    # Add output node and node unique name to edges, subgraph set, and arg set
-                    out_node_name = utils.get_variable_name(stmt["output"], con_name)
-                    subgraphs[con_name].append(out_node_name)
-                    edges.append((stmt_name, out_node_name))
-                    nodes.append((out_node_name, {
-                        "name": out_node_name,
-                        "type": NodeType.VARIABLE,
-                        "value": None,
-                        "scope": con_name
-                    }))
+        # loop_indices = set()
+        # def process_container(container: Dict, inputs: Dict[str, Dict[str, str]]) -> None:
+            # """Wires the body statements found in a given container/loop plate.
 
-        # Use the start field to find the starting container and begin building
-        # the GrFN. Building in containers will occur recursively from this call
-        process_container(containers[data["start"]], {})
-        return cls(nodes, edges, subgraphs)
+            # Args:
+                # container: The container object containing the body
+                    # statements that specify GrFN wiring.
+                # inputs: A dict of input variables from the outer container.
+
+            # Returns:
+                # None
+
+            # """
+            # con_name = container["name"]
+            # subgraphs[con_name] = list()
+            # for stmt in container["body"]:
+                # is_container = False
+
+                # if "name" in stmt:
+                    # # Found something other than a container, i.e. an assign,
+                    # # condition, decision, or loop
+
+                    # stmt_name = stmt["name"]
+
+                    # # Get the type information for identification of stmt type
+                    # # TODO: replace this with simple lookup from functions
+                    # short_type = stmt_name[stmt_name.find("__") + 2: stmt_name.rfind("__")]
+                    # stmt_type = utils.get_node_type(short_type)
+                    # if stmt_type == NodeType.LOOP:
+                        # loop_index = containers[stmt['name']]['index_variable']
+                        # loop_indices.add(loop_index)
+                # else:                           # Found a container (non loop plate)
+                    # stmt_name = stmt["function"]
+                    # is_container = True
+
+                # if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
+                    # container_name = stmt_name
+                    # print(f"Found container/loop named {container_name}")
+
+                    # # Skip over unmentioned containers
+                    # if container_name not in containers:
+                        # continue
+
+                    # # Get input set to send into new container
+                    # # print("INPUTS: ", inputs)
+                    # # print("STMT_INPUT", stmt["input"])
+                    # # print("STMT_NAME", stmt["name"])
+                    # new_inputs = {}
+
+                    # for var in stmt["input"]:
+                        # print(var)
+                        # if var["variable"] not in inputs:
+                            # print(var["variable"], " not in inputs")
+                            # new_inputs[var["variable"]] = utils.get_variable_name(var, con_name)
+                        # else:
+                            # print(var["variable"], " in inputs")
+                            # new_inputs[var["variable"]] = inputs[var["variable"]]
+
+                    # # new_inputs = {
+                            # # var_name: inputs.get(var_name,
+                            # # utils.get_variable_name(var_dict, con_name))
+                        # # # if var["index"] != -1 else inputs[var["variable"]]
+                        # # for var_name, var_dict in inputs.items() #stmt["input"]
+                    # # }
+
+                    # # Do wiring of the call to this container
+                    # process_container(containers[container_name], new_inputs)
+                # else:                                           # Handle regular statement
+                    # print(f"stmt {stmt_name} is not a container!")
+                    # # Need to wire all inputs to their lambda function and
+                    # # preserve the input argument order for execution
+                    # inputs[stmt["output"]["variable"]] = utils.get_variable_name(stmt["output"], con_name)
+                    # ordered_inputs = list()
+                    # for var in stmt["input"]:
+                        # # Check if the node is an input node from an outer container
+                        # # If the node is not an input node, we construct the
+                        # # name using the utility (concatenate scope, variable
+                        # # name, and index. If it *is* an input node, then we
+                        # # just take the variable name from the dictionary of
+                        # # input nodes that was passed into process_container. 
+
+                        # if var["index"] != -1 or var["variable"] in loop_indices:
+                            # input_node_name = utils.get_variable_name(var, con_name)
+                        # else:
+                            # input_node_name = inputs[var["variable"]]
+
+                        # # Add input node and node unique name to edges, subgraph set, and arg set
+                        # ordered_inputs.append(input_node_name)
+                        # subgraphs[con_name].append(input_node_name)
+                        # edges.append((input_node_name, stmt_name))
+                        # nodes.append((input_node_name, {
+                            # "name": input_node_name,
+                            # "type": NodeType.VARIABLE,
+                            # "value": None,
+                            # "scope": con_name
+                        # }))
+
+                    # # Add function node name to subgraph set and create function node
+                    # subgraphs[con_name].append(stmt_name)
+                    # nodes.append((stmt_name, {
+                        # "name": stmt_name,
+                        # "type": stmt_type,
+                        # "func_visited": False,
+                        # "lambda": getattr(lambdas, stmt_name),  # Gets the lambda function
+                        # "func_inputs": ordered_inputs,          # saves indexed arg ordering
+                        # "scope": con_name
+                    # }))
+
+                    # # Add output node and node unique name to edges, subgraph set, and arg set
+                    # out_node_name = utils.get_variable_name(stmt["output"], con_name)
+                    # subgraphs[con_name].append(out_node_name)
+                    # edges.append((stmt_name, out_node_name))
+                    # nodes.append((out_node_name, {
+                        # "name": out_node_name,
+                        # "type": NodeType.VARIABLE,
+                        # "value": None,
+                        # "scope": con_name
+                    # }))
+
+        # # Use the start field to find the starting container and begin building
+        # # the GrFN. Building in containers will occur recursively from this call
+        # process_container(containers[data["start"]], {})
+        return cls(list(G.nodes(data=True)), list(G.edges()), scope_tree)
 
     @classmethod
     def from_python_file(cls, python_file, lambdas_path, json_filename: str, stem: str):

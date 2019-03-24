@@ -285,7 +285,7 @@ class GrFNGenerator(object):
                 "input": [
                     {
                       "variable": variable,
-                      "index": -1,
+                      "index": None if variable == indexName else -1,
                     }
                     for variable in variables
                 ],

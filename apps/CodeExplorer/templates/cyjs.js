@@ -10,10 +10,10 @@
                         'border-color': 'data(color)',
                         'border-width': '3pt',
                         'font-family': 'PT Sans, sans-serif',
-                        'width': 'data(width)',
+                        'width': 'label',
                         'height': 'data(height)',
-                        'text-valign': 'data(textValign)',
-                        'padding': 6,
+                        'text-valign': 'center',
+                        'padding': 10,
                     } 
                   }, { 
                     selector: 'edge',
@@ -28,7 +28,7 @@
                     } 
                   }
               ],
-          layout: { name: 'dagre' , rankDir: 'LR'},
+          layout: { name: 'dagre' , rankDir: 'TB'},
           maxZoom : 2,
           minZoom : 0.1,
           selectionType: 'additive'

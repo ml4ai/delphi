@@ -192,16 +192,17 @@ def to_cyjs_grfn(G):
             {
                 "data": {
                     "id": n[0],
-                    "label": n[0].split("::")[1] if n[1]["type"] == NodeType.VARIABLE else n[0].split("__")[1][0].upper(),
-                    "parent": "parent",
-                    "shape": "ellipse" if n[1]["type"] == NodeType.VARIABLE else "rectangle",
-                    "color": "maroon" if n[1]["type"] == NodeType.VARIABLE else "black",
-                    "textValign": "top" if n[1]["type"] == NodeType.VARIABLE else "center",
-                    "tooltip": get_tooltip(n[0], None if n[1]["type"] ==
-                        NodeType.VARIABLE else
-                        inspect.getsource(n[1]["lambda"])),
-                    "width": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
-                    "height": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
+                    "label": n[1]['label'],
+                    "parent": n[1]['parent'],
+                    "shape": "ellipse" if n[1].get('type') == "variable" else "rectangle",
+                    "color": "maroon" if n[1].get('type') == "variable" else "black",
+                    # "textValign": "top" if n[1]["type"] == NodeType.VARIABLE else "center",
+                    "textValign": "top",
+                    "tooltip":n[0],
+                    # "tooltip": get_tooltip(n[0], None if n[1].get('type') == "variable" else
+                        # inspect.getsource(n[1]["lambda_fn"])),
+                    "width": 10 if n[1].get('type') == "variable" else 7,
+                    "height": 10 if n[1].get('type') == "variable" else 7,
                 }
             }
             for n in G.nodes(data=True)
