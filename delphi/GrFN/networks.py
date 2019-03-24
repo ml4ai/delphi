@@ -78,7 +78,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         for n in node_set:
             repr = self.nodes[n]["name"] \
                 if self.nodes[n]["type"] == "variable" else \
-                f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda'])}"
+                f"{self.nodes[n]['name']}{inspect.signature(self.nodes[n]['lambda_fn'])}"
 
             result.append(f"{tab * depth}{repr}")
             result.extend(self.traverse_nodes(self.successors(n), depth=depth+1))
@@ -159,7 +159,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                 input["index"] == -1
                                 and input["variable"] != loop_index_variable
                             ):
-                                input["index"] += 2 # HACK
+                                pass
+                                # input["index"] += 2 # HACK
                             input_node = f"{input['variable']}_{input['index']}"
                             add_variable_node(
                                 input_node,
@@ -170,7 +171,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             G.add_edge(input_node, stmt["name"])
 
                     elif stmt_type == "loop_plate":
-                        # Loop plate
                         index_variable = functions[stmt["name"]]["index_variable"]
                         scope_tree.add_node(stmt["name"], color="blue")
                         scope_tree.add_edge(container["name"], stmt["name"])
@@ -189,124 +189,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
 
         root=data["start"]
-        starting_container = functions[root]
         scope_tree.add_node(root, color="green")
-        process_container(starting_container)
-
-        # nodes, edges, subgraphs = list(), list(), dict()
-
-        # # Get a list of all container/loop plates contained in the data object
-        # containers = {obj["name"]: obj for obj in data["functions"]
-                      # if obj["type"] in ["container", "loop_plate"]}
-
-        # loop_indices = set()
-        # def process_container(container: Dict, inputs: Dict[str, Dict[str, str]]) -> None:
-            # """Wires the body statements found in a given container/loop plate.
-
-            # Args:
-                # container: The container object containing the body
-                    # statements that specify GrFN wiring.
-                # inputs: A dict of input variables from the outer container.
-
-            # Returns:
-                # None
-
-            # """
-            # con_name = container["name"]
-            # subgraphs[con_name] = list()
-            # for stmt in container["body"]:
-                # is_container = False
-
-                # if "name" in stmt:
-                    # # Found something other than a container, i.e. an assign,
-                    # # condition, decision, or loop
-
-                    # stmt_name = stmt["name"]
-
-                    # # Get the type information for identification of stmt type
-                    # # TODO: replace this with simple lookup from functions
-                    # short_type = stmt_name[stmt_name.find("__") + 2: stmt_name.rfind("__")]
-                    # stmt_type = utils.get_node_type(short_type)
-                    # if stmt_type == NodeType.LOOP:
-                        # loop_index = containers[stmt['name']]['index_variable']
-                        # loop_indices.add(loop_index)
-                # else:                           # Found a container (non loop plate)
-                    # stmt_name = stmt["function"]
-                    # is_container = True
-
-                # if is_container or stmt_type == NodeType.LOOP:  # Handle container or loop plate
-                    # container_name = stmt_name
-                    # print(f"Found container/loop named {container_name}")
-
-                    # # Skip over unmentioned containers
-                    # if container_name not in containers:
-                        # continue
-
-                    # # Get input set to send into new container
-
-                    # # new_inputs = {
-                            # # var_name: inputs.get(var_name,
-                            # # utils.get_variable_name(var_dict, con_name))
-                        # # # if var["index"] != -1 else inputs[var["variable"]]
-                        # # for var_name, var_dict in inputs.items() #stmt["input"]
-                    # # }
-
-                    # # Do wiring of the call to this container
-                    # process_container(containers[container_name], new_inputs)
-                # else:                                           # Handle regular statement
-                    # # Need to wire all inputs to their lambda function and
-                    # # preserve the input argument order for execution
-                    # inputs[stmt["output"]["variable"]] = utils.get_variable_name(stmt["output"], con_name)
-                    # ordered_inputs = list()
-                    # for var in stmt["input"]:
-                        # # Check if the node is an input node from an outer container
-                        # # If the node is not an input node, we construct the
-                        # # name using the utility (concatenate scope, variable
-                        # # name, and index. If it *is* an input node, then we
-                        # # just take the variable name from the dictionary of
-                        # # input nodes that was passed into process_container. 
-
-                        # if var["index"] != -1 or var["variable"] in loop_indices:
-                            # input_node_name = utils.get_variable_name(var, con_name)
-                        # else:
-                            # input_node_name = inputs[var["variable"]]
-
-                        # # Add input node and node unique name to edges, subgraph set, and arg set
-                        # ordered_inputs.append(input_node_name)
-                        # subgraphs[con_name].append(input_node_name)
-                        # edges.append((input_node_name, stmt_name))
-                        # nodes.append((input_node_name, {
-                            # "name": input_node_name,
-                            # "type": NodeType.VARIABLE,
-                            # "value": None,
-                            # "scope": con_name
-                        # }))
-
-                    # # Add function node name to subgraph set and create function node
-                    # subgraphs[con_name].append(stmt_name)
-                    # nodes.append((stmt_name, {
-                        # "name": stmt_name,
-                        # "type": stmt_type,
-                        # "func_visited": False,
-                        # "lambda": getattr(lambdas, stmt_name),  # Gets the lambda function
-                        # "func_inputs": ordered_inputs,          # saves indexed arg ordering
-                        # "scope": con_name
-                    # }))
-
-                    # # Add output node and node unique name to edges, subgraph set, and arg set
-                    # out_node_name = utils.get_variable_name(stmt["output"], con_name)
-                    # subgraphs[con_name].append(out_node_name)
-                    # edges.append((stmt_name, out_node_name))
-                    # nodes.append((out_node_name, {
-                        # "name": out_node_name,
-                        # "type": NodeType.VARIABLE,
-                        # "value": None,
-                        # "scope": con_name
-                    # }))
-
-        # # Use the start field to find the starting container and begin building
-        # # the GrFN. Building in containers will occur recursively from this call
-        # process_container(containers[data["start"]], {})
+        process_container(functions[root])
         return cls(G, scope_tree)
 
     @classmethod
@@ -437,7 +321,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             for func_name in func_set:
                 # Get function arguments via signature derived from JSON
                 signature = self.nodes[func_name]["func_inputs"]
-                lambda_fn = self.nodes[func_name]["lambda"]
+                lambda_fn = self.nodes[func_name]["lambda_fn"]
                 output_node = list(self.successors(func_name))[0]
 
                 # Run the lambda function and save the output
@@ -720,7 +604,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             for func_name in func_set:
                 # Get function arguments via signature derived from JSON
                 signature = self.nodes[func_name]["func_inputs"]
-                lambda_fn = self.nodes[func_name]["lambda"]
+                lambda_fn = self.nodes[func_name]["lambda_fn"]
                 output_node = list(self.successors(func_name))[0]
 
                 # Run the lambda function and save the output
