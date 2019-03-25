@@ -96,11 +96,11 @@
                         'background-color': 'white',
                         'border-color': 'data(color)',
                         'border-width': '3pt',
-                        'font-family': 'PT Sans, sans-serif',
+                        'font-family': 'Menlo, PT Sans, sans-serif',
                         'width':'data(width)',
                         'height':'data(height)',
                         'text-valign': 'data(textValign)',
-                        'padding': 6,
+                        'padding': 'data(padding)',
                     } 
                   }, { 
                     selector: 'edge',
