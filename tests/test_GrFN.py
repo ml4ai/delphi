@@ -24,7 +24,6 @@ def test_crop_yield_creation_and_execution():
 def test_petpt_creation_and_execution():
     filepath = "tests/data/GrFN/PETPT.for"
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
-    print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
     assert len(G.inputs) == 5
@@ -41,7 +40,6 @@ def test_petasce_creation_and_execution():
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
     # filepath = "tests/data/GrFN/PETASCE_simple.for"
     # G = GroundedFunctionNetwork.from_fortran_file(filepath)
-    print(G)        # Shadow testing
 
     assert isinstance(G, GroundedFunctionNetwork)
     assert len(G.inputs) == 13
