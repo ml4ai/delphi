@@ -140,6 +140,7 @@ C      HACK: adding initialized values due to possible undefined behavior
       WND = MAX(1.0,MIN(WIND2m,6.0))
       CHT = MAX(0.001,CANHT)
 
+C     HACK: Another one like the above
       KCMAX = 0.0
       IF (MEEVP .EQ. 'A') THEN
         KCMAX = MAX(1.0,KCB+0.05)
@@ -168,7 +169,8 @@ C      HACK: adding initialized values due to possible undefined behavior
       KE = MAX(0.0, MIN(1.0*(KCMAX-KCB), FEW*KCMAX))
 
       !Potential crop coefficient (Kc) (FAO-56 Eqs. 58 & 69)
-      KC = KCB + KE
+C      KC = KCB + KE
+C     NOTE: the above is dead code
 
       !Potential evapotranspiration (FAO-56 Eq. 69)
       EO = (KCB + KE) * REFET

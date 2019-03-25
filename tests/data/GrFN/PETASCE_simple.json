@@ -46,18 +46,6 @@
       "target": "udelta",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
           "name": "tavg",
           "type": "variable"
         }
@@ -70,14 +58,6 @@
       "target": "emax",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tmax",
-          "type": "variable"
-        },
-        {
           "name": "tmax",
           "type": "variable"
         }
@@ -89,14 +69,6 @@
       "type": "assign",
       "target": "emin",
       "sources": [
-        {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tmin",
-          "type": "variable"
-        },
         {
           "name": "tmin",
           "type": "variable"
@@ -125,14 +97,6 @@
       "type": "assign",
       "target": "ea",
       "sources": [
-        {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tdew",
-          "type": "variable"
-        },
         {
           "name": "tdew",
           "type": "variable"
@@ -625,27 +589,15 @@
       "reference": 86
     },
     {
-      "name": "petasce__condition__IF_1_2",
-      "type": "condition",
-      "target": "IF_1",
-      "reference": 87,
-      "sources": [
-        {
-          "name": "meevp",
-          "type": "variable"
-        }
-      ]
-    },
-    {
       "name": "petasce__assign__cn_1",
       "type": "assign",
       "target": "cn",
       "sources": [],
-      "reference": 88,
+      "reference": 87,
       "body": {
         "type": "literal",
         "dtype": "real",
-        "value": "1600.0"
+        "value": "0.0"
       }
     },
     {
@@ -653,29 +605,21 @@
       "type": "assign",
       "target": "cd",
       "sources": [],
-      "reference": 89,
+      "reference": 88,
       "body": {
         "type": "literal",
         "dtype": "real",
-        "value": "0.38"
+        "value": "0.0"
       }
     },
     {
-      "name": "petasce__decision__cn_2",
-      "type": "decision",
-      "target": "cn",
-      "reference": 87,
+      "name": "petasce__condition__IF_1_2",
+      "type": "condition",
+      "target": "IF_1",
+      "reference": 89,
       "sources": [
         {
-          "name": "IF_1_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_1",
+          "name": "meevp",
           "type": "variable"
         }
       ]
@@ -685,11 +629,11 @@
       "type": "assign",
       "target": "cn",
       "sources": [],
-      "reference": 92,
+      "reference": 90,
       "body": {
         "type": "literal",
         "dtype": "real",
-        "value": "900.0"
+        "value": "1600.0"
       }
     },
     {
@@ -697,7 +641,51 @@
       "type": "assign",
       "target": "cd",
       "sources": [],
-      "reference": 93,
+      "reference": 91,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.38"
+      }
+    },
+    {
+      "name": "petasce__decision__cd_3",
+      "type": "decision",
+      "target": "cd",
+      "reference": 89,
+      "sources": [
+        {
+          "name": "IF_1_0",
+          "type": "variable"
+        },
+        {
+          "name": "cd_1",
+          "type": "variable"
+        },
+        {
+          "name": "cd_2",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__cn_3",
+      "type": "assign",
+      "target": "cn",
+      "sources": [],
+      "reference": 94,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "900.0"
+      }
+    },
+    {
+      "name": "petasce__assign__cd_3",
+      "type": "assign",
+      "target": "cd",
+      "sources": [],
+      "reference": 95,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -708,7 +696,7 @@
       "name": "petasce__condition__IF_2_1",
       "type": "condition",
       "target": "IF_2",
-      "reference": 91,
+      "reference": 93,
       "sources": [
         {
           "name": "meevp",
@@ -717,61 +705,61 @@
       ]
     },
     {
-      "name": "petasce__decision__cn_3",
-      "type": "decision",
-      "target": "cn",
-      "reference": 91,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_2",
-          "type": "variable"
-        },
-        {
-          "name": "cn_2",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__decision__cd_3",
-      "type": "decision",
-      "target": "cd",
-      "reference": 91,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "cd_0",
-          "type": "variable"
-        },
-        {
-          "name": "cd_2",
-          "type": "variable"
-        }
-      ]
-    },
-    {
       "name": "petasce__decision__cd_4",
       "type": "decision",
       "target": "cd",
-      "reference": 87,
+      "reference": 93,
       "sources": [
         {
           "name": "IF_2_0",
           "type": "variable"
         },
         {
-          "name": "cd_0",
+          "name": "cd_3",
           "type": "variable"
         },
         {
-          "name": "cd_2",
+          "name": "cd_3",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__decision__cn_3",
+      "type": "decision",
+      "target": "cn",
+      "reference": 93,
+      "sources": [
+        {
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "cn_1",
+          "type": "variable"
+        },
+        {
+          "name": "cn_3",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__decision__cn_4",
+      "type": "decision",
+      "target": "cn",
+      "reference": 89,
+      "sources": [
+        {
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "cn_1",
+          "type": "variable"
+        },
+        {
+          "name": "cn_3",
           "type": "variable"
         }
       ]
@@ -989,10 +977,22 @@
       "reference": 105
     },
     {
+      "name": "petasce__assign__kcmax_1",
+      "type": "assign",
+      "target": "kcmax",
+      "sources": [],
+      "reference": 108,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
       "name": "petasce__condition__IF_1_4",
       "type": "condition",
       "target": "IF_1",
-      "reference": 106,
+      "reference": 109,
       "sources": [
         {
           "name": "meevp",
@@ -1001,7 +1001,7 @@
       ]
     },
     {
-      "name": "petasce__assign__kcmax_1",
+      "name": "petasce__assign__kcmax_2",
       "type": "assign",
       "target": "kcmax",
       "sources": [
@@ -1010,30 +1010,30 @@
           "type": "variable"
         }
       ],
-      "reference": 107
+      "reference": 110
     },
     {
-      "name": "petasce__decision__kcmax_2",
+      "name": "petasce__decision__kcmax_4",
       "type": "decision",
       "target": "kcmax",
-      "reference": 106,
+      "reference": 109,
       "sources": [
         {
           "name": "IF_1_0",
           "type": "variable"
         },
         {
-          "name": "kcmax_0",
+          "name": "kcmax_1",
           "type": "variable"
         },
         {
-          "name": "kcmax_1",
+          "name": "kcmax_2",
           "type": "variable"
         }
       ]
     },
     {
-      "name": "petasce__assign__kcmax_2",
+      "name": "petasce__assign__kcmax_3",
       "type": "assign",
       "target": "kcmax",
       "sources": [
@@ -1054,13 +1054,13 @@
           "type": "variable"
         }
       ],
-      "reference": 110
+      "reference": 113
     },
     {
       "name": "petasce__condition__IF_2_2",
       "type": "condition",
       "target": "IF_2",
-      "reference": 109,
+      "reference": 112,
       "sources": [
         {
           "name": "meevp",
@@ -1069,21 +1069,21 @@
       ]
     },
     {
-      "name": "petasce__decision__kcmax_3",
+      "name": "petasce__decision__kcmax_5",
       "type": "decision",
       "target": "kcmax",
-      "reference": 109,
+      "reference": 112,
       "sources": [
         {
           "name": "IF_2_0",
           "type": "variable"
         },
         {
-          "name": "kcmax_2",
+          "name": "kcmax_4",
           "type": "variable"
         },
         {
-          "name": "kcmax_2",
+          "name": "kcmax_3",
           "type": "variable"
         }
       ]
@@ -1131,10 +1131,6 @@
         },
         {
           "name": "kcmax",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmin",
           "type": "variable"
         },
         {
@@ -1211,22 +1207,6 @@
         }
       ],
       "reference": 117
-    },
-    {
-      "name": "petasce__assign__kc_1",
-      "type": "assign",
-      "target": "kc",
-      "sources": [
-        {
-          "name": "kcb",
-          "type": "variable"
-        },
-        {
-          "name": "ke",
-          "type": "variable"
-        }
-      ],
-      "reference": 118
     },
     {
       "name": "petasce__assign__eo_0",
@@ -1605,14 +1585,6 @@
             {
               "variable": "tavg",
               "index": 1
-            },
-            {
-              "variable": "tavg",
-              "index": 1
-            },
-            {
-              "variable": "tavg",
-              "index": 1
             }
           ]
         },
@@ -1626,10 +1598,6 @@
             {
               "variable": "tmax",
               "index": 0
-            },
-            {
-              "variable": "tmax",
-              "index": 0
             }
           ]
         },
@@ -1640,10 +1608,6 @@
             "index": 1
           },
           "input": [
-            {
-              "variable": "tmin",
-              "index": 0
-            },
             {
               "variable": "tmin",
               "index": 0
@@ -1674,10 +1638,6 @@
             "index": 1
           },
           "input": [
-            {
-              "variable": "tdew",
-              "index": 0
-            },
             {
               "variable": "tdew",
               "index": 0
@@ -1949,7 +1909,7 @@
           "name": "petasce__condition__IF_1_1",
           "output": {
             "variable": "IF_1",
-            "index": 0
+            "index": 1
           },
           "input": [
             {
@@ -1967,15 +1927,15 @@
           "input": []
         },
         {
-          "name": "petasce__decision__ratio_3",
+          "name": "petasce__decision__ratio_4",
           "output": {
             "variable": "ratio",
-            "index": 3
+            "index": 4
           },
           "input": [
             {
               "variable": "IF_1",
-              "index": 0
+              "index": 1
             },
             {
               "variable": "ratio",
@@ -2009,10 +1969,10 @@
           ]
         },
         {
-          "name": "petasce__decision__ratio_4",
+          "name": "petasce__decision__ratio_5",
           "output": {
             "variable": "ratio",
-            "index": 4
+            "index": 5
           },
           "input": [
             {
@@ -2021,7 +1981,7 @@
             },
             {
               "variable": "ratio",
-              "index": 3
+              "index": 4
             },
             {
               "variable": "ratio",
@@ -2038,7 +1998,7 @@
           "input": [
             {
               "variable": "ratio",
-              "index": 1
+              "index": 5
             }
           ]
         },
@@ -2136,19 +2096,6 @@
           ]
         },
         {
-          "name": "petasce__condition__IF_1_2",
-          "output": {
-            "variable": "IF_1",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "meevp",
-              "index": 0
-            }
-          ]
-        },
-        {
           "name": "petasce__assign__cn_1",
           "output": {
             "variable": "cn",
@@ -2165,23 +2112,15 @@
           "input": []
         },
         {
-          "name": "petasce__decision__cn_2",
+          "name": "petasce__condition__IF_1_2",
           "output": {
-            "variable": "cn",
+            "variable": "IF_1",
             "index": 2
           },
           "input": [
             {
-              "variable": "IF_1",
+              "variable": "meevp",
               "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 1
             }
           ]
         },
@@ -2202,49 +2141,15 @@
           "input": []
         },
         {
-          "name": "petasce__condition__IF_2_1",
-          "output": {
-            "variable": "IF_2",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "meevp",
-              "index": 0
-            }
-          ]
-        },
-        {
-          "name": "petasce__decision__cn_3",
-          "output": {
-            "variable": "cn",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "IF_2",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 2
-            },
-            {
-              "variable": "cn",
-              "index": 2
-            }
-          ]
-        },
-        {
-          "name": "petasce__decision__cd_3",
+          "name": "petasce__decision__cd_4",
           "output": {
             "variable": "cd",
-            "index": 3
+            "index": 4
           },
           "input": [
             {
-              "variable": "IF_2",
-              "index": 0
+              "variable": "IF_1",
+              "index": 2
             },
             {
               "variable": "cd",
@@ -2257,23 +2162,94 @@
           ]
         },
         {
-          "name": "petasce__decision__cd_4",
+          "name": "petasce__assign__cn_3",
+          "output": {
+            "variable": "cn",
+            "index": 3
+          },
+          "input": []
+        },
+        {
+          "name": "petasce__assign__cd_3",
           "output": {
             "variable": "cd",
-            "index": 4
+            "index": 3
+          },
+          "input": []
+        },
+        {
+          "name": "petasce__condition__IF_2_1",
+          "output": {
+            "variable": "IF_2",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "meevp",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__decision__cd_5",
+          "output": {
+            "variable": "cd",
+            "index": 5
           },
           "input": [
             {
               "variable": "IF_2",
-              "index": 0
+              "index": 1
+            },
+            {
+              "variable": "cd",
+              "index": 4
             },
             {
               "variable": "cd",
               "index": 3
+            }
+          ]
+        },
+        {
+          "name": "petasce__decision__cn_4",
+          "output": {
+            "variable": "cn",
+            "index": 4
+          },
+          "input": [
+            {
+              "variable": "IF_1",
+              "index": 2
             },
             {
-              "variable": "cd",
+              "variable": "cn",
+              "index": 1
+            },
+            {
+              "variable": "cn",
               "index": 2
+            }
+          ]
+        },
+        {
+          "name": "petasce__decision__cn_5",
+          "output": {
+            "variable": "cn",
+            "index": 5
+          },
+          "input": [
+            {
+              "variable": "IF_2",
+              "index": 1
+            },
+            {
+              "variable": "cn",
+              "index": 4
+            },
+            {
+              "variable": "cn",
+              "index": 3
             }
           ]
         },
@@ -2302,7 +2278,7 @@
             },
             {
               "variable": "cn",
-              "index": 0
+              "index": 5
             },
             {
               "variable": "tavg",
@@ -2343,7 +2319,7 @@
             },
             {
               "variable": "cd",
-              "index": 4
+              "index": 5
             },
             {
               "variable": "wind2m",
@@ -2392,7 +2368,7 @@
           "name": "petasce__condition__IF_1_3",
           "output": {
             "variable": "IF_1",
-            "index": 0
+            "index": 3
           },
           "input": [
             {
@@ -2443,7 +2419,7 @@
           "input": [
             {
               "variable": "IF_1",
-              "index": 0
+              "index": 3
             },
             {
               "variable": "kcb",
@@ -2482,10 +2458,18 @@
           ]
         },
         {
+          "name": "petasce__assign__kcmax_1",
+          "output": {
+            "variable": "kcmax",
+            "index": 1
+          },
+          "input": []
+        },
+        {
           "name": "petasce__condition__IF_1_4",
           "output": {
             "variable": "IF_1",
-            "index": 0
+            "index": 4
           },
           "input": [
             {
@@ -2495,10 +2479,10 @@
           ]
         },
         {
-          "name": "petasce__assign__kcmax_1",
+          "name": "petasce__assign__kcmax_2",
           "output": {
             "variable": "kcmax",
-            "index": 1
+            "index": 2
           },
           "input": [
             {
@@ -2508,31 +2492,31 @@
           ]
         },
         {
-          "name": "petasce__decision__kcmax_2",
+          "name": "petasce__decision__kcmax_4",
           "output": {
             "variable": "kcmax",
-            "index": 2
+            "index": 4
           },
           "input": [
             {
               "variable": "IF_1",
-              "index": 0
-            },
-            {
-              "variable": "kcmax",
-              "index": 0
+              "index": 4
             },
             {
               "variable": "kcmax",
               "index": 1
+            },
+            {
+              "variable": "kcmax",
+              "index": 2
             }
           ]
         },
         {
-          "name": "petasce__assign__kcmax_2",
+          "name": "petasce__assign__kcmax_3",
           "output": {
             "variable": "kcmax",
-            "index": 2
+            "index": 3
           },
           "input": [
             {
@@ -2557,7 +2541,7 @@
           "name": "petasce__condition__IF_2_2",
           "output": {
             "variable": "IF_2",
-            "index": 0
+            "index": 2
           },
           "input": [
             {
@@ -2567,23 +2551,23 @@
           ]
         },
         {
-          "name": "petasce__decision__kcmax_3",
+          "name": "petasce__decision__kcmax_5",
           "output": {
             "variable": "kcmax",
-            "index": 3
+            "index": 5
           },
           "input": [
             {
               "variable": "IF_2",
-              "index": 0
-            },
-            {
-              "variable": "kcmax",
               "index": 2
             },
             {
               "variable": "kcmax",
-              "index": 2
+              "index": 4
+            },
+            {
+              "variable": "kcmax",
+              "index": 3
             }
           ]
         },
@@ -2591,12 +2575,12 @@
           "name": "petasce__condition__IF_1_5",
           "output": {
             "variable": "IF_1",
-            "index": 0
+            "index": 5
           },
           "input": [
             {
               "variable": "kcb",
-              "index": 0
+              "index": 3
             },
             {
               "variable": "kcbmin",
@@ -2621,7 +2605,7 @@
           "input": [
             {
               "variable": "kcb",
-              "index": 0
+              "index": 3
             },
             {
               "variable": "kcbmin",
@@ -2629,11 +2613,7 @@
             },
             {
               "variable": "kcmax",
-              "index": 0
-            },
-            {
-              "variable": "kcbmin",
-              "index": 1
+              "index": 5
             },
             {
               "variable": "canht",
@@ -2650,7 +2630,7 @@
           "input": [
             {
               "variable": "IF_1",
-              "index": 0
+              "index": 5
             },
             {
               "variable": "fc",
@@ -2696,31 +2676,14 @@
           "input": [
             {
               "variable": "kcmax",
-              "index": 0
+              "index": 5
             },
             {
               "variable": "kcb",
-              "index": 0
+              "index": 3
             },
             {
               "variable": "few",
-              "index": 1
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__kc_1",
-          "output": {
-            "variable": "kc",
-            "index": 1
-          },
-          "input": [
-            {
-              "variable": "kcb",
-              "index": 0
-            },
-            {
-              "variable": "ke",
               "index": 1
             }
           ]
@@ -2734,7 +2697,7 @@
           "input": [
             {
               "variable": "kcb",
-              "index": 0
+              "index": 3
             },
             {
               "variable": "ke",

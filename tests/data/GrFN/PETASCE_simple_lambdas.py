@@ -105,7 +105,7 @@ def petasce__assign__ratio_3():
     return 1.0
 
 
-def petasce__decision__ratio_3(IF_1_0, ratio_1, ratio_2):
+def petasce__decision__ratio_4(IF_1_0, ratio_1, ratio_2):
     return ratio_2 if IF_1_0 else ratio_1
 
 
@@ -113,8 +113,8 @@ def petasce__condition__IF_2_0(ratio):
     return (ratio > 1.0)
 
 
-def petasce__decision__ratio_4(IF_2_0, ratio_3):
-    return ratio_3 if IF_2_0 else ratio_3
+def petasce__decision__ratio_5(IF_2_0, ratio_4, ratio_3):
+    return ratio_3 if IF_2_0 else ratio_4
 
 
 def petasce__assign__fcd_1(ratio):
@@ -145,44 +145,52 @@ def petasce__assign__wind2m_1(windsp, windht):
     return (windsp*(4.87/math.log(((67.8*windht)-5.42))))
 
 
+def petasce__assign__cn_1():
+    return 0.0
+
+
+def petasce__assign__cd_1():
+    return 0.0
+
+
 def petasce__condition__IF_1_2(meevp):
     return (meevp == "A")
 
 
-def petasce__assign__cn_1():
+def petasce__assign__cn_2():
     return 1600.0
 
 
-def petasce__assign__cd_1():
+def petasce__assign__cd_2():
     return 0.38
 
 
-def petasce__assign__cn_2():
+def petasce__assign__cn_3():
     return 900.0
 
 
-def petasce__assign__cd_2():
+def petasce__assign__cd_3():
     return 0.34
 
 
-def petasce__decision__cn_2(IF_1_0, cn_0, cn_1):
-    return cn_1 if IF_1_0 else cn_0
+def petasce__decision__cd_4(IF_1_0, cd_1, cd_2):
+    return cd_2 if IF_1_0 else cd_1
 
 
 def petasce__condition__IF_2_1(meevp):
     return (meevp == "G")
 
 
-def petasce__decision__cn_3(IF_2_0, cn_2):
-    return cn_2 if IF_2_0 else cn_2
+def petasce__decision__cd_5(IF_2_0, cd_4, cd_3):
+    return cd_3 if IF_2_0 else cd_4
 
 
-def petasce__decision__cd_3(IF_2_0, cd_0, cd_2):
-    return cd_2 if IF_2_0 else cd_0
+def petasce__decision__cn_4(IF_2_0, cn_1, cn_2):
+    return cn_2 if IF_2_0 else cn_1
 
 
-def petasce__decision__cd_4(IF_2_0, cd_0, cd_2):
-    return cd_2 if IF_2_0 else cd_0
+def petasce__decision__cn_5(IF_2_0, cn_4, cn_3):
+    return cn_3 if IF_2_0 else cn_4
 
 
 def petasce__assign__refet_1(udelta, rn, g, psycon, cn, tavg, wind2m, es, ea):
@@ -233,28 +241,32 @@ def petasce__assign__cht_1(canht):
     return max(0.001, canht)
 
 
+def petasce__assign__kcmax_1():
+    return 0.0
+
+
 def petasce__condition__IF_1_4(meevp):
     return (meevp == "A")
 
 
-def petasce__assign__kcmax_1(kcb):
+def petasce__assign__kcmax_2(kcb):
     return max(1.0, (kcb+0.05))
 
 
-def petasce__assign__kcmax_2(wnd, rhmin, cht, kcb):
+def petasce__assign__kcmax_3(wnd, rhmin, cht, kcb):
     return max((1.2+(((0.04*(wnd-2.0))-(0.004*(rhmin-45.0)))*((cht/3.0)**0.3))), (kcb+0.05))
 
 
-def petasce__decision__kcmax_2(IF_1_0, kcmax_0, kcmax_1):
-    return kcmax_1 if IF_1_0 else kcmax_0
+def petasce__decision__kcmax_4(IF_1_0, kcmax_1, kcmax_2):
+    return kcmax_2 if IF_1_0 else kcmax_1
 
 
 def petasce__condition__IF_2_2(meevp):
     return (meevp == "G")
 
 
-def petasce__decision__kcmax_3(IF_2_0, kcmax_2):
-    return kcmax_2 if IF_2_0 else kcmax_2
+def petasce__decision__kcmax_5(IF_2_0, kcmax_4, kcmax_3):
+    return kcmax_3 if IF_2_0 else kcmax_4
 
 
 def petasce__condition__IF_1_5(kcb, kcbmin):
@@ -283,10 +295,6 @@ def petasce__assign__few_1(fc, fw):
 
 def petasce__assign__ke_1(kcmax, kcb, few):
     return max(0.0, min((1.0*(kcmax-kcb)), (few*kcmax)))
-
-
-def petasce__assign__kc_1(kcb, ke):
-    return (kcb+ke)
 
 
 def petasce__assign__eo_0(kcb, ke, refet):
