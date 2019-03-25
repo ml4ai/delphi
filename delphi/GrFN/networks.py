@@ -8,6 +8,7 @@ import json
 import os
 import ast
 
+import torch
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
@@ -327,7 +328,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
     @utils.timeit
-    def run(self, inputs: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
+    def run(self, inputs: Dict[str, Union[float, Iterable]], torch_size=None) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
 
@@ -357,9 +358,12 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
                 # Run the lambda function and save the output
                 res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
-                if isinstance(res, complex):
-                    print(output_node, res)
-                self.nodes[output_node]["value"] = res
+                # print(func_name, signature)
+                if torch_size is not None and len(signature) == 0:
+                    self.nodes[output_node]["value"] = torch.tensor([res] * torch_size, dtype=torch.double)
+                else:
+                    self.nodes[output_node]["value"] = res
+                # print(self.nodes[output_node]["value"])
 
         # return the output
         return self.nodes[self.output_node]["value"]

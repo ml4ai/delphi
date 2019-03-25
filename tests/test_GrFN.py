@@ -4,6 +4,7 @@ import json
 import sys
 
 import numpy as np
+import torch
 
 from delphi.GrFN.networks import GroundedFunctionNetwork, NodeType
 
@@ -79,6 +80,43 @@ def test_petasce_creation_and_execution():
     assert res == 0.00012496980836348878
 
 
+def test_petasce_torch_execution():
+    lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
+    pgm = json.load(open(data_dir + "PETASCE_simple_torch.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+    # A = G.to_agraph()
+    # A.draw("petasce_torch.pdf", prog='dot')
+    # CAG = G.to_CAG_agraph()
+    # CAG.draw("petasce_CAG_torch.pdf", prog='dot')
+    # CG = G.to_call_agraph()
+    # CG.draw("petasce_call_graph_torch.pdf", prog='dot')
+
+    N = 1000000
+    samples = {
+        "petasce::doy_0": np.random.randint(1, 100, N),
+        "petasce::meevp_0": np.where(np.random.rand(N) >= 0.5, 'A', 'W'),
+        "petasce::msalb_0": np.random.uniform(0, 1, N),
+        "petasce::srad_0": np.random.uniform(1, 30, N),
+        "petasce::tmax_0": np.random.uniform(-30, 60, N),
+        "petasce::tmin_0": np.random.uniform(-30, 60, N),
+        "petasce::xhlai_0": np.random.uniform(0, 20, N),
+        "petasce::tdew_0": np.random.uniform(-30, 60, N),
+        "petasce::windht_0": np.random.uniform(0, 10, N),
+        "petasce::windrun_0": np.random.uniform(0, 900, N),
+        "petasce::xlat_0": np.random.uniform(0, 90, N),
+        "petasce::xelev_0": np.random.uniform(0, 6000, N),
+        "petasce::canht_0": np.random.uniform(0.001, 3, N),
+    }
+
+    values = {
+        k: torch.tensor(v, dtype=torch.double) if v.dtype != "<U1" else v
+        for k, v in samples.items()
+    }
+
+    res = G.run(values, torch_size=N)
+    print(res)
+
+
 def test_petpt_numpy_execution():
     lambdas = importlib.__import__("PETPT_numpy_lambdas")
     pgm = json.load(open(data_dir + "PETPT_numpy.json", "r"))
@@ -107,3 +145,6 @@ def test_ProgramAnalysisGraph_from_GrFN():
     A = G.to_agraph()
     CAG = G.to_CAG_agraph()
     CG = G.to_call_agraph()
+
+
+test_petasce_torch_execution()

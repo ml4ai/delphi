@@ -6,7 +6,7 @@ def timeit(method):
     """Timing wrapper for exectuion comparison."""
     def timed(*args, **kw):
         ts = time.time()
-        result = method(*args)
+        result = method(*args, **kw)
         te = time.time()
         print(f"{method.__name__}:\t{((te - ts) * 1000):2.4f}ms")
         return result
