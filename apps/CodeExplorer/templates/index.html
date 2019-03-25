@@ -5,7 +5,7 @@
       {% include "navbar.html" %}
       <div class="row justify-content-md-center" 
            style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-      <div class="col-lg-3">
+      <div class="col-3">
         <div class="row" style="padding-left: 15px; padding-right: 15px;">
           <div class="dropdown">
             <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
@@ -18,12 +18,16 @@
               <a id="petPT" class="dropdown-item" href="#">Priestley-Taylor model of Evapotranspiration (DSSAT)</a>
             </div>
           </div>
-          <button type="button" class="btn-sm btn-primary" data-toggle="modal"
-            data-target="#exampleModal" style="margin-left: auto;">About</button>
+          <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
+            data-target="#helpModal" style="margin-left: auto;">
+            Help
+          </button>
         </div>
 
         <form method="POST" action="{{ url_for('processCode') }}">
-          <textarea id="flask-codemirror-source_code" name="source_code">{{ code | safe }}</textarea>
+          <textarea id="flask-codemirror-source_code" name="source_code">
+            {{ code | safe }}
+          </textarea>
           <script>
             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
             var editor_for_source_code = CodeMirror.fromTextArea(
@@ -64,14 +68,14 @@
           <input type="submit" value="Submit" class="btn btn-outline-primary btn-sm">
         </form>
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          {% for message in messages %}
-            <div class="alert alert-danger">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
       </div>
-      <div id="viewpane" class="col-lg-9">
+      <div id="viewpane" class="col-9">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
           {% for id, label in {
             'computational_graph': 'Function Network',
@@ -100,61 +104,6 @@
         </div>
       </div>
       <script> {% include "cyjs.js" %} </script>
-      <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-           aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              Input Fortran code in the code editor area and hit the
-              'Submit' button. Two examples are provided to get started:
-              <ul>
-                <li>
-                  <a href="https://raw.githubusercontent.com/ml4ai/delphi/master/tests/data/crop_yield.f">crop_yield.f: </a>
-                  A toy example of a crop yield model that contains some important
-                  representative Fortran features for control flow like for-loops
-                  and conditional statements. 
-                </li>
-                <li>
-                  <a href="https://raw.githubusercontent.com/ml4ai/delphi/master/tests/data/PETPT.for">PETPT.for:</a>
-                  A 'real-world' example of a model - this is the Priestley-Taylor
-                  model of Potential Evapotranspiration, as implemented in the 
-                  <a href="https://dssat.net">DSSAT</a>
-                  crop model.
-                </li>
-              </ul>
-              Things you can try doing:
-              <ul>
-                <li>Click on the __assign__ nodes to view the equation that is
-                  automatically constructed from the code, and typeset with LaTeX.</li>
-                <li>Rename a variable in the code and resubmit it for processing
-                  (make sure to rename all instances of it in the code!)
-              </ul>
-                <p>
-              For more information, please visit the AutoMATES project homepage at <a
-                href="https://ml4ai.github.io/automates">ml4ai.github.io/automates.</a></p>
-              AutoMATES is funded by the Defense Advanced Research Projects Agency
-              (DARPA) under the Automated Scientific Knowledge Extraction (ASKE)
-              program.
-              <div class="row" style="padding-top: 2rem; margin-left: auto; margin-right: auto;">
-                  <img src="static/ml4ai.png" alt="ML4AI" class="rounded"
-                      style="max-height: 70px; width: auto; padding-right: 3rem; padding-left: 3rem;">
-                  <img src="static/ua_logo.png" alt="University of Arizona" class="rounded"
-                      style="max-height: 50px; width: auto;">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary"
-                      data-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% include "help.html" %}
   </body>
 </html>
