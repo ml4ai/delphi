@@ -52,7 +52,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         self.model_inputs = [n for n in self.inputs
                              if self.nodes[n].get("type") == "variable"]
         self.output_node = self.outputs[-1]
-        self.build_call_graph()
+        self.call_graph = self.build_call_graph()
         self.build_function_sets()
 
     def __repr__(self):
@@ -133,6 +133,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 basename = basename,
                 is_loop_index = is_loop_index,
                 padding=15,
+                value=None,
             )
 
         def process_container(container, loop_index_variable = None, inputs = {}):
@@ -257,23 +258,23 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 self.nodes[n]["func_visited"] = False
 
     def build_call_graph(self):
-        edges = list()
+        function_nodes = [
+            n[0]
+            for n in self.nodes(data=True)
+            if n[1]["type"] == "function"
+        ]
 
-        def update_edge_set(cur_fns):
-            for c in cur_fns:
-                nxt_fns = [p for v in self.successors(c)
-                           for p in self.successors(v)]
-                edges.extend([(c, n) for n in nxt_fns])
-                update_edge_set(list(set(nxt_fns)))
+        G=nx.DiGraph()
+        for fn in function_nodes:
+            for pred_var in self.predecessors(fn):
+                for pred_fn in self.predecessors(pred_var):
+                    G.add_edge(pred_fn, fn)
 
-        for inp in self.model_inputs:
-            print(inp)
-        print(len(self.model_inputs))
-        update_edge_set(list({n for v in self.model_inputs for n in self.successors(v)}))
-        self.call_graph = nx.DiGraph()
-        self.call_graph.add_edges_from(edges)
+        return G
 
     def build_function_sets(self):
+        # TODO - this fails when there is only one function node in the graph -
+        # need to fix!
         initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
         distances = dict()
 
@@ -296,7 +297,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
         function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
-    @utils.timeit
     def run(self, inputs: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
@@ -320,13 +320,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         for func_set in self.function_sets:
             for func_name in func_set:
-                # Get function arguments via signature derived from JSON
-                signature = self.nodes[func_name]["func_inputs"]
                 lambda_fn = self.nodes[func_name]["lambda_fn"]
                 output_node = list(self.successors(func_name))[0]
 
                 # Run the lambda function and save the output
-                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
+                ivals = {
+                    ''.join(i.split('::')[1].split('_')[:-1]):self.nodes[i]["value"]
+                    for i in self.predecessors(func_name)
+                }
+
+                res = lambda_fn(**ivals)
                 self.nodes[output_node]["value"] = res
 
         # return the output
@@ -531,6 +534,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         self.build_function_sets()
 
     def build_call_graph(self):
+
         edges = list()
 
         def update_edge_set(cur_fns):
@@ -573,7 +577,6 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
-    @utils.timeit
     def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.

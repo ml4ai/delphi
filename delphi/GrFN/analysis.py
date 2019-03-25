@@ -56,7 +56,8 @@ def max_S2_sensitivity_surface(G, num_samples, sizes, bounds, presets):
 
     """
     args = G.inputs
-    Si = sobol_analysis(G, num_samples, {
+    Si = sobol_analysis(G,
+        num_samples, {
         'num_vars': len(args),
         'names': args,
         'bounds': [bounds[arg] for arg in args]

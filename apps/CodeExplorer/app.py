@@ -259,6 +259,7 @@ def processCode():
     G = GroundedFunctionNetwork.from_python_src(
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
+    # G = GroundedFunctionNetwork.from_dict()
 
     A = G.to_agraph()
     A.draw('crop_yield.pdf', prog='dot')
@@ -278,7 +279,7 @@ def processCode():
         "petpt::xhlai_0": 10,
     }
 
-    # xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
+    xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
