@@ -327,7 +327,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
         self.function_sets = [func_set for _, func_set in function_set_dists]
 
-    @utils.timeit
+    # @utils.timeit
     def run(self, inputs: Dict[str, Union[float, Iterable]], torch_size=None) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.

@@ -55,7 +55,7 @@ def max_S2_sensitivity_surface(G, num_samples, sizes, bounds, presets):
             Z: The numpy matrix of output evaluations
 
     """
-    args = G.inputs
+    args = G.model_inputs
     Si = sobol_analysis(G, num_samples, {
         'num_vars': len(args),
         'names': args,

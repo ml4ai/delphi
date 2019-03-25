@@ -7,13 +7,33 @@ from delphi.GrFN.utils import timeit
 
 
 @timeit
-def sobol_analysis(network, num_samples, prob_def):
+def sobol_analysis(network, num_samples, prob_def, use_torch=False, var_types=None):
+    def create_input_tensor(name, samples):
+        type_info = var_types[name]
+        if isinstance(type_info[0], str):
+            (val1, val2) = type_info[1]
+            return torch.tensor([val1 if s >= 0.5 else val2 for s in samples])
+        else:
+            return torch.tensor(samples)
+
     print("Sampling via Saltelli...")
     samples = saltelli.sample(prob_def, num_samples, calc_second_order=True)
-    samples = np.split(samples, samples.shape[1], axis=1)
-    values = {n: torch.tensor(s) for n, s in zip(prob_def["names"], samples)}
     print("Running GrFN...")
-    Y = network.run(values).numpy()
+    if use_torch:
+        samples = np.split(samples, samples.shape[1], axis=1)
+        if var_types is None:
+            values = {n: torch.tensor(s)
+                      for n, s in zip(prob_def["names"], samples)}
+        else:
+            values = {n: create_input_tensor(n, s)
+                      for n, s in zip(prob_def["names"], samples)}
+        Y = network.run(values).numpy()
+    else:
+        Y = np.zeros(samples.shape[0])
+        for i, sample in enumerate(samples):
+            values = {n: val for n, val in zip(prob_def["names"], sample)}
+            Y[i] = network.run(values)
+
     print("Analyzing via Sobol...")
     return sobol.analyze(prob_def, Y, print_to_console=True)
 
