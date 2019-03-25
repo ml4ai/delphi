@@ -45,8 +45,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
     def __init__(self, G, scope_tree):
         super().__init__(G)
         self.scope_tree = scope_tree
-        A = nx.nx_agraph.to_agraph(self.to_CAG())
-        A.draw('petasce_cag.pdf', prog='dot')
         self.inputs = [n for n, d in self.in_degree() if d == 0 and self.nodes[n]["type"] == "variable"]
         self.outputs = [n for n, d in self.out_degree() if d == 0 and self.nodes[n]["type"] == "variable"]
         self.model_inputs = [n for n in self.inputs if self.nodes[n]["type"] == "variable"]
@@ -148,7 +146,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             type="function",
                             lambda_fn = getattr(lambdas, stmt["name"]),
                             shape="rectangle",
-                            parent=container["name"],
+                            parent=parent,
                             label=stmt_type[0].upper(),
                             padding=10,
                         )
@@ -168,7 +166,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                             input_node = f"{input['variable']}_{input['index']}"
                             add_variable_node(
                                 input['variable'],
-                                container["name"],
+                                parent,
                                 input['index'],
                                 input["variable"] == loop_index_variable
                             )
@@ -190,7 +188,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     process_container(
                         functions[stmt["function"]],
                     )
-
 
         root=data["start"]
         scope_tree.add_node(root, color="green")
