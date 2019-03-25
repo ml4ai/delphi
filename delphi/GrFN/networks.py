@@ -230,7 +230,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=save_file    # HACK
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"},    # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
