@@ -318,11 +318,16 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 output_node = list(self.successors(func_name))[0]
 
                 # Run the lambda function and save the output
-                input_value_dict = {
-                    ''.join(i.split('::')[1].split('_')[:-1]):self.nodes[i]["value"]
-                    for i in self.predecessors(func_name)
-                }
-
+                if "decision" not in func_name:
+                    input_value_dict = {
+                        ''.join(i.split('::')[1].split('_')[:-1]):self.nodes[i]["value"]
+                        for i in self.predecessors(func_name)
+                    }
+                else:
+                    input_value_dict = {
+                        i.split('::')[1]:self.nodes[i]["value"]
+                        for i in self.predecessors(func_name)
+                    }
                 res = lambda_fn(**input_value_dict)
                 self.nodes[output_node]["value"] = res
 
