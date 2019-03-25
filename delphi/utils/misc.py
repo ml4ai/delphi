@@ -32,7 +32,7 @@ def multiple_replace(d: Dict[str, str], text: str) -> str:
     https://www.oreilly.com/library/view/python-cookbook/0596001673/ch03s15.html
     """
   # Create a regular expression from all of the dictionary keys
-  regex = re.compile("|".join(map(re.escape, d.keys())))
+    regex = re.compile("|".join(map(re.escape, d.keys())))
 
   # For each match, look up the corresponding value in the dictionary
-  return regex.sub(lambda match: d[match.group(0)], text)
+    return regex.sub(lambda match: d[match.group(0)], text)

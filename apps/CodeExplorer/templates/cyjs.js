@@ -28,7 +28,11 @@
                       } 
                     }
                 ],
-            layout: { name: 'dagre' , rankDir: 'TB'},
+            layout: { 
+              name: 'dagre',
+              rankDir: 'TB',
+              nodeDimensionsIncludeLabels: true
+            },
             maxZoom : 2,
             minZoom : 0.1,
             selectionType: 'additive'

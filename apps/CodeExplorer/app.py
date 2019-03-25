@@ -15,7 +15,6 @@ from delphi.translators.for2py import (
     For2PyError,
 )
 from delphi.utils.fp import flatten
-from delphi.utils.misc import multiple_replace
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.analysis import max_S2_sensitivity_surface
 from delphi.GrFN.utils import NodeType, get_node_type
