@@ -15,6 +15,7 @@ from delphi.translators.for2py import (
     For2PyError,
 )
 from delphi.utils.fp import flatten
+from delphi.utils.misc import multiple_replace
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.analysis import max_S2_sensitivity_surface
 from delphi.GrFN.utils import NodeType, get_node_type
@@ -82,7 +83,8 @@ def get_tooltip(n, src):
             src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
             + " = "
             + latex(
-                sympify(src_lines[1][10:].replace("math.exp", "e^"))
+                sympify(src_lines[1][10:].replace("math.","")),
+                mul_symbol = "dot"
             ).replace("_", "\_")
         )
         return """
@@ -195,10 +197,11 @@ def to_cyjs_cag(G):
                     "parent": "parent",
                     "shape": "ellipse",
                     "color": "maroon",
-                    "textValign": "top",
+                    "textValign": "center",
                     "tooltip": n[0],
-                    "width": 10,
-                    "height": 10,
+                    "width": "label",
+                    "height": "label",
+                    "padding": 15,
                 }
             }
             for n in G.nodes(data=True)
