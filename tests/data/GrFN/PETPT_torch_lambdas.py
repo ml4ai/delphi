@@ -30,7 +30,4 @@ def petpt__decision__eo_2(tmax, eeq, eo_1):
 
 
 def petpt__assign__eo_3(eo):
-    # eo = eo.reshape((len(eo), 1))
-    eo = torch.unsqueeze(eo, -1)
-    res = torch.max(torch.cat((eo, torch.full_like(eo, 0.0001)), dim=-1), dim=-1)
-    return res[0].squeeze(-1)
+    return torch.max(eo, torch.full_like(eo, 0.0001))
