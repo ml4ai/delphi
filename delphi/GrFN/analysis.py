@@ -2,11 +2,8 @@ import numpy as np
 from tqdm import tqdm
 import torch
 
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from matplotlib import cm
 
-from delphi.GrFN.sensitivity import sobol_analysis
+from delphi.GrFN.utils import timeit
 
 
 def get_forward_influence_blankets(GrFN1, GrFN2):
@@ -38,7 +35,8 @@ def get_max_s2_sensitivity(S2_mat):
     return max(get_S2_ranks(S2_mat), key=lambda tup: abs(tup[0]))
 
 
-def max_S2_sensitivity_surface(G, num_samples, sizes, bounds, presets):
+@timeit
+def S2_surface(G, sizes, bounds, presets, use_torch=False):
     """Calculates the sensitivity surface of a GrFN for the two variables with the highest S2 index.
 
     Args:
@@ -55,34 +53,29 @@ def max_S2_sensitivity_surface(G, num_samples, sizes, bounds, presets):
             Z: The numpy matrix of output evaluations
 
     """
-    args = G.inputs
-    Si = sobol_analysis(G,
-        num_samples, {
-        'num_vars': len(args),
-        'names': args,
-        'bounds': [bounds[arg] for arg in args]
-    })
-    S2 = Si["S2"]
-    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+    X = np.linspace(*bounds[0][1], sizes[0])
+    Y = np.linspace(*bounds[1][1], sizes[1])
 
-    x_var = args[v1]
-    x_bounds = bounds[x_var]
-    X = np.linspace(*x_bounds, sizes[0])
-
-    y_var = args[v2]
-    y_bounds = bounds[y_var]
-    Y = np.linspace(*y_bounds, sizes[1])
-
-    Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
-    inputs = {
-        x_var: Xm,
-        y_var: Ym
-    }
-
-    for i, arg in enumerate(args):
-        if i != v1 and i != v2:
-            inputs[arg] = torch.full_like(Xm, presets[arg])
-
-    Z = G.run(inputs)
-
-    return (x_var, y_var), (X, Y), Z.numpy()
+    if use_torch:
+        print("Using Torch for surface calculation")
+        Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
+        inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
+        print(inputs)
+        inputs.update({
+            bounds[0][0]: Xm,
+            bounds[1][0]: Ym
+        })
+        Z = G.run(inputs).numpy()
+    else:
+        print("Performing surface calculation")
+        Xm, Ym = np.meshgrid(X, Y)
+        Z = np.zeros((len(X), len(Y)))
+        for x in tqdm(range(len(X)), desc="Eval samples"):
+            for y in range(len(Y)):
+                inputs = {n: v for n, v in presets.items()}
+                inputs.update({
+                    bounds[0][0]: x,
+                    bounds[1][0]: y
+                })
+                Z[x][y] = G.run(inputs)
+    return X, Y, Z
