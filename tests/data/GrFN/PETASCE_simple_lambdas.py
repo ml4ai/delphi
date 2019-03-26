@@ -181,7 +181,7 @@ def petasce__assign__cht_1(canht):
     return max(0.001, canht)
 
 def petasce__assign__kcmax_1():
-    return 0.0
+    return 0.5
 
 def petasce__condition__IF_1_4(meevp):
     return (meevp == "A")
@@ -222,9 +222,9 @@ def petasce__assign__few_1(fc, fw):
 def petasce__assign__ke_1(kcmax, kcb, few):
     return max(0.0, min((1.0*(kcmax-kcb)), (few*kcmax)))
 
-def petasce__assign__eo_1(kcb, ke, refet):
+def petasce__assign__eo_0(kcb, ke, refet):
     return ((kcb+ke)*refet)
 
-def petasce__assign__eo_2(eo):
+def petasce__assign__eo_1(eo):
     return max(eo, 0.0001)
 

@@ -141,7 +141,7 @@ C      HACK: adding initialized values due to possible undefined behavior
       CHT = MAX(0.001,CANHT)
 
 C     HACK: Another one like the above
-      KCMAX = 0.0
+      KCMAX = 0.5           ! HACK: Guarantees greater that KCBMIN
       IF (MEEVP .EQ. 'A') THEN
         KCMAX = MAX(1.0,KCB+0.05)
       ELSE IF (MEEVP .EQ. 'G') THEN

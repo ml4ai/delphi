@@ -21,13 +21,13 @@ def sobol_analysis(network, num_samples, prob_def, use_torch=False, var_types=No
     print("Running GrFN...")
     if use_torch:
         samples = np.split(samples, samples.shape[1], axis=1)
+        samples = [s.squeeze() for s in samples]
         if var_types is None:
             values = {n: torch.tensor(s)
                       for n, s in zip(prob_def["names"], samples)}
         else:
             values = {n: create_input_tensor(n, s)
                       for n, s in zip(prob_def["names"], samples)}
-        print(samples[0])
         Y = network.run(values, torch_size=len(samples[0])).numpy()
     else:
         Y = np.zeros(samples.shape[0])
@@ -44,6 +44,7 @@ def FAST_analysis(network, num_samples, prob_def):
     print("Sampling via FAST sampler...")
     samples = fast_sampler.sample(prob_def, num_samples)
     samples = np.split(samples, samples.shape[1], axis=1)
+    samples = [s.squeeze() for s in samples]
     values = {n: torch.tensor(s) for n, s in zip(prob_def["names"], samples)}
     print("Running GrFN...")
     Y = network.run(values).numpy()
@@ -57,6 +58,7 @@ def RBD_FAST_analysis(network, num_samples, prob_def):
     samples = latin.sample(prob_def, num_samples)
     X = samples
     samples = np.split(samples, samples.shape[1], axis=1)
+    samples = [s.squeeze() for s in samples]
     values = {n: torch.tensor(s) for n, s in zip(prob_def["names"], samples)}
     print("Running GrFN..")
     Y = network.run(values).numpy()

@@ -60,7 +60,6 @@ def S2_surface(G, sizes, bounds, presets, use_torch=False):
         print("Using Torch for surface calculation")
         Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
         inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
-        print(inputs)
         inputs.update({
             bounds[0][0]: Xm,
             bounds[1][0]: Ym
