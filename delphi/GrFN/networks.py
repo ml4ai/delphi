@@ -202,7 +202,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
     @classmethod
-    def from_python_src(cls, pySrc, lambdas_path, json_filename: str, stem: str, save_file: bool=True):
+    def from_python_src(cls, pySrc, lambdas_path, json_filename: str, stem: str, save_file: bool=False):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
@@ -292,7 +292,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         function_sets = [func_set for _, func_set in function_set_dists]
         return function_sets
 
-    def run(self, inputs: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
+    def run(self, inputs: Dict[str, Union[float, Iterable]], torch_size: Optional[int] = None) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
 
@@ -329,6 +329,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         for i in self.predecessors(func_name)
                     }
                 res = lambda_fn(**input_value_dict)
+                if torch_size is not None and len(self.predecessors(func_name)) == 0:
+                    self.nodes[output_node]["value"] = torch.tensor([res] * torch_size, dtype=torch.double)
+                else:
+                    self.nodes[output_node]["value"] = res
                 self.nodes[output_node]["value"] = res
 
         # return the output
