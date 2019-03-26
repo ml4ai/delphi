@@ -39,7 +39,7 @@ from flask_codemirror import CodeMirror
 import inspect
 
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, JsonLexer
 from pygments.formatters import HtmlFormatter
 
 import plotly.graph_objs as go
@@ -58,8 +58,11 @@ class MyForm(FlaskForm):
     submit = SubmitField("Submit", render_kw={"class": "btn btn-primary"})
 
 
-LEXER = PythonLexer()
-FORMATTER = HtmlFormatter()
+PYTHON_LEXER = PythonLexer()
+PYTHON_FORMATTER = HtmlFormatter()
+
+JSON_LEXER = JsonLexer()
+JSON_FORMATTER = HtmlFormatter()
 
 
 SECRET_KEY = "secret!"
@@ -113,7 +116,7 @@ def get_tooltip(n, src):
             </div>
         </div>
         """.format(
-            ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
+            ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
         )
 
 
@@ -310,7 +313,8 @@ def processCode():
         "index.html",
         form=form,
         code=app.code,
-        python_code=highlight(pySrc, LEXER, FORMATTER),
+        python_code=highlight(pySrc, PYTHON_LEXER, PYTHON_FORMATTER),
+        grfn_json = highlight(json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
