@@ -9,8 +9,6 @@ import torch
 from delphi.GrFN.networks import GroundedFunctionNetwork, NodeType
 
 data_dir = "tests/data/GrFN/"
-sys.path.insert(0, "tests/data/GrFN/")
-
 
 def test_petpt_creation_and_execution():
     filepath = "tests/data/GrFN/PETPT.for"

@@ -1,3 +1,4 @@
+import pytest
 import inspect
 import importlib
 import json
@@ -8,11 +9,10 @@ from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_anal
 import delphi.GrFN.analysis as analysis
 
 
-sys.path.insert(0, "tests/data/GrFN/")
-
+sys.path.insert(0, "tests/data")
 
 def test_regular_PETPT():
-    filepath = "tests/data/GrFN/PETPT.for"
+    filepath = "tests/data/PETPT.for"
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
     args = G.model_inputs
@@ -30,15 +30,16 @@ def test_regular_PETPT():
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Ns = 1000                      # TODO: Khan, experiment with this value
+    Ns = 1000 # TODO: Khan, experiment with this value
     Si = sobol_analysis(G, Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
 
+@pytest.mark.skip("Need to update to latest JSON")
 def test_PETPT_with_torch():
     lambdas = importlib.__import__("PETPT_torch_lambdas")
-    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
+    pgm = json.load(open("tests/data/PETPT.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
     args = G.model_inputs
@@ -70,9 +71,10 @@ def test_PETPT_with_torch():
     assert len(Si["S1"]) == len(args)
 
 
+@pytest.mark.skip("Need to update to latest JSON")
 def test_PETASCE_sobol_analysis():
     lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
-    pgm = json.load(open("tests/data/GrFN/PETASCE_simple_torch.json", "r"))
+    pgm = json.load(open("tests/data/GrFN/PETASCE_simple.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
     bounds = {
