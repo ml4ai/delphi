@@ -176,4 +176,19 @@ def test_PETPT_sensitivity_surface():
     assert Z.shape == (1000, 1000)
 
 
-test_PETASCE_sobol_analysis()
+def test_FIB_creation():
+    filepath = "tests/data/GrFN/PETPT.for"
+    PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
+    filepath = "tests/data/GrFN/PETASCE_simple.for"
+    PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
+    f1, f2 = analysis.get_forward_influence_blankets(PETPT_GrFN, PETASCE_GrFN)
+    A1 = f1.to_agraph()
+    A1.draw("PETPT_FIB.pdf", prog="dot")
+    A2 = f2.to_agraph()
+    A2.draw("PETASCE_FIB.pdf", prog="dot")
+
+
+
+test_FIB_creation()
