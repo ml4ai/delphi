@@ -121,10 +121,8 @@ def test_PETASCE_sobol_analysis():
 
 
 def test_PETPT_sensitivity_surface():
-    sys.path.insert(0, "tests/data/GrFN/")
-    lambdas = importlib.__import__("PETPT_torch_lambdas")
-    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
-    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+    filepath = "tests/data/GrFN/PETPT.for"
+    G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
     bounds = {
         "petpt::msalb_0": (0, 1),
@@ -140,12 +138,26 @@ def test_PETPT_sensitivity_surface():
         "petpt::tmin_0": 10,
         "petpt::xhlai_0": 10,
     }
-    (xname, yname), (X, Y), Z = analysis.max_S2_sensitivity_surface(G, 1000, (800, 600), bounds, presets)
+
+    args = G.model_inputs
+    Si = sobol_analysis(G, 1000, {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    })
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = analysis.get_max_s2_sensitivity(S2)
+
+    x_var = args[v1]
+    y_var = args[v2]
+    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+    preset_vals = {
+        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    }
+
+    (X, Y, Z) = analysis.S2_surface(G, (800, 600), search_space, preset_vals)
+    print(Z)
 
     assert X.shape == (800,)
     assert Y.shape == (600,)
     assert Z.shape == (800, 600)
-
-
-# test_regular_PETPT()
-test_PETASCE_sobol_analysis()

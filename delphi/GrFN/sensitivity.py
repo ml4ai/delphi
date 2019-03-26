@@ -10,9 +10,9 @@ from delphi.GrFN.utils import timeit
 def sobol_analysis(network, num_samples, prob_def, use_torch=False, var_types=None):
     def create_input_tensor(name, samples):
         type_info = var_types[name]
-        if isinstance(type_info[0], str):
+        if type_info[0] == str:
             (val1, val2) = type_info[1]
-            return torch.tensor([val1 if s >= 0.5 else val2 for s in samples])
+            return np.where(samples >= 0.5, val1, val2)
         else:
             return torch.tensor(samples)
 
@@ -27,7 +27,8 @@ def sobol_analysis(network, num_samples, prob_def, use_torch=False, var_types=No
         else:
             values = {n: create_input_tensor(n, s)
                       for n, s in zip(prob_def["names"], samples)}
-        Y = network.run(values).numpy()
+        print(samples[0])
+        Y = network.run(values, torch_size=len(samples[0])).numpy()
     else:
         Y = np.zeros(samples.shape[0])
         for i, sample in enumerate(samples):
