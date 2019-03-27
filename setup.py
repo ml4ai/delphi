@@ -45,6 +45,10 @@ setup(
         "tangent",
         "torch",
         "ruamel.yaml",
+        "flask-WTF",
+        "flask-codemirror",
+        "pygments",
+        "sympy",
     ],
     python_requires=">=3.6",
     extras_require={
