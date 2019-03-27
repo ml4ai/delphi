@@ -52,7 +52,7 @@ from sympy import sympify, latex, symbols
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
-grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments")
+grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
 with open(grfn_with_alignments, "r") as f:
     tr_dict = json.load(f)
     tr_dict_processed = {}
