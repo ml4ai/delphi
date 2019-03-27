@@ -369,33 +369,21 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return self.nodes[self.output_node]["value"]
 
     def to_CAG(self):
-        nodes, edges = list(), list()
+        edges = list()
 
-        def gather_nodes_and_edges(prev_name, inputs):
-            """Recursively constructs CAG node and edge sets via variable lists.
+        def find_nodes_and_edges(node_set):
+            for node in node_set:
+                uniq_name = node[node.find("::") + 2: node.rfind("_")]
+                next_nodes = list()
+                for func_node in self.predecessors(node):
+                    for var_node in self.predecessors(func_node):
+                        prev_name = var_node[var_node.find("::") + 2: var_node.rfind("_")]
+                        edges.append((prev_name, uniq_name))
+                        next_nodes.append(var_node)
+                find_nodes_and_edges(next_nodes)
 
-            Args:
-                prev_name: Parent variable of the input variable set.
-                inputs: set of current variables.
-
-            Returns:
-                type: None.
-
-            """
-            for name in inputs:
-                uniq_name = name[name.find("::") + 2: name.rfind("_")]
-                nodes.append(uniq_name)
-
-                if prev_name is not None:
-                    edges.append((prev_name, uniq_name))
-
-                next_inputs = list(set([v for f in self.successors(name)
-                                        for v in self.successors(f)]))
-                gather_nodes_and_edges(uniq_name, next_inputs)
-
-        gather_nodes_and_edges(None, self.model_inputs)
+        find_nodes_and_edges([self.output_node])
         CAG = nx.DiGraph()
-        CAG.add_nodes_from(nodes)
         CAG.add_edges_from(edges)
         return CAG
 
@@ -415,8 +403,10 @@ class GroundedFunctionNetwork(nx.DiGraph):
                            if d["type"] == NodeType.VARIABLE]
 
         shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
+        print(shared_vars)
         full_shared_vars = {full_var for shared_var in shared_vars
                             for full_var in shortname_vars(self, shared_var)}
+        print(full_shared_vars)
 
         return ForwardInfluenceBlanket(self, full_shared_vars)
 
@@ -491,6 +481,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         super(ForwardInfluenceBlanket, self).__init__()
         self.inputs = set(G.model_inputs).intersection(shared_nodes)
         self.output_node = G.output_node
+        print(self.inputs)
 
         # Get all paths from shared inputs to shared outputs
         path_inputs = shared_nodes - {self.output_node}
@@ -498,20 +489,41 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         paths = [p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)]
 
         # Get all edges needed to blanket the included nodes
-        main_nodes = {node for path in paths for node in path} - self.inputs - {self.output_node}
+        main_nodes = {node for path in paths for node in path}
         main_edges = {(n1, n2) for p in paths for n1, n2 in zip(p, p[1:])}
         self.cover_nodes, cover_edges = set(), set()
-        for path in paths:
-            first_node = path[0]
-            for func_node in G.predecessors(first_node):
-                for var_node in G.predecessors(func_node):
+        # add_nodes, add_edges = set(), set()
+        for node in main_nodes:
+            if G.nodes[node]["type"].is_function_node():
+                # for func_node in G.predecessors(node):
+                for var_node in G.predecessors(node):
                     if var_node not in main_nodes:
                         self.cover_nodes.add(var_node)
-                        main_nodes.add(func_node)
-                        cover_edges.add((var_node, func_node))
-                        main_edges.add((func_node, first_node))
+                        # add_nodes.add(func_node)
+                        cover_edges.add((var_node, node))
+                        # add_edges.add((func_node, node))
+
+        main_nodes = main_nodes - self.inputs - {self.output_node}
+        # main_nodes |= add_nodes
+        # main_edges |= add_edges
+
+        # for path in paths:
+        #     first_node = path[0]
+        #     if first_node == "petasce::ratio_1":
+        #         preds = list(G.predecessors(first_node))
+        #         print(preds)
+        #         print([G.predecessors(p) for p in preds])
+        #     for func_node in G.predecessors(first_node):
+        #         for var_node in G.predecessors(func_node):
+        #             if var_node not in main_nodes and var_node not in self.inputs:
+        #                 self.cover_nodes.add(var_node)
+        #                 main_nodes.add(func_node)
+        #                 cover_edges.add((var_node, func_node))
+        #                 main_edges.add((func_node, first_node))
 
         orig_nodes = G.nodes(data=True)
+        # print(self.cover_nodes)
+        # print(main_nodes)
         self.add_nodes_from(
             [(n, d) for n, d in orig_nodes if n in self.inputs],
             color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
@@ -522,23 +534,15 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT
         )
         self.add_nodes_from(
-            [(n, d) for n, d in orig_nodes if n in main_nodes],
-            fontname=FONT
-        )
-        self.add_nodes_from(
             [(n, d) for n, d in orig_nodes if n in self.cover_nodes],
             color=forestgreen, fontcolor=forestgreen, fontname=FONT,
         )
-        self.add_edges_from(main_edges)
-        self.add_edges_from(
-            cover_edges, color=forestgreen,
-            fontcolor=forestgreen, fontname=FONT,
+        self.add_nodes_from(
+            [(n, d) for n, d in orig_nodes if n in main_nodes],
+            fontname=FONT
         )
-
-        for node_name in shared_nodes:
-            for dest in self.successors(node_name):
-                self[node_name][dest]["color"] = dodgerblue3
-                self[node_name][dest]["fontcolor"] = dodgerblue3
+        self.add_edges_from(main_edges)
+        self.add_edges_from(cover_edges)
 
         # NOTE: Adding cut nodes as needed for display only!!
         # cut_nodes = [n for n in G.nodes if n not in self.nodes]

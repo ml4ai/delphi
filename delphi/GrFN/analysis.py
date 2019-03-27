@@ -2,14 +2,7 @@ import numpy as np
 from tqdm import tqdm
 import torch
 
-
 from delphi.GrFN.utils import timeit
-
-
-def get_forward_influence_blankets(GrFN1, GrFN2):
-    FIB1 = GrFN1.to_FIB(GrFN2)
-    FIB2 = GrFN2.to_FIB(GrFN1)
-    return FIB1, FIB2
 
 
 def get_S2_ranks(S2_mat):

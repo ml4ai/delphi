@@ -179,14 +179,27 @@ def test_PETPT_sensitivity_surface():
 def test_FIB_creation():
     filepath = "tests/data/GrFN/PETPT.for"
     PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+    # A = PETPT_GrFN.to_agraph()
+    # A.draw("PETPT_GrFN.pdf", prog="dot")
+    # A = PETPT_GrFN.to_call_agraph()
+    # A.draw("PETPT_CG.pdf", prog="dot")
+    A = PETPT_GrFN.to_CAG_agraph()
+    A.draw("PETPT_CAG.pdf", prog="dot")
 
     filepath = "tests/data/GrFN/PETASCE_simple.for"
     PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+    # A = PETASCE_GrFN.to_agraph()
+    # A.draw("PETASCE_GrFN.pdf", prog="dot")
+    # A = PETASCE_GrFN.to_call_agraph()
+    # A.draw("PETASCE_CG.pdf", prog="dot")
+    A = PETASCE_GrFN.to_CAG_agraph()
+    A.draw("PETASCE_CAG.pdf", prog="dot")
 
-    f1, f2 = analysis.get_forward_influence_blankets(PETPT_GrFN, PETASCE_GrFN)
-    A1 = f1.to_agraph()
-    A1.draw("PETPT_FIB.pdf", prog="dot")
-    A2 = f2.to_agraph()
+    # PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
+    PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
+    # A1 = PETPT_FIB.to_agraph()
+    # A1.draw("PETPT_FIB.pdf", prog="dot")
+    A2 = PETASCE_FIB.to_agraph()
     A2.draw("PETASCE_FIB.pdf", prog="dot")
 
 

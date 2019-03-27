@@ -129,20 +129,20 @@ def petasce__assign__cn_3():
 def petasce__assign__cd_3():
     return 0.34
 
-def petasce__decision__cd_4(IF_1_2, cd_1, cd_2):
-    return cd_2 if IF_1_2 else cd_1
-
 def petasce__decision__cn_4(IF_1_2, cn_1, cn_2):
     return cn_2 if IF_1_2 else cn_1
+
+def petasce__decision__cd_4(IF_1_2, cd_1, cd_2):
+    return cd_2 if IF_1_2 else cd_1
 
 def petasce__condition__IF_2_1(meevp):
     return (meevp == "G")
 
-def petasce__decision__cd_5(IF_2_1, cd_4, cd_3):
-    return cd_3 if IF_2_1 else cd_4
-
 def petasce__decision__cn_5(IF_2_1, cn_4, cn_3):
     return cn_3 if IF_2_1 else cn_4
+
+def petasce__decision__cd_5(IF_2_1, cd_4, cd_3):
+    return cd_3 if IF_2_1 else cd_4
 
 def petasce__assign__refet_1(udelta, rn, g, psycon, cn, tavg, wind2m, es, ea):
     return (((0.408*udelta)*(rn-g))+(((psycon*(cn/(tavg+273.0)))*wind2m)*(es-ea)))
