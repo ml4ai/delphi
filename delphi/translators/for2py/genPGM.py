@@ -16,7 +16,6 @@ from itertools import chain, product
 import operator
 import os
 import uuid
-from pathlib import Path
 
 
 BINOPS = {
@@ -286,7 +285,7 @@ class GrFNGenerator(object):
                 "input": [
                     {
                       "variable": variable,
-                      "index": None if variable == indexName else -1,
+                      "index": -1,
                     }
                     for variable in variables
                 ],
@@ -312,8 +311,6 @@ class GrFNGenerator(object):
             scope_path.append("if")
 
             state.scope_path = scope_path
-            if call_source != "if" and state.nextDefs.get('#cond'):
-                del state.nextDefs['#cond']
 
             if call_source == "if":
                 pgm = {"functions": [], "body": [], "identifiers": []}
@@ -362,7 +359,8 @@ class GrFNGenerator(object):
 
             condSrcs = self.genPgm(node.test, state, fnNames, "if")
 
-            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
+            # Making the index of IF_X_X start from 1 instead of 2
+            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 2)
             state.nextDefs["#cond"] = condNum + 1
 
             condName = f"IF_{condNum}"
@@ -542,9 +540,6 @@ class GrFNGenerator(object):
                 for item in self.elif_pgm[0]["body"]:
                     pgm["body"].append(item)
 
-                condNum = state.nextDefs.get(
-                    "#cond", state.lastDefDefault + 1
-                )
                 state.nextDefs["#cond"] = condNum + 1
 
                 condName = f"IF_{condNum}"
@@ -1615,7 +1610,7 @@ def create_pgm_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(pgm, open(Path(file_name).stem + ".json", "w"))
+        json.dump(pgm, open(file_name[:-3] + ".json", "w"))
 
     return pgm
 
