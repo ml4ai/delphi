@@ -1,0 +1,18 @@
+<html>
+  {% include "head.html" %}
+  <body class="theme-base-08">
+    <div class="container-fluid"> 
+      {% include "navbar.html" %}
+      <div class="row">
+      <div id="model" class="col-6 border" style="height:50%;">Priestley-Taylor potential evapotranspiration model</div>
+      <div id="surfacePlot" class="col-6 justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;"></div>
+      </div>
+    </div>
+
+  <script>
+      var graphs = {{ graphJSON | safe}};
+      Plotly.plot('surfacePlot',graphs,{});
+  </script>
+
+  </body>
+</html>

@@ -32,7 +32,7 @@ from .assembly import (
 )
 from future.utils import lzip
 from tqdm import tqdm
-from .icm_api.models import (
+from .apps.rest_api.models import (
     Evidence,
     ICMMetadata,
     CausalVariable,
@@ -924,7 +924,7 @@ class AnalysisGraph(nx.DiGraph):
         """ Inserts the model into the SQLite3 database associated with Delphi,
         for use with the ICM REST API. """
 
-        from delphi.icm_api import create_app, db
+        from delphi.apps.rest_api import create_app, db
 
         self.assign_uuids_to_nodes_and_edges()
         icm_metadata = ICMMetadata(

@@ -20,10 +20,6 @@ The following are the requirements for Delphi:
 
   - Python 3.6 is recommended.
 
-  - You can install and run Delphi under Python 3.7, but you will need
-    to first install Tangent, per the instructions below, before
-    pip-installing the rest of the packages.
-
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
   visualize causal analysis graphs. See MacOS and Ubuntu notes below
   for installing graphviz.
@@ -36,32 +32,6 @@ Linux and MacOS operating systems. We assume familiarity with the following:
 - Environment variables.
 
 Here are the steps for installation.
-
-- If you are installing using Python 3.7: The model analysis
-(AutoMATES-related) portion of delphi now depends on
-[Tangent](https://github.com/google/tangent), which in turn depends on
-a library in TensorFlow, which itself does not (yet) support python
-`>=3.7`. You can manually install tangent as follows (if you use a
-virtual environment for delphi work (recommended!), then be sure to do
-the following while within the virtual environment):
-
-  - `cd` to the directory where you would like the
-    tangent source to be cloned and then do: 
-    ```
-    git clone https://github.com/google/tangent.git
-    cd tangent
-    python setup.py install
-    ```
-
-... Regular instructions:
-
-- Install [INDRA](https://github.com/sorgerlab/indra`): We
-  currently recommend installing the latest (master branch) version of 
-  INDRA from Github rather than through PyPI. To install the latest version,
-  execute the following from the terminal:
-    ```bash 
-    pip install git+https://github.com/sorgerlab/indra
-    ```
 
 - Fire up a terminal, navigate to the directory that you would like to
   install Delphi in, then execute the following in the terminal:

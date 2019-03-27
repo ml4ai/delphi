@@ -4,42 +4,34 @@ delphi.GrFN package
 Submodules
 ----------
 
-delphi.GrFN.GrFN module
------------------------
-
-.. automodule:: delphi.GrFN.GrFN
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.GrFN.ProgramAnalysisGraph module
----------------------------------------
-
-.. automodule:: delphi.GrFN.ProgramAnalysisGraph
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.GrFN.inspection module
------------------------------
-
-.. automodule:: delphi.GrFN.inspection
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-delphi.GrFN.printAst module
+delphi.GrFN.analysis module
 ---------------------------
 
-.. automodule:: delphi.GrFN.printAst
+.. automodule:: delphi.GrFN.analysis
     :members:
     :undoc-members:
     :show-inheritance:
 
-delphi.GrFN.scopes module
--------------------------
+delphi.GrFN.networks module
+---------------------------
 
-.. automodule:: delphi.GrFN.scopes
+.. automodule:: delphi.GrFN.networks
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.GrFN.sensitivity module
+------------------------------
+
+.. automodule:: delphi.GrFN.sensitivity
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.GrFN.utils module
+------------------------
+
+.. automodule:: delphi.GrFN.utils
     :members:
     :undoc-members:
     :show-inheritance:

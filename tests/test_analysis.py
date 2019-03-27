@@ -1,100 +1,197 @@
+import pytest
 import inspect
+import importlib
+import json
+import sys
 
-import delphi.analysis.sensitivity.variance_methods as methods
-from delphi.analysis.sensitivity.reporter import Reporter
-from delphi.translators.for2py.data.PETASCE import PETASCE
-from delphi.translators.for2py.data.Plant_pgm import MAIN
+from delphi.GrFN.networks import GroundedFunctionNetwork
+from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_analysis
+import delphi.GrFN.analysis as analysis
+from test_GrFN import PETPT_GrFN, PETASCE_GrFN
 
 
-def test_PETASCE():
-    def PETASCE_wrapper(CANHT, MSALB, SRAD, TDEW, TMAX, TMIN,
-                        WINDHT, WINDRUN, XHLAI, XLAT, XELEV):
-        DOY = [1]
-        MEEVP = ["A"]
-        return PETASCE(CANHT, DOY, MSALB, MEEVP, SRAD, TDEW, TMAX,
-                       TMIN, WINDHT, WINDRUN, XHLAI, XLAT, XELEV)
+sys.path.insert(0, "tests/data/program_analysis")
 
-    func = PETASCE_wrapper
-    sig = inspect.signature(func)
-    args = list(sig.parameters)
+
+def test_regular_PETPT():
+
+    args = PETPT_GrFN.model_inputs
+    bounds = {
+        "petpt::msalb_0": [0, 1],
+        "petpt::srad_0": [1, 20],
+        "petpt::tmax_0": [-30, 60],
+        "petpt::tmin_0": [-30, 60],
+        "petpt::xhlai_0": [0, 20],
+    }
+
     problem = {
         'num_vars': len(args),
         'names': args,
-        'bounds': [[.1, 1] for arg in args]
+        'bounds': [bounds[arg] for arg in args]
     }
 
-    Ns = 100
-    num_args = len(args)
-    analyzer = methods.SobolAnalyzer(func, prob_def=problem)
-    analyzer.sample(num_samples=Ns)
-    analyzer.evaluate()
-    Si = analyzer.analyze(parallel=False,
-                          print_to_console=False,
-                          n_processors=None)
+    Ns = 1000 # TODO: Khan, experiment with this value
+    Si = sobol_analysis(PETPT_GrFN, Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
-    expected_num_rows = Ns * (2*num_args + 2)
-    assert analyzer.samples.shape[0] == expected_num_rows
-    assert analyzer.samples.shape[1] == num_args
 
+@pytest.mark.skip("Need to update to latest JSON")
+def test_PETPT_with_torch():
+    lambdas = importlib.__import__("PETPT_torch_lambdas")
+    pgm = json.load(open("tests/data/program_analysis/PETPT.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
-def test_PLANT_reporter():
-    def PLANT_wrapper(DOY, TMAX, TMIN, SWFAC1, PT, di, N, dN):
-        SWFAC2 = [1.000]
-        PD = [5.000]
-        EMP1 = [0.104]
-        EMP2 = [0.640]
-        sla = [0.028]
-        nb = [5.300]
-        p1 = [0.030]
+    args = G.model_inputs
+    bounds = {
+        "petpt::msalb_0": [0, 1],
+        "petpt::srad_0": [1, 20],
+        "petpt::tmax_0": [-30, 60],
+        "petpt::tmin_0": [-30, 60],
+        "petpt::xhlai_0": [0, 20],
+    }
 
-        return MAIN(DOY, TMAX, TMIN, SWFAC1, SWFAC2, PD,
-                    EMP1, EMP2, PT, sla, di, N, nb, dN, p1)
-
-    bounds = [
-        [0, 147],
-        [0.000, 33.900],
-        [-2.800, 21.100],
-        [0.442, 1.000],
-        [0.000, 1.000],
-        [0.000, 15.000],
-        [2.000, 12.039],
-        [0.000, 0.100]
-    ]
-
-    num_samples = 100
-    func = PLANT_wrapper
-    args = list(inspect.signature(func).parameters)
-    reporter = Reporter(methods.SobolAnalyzer(func, prob_def={
+    problem = {
         'num_vars': len(args),
         'names': args,
-        'bounds': bounds
-    }), num_samples=num_samples)
+        'bounds': [bounds[arg] for arg in args]
+    }
 
-    (min_val, min_idx1, min_idx2) = reporter.get_min_s2_sensitivity()
-    (max_val, max_idx1, max_idx2) = reporter.get_max_s2_sensitivity()
+    Ns = 1000                      # TODO: Khan, experiment with this value
+    Si = sobol_analysis(G, Ns, problem, use_torch=True)
+    assert len(Si.keys()) == 6
+    assert len(Si["S1"]) == len(args)
 
-    assert 0 <= min_idx1 <= len(bounds)
-    assert 0 <= min_idx2 <= len(bounds)
-    assert 0 <= max_idx1 <= len(bounds)
-    assert 0 <= max_idx2 <= len(bounds)
-    assert min_val < max_val
+    Si = FAST_analysis(G, Ns, problem)
+    assert len(Si.keys()) == 3
+    assert len(Si["S1"]) == len(args)
 
-    surface_bounds = ((bounds[max_idx1]), (bounds[max_idx2]))
-    preset_vals = [[234], [33.9000015],
-                   [22.7999992], [1.0],
-                   [0.974399984], [0.0],
-                   [12.0639181], [0.0]]
-    (X, Y, surface) = reporter.get_sensitivity_surface(max_idx1,
-                                                       max_idx2,
-                                                       surface_bounds,
-                                                       preset_vals)
+    Si = RBD_FAST_analysis(G, Ns, problem)
+    assert len(Si.keys()) == 2
+    assert len(Si["S1"]) == len(args)
 
-    assert surface.shape == (num_samples, num_samples)
-    assert bounds[max_idx1][0] <= min(X[0]) and max(X[0]) <= bounds[max_idx1][1]
-    assert bounds[max_idx2][0] <= min(Y[0]) and max(Y[0]) <= bounds[max_idx2][1]
 
-    # Ghost testing visualization code
-    plot = reporter.visualize_surface(max_idx1, max_idx2, X, Y, surface)
-    assert True
+def test_PETASCE_sobol_analysis():
+    # Torch model
+    sys.path.insert(0, "tests/data/GrFN")
+    lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
+    pgm = json.load(open("tests/data/GrFN/PETASCE_simple_torch.json", "r"))
+    tG = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+
+    bounds = {
+        "petasce::doy_0": [1, 365],
+        "petasce::meevp_0": [0, 1],
+        "petasce::msalb_0": [0, 1],
+        "petasce::srad_0": [1, 30],
+        "petasce::tmax_0": [-30, 60],
+        "petasce::tmin_0": [-30, 60],
+        "petasce::xhlai_0": [0, 20],
+        "petasce::tdew_0": [-30, 60],
+        "petasce::windht_0": [0.1, 10],  # HACK: has a hole in 0 < x < 1 for petasce__assign__wind2m_1
+        "petasce::windrun_0": [0, 900],
+        "petasce::xlat_0": [3, 12],     # HACK: south sudan lats
+        "petasce::xelev_0": [0, 6000],
+        "petasce::canht_0": [0.001, 3],
+    }
+
+    type_info = {
+        "petasce::doy_0": (int, list(range(1, 366))),
+        "petasce::meevp_0": (str, ["A", "W"]),
+        "petasce::msalb_0": (float, [0.0]),
+        "petasce::srad_0": (float, [0.0]),
+        "petasce::tmax_0": (float, [0.0]),
+        "petasce::tmin_0": (float, [0.0]),
+        "petasce::xhlai_0": (float, [0.0]),
+        "petasce::tdew_0": (float, [0.0]),
+        "petasce::windht_0": (float, [0.0]),
+        "petasce::windrun_0": (float, [0.0]),
+        "petasce::xlat_0": (float, [0.0]),
+        "petasce::xelev_0": (float, [0.0]),
+        "petasce::canht_0": (float, [0.0]),
+    }
+
+    args = PETASCE_GrFN.model_inputs
+    problem = {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    }
+
+    N = 1000
+    Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
+    tSi = sobol_analysis(tG, N, problem, var_types=type_info, use_torch=True)
+
+    assert len(Si["S1"]) == len(PETASCE_GrFN.model_inputs)
+    assert len(Si["S2"][0]) == len(PETASCE_GrFN.model_inputs)
+
+    assert len(tSi["S1"]) == len(tG.model_inputs)
+    assert len(tSi["S2"][0]) == len(tG.model_inputs)
+
+
+def test_PETPT_sensitivity_surface():
+    bounds = {
+        "petpt::msalb_0": (0, 1),
+        "petpt::srad_0": (1, 20),
+        "petpt::tmax_0": (-30, 60),
+        "petpt::tmin_0": (-30, 60),
+        "petpt::xhlai_0": (0, 20),
+    }
+    presets = {
+        "petpt::msalb_0": 0.5,
+        "petpt::srad_0": 10,
+        "petpt::tmax_0": 20,
+        "petpt::tmin_0": 10,
+        "petpt::xhlai_0": 10,
+    }
+
+    args = PETPT_GrFN.model_inputs
+    Si = sobol_analysis(PETPT_GrFN, 1000, {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    })
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = analysis.get_max_s2_sensitivity(S2)
+
+    x_var = args[v1]
+    y_var = args[v2]
+    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+    preset_vals = {
+        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    }
+
+    (X, Y, Z) = analysis.S2_surface(PETPT_GrFN, (80, 60), search_space, preset_vals)
+    print(Z)
+
+    assert X.shape == (80,)
+    assert Y.shape == (60,)
+    assert Z.shape == (80, 60)
+
+
+def test_FIB_creation():
+    # filepath = "tests/data/GrFN/PETPT.for"
+    # PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
+    # A = PETPT_GrFN.to_agraph()
+    # A.draw("PETPT_GrFN.pdf", prog="dot")
+    # A = PETPT_GrFN.to_call_agraph()
+    # A.draw("PETPT_CG.pdf", prog="dot")
+    A = PETPT_GrFN.to_CAG_agraph()
+    A.draw("PETPT_CAG.pdf", prog="dot")
+
+    # filepath = "tests/data/GrFN/PETASCE_simple.for"
+    # PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
+    # A = PETASCE_GrFN.to_agraph()
+    # A.draw("PETASCE_GrFN.pdf", prog="dot")
+    # A = PETASCE_GrFN.to_call_agraph()
+    # A.draw("PETASCE_CG.pdf", prog="dot")
+    A = PETASCE_GrFN.to_CAG_agraph()
+    A.draw("PETASCE_CAG.pdf", prog="dot")
+
+    # PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
+    PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
+    # A1 = PETPT_FIB.to_agraph()
+    # A1.draw("PETPT_FIB.pdf", prog="dot")
+    A2 = PETASCE_FIB.to_agraph()
+    A2.draw("PETASCE_FIB.pdf", prog="dot")

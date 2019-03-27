@@ -10,7 +10,7 @@ from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
-from . import For2PyError
+from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -260,10 +260,17 @@ class GrFNGenerator(object):
             loopName = getFnName(
                 fnNames, f"{state.fnName}__loop_plate__{indexName}", {}
             )
+
             loopFn = {
                 "name": loopName,
                 "type": "loop_plate",
-                "input": variables,
+                "input": [
+                    {
+                      "variable": variable,
+                      "domain": state.varTypes[variable]
+                    }
+                    for variable in variables
+                ],
                 "index_variable": indexName,
                 "index_iteration_range": iterationRange,
                 "body": loopBody,
@@ -273,7 +280,17 @@ class GrFNGenerator(object):
                 loopName, indexName, {}, state
             )
 
-            loopCall = {"name": loopName, "inputs": variables, "output": {}}
+            loopCall = {
+                "name": loopName,
+                "input": [
+                    {
+                      "variable": variable,
+                      "index": -1,
+                    }
+                    for variable in variables
+                ],
+                "output": {}
+            }
             pgm = {
                 "functions": loopFns + [loopFn],
                 "body": [loopCall],
@@ -293,16 +310,7 @@ class GrFNGenerator(object):
                 scope_path.append("_TOP")
             scope_path.append("if")
 
-            state = state.copy(
-                lastDefs=state.lastDefs.copy(),
-                nextDefs=state.nextDefs.copy(),
-                lastDefDefault=state.lastDefDefault,
-                fnName=state.fnName,
-                varTypes=state.varTypes.copy(),
-                lambdaStrings=state.lambdaStrings,
-                start=state.start.copy(),
-                scope_path=scope_path,
-            )
+            state.scope_path = scope_path
 
             if call_source == "if":
                 pgm = {"functions": [], "body": [], "identifiers": []}
@@ -343,15 +351,16 @@ class GrFNGenerator(object):
                     node,
                     updatedDefs,
                     ifDefs,
+                    state,
                 ]
-
                 return []
 
             pgm = {"functions": [], "body": [], "identifiers": []}
 
             condSrcs = self.genPgm(node.test, state, fnNames, "if")
 
-            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
+            # Making the index of IF_X_X start from 1 instead of 2
+            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 2)
             state.nextDefs["#cond"] = condNum + 1
 
             condName = f"IF_{condNum}"
@@ -360,7 +369,13 @@ class GrFNGenerator(object):
             fnName = getFnName(
                 fnNames, f"{state.fnName}__condition__{condName}", {}
             )
-            condOutput = {"variable": condName, "index": 0}
+
+            # The condName is of the form 'IF_1' and the index holds the ordering of the condName
+            # This means that index should increment of every new 'IF' statement
+            # Previously, it was set to set to 0. But, 'fnName' holds the current index of 'condName'
+            # So, extract the index from 'fnName'.
+            # condOutput = {"variable": condName, "index": 0}
+            condOutput = {"variable": condName, "index": int(fnName[-1])}
 
             fn = {
                 "name": fnName,
@@ -389,6 +404,7 @@ class GrFNGenerator(object):
                 "output": condOutput,
                 "input": [src["var"] for src in condSrcs if "var" in src],
             }
+
             pgm["functions"].append(fn)
             pgm["body"].append(body)
             lambda_string = genFn(
@@ -398,7 +414,6 @@ class GrFNGenerator(object):
                 [src["var"]["variable"] for src in condSrcs if "var" in src],
             )
             state.lambdaStrings.append(lambda_string)
-
             startDefs = state.lastDefs.copy()
             ifDefs = startDefs.copy()
             elseDefs = startDefs.copy()
@@ -462,6 +477,7 @@ class GrFNGenerator(object):
                         state.lastDefDefault,
                     ),
                 }
+
                 fnName = getFnName(
                     fnNames, f"{state.fnName}__decision__{updatedDef}", output
                 )
@@ -513,187 +529,184 @@ class GrFNGenerator(object):
                 pgm["functions"].append(fn)
                 pgm["body"].append(body)
 
-                # Previous ELIF Block is filled??
-                if len(self.elif_pgm) > 0:
+            # Previous ELIF Block is filled??
+            if len(self.elif_pgm) > 0:
 
-                    condSrcs = self.elif_pgm[1]
+                condSrcs = self.elif_pgm[1]
 
-                    for item in self.elif_pgm[0]["functions"]:
-                        pgm["functions"].append(item)
+                for item in self.elif_pgm[0]["functions"]:
+                    pgm["functions"].append(item)
 
-                    for item in self.elif_pgm[0]["body"]:
-                        pgm["body"].append(item)
+                for item in self.elif_pgm[0]["body"]:
+                    pgm["body"].append(item)
 
-                    condNum = state.nextDefs.get(
-                        "#cond", state.lastDefDefault + 1
+                state.nextDefs["#cond"] = condNum + 1
+
+                condName = f"IF_{condNum}"
+                state.varTypes[condName] = "boolean"
+                state.lastDefs[condName] = 0
+                fnName = getFnName(
+                    fnNames, f"{state.fnName}__condition__{condName}", {}
+                )
+                condOutput = {"variable": condName, "index": int(fnName[-1])}
+
+                fn = {
+                    "name": fnName,
+                    "type": "condition",
+                    "target": condName,
+                    "reference": self.elif_pgm[3],
+                    "sources": [
+                        {
+                            "name": src["var"]["variable"],
+                            "type": "variable",
+                        }
+                        for src in condSrcs
+                        if "var" in src
+                    ],
+                }
+
+                id_specList = self.make_identifier_spec(
+                    fnName,
+                    condOutput,
+                    [src["var"] for src in condSrcs if "var" in src],
+                    state,
+                )
+
+                for id_spec in id_specList:
+                    pgm["identifiers"].append(id_spec)
+
+                body = {
+                    "name": fnName,
+                    "output": condOutput,
+                    "input": [
+                        src["var"] for src in condSrcs if "var" in src
+                    ],
+                }
+                pgm["functions"].append(fn)
+                pgm["body"].append(body)
+
+                lambda_string = genFn(
+                    self.elif_pgm[2],
+                    fnName,
+                    None,
+                    [
+                        src["var"]["variable"]
+                        for src in condSrcs
+                        if "var" in src
+                    ],
+                )
+                state.lambdaStrings.append(lambda_string)
+
+                startDefs = state.lastDefs.copy()
+                ifDefs = self.elif_pgm[6]
+                elseDefs = startDefs.copy()
+
+                updatedDefs = self.elif_pgm[5]
+
+                defVersions = {
+                    key: [
+                        version
+                        for version in [
+                            startDefs.get(key),
+                            ifDefs.get(key),
+                            elseDefs.get(key),
+                        ]
+                        if version is not None
+                    ]
+                    for key in updatedDefs
+                }
+
+                for updatedDef in defVersions:
+                    versions = defVersions[updatedDef]
+                    inputs = (
+                        [
+                            condOutput,
+                            {
+                                "variable": updatedDef,
+                                "index": versions[-1],
+                            },
+                            {
+                                "variable": updatedDef,
+                                "index": versions[-2],
+                            },
+                        ]
+                        if len(versions) > 1
+                        else [
+                            condOutput,
+                            {"variable": updatedDef, "index": versions[0]},
+                        ]
                     )
-                    state.nextDefs["#cond"] = condNum + 1
 
-                    condName = f"IF_{condNum}"
-                    state.varTypes[condName] = "boolean"
-                    state.lastDefs[condName] = 0
+                    output = {
+                        "variable": updatedDef,
+                        "index": getNextDef(
+                            updatedDef,
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        ),
+                    }
                     fnName = getFnName(
-                        fnNames, f"{state.fnName}__condition__{condName}", {}
+                        fnNames,
+                        f"{state.fnName}__decision__{updatedDef}",
+                        output,
                     )
-                    condOutput = {"variable": condName, "index": 0}
-
                     fn = {
                         "name": fnName,
-                        "type": "condition",
-                        "target": condName,
+                        "type": "decision",
+                        "target": updatedDef,
                         "reference": self.elif_pgm[3],
                         "sources": [
                             {
-                                "name": src["var"]["variable"],
+                                "name": f"{var['variable']}_{var['index']}",
                                 "type": "variable",
                             }
-                            for src in condSrcs
-                            if "var" in src
+                            for var in inputs
                         ],
                     }
 
+                    # Check for buggy __decision__ tag containing of only IF_ blocks
+                    # More information required on how __decision__ tags are made
+                    # This seems to be in development phase and documentation is
+                    # missing from the GrFN spec as well. Actual removal (or not)
+                    # of this tag depends on further information about this
+
+                    if "IF_" in updatedDef:
+                        count = 0
+                        for var in inputs:
+                            if "IF_" in var["variable"]:
+                                count += 1
+                        if count == len(inputs):
+                            continue
+
+                    body = {
+                        "name": fnName,
+                        "output": output,
+                        "input": inputs,
+                    }
+
                     id_specList = self.make_identifier_spec(
-                        fnName,
-                        condOutput,
-                        [src["var"] for src in condSrcs if "var" in src],
-                        state,
+                        fnName, output, inputs, state
                     )
 
                     for id_spec in id_specList:
                         pgm["identifiers"].append(id_spec)
 
-                    body = {
-                        "name": fnName,
-                        "output": condOutput,
-                        "input": [
-                            src["var"] for src in condSrcs if "var" in src
-                        ],
-                    }
-                    pgm["functions"].append(fn)
-                    pgm["body"].append(body)
-
                     lambda_string = genFn(
-                        self.elif_pgm[2],
+                        self.elif_pgm[4],
                         fnName,
-                        None,
+                        updatedDef,
                         [
-                            src["var"]["variable"]
-                            for src in condSrcs
-                            if "var" in src
+                            f"{src['variable']}_{src['index']}"
+                            for src in inputs
                         ],
                     )
                     state.lambdaStrings.append(lambda_string)
 
-                    startDefs = state.lastDefs.copy()
-                    ifDefs = self.elif_pgm[6]
-                    elseDefs = startDefs.copy()
+                    pgm["functions"].append(fn)
+                    pgm["body"].append(body)
 
-                    updatedDefs = self.elif_pgm[5]
-
-                    defVersions = {
-                        key: [
-                            version
-                            for version in [
-                                startDefs.get(key),
-                                ifDefs.get(key),
-                                elseDefs.get(key),
-                            ]
-                            if version is not None
-                        ]
-                        for key in updatedDefs
-                    }
-
-                    for updatedDef in defVersions:
-                        versions = defVersions[updatedDef]
-                        inputs = (
-                            [
-                                condOutput,
-                                {
-                                    "variable": updatedDef,
-                                    "index": versions[-1],
-                                },
-                                {
-                                    "variable": updatedDef,
-                                    "index": versions[-2],
-                                },
-                            ]
-                            if len(versions) > 1
-                            else [
-                                condOutput,
-                                {"variable": updatedDef, "index": versions[0]},
-                            ]
-                        )
-
-                        output = {
-                            "variable": updatedDef,
-                            "index": getNextDef(
-                                updatedDef,
-                                state.lastDefs,
-                                state.nextDefs,
-                                state.lastDefDefault,
-                            ),
-                        }
-                        fnName = getFnName(
-                            fnNames,
-                            f"{state.fnName}__decision__{updatedDef}",
-                            output,
-                        )
-                        fn = {
-                            "name": fnName,
-                            "type": "decision",
-                            "target": updatedDef,
-                            "reference": self.elif_pgm[3],
-                            "sources": [
-                                {
-                                    "name": f"{var['variable']}_{var['index']}",
-                                    "type": "variable",
-                                }
-                                for var in inputs
-                            ],
-                        }
-
-                        # Check for buggy __decision__ tag containing of only IF_ blocks
-                        # More information required on how __decision__ tags are made
-                        # This seems to be in development phase and documentation is
-                        # missing from the GrFN spec as well. Actual removal (or not)
-                        # of this tag depends on further information about this
-
-                        if "IF_" in updatedDef:
-                            count = 0
-                            for var in inputs:
-                                if "IF_" in var["variable"]:
-                                    count += 1
-                            if count == len(inputs):
-                                continue
-
-                        body = {
-                            "name": fnName,
-                            "output": output,
-                            "input": inputs,
-                        }
-
-                        id_specList = self.make_identifier_spec(
-                            fnName, output, inputs, state
-                        )
-
-                        for id_spec in id_specList:
-                            pgm["identifiers"].append(id_spec)
-
-                        lambda_string = genFn(
-                            self.elif_pgm[4],
-                            fnName,
-                            updatedDef,
-                            [
-                                f"{src['variable']}_{src['index']}"
-                                for src in inputs
-                            ],
-                        )
-                        state.lambdaStrings.append(lambda_string)
-
-                        pgm["functions"].append(fn)
-                        pgm["body"].append(body)
-
-                    self.elif_pgm = []
+                self.elif_pgm = []
 
             return [pgm]
 
@@ -717,9 +730,11 @@ class GrFNGenerator(object):
                             }
                         ]
 
-            return self.genPgm(
+            opPgm = self.genPgm(
                 node.left, state, fnNames, "binop"
             ) + self.genPgm(node.right, state, fnNames, "binop")
+
+            return opPgm
 
         # Mult: ()
 
@@ -793,6 +808,7 @@ class GrFNGenerator(object):
                     state.nextDefs,
                     state.lastDefDefault,
                 )
+
             return [{"var": {"variable": node.id, "index": lastDef}}]
 
         # AnnAssign: ('target', 'annotation', 'value', 'simple')
@@ -875,6 +891,7 @@ class GrFNGenerator(object):
                     for target in node.targets
                 ],
             )
+
             pgm = {"functions": [], "body": [], "identifiers": []}
 
             for target in targets:
@@ -901,13 +918,8 @@ class GrFNGenerator(object):
                 if len(fn) == 0:
                     return []
                 body = self.make_body_dict(name, target, sources, state)
-                for src in sources:
-                    if "var" in src:
-                        source_list.append(src["var"]["variable"])
-                    elif "call" in src:
-                        for ip in src["call"]["inputs"][0]:
-                            if "var" in ip:
-                                source_list.append(ip["var"]["variable"])
+
+                source_list = self.make_source_list_dict(sources)
 
                 lambda_string = genFn(
                     node, name, target["var"]["variable"], source_list
@@ -935,6 +947,7 @@ class GrFNGenerator(object):
 
                 pgm["functions"].append(fn)
                 pgm["body"].append(body[0])
+
             return [pgm]
 
         # Tuple: ('elts', 'ctx')
@@ -1178,9 +1191,12 @@ class GrFNGenerator(object):
             if "var" in src:
                 source_list.append(src["var"])
             if "call" in src:
-                for ip in src["call"]["inputs"][0]:
-                    if "var" in ip:
-                        source_list.append(ip["var"])
+                source_list.extend(self.make_call_index_dict(src))
+
+        # Removing duplicates
+        unique_source = []
+        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        source_list = unique_source
 
         id_spec = self.make_identifier_spec(
             name, target["var"], source_list, state
@@ -1188,6 +1204,35 @@ class GrFNGenerator(object):
 
         body = {"name": name, "output": target["var"], "input": source_list}
         return [body, id_spec]
+
+
+    def make_call_index_dict(self, source):
+        source_list = []
+        for item in source["call"]["inputs"]:
+            for ip in item:
+                if "var" in ip:
+                    source_list.append(ip["var"])
+                elif "call" in ip:
+                    source_list.extend(self.make_call_index_dict(ip))
+
+        return source_list
+
+    def make_source_list_dict(self, sourceDict):
+        source_list = []
+        for src in sourceDict:
+            if "var" in src:
+                source_list.append(src["var"]["variable"])
+            elif "call" in src:
+                for ip in src["call"]["inputs"]:
+                    source_list.extend(self.make_source_list_dict(ip))
+
+        # Removing duplicates
+        unique_source = []
+        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        source_list = unique_source
+
+        return source_list
+
 
     def make_fn_dict(self, name, target, sources, node):
         source = []
@@ -1227,10 +1272,14 @@ class GrFNGenerator(object):
                 variable = src["var"]["variable"]
                 source.append({"name": variable, "type": "variable"})
 
+            # Removing duplicates
+            unique_source = []
+            [unique_source.append(obj) for obj in source if obj not in unique_source]
+            source = unique_source
+
             if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
                 # This is a write to a file
                 return fn
-
             fn = {
                 "name": name,
                 "type": "assign",
@@ -1481,18 +1530,28 @@ def generage_gensysm(tag):
 
 def make_call_body_dict(source):
     source_list = []
-    name = source["call"]["function"]
-    source_list.append({"name": name, "type": "function"})
+    # We are going to remove addition of functions such as "max", "exp", "sin", etc to
+    # the source list. The following two lines when commented helps us do that.
+    # If user-defined functions come up as sources, some other approaches might be required
+    # TODO Try with user defined functions and see if the below two lines need to be reworked
+    # name = source["call"]["function"]
+    # source_list.append({"name": name, "type": "function"})
+
     for ip in source["call"]["inputs"]:
         if isinstance(ip, list):
             for item in ip:
                 if "var" in item:
                     variable = item["var"]["variable"]
                     source_list.append({"name": variable, "type": "variable"})
-                if item.get("dtype") == "string":
+                elif item.get("dtype") == "string":
+                    # TODO Do repetitions in this like in the above check need to be removed?
+                     # Will repetition occur here?
                     source_list.append(
                         {"name": item["value"], "type": "variable"}
                     )
+                elif "call" in item:
+                    source_list.extend(make_call_body_dict(item))
+
     return source_list
 
 
