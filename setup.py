@@ -42,7 +42,6 @@ setup(
         "jupyter-contrib-nbextensions",
         "python-dateutil",
         "salib",
-        "tangent",
         "torch",
         "ruamel.yaml",
         "flask-WTF",
