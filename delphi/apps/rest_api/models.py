@@ -4,7 +4,7 @@ from enum import Enum, unique
 from typing import Optional, List
 from dataclasses import dataclass, field, asdict
 from flask_sqlalchemy import SQLAlchemy
-from delphi.icm_api import db
+from delphi.apps.rest_api import db
 from sqlalchemy import PickleType
 from sqlalchemy.inspection import inspect
 from sqlalchemy.ext import mutable

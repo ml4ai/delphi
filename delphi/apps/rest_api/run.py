@@ -1,6 +1,6 @@
 # Run a test server.
 from delphi.paths import db_path
-from delphi.icm_api import create_app
+from delphi.apps.rest_api import create_app
 
 if __name__ == "__main__":
     app = create_app(debug=True)

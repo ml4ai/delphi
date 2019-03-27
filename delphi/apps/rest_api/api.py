@@ -13,12 +13,12 @@ from delphi.random_variables import LatentVar
 from delphi.utils import flatten
 from flask import jsonify, request, Blueprint
 from delphi.db import engine
-from delphi.icm_api import db
-from delphi.icm_api.models import *
+from delphi.apps.rest_api import db
+from delphi.apps.rest_api.models import *
 import numpy as np
 from flask import current_app
 
-bp = Blueprint("icm_api", __name__)
+bp = Blueprint("rest_api", __name__)
 
 @bp.route("/conceptToIndicatorMapping", methods=["GET"])
 def getConceptToIndicatorMapping():

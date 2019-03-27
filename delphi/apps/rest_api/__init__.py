@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 def create_app(debug=False):
-    from delphi.icm_api.api import bp
+    from delphi.apps.rest_api.api import bp
 
     app = Flask(__name__)
     app.config.from_object("delphi.icm_api.config")
