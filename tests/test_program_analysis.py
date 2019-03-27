@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 
+DATA_DIR = "tests/data/program_analysis"
+
 def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, dict]:
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
@@ -77,35 +79,44 @@ def postprocess_test_data_grfn_dict(_dict):
 
 @pytest.fixture
 def crop_yield_grfn_dict():
-    yield make_grfn_dict(Path("tests/data/crop_yield.f"))
+    _dict = make_grfn_dict(Path(f"{DATA_DIR}/crop_yield.f"))
+    with open(f"{DATA_DIR}/crop_yield.json", "w") as f:
+        json.dump(_dict, f, indent=2)
+    yield(_dict)
 
 
 @pytest.fixture
 def petpt_grfn_dict():
-    yield make_grfn_dict(Path("tests/data/PETPT.for"))
+    _dict = make_grfn_dict(Path(f"{DATA_DIR}/PETPT.for"))
+    with open(f"{DATA_DIR}/PETPT.json", "w") as f:
+        json.dump(_dict, f, indent=2)
+    yield(_dict)
     os.remove("PETPT_lambdas.py")
 
 
 @pytest.fixture
 def io_grfn_dict():
-    yield make_grfn_dict(Path("tests/data/io-tests/iotest_05.for"))
+    _dict = make_grfn_dict(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))
+    with open(f"{DATA_DIR}/io-tests/iotest_05.json", "w") as f:
+        json.dump(_dict, f, indent=2)
+    yield(_dict)
     os.remove("iotest_05_lambdas.py")
 
 
 @pytest.fixture
 def array_python_IR_test():
-    yield get_python_source(Path("tests/data/arrays/arrays-basic-06.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0]
 
 
 @pytest.fixture
 def derived_types_python_IR_test():
     yield get_python_source(
-        Path("tests/data/derived-types/derived-types-03.f")
+        Path(f"{DATA_DIR}/derived-types/derived-types-03.f")
     )[0]
 
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open("tests/data/crop_yield.json", "r") as f:
+    with open(f"{DATA_DIR}/crop_yield.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
 
@@ -113,26 +124,26 @@ def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
 
 
 def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open("tests/data/PETPT.json", "r") as f:
+    with open(f"{DATA_DIR}/PETPT.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
     assert petpt_grfn_dict == json_dict
 
 
 def test_io_grfn_generation(io_grfn_dict):
-    with open("tests/data/io-tests/iotest_05_grfn.json", "r") as f:
+    with open(f"{DATA_DIR}/io-tests/iotest_05.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
     assert io_grfn_dict == json_dict
 
 
 def test_array_pythonIR_generation(array_python_IR_test):
-    with open("tests/data/arrays-basic-06.py", "r") as f:
+    with open(f"{DATA_DIR}/arrays-basic-06.py", "r") as f:
         python_src = f.read()
     assert array_python_IR_test == python_src
 
 
 def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
-    with open("tests/data/derived-types-03.py", "r") as f:
+    with open(f"{DATA_DIR}/derived-types-03.py", "r") as f:
         python_dict = f.read()
     assert derived_types_python_IR_test == python_dict

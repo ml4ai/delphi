@@ -1,4 +1,111 @@
 {
+  "identifiers": [
+    {
+      "base_name": "assign$total_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "total_rain_0",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "rain_0",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "condition$IF_2_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "total_rain_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "decision$yield_est_2",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "IF_2_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "yield_est_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "yield_est_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$max_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$consistency_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$absorption_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$yield_est_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$total_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "loop_plate$day",
+      "scope": "loop$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    }
+  ],
   "functions": [
     {
       "name": "update_est__assign__total_rain_1",
@@ -17,9 +124,9 @@
       "reference": 10
     },
     {
-      "name": "update_est__condition__IF_1_0",
+      "name": "update_est__condition__IF_2_0",
       "type": "condition",
-      "target": "IF_1",
+      "target": "IF_2",
       "reference": 11,
       "sources": [
         {
@@ -59,7 +166,7 @@
       "reference": 11,
       "sources": [
         {
-          "name": "IF_1_0",
+          "name": "IF_2_0",
           "type": "variable"
         },
         {
@@ -103,7 +210,7 @@
           "domain": "real"
         },
         {
-          "name": "IF_1",
+          "name": "IF_2",
           "domain": "boolean"
         }
       ],
@@ -126,9 +233,9 @@
           ]
         },
         {
-          "name": "update_est__condition__IF_1_0",
+          "name": "update_est__condition__IF_2_0",
           "output": {
-            "variable": "IF_1",
+            "variable": "IF_2",
             "index": 0
           },
           "input": [
@@ -172,7 +279,7 @@
           },
           "input": [
             {
-              "variable": "IF_1",
+              "variable": "IF_2",
               "index": 0
             },
             {
@@ -492,135 +599,10 @@
     }
   ],
   "start": "crop_yield",
-  "identifiers": [
-    {
-      "base_name": "assign$total_rain_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "93aa982065ba_h"
-    },
-    {
-      "base_name": "total_rain_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "9ad95315df9a_v"
-    },
-    {
-      "base_name": "rain_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4e00d3d8da4f_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "3c4fb54c2c9e_h"
-    },
-    {
-      "base_name": "total_rain_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "30645c343c1e_v"
-    },
-    {
-      "base_name": "decision$yield_est_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "7b2ffa6da4e3_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "396d058ae2d0_v"
-    },
-    {
-      "base_name": "yield_est_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "94e98c632b97_v"
-    },
-    {
-      "base_name": "yield_est_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "3ed1e483a731_v"
-    },
-    {
-      "base_name": "assign$max_rain_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "153bc756e955_h"
-    },
-    {
-      "base_name": "assign$consistency_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f47edcb6fbdd_h"
-    },
-    {
-      "base_name": "assign$absorption_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "26c4dbf29a05_h"
-    },
-    {
-      "base_name": "assign$yield_est_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2602f2f468be_h"
-    },
-    {
-      "base_name": "assign$total_rain_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4e73a1842bf3_h"
-    },
-    {
-      "base_name": "loop_plate$day",
-      "scope": "loop$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f1abb3657396_h"
-    }
-  ],
   "source": [
     [
-      [
-        "for2py",
-        "crop_yield.py"
-      ]
+      "crop_yield.py"
     ]
   ],
-  "dateCreated": "20190325"
+  "dateCreated": "20190326"
 }
