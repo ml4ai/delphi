@@ -16,7 +16,8 @@ from delphi.translators.for2py import (
 )
 from delphi.utils.fp import flatten
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.analysis import max_S2_sensitivity_surface
+from delphi.GrFN.analysis import S2_surface, get_max_s2_sensitivity
+from delphi.GrFN.sensitivity import sobol_analysis
 from delphi.GrFN.utils import NodeType, get_node_type
 import delphi.paths
 import xml.etree.ElementTree as ET
@@ -38,7 +39,7 @@ from flask_codemirror import CodeMirror
 import inspect
 
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, JsonLexer
 from pygments.formatters import HtmlFormatter
 
 import plotly.graph_objs as go
@@ -48,6 +49,29 @@ import numpy as np
 import pandas as pd
 
 from sympy import sympify, latex, symbols
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
+
+grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+with open(grfn_with_alignments, "r") as f:
+    tr_dict = json.load(f)
+    tr_dict_processed = {}
+    src_comment_alignments = {
+        alignment['src']:alignment['dst']
+        for alignment in tr_dict['alignments'][0]
+        if '_COMMENT' in alignment['dst']
+        and alignment['score'] == 1
+    }
+    comment_text_alignments = {
+        alignment['src']: [
+            a
+            for a in tr_dict['alignments'][0]
+            if '_COMMENT' in a['src']
+        ][0]
+        for alignment in tr_dict['alignments'][0]
+    }
+
+
 
 class MyForm(FlaskForm):
     source_code = CodeMirrorField(
@@ -57,8 +81,11 @@ class MyForm(FlaskForm):
     submit = SubmitField("Submit", render_kw={"class": "btn btn-primary"})
 
 
-LEXER = PythonLexer()
-FORMATTER = HtmlFormatter()
+PYTHON_LEXER = PythonLexer()
+PYTHON_FORMATTER = HtmlFormatter()
+
+JSON_LEXER = JsonLexer()
+JSON_FORMATTER = HtmlFormatter()
 
 
 SECRET_KEY = "secret!"
@@ -72,27 +99,6 @@ app.config.from_object(__name__)
 codemirror = CodeMirror(app)
 
 
-def get_cluster_nodes(A):
-    cluster_nodes = []
-    for subgraph in A.subgraphs():
-        cluster_nodes.append(
-            {
-                "data": {
-                    "id": subgraph.name,
-                    "label": subgraph.name.replace("cluster_", ""),
-                    "shape": "roundrectangle",
-                    "parent": A.name,
-                    "color": subgraph.graph_attr["border_color"],
-                    "textValign": "top",
-                    "tooltip": None,
-                }
-            }
-        )
-        cluster_nodes.append(get_cluster_nodes(subgraph))
-
-    return cluster_nodes
-
-
 def get_tooltip(n, src):
     if src is None:
             return "None"
@@ -103,7 +109,8 @@ def get_tooltip(n, src):
             src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
             + " = "
             + latex(
-                sympify(src_lines[1][10:].replace("math.exp", "e^"))
+                sympify(src_lines[1][10:].replace("math.","")),
+                mul_symbol = "dot"
             ).replace("_", "\_")
         )
         return """
@@ -132,41 +139,8 @@ def get_tooltip(n, src):
             </div>
         </div>
         """.format(
-            ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
+            ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
         )
-
-
-def get_cyjs_elementsJSON_from_ScopeTree(A, lambdas) -> str:
-    elements = {
-        "nodes": [
-            {
-                "data": {
-                    "id": n,
-                    "label": n.attr["label"],
-                    "parent": n.attr["parent"],
-                    "shape": n.attr["shape"],
-                    "color": n.attr["color"],
-                    "textValign": "center",
-                    "tooltip": get_tooltip(n, lambdas)
-                    # "tooltip": highlight(get_tooltip(n, lambdas), LEXER, FORMATTER),
-                }
-            }
-            for n in A.nodes()
-        ]
-        + flatten(get_cluster_nodes(A)),
-        "edges": [
-            {
-                "data": {
-                    "id": f"{edge[0]}_{edge[1]}",
-                    "source": edge[0],
-                    "target": edge[1],
-                }
-            }
-            for edge in A.edges()
-        ],
-    }
-    json_str = json.dumps(elements, indent=2)
-    return json_str
 
 
 @app.route("/")
@@ -192,21 +166,39 @@ def to_cyjs_grfn(G):
             {
                 "data": {
                     "id": n[0],
-                    "label": n[0].split("::")[1] if n[1]["type"] == NodeType.VARIABLE else n[0].split("__")[1][0].upper(),
-                    "parent": "parent",
-                    "shape": "ellipse" if n[1]["type"] == NodeType.VARIABLE else "rectangle",
-                    "color": "maroon" if n[1]["type"] == NodeType.VARIABLE else "black",
-                    "textValign": "top" if n[1]["type"] == NodeType.VARIABLE else "center",
-                    "tooltip": get_tooltip(n[0], None if n[1]["type"] ==
-                        NodeType.VARIABLE else
-                        inspect.getsource(n[1]["lambda"])),
-                    "width": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
-                    "height": 10 if n[1]["type"] == NodeType.VARIABLE else 7,
+                    "label": n[1]['label'],
+                    "parent": n[1]['parent'],
+                    "shape": "ellipse" if n[1].get('type') == "variable" else "rectangle",
+                    "color": "maroon" if n[1].get('type') == "variable" else "black",
+                    "textValign": "center",
+                    "tooltip": get_tooltip(n[0], None if n[1].get('type') == "variable" else
+                        inspect.getsource(n[1]["lambda_fn"])),
+                    "width": 10 if n[1].get('type') == "variable" else 7,
+                    "height": 10 if n[1].get('type') == "variable" else 7,
+                    "padding": n[1]["padding"]
                 }
             }
             for n in G.nodes(data=True)
+        ] + [
+                {
+                    "data" : {
+                        "id":n[0],
+                        "label": n[0],
+                        "shape": "roundrectangle",
+                        "color": n[1]["color"],
+                        "textValign": "top",
+                        "tooltip":n[0],
+                        "width": "label",
+                        "height": "label",
+                        "padding": 10,
+                        "parent": (
+                            list(G.scope_tree.predecessors(n[0]))[0]
+                            if len(list(G.scope_tree.predecessors(n[0]))) != 0
+                            else n[0]
+                        )
+                    }
+                } for n in G.scope_tree.nodes(data=True)
         ],
-        # + flatten(get_cluster_nodes(A)),
         "edges": [
             {
                 "data": {
@@ -231,15 +223,15 @@ def to_cyjs_cag(G):
                     "parent": "parent",
                     "shape": "ellipse",
                     "color": "maroon",
-                    "textValign": "top",
+                    "textValign": "center",
                     "tooltip": n[0],
-                    "width": 10,
-                    "height": 10,
+                    "width": "label",
+                    "height": "label",
+                    "padding": 15,
                 }
             }
             for n in G.nodes(data=True)
         ],
-        # + flatten(get_cluster_nodes(A)),
         "edges": [
             {
                 "data": {
@@ -296,7 +288,10 @@ def processCode():
     G = GroundedFunctionNetwork.from_python_src(
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
+    # G = GroundedFunctionNetwork.from_dict()
 
+    A = G.to_agraph()
+    A.draw('crop_yield.pdf', prog='dot')
     bounds = {
         "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
         "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2
@@ -313,10 +308,32 @@ def processCode():
         "petpt::xhlai_0": 10,
     }
 
-    # xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
+    args = G.model_inputs
+    Si = sobol_analysis(G, 10, {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    })
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+
+    x_var = args[v1]
+    y_var = args[v2]
+    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+    preset_vals = {
+        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    }
+
+    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+    print(X, Y, Z)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
-    program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
+    CAG = G.to_CAG()
+    for n in CAG.nodes(data=True):
+        pass
+    program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
+
+
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
@@ -324,7 +341,8 @@ def processCode():
         "index.html",
         form=form,
         code=app.code,
-        python_code=highlight(pySrc, LEXER, FORMATTER),
+        python_code=highlight(pySrc, PYTHON_LEXER, PYTHON_FORMATTER),
+        grfn_json = highlight(json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
@@ -363,7 +381,6 @@ def modelAnalysis():
         ForwardInfluenceBlanket,
     )
 
-    THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
     asce = utils.nx_graph_from_dotfile(
         os.path.join(THIS_FOLDER, "static/graphviz_dot_files/asce-graph.dot")
     )

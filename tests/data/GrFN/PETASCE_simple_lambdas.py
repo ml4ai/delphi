@@ -227,4 +227,3 @@ def petasce__assign__eo_1(kcb, ke, refet):
 
 def petasce__assign__eo_2(eo):
     return max(eo, 0.0001)
-

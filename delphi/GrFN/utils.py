@@ -28,7 +28,7 @@ class NodeType(Enum):
 
 
 def get_variable_name(var_dict, container_name):
-    """Returnns the unique node name of a variable."""
+    """Returns the unique node name of a variable."""
     return f"{container_name}::{var_dict['variable']}_{var_dict['index']}"
 
 

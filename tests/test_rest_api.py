@@ -2,8 +2,8 @@ import json
 import pytest
 from conftest import *
 from uuid import uuid4
-from delphi.icm_api import create_app, db
-from delphi.icm_api.models import (
+from delphi.apps.rest_api import create_app, db
+from delphi.apps.rest_api.models import (
     Evidence,
     ICMMetadata,
     CausalVariable,

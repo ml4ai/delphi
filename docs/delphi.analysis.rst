@@ -8,7 +8,6 @@ Subpackages
 
     delphi.analysis.comparison
     delphi.analysis.optimization
-    delphi.analysis.sensitivity
 
 Module contents
 ---------------

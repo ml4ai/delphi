@@ -38,7 +38,7 @@ If you use Delphi, please cite the following:
 
    @misc{Delphi,
        Author = {Adarsh Pyarelal and Paul Hein and Jon Stephens and Pratik
-                 Bhandari and Terrence Lim and Saumya Debray and Clayton
+                 Bhandari and HeuiChan Lim and Saumya Debray and Clayton
                  Morrison},
        Title = {Delphi: A Framework for Assembling Causal Probabilistic 
                 Models from Text and Software.},
