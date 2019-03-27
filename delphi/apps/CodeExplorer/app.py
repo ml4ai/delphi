@@ -70,6 +70,12 @@ with open(grfn_with_alignments, "r") as f:
         ][0]
         for alignment in tr_dict['alignments'][0]
     }
+    src_text_alignments = {
+        src:[v for v in tr_dict["variables"][0] if v['name'] == comment][0]['description'][0]['text']
+        for src, comment in src_comment_alignments.items()
+    }
+
+print(src_text_alignments)
 
 
 
@@ -99,10 +105,11 @@ app.config.from_object(__name__)
 codemirror = CodeMirror(app)
 
 
-def get_tooltip(n, src):
-    if src is None:
-            return "None"
+def get_tooltip(n):
+    if n[1]["type"] == "variable":
+        tooltip = src_text_alignments.get(n[1]['basename'])
     else:
+        src=inspect.getsource(n[1]["lambda_fn"])
         src_lines = src.split("\n")
         symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
         ltx = (
@@ -113,7 +120,7 @@ def get_tooltip(n, src):
                 mul_symbol = "dot"
             ).replace("_", "\_")
         )
-        return """
+        tooltip = """
         <nav>
             <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
                 <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
@@ -141,6 +148,7 @@ def get_tooltip(n, src):
         """.format(
             ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
         )
+    return tooltip
 
 
 @app.route("/")
@@ -171,8 +179,7 @@ def to_cyjs_grfn(G):
                     "shape": "ellipse" if n[1].get('type') == "variable" else "rectangle",
                     "color": "maroon" if n[1].get('type') == "variable" else "black",
                     "textValign": "center",
-                    "tooltip": get_tooltip(n[0], None if n[1].get('type') == "variable" else
-                        inspect.getsource(n[1]["lambda_fn"])),
+                    "tooltip": get_tooltip(n),
                     "width": 10 if n[1].get('type') == "variable" else 7,
                     "height": 10 if n[1].get('type') == "variable" else 7,
                     "padding": n[1]["padding"]
@@ -224,7 +231,7 @@ def to_cyjs_cag(G):
                     "shape": "ellipse",
                     "color": "maroon",
                     "textValign": "center",
-                    "tooltip": n[0],
+                    "tooltip": get_tooltip(n),
                     "width": "label",
                     "height": "label",
                     "padding": 15,
@@ -308,24 +315,23 @@ def processCode():
         "petpt::xhlai_0": 10,
     }
 
-    args = G.model_inputs
-    Si = sobol_analysis(G, 10, {
-        'num_vars': len(args),
-        'names': args,
-        'bounds': [bounds[arg] for arg in args]
-    })
-    S2 = Si["S2"]
-    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+    # args = G.model_inputs
+    # Si = sobol_analysis(G, 10, {
+        # 'num_vars': len(args),
+        # 'names': args,
+        # 'bounds': [bounds[arg] for arg in args]
+    # })
+    # S2 = Si["S2"]
+    # (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
 
-    x_var = args[v1]
-    y_var = args[v2]
-    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-    preset_vals = {
-        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
-    }
+    # x_var = args[v1]
+    # y_var = args[v2]
+    # search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+    # preset_vals = {
+        # arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    # }
 
-    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
-    print(X, Y, Z)
+    # (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     CAG = G.to_CAG()
