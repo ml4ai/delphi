@@ -10,7 +10,7 @@ import delphi.GrFN.analysis as analysis
 from test_GrFN import PETPT_GrFN
 
 
-sys.path.insert(0, "tests/data")
+sys.path.insert(0, "tests/data/program_analysis")
 
 def test_regular_PETPT():
 
@@ -38,7 +38,7 @@ def test_regular_PETPT():
 @pytest.mark.skip("Need to update to latest JSON")
 def test_PETPT_with_torch():
     lambdas = importlib.__import__("PETPT_torch_lambdas")
-    pgm = json.load(open("tests/data/PETPT.json", "r"))
+    pgm = json.load(open("tests/data/program_analysis/PETPT.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
     args = G.model_inputs
