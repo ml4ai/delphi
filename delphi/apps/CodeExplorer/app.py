@@ -49,6 +49,7 @@ import numpy as np
 import pandas as pd
 
 from sympy import sympify, latex, symbols
+
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -56,27 +57,28 @@ grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
 with open(grfn_with_alignments, "r") as f:
     tr_dict = json.load(f)
     tr_dict_processed = {}
+    variables = {v.pop("name"): v for v in tr_dict["variables"][0]}
+    alignments = tr_dict["alignments"][0]
     src_comment_alignments = {
-        alignment['src']:alignment['dst']
-        for alignment in tr_dict['alignments'][0]
-        if '_COMMENT' in alignment['dst']
-        and alignment['score'] == 1
+        alignment["src"]: alignment["dst"]
+        for alignment in alignments
+        if "_COMMENT" in alignment["dst"] and alignment["score"] == 1
     }
     comment_text_alignments = {
-        alignment['src']: [
-            a
-            for a in tr_dict['alignments'][0]
-            if '_COMMENT' in a['src']
+        alignment["src"]: [
+            a["dst"] for a in alignments if "_COMMENT" in a["src"]
         ][0]
-        for alignment in tr_dict['alignments'][0]
+        for alignment in tr_dict["alignments"][0]
     }
     src_text_alignments = {
-        src:[v for v in tr_dict["variables"][0] if v['name'] == comment][0]['description'][0]['text']
+        src: {
+            "from_comments": variables[comment]["description"][0]["text"],
+            "from_text": variables[comment_text_alignments[comment]][
+                "description"
+            ][0]["text"],
+        }
         for src, comment in src_comment_alignments.items()
     }
-
-print(src_text_alignments)
-
 
 
 class MyForm(FlaskForm):
@@ -107,17 +109,51 @@ codemirror = CodeMirror(app)
 
 def get_tooltip(n):
     if n[1]["type"] == "variable":
-        tooltip = src_text_alignments.get(n[1]['basename'])
+        metadata = src_text_alignments.get(n[1]["basename"])
+        if metadata is not None:
+            tooltip = """
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab-{n[0]}" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-comments-tab-{n[0]}"
+                        data-toggle="tab" href="#nav-comments-{n[0]}" role="tab"
+                        aria-controls="nav-comments-{n[0]}" aria-selected="true">
+                        Comments
+                    </a>
+                    <a class="nav-item nav-link" id="nav-text-tab-{n[0]}"
+                        data-toggle="tab" href="#nav-text-{n[0]}" role="tab"
+                        aria-controls="nav-text-{n[0]}" aria-selected="false">
+                        Text
+                    </a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
+                <div class="tab-pane fade show active" id="nav-comments-{n[0]}"
+                    role="tabpanel" aria-labelledby="nav-comments-tab-{n[0]}">
+                {from_comments}
+                </div>
+                <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
+                    aria-labelledby="nav-text-tab-{n[0]}">
+                {from_text}
+                </div>
+            </div>
+            """.format(
+                n = n, metadata=metadata,
+                from_comments = metadata.get('from_comments'),
+                from_text = metadata.get('from_text')
+            )
+        else:
+            tooltip=None
+
     else:
-        src=inspect.getsource(n[1]["lambda_fn"])
+        src = inspect.getsource(n[1]["lambda_fn"])
         src_lines = src.split("\n")
         symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
         ltx = (
             src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
             + " = "
             + latex(
-                sympify(src_lines[1][10:].replace("math.","")),
-                mul_symbol = "dot"
+                sympify(src_lines[1][10:].replace("math.", "")),
+                mul_symbol="dot",
             ).replace("_", "\_")
         )
         tooltip = """
@@ -167,44 +203,49 @@ def handle_invalid_usage(error):
     return render_template("index.html", code=app.code)
 
 
-
 def to_cyjs_grfn(G):
     elements = {
         "nodes": [
             {
                 "data": {
                     "id": n[0],
-                    "label": n[1]['label'],
-                    "parent": n[1]['parent'],
-                    "shape": "ellipse" if n[1].get('type') == "variable" else "rectangle",
-                    "color": "maroon" if n[1].get('type') == "variable" else "black",
+                    "label": n[1]["label"],
+                    "parent": n[1]["parent"],
+                    "shape": "ellipse"
+                    if n[1].get("type") == "variable"
+                    else "rectangle",
+                    "color": "maroon"
+                    if n[1].get("type") == "variable"
+                    else "black",
                     "textValign": "center",
                     "tooltip": get_tooltip(n),
-                    "width": 10 if n[1].get('type') == "variable" else 7,
-                    "height": 10 if n[1].get('type') == "variable" else 7,
-                    "padding": n[1]["padding"]
+                    "width": 10 if n[1].get("type") == "variable" else 7,
+                    "height": 10 if n[1].get("type") == "variable" else 7,
+                    "padding": n[1]["padding"],
                 }
             }
             for n in G.nodes(data=True)
-        ] + [
-                {
-                    "data" : {
-                        "id":n[0],
-                        "label": n[0],
-                        "shape": "roundrectangle",
-                        "color": n[1]["color"],
-                        "textValign": "top",
-                        "tooltip":n[0],
-                        "width": "label",
-                        "height": "label",
-                        "padding": 10,
-                        "parent": (
-                            list(G.scope_tree.predecessors(n[0]))[0]
-                            if len(list(G.scope_tree.predecessors(n[0]))) != 0
-                            else n[0]
-                        )
-                    }
-                } for n in G.scope_tree.nodes(data=True)
+        ]
+        + [
+            {
+                "data": {
+                    "id": n[0],
+                    "label": n[0],
+                    "shape": "roundrectangle",
+                    "color": n[1]["color"],
+                    "textValign": "top",
+                    "tooltip": n[0],
+                    "width": "label",
+                    "height": "label",
+                    "padding": 10,
+                    "parent": (
+                        list(G.scope_tree.predecessors(n[0]))[0]
+                        if len(list(G.scope_tree.predecessors(n[0]))) != 0
+                        else n[0]
+                    ),
+                }
+            }
+            for n in G.scope_tree.nodes(data=True)
         ],
         "edges": [
             {
@@ -219,6 +260,7 @@ def to_cyjs_grfn(G):
     }
     json_str = json.dumps(elements, indent=2)
     return json_str
+
 
 def to_cyjs_cag(G):
     elements = {
@@ -252,6 +294,7 @@ def to_cyjs_cag(G):
     }
     json_str = json.dumps(elements, indent=2)
     return json_str
+
 
 @app.route("/processCode", methods=["POST"])
 def processCode():
@@ -298,12 +341,12 @@ def processCode():
     # G = GroundedFunctionNetwork.from_dict()
 
     A = G.to_agraph()
-    A.draw('crop_yield.pdf', prog='dot')
+    A.draw("crop_yield.pdf", prog="dot")
     bounds = {
-        "petpt::msalb_0": [0, 1],   # TODO: Khan set proper values for x1, x2
-        "petpt::srad_0": [1, 20],   # TODO: Khan set proper values for x1, x2
-        "petpt::tmax_0": [-30, 60], # TODO: Khan set proper values for x1, x2
-        "petpt::tmin_0": [-30, 60], # TODO: Khan set proper values for x1, x2
+        "petpt::msalb_0": [0, 1],  # TODO: Khan set proper values for x1, x2
+        "petpt::srad_0": [1, 20],  # TODO: Khan set proper values for x1, x2
+        "petpt::tmax_0": [-30, 60],  # TODO: Khan set proper values for x1, x2
+        "petpt::tmin_0": [-30, 60],  # TODO: Khan set proper values for x1, x2
         "petpt::xhlai_0": [0, 20],  # TODO: Khan set proper values for x1, x2
     }
 
@@ -317,9 +360,9 @@ def processCode():
 
     # args = G.model_inputs
     # Si = sobol_analysis(G, 10, {
-        # 'num_vars': len(args),
-        # 'names': args,
-        # 'bounds': [bounds[arg] for arg in args]
+    # 'num_vars': len(args),
+    # 'names': args,
+    # 'bounds': [bounds[arg] for arg in args]
     # })
     # S2 = Si["S2"]
     # (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
@@ -328,7 +371,7 @@ def processCode():
     # y_var = args[v2]
     # search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
     # preset_vals = {
-        # arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    # arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
     # }
 
     # (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
@@ -339,7 +382,6 @@ def processCode():
         pass
     program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
 
-
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
@@ -348,37 +390,34 @@ def processCode():
         form=form,
         code=app.code,
         python_code=highlight(pySrc, PYTHON_LEXER, PYTHON_FORMATTER),
-        grfn_json = highlight(json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER),
+        grfn_json=highlight(
+            json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER
+        ),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
 
+
 @app.route("/sensitivityAnalysis")
 def sensitivityAnalysis():
     # Read data from a csv
-    z_data = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv')
+    z_data = pd.read_csv(
+        "https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv"
+    )
 
-    data = [
-        go.Surface(
-            z=z_data.as_matrix()
-        )
-    ]
+    data = [go.Surface(z=z_data.as_matrix())]
     layout = go.Layout(
-        title='Mt Bruno Elevation',
+        title="Mt Bruno Elevation",
         autosize=False,
         width=500,
         height=500,
-        margin=dict(
-            l=65,
-            r=50,
-            b=65,
-            t=90
-        )
+        margin=dict(l=65, r=50, b=65, t=90),
     )
 
     graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template("sensitivityAnalysis.html", graphJSON = graphJSON)
+    return render_template("sensitivityAnalysis.html", graphJSON=graphJSON)
+
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
