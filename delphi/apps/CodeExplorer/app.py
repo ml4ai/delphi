@@ -50,6 +50,26 @@ import pandas as pd
 
 from sympy import sympify, latex, symbols
 
+with open("grfn_with_alignments.json", "r") as f:
+    tr_dict = json.load(f)
+    tr_dict_processed = {}
+    src_comment_alignments = {
+        alignment['src']:alignment['dst']
+        for alignment in tr_dict['alignments'][0]
+        if '_COMMENT' in alignment['dst']
+        and alignment['score'] == 1
+    }
+    comment_text_alignments = {
+        alignment['src']: [
+            a
+            for a in tr_dict['alignments'][0]
+            if '_COMMENT' in a['src']
+        ][0]
+        for alignment in tr_dict['alignments'][0]
+    }
+
+
+
 class MyForm(FlaskForm):
     source_code = CodeMirrorField(
         language="fortran",
@@ -305,7 +325,12 @@ def processCode():
     print(X, Y, Z)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
-    program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
+    CAG = G.to_CAG()
+    for n in CAG.nodes(data=True):
+        pass
+    program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
+
+
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
