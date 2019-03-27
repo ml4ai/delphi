@@ -7,10 +7,11 @@ import sys
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
-from test_GrFN import PETPT_GrFN
+from test_GrFN import PETPT_GrFN, PETASCE_GrFN
 
 
 sys.path.insert(0, "tests/data/program_analysis")
+
 
 def test_regular_PETPT():
 
@@ -71,11 +72,8 @@ def test_PETPT_with_torch():
 
 
 def test_PETASCE_sobol_analysis():
-    # Regular model
-    filepath = "tests/data/GrFN/PETASCE_simple.for"
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
-
     # Torch model
+    sys.path.insert(0, "tests/data/GrFN")
     lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
     pgm = json.load(open("tests/data/GrFN/PETASCE_simple_torch.json", "r"))
     tG = GroundedFunctionNetwork.from_dict(pgm, lambdas)
@@ -112,7 +110,7 @@ def test_PETASCE_sobol_analysis():
         "petasce::canht_0": (float, [0.0]),
     }
 
-    args = G.model_inputs
+    args = PETASCE_GrFN.model_inputs
     problem = {
         'num_vars': len(args),
         'names': args,
@@ -120,66 +118,14 @@ def test_PETASCE_sobol_analysis():
     }
 
     N = 1000
-    Si = sobol_analysis(G, 100, problem, var_types=type_info)
+    Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
     tSi = sobol_analysis(tG, N, problem, var_types=type_info, use_torch=True)
 
-    assert len(Si["S1"]) == len(G.model_inputs)
-    assert len(Si["S2"][0]) == len(G.model_inputs)
+    assert len(Si["S1"]) == len(PETASCE_GrFN.model_inputs)
+    assert len(Si["S2"][0]) == len(PETASCE_GrFN.model_inputs)
 
     assert len(tSi["S1"]) == len(tG.model_inputs)
     assert len(tSi["S2"][0]) == len(tG.model_inputs)
-
-
-def test_PETPT_sensitivity_surface():
-    # filepath = "tests/data/GrFN/PETPT.for"
-    # G = GroundedFunctionNetwork.from_fortran_file(filepath)
-    lambdas = importlib.__import__("PETPT_torch_lambdas")
-    pgm = json.load(open("tests/data/GrFN/PETPT_numpy.json", "r"))
-    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
-
-    bounds = {
-        "petasce::doy_0": [1, 365],
-        "petasce::meevp_0": [0, 1],
-        "petasce::msalb_0": [0, 1],
-        "petasce::srad_0": [1, 30],
-        "petasce::tmax_0": [-30, 60],
-        "petasce::tmin_0": [-30, 60],
-        "petasce::xhlai_0": [0, 20],
-        "petasce::tdew_0": [-30, 60],
-        "petasce::windht_0": [0, 10],
-        "petasce::windrun_0": [0, 900],
-        "petasce::xlat_0": [0, 90],
-        "petasce::xelev_0": [0, 6000],
-        "petasce::canht_0": [0.001, 3],
-    }
-
-    type_info = {
-        "petasce::doy_0": (int, list(range(1, 366))),
-        "petasce::meevp_0": (str, ["A", "W"]),
-        "petasce::msalb_0": (float, [0.0]),
-        "petasce::srad_0": (float, [0.0]),
-        "petasce::tmax_0": (float, [0.0]),
-        "petasce::tmin_0": (float, [0.0]),
-        "petasce::xhlai_0": (float, [0.0]),
-        "petasce::tdew_0": (float, [0.0]),
-        "petasce::windht_0": (float, [0.0]),
-        "petasce::windrun_0": (float, [0.0]),
-        "petasce::xlat_0": (float, [0.0]),
-        "petasce::xelev_0": (float, [0.0]),
-        "petasce::canht_0": (float, [0.0]),
-    }
-
-    args = G.model_inputs
-    problem = {
-        'num_vars': len(args),
-        'names': args,
-        'bounds': [bounds[arg] for arg in args]
-    }
-
-    N = 10000
-
-    Si = sobol_analysis(G, N, problem, var_types=type_info, use_torch=True)
-    print(Si)
 
 
 def test_PETPT_sensitivity_surface():
@@ -221,17 +167,11 @@ def test_PETPT_sensitivity_surface():
     assert Y.shape == (60,)
     assert Z.shape == (80, 60)
 
-    (X, Y, Z) = analysis.S2_surface(G, (1000, 1000), search_space, preset_vals, use_torch=True)
-    print(Z)
-
-    assert X.shape == (1000,)
-    assert Y.shape == (1000,)
-    assert Z.shape == (1000, 1000)
-
 
 def test_FIB_creation():
-    filepath = "tests/data/GrFN/PETPT.for"
-    PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+    # filepath = "tests/data/GrFN/PETPT.for"
+    # PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
     # A = PETPT_GrFN.to_agraph()
     # A.draw("PETPT_GrFN.pdf", prog="dot")
     # A = PETPT_GrFN.to_call_agraph()
@@ -239,8 +179,9 @@ def test_FIB_creation():
     A = PETPT_GrFN.to_CAG_agraph()
     A.draw("PETPT_CAG.pdf", prog="dot")
 
-    filepath = "tests/data/GrFN/PETASCE_simple.for"
-    PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+    # filepath = "tests/data/GrFN/PETASCE_simple.for"
+    # PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
+
     # A = PETASCE_GrFN.to_agraph()
     # A.draw("PETASCE_GrFN.pdf", prog="dot")
     # A = PETASCE_GrFN.to_call_agraph()

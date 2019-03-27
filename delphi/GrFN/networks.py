@@ -143,19 +143,13 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 if "name" in stmt:
                     stmt_type = functions[stmt["name"]]["type"]
                     if stmt_type in ("assign", "condition", "decision"):
-                        G.add_node(stmt["name"],
-                            type="function",
-                            lambda_fn = getattr(lambdas, stmt["name"]),
-                            shape="rectangle",
-                            parent=parent,
-                            label=stmt_type[0].upper(),
-                            padding=10,
-                        )
+
                         output = stmt['output']
                         add_variable_node(output["variable"], parent, output["index"])
                         G.add_edge(stmt["name"],
                                 f"{parent}::{output['variable']}_{output['index']}")
 
+                        ordered_inputs = list()
                         for input in stmt.get("input", []):
                             if (
                                 input["index"] == -1
@@ -164,14 +158,25 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                 pass
                                 # input["index"] += 2 # HACK for crop_yield.f
                                 # example.
-                            input_node = f"{input['variable']}_{input['index']}"
                             add_variable_node(
                                 input['variable'],
                                 parent,
                                 input['index'],
                                 input["variable"] == loop_index_variable
                             )
-                            G.add_edge(f"{parent}::{input['variable']}_{input['index']}", stmt["name"])
+                            node_name = f"{parent}::{input['variable']}_{input['index']}"
+                            ordered_inputs.append(node_name)
+                            G.add_edge(node_name, stmt["name"])
+
+                        G.add_node(stmt["name"],
+                            type="function",
+                            lambda_fn = getattr(lambdas, stmt["name"]),
+                            func_inputs=ordered_inputs,
+                            shape="rectangle",
+                            parent=parent,
+                            label=stmt_type[0].upper(),
+                            padding=10,
+                        )
 
                     elif stmt_type == "loop_plate":
                         index_variable = functions[stmt["name"]]["index_variable"]
@@ -318,23 +323,14 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 lambda_fn = self.nodes[func_name]["lambda_fn"]
                 output_node = list(self.successors(func_name))[0]
 
-                # Run the lambda function and save the output
-                if "decision" not in func_name:
-                    input_value_dict = {
-                        ''.join(i.split('::')[1].split('_')[:-1]):self.nodes[i]["value"]
-                        for i in self.predecessors(func_name)
-                    }
-                else:
-                    input_value_dict = {
-                        i.split('::')[1]:self.nodes[i]["value"]
-                        for i in self.predecessors(func_name)
-                    }
-                res = lambda_fn(**input_value_dict)
-                if torch_size is not None and len(self.predecessors(func_name)) == 0:
+                signature = self.nodes[func_name]["func_inputs"]
+                inputs = [self.nodes[n]["value"] for n in signature]
+                res = lambda_fn(*inputs)
+
+                if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor([res] * torch_size, dtype=torch.double)
                 else:
                     self.nodes[output_node]["value"] = res
-                self.nodes[output_node]["value"] = res
 
         # return the output
         return self.nodes[self.output_node]["value"]
@@ -436,7 +432,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         })
         return A
 
-    def to_call_agraph(self) -> nx.DiGraph:
+    def to_call_agraph(self):
         A = nx.nx_agraph.to_agraph(self.call_graph)
         A.graph_attr.update({
             "dpi": 227,
@@ -465,7 +461,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
     from the NetworkX DiGraph class.
     """
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
-        super().__init__()
+        super(ForwardInfluenceBlanket, self).__init__()
         self.inputs = set(G.model_inputs).intersection(shared_nodes)
         self.output_node = G.output_node
         print(self.inputs)
@@ -481,7 +477,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         self.cover_nodes, cover_edges = set(), set()
         # add_nodes, add_edges = set(), set()
         for node in main_nodes:
-            if G.nodes[node]["type"].is_function_node():
+            if G.nodes[node]["type"] == "function":
                 # for func_node in G.predecessors(node):
                 for var_node in G.predecessors(node):
                     if var_node not in main_nodes:
@@ -545,21 +541,62 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         # for source, dest in cut_edges:
         #     self[source][dest]["color"] = "orange"
 
-        self.call_graph = self.build_call_graph()
-        self.function_sets = self.build_function_sets()
+        self.build_call_graph()
+        self.build_function_sets()
 
+    def build_call_graph(self):
+        edges = list()
+
+        def update_edge_set(cur_fns):
+            for c in cur_fns:
+                nxt_fns = [p for v in self.successors(c)
+                           for p in self.successors(v)]
+                edges.extend([(c, n) for n in nxt_fns])
+                update_edge_set(list(set(nxt_fns)))
+
+        update_edge_set(
+            list({
+                n for v in self.inputs for n in self.successors(v)
+            }.union({
+                n for v in self.cover_nodes for n in self.successors(v)
+            }))
+        )
+        self.call_graph = nx.DiGraph()
+        self.call_graph.add_edges_from(edges)
+
+    def build_function_sets(self):
+        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
+        distances = dict()
+
+        def find_distances(funcs, dist):
+            all_successors = list()
+            for func in funcs:
+                distances[func] = dist
+                all_successors.extend(self.call_graph.successors(func))
+            if len(all_successors) > 0:
+                find_distances(list(set(all_successors)), dist+1)
+
+        find_distances(initial_funcs, 0)
+        call_sets = dict()
+        for func_name, call_dist in distances.items():
+            if call_dist in call_sets:
+                call_sets[call_dist].add(func_name)
+            else:
+                call_sets[call_dist] = {func_name}
+
+        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
+        self.function_sets = [func_set for _, func_set in function_set_dists]
+
+    @utils.timeit
     def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
-
         Args:
             inputs: Input set where keys are the names of input nodes in the
               GrFN and each key points to a set of input values (or just one).
-
         Returns:
             A set of outputs from executing the GrFN, one for every set of
             inputs.
-
         """
         # Abort run if inputs does not match our expected input set
         if len(inputs) != len(self.model_inputs):
@@ -579,7 +616,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             for func_name in func_set:
                 # Get function arguments via signature derived from JSON
                 signature = self.nodes[func_name]["func_inputs"]
-                lambda_fn = self.nodes[func_name]["lambda_fn"]
+                lambda_fn = self.nodes[func_name]["lambda"]
                 output_node = list(self.successors(func_name))[0]
 
                 # Run the lambda function and save the output
@@ -594,9 +631,12 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
         A.node_attr.update({
             "shape": "rectangle",
+            # "color": "#650021",
             "style": "rounded",
+            # "fontname": "Gill Sans",
         })
         A.edge_attr.update({
+            # "color": "#650021",
             "arrowsize": 0.5
         })
         return A

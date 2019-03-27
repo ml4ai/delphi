@@ -1,111 +1,5 @@
 {
-  "identifiers": [
-    {
-      "base_name": "assign$total_rain_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "total_rain_0",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "rain_0",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "condition$IF_2_0",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "total_rain_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "decision$yield_est_2",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "yield_est_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "yield_est_0",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$max_rain_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$consistency_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$absorption_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$yield_est_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$total_rain_1",
-      "scope": "_TOP",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "loop_plate$day",
-      "scope": "loop$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    }
-  ],
+  "start": "crop_yield",
   "functions": [
     {
       "name": "update_est__assign__total_rain_1",
@@ -598,11 +492,117 @@
       ]
     }
   ],
-  "start": "crop_yield",
+  "identifiers": [
+    {
+      "base_name": "assign$total_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "total_rain_0",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "rain_0",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "condition$IF_2_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "total_rain_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "decision$yield_est_2",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "IF_2_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "yield_est_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "yield_est_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$max_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$consistency_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$absorption_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$yield_est_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$total_rain_1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "loop_plate$day",
+      "scope": "loop$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    }
+  ],
   "source": [
     [
       "crop_yield.py"
     ]
   ],
-  "dateCreated": "20190326"
+  "dateCreated": "20190327"
 }
