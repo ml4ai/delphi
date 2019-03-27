@@ -86,7 +86,7 @@ def test_petasce_torch_execution():
     #     "petasce::canht_0": [0.001, 3],
     # }
 
-    N = 1000000
+    N = 100
     samples = {
         "petasce::doy_0": np.random.randint(1, 100, N),
         "petasce::meevp_0": np.where(np.random.rand(N) >= 0.5, 'A', 'W'),

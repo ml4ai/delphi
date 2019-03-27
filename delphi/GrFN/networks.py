@@ -517,9 +517,9 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
             penwidth=3.0
         )
-        self.add_node(
-            (self.output_node, G.nodes[self.output_node]),
-            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
+        self.add_nodes_from(
+            [(self.output_node, G.nodes[self.output_node])],
+            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT
         )
         self.add_nodes_from(
             [(n, d) for n, d in orig_nodes if n in main_nodes],
