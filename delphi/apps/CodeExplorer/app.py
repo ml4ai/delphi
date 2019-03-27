@@ -66,16 +66,14 @@ with open(grfn_with_alignments, "r") as f:
     }
     comment_text_alignments = {
         alignment["src"]: [
-            a["dst"] for a in alignments if "_COMMENT" in a["src"]
+            a["dst"] for a in alignments if a['src'] == alignment['src']
         ][0]
-        for alignment in tr_dict["alignments"][0]
+        for alignment in alignments
     }
     src_text_alignments = {
         src: {
             "from_comments": variables[comment]["description"][0]["text"],
-            "from_text": variables[comment_text_alignments[comment]][
-                "description"
-            ][0]["text"],
+            "from_text": variables[comment_text_alignments[comment]],
         }
         for src, comment in src_comment_alignments.items()
     }
@@ -111,18 +109,21 @@ def get_tooltip(n):
     if n[1]["type"] == "variable":
         metadata = src_text_alignments.get(n[1]["basename"])
         if metadata is not None:
+            comment_provenance = metadata['from_comments']
+            text_provenance = metadata['from_text']
             tooltip = """
+            <strong>Metadata extracted using NLP.</strong>
             <nav>
                 <div class="nav nav-tabs" id="nav-tab-{n[0]}" role="tablist">
                     <a class="nav-item nav-link active" id="nav-comments-tab-{n[0]}"
                         data-toggle="tab" href="#nav-comments-{n[0]}" role="tab"
                         aria-controls="nav-comments-{n[0]}" aria-selected="true">
-                        Comments
+                        Code comments
                     </a>
                     <a class="nav-item nav-link" id="nav-text-tab-{n[0]}"
                         data-toggle="tab" href="#nav-text-{n[0]}" role="tab"
                         aria-controls="nav-text-{n[0]}" aria-selected="false">
-                        Text
+                        Scientific texts
                     </a>
                 </div>
             </nav>
@@ -133,13 +134,17 @@ def get_tooltip(n):
                 </div>
                 <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
                     aria-labelledby="nav-text-tab-{n[0]}">
-                {from_text}
+                    <table style="width:100%">
+                        <tr><td><strong>Text</strong>:</td> <td> {from_text[description][0][text]} </td></tr>
+                        <tr><td><strong>Source</strong>:</td> <td> {from_text[description][0][source]} </td></tr>
+                        <tr><td><strong>Sentence ID</strong>:</td> <td> {from_text[description][0][sentIdx]} </td></tr>
+                    </table>
                 </div>
             </div>
             """.format(
                 n = n, metadata=metadata,
-                from_comments = metadata.get('from_comments'),
-                from_text = metadata.get('from_text')
+                from_comments = comment_provenance,
+                from_text = text_provenance,
             )
         else:
             tooltip=None
