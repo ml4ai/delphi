@@ -11,7 +11,8 @@ from delphi.GrFN.networks import GroundedFunctionNetwork, NodeType
 data_dir = "tests/data/GrFN/"
 
 def test_petpt_creation_and_execution():
-    filepath = "tests/data/GrFN/PETPT.for"
+    filepath = "tests/data/PETPT.for"
+    sys.path.insert(0, "tests/data")
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
     assert isinstance(G, GroundedFunctionNetwork)
@@ -25,6 +26,7 @@ def test_petpt_creation_and_execution():
 
 def test_petasce_creation():
     filepath = "tests/data/GrFN/PETASCE_simple.for"
+    sys.path.insert(0, "tests/data/GrFN")
     G = GroundedFunctionNetwork.from_fortran_file(filepath)
     A = G.to_agraph()
     CAG = G.to_CAG_agraph()
