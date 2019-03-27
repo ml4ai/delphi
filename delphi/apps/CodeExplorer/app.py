@@ -49,8 +49,11 @@ import numpy as np
 import pandas as pd
 
 from sympy import sympify, latex, symbols
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-with open("grfn_with_alignments.json", "r") as f:
+
+grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments")
+with open(grfn_with_alignments, "r") as f:
     tr_dict = json.load(f)
     tr_dict_processed = {}
     src_comment_alignments = {
@@ -378,7 +381,6 @@ def modelAnalysis():
         ForwardInfluenceBlanket,
     )
 
-    THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
     asce = utils.nx_graph_from_dotfile(
         os.path.join(THIS_FOLDER, "static/graphviz_dot_files/asce-graph.dot")
     )
