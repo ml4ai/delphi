@@ -161,7 +161,6 @@ def test_PETPT_sensitivity_surface():
     }
 
     (X, Y, Z) = analysis.S2_surface(PETPT_GrFN, (80, 60), search_space, preset_vals)
-    print(Z)
 
     assert X.shape == (80,)
     assert Y.shape == (60,)
