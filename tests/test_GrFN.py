@@ -9,18 +9,16 @@ import torch
 from delphi.GrFN.networks import GroundedFunctionNetwork, NodeType
 
 data_dir = "tests/data/GrFN/"
+sys.path.insert(0, "tests/data")
+PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/PETPT.for")
 
 def test_petpt_creation_and_execution():
-    filepath = "tests/data/PETPT.for"
-    sys.path.insert(0, "tests/data")
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
+    assert isinstance(PETPT_GrFN, GroundedFunctionNetwork)
+    assert len(PETPT_GrFN.model_inputs) == 5
+    assert len(PETPT_GrFN.outputs) == 1
 
-    assert isinstance(G, GroundedFunctionNetwork)
-    assert len(G.model_inputs) == 5
-    assert len(G.outputs) == 1
-
-    values = {name: 1 for name in G.inputs}
-    res = G.run(values)
+    values = {name: 1 for name in PETPT_GrFN.inputs}
+    res = PETPT_GrFN.run(values)
     assert res == 0.02998371219618677
 
 

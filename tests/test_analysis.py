@@ -7,16 +7,14 @@ import sys
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
+from test_GrFN import PETPT_GrFN
 
 
 sys.path.insert(0, "tests/data")
 
-@pytest.mark.skip("Bug in lambdas.py function when PA pipeline is run multiple times")
 def test_regular_PETPT():
-    filepath = "tests/data/PETPT.for"
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
 
-    args = G.model_inputs
+    args = PETPT_GrFN.model_inputs
     bounds = {
         "petpt::msalb_0": [0, 1],
         "petpt::srad_0": [1, 20],
@@ -32,7 +30,7 @@ def test_regular_PETPT():
     }
 
     Ns = 1000 # TODO: Khan, experiment with this value
-    Si = sobol_analysis(G, Ns, problem)
+    Si = sobol_analysis(PETPT_GrFN, Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
@@ -124,9 +122,6 @@ def test_PETASCE_sobol_analysis():
 
 
 def test_PETPT_sensitivity_surface():
-    filepath = "tests/data/GrFN/PETPT.for"
-    G = GroundedFunctionNetwork.from_fortran_file(filepath)
-
     bounds = {
         "petpt::msalb_0": (0, 1),
         "petpt::srad_0": (1, 20),
@@ -142,8 +137,8 @@ def test_PETPT_sensitivity_surface():
         "petpt::xhlai_0": 10,
     }
 
-    args = G.model_inputs
-    Si = sobol_analysis(G, 1000, {
+    args = PETPT_GrFN.model_inputs
+    Si = sobol_analysis(PETPT_GrFN, 1000, {
         'num_vars': len(args),
         'names': args,
         'bounds': [bounds[arg] for arg in args]
@@ -158,9 +153,9 @@ def test_PETPT_sensitivity_surface():
         arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
     }
 
-    (X, Y, Z) = analysis.S2_surface(G, (800, 600), search_space, preset_vals)
+    (X, Y, Z) = analysis.S2_surface(PETPT_GrFN, (80, 60), search_space, preset_vals)
     print(Z)
 
-    assert X.shape == (800,)
-    assert Y.shape == (600,)
-    assert Z.shape == (800, 600)
+    assert X.shape == (80,)
+    assert Y.shape == (60,)
+    assert Z.shape == (80, 60)
