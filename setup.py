@@ -49,6 +49,7 @@ setup(
         "flask-codemirror",
         "pygments",
         "sympy",
+        "plotly",
     ],
     python_requires=">=3.6",
     extras_require={
