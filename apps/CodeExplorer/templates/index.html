@@ -62,7 +62,7 @@
                  class="tab-pane {% if id=='computational_graph' %}show active{% endif %} 
                         border-left border-right border-bottom"
                aria-labelledby="{{ id }}-tab" 
-               style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}">
+               style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}; overflow: scroll;">
               {% if id=='python_code' %}{{ python_code | safe }}{% endif %}
             </div>
           {% endfor %}

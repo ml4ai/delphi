@@ -16,6 +16,7 @@ from itertools import chain, product
 import operator
 import os
 import uuid
+from pathlib import Path
 
 
 BINOPS = {
@@ -1614,7 +1615,7 @@ def create_pgm_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(pgm, open(file_name[:-3] + ".json", "w"))
+        json.dump(pgm, open(Path(file_name).stem + ".json", "w"))
 
     return pgm
 

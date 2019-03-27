@@ -16,7 +16,8 @@ from delphi.translators.for2py import (
 )
 from delphi.utils.fp import flatten
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.analysis import max_S2_sensitivity_surface
+from delphi.GrFN.analysis import S2_surface, get_max_s2_sensitivity
+from delphi.GrFN.sensitivity import sobol_analysis
 from delphi.GrFN.utils import NodeType, get_node_type
 import delphi.paths
 import xml.etree.ElementTree as ET
@@ -38,7 +39,7 @@ from flask_codemirror import CodeMirror
 import inspect
 
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, JsonLexer
 from pygments.formatters import HtmlFormatter
 
 import plotly.graph_objs as go
@@ -57,8 +58,11 @@ class MyForm(FlaskForm):
     submit = SubmitField("Submit", render_kw={"class": "btn btn-primary"})
 
 
-LEXER = PythonLexer()
-FORMATTER = HtmlFormatter()
+PYTHON_LEXER = PythonLexer()
+PYTHON_FORMATTER = HtmlFormatter()
+
+JSON_LEXER = JsonLexer()
+JSON_FORMATTER = HtmlFormatter()
 
 
 SECRET_KEY = "secret!"
@@ -112,7 +116,7 @@ def get_tooltip(n, src):
             </div>
         </div>
         """.format(
-            ltx=ltx, src=highlight(src, LEXER, FORMATTER), n=n
+            ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
         )
 
 
@@ -281,7 +285,24 @@ def processCode():
         "petpt::xhlai_0": 10,
     }
 
-    # xy_names, xy_vectors, z_mat = max_S2_sensitivity_surface(G, 1000, (800, 800), bounds, presets)
+    args = G.model_inputs
+    Si = sobol_analysis(G, 10, {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    })
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+
+    x_var = args[v1]
+    y_var = args[v2]
+    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+    preset_vals = {
+        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+    }
+
+    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+    print(X, Y, Z)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     program_analysis_graph_elementsJSON = to_cyjs_cag(G.to_CAG())
@@ -292,7 +313,8 @@ def processCode():
         "index.html",
         form=form,
         code=app.code,
-        python_code=highlight(pySrc, LEXER, FORMATTER),
+        python_code=highlight(pySrc, PYTHON_LEXER, PYTHON_FORMATTER),
+        grfn_json = highlight(json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
