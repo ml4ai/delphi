@@ -311,8 +311,6 @@ class GrFNGenerator(object):
             scope_path.append("if")
 
             state.scope_path = scope_path
-            if call_source != "if" and state.nextDefs.get('#cond'):
-                del state.nextDefs['#cond']
 
             if call_source == "if":
                 pgm = {"functions": [], "body": [], "identifiers": []}
@@ -361,7 +359,8 @@ class GrFNGenerator(object):
 
             condSrcs = self.genPgm(node.test, state, fnNames, "if")
 
-            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 1)
+            # Making the index of IF_X_X start from 1 instead of 2
+            condNum = state.nextDefs.get("#cond", state.lastDefDefault + 2)
             state.nextDefs["#cond"] = condNum + 1
 
             condName = f"IF_{condNum}"
@@ -541,9 +540,6 @@ class GrFNGenerator(object):
                 for item in self.elif_pgm[0]["body"]:
                     pgm["body"].append(item)
 
-                condNum = state.nextDefs.get(
-                    "#cond", state.lastDefDefault + 1
-                )
                 state.nextDefs["#cond"] = condNum + 1
 
                 condName = f"IF_{condNum}"
