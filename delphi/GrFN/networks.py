@@ -260,9 +260,9 @@ class GroundedFunctionNetwork(nx.DiGraph):
         G=nx.DiGraph()
         for n in self.nodes(data=True):
             if n[1]["type"] == "function":
-                for pred_var in self.predecessors(n[0]):
-                    for pred_fn in self.predecessors(pred_var):
-                        G.add_edge(pred_fn, n[0])
+                for predecessor_variable in self.predecessors(n[0]):
+                    for predecessor_function in self.predecessors(predecessor_variable):
+                        G.add_edge(predecessor_function, n[0])
 
         return G
 
@@ -444,7 +444,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
             "shape": "rectangle",
             "color": "#650021",
             "style": "rounded",
-            "fontname": "Gill Sans",
         })
         A.edge_attr.update({
             "color": "#650021",
@@ -463,7 +462,7 @@ class ForwardInfluenceBlanket(nx.DiGraph):
     from the NetworkX DiGraph class.
     """
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
-        super(ForwardInfluenceBlanket, self).__init__()
+        super().__init__()
         self.inputs = set(G.model_inputs).intersection(shared_nodes)
         self.output_node = G.output_node
 
@@ -529,52 +528,8 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         # for source, dest in cut_edges:
         #     self[source][dest]["color"] = "orange"
 
-        self.build_call_graph()
-        self.build_function_sets()
-
-    def build_call_graph(self):
-
-        edges = list()
-
-        def update_edge_set(cur_fns):
-            for c in cur_fns:
-                nxt_fns = [p for v in self.successors(c)
-                           for p in self.successors(v)]
-                edges.extend([(c, n) for n in nxt_fns])
-                update_edge_set(list(set(nxt_fns)))
-
-        update_edge_set(
-            list({
-                n for v in self.inputs for n in self.successors(v)
-            }.union({
-                n for v in self.cover_nodes for n in self.successors(v)
-            }))
-        )
-        self.call_graph = nx.DiGraph()
-        self.call_graph.add_edges_from(edges)
-
-    def build_function_sets(self):
-        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
-        distances = dict()
-
-        def find_distances(funcs, dist):
-            all_successors = list()
-            for func in funcs:
-                distances[func] = dist
-                all_successors.extend(self.call_graph.successors(func))
-            if len(all_successors) > 0:
-                find_distances(list(set(all_successors)), dist+1)
-
-        find_distances(initial_funcs, 0)
-        call_sets = dict()
-        for func_name, call_dist in distances.items():
-            if call_dist in call_sets:
-                call_sets[call_dist].add(func_name)
-            else:
-                call_sets[call_dist] = {func_name}
-
-        function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
-        self.function_sets = [func_set for _, func_set in function_set_dists]
+        self.call_graph = self.build_call_graph()
+        self.function_sets = self.build_function_sets()
 
     def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
@@ -622,12 +577,9 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
         A.node_attr.update({
             "shape": "rectangle",
-            # "color": "#650021",
             "style": "rounded",
-            # "fontname": "Gill Sans",
         })
         A.edge_attr.update({
-            # "color": "#650021",
             "arrowsize": 0.5
         })
         return A
