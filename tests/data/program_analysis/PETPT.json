@@ -1,259 +1,4 @@
 {
-<<<<<<< HEAD:tests/data/PETPT.json
-  "identifiers": [
-    {
-      "base_name": "assign$td_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "cce751d43878_h"
-    },
-    {
-      "base_name": "tmax_-1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5e373c3f6ee4_v"
-    },
-    {
-      "base_name": "tmin_-1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "198743b6896a_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8912353d1142_h"
-    },
-    {
-      "base_name": "xhlai_-1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b76222ccb1c2_v"
-    },
-    {
-      "base_name": "decision$albedo_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0825d024f09e_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8de14b21cd75_v"
-    },
-    {
-      "base_name": "albedo_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5700be678d5b_v"
-    },
-    {
-      "base_name": "albedo_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": [
-        "msalb_-1"
-      ],
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2eda7ce91bb6_v"
-    },
-    {
-      "base_name": "assign$slang_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "092b1721e341_h"
-    },
-    {
-      "base_name": "srad_-1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "509db999f186_v"
-    },
-    {
-      "base_name": "assign$eeq_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "39c6c8aa0d8c_h"
-    },
-    {
-      "base_name": "slang_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "67747bec7fa2_v"
-    },
-    {
-      "base_name": "albedo_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "604d316e3b01_v"
-    },
-    {
-      "base_name": "td_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "357c21e604b1_v"
-    },
-    {
-      "base_name": "assign$eo_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5cc272ac1875_h"
-    },
-    {
-      "base_name": "eeq_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f5e13cacc165_v"
-    },
-    {
-      "base_name": "condition$IF_2_0",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "89c677be6e10_h"
-    },
-    {
-      "base_name": "tmax_-1",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "843169e6e249_v"
-    },
-    {
-      "base_name": "decision$eo_3",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "e7fc56be585d_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2504eda087d0_v"
-    },
-    {
-      "base_name": "eo_0",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0016bc380e09_v"
-    },
-    {
-      "base_name": "eo_1",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "e9aa2edb3933_v"
-    },
-    {
-      "base_name": "condition$IF_2_1",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "bf95294a58ad_h"
-    },
-    {
-      "base_name": "tmax_-1",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "9072c51ec26c_v"
-    },
-    {
-      "base_name": "decision$eo_4",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "eca15150caf0_h"
-    },
-    {
-      "base_name": "IF_2_1",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1232f48b0ea6_v"
-    },
-    {
-      "base_name": "eo_3",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4ff149c76e9e_v"
-    },
-    {
-      "base_name": "eo_2",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2cacb1803992_v"
-    },
-    {
-      "base_name": "assign$eo_5",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a3cec78f20e5_h"
-    },
-    {
-      "base_name": "eo_4",
-      "scope": "if$1.if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a17150a4958a_v"
-    }
-  ],
-=======
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
   "functions": [
     {
       "name": "petpt__assign__td_0",
@@ -272,9 +17,9 @@
       "reference": 14
     },
     {
-      "name": "petpt__condition__IF_2_0",
+      "name": "petpt__condition__IF_1_0",
       "type": "condition",
-      "target": "IF_2",
+      "target": "IF_1",
       "reference": 15,
       "sources": [
         {
@@ -318,7 +63,7 @@
       "reference": 15,
       "sources": [
         {
-          "name": "IF_2_0",
+          "name": "IF_1_0",
           "type": "variable"
         },
         {
@@ -364,7 +109,7 @@
       "reference": 20
     },
     {
-      "name": "petpt__assign__eo_1",
+      "name": "petpt__assign__eo_0",
       "type": "assign",
       "target": "eo",
       "sources": [
@@ -376,19 +121,49 @@
       "reference": 21
     },
     {
-<<<<<<< HEAD:tests/data/PETPT.json
       "name": "petpt__condition__IF_2_0",
       "type": "condition",
       "target": "IF_2",
-=======
-      "name": "petpt__condition__IF_3_0",
-      "type": "condition",
-      "target": "IF_3",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
       "reference": 22,
       "sources": [
         {
           "name": "tmax",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__eo_1",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eeq",
+          "type": "variable"
+        },
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ],
+      "reference": 23
+    },
+    {
+      "name": "petpt__decision__eo_3",
+      "type": "decision",
+      "target": "eo",
+      "reference": 22,
+      "sources": [
+        {
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "eo_0",
+          "type": "variable"
+        },
+        {
+          "name": "eo_1",
           "type": "variable"
         }
       ]
@@ -407,28 +182,32 @@
           "type": "variable"
         }
       ],
-      "reference": 23
+      "reference": 26
     },
     {
-<<<<<<< HEAD:tests/data/PETPT.json
-      "name": "petpt__decision__eo_3",
-=======
-      "name": "petpt__decision__eo_4",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-      "type": "decision",
-      "target": "eo",
-      "reference": 22,
+      "name": "petpt__condition__IF_2_1",
+      "type": "condition",
+      "target": "IF_2",
+      "reference": 25,
       "sources": [
         {
-<<<<<<< HEAD:tests/data/PETPT.json
-          "name": "IF_2_0",
-=======
-          "name": "IF_3_0",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
+          "name": "tmax",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__decision__eo_4",
+      "type": "decision",
+      "target": "eo",
+      "reference": 25,
+      "sources": [
+        {
+          "name": "IF_2_1",
           "type": "variable"
         },
         {
-          "name": "eo_1",
+          "name": "eo_3",
           "type": "variable"
         },
         {
@@ -438,75 +217,7 @@
       ]
     },
     {
-      "name": "petpt__assign__eo_3",
-      "type": "assign",
-      "target": "eo",
-      "sources": [
-        {
-          "name": "eeq",
-          "type": "variable"
-        },
-        {
-          "name": "tmax",
-          "type": "variable"
-        }
-      ],
-      "reference": 26
-    },
-    {
-<<<<<<< HEAD:tests/data/PETPT.json
-      "name": "petpt__condition__IF_2_1",
-=======
-      "name": "petpt__condition__IF_3_1",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-      "type": "condition",
-      "target": "IF_3",
-      "reference": 25,
-      "sources": [
-        {
-          "name": "tmax",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-<<<<<<< HEAD:tests/data/PETPT.json
-      "name": "petpt__decision__eo_4",
-=======
-      "name": "petpt__decision__eo_5",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-      "type": "decision",
-      "target": "eo",
-      "reference": 25,
-      "sources": [
-        {
-<<<<<<< HEAD:tests/data/PETPT.json
-          "name": "IF_2_1",
-          "type": "variable"
-        },
-        {
-          "name": "eo_3",
-=======
-          "name": "IF_3_1",
-          "type": "variable"
-        },
-        {
-          "name": "eo_4",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-          "type": "variable"
-        },
-        {
-          "name": "eo_3",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-<<<<<<< HEAD:tests/data/PETPT.json
       "name": "petpt__assign__eo_5",
-=======
-      "name": "petpt__assign__eo_6",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
       "type": "assign",
       "target": "eo",
       "sources": [
@@ -546,60 +257,7 @@
           "domain": "real"
         }
       ],
-<<<<<<< HEAD:tests/data/PETPT.json
       "variables": [],
-=======
-      "variables": [
-        {
-          "name": "msalb",
-          "domain": "real"
-        },
-        {
-          "name": "srad",
-          "domain": "real"
-        },
-        {
-          "name": "tmax",
-          "domain": "real"
-        },
-        {
-          "name": "tmin",
-          "domain": "real"
-        },
-        {
-          "name": "xhlai",
-          "domain": "real"
-        },
-        {
-          "name": "eo",
-          "domain": "real"
-        },
-        {
-          "name": "albedo",
-          "domain": "real"
-        },
-        {
-          "name": "eeq",
-          "domain": "real"
-        },
-        {
-          "name": "slang",
-          "domain": "real"
-        },
-        {
-          "name": "td",
-          "domain": "real"
-        },
-        {
-          "name": "IF_2",
-          "domain": "boolean"
-        },
-        {
-          "name": "IF_3",
-          "domain": "boolean"
-        }
-      ],
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
       "body": [
         {
           "name": "petpt__assign__td_0",
@@ -619,9 +277,9 @@
           ]
         },
         {
-          "name": "petpt__condition__IF_2_0",
+          "name": "petpt__condition__IF_1_0",
           "output": {
-            "variable": "IF_2",
+            "variable": "IF_1",
             "index": 0
           },
           "input": [
@@ -669,7 +327,7 @@
           },
           "input": [
             {
-              "variable": "IF_2",
+              "variable": "IF_1",
               "index": 0
             },
             {
@@ -708,15 +366,37 @@
             },
             {
               "variable": "albedo",
-<<<<<<< HEAD:tests/data/PETPT.json
               "index": 2
-=======
-              "index": 3
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
             },
             {
               "variable": "td",
               "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_0",
+          "output": {
+            "variable": "eo",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "eeq",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petpt__condition__IF_2_0",
+          "output": {
+            "variable": "IF_2",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "tmax",
+              "index": -1
             }
           ]
         },
@@ -730,25 +410,31 @@
             {
               "variable": "eeq",
               "index": 0
+            },
+            {
+              "variable": "tmax",
+              "index": -1
             }
           ]
         },
         {
-<<<<<<< HEAD:tests/data/PETPT.json
-          "name": "petpt__condition__IF_2_0",
+          "name": "petpt__decision__eo_3",
           "output": {
-            "variable": "IF_2",
-=======
-          "name": "petpt__condition__IF_3_0",
-          "output": {
-            "variable": "IF_3",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-            "index": 0
+            "variable": "eo",
+            "index": 3
           },
           "input": [
             {
-              "variable": "tmax",
-              "index": -1
+              "variable": "IF_2",
+              "index": 0
+            },
+            {
+              "variable": "eo",
+              "index": 0
+            },
+            {
+              "variable": "eo",
+              "index": 1
             }
           ]
         },
@@ -770,64 +456,9 @@
           ]
         },
         {
-<<<<<<< HEAD:tests/data/PETPT.json
-          "name": "petpt__decision__eo_3",
-          "output": {
-            "variable": "eo",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "IF_2",
-=======
-          "name": "petpt__decision__eo_4",
-          "output": {
-            "variable": "eo",
-            "index": 4
-          },
-          "input": [
-            {
-              "variable": "IF_3",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
-              "index": 0
-            },
-            {
-              "variable": "eo",
-              "index": 1
-            },
-            {
-              "variable": "eo",
-              "index": 2
-            }
-          ]
-        },
-        {
-          "name": "petpt__assign__eo_3",
-          "output": {
-            "variable": "eo",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "eeq",
-              "index": 0
-            },
-            {
-              "variable": "tmax",
-              "index": -1
-            }
-          ]
-        },
-        {
-<<<<<<< HEAD:tests/data/PETPT.json
           "name": "petpt__condition__IF_2_1",
           "output": {
             "variable": "IF_2",
-=======
-          "name": "petpt__condition__IF_3_1",
-          "output": {
-            "variable": "IF_3",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
             "index": 1
           },
           "input": [
@@ -838,7 +469,6 @@
           ]
         },
         {
-<<<<<<< HEAD:tests/data/PETPT.json
           "name": "petpt__decision__eo_4",
           "output": {
             "variable": "eo",
@@ -847,53 +477,28 @@
           "input": [
             {
               "variable": "IF_2",
-=======
-          "name": "petpt__decision__eo_5",
-          "output": {
-            "variable": "eo",
-            "index": 5
-          },
-          "input": [
-            {
-              "variable": "IF_3",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
               "index": 1
             },
             {
               "variable": "eo",
-<<<<<<< HEAD:tests/data/PETPT.json
               "index": 3
-=======
-              "index": 4
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
             },
             {
               "variable": "eo",
-              "index": 3
+              "index": 2
             }
           ]
         },
         {
-<<<<<<< HEAD:tests/data/PETPT.json
           "name": "petpt__assign__eo_5",
           "output": {
             "variable": "eo",
             "index": 5
-=======
-          "name": "petpt__assign__eo_6",
-          "output": {
-            "variable": "eo",
-            "index": 6
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
           },
           "input": [
             {
               "variable": "eo",
-<<<<<<< HEAD:tests/data/PETPT.json
               "index": 4
-=======
-              "index": 5
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/PETPT.json
             }
           ]
         }
@@ -902,49 +507,93 @@
   ],
   "identifiers": [
     {
-      "base_name": "assign$td_1",
+      "base_name": "assign$td_0",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "tmax_0",
+      "base_name": "tmax_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "tmin_0",
+      "base_name": "tmin_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "condition$IF_2_0",
+      "base_name": "condition$IF_1_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "xhlai_0",
+      "base_name": "xhlai_-1",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "decision$albedo_3",
+      "base_name": "decision$albedo_2",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "IF_2_0",
+      "base_name": "IF_1_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "albedo_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "albedo_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": [
+        "msalb_-1"
+      ],
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$slang_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "srad_-1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$eeq_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "slang_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
@@ -958,93 +607,56 @@
       "source_references": ""
     },
     {
-      "base_name": "albedo_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": [
-        "msalb_0"
-      ],
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$slang_1",
+      "base_name": "td_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "srad_0",
+      "base_name": "assign$eo_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "assign$eeq_1",
+      "base_name": "eeq_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "slang_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "albedo_3",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "td_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "assign$eo_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "eeq_1",
-      "scope": "if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "condition$IF_3_0",
+      "base_name": "condition$IF_2_0",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "tmax_0",
+      "base_name": "tmax_-1",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "decision$eo_4",
+      "base_name": "decision$eo_3",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "IF_3_0",
+      "base_name": "IF_2_0",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_0",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
@@ -1058,42 +670,28 @@
       "source_references": ""
     },
     {
-      "base_name": "eo_2",
+      "base_name": "condition$IF_2_1",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "condition$IF_3_1",
+      "base_name": "tmax_-1",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "tmax_0",
+      "base_name": "decision$eo_4",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "decision$eo_5",
-      "scope": "if$1.if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "IF_3_1",
-      "scope": "if$1.if$1",
-      "namespace": "",
-      "aliases": "None",
-      "source_references": ""
-    },
-    {
-      "base_name": "eo_4",
+      "base_name": "IF_2_1",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
@@ -1107,14 +705,21 @@
       "source_references": ""
     },
     {
-      "base_name": "assign$eo_6",
+      "base_name": "eo_2",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "eo_5",
+      "base_name": "assign$eo_5",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_4",
       "scope": "if$1.if$1",
       "namespace": "",
       "aliases": "None",
@@ -1124,11 +729,8 @@
   "start": "petpt",
   "source": [
     [
-      [
-        "for2py",
-        "PETPT.py"
-      ]
+      "PETPT.py"
     ]
   ],
-  "dateCreated": "20190327"
+  "dateCreated": "20190328"
 }

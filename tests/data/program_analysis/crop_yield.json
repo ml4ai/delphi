@@ -1,130 +1,4 @@
 {
-  "start": "crop_yield",
-<<<<<<< HEAD:tests/data/crop_yield.json
-  "identifiers": [
-    {
-      "base_name": "assign$total_rain_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "cb3c9efcad00_h"
-    },
-    {
-      "base_name": "total_rain_-1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "e2d56758c719_v"
-    },
-    {
-      "base_name": "rain_-1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "450d25a50d05_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8928530834e9_h"
-    },
-    {
-      "base_name": "total_rain_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a8e6feb99f82_v"
-    },
-    {
-      "base_name": "decision$yield_est_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "d18fa4e5edc0_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "08a7d63dc7b3_v"
-    },
-    {
-      "base_name": "yield_est_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "982d9202ff4f_v"
-    },
-    {
-      "base_name": "yield_est_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "982627b3f4ed_v"
-    },
-    {
-      "base_name": "assign$max_rain_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ee04943d4ebf_h"
-    },
-    {
-      "base_name": "assign$consistency_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "7f1eae46f924_h"
-    },
-    {
-      "base_name": "assign$absorption_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "85cf096c82d4_h"
-    },
-    {
-      "base_name": "assign$yield_est_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5dd28f2733fb_h"
-    },
-    {
-      "base_name": "assign$total_rain_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "c45a87971497_h"
-    },
-    {
-      "base_name": "loop_plate$day",
-      "scope": "loop$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fff3e219f28c_h"
-    }
-  ],
-=======
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/crop_yield.json
   "functions": [
     {
       "name": "update_est__assign__total_rain_0",
@@ -143,9 +17,9 @@
       "reference": 10
     },
     {
-      "name": "update_est__condition__IF_2_0",
+      "name": "update_est__condition__IF_1_0",
       "type": "condition",
-      "target": "IF_2",
+      "target": "IF_1",
       "reference": 11,
       "sources": [
         {
@@ -185,7 +59,7 @@
       "reference": 11,
       "sources": [
         {
-          "name": "IF_2_0",
+          "name": "IF_1_0",
           "type": "variable"
         },
         {
@@ -215,28 +89,7 @@
           "domain": "real"
         }
       ],
-<<<<<<< HEAD:tests/data/crop_yield.json
       "variables": [],
-=======
-      "variables": [
-        {
-          "name": "rain",
-          "domain": "real"
-        },
-        {
-          "name": "total_rain",
-          "domain": "real"
-        },
-        {
-          "name": "yield_est",
-          "domain": "real"
-        },
-        {
-          "name": "IF_2",
-          "domain": "boolean"
-        }
-      ],
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/crop_yield.json
       "body": [
         {
           "name": "update_est__assign__total_rain_0",
@@ -256,9 +109,9 @@
           ]
         },
         {
-          "name": "update_est__condition__IF_2_0",
+          "name": "update_est__condition__IF_1_0",
           "output": {
-            "variable": "IF_2",
+            "variable": "IF_1",
             "index": 0
           },
           "input": [
@@ -302,7 +155,7 @@
           },
           "input": [
             {
-              "variable": "IF_2",
+              "variable": "IF_1",
               "index": 0
             },
             {
@@ -406,7 +259,6 @@
       "type": "loop_plate",
       "input": [
         {
-<<<<<<< HEAD:tests/data/crop_yield.json
           "name": "consistency",
           "domain": "real"
         },
@@ -424,29 +276,6 @@
         },
         {
           "name": "yield_est",
-=======
-          "variable": "consistency",
-          "domain": "real"
-        },
-        {
-          "variable": "max_rain",
-          "domain": "real"
-        },
-        {
-          "variable": "absorption",
-          "domain": "real"
-        },
-        {
-          "variable": "rain",
-          "domain": "real"
-        },
-        {
-          "variable": "total_rain",
-          "domain": "real"
-        },
-        {
-          "variable": "yield_est",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/crop_yield.json
           "domain": "real"
         }
       ],
@@ -599,7 +428,6 @@
           "input": []
         },
         {
-<<<<<<< HEAD:tests/data/crop_yield.json
           "name": "crop_yield__loop_plate__day",
           "input": [
             {
@@ -620,32 +448,6 @@
             },
             {
               "name": "yield_est",
-=======
-          "name": "crop_yield__loop_plate__day_0",
-          "input": [
-            {
-              "variable": "consistency",
-              "index": -1
-            },
-            {
-              "variable": "max_rain",
-              "index": -1
-            },
-            {
-              "variable": "absorption",
-              "index": -1
-            },
-            {
-              "variable": "rain",
-              "index": -1
-            },
-            {
-              "variable": "total_rain",
-              "index": -1
-            },
-            {
-              "variable": "yield_est",
->>>>>>> 58c3b4b0cabe2a243435d7a1df11388534bf255d:tests/data/program_analysis/crop_yield.json
               "index": -1
             }
           ],
@@ -666,35 +468,35 @@
   ],
   "identifiers": [
     {
-      "base_name": "assign$total_rain_1",
+      "base_name": "assign$total_rain_0",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "total_rain_0",
+      "base_name": "total_rain_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "rain_0",
+      "base_name": "rain_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "condition$IF_2_0",
+      "base_name": "condition$IF_1_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "total_rain_1",
+      "base_name": "total_rain_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
@@ -708,7 +510,7 @@
       "source_references": ""
     },
     {
-      "base_name": "IF_2_0",
+      "base_name": "IF_1_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
@@ -771,13 +573,11 @@
       "source_references": ""
     }
   ],
+  "start": "crop_yield",
   "source": [
     [
-      [
-        "for2py",
-        "crop_yield.py"
-      ]
+      "crop_yield.py"
     ]
   ],
-  "dateCreated": "20190327"
+  "dateCreated": "20190328"
 }
