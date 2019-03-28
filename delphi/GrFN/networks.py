@@ -140,7 +140,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 return cur_scope.name, -1
 
             new_scope = cur_scope.parent
-            print(new_scope)
 
             if var_name in new_scope.variables:
                 return new_scope.name, new_scope.variables[var_name]
@@ -198,7 +197,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                         new_scope = ScopeNode(functions[stmt["name"]], parent=scope)
                         process_container(new_scope, loop_index_variable=index_variable)
                     else:
-                        print(stmt_type)
+                        pass
                 elif "function" in stmt and stmt["function"] != "print":
                     scope_tree.add_node(stmt["function"], color="green")
                     scope_tree.add_edge(scope.name, stmt["function"])
@@ -223,7 +222,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=True    # HACK
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"},  # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)

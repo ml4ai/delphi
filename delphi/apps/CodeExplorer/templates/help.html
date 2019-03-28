@@ -3,39 +3,57 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="helpModalLabel">Modal title</h5>
+              <h5 class="modal-title" id="helpModalLabel">About</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
               Input Fortran code in the code editor area and hit the
-              'Submit' button. Two examples are provided to get started:
+              'Submit' button. Two examples are provided to get started. Both
+              of these have been taken from <a
+                href="https://dssat.net">DSSAT</a>.
               <ul>
                 <li>
-                  <a href="https://raw.githubusercontent.com/ml4ai/delphi/master/tests/data/crop_yield.f">crop_yield.f: </a>
-                  A toy example of a crop yield model that contains some important
-                  representative Fortran features for control flow like for-loops
-                  and conditional statements. 
+                  <a
+                    href="https://raw.githubusercontent.com/ml4ai/delphi/master/delphi/apps/CodeExplorer/static/example_programs/petPT.f">
+                    PETPT: </a>
+                  The Pristley-Taylor model of evapotranspiration.
                 </li>
                 <li>
-                  <a href="https://raw.githubusercontent.com/ml4ai/delphi/master/tests/data/PETPT.for">PETPT.for:</a>
-                  A 'real-world' example of a model - this is the Priestley-Taylor
-                  model of Potential Evapotranspiration, as implemented in the 
-                  <a href="https://dssat.net">DSSAT</a>
-                  crop model.
+                  <a 
+                    href="https://raw.githubusercontent.com/ml4ai/delphi/master/delphi/apps/CodeExplorer/static/example_programs/PETASCE_simple.f">
+                    PETASCE: 
+                  </a> The ASCE standard evapotranspiration calculation method.
                 </li>
               </ul>
               Things you can try doing:
               <ul>
-                <li>Click on the __assign__ nodes to view the equation that is
-                  automatically constructed from the code, and typeset with LaTeX.</li>
+                <li>
+                  Click on the square nodes to view the equation that is
+                  automatically constructed from the code, and typeset with
+                  LaTeX., as well as the Python 'lambda' function that is
+                  generated.
+                </li>
+                  <ul>
+                    <li>A: Assign nodes</li>
+                    <li>C: Condition nodes</li>
+                    <li>D: Decision nodes</li>
+                  </ul>
+                <li>
+                  Click on the round nodes to view metadata about the
+                  variable that has been extracted using NLP techniques from
+                  the comments in the source code as well as scientific papers
+                  about these models (note that the NLP results shown in this
+                  demo are precomputed rather than running live.)
+                </li>
                 <li>Rename a variable in the code and resubmit it for processing
                   (make sure to rename all instances of it in the code!)
               </ul>
                 <p>
-              For more information, please visit the AutoMATES project homepage at <a
-                href="https://ml4ai.github.io/automates">ml4ai.github.io/automates.</a></p>
+              For more information, please visit the <a
+                href="https://ml4ai.github.io/automates">AutoMATES project
+                homepage.</a></p>
               AutoMATES is funded by the Defense Advanced Research Projects Agency
               (DARPA) under the Automated Scientific Knowledge Extraction (ASKE)
               program.
