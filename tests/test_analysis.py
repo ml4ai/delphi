@@ -14,8 +14,7 @@ sys.path.insert(0, "tests/data/program_analysis")
 
 
 def test_regular_PETPT():
-
-    args = PETPT_GrFN.model_inputs
+    args = PETPT_GrFN.inputs
     bounds = {
         "petpt::msalb_0": [0, 1],
         "petpt::srad_0": [1, 20],
@@ -42,7 +41,7 @@ def test_PETPT_with_torch():
     pgm = json.load(open("tests/data/program_analysis/PETPT.json", "r"))
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
-    args = G.model_inputs
+    args = G.inputs
     bounds = {
         "petpt::msalb_0": [0, 1],
         "petpt::srad_0": [1, 20],
@@ -110,7 +109,7 @@ def test_PETASCE_sobol_analysis():
         "petasce::canht_0": (float, [0.0]),
     }
 
-    args = PETASCE_GrFN.model_inputs
+    args = PETASCE_GrFN.inputs
     problem = {
         'num_vars': len(args),
         'names': args,
@@ -121,11 +120,11 @@ def test_PETASCE_sobol_analysis():
     Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
     tSi = sobol_analysis(tG, N, problem, var_types=type_info, use_torch=True)
 
-    assert len(Si["S1"]) == len(PETASCE_GrFN.model_inputs)
-    assert len(Si["S2"][0]) == len(PETASCE_GrFN.model_inputs)
+    assert len(Si["S1"]) == len(PETASCE_GrFN.inputs)
+    assert len(Si["S2"][0]) == len(PETASCE_GrFN.inputs)
 
-    assert len(tSi["S1"]) == len(tG.model_inputs)
-    assert len(tSi["S2"][0]) == len(tG.model_inputs)
+    assert len(tSi["S1"]) == len(tG.inputs)
+    assert len(tSi["S2"][0]) == len(tG.inputs)
 
 
 def test_PETPT_sensitivity_surface():
@@ -144,7 +143,7 @@ def test_PETPT_sensitivity_surface():
         "petpt::xhlai_0": 10,
     }
 
-    args = PETPT_GrFN.model_inputs
+    args = PETPT_GrFN.inputs
     Si = sobol_analysis(PETPT_GrFN, 1000, {
         'num_vars': len(args),
         'names': args,
@@ -167,30 +166,37 @@ def test_PETPT_sensitivity_surface():
     assert Z.shape == (80, 60)
 
 
-def test_FIB_creation():
-    # filepath = "tests/data/GrFN/PETPT.for"
-    # PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
-
-    # A = PETPT_GrFN.to_agraph()
-    # A.draw("PETPT_GrFN.pdf", prog="dot")
-    # A = PETPT_GrFN.to_call_agraph()
-    # A.draw("PETPT_CG.pdf", prog="dot")
-    A = PETPT_GrFN.to_CAG_agraph()
-    A.draw("PETPT_CAG.pdf", prog="dot")
-
-    # filepath = "tests/data/GrFN/PETASCE_simple.for"
-    # PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
-
-    # A = PETASCE_GrFN.to_agraph()
-    # A.draw("PETASCE_GrFN.pdf", prog="dot")
-    # A = PETASCE_GrFN.to_call_agraph()
-    # A.draw("PETASCE_CG.pdf", prog="dot")
-    A = PETASCE_GrFN.to_CAG_agraph()
-    A.draw("PETASCE_CAG.pdf", prog="dot")
-
-    # PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
+def test_FIB_execution():
+    PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
     PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
-    # A1 = PETPT_FIB.to_agraph()
-    # A1.draw("PETPT_FIB.pdf", prog="dot")
-    A2 = PETASCE_FIB.to_agraph()
-    A2.draw("PETASCE_FIB.pdf", prog="dot")
+
+    pt_inputs = {name: 1 for name in PETPT_GrFN.inputs}
+
+    asce_inputs = {
+        "petasce::msalb_0": 0.5,
+        "petasce::srad_0": 15,
+        "petasce::tmax_0": 10,
+        "petasce::tmin_0": -10,
+        "petasce::xhlai_0": 10,
+    }
+
+    asce_covers = {
+        "petasce::canht_0": 2,
+        "petasce::meevp_0": "A",
+        "petasce::cht_1": 0.001,
+        "petasce::cn_5": 1600.0,
+        "petasce::cd_5": 0.38,
+
+        # TODO: Khan find better values for the variables listed below
+        "petasce::rso_1": 1.0,
+        "petasce::wnd_1": 1.0,
+        "petasce::ea_1": 1.0,
+        "petasce::psycon_1": 1.0,
+        "petasce::wind2m_1": 1.0,
+    }
+
+    res = PETPT_FIB.run(pt_inputs, {})
+    assert res == 0.02998371219618677
+
+    res = PETASCE_FIB.run(asce_inputs, asce_covers)
+    assert res == 0.00012496980836348878
