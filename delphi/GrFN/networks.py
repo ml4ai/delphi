@@ -155,8 +155,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                 input["index"] == -1
                                 and input["variable"] != loop_index_variable
                             ):
-                                pass
-                                # input["index"] += 2 # HACK for crop_yield.f
+                                input["index"] += 2 # HACK for crop_yield.f
                                 # example.
                             add_variable_node(
                                 input['variable'],
@@ -342,6 +341,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 for pred_fn in self.predecessors(n[0]):
                     if not any(fn_type in pred_fn for fn_type in ("condition", "decision")):
                         for pred_var in self.predecessors(pred_fn):
+                            G.add_node(self.nodes[pred_var]['basename'], **self.nodes[pred_var])
+                            G.add_node(n[1]['basename'], **n[1])
                             G.add_edge(
                                 self.nodes[pred_var]['basename'],
                                 n[1]['basename']
@@ -367,10 +368,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
                            if d["type"] == "variable"]
 
         shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
-        print(shared_vars)
         full_shared_vars = {full_var for shared_var in shared_vars
                             for full_var in shortname_vars(self, shared_var)}
-        print(full_shared_vars)
 
         return ForwardInfluenceBlanket(self, full_shared_vars)
 
