@@ -400,7 +400,7 @@ def processCode():
         scene=dict(
             xaxis=dict(title=x_var.split("::")[1]),
             yaxis=dict(title=y_var.split("::")[1]),
-            zaxis=dict(title="S2"),
+            zaxis=dict(title=G.output_node.split("::")[1]),
         ),
         autosize=True,
         width=800,
