@@ -13,7 +13,7 @@ import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.GrFN.utils as utils
-from delphi.GrFN.utils import NodeType
+from delphi.GrFN.utils import NodeType, ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
     preprocessor,
@@ -48,7 +48,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
         self.scope_tree = scope_tree
         self.inputs = [n for n, d in self.in_degree() if d == 0 and self.nodes[n]["type"] == "variable"]
         self.outputs = [n for n, d in self.out_degree() if d == 0 and self.nodes[n]["type"] == "variable"]
-        self.model_inputs = [n for n in self.inputs if self.nodes[n]["type"] == "variable"]
         self.output_node = self.outputs[-1]
         self.call_graph = self.build_call_graph()
         self.function_sets = self.build_function_sets()
@@ -98,8 +97,6 @@ class GroundedFunctionNetwork(nx.DiGraph):
 
         return cls.from_dict(data, lambdas)
 
-
-
     @classmethod
     def from_dict(cls, data: Dict, lambdas):
         """Builds a GrFN object from a set of extracted function data objects
@@ -118,6 +115,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """
         functions = {d["name"]: d for d in data["functions"]}
         G = nx.DiGraph()
+        scope_tree = nx.DiGraph()
+
         def add_variable_node(
             basename: str,
             parent: str,
@@ -130,49 +129,64 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 color="maroon",
                 parent=parent,
                 label=f"{basename}_{index}",
-                basename = basename,
-                is_loop_index = is_loop_index,
+                basename=basename,
+                is_loop_index=is_loop_index,
                 padding=15,
                 value=None,
             )
 
-        scope_tree = nx.DiGraph()
-        def process_container(container, loop_index_variable: Optional[str] = None):
-            parent=container['name']
-            for stmt in container["body"]:
+        def find_correct_scope(cur_scope, var_name):
+            if cur_scope.parent is None:
+                return cur_scope.name, -1
+
+            new_scope = cur_scope.parent
+            print(new_scope)
+
+            if var_name in new_scope.variables:
+                return new_scope.name, new_scope.variables[var_name]
+            else:
+                return find_correct_scope(new_scope, var_name)
+
+        def process_container(scope, loop_index_variable: Optional[str] = None):
+            for stmt in scope.body:
                 if "name" in stmt:
                     stmt_type = functions[stmt["name"]]["type"]
                     if stmt_type in ("assign", "condition", "decision"):
+                        if stmt_type == "assign":
+                            if "body" in functions[stmt["name"]]:
+                                stmt_type = "literal"
 
                         output = stmt['output']
-                        add_variable_node(output["variable"], parent, output["index"])
+                        scope.variables[output["variable"]] = output["index"]
+                        add_variable_node(output["variable"], scope.name, output["index"])
                         G.add_edge(stmt["name"],
-                                f"{parent}::{output['variable']}_{output['index']}")
+                                f"{scope.name}::{output['variable']}_{output['index']}")
 
                         ordered_inputs = list()
                         for input in stmt.get("input", []):
-                            if (
-                                input["index"] == -1
-                                and input["variable"] != loop_index_variable
-                            ):
-                                input["index"] += 2 # HACK for crop_yield.f
-                                # example.
+                            parent = scope.name
+                            index = input["index"]
+                            base_name = input["variable"]
+                            if index == -1 and base_name != loop_index_variable:
+                                parent, index = find_correct_scope(scope, base_name)
+
                             add_variable_node(
-                                input['variable'],
+                                base_name,
                                 parent,
-                                input['index'],
-                                input["variable"] == loop_index_variable
+                                index,
+                                base_name == loop_index_variable
                             )
-                            node_name = f"{parent}::{input['variable']}_{input['index']}"
+                            node_name = f"{parent}::{base_name}_{index}"
                             ordered_inputs.append(node_name)
                             G.add_edge(node_name, stmt["name"])
 
-                        G.add_node(stmt["name"],
+                        G.add_node(
+                            stmt["name"],
                             type="function",
-                            lambda_fn = getattr(lambdas, stmt["name"]),
+                            lambda_fn=getattr(lambdas, stmt["name"]),
                             func_inputs=ordered_inputs,
                             shape="rectangle",
-                            parent=parent,
+                            parent=scope.name,
                             label=stmt_type[0].upper(),
                             padding=10,
                         )
@@ -180,23 +194,21 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     elif stmt_type == "loop_plate":
                         index_variable = functions[stmt["name"]]["index_variable"]
                         scope_tree.add_node(stmt["name"], color="blue")
-                        scope_tree.add_edge(container["name"], stmt["name"])
-                        process_container(
-                            functions[stmt["name"]],
-                            loop_index_variable = index_variable
-                        )
+                        scope_tree.add_edge(scope.name, stmt["name"])
+                        new_scope = ScopeNode(functions[stmt["name"]], parent=scope)
+                        process_container(new_scope, loop_index_variable=index_variable)
                     else:
                         print(stmt_type)
                 elif "function" in stmt and stmt["function"] != "print":
                     scope_tree.add_node(stmt["function"], color="green")
-                    scope_tree.add_edge(container["name"], stmt["function"])
-                    process_container(
-                        functions[stmt["function"]],
-                    )
+                    scope_tree.add_edge(scope.name, stmt["function"])
+                    new_scope = ScopeNode(functions[stmt["function"]], parent=scope)
+                    process_container(new_scope)
 
-        root=data["start"]
+        root = data["start"]
         scope_tree.add_node(root, color="green")
-        process_container(functions[root])
+        cur_scope = ScopeNode(functions[root])
+        process_container(cur_scope)
         return cls(G, scope_tree)
 
     @classmethod
@@ -211,7 +223,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"},    # HACK
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=True    # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -262,12 +274,12 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 self.nodes[n]["func_visited"] = False
 
     def build_call_graph(self):
-        G=nx.DiGraph()
-        for n in self.nodes(data=True):
-            if n[1]["type"] == "function":
-                for predecessor_variable in self.predecessors(n[0]):
+        G = nx.DiGraph()
+        for (name, attrs) in self.nodes(data=True):
+            if attrs["type"] == "function":
+                for predecessor_variable in self.predecessors(name):
                     for predecessor_function in self.predecessors(predecessor_variable):
-                        G.add_edge(predecessor_function, n[0])
+                        G.add_edge(predecessor_function, name)
 
         return G
 
@@ -310,7 +322,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             inputs.
         """
         # Abort run if inputs does not match our expected input set
-        if len(inputs) != len(self.model_inputs):
+        if len(inputs) != len(self.inputs):
             raise ValueError("Incorrect number of inputs.")
 
         # Set input values
@@ -335,20 +347,20 @@ class GroundedFunctionNetwork(nx.DiGraph):
         return self.nodes[self.output_node]["value"]
 
     def to_CAG(self):
-        G=nx.DiGraph()
-        for n in self.nodes(data=True):
-            if n[1]["type"] == "variable":
-                for pred_fn in self.predecessors(n[0]):
+        G = nx.DiGraph()
+        for (name, attrs) in self.nodes(data=True):
+            if attrs["type"] == "variable":
+                for pred_fn in self.predecessors(name):
                     if not any(fn_type in pred_fn for fn_type in ("condition", "decision")):
                         for pred_var in self.predecessors(pred_fn):
                             G.add_node(self.nodes[pred_var]['basename'], **self.nodes[pred_var])
-                            G.add_node(n[1]['basename'], **n[1])
+                            G.add_node(attrs['basename'], **attrs)
                             G.add_edge(
                                 self.nodes[pred_var]['basename'],
-                                n[1]['basename']
+                                attrs['basename']
                             )
-                if n[1]["is_loop_index"]:
-                    G.add_edge(n[1]['basename'], n[1]['basename'])
+                if attrs["is_loop_index"]:
+                    G.add_edge(attrs['basename'], attrs['basename'])
 
         return G
 
@@ -383,7 +395,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 "rankdir": "TB",
             }
         )
-        A.node_attr.update({ "fontname": "Menlo" })
+        A.node_attr.update({"fontname": "Menlo"})
 
         def build_tree(cluster_name, root_graph):
             subgraph_nodes = [
@@ -401,7 +413,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
             for n in self.scope_tree.successors(cluster_name):
                 build_tree(n, subgraph)
 
-        root = [n for n, d in self.scope_tree.in_degree() if d==0][0]
+        root = [n for n, d in self.scope_tree.in_degree() if d == 0][0]
         build_tree(root, A)
         return A
 
@@ -461,9 +473,8 @@ class ForwardInfluenceBlanket(nx.DiGraph):
     """
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
         super(ForwardInfluenceBlanket, self).__init__()
-        self.inputs = set(G.model_inputs).intersection(shared_nodes)
+        self.inputs = set(G.inputs).intersection(shared_nodes)
         self.output_node = G.output_node
-        print(self.inputs)
 
         # Get all paths from shared inputs to shared outputs
         path_inputs = shared_nodes - {self.output_node}
@@ -473,58 +484,63 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         # Get all edges needed to blanket the included nodes
         main_nodes = {node for path in paths for node in path}
         main_edges = {(n1, n2) for p in paths for n1, n2 in zip(p, p[1:])}
-        self.cover_nodes, cover_edges = set(), set()
-        # add_nodes, add_edges = set(), set()
+        self.cover_nodes = set()
+        add_nodes, add_edges = list(), list()
+
+        def place_var_node(var_node):
+            prev_funcs = list(G.predecessors(var_node))
+            if len(prev_funcs) > 0 and \
+               G.nodes[prev_funcs[0]]["label"] == "L":
+                prev_func = prev_funcs[0]
+                add_nodes.extend([var_node, prev_func])
+                add_edges.append((prev_func, var_node))
+            else:
+                self.cover_nodes.add(var_node)
+
         for node in main_nodes:
             if G.nodes[node]["type"] == "function":
-                # for func_node in G.predecessors(node):
                 for var_node in G.predecessors(node):
                     if var_node not in main_nodes:
-                        self.cover_nodes.add(var_node)
-                        # add_nodes.add(func_node)
-                        cover_edges.add((var_node, node))
-                        # add_edges.add((func_node, node))
+                        add_edges.append((var_node, node))
+                        if "::IF_" in var_node:
+                            if_func = list(G.predecessors(var_node))[0]
+                            add_nodes.extend([if_func, var_node])
+                            add_edges.append((if_func, var_node))
+                            for new_var_node in G.predecessors(if_func):
+                                add_edges.append((new_var_node, if_func))
+                                place_var_node(new_var_node)
+                        else:
+                            place_var_node(var_node)
 
+        main_nodes |= set(add_nodes)
+        main_edges |= set(add_edges)
         main_nodes = main_nodes - self.inputs - {self.output_node}
-        # main_nodes |= add_nodes
-        # main_edges |= add_edges
-
-        # for path in paths:
-        #     first_node = path[0]
-        #     if first_node == "petasce::ratio_1":
-        #         preds = list(G.predecessors(first_node))
-        #         print(preds)
-        #         print([G.predecessors(p) for p in preds])
-        #     for func_node in G.predecessors(first_node):
-        #         for var_node in G.predecessors(func_node):
-        #             if var_node not in main_nodes and var_node not in self.inputs:
-        #                 self.cover_nodes.add(var_node)
-        #                 main_nodes.add(func_node)
-        #                 cover_edges.add((var_node, func_node))
-        #                 main_edges.add((func_node, first_node))
-
         orig_nodes = G.nodes(data=True)
-        # print(self.cover_nodes)
-        # print(main_nodes)
-        self.add_nodes_from(
-            [(n, d) for n, d in orig_nodes if n in self.inputs],
-            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT,
-            penwidth=3.0
-        )
-        self.add_nodes_from(
-            [(self.output_node, G.nodes[self.output_node])],
-            color=dodgerblue3, fontcolor=dodgerblue3, fontname=FONT
-        )
-        self.add_nodes_from(
-            [(n, d) for n, d in orig_nodes if n in self.cover_nodes],
-            color=forestgreen, fontcolor=forestgreen, fontname=FONT,
-        )
-        self.add_nodes_from(
-            [(n, d) for n, d in orig_nodes if n in main_nodes],
-            fontname=FONT
-        )
+
+        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in self.inputs])
+        for node in self.inputs:
+            self.nodes[node]["color"] = dodgerblue3
+            self.nodes[node]["fontcolor"] = dodgerblue3
+            self.nodes[node]["fontname"] = FONT
+            self.nodes[node]["penwidth"] = 3.0
+
+        self.add_nodes_from([(n, d) for n, d in orig_nodes
+                            if n in self.cover_nodes])
+        for node in self.cover_nodes:
+            self.nodes[node]["color"] = forestgreen
+            self.nodes[node]["fontcolor"] = forestgreen
+            self.nodes[node]["fontname"] = FONT
+
+        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
+        for node in main_nodes:
+            self.nodes[node]["fontname"] = FONT
+
+        self.add_node(self.output_node, **G.nodes[self.output_node])
+        self.nodes[self.output_node]["color"] = "dodgerblue3"
+        self.nodes[self.output_node]["fontcolor"] = "dodgerblue3"
+        self.nodes[self.output_node]["fontname"] = "FONT"
+
         self.add_edges_from(main_edges)
-        self.add_edges_from(cover_edges)
 
         # NOTE: Adding cut nodes as needed for display only!!
         # cut_nodes = [n for n in G.nodes if n not in self.nodes]
@@ -540,30 +556,22 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         # for source, dest in cut_edges:
         #     self[source][dest]["color"] = "orange"
 
-        self.build_call_graph()
-        self.build_function_sets()
+        self.call_graph = self.build_call_graph()
+        self.function_sets = self.build_function_sets()
 
     def build_call_graph(self):
-        edges = list()
+        G = nx.DiGraph()
+        for (name, attrs) in self.nodes(data=True):
+            if attrs["type"] == "function":
+                for predecessor_variable in self.predecessors(name):
+                    for predecessor_function in self.predecessors(predecessor_variable):
+                        G.add_edge(predecessor_function, name)
 
-        def update_edge_set(cur_fns):
-            for c in cur_fns:
-                nxt_fns = [p for v in self.successors(c)
-                           for p in self.successors(v)]
-                edges.extend([(c, n) for n in nxt_fns])
-                update_edge_set(list(set(nxt_fns)))
-
-        update_edge_set(
-            list({
-                n for v in self.inputs for n in self.successors(v)
-            }.union({
-                n for v in self.cover_nodes for n in self.successors(v)
-            }))
-        )
-        self.call_graph = nx.DiGraph()
-        self.call_graph.add_edges_from(edges)
+        return G
 
     def build_function_sets(self):
+        # TODO - this fails when there is only one function node in the graph -
+        # need to fix!
         initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
         distances = dict()
 
@@ -584,10 +592,11 @@ class ForwardInfluenceBlanket(nx.DiGraph):
                 call_sets[call_dist] = {func_name}
 
         function_set_dists = sorted(call_sets.items(), key=lambda t: (t[0], len(t[1])))
-        self.function_sets = [func_set for _, func_set in function_set_dists]
+        function_sets = [func_set for _, func_set in function_set_dists]
+        return function_sets
 
     @utils.timeit
-    def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]) -> Union[float, Iterable]:
+    def run(self, inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]], torch_size: Optional[int] = None) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
         Args:
@@ -597,30 +606,35 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             A set of outputs from executing the GrFN, one for every set of
             inputs.
         """
-        # Abort run if inputs does not match our expected input set
-        if len(inputs) != len(self.model_inputs):
-            raise ValueError("Incorrect number of inputs.")
-
+        # Abort run if covers does not match our expected cover set
         if len(covers) != len(self.cover_nodes):
             raise ValueError("Incorrect number of cover values.")
+
+        # Set the cover node values
+        for node_name, val in covers.items():
+            self.nodes[node_name]["value"] = val
+
+        # Abort run if inputs does not match our expected input set
+        if len(inputs) != len(self.inputs):
+            raise ValueError("Incorrect number of inputs.")
 
         # Set input values
         for node_name, val in inputs.items():
             self.nodes[node_name]["value"] = val
 
-        for node_name, val in covers.items():
-            self.nodes[node_name]["value"] = val
-
         for func_set in self.function_sets:
             for func_name in func_set:
-                # Get function arguments via signature derived from JSON
-                signature = self.nodes[func_name]["func_inputs"]
-                lambda_fn = self.nodes[func_name]["lambda"]
+                lambda_fn = self.nodes[func_name]["lambda_fn"]
                 output_node = list(self.successors(func_name))[0]
 
-                # Run the lambda function and save the output
-                res = lambda_fn(*(self.nodes[n]["value"] for n in signature))
-                self.nodes[output_node]["value"] = res
+                signature = self.nodes[func_name]["func_inputs"]
+                inputs = [self.nodes[n]["value"] for n in signature]
+                res = lambda_fn(*inputs)
+
+                if torch_size is not None and len(signature) == 0:
+                    self.nodes[output_node]["value"] = torch.tensor([res] * torch_size, dtype=torch.double)
+                else:
+                    self.nodes[output_node]["value"] = res
 
         # return the output
         return self.nodes[self.output_node]["value"]
