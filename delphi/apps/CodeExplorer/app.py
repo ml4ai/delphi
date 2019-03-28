@@ -436,5 +436,17 @@ def processCode():
     )
 
 
+@app.route("/modelAnalysis")
+def modelAnalysis():
+    G1 = GroundedFunctionNetwork.from_fortran_file("")
+    G2 = GroundedFunctionNetwork.from_fortran_file("")
+
+    return render_template(
+        "modelAnalysis.html",
+        fib1=cmb_asce,
+        fib2=cmb_pt,
+    )
+
+
 if __name__ == "__main__":
     app.run()
