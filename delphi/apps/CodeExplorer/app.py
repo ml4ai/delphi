@@ -363,27 +363,51 @@ def processCode():
     )
 
 
-    args = G.model_inputs
-    Si = sobol_analysis(
-        G,
-        10,
-        {
-            "num_vars": len(args),
-            "names": args,
-            "bounds": [BOUNDS[arg] for arg in args],
-        },
-    )
-    S2 = Si["S2"]
-    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+    try:
+        args = G.model_inputs
+        Si = sobol_analysis(
+            G,
+            10,
+            {
+                "num_vars": len(args),
+                "names": args,
+                "bounds": [BOUNDS[arg] for arg in args],
+            },
+        )
+        S2 = Si["S2"]
+        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
 
-    x_var = args[v1]
-    y_var = args[v2]
-    search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
-    preset_vals = {
-        arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
-    }
+        x_var = args[v1]
+        y_var = args[v2]
+        search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
+        preset_vals = {
+            arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+        }
 
-    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+        (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+        z_data = pd.DataFrame(Z, index=X, columns=Y)
+        data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
+        layout = dict(
+            title="S2 sensitivity surface",
+            scene=dict(
+                xaxis=dict(title=x_var.split("::")[1]),
+                yaxis=dict(title=y_var.split("::")[1]),
+                zaxis=dict(title=G.output_node.split("::")[1]),
+            ),
+            autosize=True,
+            width=800,
+            height=800,
+            margin=dict(l=65, r=50, b=65, t=90),
+        )
+
+        graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    except KeyError:
+        flash("Bounds information was not found for some variables,"
+                "so the S2 sensitivity surface cannot be produced for this "
+                "code example.")
+        graphJSON='{}'
+        layout='{}'
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     CAG = G.to_CAG()
@@ -392,23 +416,6 @@ def processCode():
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
-    z_data = pd.DataFrame(Z, index=X, columns=Y)
-
-    data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
-    layout = dict(
-        title="S2 sensitivity surface",
-        scene=dict(
-            xaxis=dict(title=x_var.split("::")[1]),
-            yaxis=dict(title=y_var.split("::")[1]),
-            zaxis=dict(title=G.output_node.split("::")[1]),
-        ),
-        autosize=True,
-        width=800,
-        height=800,
-        margin=dict(l=65, r=50, b=65, t=90),
-    )
-
-    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template(
         "index.html",
@@ -427,28 +434,13 @@ def processCode():
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
-    import delphi.analysis.comparison.utils as utils
-    from delphi.analysis.comparison.ForwardInfluenceBlanket import (
-        ForwardInfluenceBlanket,
-    )
-
-    asce = utils.nx_graph_from_dotfile(
-        os.path.join(THIS_FOLDER, "static/graphviz_dot_files/asce-graph.dot")
-    )
-    pt = utils.nx_graph_from_dotfile(
-        os.path.join(
-            THIS_FOLDER, "static/graphviz_dot_files/priestley-taylor-graph.dot"
-        )
-    )
-    shared_nodes = utils.get_shared_nodes(asce, pt)
-
-    cmb_asce = ForwardInfluenceBlanket(asce, shared_nodes).cyjs_elementsJSON()
-    cmb_pt = ForwardInfluenceBlanket(pt, shared_nodes).cyjs_elementsJSON()
+    G1 = GroundedFunctionNetwork.from_fortran_file("")
+    G2 = GroundedFunctionNetwork.from_fortran_file("")
 
     return render_template(
         "modelAnalysis.html",
-        model1_elementsJSON=cmb_asce,
-        model2_elementsJSON=cmb_pt,
+        fib1=cmb_asce,
+        fib2=cmb_pt,
     )
 
 

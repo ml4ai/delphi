@@ -6,6 +6,8 @@
       <div class="row justify-content-md-center" 
            style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
       <div class="col-4">
+
+        <form method="POST" action="{{ url_for('processCode') }}">
         <div class="row" style="padding-left: 15px; padding-right: 15px;">
           <div class="dropdown">
             <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
@@ -14,8 +16,8 @@
               Choose model
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a id="cropYield" class="dropdown-item" href="#">Crop Yield</a>
               <a id="petPT" class="dropdown-item" href="#">Priestley-Taylor model of Evapotranspiration (DSSAT)</a>
+              <a id="PETASCE_simple" class="dropdown-item" href="#">ASCE model of Evapotranspiration (DSSAT)</a>
             </div>
           </div>
           <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
@@ -23,8 +25,6 @@
             Help
           </button>
         </div>
-
-        <form method="POST" action="{{ url_for('processCode') }}">
           <textarea id="flask-codemirror-source_code" name="source_code">
             {{ code | safe }}
           </textarea>
@@ -46,7 +46,7 @@
             'computational_graph': 'Function Network',
             'causal_analysis_graph': 'Causal Analysis Graph',
             'python_code': 'Equivalent Python Code',
-            'sensitivity_surface': 'Sensitivity surface',
+            'sensitivity_surface': 'Sensitivity Surface',
           } %}
           {% for id, label in nav_dict.items() %}
           <li class="nav-item">
@@ -67,13 +67,12 @@
                style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}; overflow: scroll;">
               {% if id=='python_code' %}{{ python_code | safe }}{% endif %}
               {% if id=='sensitivity_surface' %}
-              <div id="surfacePlot" class="justify-content-md-center"
-                    style="padding-top: 1.5rem; "></div>
-              <script>
-                  var graphs = {{ graphJSON | safe}};
-                  Plotly.plot('surfacePlot',graphs, {{ layout | safe }});
-              </script>
-
+                <div id="surfacePlot" class="justify-content-md-center"
+                      style="padding-top: 1.5rem; "></div>
+                <script>
+                    var graphs = {{ graphJSON | safe}};
+                    Plotly.plot('surfacePlot',graphs, {{ layout | safe }});
+                </script>
               {% endif %}
             </div>
           {% endfor %}

@@ -118,3 +118,12 @@ var causal_analysis_graph = make_cyjs(
   {{ program_analysis_graph_elementsJSON | safe }}
 );
 causal_analysis_graph.pan({x:70,y:70});
+
+// ====================================
+// Forward Influence Blanket
+// ====================================
+var forward_influence_blanket = make_cyjs(
+  'fib',
+  {{ fib_elementsJSON | safe }}
+);
+
