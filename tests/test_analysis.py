@@ -186,13 +186,11 @@ def test_FIB_execution():
         "petasce::cht_1": 0.001,
         "petasce::cn_5": 1600.0,
         "petasce::cd_5": 0.38,
-
-        # TODO: Khan find better values for the variables listed below
-        "petasce::rso_1": 1.0,
-        "petasce::wnd_1": 1.0,
-        "petasce::ea_1": 1.0,
-        "petasce::psycon_1": 1.0,
-        "petasce::wind2m_1": 1.0,
+        "petasce::rso_1": 0.062320,
+        "petasce::ea_1": 7007.82,
+        "petasce::wind2m_1": 3.5,
+        "petasce::psycon_1": 0.0665,
+        "petasce::wnd_1": 3.5,
     }
 
     res = PETPT_FIB.run(pt_inputs, {})
