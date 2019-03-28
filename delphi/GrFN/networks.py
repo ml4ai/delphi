@@ -535,9 +535,9 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             self.nodes[node]["fontname"] = FONT
 
         self.add_node(self.output_node, **G.nodes[self.output_node])
-        self.nodes[self.output_node]["color"] = "dodgerblue3"
-        self.nodes[self.output_node]["fontcolor"] = "dodgerblue3"
-        self.nodes[self.output_node]["fontname"] = "FONT"
+        self.nodes[self.output_node]["color"] = dodgerblue3
+        self.nodes[self.output_node]["fontcolor"] = dodgerblue3
+        self.nodes[self.output_node]["fontname"] = FONT
 
         self.add_edges_from(main_edges)
 
