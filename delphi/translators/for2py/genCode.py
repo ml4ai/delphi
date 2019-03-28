@@ -162,7 +162,7 @@ def genCode(node, state):
                 "Fix Compare in genCode! Don't have an example of what this will look like\n"
             )
         else:
-            codeStr = "({0}{1}{2})".format(
+            codeStr = "({0} {1} {2})".format(
                 genCode(node.left, state),
                 genCode(node.ops[0], state),
                 genCode(node.comparators[0], state),

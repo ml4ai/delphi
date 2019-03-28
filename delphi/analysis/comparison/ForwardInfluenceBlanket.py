@@ -16,12 +16,7 @@ forestgreen = "#228b22"
 
 class ForwardInfluenceBlanket(nx.DiGraph):
     """
-    This class takes a network and a list of a shared nodes between the input
-    network and a secondary network. From this list a shared nodes and blanket
-    network is created including all of the nodes between any input/output pair
-    in the shared nodes, as well as all nodes required to blanket the network
-    for forward influence. This class itself becomes the blanket and inherits
-    from the NetworkX DiGraph class.
+    This class takes a network and a list of a shared nodes between the input network and a secondary network. From this list a shared nodes and blanket network is created including all of the nodes between any input/output pair in the shared nodes, as well as all nodes required to blanket the network for forward influence. This class itself becomes the blanket and inherits from the NetworkX DiGraph class.
     """
     def __init__(self, G: nx.DiGraph, shared: List[str]):
         super().__init__()
@@ -119,4 +114,3 @@ class ForwardInfluenceBlanket(nx.DiGraph):
         }
         json_str = json.dumps(elements, indent=2)
         return json_str
-

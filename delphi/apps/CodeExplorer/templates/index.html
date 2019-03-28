@@ -1,0 +1,74 @@
+<html>
+  {% include "head.html" %}
+  <body class="theme-base-08">
+    <div class="container-fluid"> 
+      {% include "navbar.html" %}
+      <div class="row justify-content-md-center" 
+           style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
+      <div class="col-3">
+        <div class="row" style="padding-left: 15px; padding-right: 15px;">
+          <div class="dropdown">
+            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+              Choose model
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a id="cropYield" class="dropdown-item" href="#">Crop Yield</a>
+              <a id="petPT" class="dropdown-item" href="#">Priestley-Taylor model of Evapotranspiration (DSSAT)</a>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
+            data-target="#helpModal" style="margin-left: auto;">
+            Help
+          </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('processCode') }}">
+          <textarea id="flask-codemirror-source_code" name="source_code">
+            {{ code | safe }}
+          </textarea>
+          <script> {% include "editor.js" %} </script>
+          <br>
+          <input type="submit" value="Submit" class="btn btn-outline-primary btn-sm">
+        </form>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+      <div id="viewpane" class="col-9">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          {% for id, label in {
+            'computational_graph': 'Function Network',
+            'causal_analysis_graph': 'Causal Analysis Graph',
+            'python_code': 'Equivalent Python Code'
+          }.items() %}
+          <li class="nav-item">
+            <a class="nav-link {% if id=='computational_graph' %}active{% endif %}"
+               id="{{ id }}-tab" data-toggle="tab" href="#{{ id }}" 
+               role="tab" aria-controls="{{ id }}" aria-selected="true">
+              {{ label }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          {% for id in ('computational_graph', 'causal_analysis_graph', 'python_code') %}
+            <div id="{{ id }}" role="tabpanel"
+                 class="tab-pane {% if id=='computational_graph' %}show active{% endif %} 
+                        border-left border-right border-bottom"
+               aria-labelledby="{{ id }}-tab" 
+               style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}; overflow: scroll;">
+              {% if id=='python_code' %}{{ python_code | safe }}{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <script> {% include "cyjs.js" %} </script>
+      {% include "help.html" %}
+  </body>
+</html>

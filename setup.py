@@ -42,8 +42,13 @@ setup(
         "jupyter-contrib-nbextensions",
         "python-dateutil",
         "salib",
-        "tangent",
+        "torch",
         "ruamel.yaml",
+        "flask-WTF",
+        "flask-codemirror",
+        "pygments",
+        "sympy",
+        "plotly",
     ],
     python_requires=">=3.6",
     extras_require={
@@ -53,8 +58,8 @@ setup(
             "shapely",
             "pyshp",
             "xlrd",
-            "fire",
-            "pyjnius"
+            "pyjnius",
+            "plotly"
             ],
         "test": [
             "pytest>=3.6.0",

@@ -1,0 +1,11 @@
+tmax,td
+tmax,eo
+td,eeq
+tmin,td
+msalb,albedo
+albedo,eeq
+xhlai,albedo
+srad,slang
+slang,eeq
+eeq,eo
+eo,eo

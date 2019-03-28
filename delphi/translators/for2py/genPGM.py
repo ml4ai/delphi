@@ -293,6 +293,7 @@ class GrFNGenerator(object):
             # )
 
             loopName = state.fnName + "__loop_plate__" + indexName
+
             loopFn = {
                 "name": loopName,
                 "type": "loop_plate",
@@ -379,7 +380,6 @@ class GrFNGenerator(object):
                     ifDefs,
                     state,
                 ]
-
                 return []
 
             pgm = {"functions": [], "body": [], "identifiers": []}
@@ -441,7 +441,6 @@ class GrFNGenerator(object):
                 [src["var"]["variable"] for src in condSrcs if "var" in src],
             )
             state.lambdaStrings.append(lambda_string)
-
             startDefs = state.lastDefs.copy()
             ifDefs = startDefs.copy()
             elseDefs = startDefs.copy()
@@ -758,9 +757,12 @@ class GrFNGenerator(object):
                                 "type": "literal",
                             }
                         ]
+
             opPgm = self.genPgm(
                 node.left, state, fnNames, "binop"
             ) + self.genPgm(node.right, state, fnNames, "binop")
+            return opPgm
+
             return opPgm
 
         # Mult: ()
@@ -927,6 +929,7 @@ class GrFNGenerator(object):
                     for target in node.targets
                 ],
             )
+
             pgm = {"functions": [], "body": [], "identifiers": []}
 
             for target in targets:
@@ -982,6 +985,7 @@ class GrFNGenerator(object):
 
                 pgm["functions"].append(fn)
                 pgm["body"].append(body[0])
+
             return [pgm]
 
         # Tuple: ('elts', 'ctx')
@@ -1313,7 +1317,6 @@ class GrFNGenerator(object):
             if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
                 # This is a write to a file
                 return fn
-
             fn = {
                 "name": name,
                 "type": "assign",
