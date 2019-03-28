@@ -1,1263 +1,68 @@
 {
-  "start": "main",
   "identifiers": [
     {
-      "base_name": "assign$tavg_1",
+      "base_name": "assign$tavg_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "257616c58cc9_h"
+      "gensyms": "510fab752ec3_h"
     },
     {
-      "base_name": "tmax_0",
+      "base_name": "tmax_-1",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "4e13247afdd8_v"
+      "gensyms": "fa97f6445420_v"
     },
     {
-      "base_name": "tmin_0",
+      "base_name": "tmin_-1",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "a163672db604_v"
+      "gensyms": "482ea852ee20_v"
     },
     {
-      "base_name": "assign$patm_1",
+      "base_name": "assign$patm_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "5f1dd7e2857c_h"
+      "gensyms": "7d50ba9997a9_h"
     },
     {
-      "base_name": "xelev_0",
+      "base_name": "xelev_-1",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "70bf71f9c5ca_v"
+      "gensyms": "ee0246b9261f_v"
     },
     {
-      "base_name": "assign$psycon_1",
+      "base_name": "assign$psycon_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "71e878fc3029_h"
+      "gensyms": "a45c5e027018_h"
     },
     {
-      "base_name": "patm_1",
+      "base_name": "patm_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "cc779c9a8d12_v"
+      "gensyms": "82834ebeaf36_v"
     },
     {
-      "base_name": "assign$udelta_1",
+      "base_name": "assign$udelta_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "b29b81e75cf0_h"
-    },
-    {
-      "base_name": "tavg_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ad6a7108e47c_v"
-    },
-    {
-      "base_name": "tavg_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "27dbe356d231_v"
-    },
-    {
-      "base_name": "tavg_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "215edce77880_v"
-    },
-    {
-      "base_name": "assign$emax_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "db094b7553a6_h"
-    },
-    {
-      "base_name": "tmax_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "46dd83e56d17_v"
-    },
-    {
-      "base_name": "tmax_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6957b2d55be3_v"
-    },
-    {
-      "base_name": "assign$emin_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "292cb8cb0197_h"
-    },
-    {
-      "base_name": "tmin_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ff3caee85310_v"
-    },
-    {
-      "base_name": "tmin_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a53520f37f13_v"
-    },
-    {
-      "base_name": "assign$es_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1fd145af7d0f_h"
-    },
-    {
-      "base_name": "emax_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8e9ecabc19db_v"
-    },
-    {
-      "base_name": "emin_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "061baeb8823e_v"
-    },
-    {
-      "base_name": "assign$ea_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0845b04a16cf_h"
-    },
-    {
-      "base_name": "tdew_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f19a333729e9_v"
-    },
-    {
-      "base_name": "tdew_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b1f310be21d9_v"
-    },
-    {
-      "base_name": "assign$rhmin_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "05679a693e7c_h"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "7949b3746dd7_h"
-    },
-    {
-      "base_name": "xhlai_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8e0876474e5e_v"
-    },
-    {
-      "base_name": "decision$albedo_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "c3e63514117b_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "57ac7a02161b_v"
-    },
-    {
-      "base_name": "albedo_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4a9027d741a7_v"
-    },
-    {
-      "base_name": "albedo_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": [
-        "msalb_0"
-      ],
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f0a1ad5fb199_v"
-    },
-    {
-      "base_name": "assign$rns_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "405725fb13f4_h"
-    },
-    {
-      "base_name": "albedo_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1c97708fc86b_v"
-    },
-    {
-      "base_name": "srad_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b9c2755435c2_v"
-    },
-    {
-      "base_name": "assign$pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "7db29406f48a_h"
-    },
-    {
-      "base_name": "assign$dr_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "333fcd575599_h"
-    },
-    {
-      "base_name": "pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "34d17e59b2b5_v"
-    },
-    {
-      "base_name": "doy_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "9045796154f1_v"
-    },
-    {
-      "base_name": "assign$ldelta_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4d29db42bf68_h"
-    },
-    {
-      "base_name": "pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "813baf5e0188_v"
-    },
-    {
-      "base_name": "doy_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1c564c28b3ea_v"
-    },
-    {
-      "base_name": "assign$ws_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5cfaba840b78_h"
-    },
-    {
-      "base_name": "assign$ra1_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "bece83550ac4_h"
-    },
-    {
-      "base_name": "ws_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8eefbb8d28fa_v"
-    },
-    {
-      "base_name": "xlat_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1dd060c03ff8_v"
-    },
-    {
-      "base_name": "pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "409c57ed9411_v"
-    },
-    {
-      "base_name": "ldelta_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "d51541d7d3f3_v"
-    },
-    {
-      "base_name": "assign$ra2_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "239dea2bb07b_h"
-    },
-    {
-      "base_name": "xlat_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f41d0645477a_v"
-    },
-    {
-      "base_name": "pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "e665796268fd_v"
-    },
-    {
-      "base_name": "ldelta_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "56ff94c37563_v"
-    },
-    {
-      "base_name": "ws_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fe2a65a6afb8_v"
-    },
-    {
-      "base_name": "assign$ra_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4db9d3261e2b_h"
-    },
-    {
-      "base_name": "pie_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "04afc63f2c1a_v"
-    },
-    {
-      "base_name": "dr_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8670e8f5cd1f_v"
-    },
-    {
-      "base_name": "ra1_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "385f0a4f9a19_v"
-    },
-    {
-      "base_name": "ra2_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "9ce136a1f983_v"
-    },
-    {
-      "base_name": "assign$rso_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a698492a0d66_h"
-    },
-    {
-      "base_name": "xelev_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "decc9a8bfec6_v"
-    },
-    {
-      "base_name": "ra_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "018f783dd5f4_v"
-    },
-    {
-      "base_name": "assign$ratio_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "23065ac0ed85_h"
-    },
-    {
-      "base_name": "srad_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "dc2206c829ae_v"
-    },
-    {
-      "base_name": "rso_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f2ae98a3e3ae_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0fcc1c597808_h"
-    },
-    {
-      "base_name": "ratio_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1e72f0812150_v"
-    },
-    {
-      "base_name": "decision$ratio_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fa1156052595_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "60b7d860652c_v"
-    },
-    {
-      "base_name": "ratio_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f94bf9f6acec_v"
-    },
-    {
-      "base_name": "ratio_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6363c8d4edd8_v"
-    },
-    {
-      "base_name": "condition$IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "3001b2a8595b_h"
-    },
-    {
-      "base_name": "ratio_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6855c710d6ca_v"
-    },
-    {
-      "base_name": "decision$ratio_4",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1caa8436f06c_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "02b8c66f14b9_v"
-    },
-    {
-      "base_name": "ratio_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1c98b0a89fd8_v"
-    },
-    {
-      "base_name": "ratio_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "d0d02b6f8a69_v"
-    },
-    {
-      "base_name": "assign$fcd_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4ce1eec64208_h"
-    },
-    {
-      "base_name": "ratio_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0335c9f3de34_v"
-    },
-    {
-      "base_name": "assign$tk4_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b5d5e87c0627_h"
-    },
-    {
-      "base_name": "tmax_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "11195a038319_v"
-    },
-    {
-      "base_name": "tmin_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "81c09eca5302_v"
-    },
-    {
-      "base_name": "assign$rnl_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f99f804f9ea2_h"
-    },
-    {
-      "base_name": "fcd_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "847ac76a9ea2_v"
-    },
-    {
-      "base_name": "ea_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "65375f76eaa9_v"
-    },
-    {
-      "base_name": "tk4_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "140ca6518e8e_v"
-    },
-    {
-      "base_name": "assign$rn_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "d27a4a28bbc7_h"
-    },
-    {
-      "base_name": "rns_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "60007f0652d6_v"
-    },
-    {
-      "base_name": "rnl_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a87d69c9c502_v"
-    },
-    {
-      "base_name": "assign$g_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "283434cf7473_h"
-    },
-    {
-      "base_name": "assign$windsp_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f43919df83db_h"
-    },
-    {
-      "base_name": "windrun_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2a9f2eef6813_v"
-    },
-    {
-      "base_name": "assign$wind2m_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "cd05874a1330_h"
-    },
-    {
-      "base_name": "windsp_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5d645aa9676f_v"
-    },
-    {
-      "base_name": "windht_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "3b715629cdb1_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "df2522859f53_h"
-    },
-    {
-      "base_name": "meevp_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "603932430a49_v"
-    },
-    {
-      "base_name": "decision$cd_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1053d1877f3f_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8b80b1f20c05_v"
-    },
-    {
-      "base_name": "cd_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6abdd5ab675d_v"
-    },
-    {
-      "base_name": "cd_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "67c4ea8e479f_v"
-    },
-    {
-      "base_name": "condition$IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4126369127d4_h"
-    },
-    {
-      "base_name": "meevp_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b7e8d9917fb1_v"
-    },
-    {
-      "base_name": "decision$cd_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5f4cb9f28969_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "017d8dac7a8f_v"
-    },
-    {
-      "base_name": "cd_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "52731e40d608_v"
-    },
-    {
-      "base_name": "cd_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6deaabad9c08_v"
-    },
-    {
-      "base_name": "decision$cn_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "bee1d428a126_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "15f86ce277c3_v"
-    },
-    {
-      "base_name": "cn_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "cdb3ce99318c_v"
-    },
-    {
-      "base_name": "cn_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ea6d559bf1f7_v"
-    },
-    {
-      "base_name": "decision$cn_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0a4b45d423d3_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f8522544d05d_v"
-    },
-    {
-      "base_name": "cn_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "329a106a8a2b_v"
-    },
-    {
-      "base_name": "cn_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4aee42783201_v"
-    },
-    {
-      "base_name": "assign$skc_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ed2a03df8cd9_h"
-    },
-    {
-      "base_name": "assign$kcbmin_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "f93078bf4127_h"
-    },
-    {
-      "base_name": "assign$kcbmax_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "e6c42cb3ff0a_h"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "44693b568bb1_h"
-    },
-    {
-      "base_name": "xhlai_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "b7b87172b5e5_v"
-    },
-    {
-      "base_name": "decision$kcb_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6d43b9a7c719_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0743e1a05a50_v"
-    },
-    {
-      "base_name": "kcb_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "7f2b0c35b7e4_v"
-    },
-    {
-      "base_name": "kcb_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "87f1ede08232_v"
-    },
-    {
-      "base_name": "assign$wnd_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5d7d9e1b6142_h"
-    },
-    {
-      "base_name": "assign$cht_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a26362e8316f_h"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "8b827233aaeb_h"
-    },
-    {
-      "base_name": "meevp_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6465dcdc11c4_v"
-    },
-    {
-      "base_name": "decision$kcmax_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "bd65e2284c9a_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "1442fe2c760a_v"
-    },
-    {
-      "base_name": "kcmax_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "96d28578f959_v"
-    },
-    {
-      "base_name": "kcmax_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "03e8716d8ea5_v"
-    },
-    {
-      "base_name": "condition$IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4913e22616fd_h"
-    },
-    {
-      "base_name": "meevp_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "4a387d2cd884_v"
-    },
-    {
-      "base_name": "decision$kcmax_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "0fb616b3888a_h"
-    },
-    {
-      "base_name": "IF_2_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5081fb3f47ff_v"
-    },
-    {
-      "base_name": "kcmax_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ee9a2e7b20ad_v"
-    },
-    {
-      "base_name": "kcmax_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fe879157f0f5_v"
-    },
-    {
-      "base_name": "condition$IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "ab5cf9066ff0_h"
-    },
-    {
-      "base_name": "kcb_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "07889c09ab13_v"
-    },
-    {
-      "base_name": "kcbmin_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "23a205cd6373_v"
-    },
-    {
-      "base_name": "decision$fc_3",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "351430af442f_h"
-    },
-    {
-      "base_name": "IF_1_0",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "95801e49e87a_v"
-    },
-    {
-      "base_name": "fc_2",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "d4462d24efb0_v"
-    },
-    {
-      "base_name": "fc_1",
-      "scope": "if$1",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "078ed07d91cc_v"
-    },
-    {
-      "base_name": "assign$fw_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "68d298fd4ff3_h"
-    },
-    {
-      "base_name": "assign$few_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "3c9b4bc02549_h"
-    },
-    {
-      "base_name": "fc_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fc8d8ed75380_v"
-    },
-    {
-      "base_name": "assign$ke_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "c1ab11330f4d_h"
-    },
-    {
-      "base_name": "assign$kc_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "693ef3dce740_h"
-    },
-    {
-      "base_name": "kcb_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2714140b07d9_v"
-    },
-    {
-      "base_name": "ke_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "dbbc94164582_v"
-    },
-    {
-      "base_name": "assign$eo_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "92876a5c1d6e_h"
-    },
-    {
-      "base_name": "udelta_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "fa367545dee0_v"
-    },
-    {
-      "base_name": "assign$rval_1",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "bc380210f73c_h"
-    },
-    {
-      "base_name": "ud_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "6cbf2ae72b39_v"
-    },
-    {
-      "base_name": "rn_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "41d3cdb30a41_v"
-    },
-    {
-      "base_name": "g_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "5d729efa5886_v"
-    },
-    {
-      "base_name": "pcon_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "2bc26831cee9_v"
-    },
-    {
-      "base_name": "cn_0",
-      "scope": "_TOP",
-      "namespace": "delphi.translators.for2py",
-      "aliases": "None",
-      "source_references": "delphi.translators.for2py",
-      "gensyms": "a665c2df4a9e_v"
+      "gensyms": "7d8883ca6a1d_h"
     },
     {
       "base_name": "tavg_0",
@@ -1265,23 +70,87 @@
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "02853f86e58a_v"
+      "gensyms": "430fb073e50e_v"
     },
     {
-      "base_name": "w2m_0",
+      "base_name": "assign$emax_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "f448243b5ff6_v"
+      "gensyms": "40b4f9f43538_h"
     },
     {
-      "base_name": "es_0",
+      "base_name": "tmax_-1",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "8c11ba9518eb_v"
+      "gensyms": "55bedb466353_v"
+    },
+    {
+      "base_name": "assign$emin_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "817a301b23fa_h"
+    },
+    {
+      "base_name": "tmin_-1",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "5bf59514cd24_v"
+    },
+    {
+      "base_name": "assign$es_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "37af655d470d_h"
+    },
+    {
+      "base_name": "emax_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "a7ab4570e01c_v"
+    },
+    {
+      "base_name": "emin_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "0a1a61d27d17_v"
+    },
+    {
+      "base_name": "assign$ea_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e79ec4df7e67_h"
+    },
+    {
+      "base_name": "tdew_-1",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "020630dad97e_v"
+    },
+    {
+      "base_name": "assign$rhmin_0",
+      "scope": "_TOP",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "9e7dba8d7475_h"
     },
     {
       "base_name": "ea_0",
@@ -1289,92 +158,1286 @@
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "07b83263f314_v"
+      "gensyms": "69090d6c8e00_v"
     },
     {
-      "base_name": "assign$rval_2",
+      "base_name": "emax_0",
       "scope": "_TOP",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "0dfd0cbfb94b_h"
+      "gensyms": "13d41a8d0705_v"
     },
     {
-      "base_name": "rval_1",
-      "scope": "_TOP",
+      "base_name": "condition$IF_1_0",
+      "scope": "if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "ae2f01a611f9_v"
+      "gensyms": "b1da283f4b10_h"
     },
     {
-      "base_name": "ud_0",
-      "scope": "_TOP",
+      "base_name": "xhlai_-1",
+      "scope": "if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "3287a21150be_v"
+      "gensyms": "db546af8524a_v"
     },
     {
-      "base_name": "pcon_0",
-      "scope": "_TOP",
+      "base_name": "decision$albedo_2",
+      "scope": "if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "5ac5e71a645c_v"
+      "gensyms": "066928ac11bb_h"
+    },
+    {
+      "base_name": "IF_1_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "2f71831857a9_v"
+    },
+    {
+      "base_name": "albedo_1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "0d661dc55e65_v"
+    },
+    {
+      "base_name": "albedo_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": [
+        "msalb_-1"
+      ],
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "244984e45fb7_v"
+    },
+    {
+      "base_name": "assign$rns_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b23bf1002232_h"
+    },
+    {
+      "base_name": "albedo_2",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "615b6c0a2300_v"
+    },
+    {
+      "base_name": "srad_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8697a911bafa_v"
+    },
+    {
+      "base_name": "assign$pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8412b3e93bad_h"
+    },
+    {
+      "base_name": "assign$dr_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3e191b12d227_h"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8015358e5cb6_v"
+    },
+    {
+      "base_name": "doy_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "65d50a8d642b_v"
+    },
+    {
+      "base_name": "assign$ldelta_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "de4d7eeecde2_h"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "5a041657e7ee_v"
+    },
+    {
+      "base_name": "doy_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "da8379f14a48_v"
+    },
+    {
+      "base_name": "assign$ws_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3be407e67416_h"
+    },
+    {
+      "base_name": "xlat_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "bac3a52c926b_v"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e479ffa4f3c2_v"
+    },
+    {
+      "base_name": "ldelta_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "9054dd71168e_v"
+    },
+    {
+      "base_name": "assign$ra1_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7b6a07a128c1_h"
+    },
+    {
+      "base_name": "ws_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6638d6c5e5df_v"
+    },
+    {
+      "base_name": "xlat_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "89c300aceb5a_v"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "34ca586b4d19_v"
+    },
+    {
+      "base_name": "ldelta_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "5a4a18bd4917_v"
+    },
+    {
+      "base_name": "assign$ra2_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "fbf605e3bd8a_h"
+    },
+    {
+      "base_name": "xlat_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "01731f373392_v"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "76814ace3235_v"
+    },
+    {
+      "base_name": "ldelta_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "188a0ed6e1bc_v"
+    },
+    {
+      "base_name": "ws_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8aff44fb5146_v"
+    },
+    {
+      "base_name": "assign$ra_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "18bce18d813a_h"
+    },
+    {
+      "base_name": "pie_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "f71211219fe1_v"
+    },
+    {
+      "base_name": "dr_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "20fe5749fbe9_v"
+    },
+    {
+      "base_name": "ra1_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "c1a93103c4d9_v"
+    },
+    {
+      "base_name": "ra2_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "78de19c5c14e_v"
+    },
+    {
+      "base_name": "assign$rso_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "67981132f700_h"
+    },
+    {
+      "base_name": "xelev_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7d80dc0529da_v"
+    },
+    {
+      "base_name": "ra_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7ef9b409aeb8_v"
+    },
+    {
+      "base_name": "assign$ratio_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "1802a0f19a5e_h"
+    },
+    {
+      "base_name": "srad_-1",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "fff33d3e0a23_v"
+    },
+    {
+      "base_name": "rso_0",
+      "scope": "if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "ef3b07ac8e7f_v"
+    },
+    {
+      "base_name": "condition$IF_2_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "14ebb8ccc0bf_h"
+    },
+    {
+      "base_name": "ratio_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "860a54af4edd_v"
+    },
+    {
+      "base_name": "decision$ratio_3",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "88f7c906657a_h"
+    },
+    {
+      "base_name": "IF_2_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "d35dd6ab597e_v"
+    },
+    {
+      "base_name": "ratio_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "0f0ded8d12af_v"
+    },
+    {
+      "base_name": "ratio_1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "ec963e8a4fc7_v"
+    },
+    {
+      "base_name": "condition$IF_2_1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "9f14d73dbd40_h"
+    },
+    {
+      "base_name": "ratio_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6ce863a575a5_v"
+    },
+    {
+      "base_name": "decision$ratio_4",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6608e5566739_h"
+    },
+    {
+      "base_name": "IF_2_1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "4d2ebdba6cf8_v"
+    },
+    {
+      "base_name": "ratio_3",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3df93ca35f51_v"
+    },
+    {
+      "base_name": "ratio_2",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7ada6c32c143_v"
+    },
+    {
+      "base_name": "assign$fcd_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "304317126578_h"
+    },
+    {
+      "base_name": "ratio_4",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e668afb760c8_v"
+    },
+    {
+      "base_name": "assign$tk4_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "43023ab38b95_h"
+    },
+    {
+      "base_name": "tmax_-1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7aa5e18687d7_v"
+    },
+    {
+      "base_name": "tmin_-1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6a6e89d6859b_v"
+    },
+    {
+      "base_name": "assign$rnl_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "065d30c99c2d_h"
+    },
+    {
+      "base_name": "fcd_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "83e004bbb327_v"
+    },
+    {
+      "base_name": "ea_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b8328f32f5f7_v"
+    },
+    {
+      "base_name": "tk4_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "eb5c47b74da3_v"
+    },
+    {
+      "base_name": "assign$rn_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "63df927c2901_h"
+    },
+    {
+      "base_name": "rns_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8a2a0649c760_v"
+    },
+    {
+      "base_name": "rnl_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7e50c9a8ed30_v"
+    },
+    {
+      "base_name": "assign$g_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "cb5287b26bfd_h"
+    },
+    {
+      "base_name": "assign$windsp_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "14a9d1cedf2d_h"
+    },
+    {
+      "base_name": "windrun_-1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b199f1482bc3_v"
+    },
+    {
+      "base_name": "assign$wind2m_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "661681d96811_h"
+    },
+    {
+      "base_name": "windsp_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "09094491c1a9_v"
+    },
+    {
+      "base_name": "windht_-1",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7ddd726a472a_v"
+    },
+    {
+      "base_name": "assign$cn_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "dbfafab611ad_h"
+    },
+    {
+      "base_name": "assign$cd_0",
+      "scope": "if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "2dcd7f0f279f_h"
+    },
+    {
+      "base_name": "condition$IF_3_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3e9d6f21dea7_h"
+    },
+    {
+      "base_name": "meevp_-1",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "cf7a36a36e73_v"
+    },
+    {
+      "base_name": "decision$cn_3",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "62ec4a220cec_h"
+    },
+    {
+      "base_name": "IF_3_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "ff52a538c386_v"
+    },
+    {
+      "base_name": "cn_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "95bbe8a09675_v"
+    },
+    {
+      "base_name": "cn_1",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "030a66f5d3ff_v"
+    },
+    {
+      "base_name": "decision$cd_3",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "bbb08830a5f0_h"
+    },
+    {
+      "base_name": "IF_3_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3f85051998ad_v"
     },
     {
       "base_name": "cd_0",
-      "scope": "_TOP",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "9401db1a6cdb_v"
+      "gensyms": "bd18dd443ec6_v"
     },
     {
-      "base_name": "w2m_0",
-      "scope": "_TOP",
+      "base_name": "cd_1",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "3e09b76621dd_v"
+      "gensyms": "f55575cd6984_v"
     },
     {
-      "base_name": "assign$evtransp_1",
-      "scope": "_TOP",
+      "base_name": "condition$IF_3_1",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "f03991f479f1_h"
+      "gensyms": "deac7589ec65_h"
     },
     {
-      "base_name": "kc_0",
-      "scope": "_TOP",
+      "base_name": "meevp_-1",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "9e4222aecc9d_v"
+      "gensyms": "c139627ca1ac_v"
     },
     {
-      "base_name": "ud_0",
-      "scope": "_TOP",
+      "base_name": "decision$cn_4",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "e0e51aabb7a4_v"
+      "gensyms": "e94322ae7a97_h"
     },
     {
-      "base_name": "loop_plate$doy",
-      "scope": "loop$1",
+      "base_name": "IF_3_1",
+      "scope": "if$1.if$1.if$1",
       "namespace": "delphi.translators.for2py",
       "aliases": "None",
       "source_references": "delphi.translators.for2py",
-      "gensyms": "04c4ee144f92_h"
+      "gensyms": "2a470472a004_v"
+    },
+    {
+      "base_name": "cn_3",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e99a1efd6c5e_v"
+    },
+    {
+      "base_name": "cn_2",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "02173ff00989_v"
+    },
+    {
+      "base_name": "decision$cd_4",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "c91b47cd112c_h"
+    },
+    {
+      "base_name": "IF_3_1",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "ba0c1c9c6ec5_v"
+    },
+    {
+      "base_name": "cd_3",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "eae670234e89_v"
+    },
+    {
+      "base_name": "cd_2",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "c305edb58006_v"
+    },
+    {
+      "base_name": "assign$refet_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "807d2d60eaad_h"
+    },
+    {
+      "base_name": "udelta_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "651d50205ded_v"
+    },
+    {
+      "base_name": "rn_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "338667528b8e_v"
+    },
+    {
+      "base_name": "g_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7263c56a6d38_v"
+    },
+    {
+      "base_name": "psycon_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "06a3c5b8daab_v"
+    },
+    {
+      "base_name": "cn_4",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3770592bcc6e_v"
+    },
+    {
+      "base_name": "tavg_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "f63cbcd31da9_v"
+    },
+    {
+      "base_name": "wind2m_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "368124561687_v"
+    },
+    {
+      "base_name": "es_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "09528eb2e593_v"
+    },
+    {
+      "base_name": "ea_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "12d4e4f78fc0_v"
+    },
+    {
+      "base_name": "assign$refet_1",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "af86c3e5b4ae_h"
+    },
+    {
+      "base_name": "refet_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "eb54869c0005_v"
+    },
+    {
+      "base_name": "udelta_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "051a94664e17_v"
+    },
+    {
+      "base_name": "psycon_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "c6449901a01c_v"
+    },
+    {
+      "base_name": "cd_4",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "79385ee2f07f_v"
+    },
+    {
+      "base_name": "wind2m_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "331e0d399dcc_v"
+    },
+    {
+      "base_name": "assign$refet_2",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "cfc60d2fea49_h"
+    },
+    {
+      "base_name": "refet_1",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "d05a0b9d6582_v"
+    },
+    {
+      "base_name": "assign$skc_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b8060b63bf93_h"
+    },
+    {
+      "base_name": "assign$kcbmin_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "123bbe45d8dc_h"
+    },
+    {
+      "base_name": "assign$kcbmax_0",
+      "scope": "if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b2d933e1bbd1_h"
+    },
+    {
+      "base_name": "condition$IF_4_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "2c37bbcc5fe5_h"
+    },
+    {
+      "base_name": "xhlai_-1",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "a4d5c2858986_v"
+    },
+    {
+      "base_name": "decision$kcb_2",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "51a2fc414b06_h"
+    },
+    {
+      "base_name": "IF_4_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b8a6ca344e77_v"
+    },
+    {
+      "base_name": "kcb_1",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "640a8b7c4474_v"
+    },
+    {
+      "base_name": "kcb_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "95c6660be72d_v"
+    },
+    {
+      "base_name": "assign$wnd_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e6a796925c4f_h"
+    },
+    {
+      "base_name": "wind2m_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "0447402cc01d_v"
+    },
+    {
+      "base_name": "assign$cht_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8a49b5d7563a_h"
+    },
+    {
+      "base_name": "canht_-1",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e7b7d8a87a9c_v"
+    },
+    {
+      "base_name": "assign$kcmax_0",
+      "scope": "if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "81fb409e9c5b_h"
+    },
+    {
+      "base_name": "condition$IF_5_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "23596949bf94_h"
+    },
+    {
+      "base_name": "meevp_-1",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "b6c5c9d02f1d_v"
+    },
+    {
+      "base_name": "decision$kcmax_3",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6251eaf6a626_h"
+    },
+    {
+      "base_name": "IF_5_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "0691219f494b_v"
+    },
+    {
+      "base_name": "kcmax_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "a234c3003a8a_v"
+    },
+    {
+      "base_name": "kcmax_1",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "6849ce90f70e_v"
+    },
+    {
+      "base_name": "condition$IF_5_1",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "2930c71d31e2_h"
+    },
+    {
+      "base_name": "meevp_-1",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "83dccaf3f853_v"
+    },
+    {
+      "base_name": "decision$kcmax_4",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3b67bfebdfdb_h"
+    },
+    {
+      "base_name": "IF_5_1",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3105abe646b0_v"
+    },
+    {
+      "base_name": "kcmax_3",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "7b9d06643d40_v"
+    },
+    {
+      "base_name": "kcmax_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "181de78fa971_v"
+    },
+    {
+      "base_name": "condition$IF_6_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "f0e4c4b4d8e9_h"
+    },
+    {
+      "base_name": "kcb_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3469d456d86e_v"
+    },
+    {
+      "base_name": "kcbmin_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e219b835ebb6_v"
+    },
+    {
+      "base_name": "decision$fc_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "390991f04bfd_h"
+    },
+    {
+      "base_name": "IF_6_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8af2e3538e97_v"
+    },
+    {
+      "base_name": "fc_1",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "226b0664a68a_v"
+    },
+    {
+      "base_name": "fc_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "43d571dac244_v"
+    },
+    {
+      "base_name": "assign$fw_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "8cc43d71ceea_h"
+    },
+    {
+      "base_name": "assign$few_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "e9792bd513e7_h"
+    },
+    {
+      "base_name": "fc_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "4583c8670c24_v"
+    },
+    {
+      "base_name": "fw_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "569f05e2edd5_v"
+    },
+    {
+      "base_name": "assign$ke_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "f6f068eebbdf_h"
+    },
+    {
+      "base_name": "kcmax_4",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "adf2c8eaf0ee_v"
+    },
+    {
+      "base_name": "kcb_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "fb1b510f4097_v"
+    },
+    {
+      "base_name": "few_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "aed91ddf30a6_v"
+    },
+    {
+      "base_name": "assign$eo_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "3b729a14cb6c_h"
+    },
+    {
+      "base_name": "kcb_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "f8bcf4d0b7a1_v"
+    },
+    {
+      "base_name": "ke_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "befedfd5a814_v"
+    },
+    {
+      "base_name": "refet_2",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "684af41f259d_v"
+    },
+    {
+      "base_name": "assign$eo_1",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "20126e326ea4_h"
+    },
+    {
+      "base_name": "eo_0",
+      "scope": "if$1.if$1.if$1.if$1.if$1.if$1",
+      "namespace": "delphi.translators.for2py",
+      "aliases": "None",
+      "source_references": "delphi.translators.for2py",
+      "gensyms": "09cb968c6d71_v"
     }
   ],
   "functions": [
     {
-      "name": "petasce__assign__tavg_1",
+      "name": "petasce__assign__tavg_0",
       "type": "assign",
       "target": "tavg",
       "sources": [
@@ -1387,10 +1450,10 @@
           "type": "variable"
         }
       ],
-      "reference": 74
+      "reference": 52
     },
     {
-      "name": "petasce__assign__patm_1",
+      "name": "petasce__assign__patm_0",
       "type": "assign",
       "target": "patm",
       "sources": [
@@ -1399,10 +1462,10 @@
           "type": "variable"
         }
       ],
-      "reference": 76
+      "reference": 53
     },
     {
-      "name": "petasce__assign__psycon_1",
+      "name": "petasce__assign__psycon_0",
       "type": "assign",
       "target": "psycon",
       "sources": [
@@ -1411,74 +1474,46 @@
           "type": "variable"
         }
       ],
-      "reference": 78
+      "reference": 54
     },
     {
-      "name": "petasce__assign__udelta_1",
+      "name": "petasce__assign__udelta_0",
       "type": "assign",
       "target": "udelta",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
           "name": "tavg",
           "type": "variable"
         }
       ],
-      "reference": 80
+      "reference": 55
     },
     {
-      "name": "petasce__assign__emax_1",
+      "name": "petasce__assign__emax_0",
       "type": "assign",
       "target": "emax",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tmax",
-          "type": "variable"
-        },
-        {
           "name": "tmax",
           "type": "variable"
         }
       ],
-      "reference": 82
+      "reference": 56
     },
     {
-      "name": "petasce__assign__emin_1",
+      "name": "petasce__assign__emin_0",
       "type": "assign",
       "target": "emin",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tmin",
-          "type": "variable"
-        },
-        {
           "name": "tmin",
           "type": "variable"
         }
       ],
-      "reference": 83
+      "reference": 57
     },
     {
-      "name": "petasce__assign__es_1",
+      "name": "petasce__assign__es_0",
       "type": "assign",
       "target": "es",
       "sources": [
@@ -1491,45 +1526,41 @@
           "type": "variable"
         }
       ],
-      "reference": 84
+      "reference": 58
     },
     {
-      "name": "petasce__assign__ea_1",
+      "name": "petasce__assign__ea_0",
       "type": "assign",
       "target": "ea",
       "sources": [
         {
-          "name": "math.exp",
-          "type": "function"
-        },
-        {
-          "name": "tdew",
-          "type": "variable"
-        },
-        {
           "name": "tdew",
           "type": "variable"
         }
       ],
-      "reference": 86
+      "reference": 59
     },
     {
-      "name": "petasce__assign__rhmin_1",
+      "name": "petasce__assign__rhmin_0",
       "type": "assign",
       "target": "rhmin",
       "sources": [
         {
-          "name": "max",
-          "type": "function"
+          "name": "ea",
+          "type": "variable"
+        },
+        {
+          "name": "emax",
+          "type": "variable"
         }
       ],
-      "reference": 88
+      "reference": 60
     },
     {
       "name": "petasce__condition__IF_1_0",
       "type": "condition",
       "target": "IF_1",
-      "reference": 90,
+      "reference": 61,
       "sources": [
         {
           "name": "xhlai",
@@ -1538,7 +1569,7 @@
       ]
     },
     {
-      "name": "petasce__assign__albedo_1",
+      "name": "petasce__assign__albedo_0",
       "type": "assign",
       "target": "albedo",
       "sources": [
@@ -1547,14 +1578,14 @@
           "type": "variable"
         }
       ],
-      "reference": 91
+      "reference": 62
     },
     {
-      "name": "petasce__assign__albedo_2",
+      "name": "petasce__assign__albedo_1",
       "type": "assign",
       "target": "albedo",
       "sources": [],
-      "reference": 93,
+      "reference": 64,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -1562,27 +1593,27 @@
       }
     },
     {
-      "name": "petasce__decision__albedo_3",
+      "name": "petasce__decision__albedo_2",
       "type": "decision",
       "target": "albedo",
-      "reference": 90,
+      "reference": 61,
       "sources": [
         {
           "name": "IF_1_0",
           "type": "variable"
         },
         {
-          "name": "albedo_2",
+          "name": "albedo_1",
           "type": "variable"
         },
         {
-          "name": "albedo_1",
+          "name": "albedo_0",
           "type": "variable"
         }
       ]
     },
     {
-      "name": "petasce__assign__rns_1",
+      "name": "petasce__assign__rns_0",
       "type": "assign",
       "target": "rns",
       "sources": [
@@ -1595,14 +1626,14 @@
           "type": "variable"
         }
       ],
-      "reference": 94
+      "reference": 65
     },
     {
-      "name": "petasce__assign__pie_1",
+      "name": "petasce__assign__pie_0",
       "type": "assign",
       "target": "pie",
       "sources": [],
-      "reference": 96,
+      "reference": 66,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -1610,15 +1641,11 @@
       }
     },
     {
-      "name": "petasce__assign__dr_1",
+      "name": "petasce__assign__dr_0",
       "type": "assign",
       "target": "dr",
       "sources": [
         {
-          "name": "math.cos",
-          "type": "function"
-        },
-        {
           "name": "pie",
           "type": "variable"
         },
@@ -1627,18 +1654,14 @@
           "type": "variable"
         }
       ],
-      "reference": 97
+      "reference": 67
     },
     {
-      "name": "petasce__assign__ldelta_1",
+      "name": "petasce__assign__ldelta_0",
       "type": "assign",
       "target": "ldelta",
       "sources": [
         {
-          "name": "math.sin",
-          "type": "function"
-        },
-        {
           "name": "pie",
           "type": "variable"
         },
@@ -1647,22 +1670,30 @@
           "type": "variable"
         }
       ],
-      "reference": 98
+      "reference": 68
     },
     {
-      "name": "petasce__assign__ws_1",
+      "name": "petasce__assign__ws_0",
       "type": "assign",
       "target": "ws",
       "sources": [
         {
-          "name": "math.acos",
-          "type": "function"
+          "name": "xlat",
+          "type": "variable"
+        },
+        {
+          "name": "pie",
+          "type": "variable"
+        },
+        {
+          "name": "ldelta",
+          "type": "variable"
         }
       ],
-      "reference": 99
+      "reference": 69
     },
     {
-      "name": "petasce__assign__ra1_1",
+      "name": "petasce__assign__ra1_0",
       "type": "assign",
       "target": "ra1",
       "sources": [
@@ -1671,37 +1702,25 @@
           "type": "variable"
         },
         {
-          "name": "math.sin",
-          "type": "function"
-        },
-        {
           "name": "xlat",
           "type": "variable"
         },
         {
           "name": "pie",
           "type": "variable"
-        },
-        {
-          "name": "math.sin",
-          "type": "function"
         },
         {
           "name": "ldelta",
           "type": "variable"
         }
       ],
-      "reference": 100
+      "reference": 70
     },
     {
-      "name": "petasce__assign__ra2_1",
+      "name": "petasce__assign__ra2_0",
       "type": "assign",
       "target": "ra2",
       "sources": [
-        {
-          "name": "math.cos",
-          "type": "function"
-        },
         {
           "name": "xlat",
           "type": "variable"
@@ -1711,26 +1730,18 @@
           "type": "variable"
         },
         {
-          "name": "math.cos",
-          "type": "function"
-        },
-        {
           "name": "ldelta",
           "type": "variable"
-        },
-        {
-          "name": "math.sin",
-          "type": "function"
         },
         {
           "name": "ws",
           "type": "variable"
         }
       ],
-      "reference": 101
+      "reference": 71
     },
     {
-      "name": "petasce__assign__ra_1",
+      "name": "petasce__assign__ra_0",
       "type": "assign",
       "target": "ra",
       "sources": [
@@ -1751,10 +1762,10 @@
           "type": "variable"
         }
       ],
-      "reference": 102
+      "reference": 72
     },
     {
-      "name": "petasce__assign__rso_1",
+      "name": "petasce__assign__rso_0",
       "type": "assign",
       "target": "rso",
       "sources": [
@@ -1767,10 +1778,10 @@
           "type": "variable"
         }
       ],
-      "reference": 104
+      "reference": 73
     },
     {
-      "name": "petasce__assign__ratio_1",
+      "name": "petasce__assign__ratio_0",
       "type": "assign",
       "target": "ratio",
       "sources": [
@@ -1783,13 +1794,13 @@
           "type": "variable"
         }
       ],
-      "reference": 106
+      "reference": 74
     },
     {
-      "name": "petasce__condition__IF_1_1",
+      "name": "petasce__condition__IF_2_0",
       "type": "condition",
-      "target": "IF_1",
-      "reference": 107,
+      "target": "IF_2",
+      "reference": 75,
       "sources": [
         {
           "name": "ratio",
@@ -1798,11 +1809,11 @@
       ]
     },
     {
-      "name": "petasce__assign__ratio_2",
+      "name": "petasce__assign__ratio_1",
       "type": "assign",
       "target": "ratio",
       "sources": [],
-      "reference": 108,
+      "reference": 76,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -1813,28 +1824,28 @@
       "name": "petasce__decision__ratio_3",
       "type": "decision",
       "target": "ratio",
-      "reference": 107,
+      "reference": 75,
       "sources": [
         {
-          "name": "IF_1_0",
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "ratio_0",
           "type": "variable"
         },
         {
           "name": "ratio_1",
           "type": "variable"
-        },
-        {
-          "name": "ratio_2",
-          "type": "variable"
         }
       ]
     },
     {
-      "name": "petasce__assign__ratio_3",
+      "name": "petasce__assign__ratio_2",
       "type": "assign",
       "target": "ratio",
       "sources": [],
-      "reference": 111,
+      "reference": 79,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -1842,10 +1853,10 @@
       }
     },
     {
-      "name": "petasce__condition__IF_2_0",
+      "name": "petasce__condition__IF_2_1",
       "type": "condition",
       "target": "IF_2",
-      "reference": 110,
+      "reference": 78,
       "sources": [
         {
           "name": "ratio",
@@ -1857,10 +1868,10 @@
       "name": "petasce__decision__ratio_4",
       "type": "decision",
       "target": "ratio",
-      "reference": 110,
+      "reference": 78,
       "sources": [
         {
-          "name": "IF_2_0",
+          "name": "IF_2_1",
           "type": "variable"
         },
         {
@@ -1868,13 +1879,13 @@
           "type": "variable"
         },
         {
-          "name": "ratio_3",
+          "name": "ratio_2",
           "type": "variable"
         }
       ]
     },
     {
-      "name": "petasce__assign__fcd_1",
+      "name": "petasce__assign__fcd_0",
       "type": "assign",
       "target": "fcd",
       "sources": [
@@ -1883,10 +1894,10 @@
           "type": "variable"
         }
       ],
-      "reference": 112
+      "reference": 80
     },
     {
-      "name": "petasce__assign__tk4_1",
+      "name": "petasce__assign__tk4_0",
       "type": "assign",
       "target": "tk4",
       "sources": [
@@ -1899,20 +1910,16 @@
           "type": "variable"
         }
       ],
-      "reference": 113
+      "reference": 81
     },
     {
-      "name": "petasce__assign__rnl_1",
+      "name": "petasce__assign__rnl_0",
       "type": "assign",
       "target": "rnl",
       "sources": [
         {
           "name": "fcd",
           "type": "variable"
-        },
-        {
-          "name": "math.sqrt",
-          "type": "function"
         },
         {
           "name": "ea",
@@ -1923,10 +1930,10 @@
           "type": "variable"
         }
       ],
-      "reference": 114
+      "reference": 82
     },
     {
-      "name": "petasce__assign__rn_1",
+      "name": "petasce__assign__rn_0",
       "type": "assign",
       "target": "rn",
       "sources": [
@@ -1939,14 +1946,14 @@
           "type": "variable"
         }
       ],
-      "reference": 116
+      "reference": 83
     },
     {
-      "name": "petasce__assign__g_1",
+      "name": "petasce__assign__g_0",
       "type": "assign",
       "target": "g",
       "sources": [],
-      "reference": 118,
+      "reference": 84,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -1954,7 +1961,7 @@
       }
     },
     {
-      "name": "petasce__assign__windsp_1",
+      "name": "petasce__assign__windsp_0",
       "type": "assign",
       "target": "windsp",
       "sources": [
@@ -1963,10 +1970,10 @@
           "type": "variable"
         }
       ],
-      "reference": 120
+      "reference": 85
     },
     {
-      "name": "petasce__assign__wind2m_1",
+      "name": "petasce__assign__wind2m_0",
       "type": "assign",
       "target": "wind2m",
       "sources": [
@@ -1975,21 +1982,41 @@
           "type": "variable"
         },
         {
-          "name": "math.log",
-          "type": "function"
-        },
-        {
           "name": "windht",
           "type": "variable"
         }
       ],
-      "reference": 121
+      "reference": 86
     },
     {
-      "name": "petasce__condition__IF_1_2",
+      "name": "petasce__assign__cn_0",
+      "type": "assign",
+      "target": "cn",
+      "sources": [],
+      "reference": 87,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
+      "name": "petasce__assign__cd_0",
+      "type": "assign",
+      "target": "cd",
+      "sources": [],
+      "reference": 88,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
+      "name": "petasce__condition__IF_3_0",
       "type": "condition",
-      "target": "IF_1",
-      "reference": 122,
+      "target": "IF_3",
+      "reference": 89,
       "sources": [
         {
           "name": "meevp",
@@ -2002,7 +2029,7 @@
       "type": "assign",
       "target": "cn",
       "sources": [],
-      "reference": 123,
+      "reference": 90,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -2014,7 +2041,7 @@
       "type": "assign",
       "target": "cd",
       "sources": [],
-      "reference": 124,
+      "reference": 91,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -2022,13 +2049,33 @@
       }
     },
     {
-      "name": "petasce__decision__cd_2",
+      "name": "petasce__decision__cn_3",
       "type": "decision",
-      "target": "cd",
-      "reference": 122,
+      "target": "cn",
+      "reference": 89,
       "sources": [
         {
-          "name": "IF_1_0",
+          "name": "IF_3_0",
+          "type": "variable"
+        },
+        {
+          "name": "cn_0",
+          "type": "variable"
+        },
+        {
+          "name": "cn_1",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__decision__cd_3",
+      "type": "decision",
+      "target": "cd",
+      "reference": 89,
+      "sources": [
+        {
+          "name": "IF_3_0",
           "type": "variable"
         },
         {
@@ -2046,7 +2093,7 @@
       "type": "assign",
       "target": "cn",
       "sources": [],
-      "reference": 127,
+      "reference": 94,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -2058,7 +2105,7 @@
       "type": "assign",
       "target": "cd",
       "sources": [],
-      "reference": 128,
+      "reference": 95,
       "body": {
         "type": "literal",
         "dtype": "real",
@@ -2066,10 +2113,10 @@
       }
     },
     {
-      "name": "petasce__condition__IF_2_1",
+      "name": "petasce__condition__IF_3_1",
       "type": "condition",
-      "target": "IF_2",
-      "reference": 126,
+      "target": "IF_3",
+      "reference": 93,
       "sources": [
         {
           "name": "meevp",
@@ -2078,470 +2125,50 @@
       ]
     },
     {
-      "name": "petasce__decision__cd_3",
+      "name": "petasce__decision__cn_4",
+      "type": "decision",
+      "target": "cn",
+      "reference": 93,
+      "sources": [
+        {
+          "name": "IF_3_1",
+          "type": "variable"
+        },
+        {
+          "name": "cn_3",
+          "type": "variable"
+        },
+        {
+          "name": "cn_2",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__decision__cd_4",
       "type": "decision",
       "target": "cd",
-      "reference": 126,
+      "reference": 93,
       "sources": [
         {
-          "name": "IF_2_0",
+          "name": "IF_3_1",
+          "type": "variable"
+        },
+        {
+          "name": "cd_3",
           "type": "variable"
         },
         {
           "name": "cd_2",
           "type": "variable"
-        },
-        {
-          "name": "cd_2",
-          "type": "variable"
         }
       ]
     },
     {
-      "name": "petasce__decision__cn_2",
-      "type": "decision",
-      "target": "cn",
-      "reference": 126,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_2",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__decision__cn_3",
-      "type": "decision",
-      "target": "cn",
-      "reference": 122,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_0",
-          "type": "variable"
-        },
-        {
-          "name": "cn_2",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__skc_1",
+      "name": "petasce__assign__refet_0",
       "type": "assign",
-      "target": "skc",
-      "sources": [],
-      "reference": 130,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "petasce__assign__kcbmin_1",
-      "type": "assign",
-      "target": "kcbmin",
-      "sources": [],
-      "reference": 131,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "petasce__assign__kcbmax_1",
-      "type": "assign",
-      "target": "kcbmax",
-      "sources": [],
-      "reference": 132,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "petasce__condition__IF_1_3",
-      "type": "condition",
-      "target": "IF_1",
-      "reference": 133,
+      "target": "refet",
       "sources": [
-        {
-          "name": "xhlai",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__kcb_1",
-      "type": "assign",
-      "target": "kcb",
-      "sources": [],
-      "reference": 134,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "0.0"
-      }
-    },
-    {
-      "name": "petasce__assign__kcb_2",
-      "type": "assign",
-      "target": "kcb",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        },
-        {
-          "name": "kcbmin",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmax",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmin",
-          "type": "variable"
-        }
-      ],
-      "reference": 137
-    },
-    {
-      "name": "petasce__decision__i_g_n_o_r_e__m_e___197_2",
-      "type": "decision",
-      "target": "i_g_n_o_r_e__m_e___197",
-      "reference": 133,
-      "sources": [
-        {
-          "name": "IF_1_0",
-          "type": "variable"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___197_1",
-          "type": "variable"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___197_0",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__decision__kcb_3",
-      "type": "decision",
-      "target": "kcb",
-      "reference": 133,
-      "sources": [
-        {
-          "name": "IF_1_0",
-          "type": "variable"
-        },
-        {
-          "name": "kcb_2",
-          "type": "variable"
-        },
-        {
-          "name": "kcb_1",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__wnd_1",
-      "type": "assign",
-      "target": "wnd",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        }
-      ],
-      "reference": 139
-    },
-    {
-      "name": "petasce__assign__cht_1",
-      "type": "assign",
-      "target": "cht",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        },
-        {
-          "name": "canht",
-          "type": "variable"
-        }
-      ],
-      "reference": 140
-    },
-    {
-      "name": "petasce__condition__IF_1_4",
-      "type": "condition",
-      "target": "IF_1",
-      "reference": 141,
-      "sources": [
-        {
-          "name": "meevp",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__kcmax_1",
-      "type": "assign",
-      "target": "kcmax",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        },
-        {
-          "name": "kcb",
-          "type": "variable"
-        }
-      ],
-      "reference": 142
-    },
-    {
-      "name": "petasce__decision__kcmax_2",
-      "type": "decision",
-      "target": "kcmax",
-      "reference": 141,
-      "sources": [
-        {
-          "name": "IF_1_0",
-          "type": "variable"
-        },
-        {
-          "name": "kcmax_0",
-          "type": "variable"
-        },
-        {
-          "name": "kcmax_1",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__kcmax_2",
-      "type": "assign",
-      "target": "kcmax",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        },
-        {
-          "name": "wnd",
-          "type": "variable"
-        },
-        {
-          "name": "rhmin",
-          "type": "variable"
-        },
-        {
-          "name": "cht",
-          "type": "variable"
-        },
-        {
-          "name": "kcb",
-          "type": "variable"
-        }
-      ],
-      "reference": 145
-    },
-    {
-      "name": "petasce__condition__IF_2_2",
-      "type": "condition",
-      "target": "IF_2",
-      "reference": 144,
-      "sources": [
-        {
-          "name": "meevp",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__decision__kcmax_3",
-      "type": "decision",
-      "target": "kcmax",
-      "reference": 144,
-      "sources": [
-        {
-          "name": "IF_2_0",
-          "type": "variable"
-        },
-        {
-          "name": "kcmax_2",
-          "type": "variable"
-        },
-        {
-          "name": "kcmax_2",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__condition__IF_1_5",
-      "type": "condition",
-      "target": "IF_1",
-      "reference": 147,
-      "sources": [
-        {
-          "name": "kcb",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmin",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__fc_1",
-      "type": "assign",
-      "target": "fc",
-      "sources": [],
-      "reference": 148,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "0.0"
-      }
-    },
-    {
-      "name": "petasce__assign__fc_2",
-      "type": "assign",
-      "target": "fc",
-      "sources": [
-        {
-          "name": "kcb",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmin",
-          "type": "variable"
-        },
-        {
-          "name": "kcmax",
-          "type": "variable"
-        },
-        {
-          "name": "kcbmin",
-          "type": "variable"
-        },
-        {
-          "name": "canht",
-          "type": "variable"
-        }
-      ],
-      "reference": 150
-    },
-    {
-      "name": "petasce__decision__fc_3",
-      "type": "decision",
-      "target": "fc",
-      "reference": 147,
-      "sources": [
-        {
-          "name": "IF_1_0",
-          "type": "variable"
-        },
-        {
-          "name": "fc_2",
-          "type": "variable"
-        },
-        {
-          "name": "fc_1",
-          "type": "variable"
-        }
-      ]
-    },
-    {
-      "name": "petasce__assign__fw_1",
-      "type": "assign",
-      "target": "fw",
-      "sources": [],
-      "reference": 152,
-      "body": {
-        "type": "literal",
-        "dtype": "real",
-        "value": "1.0"
-      }
-    },
-    {
-      "name": "petasce__assign__few_1",
-      "type": "assign",
-      "target": "few",
-      "sources": [
-        {
-          "name": "min",
-          "type": "function"
-        },
-        {
-          "name": "fc",
-          "type": "variable"
-        },
-        {
-          "name": "fw",
-          "type": "variable"
-        }
-      ],
-      "reference": 153
-    },
-    {
-      "name": "petasce__assign__ke_1",
-      "type": "assign",
-      "target": "ke",
-      "sources": [
-        {
-          "name": "max",
-          "type": "function"
-        }
-      ],
-      "reference": 155
-    },
-    {
-      "name": "petasce__assign__kc_1",
-      "type": "assign",
-      "target": "kc",
-      "sources": [
-        {
-          "name": "kcb",
-          "type": "variable"
-        },
-        {
-          "name": "ke",
-          "type": "variable"
-        }
-      ],
-      "reference": 157
-    },
-    {
-      "name": "petasce__assign__eo_0",
-      "type": "assign",
-      "target": "eo",
-      "sources": [
-        {
-          "name": "ev_transp",
-          "type": "function"
-        },
         {
           "name": "udelta",
           "type": "variable"
@@ -2577,17 +2204,441 @@
         {
           "name": "ea",
           "type": "variable"
+        }
+      ],
+      "reference": 96
+    },
+    {
+      "name": "petasce__assign__refet_1",
+      "type": "assign",
+      "target": "refet",
+      "sources": [
+        {
+          "name": "refet",
+          "type": "variable"
+        },
+        {
+          "name": "udelta",
+          "type": "variable"
+        },
+        {
+          "name": "psycon",
+          "type": "variable"
         },
         {
           "name": "cd",
           "type": "variable"
         },
         {
-          "name": "kc",
+          "name": "wind2m",
           "type": "variable"
         }
       ],
-      "reference": 159
+      "reference": 97
+    },
+    {
+      "name": "petasce__assign__refet_2",
+      "type": "assign",
+      "target": "refet",
+      "sources": [
+        {
+          "name": "refet",
+          "type": "variable"
+        }
+      ],
+      "reference": 98
+    },
+    {
+      "name": "petasce__assign__skc_0",
+      "type": "assign",
+      "target": "skc",
+      "sources": [],
+      "reference": 99,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.8"
+      }
+    },
+    {
+      "name": "petasce__assign__kcbmin_0",
+      "type": "assign",
+      "target": "kcbmin",
+      "sources": [],
+      "reference": 100,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.3"
+      }
+    },
+    {
+      "name": "petasce__assign__kcbmax_0",
+      "type": "assign",
+      "target": "kcbmax",
+      "sources": [],
+      "reference": 101,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "1.2"
+      }
+    },
+    {
+      "name": "petasce__condition__IF_4_0",
+      "type": "condition",
+      "target": "IF_4",
+      "reference": 102,
+      "sources": [
+        {
+          "name": "xhlai",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__kcb_0",
+      "type": "assign",
+      "target": "kcb",
+      "sources": [],
+      "reference": 103,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
+      "name": "petasce__assign__kcb_1",
+      "type": "assign",
+      "target": "kcb",
+      "sources": [
+        {
+          "name": "kcbmin",
+          "type": "variable"
+        },
+        {
+          "name": "kcbmax",
+          "type": "variable"
+        },
+        {
+          "name": "skc",
+          "type": "variable"
+        },
+        {
+          "name": "xhlai",
+          "type": "variable"
+        }
+      ],
+      "reference": 105
+    },
+    {
+      "name": "petasce__decision__kcb_2",
+      "type": "decision",
+      "target": "kcb",
+      "reference": 102,
+      "sources": [
+        {
+          "name": "IF_4_0",
+          "type": "variable"
+        },
+        {
+          "name": "kcb_1",
+          "type": "variable"
+        },
+        {
+          "name": "kcb_0",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__wnd_0",
+      "type": "assign",
+      "target": "wnd",
+      "sources": [
+        {
+          "name": "wind2m",
+          "type": "variable"
+        }
+      ],
+      "reference": 106
+    },
+    {
+      "name": "petasce__assign__cht_0",
+      "type": "assign",
+      "target": "cht",
+      "sources": [
+        {
+          "name": "canht",
+          "type": "variable"
+        }
+      ],
+      "reference": 107
+    },
+    {
+      "name": "petasce__assign__kcmax_0",
+      "type": "assign",
+      "target": "kcmax",
+      "sources": [],
+      "reference": 108,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
+      "name": "petasce__condition__IF_5_0",
+      "type": "condition",
+      "target": "IF_5",
+      "reference": 109,
+      "sources": [
+        {
+          "name": "meevp",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__kcmax_1",
+      "type": "assign",
+      "target": "kcmax",
+      "sources": [
+        {
+          "name": "kcb",
+          "type": "variable"
+        }
+      ],
+      "reference": 110
+    },
+    {
+      "name": "petasce__decision__kcmax_3",
+      "type": "decision",
+      "target": "kcmax",
+      "reference": 109,
+      "sources": [
+        {
+          "name": "IF_5_0",
+          "type": "variable"
+        },
+        {
+          "name": "kcmax_0",
+          "type": "variable"
+        },
+        {
+          "name": "kcmax_1",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__kcmax_2",
+      "type": "assign",
+      "target": "kcmax",
+      "sources": [
+        {
+          "name": "wnd",
+          "type": "variable"
+        },
+        {
+          "name": "rhmin",
+          "type": "variable"
+        },
+        {
+          "name": "cht",
+          "type": "variable"
+        },
+        {
+          "name": "kcb",
+          "type": "variable"
+        }
+      ],
+      "reference": 113
+    },
+    {
+      "name": "petasce__condition__IF_5_1",
+      "type": "condition",
+      "target": "IF_5",
+      "reference": 112,
+      "sources": [
+        {
+          "name": "meevp",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__decision__kcmax_4",
+      "type": "decision",
+      "target": "kcmax",
+      "reference": 112,
+      "sources": [
+        {
+          "name": "IF_5_1",
+          "type": "variable"
+        },
+        {
+          "name": "kcmax_3",
+          "type": "variable"
+        },
+        {
+          "name": "kcmax_2",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__condition__IF_6_0",
+      "type": "condition",
+      "target": "IF_6",
+      "reference": 114,
+      "sources": [
+        {
+          "name": "kcb",
+          "type": "variable"
+        },
+        {
+          "name": "kcbmin",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__fc_0",
+      "type": "assign",
+      "target": "fc",
+      "sources": [],
+      "reference": 115,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "0.0"
+      }
+    },
+    {
+      "name": "petasce__assign__fc_1",
+      "type": "assign",
+      "target": "fc",
+      "sources": [
+        {
+          "name": "kcb",
+          "type": "variable"
+        },
+        {
+          "name": "kcbmin",
+          "type": "variable"
+        },
+        {
+          "name": "kcmax",
+          "type": "variable"
+        },
+        {
+          "name": "canht",
+          "type": "variable"
+        }
+      ],
+      "reference": 117
+    },
+    {
+      "name": "petasce__decision__fc_2",
+      "type": "decision",
+      "target": "fc",
+      "reference": 114,
+      "sources": [
+        {
+          "name": "IF_6_0",
+          "type": "variable"
+        },
+        {
+          "name": "fc_1",
+          "type": "variable"
+        },
+        {
+          "name": "fc_0",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petasce__assign__fw_0",
+      "type": "assign",
+      "target": "fw",
+      "sources": [],
+      "reference": 118,
+      "body": {
+        "type": "literal",
+        "dtype": "real",
+        "value": "1.0"
+      }
+    },
+    {
+      "name": "petasce__assign__few_0",
+      "type": "assign",
+      "target": "few",
+      "sources": [
+        {
+          "name": "fc",
+          "type": "variable"
+        },
+        {
+          "name": "fw",
+          "type": "variable"
+        }
+      ],
+      "reference": 119
+    },
+    {
+      "name": "petasce__assign__ke_0",
+      "type": "assign",
+      "target": "ke",
+      "sources": [
+        {
+          "name": "kcmax",
+          "type": "variable"
+        },
+        {
+          "name": "kcb",
+          "type": "variable"
+        },
+        {
+          "name": "few",
+          "type": "variable"
+        }
+      ],
+      "reference": 120
+    },
+    {
+      "name": "petasce__assign__eo_0",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "kcb",
+          "type": "variable"
+        },
+        {
+          "name": "ke",
+          "type": "variable"
+        },
+        {
+          "name": "refet",
+          "type": "variable"
+        }
+      ],
+      "reference": 121
+    },
+    {
+      "name": "petasce__assign__eo_1",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eo",
+          "type": "variable"
+        }
+      ],
+      "reference": 122
     },
     {
       "name": "petasce",
@@ -2650,456 +2701,136 @@
           "domain": "real"
         }
       ],
-      "variables": [
-        {
-          "name": "canht",
-          "domain": "real"
-        },
-        {
-          "name": "doy",
-          "domain": "integer"
-        },
-        {
-          "name": "msalb",
-          "domain": "real"
-        },
-        {
-          "name": "meevp",
-          "domain": "string"
-        },
-        {
-          "name": "srad",
-          "domain": "real"
-        },
-        {
-          "name": "tdew",
-          "domain": "real"
-        },
-        {
-          "name": "tmax",
-          "domain": "real"
-        },
-        {
-          "name": "tmin",
-          "domain": "real"
-        },
-        {
-          "name": "windht",
-          "domain": "real"
-        },
-        {
-          "name": "windrun",
-          "domain": "real"
-        },
-        {
-          "name": "xhlai",
-          "domain": "real"
-        },
-        {
-          "name": "xlat",
-          "domain": "real"
-        },
-        {
-          "name": "xelev",
-          "domain": "real"
-        },
-        {
-          "name": "eo",
-          "domain": "real"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___94",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___98",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___101",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___104",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___108",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___113",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___116",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___119",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___127",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___136",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___139",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___150",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___153",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___156",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___166",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___197",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___201",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___220",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___227",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___235",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___239",
-          "domain": "bool"
-        },
-        {
-          "name": "i_g_n_o_r_e__m_e___242",
-          "domain": "bool"
-        },
-        {
-          "name": "tavg",
-          "domain": "real"
-        },
-        {
-          "name": "patm",
-          "domain": "real"
-        },
-        {
-          "name": "psycon",
-          "domain": "real"
-        },
-        {
-          "name": "udelta",
-          "domain": "real"
-        },
-        {
-          "name": "emax",
-          "domain": "real"
-        },
-        {
-          "name": "emin",
-          "domain": "real"
-        },
-        {
-          "name": "es",
-          "domain": "real"
-        },
-        {
-          "name": "ea",
-          "domain": "real"
-        },
-        {
-          "name": "fc",
-          "domain": "real"
-        },
-        {
-          "name": "few",
-          "domain": "real"
-        },
-        {
-          "name": "fw",
-          "domain": "real"
-        },
-        {
-          "name": "albedo",
-          "domain": "real"
-        },
-        {
-          "name": "rns",
-          "domain": "real"
-        },
-        {
-          "name": "pie",
-          "domain": "real"
-        },
-        {
-          "name": "dr",
-          "domain": "real"
-        },
-        {
-          "name": "ldelta",
-          "domain": "real"
-        },
-        {
-          "name": "ws",
-          "domain": "real"
-        },
-        {
-          "name": "ra1",
-          "domain": "real"
-        },
-        {
-          "name": "ra2",
-          "domain": "real"
-        },
-        {
-          "name": "ra",
-          "domain": "real"
-        },
-        {
-          "name": "rso",
-          "domain": "real"
-        },
-        {
-          "name": "ratio",
-          "domain": "real"
-        },
-        {
-          "name": "fcd",
-          "domain": "real"
-        },
-        {
-          "name": "tk4",
-          "domain": "real"
-        },
-        {
-          "name": "rnl",
-          "domain": "real"
-        },
-        {
-          "name": "rn",
-          "domain": "real"
-        },
-        {
-          "name": "g",
-          "domain": "real"
-        },
-        {
-          "name": "windsp",
-          "domain": "real"
-        },
-        {
-          "name": "wind2m",
-          "domain": "real"
-        },
-        {
-          "name": "cn",
-          "domain": "real"
-        },
-        {
-          "name": "cd",
-          "domain": "real"
-        },
-        {
-          "name": "kcmax",
-          "domain": "real"
-        },
-        {
-          "name": "rhmin",
-          "domain": "real"
-        },
-        {
-          "name": "wnd",
-          "domain": "real"
-        },
-        {
-          "name": "cht",
-          "domain": "real"
-        },
-        {
-          "name": "skc",
-          "domain": "real"
-        },
-        {
-          "name": "kcbmin",
-          "domain": "real"
-        },
-        {
-          "name": "kcbmax",
-          "domain": "real"
-        },
-        {
-          "name": "kcb",
-          "domain": "real"
-        },
-        {
-          "name": "ke",
-          "domain": "real"
-        },
-        {
-          "name": "kc",
-          "domain": "real"
-        }
-      ],
+      "variables": [],
       "body": [
         {
-          "name": "petasce__assign__tavg_1",
+          "name": "petasce__assign__tavg_0",
           "output": {
             "variable": "tavg",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tmax",
-              "index": 0
+              "index": -1
             },
             {
               "variable": "tmin",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__patm_1",
+          "name": "petasce__assign__patm_0",
           "output": {
             "variable": "patm",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "xelev",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__psycon_1",
+          "name": "petasce__assign__psycon_0",
           "output": {
             "variable": "psycon",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "patm",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__udelta_1",
+          "name": "petasce__assign__udelta_0",
           "output": {
             "variable": "udelta",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tavg",
-              "index": 1
-            },
-            {
-              "variable": "tavg",
-              "index": 1
-            },
-            {
-              "variable": "tavg",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__emax_1",
+          "name": "petasce__assign__emax_0",
           "output": {
             "variable": "emax",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tmax",
-              "index": 0
-            },
-            {
-              "variable": "tmax",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__emin_1",
+          "name": "petasce__assign__emin_0",
           "output": {
             "variable": "emin",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tmin",
-              "index": 0
-            },
-            {
-              "variable": "tmin",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__es_1",
+          "name": "petasce__assign__es_0",
           "output": {
             "variable": "es",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "emax",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "emin",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__ea_1",
+          "name": "petasce__assign__ea_0",
           "output": {
             "variable": "ea",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tdew",
-              "index": 0
-            },
-            {
-              "variable": "tdew",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__rhmin_1",
+          "name": "petasce__assign__rhmin_0",
           "output": {
             "variable": "rhmin",
-            "index": 1
+            "index": 0
           },
-          "input": []
+          "input": [
+            {
+              "variable": "ea",
+              "index": 0
+            },
+            {
+              "variable": "emax",
+              "index": 0
+            }
+          ]
         },
         {
           "name": "petasce__condition__IF_1_0",
@@ -3110,7 +2841,20 @@
           "input": [
             {
               "variable": "xhlai",
-              "index": 0
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__albedo_0",
+          "output": {
+            "variable": "albedo",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "msalb",
+              "index": -1
             }
           ]
         },
@@ -3120,26 +2864,13 @@
             "variable": "albedo",
             "index": 1
           },
-          "input": [
-            {
-              "variable": "msalb",
-              "index": 0
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__albedo_2",
-          "output": {
-            "variable": "albedo",
-            "index": 2
-          },
           "input": []
         },
         {
-          "name": "petasce__decision__albedo_3",
+          "name": "petasce__decision__albedo_2",
           "output": {
             "variable": "albedo",
-            "index": 3
+            "index": 2
           },
           "input": [
             {
@@ -3148,170 +2879,213 @@
             },
             {
               "variable": "albedo",
+              "index": 1
+            },
+            {
+              "variable": "albedo",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__rns_0",
+          "output": {
+            "variable": "rns",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "albedo",
               "index": 2
             },
             {
-              "variable": "albedo",
-              "index": 1
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__rns_1",
-          "output": {
-            "variable": "rns",
-            "index": 1
-          },
-          "input": [
-            {
-              "variable": "albedo",
-              "index": 0
-            },
-            {
               "variable": "srad",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__pie_1",
+          "name": "petasce__assign__pie_0",
           "output": {
             "variable": "pie",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__assign__dr_1",
+          "name": "petasce__assign__dr_0",
           "output": {
             "variable": "dr",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "pie",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "doy",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__ldelta_1",
+          "name": "petasce__assign__ldelta_0",
           "output": {
             "variable": "ldelta",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "pie",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "doy",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__ws_1",
+          "name": "petasce__assign__ws_0",
           "output": {
             "variable": "ws",
-            "index": 1
+            "index": 0
           },
-          "input": []
+          "input": [
+            {
+              "variable": "xlat",
+              "index": -1
+            },
+            {
+              "variable": "pie",
+              "index": 0
+            },
+            {
+              "variable": "ldelta",
+              "index": 0
+            }
+          ]
         },
         {
-          "name": "petasce__assign__ra1_1",
+          "name": "petasce__assign__ra1_0",
           "output": {
             "variable": "ra1",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "ws",
-              "index": 1
-            },
-            {
-              "variable": "xlat",
               "index": 0
             },
             {
+              "variable": "xlat",
+              "index": -1
+            },
+            {
               "variable": "pie",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ldelta",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__ra2_1",
+          "name": "petasce__assign__ra2_0",
           "output": {
             "variable": "ra2",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "xlat",
-              "index": 0
+              "index": -1
             },
             {
               "variable": "pie",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ldelta",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ws",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__ra_1",
+          "name": "petasce__assign__ra_0",
           "output": {
             "variable": "ra",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "pie",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "dr",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ra1",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ra2",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__rso_1",
+          "name": "petasce__assign__rso_0",
           "output": {
             "variable": "rso",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "xelev",
-              "index": 0
+              "index": -1
             },
             {
               "variable": "ra",
-              "index": 1
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__ratio_0",
+          "output": {
+            "variable": "ratio",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "srad",
+              "index": -1
+            },
+            {
+              "variable": "rso",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__condition__IF_2_0",
+          "output": {
+            "variable": "IF_2",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "ratio",
+              "index": 0
             }
           ]
         },
@@ -3321,24 +3095,23 @@
             "variable": "ratio",
             "index": 1
           },
+          "input": []
+        },
+        {
+          "name": "petasce__decision__ratio_3",
+          "output": {
+            "variable": "ratio",
+            "index": 3
+          },
           "input": [
             {
-              "variable": "srad",
+              "variable": "IF_2",
               "index": 0
             },
             {
-              "variable": "rso",
-              "index": 1
-            }
-          ]
-        },
-        {
-          "name": "petasce__condition__IF_1_1",
-          "output": {
-            "variable": "IF_1",
-            "index": 0
-          },
-          "input": [
+              "variable": "ratio",
+              "index": 0
+            },
             {
               "variable": "ratio",
               "index": 1
@@ -3354,44 +3127,15 @@
           "input": []
         },
         {
-          "name": "petasce__decision__ratio_3",
-          "output": {
-            "variable": "ratio",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "IF_1",
-              "index": 0
-            },
-            {
-              "variable": "ratio",
-              "index": 1
-            },
-            {
-              "variable": "ratio",
-              "index": 2
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__ratio_3",
-          "output": {
-            "variable": "ratio",
-            "index": 3
-          },
-          "input": []
-        },
-        {
-          "name": "petasce__condition__IF_2_0",
+          "name": "petasce__condition__IF_2_1",
           "output": {
             "variable": "IF_2",
-            "index": 0
+            "index": 1
           },
           "input": [
             {
               "variable": "ratio",
-              "index": 1
+              "index": 0
             }
           ]
         },
@@ -3404,7 +3148,7 @@
           "input": [
             {
               "variable": "IF_2",
-              "index": 0
+              "index": 1
             },
             {
               "variable": "ratio",
@@ -3412,126 +3156,142 @@
             },
             {
               "variable": "ratio",
-              "index": 3
+              "index": 2
             }
           ]
         },
         {
-          "name": "petasce__assign__fcd_1",
+          "name": "petasce__assign__fcd_0",
           "output": {
             "variable": "fcd",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "ratio",
-              "index": 1
+              "index": 4
             }
           ]
         },
         {
-          "name": "petasce__assign__tk4_1",
+          "name": "petasce__assign__tk4_0",
           "output": {
             "variable": "tk4",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "tmax",
-              "index": 0
+              "index": -1
             },
             {
               "variable": "tmin",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__rnl_1",
+          "name": "petasce__assign__rnl_0",
           "output": {
             "variable": "rnl",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "fcd",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "ea",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "tk4",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__rn_1",
+          "name": "petasce__assign__rn_0",
           "output": {
             "variable": "rn",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "rns",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "rnl",
-              "index": 1
+              "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__g_1",
+          "name": "petasce__assign__g_0",
           "output": {
             "variable": "g",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__assign__windsp_1",
+          "name": "petasce__assign__windsp_0",
           "output": {
             "variable": "windsp",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "windrun",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__assign__wind2m_1",
+          "name": "petasce__assign__wind2m_0",
           "output": {
             "variable": "wind2m",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
               "variable": "windsp",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "windht",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__condition__IF_1_2",
+          "name": "petasce__assign__cn_0",
           "output": {
-            "variable": "IF_1",
+            "variable": "cn",
+            "index": 0
+          },
+          "input": []
+        },
+        {
+          "name": "petasce__assign__cd_0",
+          "output": {
+            "variable": "cd",
+            "index": 0
+          },
+          "input": []
+        },
+        {
+          "name": "petasce__condition__IF_3_0",
+          "output": {
+            "variable": "IF_3",
             "index": 0
           },
           "input": [
             {
               "variable": "meevp",
-              "index": 0
+              "index": -1
             }
           ]
         },
@@ -3552,14 +3312,35 @@
           "input": []
         },
         {
-          "name": "petasce__decision__cd_2",
+          "name": "petasce__decision__cn_3",
           "output": {
-            "variable": "cd",
-            "index": 2
+            "variable": "cn",
+            "index": 3
           },
           "input": [
             {
-              "variable": "IF_1",
+              "variable": "IF_3",
+              "index": 0
+            },
+            {
+              "variable": "cn",
+              "index": 0
+            },
+            {
+              "variable": "cn",
+              "index": 1
+            }
+          ]
+        },
+        {
+          "name": "petasce__decision__cd_3",
+          "output": {
+            "variable": "cd",
+            "index": 3
+          },
+          "input": [
+            {
+              "variable": "IF_3",
               "index": 0
             },
             {
@@ -3589,32 +3370,53 @@
           "input": []
         },
         {
-          "name": "petasce__condition__IF_2_1",
+          "name": "petasce__condition__IF_3_1",
           "output": {
-            "variable": "IF_2",
-            "index": 0
+            "variable": "IF_3",
+            "index": 1
           },
           "input": [
             {
               "variable": "meevp",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__decision__cd_3",
+          "name": "petasce__decision__cn_4",
           "output": {
-            "variable": "cd",
-            "index": 3
+            "variable": "cn",
+            "index": 4
           },
           "input": [
             {
-              "variable": "IF_2",
-              "index": 0
+              "variable": "IF_3",
+              "index": 1
+            },
+            {
+              "variable": "cn",
+              "index": 3
+            },
+            {
+              "variable": "cn",
+              "index": 2
+            }
+          ]
+        },
+        {
+          "name": "petasce__decision__cd_4",
+          "output": {
+            "variable": "cd",
+            "index": 4
+          },
+          "input": [
+            {
+              "variable": "IF_3",
+              "index": 1
             },
             {
               "variable": "cd",
-              "index": 2
+              "index": 3
             },
             {
               "variable": "cd",
@@ -3623,83 +3425,136 @@
           ]
         },
         {
-          "name": "petasce__decision__cn_2",
+          "name": "petasce__assign__refet_0",
           "output": {
-            "variable": "cn",
+            "variable": "refet",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "udelta",
+              "index": 0
+            },
+            {
+              "variable": "rn",
+              "index": 0
+            },
+            {
+              "variable": "g",
+              "index": 0
+            },
+            {
+              "variable": "psycon",
+              "index": 0
+            },
+            {
+              "variable": "cn",
+              "index": 4
+            },
+            {
+              "variable": "tavg",
+              "index": 0
+            },
+            {
+              "variable": "wind2m",
+              "index": 0
+            },
+            {
+              "variable": "es",
+              "index": 0
+            },
+            {
+              "variable": "ea",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__refet_1",
+          "output": {
+            "variable": "refet",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "refet",
+              "index": 0
+            },
+            {
+              "variable": "udelta",
+              "index": 0
+            },
+            {
+              "variable": "psycon",
+              "index": 0
+            },
+            {
+              "variable": "cd",
+              "index": 4
+            },
+            {
+              "variable": "wind2m",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__refet_2",
+          "output": {
+            "variable": "refet",
             "index": 2
           },
           "input": [
             {
-              "variable": "IF_2",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 2
+              "variable": "refet",
+              "index": 1
             }
           ]
         },
         {
-          "name": "petasce__decision__cn_3",
-          "output": {
-            "variable": "cn",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "IF_2",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 2
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__skc_1",
+          "name": "petasce__assign__skc_0",
           "output": {
             "variable": "skc",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__assign__kcbmin_1",
+          "name": "petasce__assign__kcbmin_0",
           "output": {
             "variable": "kcbmin",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__assign__kcbmax_1",
+          "name": "petasce__assign__kcbmax_0",
           "output": {
             "variable": "kcbmax",
-            "index": 1
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__condition__IF_1_3",
+          "name": "petasce__condition__IF_4_0",
           "output": {
-            "variable": "IF_1",
+            "variable": "IF_4",
             "index": 0
           },
           "input": [
             {
               "variable": "xhlai",
-              "index": 0
+              "index": -1
             }
           ]
+        },
+        {
+          "name": "petasce__assign__kcb_0",
+          "output": {
+            "variable": "kcb",
+            "index": 0
+          },
+          "input": []
         },
         {
           "name": "petasce__assign__kcb_1",
@@ -3707,84 +3562,90 @@
             "variable": "kcb",
             "index": 1
           },
-          "input": []
+          "input": [
+            {
+              "variable": "kcbmin",
+              "index": 0
+            },
+            {
+              "variable": "kcbmax",
+              "index": 0
+            },
+            {
+              "variable": "skc",
+              "index": 0
+            },
+            {
+              "variable": "xhlai",
+              "index": -1
+            }
+          ]
         },
         {
-          "name": "petasce__assign__kcb_2",
+          "name": "petasce__decision__kcb_2",
           "output": {
             "variable": "kcb",
             "index": 2
           },
-          "input": []
-        },
-        {
-          "name": "petasce__decision__i_g_n_o_r_e__m_e___197_2",
-          "output": {
-            "variable": "i_g_n_o_r_e__m_e___197",
-            "index": 2
-          },
           "input": [
             {
-              "variable": "IF_1",
+              "variable": "IF_4",
               "index": 0
             },
             {
-              "variable": "i_g_n_o_r_e__m_e___197",
+              "variable": "kcb",
               "index": 1
             },
             {
-              "variable": "i_g_n_o_r_e__m_e___197",
+              "variable": "kcb",
               "index": 0
             }
           ]
         },
         {
-          "name": "petasce__decision__kcb_3",
-          "output": {
-            "variable": "kcb",
-            "index": 3
-          },
-          "input": [
-            {
-              "variable": "IF_1",
-              "index": 0
-            },
-            {
-              "variable": "kcb",
-              "index": 2
-            },
-            {
-              "variable": "kcb",
-              "index": 1
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__wnd_1",
+          "name": "petasce__assign__wnd_0",
           "output": {
             "variable": "wnd",
-            "index": 1
+            "index": 0
           },
-          "input": []
+          "input": [
+            {
+              "variable": "wind2m",
+              "index": 0
+            }
+          ]
         },
         {
-          "name": "petasce__assign__cht_1",
+          "name": "petasce__assign__cht_0",
           "output": {
             "variable": "cht",
-            "index": 1
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "canht",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petasce__assign__kcmax_0",
+          "output": {
+            "variable": "kcmax",
+            "index": 0
           },
           "input": []
         },
         {
-          "name": "petasce__condition__IF_1_4",
+          "name": "petasce__condition__IF_5_0",
           "output": {
-            "variable": "IF_1",
+            "variable": "IF_5",
             "index": 0
           },
           "input": [
             {
               "variable": "meevp",
-              "index": 0
+              "index": -1
             }
           ]
         },
@@ -3794,17 +3655,22 @@
             "variable": "kcmax",
             "index": 1
           },
-          "input": []
+          "input": [
+            {
+              "variable": "kcb",
+              "index": 2
+            }
+          ]
         },
         {
-          "name": "petasce__decision__kcmax_2",
+          "name": "petasce__decision__kcmax_3",
           "output": {
             "variable": "kcmax",
-            "index": 2
+            "index": 3
           },
           "input": [
             {
-              "variable": "IF_1",
+              "variable": "IF_5",
               "index": 0
             },
             {
@@ -3826,45 +3692,49 @@
           "input": [
             {
               "variable": "wnd",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "rhmin",
-              "index": 1
+              "index": 0
             },
             {
               "variable": "cht",
-              "index": 1
+              "index": 0
+            },
+            {
+              "variable": "kcb",
+              "index": 2
             }
           ]
         },
         {
-          "name": "petasce__condition__IF_2_2",
+          "name": "petasce__condition__IF_5_1",
           "output": {
-            "variable": "IF_2",
-            "index": 0
+            "variable": "IF_5",
+            "index": 1
           },
           "input": [
             {
               "variable": "meevp",
-              "index": 0
+              "index": -1
             }
           ]
         },
         {
-          "name": "petasce__decision__kcmax_3",
+          "name": "petasce__decision__kcmax_4",
           "output": {
             "variable": "kcmax",
-            "index": 3
+            "index": 4
           },
           "input": [
             {
-              "variable": "IF_2",
-              "index": 0
+              "variable": "IF_5",
+              "index": 1
             },
             {
               "variable": "kcmax",
-              "index": 2
+              "index": 3
             },
             {
               "variable": "kcmax",
@@ -3873,21 +3743,29 @@
           ]
         },
         {
-          "name": "petasce__condition__IF_1_5",
+          "name": "petasce__condition__IF_6_0",
           "output": {
-            "variable": "IF_1",
+            "variable": "IF_6",
             "index": 0
           },
           "input": [
             {
               "variable": "kcb",
-              "index": 0
+              "index": 2
             },
             {
               "variable": "kcbmin",
-              "index": 1
+              "index": 0
             }
           ]
+        },
+        {
+          "name": "petasce__assign__fc_0",
+          "output": {
+            "variable": "fc",
+            "index": 0
+          },
+          "input": []
         },
         {
           "name": "petasce__assign__fc_1",
@@ -3895,101 +3773,89 @@
             "variable": "fc",
             "index": 1
           },
-          "input": []
+          "input": [
+            {
+              "variable": "kcb",
+              "index": 2
+            },
+            {
+              "variable": "kcbmin",
+              "index": 0
+            },
+            {
+              "variable": "kcmax",
+              "index": 4
+            },
+            {
+              "variable": "canht",
+              "index": -1
+            }
+          ]
         },
         {
-          "name": "petasce__assign__fc_2",
+          "name": "petasce__decision__fc_2",
           "output": {
             "variable": "fc",
             "index": 2
           },
           "input": [
             {
-              "variable": "kcb",
+              "variable": "IF_6",
               "index": 0
             },
             {
-              "variable": "kcbmin",
+              "variable": "fc",
               "index": 1
             },
             {
-              "variable": "kcmax",
-              "index": 0
-            },
-            {
-              "variable": "kcbmin",
-              "index": 1
-            },
-            {
-              "variable": "canht",
+              "variable": "fc",
               "index": 0
             }
           ]
         },
         {
-          "name": "petasce__decision__fc_3",
+          "name": "petasce__assign__fw_0",
           "output": {
-            "variable": "fc",
-            "index": 3
+            "variable": "fw",
+            "index": 0
+          },
+          "input": []
+        },
+        {
+          "name": "petasce__assign__few_0",
+          "output": {
+            "variable": "few",
+            "index": 0
           },
           "input": [
-            {
-              "variable": "IF_1",
-              "index": 0
-            },
             {
               "variable": "fc",
               "index": 2
             },
             {
-              "variable": "fc",
-              "index": 1
-            }
-          ]
-        },
-        {
-          "name": "petasce__assign__fw_1",
-          "output": {
-            "variable": "fw",
-            "index": 1
-          },
-          "input": []
-        },
-        {
-          "name": "petasce__assign__few_1",
-          "output": {
-            "variable": "few",
-            "index": 1
-          },
-          "input": [
-            {
-              "variable": "fc",
+              "variable": "fw",
               "index": 0
             }
           ]
         },
         {
-          "name": "petasce__assign__ke_1",
+          "name": "petasce__assign__ke_0",
           "output": {
             "variable": "ke",
-            "index": 1
-          },
-          "input": []
-        },
-        {
-          "name": "petasce__assign__kc_1",
-          "output": {
-            "variable": "kc",
-            "index": 1
+            "index": 0
           },
           "input": [
             {
-              "variable": "kcb",
-              "index": 0
+              "variable": "kcmax",
+              "index": 4
             },
             {
-              "variable": "ke",
-              "index": 1
+              "variable": "kcb",
+              "index": 2
+            },
+            {
+              "variable": "few",
+              "index": 0
             }
           ]
         },
@@ -4001,801 +3867,43 @@
           },
           "input": [
             {
-              "variable": "udelta",
-              "index": 1
+              "variable": "kcb",
+              "index": 2
+            },
+            {
+              "variable": "ke",
+              "index": 0
+            },
+            {
+              "variable": "refet",
+              "index": 2
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "refet__assign__rval_1",
-      "type": "assign",
-      "target": "rval",
-      "sources": [
-        {
-          "name": "ud",
-          "type": "variable"
         },
         {
-          "name": "rn",
-          "type": "variable"
-        },
-        {
-          "name": "g",
-          "type": "variable"
-        },
-        {
-          "name": "pcon",
-          "type": "variable"
-        },
-        {
-          "name": "cn",
-          "type": "variable"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
-          "name": "w2m",
-          "type": "variable"
-        },
-        {
-          "name": "es",
-          "type": "variable"
-        },
-        {
-          "name": "ea",
-          "type": "variable"
-        }
-      ],
-      "reference": 174
-    },
-    {
-      "name": "refet__assign__rval_2",
-      "type": "assign",
-      "target": "rval",
-      "sources": [
-        {
-          "name": "rval",
-          "type": "variable"
-        },
-        {
-          "name": "ud",
-          "type": "variable"
-        },
-        {
-          "name": "pcon",
-          "type": "variable"
-        },
-        {
-          "name": "cd",
-          "type": "variable"
-        },
-        {
-          "name": "w2m",
-          "type": "variable"
-        }
-      ],
-      "reference": 175
-    },
-    {
-      "name": "refet",
-      "type": "container",
-      "input": [
-        {
-          "name": "ud",
-          "domain": "real"
-        },
-        {
-          "name": "rn",
-          "domain": "real"
-        },
-        {
-          "name": "g",
-          "domain": "real"
-        },
-        {
-          "name": "pcon",
-          "domain": "real"
-        },
-        {
-          "name": "cn",
-          "domain": "real"
-        },
-        {
-          "name": "tavg",
-          "domain": "real"
-        },
-        {
-          "name": "w2m",
-          "domain": "real"
-        },
-        {
-          "name": "es",
-          "domain": "real"
-        },
-        {
-          "name": "ea",
-          "domain": "real"
-        },
-        {
-          "name": "cd",
-          "domain": "real"
-        }
-      ],
-      "variables": [
-        {
-          "name": "ud",
-          "domain": "real"
-        },
-        {
-          "name": "rn",
-          "domain": "real"
-        },
-        {
-          "name": "g",
-          "domain": "real"
-        },
-        {
-          "name": "pcon",
-          "domain": "real"
-        },
-        {
-          "name": "cn",
-          "domain": "real"
-        },
-        {
-          "name": "tavg",
-          "domain": "real"
-        },
-        {
-          "name": "w2m",
-          "domain": "real"
-        },
-        {
-          "name": "es",
-          "domain": "real"
-        },
-        {
-          "name": "ea",
-          "domain": "real"
-        },
-        {
-          "name": "cd",
-          "domain": "real"
-        },
-        {
-          "name": "rval",
-          "domain": "real"
-        }
-      ],
-      "body": [
-        {
-          "name": "refet__assign__rval_1",
+          "name": "petasce__assign__eo_1",
           "output": {
-            "variable": "rval",
+            "variable": "eo",
             "index": 1
           },
           "input": [
             {
-              "variable": "ud",
-              "index": 0
-            },
-            {
-              "variable": "rn",
-              "index": 0
-            },
-            {
-              "variable": "g",
-              "index": 0
-            },
-            {
-              "variable": "pcon",
-              "index": 0
-            },
-            {
-              "variable": "cn",
-              "index": 0
-            },
-            {
-              "variable": "tavg",
-              "index": 0
-            },
-            {
-              "variable": "w2m",
-              "index": 0
-            },
-            {
-              "variable": "es",
-              "index": 0
-            },
-            {
-              "variable": "ea",
-              "index": 0
-            }
-          ]
-        },
-        {
-          "name": "refet__assign__rval_2",
-          "output": {
-            "variable": "rval",
-            "index": 2
-          },
-          "input": [
-            {
-              "variable": "rval",
-              "index": 1
-            },
-            {
-              "variable": "ud",
-              "index": 0
-            },
-            {
-              "variable": "pcon",
-              "index": 0
-            },
-            {
-              "variable": "cd",
-              "index": 0
-            },
-            {
-              "variable": "w2m",
-              "index": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ev_transp__assign__evtransp_1",
-      "type": "assign",
-      "target": "evtransp",
-      "sources": [
-        {
-          "name": "kc",
-          "type": "variable"
-        },
-        {
-          "name": "refet",
-          "type": "function"
-        },
-        {
-          "name": "ud",
-          "type": "variable"
-        },
-        {
-          "name": "rn",
-          "type": "variable"
-        },
-        {
-          "name": "g",
-          "type": "variable"
-        },
-        {
-          "name": "pcon",
-          "type": "variable"
-        },
-        {
-          "name": "cn",
-          "type": "variable"
-        },
-        {
-          "name": "tavg",
-          "type": "variable"
-        },
-        {
-          "name": "w2m",
-          "type": "variable"
-        },
-        {
-          "name": "es",
-          "type": "variable"
-        },
-        {
-          "name": "ea",
-          "type": "variable"
-        },
-        {
-          "name": "cd",
-          "type": "variable"
-        }
-      ],
-      "reference": 191
-    },
-    {
-      "name": "ev_transp",
-      "type": "container",
-      "input": [
-        {
-          "name": "ud",
-          "domain": "real"
-        },
-        {
-          "name": "rn",
-          "domain": "real"
-        },
-        {
-          "name": "g",
-          "domain": "real"
-        },
-        {
-          "name": "pcon",
-          "domain": "real"
-        },
-        {
-          "name": "cn",
-          "domain": "real"
-        },
-        {
-          "name": "tavg",
-          "domain": "real"
-        },
-        {
-          "name": "w2m",
-          "domain": "real"
-        },
-        {
-          "name": "es",
-          "domain": "real"
-        },
-        {
-          "name": "ea",
-          "domain": "real"
-        },
-        {
-          "name": "cd",
-          "domain": "real"
-        },
-        {
-          "name": "kc",
-          "domain": "real"
-        }
-      ],
-      "variables": [
-        {
-          "name": "ud",
-          "domain": "real"
-        },
-        {
-          "name": "rn",
-          "domain": "real"
-        },
-        {
-          "name": "g",
-          "domain": "real"
-        },
-        {
-          "name": "pcon",
-          "domain": "real"
-        },
-        {
-          "name": "cn",
-          "domain": "real"
-        },
-        {
-          "name": "tavg",
-          "domain": "real"
-        },
-        {
-          "name": "w2m",
-          "domain": "real"
-        },
-        {
-          "name": "es",
-          "domain": "real"
-        },
-        {
-          "name": "ea",
-          "domain": "real"
-        },
-        {
-          "name": "cd",
-          "domain": "real"
-        },
-        {
-          "name": "kc",
-          "domain": "real"
-        },
-        {
-          "name": "evtransp",
-          "domain": "real"
-        }
-      ],
-      "body": [
-        {
-          "name": "ev_transp__assign__evtransp_1",
-          "output": {
-            "variable": "evtransp",
-            "index": 1
-          },
-          "input": [
-            {
-              "variable": "kc",
-              "index": 0
-            },
-            {
-              "variable": "ud",
-              "index": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "main__assign__write_list_stream_0",
-      "type": "assign",
-      "target": "write_list_stream",
-      "sources": [
-        {
-          "name": "eo",
-          "type": "variable"
-        }
-      ],
-      "reference": 211
-    },
-    {
-      "name": "main__assign__canht_0",
-      "type": "assign",
-      "target": "canht",
-      "sources": [
-        {
-          "name": "canht",
-          "type": "variable"
-        }
-      ],
-      "reference": 216
-    },
-    {
-      "name": "main__assign__msalb_0",
-      "type": "assign",
-      "target": "msalb",
-      "sources": [
-        {
-          "name": "msalb",
-          "type": "variable"
-        }
-      ],
-      "reference": 217
-    },
-    {
-      "name": "main__assign__srad_0",
-      "type": "assign",
-      "target": "srad",
-      "sources": [
-        {
-          "name": "srad",
-          "type": "variable"
-        }
-      ],
-      "reference": 218
-    },
-    {
-      "name": "main__assign__tdew_0",
-      "type": "assign",
-      "target": "tdew",
-      "sources": [
-        {
-          "name": "tdew",
-          "type": "variable"
-        }
-      ],
-      "reference": 219
-    },
-    {
-      "name": "main__assign__windht_0",
-      "type": "assign",
-      "target": "windht",
-      "sources": [
-        {
-          "name": "windht",
-          "type": "variable"
-        }
-      ],
-      "reference": 220
-    },
-    {
-      "name": "main__assign__xelev_0",
-      "type": "assign",
-      "target": "xelev",
-      "sources": [
-        {
-          "name": "xelev",
-          "type": "variable"
-        }
-      ],
-      "reference": 221
-    },
-    {
-      "name": "main__loop_plate__doy_0",
-      "type": "loop_plate",
-      "input": [
-        "canht",
-        "msalb",
-        "meevp",
-        "srad",
-        "tdew",
-        "tmax",
-        "tmin",
-        "windht",
-        "windrun",
-        "xhlai",
-        "xlat",
-        "xelev",
-        "eo",
-        "write_list_stream",
-        "output_fmt",
-        "write_stream_obj",
-        "write_line"
-      ],
-      "index_variable": "doy",
-      "index_iteration_range": {
-        "start": {
-          "type": "literal",
-          "dtype": "integer",
-          "value": 0
-        },
-        "end": {
-          "value": 501,
-          "dtype": "integer",
-          "type": "literal"
-        },
-        "step": {
-          "type": "literal",
-          "dtype": "integer",
-          "value": 50
-        }
-      },
-      "body": [
-        {
-          "function": "petasce",
-          "output": {},
-          "input": [
-            {
-              "variable": "canht",
-              "index": -1
-            },
-            {
-              "variable": "doy",
-              "index": -1
-            },
-            {
-              "variable": "msalb",
-              "index": -1
-            },
-            {
-              "variable": "meevp",
-              "index": -1
-            },
-            {
-              "variable": "srad",
-              "index": -1
-            },
-            {
-              "variable": "tdew",
-              "index": -1
-            },
-            {
-              "variable": "tmax",
-              "index": -1
-            },
-            {
-              "variable": "tmin",
-              "index": -1
-            },
-            {
-              "variable": "windht",
-              "index": -1
-            },
-            {
-              "variable": "windrun",
-              "index": -1
-            },
-            {
-              "variable": "xhlai",
-              "index": -1
-            },
-            {
-              "variable": "xlat",
-              "index": -1
-            },
-            {
-              "variable": "xelev",
-              "index": -1
-            },
-            {
               "variable": "eo",
-              "index": -1
+              "index": 0
             }
           ]
-        },
-        {
-          "name": "main__assign__write_list_stream_0",
-          "output": {
-            "variable": "write_list_stream",
-            "index": -1
-          },
-          "input": [
-            {
-              "variable": "eo",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__canht_0",
-          "output": {
-            "variable": "canht",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "canht",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__msalb_0",
-          "output": {
-            "variable": "msalb",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "msalb",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__srad_0",
-          "output": {
-            "variable": "srad",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "srad",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__tdew_0",
-          "output": {
-            "variable": "tdew",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "tdew",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__windht_0",
-          "output": {
-            "variable": "windht",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "windht",
-              "index": -1
-            }
-          ]
-        },
-        {
-          "name": "main__assign__xelev_0",
-          "output": {
-            "variable": "xelev",
-            "index": 0
-          },
-          "input": [
-            {
-              "variable": "xelev",
-              "index": -1
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "main",
-      "type": "container",
-      "input": [],
-      "variables": [
-        {
-          "name": "doy",
-          "domain": "integer"
-        },
-        {
-          "name": "eo",
-          "domain": "real"
-        },
-        {
-          "name": "tmax",
-          "domain": "real"
-        },
-        {
-          "name": "tmin",
-          "domain": "real"
-        },
-        {
-          "name": "windrun",
-          "domain": "real"
-        },
-        {
-          "name": "xhlai",
-          "domain": "real"
-        },
-        {
-          "name": "xlat",
-          "domain": "real"
-        },
-        {
-          "name": "meevp",
-          "domain": "string"
-        },
-        {
-          "name": "canht",
-          "domain": "real"
-        },
-        {
-          "name": "msalb",
-          "domain": "real"
-        },
-        {
-          "name": "srad",
-          "domain": "real"
-        },
-        {
-          "name": "tdew",
-          "domain": "real"
-        },
-        {
-          "name": "windht",
-          "domain": "real"
-        },
-        {
-          "name": "xelev",
-          "domain": "real"
-        }
-      ],
-      "body": [
-        {
-          "name": "main__loop_plate__doy_0",
-          "inputs": [
-            "canht",
-            "msalb",
-            "meevp",
-            "srad",
-            "tdew",
-            "tmax",
-            "tmin",
-            "windht",
-            "windrun",
-            "xhlai",
-            "xlat",
-            "xelev",
-            "eo",
-            "write_list_stream",
-            "output_fmt",
-            "write_stream_obj",
-            "write_line"
-          ],
-          "output": {}
         }
       ]
     }
   ],
+  "start": "petasce",
   "source": [
     [
-      "PETASCE_single.py"
+      [
+        "for2py",
+        "PETASCE_simple.py"
+      ]
     ]
   ],
-  "dateCreated": "20190319"
+  "dateCreated": "20190327"
 }
