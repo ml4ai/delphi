@@ -53,8 +53,25 @@ from sympy import sympify, latex, symbols
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
-grfn_with_alignments = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
-with open(grfn_with_alignments, "r") as f:
+GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+
+BOUNDS = {
+    "petpt::msalb_0": [0, 1],
+    "petpt::srad_0": [1, 20],
+    "petpt::tmax_0": [-30, 60],
+    "petpt::tmin_0": [-30, 60],
+    "petpt::xhlai_0": [0, 20],
+}
+
+PRESETS = {
+    "petpt::msalb_0": 0.5,
+    "petpt::srad_0": 10,
+    "petpt::tmax_0": 20,
+    "petpt::tmin_0": 10,
+    "petpt::xhlai_0": 10,
+}
+
+with open(GRFN_WITH_ALIGNMENTS, "r") as f:
     tr_dict = json.load(f)
     tr_dict_processed = {}
     variables = {v.pop("name"): v for v in tr_dict["variables"][0]}
@@ -66,7 +83,7 @@ with open(grfn_with_alignments, "r") as f:
     }
     comment_text_alignments = {
         alignment["src"]: [
-            a["dst"] for a in alignments if a['src'] == alignment['src']
+            a["dst"] for a in alignments if a["src"] == alignment["src"]
         ][0]
         for alignment in alignments
     }
@@ -109,8 +126,8 @@ def get_tooltip(n):
     if n[1]["type"] == "variable":
         metadata = src_text_alignments.get(n[1]["basename"])
         if metadata is not None:
-            comment_provenance = metadata['from_comments']
-            text_provenance = metadata['from_text']
+            comment_provenance = metadata["from_comments"]
+            text_provenance = metadata["from_text"]
             tooltip = """
             <strong>Metadata extracted using NLP.</strong>
             <nav>
@@ -142,12 +159,13 @@ def get_tooltip(n):
                 </div>
             </div>
             """.format(
-                n = n, metadata=metadata,
-                from_comments = comment_provenance,
-                from_text = text_provenance,
+                n=n,
+                metadata=metadata,
+                from_comments=comment_provenance,
+                from_text=text_provenance,
             )
         else:
-            tooltip=None
+            tooltip = None
 
     else:
         src = inspect.getsource(n[1]["lambda_fn"])
@@ -343,52 +361,54 @@ def processCode():
     G = GroundedFunctionNetwork.from_python_src(
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
-    # G = GroundedFunctionNetwork.from_dict()
 
-    A = G.to_agraph()
-    A.draw("crop_yield.pdf", prog="dot")
-    bounds = {
-        "petpt::msalb_0": [0, 1],  # TODO: Khan set proper values for x1, x2
-        "petpt::srad_0": [1, 20],  # TODO: Khan set proper values for x1, x2
-        "petpt::tmax_0": [-30, 60],  # TODO: Khan set proper values for x1, x2
-        "petpt::tmin_0": [-30, 60],  # TODO: Khan set proper values for x1, x2
-        "petpt::xhlai_0": [0, 20],  # TODO: Khan set proper values for x1, x2
+
+    args = G.model_inputs
+    Si = sobol_analysis(
+        G,
+        10,
+        {
+            "num_vars": len(args),
+            "names": args,
+            "bounds": [BOUNDS[arg] for arg in args],
+        },
+    )
+    S2 = Si["S2"]
+    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+
+    x_var = args[v1]
+    y_var = args[v2]
+    search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
+    preset_vals = {
+        arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
     }
 
-    presets = {
-        "petpt::msalb_0": 0.5,
-        "petpt::srad_0": 10,
-        "petpt::tmax_0": 20,
-        "petpt::tmin_0": 10,
-        "petpt::xhlai_0": 10,
-    }
-
-    # args = G.model_inputs
-    # Si = sobol_analysis(G, 10, {
-    # 'num_vars': len(args),
-    # 'names': args,
-    # 'bounds': [bounds[arg] for arg in args]
-    # })
-    # S2 = Si["S2"]
-    # (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
-
-    # x_var = args[v1]
-    # y_var = args[v2]
-    # search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-    # preset_vals = {
-    # arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
-    # }
-
-    # (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     CAG = G.to_CAG()
-    for n in CAG.nodes(data=True):
-        pass
     program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
 
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
+
+    z_data = pd.DataFrame(Z, index=X, columns=Y)
+
+    data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
+    layout = dict(
+        title="S2 sensitivity surface",
+        scene=dict(
+            xaxis=dict(title=x_var.split("::")[1]),
+            yaxis=dict(title=y_var.split("::")[1]),
+            zaxis=dict(title=G.output_node.split("::")[1]),
+        ),
+        autosize=True,
+        width=800,
+        height=800,
+        margin=dict(l=65, r=50, b=65, t=90),
+    )
+
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template(
         "index.html",
@@ -399,29 +419,10 @@ def processCode():
             json.dumps(outputDict, indent=2), JSON_LEXER, JSON_FORMATTER
         ),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
+        graphJSON=graphJSON,
+        layout=json.dumps(layout),
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
     )
-
-
-@app.route("/sensitivityAnalysis")
-def sensitivityAnalysis():
-    # Read data from a csv
-    z_data = pd.read_csv(
-        "https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv"
-    )
-
-    data = [go.Surface(z=z_data.as_matrix())]
-    layout = go.Layout(
-        title="Mt Bruno Elevation",
-        autosize=False,
-        width=500,
-        height=500,
-        margin=dict(l=65, r=50, b=65, t=90),
-    )
-
-    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template("sensitivityAnalysis.html", graphJSON=graphJSON)
 
 
 @app.route("/modelAnalysis")
