@@ -11,8 +11,8 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
 CROP_YIELD_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
-PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
 PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
+PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
 
 
 def test_petpt_creation_and_execution():
@@ -51,6 +51,7 @@ def test_petasce_creation():
 
 
 def test_crop_yield_creation():
+    A = CROP_YIELD_GrFN.to_agraph()
     assert isinstance(CROP_YIELD_GrFN, GroundedFunctionNetwork)
 
 
