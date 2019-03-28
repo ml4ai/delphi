@@ -4,8 +4,25 @@
     <div class="container-fluid"> 
       {% include "navbar.html" %}
       <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-        <div id="fib" class="col-6 border" style="height:50%;">ASCE potential evapotranspiration model</div>
+        <div id="petpt" class="col border" style="height:50rem;">PT potential evapotranspiration model</div>
+        <div id="fib" class="col border" style="height:50rem;">Forward Influence Blanket</div>
+        <div id="petasce" class="col border" style="height:50rem;">ASCE potential evapotranspiration model</div>
       </div>
+  <script> {% include "cyjs.js" %} </script>
+  <script>
+    var petpt_graph = make_cyjs(
+      'petpt',
+      {{ petpt_elementsJSON | safe }}
+    );
+    var petasce_graph = make_cyjs(
+      'petasce',
+      {{ petasce_elementsJSON | safe }}
+    );
+    var fib_graph = make_cyjs(
+      'fib',
+      {{ fib_elementsJSON | safe }}
+    );
+  </script>
     </div>
   </body>
 </html>

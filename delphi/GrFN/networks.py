@@ -211,7 +211,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=True    # HACK
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"},  # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -524,9 +524,9 @@ class ForwardInfluenceBlanket(nx.DiGraph):
             self.nodes[node]["fontname"] = FONT
 
         self.add_node(self.output_node, **G.nodes[self.output_node])
-        self.nodes[self.output_node]["color"] = "dodgerblue3"
-        self.nodes[self.output_node]["fontcolor"] = "dodgerblue3"
-        self.nodes[self.output_node]["fontname"] = "FONT"
+        self.nodes[self.output_node]["color"] = dodgerblue3
+        self.nodes[self.output_node]["fontcolor"] = dodgerblue3
+        self.nodes[self.output_node]["fontname"] = FONT
 
         self.add_edges_from(main_edges)
 

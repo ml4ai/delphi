@@ -51,9 +51,9 @@ import pandas as pd
 from sympy import sympify, latex, symbols
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-
-
 GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+TMPDIR="/tmp/automates"
+sys.path.insert(0, TMPDIR)
 
 BOUNDS = {
     "petpt::msalb_0": [0, 1],
@@ -322,6 +322,41 @@ def to_cyjs_cag(G):
     json_str = json.dumps(elements, indent=2)
     return json_str
 
+def to_cyjs_fib(G):
+    elements = {
+        "nodes": [
+            {
+                "data": {
+                    "id": n[0],
+                    "label": n[1]["label"],
+                    "parent": n[1]["parent"],
+                    "shape": "ellipse"
+                    if n[1].get("type") == "variable"
+                    else "rectangle",
+                    "color": n[1].get("color", "black"),
+                    "textValign": "center",
+                    "tooltip": get_tooltip(n),
+                    "width": 10 if n[1].get("type") == "variable" else 7,
+                    "height": 10 if n[1].get("type") == "variable" else 7,
+                    "padding": n[1]["padding"],
+                }
+            }
+            for n in G.nodes(data=True)
+        ],
+        "edges": [
+            {
+                "data": {
+                    "id": f"{edge[0]}_{edge[1]}",
+                    "source": edge[0],
+                    "target": edge[1],
+                }
+            }
+            for edge in G.edges()
+        ],
+    }
+    json_str = json.dumps(elements, indent=2)
+    return json_str
+
 
 @app.route("/processCode", methods=["POST"])
 def processCode():
@@ -361,14 +396,13 @@ def processCode():
 
     lambdas = f"{filename}_lambdas"
     lambdas_path = f"/tmp/automates/{lambdas}.py"
-    sys.path.insert(0, "/tmp/automates")
     G = GroundedFunctionNetwork.from_python_src(
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
 
 
     try:
-        args = G.model_inputs
+        args = G.inputs
         Si = sobol_analysis(
             G,
             10,
@@ -438,13 +472,19 @@ def processCode():
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
-    G1 = GroundedFunctionNetwork.from_fortran_file("")
-    G2 = GroundedFunctionNetwork.from_fortran_file("")
+    PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(
+            THIS_FOLDER+"/static/example_programs/petPT.f",
+            tmpdir=TMPDIR)
+    PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(
+            THIS_FOLDER+"/static/example_programs/petASCE.f",
+            tmpdir=TMPDIR)
+    FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
 
     return render_template(
         "modelAnalysis.html",
-        fib1=cmb_asce,
-        fib2=cmb_pt,
+        petpt_elementsJSON = to_cyjs_cag(PETPT_GrFN.to_CAG()),
+        petasce_elementsJSON = to_cyjs_cag(PETASCE_GrFN.to_CAG()),
+        fib_elementsJSON = to_cyjs_fib(FIB),
     )
 
 
