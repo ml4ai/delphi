@@ -30,9 +30,11 @@ var cyjs_style = [
 
 // Set the layout for the graphs
 var cyjs_layout = { 
+  fit: true,
   name: 'dagre',
-  rankDir: 'TB',
+  rankDir: 'LR',
   nodeDimensionsIncludeLabels: true,
+  spacingFactor: 0.8,
 }
 
 var makeTippy = function(node){
@@ -117,6 +119,7 @@ var causal_analysis_graph = make_cyjs(
   'causal_analysis_graph',
   {{ program_analysis_graph_elementsJSON | safe }}
 );
+causal_analysis_graph.fit();
 causal_analysis_graph.pan({x:70,y:70});
 
 // ====================================

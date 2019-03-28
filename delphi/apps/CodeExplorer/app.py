@@ -89,7 +89,7 @@ with open(GRFN_WITH_ALIGNMENTS, "r") as f:
     }
     src_text_alignments = {
         src: {
-            "from_comments": variables[comment]["description"][0]["text"],
+            "from_comments": variables[comment],
             "from_text": variables[comment_text_alignments[comment]],
         }
         for src, comment in src_comment_alignments.items()
@@ -147,7 +147,11 @@ def get_tooltip(n):
             <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
                 <div class="tab-pane fade show active" id="nav-comments-{n[0]}"
                     role="tabpanel" aria-labelledby="nav-comments-tab-{n[0]}">
-                {from_comments}
+                    <table style="width:100%">
+                        <tr><td><strong>Text</strong>:</td> <td> {from_comments[description][0][text]} </td></tr>
+                        <tr><td><strong>Source</strong>:</td> <td> {from_comments[description][0][source]} </td></tr>
+                        <tr><td><strong>Sentence ID</strong>:</td> <td> {from_comments[description][0][sentIdx]} </td></tr>
+                    </table>
                 </div>
                 <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
                     aria-labelledby="nav-text-tab-{n[0]}">

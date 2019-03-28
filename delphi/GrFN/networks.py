@@ -129,7 +129,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 label=f"{basename}_{index}",
                 basename = basename,
                 is_loop_index = is_loop_index,
-                padding=15,
+                padding=17,
                 value=None,
             )
 

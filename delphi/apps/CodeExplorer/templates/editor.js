@@ -26,7 +26,7 @@ var editor_for_source_code = CodeMirror.fromTextArea(
         console.log('Fetch Error :-S', err);
       });
   }
-  {% for program in ('petPT', 'PETASCE_simple')%}
+  {% for program in ('petPT', 'petASCE')%}
     $("#{{ program }}").click(function(){
       getCode("{{ program }}");
     });
