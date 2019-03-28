@@ -18,7 +18,7 @@ PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(filepath)
 
 def test_petpt_creation_and_execution():
     assert isinstance(PETPT_GrFN, GroundedFunctionNetwork)
-    assert len(PETPT_GrFN.model_inputs) == 5
+    assert len(PETPT_GrFN.inputs) == 5
     assert len(PETPT_GrFN.outputs) == 1
 
     values = {name: 1 for name in PETPT_GrFN.inputs}

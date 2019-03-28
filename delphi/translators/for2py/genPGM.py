@@ -1610,7 +1610,7 @@ def create_pgm_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(pgm, open(file_name[:-3] + ".json", "w"))
+        json.dump(pgm, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
     return pgm
 
