@@ -27,6 +27,22 @@ class NodeType(Enum):
         return 2 <= self.value <= 4
 
 
+class ScopeNode(object):
+    def __init__(self, container_dict, parent=None):
+        self.name = container_dict["name"]
+        self.body = container_dict["body"]
+        self.inputs = [n["name"] for n in container_dict["input"]]
+        self.parent = parent
+        self.variables = dict()  # NOTE: store base name as key and update index during wiring
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        vars_str = "\n".join([f"\t{k} -> {v}" for k, v in self.variables.items()])
+        return f"{self.name}\nInputs: {self.inputs}\nVariables:\n{vars_str}"
+
+
 def get_variable_name(var_dict, container_name):
     """Returns the unique node name of a variable."""
     return f"{container_name}::{var_dict['variable']}_{var_dict['index']}"

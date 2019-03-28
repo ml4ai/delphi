@@ -4,84 +4,25 @@
     <div class="container-fluid"> 
       {% include "navbar.html" %}
       <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-        <div id="model1" class="col-6 border" style="height:50%;">ASCE potential evapotranspiration model</div>
-        <div id="model2" class="col-6 border" style="height:50%;">Priestley-Taylor potential evapotranspiration model</div>
+        <div id="petpt" class="col border" style="height:50rem;">PT potential evapotranspiration model</div>
+        <div id="fib" class="col border" style="height:50rem;">Forward Influence Blanket</div>
+        <div id="petasce" class="col border" style="height:50rem;">ASCE potential evapotranspiration model</div>
       </div>
-      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-        Sensitivity surface
-      </div>
-      <div id="surfacePlot" class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;"></div>
+  <script> {% include "cyjs.js" %} </script>
+  <script>
+    var petpt_graph = make_cyjs(
+      'petpt',
+      {{ petpt_elementsJSON | safe }}
+    );
+    var petasce_graph = make_cyjs(
+      'petasce',
+      {{ petasce_elementsJSON | safe }}
+    );
+    var fib_graph = make_cyjs(
+      'fib',
+      {{ fib_elementsJSON | safe }}
+    );
+  </script>
     </div>
-      <script>
-        var model1 = cytoscape({
-          container: document.getElementById('model1'),
-            elements: {{ model1_elementsJSON | safe }},
-            style: [
-                    { selector: 'node',
-                      style: { 
-                          'label': 'data(label)',
-                          'shape': 'data(shape)',
-                          'background-color': 'white',
-                          'border-color': 'data(color)',
-                          'border-width': '3pt',
-                          'font-family': 'PT Sans, sans-serif',
-                          'width':'label',
-                          'text-valign': 'data(textValign)',
-                          'padding': 15,
-                      } 
-                    }, { 
-                      selector: 'edge',
-                      style: { 
-                        'curve-style' : 'bezier',
-                        'target-arrow-shape': 'triangle',
-                      } 
-                    }, { 
-                      selector: '.selectedNode',
-                      style: { 
-                        'background-color': '#d3d3d3',
-                      } 
-                    }
-                ],
-            layout: { name: 'dagre' , rankDir: 'TB'},
-            maxZoom : 10,
-            minZoom : 0.1,
-            selectionType: 'single'
-          });
-
-        var model2 = cytoscape({
-          container: document.getElementById('model2'),
-            elements: {{ model2_elementsJSON | safe }},
-            style: [
-                    { selector: 'node',
-                      style: { 
-                          'label': 'data(label)',
-                          'shape': 'data(shape)',
-                          'background-color': 'white',
-                          'border-color': 'data(color)',
-                          'border-width': '3pt',
-                          'font-family': 'PT Sans, sans-serif',
-                          'width':'label',
-                          'text-valign': 'data(textValign)',
-                          'padding': 15,
-                      } 
-                    }, { 
-                      selector: 'edge',
-                      style: { 
-                        'curve-style' : 'bezier',
-                        'target-arrow-shape': 'triangle',
-                      } 
-                    }, { 
-                      selector: '.selectedNode',
-                      style: { 
-                        'background-color': '#d3d3d3',
-                      } 
-                    }
-                ],
-            layout: { name: 'dagre' , rankDir: 'TB'},
-            maxZoom : 10,
-            minZoom : 0.1,
-            selectionType: 'single'
-          });
-      </script>
   </body>
 </html>

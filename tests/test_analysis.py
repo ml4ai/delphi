@@ -16,11 +16,11 @@ sys.path.insert(0, "tests/data/program_analysis")
 def test_regular_PETPT():
     args = PETPT_GrFN.inputs
     bounds = {
-        "petpt::msalb_0": [0, 1],
-        "petpt::srad_0": [1, 20],
-        "petpt::tmax_0": [-30, 60],
-        "petpt::tmin_0": [-30, 60],
-        "petpt::xhlai_0": [0, 20],
+        "petpt::msalb_-1": [0, 1],
+        "petpt::srad_-1": [1, 20],
+        "petpt::tmax_-1": [-30, 60],
+        "petpt::tmin_-1": [-30, 60],
+        "petpt::xhlai_-1": [0, 20],
     }
 
     problem = {
@@ -43,11 +43,11 @@ def test_PETPT_with_torch():
 
     args = G.inputs
     bounds = {
-        "petpt::msalb_0": [0, 1],
-        "petpt::srad_0": [1, 20],
-        "petpt::tmax_0": [-30, 60],
-        "petpt::tmin_0": [-30, 60],
-        "petpt::xhlai_0": [0, 20],
+        "petpt::msalb_-1": [0, 1],
+        "petpt::srad_-1": [1, 20],
+        "petpt::tmax_-1": [-30, 60],
+        "petpt::tmin_-1": [-30, 60],
+        "petpt::xhlai_-1": [0, 20],
     }
 
     problem = {
@@ -71,6 +71,51 @@ def test_PETPT_with_torch():
 
 
 def test_PETASCE_sobol_analysis():
+    bounds = {
+        "petasce::doy_-1": [1, 365],
+        "petasce::meevp_-1": [0, 1],
+        "petasce::msalb_-1": [0, 1],
+        "petasce::srad_-1": [1, 30],
+        "petasce::tmax_-1": [-30, 60],
+        "petasce::tmin_-1": [-30, 60],
+        "petasce::xhlai_-1": [0, 20],
+        "petasce::tdew_-1": [-30, 60],
+        "petasce::windht_-1": [0.1, 10],  # HACK: has a hole in 0 < x < 1 for petasce__assign__wind2m_1
+        "petasce::windrun_-1": [0, 900],
+        "petasce::xlat_-1": [3, 12],     # HACK: south sudan lats
+        "petasce::xelev_-1": [0, 6000],
+        "petasce::canht_-1": [0.001, 3],
+    }
+
+    type_info = {
+        "petasce::doy_-1": (int, list(range(1, 366))),
+        "petasce::meevp_-1": (str, ["A", "W"]),
+        "petasce::msalb_-1": (float, [0.0]),
+        "petasce::srad_-1": (float, [0.0]),
+        "petasce::tmax_-1": (float, [0.0]),
+        "petasce::tmin_-1": (float, [0.0]),
+        "petasce::xhlai_-1": (float, [0.0]),
+        "petasce::tdew_-1": (float, [0.0]),
+        "petasce::windht_-1": (float, [0.0]),
+        "petasce::windrun_-1": (float, [0.0]),
+        "petasce::xlat_-1": (float, [0.0]),
+        "petasce::xelev_-1": (float, [0.0]),
+        "petasce::canht_-1": (float, [0.0]),
+    }
+
+    args = PETASCE_GrFN.inputs
+    problem = {
+        'num_vars': len(args),
+        'names': args,
+        'bounds': [bounds[arg] for arg in args]
+    }
+
+    Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
+    assert len(Si["S1"]) == len(PETASCE_GrFN.inputs)
+    assert len(Si["S2"][0]) == len(PETASCE_GrFN.inputs)
+
+
+def test_PETASCE_with_torch():
     # Torch model
     sys.path.insert(0, "tests/data/GrFN")
     lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
@@ -109,38 +154,32 @@ def test_PETASCE_sobol_analysis():
         "petasce::canht_0": (float, [0.0]),
     }
 
-    args = PETASCE_GrFN.inputs
+    args = tG.inputs
     problem = {
         'num_vars': len(args),
         'names': args,
         'bounds': [bounds[arg] for arg in args]
     }
 
-    N = 1000
-    Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
-    tSi = sobol_analysis(tG, N, problem, var_types=type_info, use_torch=True)
-
-    assert len(Si["S1"]) == len(PETASCE_GrFN.inputs)
-    assert len(Si["S2"][0]) == len(PETASCE_GrFN.inputs)
-
+    tSi = sobol_analysis(tG, 1000, problem, var_types=type_info, use_torch=True)
     assert len(tSi["S1"]) == len(tG.inputs)
     assert len(tSi["S2"][0]) == len(tG.inputs)
 
 
 def test_PETPT_sensitivity_surface():
     bounds = {
-        "petpt::msalb_0": (0, 1),
-        "petpt::srad_0": (1, 20),
-        "petpt::tmax_0": (-30, 60),
-        "petpt::tmin_0": (-30, 60),
-        "petpt::xhlai_0": (0, 20),
+        "petpt::msalb_-1": (0, 1),
+        "petpt::srad_-1": (1, 20),
+        "petpt::tmax_-1": (-30, 60),
+        "petpt::tmin_-1": (-30, 60),
+        "petpt::xhlai_-1": (0, 20),
     }
     presets = {
-        "petpt::msalb_0": 0.5,
-        "petpt::srad_0": 10,
-        "petpt::tmax_0": 20,
-        "petpt::tmin_0": 10,
-        "petpt::xhlai_0": 10,
+        "petpt::msalb_-1": 0.5,
+        "petpt::srad_-1": 10,
+        "petpt::tmax_-1": 20,
+        "petpt::tmin_-1": 10,
+        "petpt::xhlai_-1": 10,
     }
 
     args = PETPT_GrFN.inputs
@@ -173,24 +212,24 @@ def test_FIB_execution():
     pt_inputs = {name: 1 for name in PETPT_GrFN.inputs}
 
     asce_inputs = {
-        "petasce::msalb_0": 0.5,
-        "petasce::srad_0": 15,
-        "petasce::tmax_0": 10,
-        "petasce::tmin_0": -10,
-        "petasce::xhlai_0": 10,
+        "petasce::msalb_-1": 0.5,
+        "petasce::srad_-1": 15,
+        "petasce::tmax_-1": 10,
+        "petasce::tmin_-1": -10,
+        "petasce::xhlai_-1": 10,
     }
 
     asce_covers = {
-        "petasce::canht_0": 2,
-        "petasce::meevp_0": "A",
-        "petasce::cht_1": 0.001,
-        "petasce::cn_5": 1600.0,
-        "petasce::cd_5": 0.38,
-        "petasce::rso_1": 0.062320,
-        "petasce::ea_1": 7007.82,
-        "petasce::wind2m_1": 3.5,
-        "petasce::psycon_1": 0.0665,
-        "petasce::wnd_1": 3.5,
+        "petasce::canht_-1": 2,
+        "petasce::meevp_-1": "A",
+        "petasce::cht_0": 0.001,
+        "petasce::cn_4": 1600.0,
+        "petasce::cd_4": 0.38,
+        "petasce::rso_0": 0.062320,
+        "petasce::ea_0": 7007.82,
+        "petasce::wind2m_0": 3.5,
+        "petasce::psycon_0": 0.0665,
+        "petasce::wnd_0": 3.5,
     }
 
     res = PETPT_FIB.run(pt_inputs, {})

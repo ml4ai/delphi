@@ -13,7 +13,7 @@ import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
 import delphi.GrFN.utils as utils
-from delphi.GrFN.utils import NodeType
+from delphi.GrFN.utils import NodeType, ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
     preprocessor,
@@ -115,6 +115,8 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """
         functions = {d["name"]: d for d in data["functions"]}
         G = nx.DiGraph()
+        scope_tree = nx.DiGraph()
+
         def add_variable_node(
             basename: str,
             parent: str,
@@ -127,16 +129,25 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 color="maroon",
                 parent=parent,
                 label=f"{basename}_{index}",
-                basename = basename,
-                is_loop_index = is_loop_index,
+                basename=basename,
+                is_loop_index=is_loop_index,
                 padding=15,
                 value=None,
             )
 
-        scope_tree = nx.DiGraph()
-        def process_container(container, loop_index_variable: Optional[str] = None):
-            parent=container['name']
-            for stmt in container["body"]:
+        def find_correct_scope(cur_scope, var_name):
+            if cur_scope.parent is None:
+                return cur_scope.name, -1
+
+            new_scope = cur_scope.parent
+
+            if var_name in new_scope.variables:
+                return new_scope.name, new_scope.variables[var_name]
+            else:
+                return find_correct_scope(new_scope, var_name)
+
+        def process_container(scope, loop_index_variable: Optional[str] = None):
+            for stmt in scope.body:
                 if "name" in stmt:
                     stmt_type = functions[stmt["name"]]["type"]
                     if stmt_type in ("assign", "condition", "decision"):
@@ -145,34 +156,36 @@ class GroundedFunctionNetwork(nx.DiGraph):
                                 stmt_type = "literal"
 
                         output = stmt['output']
-                        add_variable_node(output["variable"], parent, output["index"])
+                        scope.variables[output["variable"]] = output["index"]
+                        add_variable_node(output["variable"], scope.name, output["index"])
                         G.add_edge(stmt["name"],
-                                f"{parent}::{output['variable']}_{output['index']}")
+                                f"{scope.name}::{output['variable']}_{output['index']}")
 
                         ordered_inputs = list()
                         for input in stmt.get("input", []):
-                            if (
-                                input["index"] == -1
-                                and input["variable"] != loop_index_variable
-                            ):
-                                input["index"] += 2 # HACK for crop_yield.f
-                                # example.
+                            parent = scope.name
+                            index = input["index"]
+                            base_name = input["variable"]
+                            if index == -1 and base_name != loop_index_variable:
+                                parent, index = find_correct_scope(scope, base_name)
+
                             add_variable_node(
-                                input['variable'],
+                                base_name,
                                 parent,
-                                input['index'],
-                                input["variable"] == loop_index_variable
+                                index,
+                                base_name == loop_index_variable
                             )
-                            node_name = f"{parent}::{input['variable']}_{input['index']}"
+                            node_name = f"{parent}::{base_name}_{index}"
                             ordered_inputs.append(node_name)
                             G.add_edge(node_name, stmt["name"])
 
-                        G.add_node(stmt["name"],
+                        G.add_node(
+                            stmt["name"],
                             type="function",
-                            lambda_fn = getattr(lambdas, stmt["name"]),
+                            lambda_fn=getattr(lambdas, stmt["name"]),
                             func_inputs=ordered_inputs,
                             shape="rectangle",
-                            parent=parent,
+                            parent=scope.name,
                             label=stmt_type[0].upper(),
                             padding=10,
                         )
@@ -180,23 +193,21 @@ class GroundedFunctionNetwork(nx.DiGraph):
                     elif stmt_type == "loop_plate":
                         index_variable = functions[stmt["name"]]["index_variable"]
                         scope_tree.add_node(stmt["name"], color="blue")
-                        scope_tree.add_edge(container["name"], stmt["name"])
-                        process_container(
-                            functions[stmt["name"]],
-                            loop_index_variable = index_variable
-                        )
+                        scope_tree.add_edge(scope.name, stmt["name"])
+                        new_scope = ScopeNode(functions[stmt["name"]], parent=scope)
+                        process_container(new_scope, loop_index_variable=index_variable)
                     else:
-                        print(stmt_type)
+                        pass
                 elif "function" in stmt and stmt["function"] != "print":
                     scope_tree.add_node(stmt["function"], color="green")
-                    scope_tree.add_edge(container["name"], stmt["function"])
-                    process_container(
-                        functions[stmt["function"]],
-                    )
+                    scope_tree.add_edge(scope.name, stmt["function"])
+                    new_scope = ScopeNode(functions[stmt["function"]], parent=scope)
+                    process_container(new_scope)
 
-        root=data["start"]
+        root = data["start"]
         scope_tree.add_node(root, color="green")
-        process_container(functions[root])
+        cur_scope = ScopeNode(functions[root])
+        process_container(cur_scope)
         return cls(G, scope_tree)
 
     @classmethod
@@ -211,7 +222,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_pgm_dict(
-            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"}, save_file=True    # HACK
+            lambdas_path, asts, json_filename, {"FileName": f"{stem}.py"},  # HACK
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -383,7 +394,7 @@ class GroundedFunctionNetwork(nx.DiGraph):
                 "rankdir": "TB",
             }
         )
-        A.node_attr.update({ "fontname": "Menlo" })
+        A.node_attr.update({"fontname": "Menlo"})
 
         def build_tree(cluster_name, root_graph):
             subgraph_nodes = [

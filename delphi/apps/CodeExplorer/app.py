@@ -51,24 +51,37 @@ import pandas as pd
 from sympy import sympify, latex, symbols
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-
-
 GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+TMPDIR="/tmp/automates"
+sys.path.insert(0, TMPDIR)
 
 BOUNDS = {
-    "petpt::msalb_0": [0, 1],
-    "petpt::srad_0": [1, 20],
-    "petpt::tmax_0": [-30, 60],
-    "petpt::tmin_0": [-30, 60],
-    "petpt::xhlai_0": [0, 20],
+    "petpt::msalb_-1": [0, 1],
+    "petpt::srad_-1": [1, 20],
+    "petpt::tmax_-1": [-30, 60],
+    "petpt::tmin_-1": [-30, 60],
+    "petpt::xhlai_-1": [0, 20],
+    "petasce::doy_-1": [1, 365],
+    "petasce::meevp_-1": [0, 1],
+    "petasce::msalb_-1": [0, 1],
+    "petasce::srad_-1": [1, 30],
+    "petasce::tmax_-1": [-30, 60],
+    "petasce::tmin_-1": [-30, 60],
+    "petasce::xhlai_-1": [0, 20],
+    "petasce::tdew_-1": [-30, 60],
+    "petasce::windht_-1": [0.1, 10],  # HACK: has a hole in 0 < x < 1 for petasce__assign__wind2m_1
+    "petasce::windrun_-1": [0, 900],
+    "petasce::xlat_-1": [3, 12],     # HACK: south sudan lats
+    "petasce::xelev_-1": [0, 6000],
+    "petasce::canht_-1": [0.001, 3],
 }
 
 PRESETS = {
-    "petpt::msalb_0": 0.5,
-    "petpt::srad_0": 10,
-    "petpt::tmax_0": 20,
-    "petpt::tmin_0": 10,
-    "petpt::xhlai_0": 10,
+    "petpt::msalb_-1": 0.5,
+    "petpt::srad_-1": 10,
+    "petpt::tmax_-1": 20,
+    "petpt::tmin_-1": 10,
+    "petpt::xhlai_-1": 10,
 }
 
 with open(GRFN_WITH_ALIGNMENTS, "r") as f:
@@ -89,7 +102,7 @@ with open(GRFN_WITH_ALIGNMENTS, "r") as f:
     }
     src_text_alignments = {
         src: {
-            "from_comments": variables[comment]["description"][0]["text"],
+            "from_comments": variables[comment],
             "from_text": variables[comment_text_alignments[comment]],
         }
         for src, comment in src_comment_alignments.items()
@@ -147,7 +160,11 @@ def get_tooltip(n):
             <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
                 <div class="tab-pane fade show active" id="nav-comments-{n[0]}"
                     role="tabpanel" aria-labelledby="nav-comments-tab-{n[0]}">
-                {from_comments}
+                    <table style="width:100%">
+                        <tr><td><strong>Text</strong>:</td> <td> {from_comments[description][0][text]} </td></tr>
+                        <tr><td><strong>Source</strong>:</td> <td> {from_comments[description][0][source]} </td></tr>
+                        <tr><td><strong>Sentence ID</strong>:</td> <td> {from_comments[description][0][sentIdx]} </td></tr>
+                    </table>
                 </div>
                 <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
                     aria-labelledby="nav-text-tab-{n[0]}">
@@ -318,6 +335,41 @@ def to_cyjs_cag(G):
     json_str = json.dumps(elements, indent=2)
     return json_str
 
+def to_cyjs_fib(G):
+    elements = {
+        "nodes": [
+            {
+                "data": {
+                    "id": n[0],
+                    "label": n[1]["label"],
+                    "parent": n[1]["parent"],
+                    "shape": "ellipse"
+                    if n[1].get("type") == "variable"
+                    else "rectangle",
+                    "color": n[1].get("color", "black"),
+                    "textValign": "center",
+                    "tooltip": get_tooltip(n),
+                    "width": 10 if n[1].get("type") == "variable" else 7,
+                    "height": 10 if n[1].get("type") == "variable" else 7,
+                    "padding": n[1]["padding"],
+                }
+            }
+            for n in G.nodes(data=True)
+        ],
+        "edges": [
+            {
+                "data": {
+                    "id": f"{edge[0]}_{edge[1]}",
+                    "source": edge[0],
+                    "target": edge[1],
+                }
+            }
+            for edge in G.edges()
+        ],
+    }
+    json_str = json.dumps(elements, indent=2)
+    return json_str
+
 
 @app.route("/processCode", methods=["POST"])
 def processCode():
@@ -357,33 +409,56 @@ def processCode():
 
     lambdas = f"{filename}_lambdas"
     lambdas_path = f"/tmp/automates/{lambdas}.py"
-    sys.path.insert(0, "/tmp/automates")
     G = GroundedFunctionNetwork.from_python_src(
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
 
 
-    args = G.model_inputs
-    Si = sobol_analysis(
-        G,
-        10,
-        {
-            "num_vars": len(args),
-            "names": args,
-            "bounds": [BOUNDS[arg] for arg in args],
-        },
-    )
-    S2 = Si["S2"]
-    (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+    try:
+        args = G.inputs
+        Si = sobol_analysis(
+            G,
+            10,
+            {
+                "num_vars": len(args),
+                "names": args,
+                "bounds": [BOUNDS[arg] for arg in args],
+            },
+        )
+        S2 = Si["S2"]
+        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
 
-    x_var = args[v1]
-    y_var = args[v2]
-    search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
-    preset_vals = {
-        arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
-    }
+        x_var = args[v1]
+        y_var = args[v2]
+        search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
+        preset_vals = {
+            arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+        }
 
-    (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+        (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
+        z_data = pd.DataFrame(Z, index=X, columns=Y)
+        data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
+        layout = dict(
+            title="S2 sensitivity surface",
+            scene=dict(
+                xaxis=dict(title=x_var.split("::")[1]),
+                yaxis=dict(title=y_var.split("::")[1]),
+                zaxis=dict(title=G.output_node.split("::")[1]),
+            ),
+            autosize=True,
+            width=800,
+            height=800,
+            margin=dict(l=65, r=50, b=65, t=90),
+        )
+
+        graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    except KeyError:
+        flash("Bounds information was not found for some variables,"
+                "so the S2 sensitivity surface cannot be produced for this "
+                "code example.")
+        graphJSON='{}'
+        layout='{}'
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     CAG = G.to_CAG()
@@ -392,23 +467,6 @@ def processCode():
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
 
-    z_data = pd.DataFrame(Z, index=X, columns=Y)
-
-    data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
-    layout = dict(
-        title="S2 sensitivity surface",
-        scene=dict(
-            xaxis=dict(title=x_var.split("::")[1]),
-            yaxis=dict(title=y_var.split("::")[1]),
-            zaxis=dict(title=G.output_node.split("::")[1]),
-        ),
-        autosize=True,
-        width=800,
-        height=800,
-        margin=dict(l=65, r=50, b=65, t=90),
-    )
-
-    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
     return render_template(
         "index.html",
@@ -427,28 +485,19 @@ def processCode():
 
 @app.route("/modelAnalysis")
 def modelAnalysis():
-    import delphi.analysis.comparison.utils as utils
-    from delphi.analysis.comparison.ForwardInfluenceBlanket import (
-        ForwardInfluenceBlanket,
-    )
-
-    asce = utils.nx_graph_from_dotfile(
-        os.path.join(THIS_FOLDER, "static/graphviz_dot_files/asce-graph.dot")
-    )
-    pt = utils.nx_graph_from_dotfile(
-        os.path.join(
-            THIS_FOLDER, "static/graphviz_dot_files/priestley-taylor-graph.dot"
-        )
-    )
-    shared_nodes = utils.get_shared_nodes(asce, pt)
-
-    cmb_asce = ForwardInfluenceBlanket(asce, shared_nodes).cyjs_elementsJSON()
-    cmb_pt = ForwardInfluenceBlanket(pt, shared_nodes).cyjs_elementsJSON()
+    PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(
+            THIS_FOLDER+"/static/example_programs/petPT.f",
+            tmpdir=TMPDIR)
+    PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(
+            THIS_FOLDER+"/static/example_programs/petASCE.f",
+            tmpdir=TMPDIR)
+    FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
 
     return render_template(
         "modelAnalysis.html",
-        model1_elementsJSON=cmb_asce,
-        model2_elementsJSON=cmb_pt,
+        petpt_elementsJSON = to_cyjs_cag(PETPT_GrFN.to_CAG()),
+        petasce_elementsJSON = to_cyjs_cag(PETASCE_GrFN.to_CAG()),
+        fib_elementsJSON = to_cyjs_fib(FIB),
     )
 
 

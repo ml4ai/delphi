@@ -1,8 +1,7 @@
 {
-  "start": "crop_yield",
   "functions": [
     {
-      "name": "update_est__assign__total_rain_1",
+      "name": "update_est__assign__total_rain_0",
       "type": "assign",
       "target": "total_rain",
       "sources": [
@@ -18,9 +17,9 @@
       "reference": 10
     },
     {
-      "name": "update_est__condition__IF_2_0",
+      "name": "update_est__condition__IF_1_0",
       "type": "condition",
-      "target": "IF_2",
+      "target": "IF_1",
       "reference": 11,
       "sources": [
         {
@@ -60,7 +59,7 @@
       "reference": 11,
       "sources": [
         {
-          "name": "IF_2_0",
+          "name": "IF_1_0",
           "type": "variable"
         },
         {
@@ -90,52 +89,35 @@
           "domain": "real"
         }
       ],
-      "variables": [
-        {
-          "name": "rain",
-          "domain": "real"
-        },
-        {
-          "name": "total_rain",
-          "domain": "real"
-        },
-        {
-          "name": "yield_est",
-          "domain": "real"
-        },
-        {
-          "name": "IF_2",
-          "domain": "boolean"
-        }
-      ],
+      "variables": [],
       "body": [
         {
-          "name": "update_est__assign__total_rain_1",
+          "name": "update_est__assign__total_rain_0",
           "output": {
             "variable": "total_rain",
-            "index": 1
-          },
-          "input": [
-            {
-              "variable": "total_rain",
-              "index": 0
-            },
-            {
-              "variable": "rain",
-              "index": 0
-            }
-          ]
-        },
-        {
-          "name": "update_est__condition__IF_2_0",
-          "output": {
-            "variable": "IF_2",
             "index": 0
           },
           "input": [
             {
               "variable": "total_rain",
-              "index": 1
+              "index": -1
+            },
+            {
+              "variable": "rain",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "update_est__condition__IF_1_0",
+          "output": {
+            "variable": "IF_1",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "total_rain",
+              "index": 0
             }
           ]
         },
@@ -148,7 +130,7 @@
           "input": [
             {
               "variable": "total_rain",
-              "index": 1
+              "index": 0
             }
           ]
         },
@@ -161,7 +143,7 @@
           "input": [
             {
               "variable": "total_rain",
-              "index": 1
+              "index": 0
             }
           ]
         },
@@ -173,7 +155,7 @@
           },
           "input": [
             {
-              "variable": "IF_2",
+              "variable": "IF_1",
               "index": 0
             },
             {
@@ -273,31 +255,27 @@
       "reference": 30
     },
     {
-      "name": "crop_yield__loop_plate__day_0",
+      "name": "crop_yield__loop_plate__day",
       "type": "loop_plate",
       "input": [
         {
-          "variable": "consistency",
+          "name": "consistency",
           "domain": "real"
         },
         {
-          "variable": "max_rain",
+          "name": "max_rain",
           "domain": "real"
         },
         {
-          "variable": "absorption",
+          "name": "absorption",
           "domain": "real"
         },
         {
-          "variable": "rain",
+          "name": "total_rain",
           "domain": "real"
         },
         {
-          "variable": "total_rain",
-          "domain": "real"
-        },
-        {
-          "variable": "yield_est",
+          "name": "yield_est",
           "domain": "real"
         }
       ],
@@ -324,7 +302,7 @@
           "input": [
             {
               "variable": "day",
-              "index": -1
+              "index": null
             },
             {
               "variable": "consistency",
@@ -364,7 +342,7 @@
           "input": [
             {
               "variable": "day",
-              "index": -1
+              "index": null
             },
             {
               "variable": "yield_est",
@@ -450,30 +428,26 @@
           "input": []
         },
         {
-          "name": "crop_yield__loop_plate__day_0",
+          "name": "crop_yield__loop_plate__day",
           "input": [
             {
-              "variable": "consistency",
+              "name": "consistency",
               "index": -1
             },
             {
-              "variable": "max_rain",
+              "name": "max_rain",
               "index": -1
             },
             {
-              "variable": "absorption",
+              "name": "absorption",
               "index": -1
             },
             {
-              "variable": "rain",
+              "name": "total_rain",
               "index": -1
             },
             {
-              "variable": "total_rain",
-              "index": -1
-            },
-            {
-              "variable": "yield_est",
+              "name": "yield_est",
               "index": -1
             }
           ],
@@ -494,35 +468,35 @@
   ],
   "identifiers": [
     {
-      "base_name": "assign$total_rain_1",
+      "base_name": "assign$total_rain_0",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "total_rain_0",
+      "base_name": "total_rain_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "rain_0",
+      "base_name": "rain_-1",
       "scope": "_TOP",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "condition$IF_2_0",
+      "base_name": "condition$IF_1_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
       "source_references": ""
     },
     {
-      "base_name": "total_rain_1",
+      "base_name": "total_rain_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
@@ -536,7 +510,7 @@
       "source_references": ""
     },
     {
-      "base_name": "IF_2_0",
+      "base_name": "IF_1_0",
       "scope": "if$1",
       "namespace": "",
       "aliases": "None",
@@ -599,10 +573,11 @@
       "source_references": ""
     }
   ],
+  "start": "crop_yield",
   "source": [
     [
       "crop_yield.py"
     ]
   ],
-  "dateCreated": "20190327"
+  "dateCreated": "20190328"
 }

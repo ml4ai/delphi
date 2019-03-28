@@ -80,16 +80,12 @@ def postprocess_test_data_grfn_dict(_dict):
 @pytest.fixture
 def crop_yield_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/crop_yield.f"))
-    with open(f"{DATA_DIR}/crop_yield.json", "w") as f:
-        json.dump(_dict, f, indent=2)
     yield(_dict)
 
 
 @pytest.fixture
 def petpt_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/PETPT.for"))
-    with open(f"{DATA_DIR}/PETPT.json", "w") as f:
-        json.dump(_dict, f, indent=2)
     yield(_dict)
     os.remove("PETPT_lambdas.py")
 
@@ -97,8 +93,6 @@ def petpt_grfn_dict():
 @pytest.fixture
 def io_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))
-    with open(f"{DATA_DIR}/io-tests/iotest_05.json", "w") as f:
-        json.dump(_dict, f, indent=2)
     yield(_dict)
     os.remove("iotest_05_lambdas.py")
 

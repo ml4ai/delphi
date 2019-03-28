@@ -90,12 +90,30 @@ class GrFNGenerator(object):
             if len(scope_path) == 0:
                 scope_path.append("_TOP")
             scope_path.append(node.name)
-            fnState = state.copy(
-                lastDefs=localDefs,
-                nextDefs=localNext,
-                fnName=node.name,
-                varTypes=localTypes,
-            )
+
+            # Check if the function contains arguments or not
+            # This determines whether the function is the outermost scope
+            # (does not contain arguments) or it is not (contains arguments)
+            # For non-outermost scopes, indexing starts from -1
+            # For outermost scopes, indexing starts from 0
+            if len(node.args.args) == 0:
+                isouterScope = True
+                fnState = state.copy(
+                    lastDefs=localDefs,
+                    nextDefs=localNext,
+                    fnName=node.name,
+                    varTypes=localTypes,
+                )
+            else:
+                isouterScope = False
+                fnlastDefs = {}
+                fnState = state.copy(
+                    lastDefs=fnlastDefs,
+                    nextDefs={},
+                    fnName=node.name,
+                    varTypes=localTypes,
+                    lastDefDefault=-1,
+                )
 
             args = self.genPgm(node.args, fnState, fnNames, "functiondef")
             bodyPgm = self.genPgm(node.body, fnState, fnNames, "functiondef")
@@ -138,7 +156,7 @@ class GrFNGenerator(object):
         # 'defaults')
         elif isinstance(node, ast.arguments):
             return [
-                self.genPgm(arg, state, fnNames, "arguments")
+                self.genPgm(arg, state, fnNames, call_source)
                 for arg in node.args
             ]
 
@@ -149,7 +167,10 @@ class GrFNGenerator(object):
             if state.lastDefs.get(node.arg):
                 state.lastDefs[node.arg] += 1
             else:
-                state.lastDefs[node.arg] = 0
+                if call_source == "functiondef":
+                    state.lastDefs[node.arg] = -1
+                else:
+                    state.lastDefs[node.arg] = 0
             return node.arg
 
         # Load: ()
@@ -251,26 +272,32 @@ class GrFNGenerator(object):
             loopState = state.copy(
                 lastDefs=loopLastDef, nextDefs={}, lastDefDefault=-1
             )
+
+            loopState.lastDefs[indexName] = None
+
             loop = self.genPgm(node.body, loopState, fnNames, "for")
+
             loopBody, loopFns, iden_spec = get_body_and_functions(loop)
 
-            variables = [x for x in loopLastDef if x != indexName]
+            # If loopLastDef[x] == 0, this means that the variable was not declared before the loop and is being
+            # declared/defined within the loop. So we need to remove that from the variable_list
+            variable_list = [x for x in loopLastDef if (x != indexName and state.lastDefs[x] != 0)]
 
-            # variables: see what changes?
-            loopName = getFnName(
-                fnNames, f"{state.fnName}__loop_plate__{indexName}", {}
-            )
+            variables = [
+                    {"name": variable, "domain": state.varTypes[variable]} for variable in variable_list
+                ]
+
+            # Removing the indexing of the loop index variable from the loopName
+            # loopName = getFnName(
+            #     fnNames, f"{state.fnName}__loop_plate__{indexName}", {}
+            # )
+
+            loopName = state.fnName + "__loop_plate__" + indexName
 
             loopFn = {
                 "name": loopName,
                 "type": "loop_plate",
-                "input": [
-                    {
-                      "variable": variable,
-                      "domain": state.varTypes[variable]
-                    }
-                    for variable in variables
-                ],
+                "input": variables,
                 "index_variable": indexName,
                 "index_iteration_range": iterationRange,
                 "body": loopBody,
@@ -279,18 +306,18 @@ class GrFNGenerator(object):
             id_specList = self.make_identifier_spec(
                 loopName, indexName, {}, state
             )
-
             loopCall = {
                 "name": loopName,
                 "input": [
                     {
-                      "variable": variable,
-                      "index": -1,
+                        "name": variable,
+                        "index": loopState.lastDefs[variable]
                     }
-                    for variable in variables
+                    for variable in variable_list
                 ],
                 "output": {}
             }
+
             pgm = {
                 "functions": loopFns + [loopFn],
                 "body": [loopCall],
@@ -481,6 +508,7 @@ class GrFNGenerator(object):
                 fnName = getFnName(
                     fnNames, f"{state.fnName}__decision__{updatedDef}", output
                 )
+
                 fn = {
                     "name": fnName,
                     "type": "decision",
@@ -733,6 +761,7 @@ class GrFNGenerator(object):
             opPgm = self.genPgm(
                 node.left, state, fnNames, "binop"
             ) + self.genPgm(node.right, state, fnNames, "binop")
+            return opPgm
 
             return opPgm
 
@@ -781,7 +810,6 @@ class GrFNGenerator(object):
                 raise For2PyError("can't handle arrays right now.")
 
             val = self.genPgm(node.value, state, fnNames, "subscript")
-
             if val[0]["var"]["variable"] in self.annassigned_list:
                 if isinstance(node.ctx, ast.Store):
                     val[0]["var"]["index"] = getNextDef(
@@ -790,8 +818,18 @@ class GrFNGenerator(object):
                         state.nextDefs,
                         state.lastDefDefault,
                     )
+            elif val[0]["var"]["index"] == -1:
+                if isinstance(node.ctx, ast.Store):
+                    val[0]["var"]["index"] = getNextDef(
+                        val[0]["var"]["variable"],
+                        state.lastDefs,
+                        state.nextDefs,
+                        state.lastDefDefault,
+                    )
+                    self.annassigned_list.append(val[0]["var"]["variable"])
             else:
                 self.annassigned_list.append(val[0]["var"]["variable"])
+
             return val
 
         # Name: ('id', 'ctx')
@@ -1205,7 +1243,6 @@ class GrFNGenerator(object):
         body = {"name": name, "output": target["var"], "input": source_list}
         return [body, id_spec]
 
-
     def make_call_index_dict(self, source):
         source_list = []
         for item in source["call"]["inputs"]:
@@ -1428,10 +1465,13 @@ def mergeDicts(dicts: Iterable[Dict]) -> Dict:
 
 
 def getFnName(fnNames, basename, target):
-    # First, check whether the basename is a 'decision' block. If it is, we need to get it's index from the index of
-    # its corresponding identifier's 'assign' block. We do not use the index of the 'decision' block as that will not
-    # correspond with that of the 'assign' block.
-    # For example: for petpt__decision__albedo, its index will be the index of the latest petpt__assign__albedo + 1
+    # First, check whether the basename is a 'decision' block. If it is, we
+    # need to get it's index from the index of its corresponding identifier's
+    # 'assign' block. We do not use the index of the 'decision' block as that
+    # will not correspond with that of the 'assign' block.  For example: for
+    # petpt__decision__albedo, its index will be the index of the latest
+    # petpt__assign__albedo + 1
+
     if "__decision__" in basename:
         part_match = re.match(
             r"(?P<body>\S+)__decision__(?P<identifier>\S+)", basename

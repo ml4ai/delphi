@@ -57,7 +57,7 @@
 
       YIELD_EST = 0
       TOTAL_RAIN = 0
- 
+
       DO 20 DAY=1,31
 *       Compute rainfall for the current day
         RAIN = (-(DAY - 16) ** 2 / CONSISTENCY + MAX_RAIN) * ABSORPTION
