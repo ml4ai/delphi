@@ -1,11 +1,8 @@
 import os
 import sys
-import ast
 import json
 from uuid import uuid4
 import subprocess as sp
-import importlib
-from pprint import pprint
 from delphi.translators.for2py import (
     preprocessor,
     translate,
@@ -14,12 +11,9 @@ from delphi.translators.for2py import (
     genPGM,
     For2PyError,
 )
-from delphi.utils.fp import flatten
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.analysis import S2_surface, get_max_s2_sensitivity
 from delphi.GrFN.sensitivity import sobol_analysis
-from delphi.GrFN.utils import NodeType, get_node_type
-import delphi.paths
 import xml.etree.ElementTree as ET
 
 from flask import (
@@ -45,14 +39,13 @@ from pygments.formatters import HtmlFormatter
 import plotly.graph_objs as go
 import plotly
 
-import numpy as np
 import pandas as pd
 
-from sympy import sympify, latex, symbols
+from sympy import latex, sympify
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
-TMPDIR="/tmp/automates"
+TMPDIR = "/tmp/automates"
 sys.path.insert(0, TMPDIR)
 
 BOUNDS = {
@@ -69,9 +62,12 @@ BOUNDS = {
     "petasce::tmin_-1": [-30, 60],
     "petasce::xhlai_-1": [0, 20],
     "petasce::tdew_-1": [-30, 60],
-    "petasce::windht_-1": [0.1, 10],  # HACK: has a hole in 0 < x < 1 for petasce__assign__wind2m_1
+    "petasce::windht_-1": [
+        0.1,
+        10,
+    ],  # HACK: has a hole in 0 < x < 1 for petasce__assign__wind2m_1
     "petasce::windrun_-1": [0, 900],
-    "petasce::xlat_-1": [3, 12],     # HACK: south sudan lats
+    "petasce::xlat_-1": [3, 12],  # HACK: south sudan lats
     "petasce::xelev_-1": [0, 6000],
     "petasce::canht_-1": [0.001, 3],
 }
@@ -142,7 +138,7 @@ def get_tooltip(n):
             comment_provenance = metadata["from_comments"]
             text_provenance = metadata["from_text"]
             tooltip = """
-            <strong>Metadata extracted using NLP.</strong>
+            <strong>Metadata extracted using NLP</strong>
             <nav>
                 <div class="nav nav-tabs" id="nav-tab-{n[0]}" role="tablist">
                     <a class="nav-item nav-link active" id="nav-comments-tab-{n[0]}"
@@ -187,7 +183,6 @@ def get_tooltip(n):
     else:
         src = inspect.getsource(n[1]["lambda_fn"])
         src_lines = src.split("\n")
-        symbs = src_lines[0].split("(")[1].split(")")[0].split(", ")
         ltx = (
             src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
             + " = "
@@ -231,7 +226,7 @@ def get_tooltip(n):
 def index():
     form = MyForm()
     if form.validate_on_submit():
-        text = form.source_code.data
+        form.source_code.data
     return render_template("index.html", form=form, code="")
 
 
@@ -335,6 +330,7 @@ def to_cyjs_cag(G):
     json_str = json.dumps(elements, indent=2)
     return json_str
 
+
 def to_cyjs_fib(G):
     elements = {
         "nodes": [
@@ -413,7 +409,6 @@ def processCode():
         pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
     )
 
-
     try:
         args = G.inputs
         Si = sobol_analysis(
@@ -432,7 +427,9 @@ def processCode():
         y_var = args[v2]
         search_space = [(x_var, BOUNDS[x_var]), (y_var, BOUNDS[y_var])]
         preset_vals = {
-            arg: PRESETS[arg] for i, arg in enumerate(args) if i != v1 and i != v2
+            arg: PRESETS[arg]
+            for i, arg in enumerate(args)
+            if i != v1 and i != v2
         }
 
         (X, Y, Z) = S2_surface(G, (8, 6), search_space, preset_vals)
@@ -454,11 +451,13 @@ def processCode():
         graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
     except KeyError:
-        flash("Bounds information was not found for some variables,"
-                "so the S2 sensitivity surface cannot be produced for this "
-                "code example.")
-        graphJSON='{}'
-        layout='{}'
+        flash(
+            "Bounds information was not found for some variables,"
+            "so the S2 sensitivity surface cannot be produced for this "
+            "code example."
+        )
+        graphJSON = "{}"
+        layout = "{}"
 
     scopeTree_elementsJSON = to_cyjs_grfn(G)
     CAG = G.to_CAG()
@@ -466,7 +465,6 @@ def processCode():
 
     os.remove(input_code_tmpfile)
     os.remove(f"/tmp/automates/{lambdas}.py")
-
 
     return render_template(
         "index.html",
@@ -486,18 +484,17 @@ def processCode():
 @app.route("/modelAnalysis")
 def modelAnalysis():
     PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(
-            THIS_FOLDER+"/static/example_programs/petPT.f",
-            tmpdir=TMPDIR)
+        THIS_FOLDER + "/static/example_programs/petPT.f", tmpdir=TMPDIR
+    )
     PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(
-            THIS_FOLDER+"/static/example_programs/petASCE.f",
-            tmpdir=TMPDIR)
+        THIS_FOLDER + "/static/example_programs/petASCE.f", tmpdir=TMPDIR
+    )
     FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
-
     return render_template(
         "modelAnalysis.html",
-        petpt_elementsJSON = to_cyjs_cag(PETPT_GrFN.to_CAG()),
-        petasce_elementsJSON = to_cyjs_cag(PETASCE_GrFN.to_CAG()),
-        fib_elementsJSON = to_cyjs_fib(FIB),
+        petpt_elementsJSON=to_cyjs_cag(PETPT_GrFN.to_CAG()),
+        petasce_elementsJSON=to_cyjs_cag(PETASCE_GrFN.to_CAG()),
+        fib_elementsJSON=to_cyjs_fib(FIB),
     )
 
 
