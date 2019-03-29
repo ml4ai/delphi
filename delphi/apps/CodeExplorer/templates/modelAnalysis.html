@@ -4,9 +4,16 @@
     <div class="container-fluid"> 
       {% include "navbar.html" %}
       <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-        <div id="petpt" class="col border" style="height:50rem;">PT potential evapotranspiration model</div>
-        <div id="fib" class="col border" style="height:50rem;">Forward Influence Blanket</div>
-        <div id="petasce" class="col border" style="height:50rem;">ASCE potential evapotranspiration model</div>
+        {% for id, description in {
+          "petpt": "Priestley-Taylor evapotranspiration model",
+          "fib": "Forward Influence Blanket",
+          "petasce": "ASCE Evapotranspiration model",
+        }.items() %}
+          <div class="col" style="height: 90%">
+            <div class="row"><h3>{{ description }}</h3></div>
+            <div id="{{ id }}" class="row" style="height:50rem;"></div>
+          </div>
+        {% endfor %}
       </div>
   <script> {% include "cyjs.js" %} </script>
   <script>
