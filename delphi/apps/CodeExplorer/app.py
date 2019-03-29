@@ -43,6 +43,7 @@ import pandas as pd
 
 from sympy import latex, sympify
 
+os.makedirs("/tmp/automates/", exist_ok = True)
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
 TMPDIR = "/tmp/automates"
