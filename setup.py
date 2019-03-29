@@ -59,8 +59,8 @@ setup(
             "pyshp",
             "xlrd",
             "pyjnius",
-            "plotly"
-            ],
+            "plotly",
+        ],
         "test": [
             "pytest>=3.6.0",
             "pytest-cov",
@@ -77,5 +77,10 @@ setup(
             "recommonmark",
         ],
     },
-    entry_points={"console_scripts": ["delphi = delphi.cli:main"]},
+    entry_points={
+        "console_scripts": [
+            "delphi = delphi.cli:main",
+            "codex = delphi.apps.CodeExplorer.app:main",
+        ]
+    },
 )
