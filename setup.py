@@ -7,7 +7,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name="delphi",
-    version="3.0.0",
+    vers4on="4.0.0",
     description="A framework for assembling probabilistic models from text.",
     url="https://github.com/ml4ai/delphi",
     author="ML4AI",
@@ -37,7 +37,6 @@ setup(
         "flask",
         "SQLAlchemy",
         "flask-sqlalchemy",
-        "fuzzywuzzy[speedup]",
         "jupyter",
         "jupyter-contrib-nbextensions",
         "python-dateutil",
@@ -79,7 +78,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "delphi = delphi.cli:main",
+            "delphi = delphi.apps.cli:main",
+            "delphi_rest_api = delphi.apps.rest_api.run:main",
             "codex = delphi.apps.CodeExplorer.app:main",
         ]
     },
