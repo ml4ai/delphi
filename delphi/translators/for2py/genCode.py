@@ -1,5 +1,6 @@
 import ast
 import sys
+from . import For2PyError
 
 
 class PrintState:
@@ -161,7 +162,7 @@ def genCode(node, state):
                 "Fix Compare in genCode! Don't have an example of what this will look like\n"
             )
         else:
-            codeStr = "({0}{1}{2})".format(
+            codeStr = "({0} {1} {2})".format(
                 genCode(node.left, state),
                 genCode(node.ops[0], state),
                 genCode(node.comparators[0], state),
@@ -170,8 +171,7 @@ def genCode(node, state):
     # Subscript: ('value', 'slice', 'ctx')
     elif isinstance(node, ast.Subscript):
         if not isinstance(node.slice.value, ast.Num):
-            sys.stderr.write("can't handle arrays in genCode right now\n")
-            sys.exit(1)
+            raise For2PyError("can't handle arrays in genCode right now.")
         # typical:
         # codeStr = '{0}{1}'.format(genCode(node.value, state), genCode(node.slice, state))
         codeStr = genCode(node.value, state)

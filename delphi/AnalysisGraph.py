@@ -12,9 +12,8 @@ import networkx as nx
 import numpy as np
 from scipy.stats import gaussian_kde, norm
 import pandas as pd
-from indra.statements.statements import Influence
-from indra.statements.concept import Concept
-from indra.statements.evidence import Evidence as INDRAEvidence
+from indra.statements import Influence, Concept
+from indra.statements import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
@@ -33,7 +32,7 @@ from .assembly import (
 )
 from future.utils import lzip
 from tqdm import tqdm
-from .icm_api.models import (
+from .apps.rest_api.models import (
     Evidence,
     ICMMetadata,
     CausalVariable,
@@ -925,7 +924,7 @@ class AnalysisGraph(nx.DiGraph):
         """ Inserts the model into the SQLite3 database associated with Delphi,
         for use with the ICM REST API. """
 
-        from delphi.icm_api import create_app, db
+        from delphi.apps.rest_api import create_app, db
 
         self.assign_uuids_to_nodes_and_edges()
         icm_metadata = ICMMetadata(
@@ -1042,3 +1041,140 @@ class AnalysisGraph(nx.DiGraph):
             for evidence in evidences:
                 db.session.add(evidence)
             db.session.commit()
+
+    def to_agraph(self, *args, **kwargs):
+        """ Exports the CAG as a pygraphviz AGraph for visualization. """
+
+        from delphi.utils.misc import choose_font
+        FONT = choose_font()
+        A = nx.nx_agraph.to_agraph(self)
+        A.graph_attr.update(
+            {
+                "dpi": 227,
+                "fontsize": 20,
+                "rankdir": kwargs.get("rankdir", "TB"),
+                "fontname": FONT,
+                "overlap": "scale",
+                "splines": True,
+            }
+        )
+
+        A.node_attr.update(
+            {
+                "shape": "rectangle",
+                "color": "black",
+                # "color": "#650021",
+                "style": "rounded",
+                "fontname": FONT,
+            }
+        )
+
+        nodes_with_indicators = [
+            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
+        ]
+
+        n_max = max(
+            [
+                sum([len(s.evidence) for s in e[2]["InfluenceStatements"]])
+                for e in self.edges(data=True)
+            ]
+        )
+
+        nodeset = {n.split("/")[-1] for n in self.nodes}
+
+        simplified_labels = len(nodeset) == len(self)
+        color_str = "#650021"
+        for n in self.nodes(data=True):
+            if kwargs.get("values"):
+                node_label = (
+                    n[0].capitalize().replace("_", " ")
+                    + " ("
+                    + str(np.mean(n[1]["rv"].dataset))
+                    + ")"
+                )
+            else:
+                node_label = (
+                    n[0].split("/")[-1].replace("_", " ").capitalize()
+                    if simplified_labels
+                    else n[0]
+                )
+            A.add_node(n[0], label=node_label)
+
+        if list(self.edges(data=True))[0][2].get("βs") is not None:
+            max_median_betas = max(
+                [abs(np.median(e[2]["βs"])) for e in self.edges(data=True)]
+            )
+
+        for e in self.edges(data=True):
+            # Calculate reinforcement (ad-hoc!)
+
+            sts = e[2]["InfluenceStatements"]
+            total_evidence_pieces = sum([len(s.evidence) for s in sts])
+            reinforcement = (
+                sum([stmt.overall_polarity() * len(stmt.evidence) for stmt in sts])
+                / total_evidence_pieces
+            )
+            opacity = total_evidence_pieces / n_max
+            h = (opacity * 255).hex()
+
+
+            if list(self.edges(data=True))[0][2].get("βs") is not None:
+                penwidth=3 * abs(np.median(e[2]["βs"]) / max_median_betas)
+                cmap = cm.Greens if reinforcement > 0 else cm.Reds
+                c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
+            else:
+                penwidth=1
+                c_str = 'black'
+
+            A.add_edge(
+                e[0],
+                e[1],
+                color=c_str,
+                penwidth=penwidth,
+            )
+
+        # Drawing indicator variables
+
+        if kwargs.get("indicators"):
+            for n in nodes_with_indicators:
+                for indicator_name, ind in n[1]["indicators"].items():
+                    node_label = _insert_line_breaks(
+                        ind.name.replace("_", " "), 30
+                    )
+                    if kwargs.get("indicator_values"):
+                        if ind.unit is not None:
+                            units = f" {ind.unit}"
+                        else:
+                            units = ""
+
+                        if ind.mean is not None:
+                            ind_value = "{:.2f}".format(ind.mean)
+                            node_label = (
+                                f"{node_label}\n{ind_value} {ind.unit}"
+                                f"\nSource: {ind.source}"
+                                f"\nAggregation axes: {ind.aggaxes}"
+                                f"\nAggregation method: {ind.aggregation_method}"
+                            )
+
+                    A.add_node(
+                        indicator_name,
+                        style="rounded, filled",
+                        fillcolor="lightblue",
+                        label=node_label,
+                    )
+                    A.add_edge(n[0], indicator_name, color="royalblue4")
+
+        if kwargs.get("nodes_to_highlight") is not None:
+            nodes = kwargs.pop("nodes_to_highlight")
+            if isinstance(nodes, list):
+                for n in nodes:
+                    if n in A.nodes():
+                        A.add_node(n, fontcolor="royalblue")
+            elif isinstance(nodes, str):
+                if n in A.nodes():
+                    A.add_node(nodes, fontcolor="royalblue")
+
+        if kwargs.get("graph_label") is not None:
+            A.graph_attr["label"] = kwargs["graph_label"]
+
+        return A

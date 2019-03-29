@@ -1,0 +1,736 @@
+{
+  "functions": [
+    {
+      "name": "petpt__assign__td_0",
+      "type": "assign",
+      "target": "td",
+      "sources": [
+        {
+          "name": "tmax",
+          "type": "variable"
+        },
+        {
+          "name": "tmin",
+          "type": "variable"
+        }
+      ],
+      "reference": 14
+    },
+    {
+      "name": "petpt__condition__IF_1_0",
+      "type": "condition",
+      "target": "IF_1",
+      "reference": 15,
+      "sources": [
+        {
+          "name": "xhlai",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__albedo_0",
+      "type": "assign",
+      "target": "albedo",
+      "sources": [
+        {
+          "name": "msalb",
+          "type": "variable"
+        }
+      ],
+      "reference": 16
+    },
+    {
+      "name": "petpt__assign__albedo_1",
+      "type": "assign",
+      "target": "albedo",
+      "sources": [
+        {
+          "name": "msalb",
+          "type": "variable"
+        },
+        {
+          "name": "xhlai",
+          "type": "variable"
+        }
+      ],
+      "reference": 18
+    },
+    {
+      "name": "petpt__decision__albedo_2",
+      "type": "decision",
+      "target": "albedo",
+      "reference": 15,
+      "sources": [
+        {
+          "name": "IF_1_0",
+          "type": "variable"
+        },
+        {
+          "name": "albedo_1",
+          "type": "variable"
+        },
+        {
+          "name": "albedo_0",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__slang_0",
+      "type": "assign",
+      "target": "slang",
+      "sources": [
+        {
+          "name": "srad",
+          "type": "variable"
+        }
+      ],
+      "reference": 19
+    },
+    {
+      "name": "petpt__assign__eeq_0",
+      "type": "assign",
+      "target": "eeq",
+      "sources": [
+        {
+          "name": "slang",
+          "type": "variable"
+        },
+        {
+          "name": "albedo",
+          "type": "variable"
+        },
+        {
+          "name": "td",
+          "type": "variable"
+        }
+      ],
+      "reference": 20
+    },
+    {
+      "name": "petpt__assign__eo_0",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eeq",
+          "type": "variable"
+        }
+      ],
+      "reference": 21
+    },
+    {
+      "name": "petpt__condition__IF_2_0",
+      "type": "condition",
+      "target": "IF_2",
+      "reference": 22,
+      "sources": [
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__eo_1",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eeq",
+          "type": "variable"
+        },
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ],
+      "reference": 23
+    },
+    {
+      "name": "petpt__decision__eo_3",
+      "type": "decision",
+      "target": "eo",
+      "reference": 22,
+      "sources": [
+        {
+          "name": "IF_2_0",
+          "type": "variable"
+        },
+        {
+          "name": "eo_0",
+          "type": "variable"
+        },
+        {
+          "name": "eo_1",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__eo_2",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eeq",
+          "type": "variable"
+        },
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ],
+      "reference": 26
+    },
+    {
+      "name": "petpt__condition__IF_2_1",
+      "type": "condition",
+      "target": "IF_2",
+      "reference": 25,
+      "sources": [
+        {
+          "name": "tmax",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__decision__eo_4",
+      "type": "decision",
+      "target": "eo",
+      "reference": 25,
+      "sources": [
+        {
+          "name": "IF_2_1",
+          "type": "variable"
+        },
+        {
+          "name": "eo_3",
+          "type": "variable"
+        },
+        {
+          "name": "eo_2",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "petpt__assign__eo_5",
+      "type": "assign",
+      "target": "eo",
+      "sources": [
+        {
+          "name": "eo",
+          "type": "variable"
+        }
+      ],
+      "reference": 27
+    },
+    {
+      "name": "petpt",
+      "type": "container",
+      "input": [
+        {
+          "name": "msalb",
+          "domain": "real"
+        },
+        {
+          "name": "srad",
+          "domain": "real"
+        },
+        {
+          "name": "tmax",
+          "domain": "real"
+        },
+        {
+          "name": "tmin",
+          "domain": "real"
+        },
+        {
+          "name": "xhlai",
+          "domain": "real"
+        },
+        {
+          "name": "eo",
+          "domain": "real"
+        }
+      ],
+      "variables": [],
+      "body": [
+        {
+          "name": "petpt__assign__td_0",
+          "output": {
+            "variable": "td",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "tmax",
+              "index": -1
+            },
+            {
+              "variable": "tmin",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__condition__IF_1_0",
+          "output": {
+            "variable": "IF_1",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "xhlai",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__albedo_0",
+          "output": {
+            "variable": "albedo",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "msalb",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__albedo_1",
+          "output": {
+            "variable": "albedo",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "msalb",
+              "index": -1
+            },
+            {
+              "variable": "xhlai",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__decision__albedo_2",
+          "output": {
+            "variable": "albedo",
+            "index": 2
+          },
+          "input": [
+            {
+              "variable": "IF_1",
+              "index": 0
+            },
+            {
+              "variable": "albedo",
+              "index": 1
+            },
+            {
+              "variable": "albedo",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__slang_0",
+          "output": {
+            "variable": "slang",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "srad",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eeq_0",
+          "output": {
+            "variable": "eeq",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "slang",
+              "index": 0
+            },
+            {
+              "variable": "albedo",
+              "index": 2
+            },
+            {
+              "variable": "td",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_0",
+          "output": {
+            "variable": "eo",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "eeq",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "petpt__condition__IF_2_0",
+          "output": {
+            "variable": "IF_2",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "tmax",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_1",
+          "output": {
+            "variable": "eo",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "eeq",
+              "index": 0
+            },
+            {
+              "variable": "tmax",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__decision__eo_3",
+          "output": {
+            "variable": "eo",
+            "index": 3
+          },
+          "input": [
+            {
+              "variable": "IF_2",
+              "index": 0
+            },
+            {
+              "variable": "eo",
+              "index": 0
+            },
+            {
+              "variable": "eo",
+              "index": 1
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_2",
+          "output": {
+            "variable": "eo",
+            "index": 2
+          },
+          "input": [
+            {
+              "variable": "eeq",
+              "index": 0
+            },
+            {
+              "variable": "tmax",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__condition__IF_2_1",
+          "output": {
+            "variable": "IF_2",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "tmax",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "petpt__decision__eo_4",
+          "output": {
+            "variable": "eo",
+            "index": 4
+          },
+          "input": [
+            {
+              "variable": "IF_2",
+              "index": 1
+            },
+            {
+              "variable": "eo",
+              "index": 3
+            },
+            {
+              "variable": "eo",
+              "index": 2
+            }
+          ]
+        },
+        {
+          "name": "petpt__assign__eo_5",
+          "output": {
+            "variable": "eo",
+            "index": 5
+          },
+          "input": [
+            {
+              "variable": "eo",
+              "index": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "identifiers": [
+    {
+      "base_name": "assign$td_0",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "tmax_-1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "tmin_-1",
+      "scope": "_TOP",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "condition$IF_1_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "xhlai_-1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "decision$albedo_2",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "IF_1_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "albedo_1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "albedo_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": [
+        "msalb_-1"
+      ],
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$slang_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "srad_-1",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$eeq_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "slang_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "albedo_2",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "td_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$eo_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eeq_0",
+      "scope": "if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "condition$IF_2_0",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "tmax_-1",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "decision$eo_3",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "IF_2_0",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_0",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_1",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "condition$IF_2_1",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "tmax_-1",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "decision$eo_4",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "IF_2_1",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_3",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_2",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "assign$eo_5",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    },
+    {
+      "base_name": "eo_4",
+      "scope": "if$1.if$1",
+      "namespace": "",
+      "aliases": "None",
+      "source_references": ""
+    }
+  ],
+  "start": "petpt",
+  "source": [
+    [
+      "PETPT.py"
+    ]
+  ],
+  "dateCreated": "20190328"
+}

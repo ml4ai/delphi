@@ -12,7 +12,6 @@ addons:
     - graphviz
 
 install:
-  - pip install git+https://github.com/sorgerlab/indra.git
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
   - pip install .[test,docs]
   - wget http://vision.cs.arizona.edu/adarsh/delphi.db
@@ -29,6 +28,6 @@ deploy:
   on:
     branch: master
 
-after_success: coveralls
+after_success: bash <(curl -s https://codecov.io/bash)
 
 cache: pip

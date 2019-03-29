@@ -8,7 +8,8 @@ Subpackages
 
     delphi.GrFN
     delphi.analysis
-    delphi.icm_api
+    delphi.apps
+    delphi.translators
     delphi.utils
 
 Submodules
