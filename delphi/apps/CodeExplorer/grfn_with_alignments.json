@@ -1,0 +1,4716 @@
+{
+  "functions": [
+    {
+      "name": "petpt__assign__td_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "tmax",
+            "sourceType": "variable"
+          },
+          {
+            "name": "tmin",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__td_0",
+            "reference": [
+              16
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "td"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__condition__IF_1_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "xhlai",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__IF_1_0",
+            "reference": [
+              17
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "IF_1"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__albedo_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "msalb",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__albedo_0",
+            "reference": [
+              18
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "albedo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__albedo_1",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "msalb",
+            "sourceType": "variable"
+          },
+          {
+            "name": "math.exp",
+            "sourceType": "function"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__albedo_1",
+            "reference": [
+              20
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "albedo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__decision__msalb_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "IF_1_0",
+            "sourceType": "variable"
+          },
+          {
+            "name": "msalb_0",
+            "sourceType": "variable"
+          },
+          {
+            "name": "msalb_0",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [],
+      "target": [
+        "msalb"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__decision__albedo_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "IF_1_0",
+            "sourceType": "variable"
+          },
+          {
+            "name": "albedo_3",
+            "sourceType": "variable"
+          },
+          {
+            "name": "albedo_2",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [],
+      "target": [
+        "albedo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__slang_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "srad",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__slang_0",
+            "reference": [
+              21
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "slang"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__eeq_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "slang",
+            "sourceType": "variable"
+          },
+          {
+            "name": "albedo",
+            "sourceType": "variable"
+          },
+          {
+            "name": "td",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__eeq_0",
+            "reference": [
+              22
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "eeq"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__eo_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "eeq",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__eo_0",
+            "reference": [
+              23
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__condition__IF_2_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "tmax",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__IF_2_0",
+            "reference": [
+              24
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "IF_2"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__eo_1",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "eeq",
+            "sourceType": "variable"
+          },
+          {
+            "name": "tmax",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__eo_1",
+            "reference": [
+              25
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__condition__IF_3_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "tmax",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__IF_3_0",
+            "reference": [
+              27
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "IF_3"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__eo_2",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "eeq",
+            "sourceType": "variable"
+          },
+          {
+            "name": "math.exp",
+            "sourceType": "function"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__eo_2",
+            "reference": [
+              28
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__decision__eo_0",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "IF_3_0",
+            "sourceType": "variable"
+          },
+          {
+            "name": "eo_1",
+            "sourceType": "variable"
+          },
+          {
+            "name": "eo_3",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__decision__eo_1",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "IF_2_0",
+            "sourceType": "variable"
+          },
+          {
+            "name": "eo_4",
+            "sourceType": "variable"
+          },
+          {
+            "name": "eo_2",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt__assign__eo_3",
+      "functionType": [],
+      "sources": [
+        [
+          {
+            "name": "max",
+            "sourceType": "function"
+          },
+          {
+            "name": "eo",
+            "sourceType": "variable"
+          }
+        ]
+      ],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__lambda__eo_3",
+            "reference": [
+              29
+            ]
+          }
+        ]
+      ],
+      "target": [
+        "eo"
+      ],
+      "input": [],
+      "variables": []
+    },
+    {
+      "name": "petpt",
+      "functionType": [],
+      "sources": [],
+      "body": [
+        [
+          {
+            "bodyType": [],
+            "name": "petpt__assign__td_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__condition__IF_1_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__albedo_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__albedo_1",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__decision__msalb_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__decision__albedo_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__slang_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__eeq_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__eo_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__condition__IF_2_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__eo_1",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__condition__IF_3_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__eo_2",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__decision__eo_0",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__decision__eo_1",
+            "reference": []
+          },
+          {
+            "bodyType": [],
+            "name": "petpt__assign__eo_3",
+            "reference": []
+          }
+        ]
+      ],
+      "target": [],
+      "input": [
+        [
+          {
+            "name": "msalb",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "srad",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "tmax",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "tmin",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "xhlai",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "eo",
+            "domain": "real",
+            "description": []
+          }
+        ]
+      ],
+      "variables": [
+        [
+          {
+            "name": "albedo",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "eeq",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "slang",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "td",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "tmax",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "tmin",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "xhlai",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "IF_1",
+            "domain": "boolean",
+            "description": []
+          },
+          {
+            "name": "msalb",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "srad",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "eo",
+            "domain": "real",
+            "description": []
+          },
+          {
+            "name": "IF_2",
+            "domain": "boolean",
+            "description": []
+          },
+          {
+            "name": "IF_3",
+            "domain": "boolean",
+            "description": []
+          }
+        ]
+      ]
+    }
+  ],
+  "start": "",
+  "name": "PETPT.json",
+  "dateCreated": "2019-02-21",
+  "variables": [
+    [
+      {
+        "name": "albedo",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "eeq",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "slang",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "td",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "tmax",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "tmin",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "xhlai",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "IF_1",
+        "domain": "boolean",
+        "description": []
+      },
+      {
+        "name": "msalb",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "srad",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "eo",
+        "domain": "real",
+        "description": []
+      },
+      {
+        "name": "IF_2",
+        "domain": "boolean",
+        "description": []
+      },
+      {
+        "name": "IF_3",
+        "domain": "boolean",
+        "description": []
+      },
+      {
+        "name": "RT_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": ".",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 24
+          }
+        ]
+      },
+      {
+        "name": "TMAX_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Maximum daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "WINDSP_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Wind speed at 2m",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 40
+          }
+        ]
+      },
+      {
+        "name": "TDEW_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Dewpoint temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 29
+          }
+        ]
+      },
+      {
+        "name": "G_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Soil heat flux density term",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 17
+          }
+        ]
+      },
+      {
+        "name": "RNET_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Net radiation",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 22
+          }
+        ]
+      },
+      {
+        "name": "TD_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Approximation of average daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "RNETMG_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Radiant energy portion of Penman equation",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 23
+          }
+        ]
+      },
+      {
+        "name": "VHCAIR_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": ".",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 33
+          }
+        ]
+      },
+      {
+        "name": "EEQ_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Equilibrium evaporation",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "S_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Rate of change of saturated vapor pressure of air with temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 25
+          }
+        ]
+      },
+      {
+        "name": "VPD_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Vapor pressure deficit",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "TMIN_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Minimum daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 10
+          }
+        ]
+      },
+      {
+        "name": "DAIR_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": ".",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 14
+          }
+        ]
+      },
+      {
+        "name": "VPSLOP_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Calculates slope of saturated vapor pressure versus temperature curve",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 36
+          }
+        ]
+      },
+      {
+        "name": "SRAD_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Solar radiation",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ESAT_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Vapor pressure of air",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "SLANG_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Solar radiation.",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "WIND2_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Windspeed at 2m reference height.",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 38
+          }
+        ]
+      },
+      {
+        "name": "TAVG_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Average daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "EAIR_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Vapor pressure at dewpoint",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "MSALB_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Soil albedo with mulch and soil water effects",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "WFNFAO_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "FAO 24 hour wind function.",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 37
+          }
+        ]
+      },
+      {
+        "name": "VPSAT_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Saturated vapor pressure of air",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 35
+          }
+        ]
+      },
+      {
+        "name": "PATM_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "= 101300.0.",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "CLOUDS_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Relative cloudiness factor",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 13
+          }
+        ]
+      },
+      {
+        "name": "RADB_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Net outgoing thermal radiation",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 21
+          }
+        ]
+      },
+      {
+        "name": "PSYCON_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Psychrometric constant",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "SBZCON_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Stefan Boltzmann constant = 4.093E-9",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 26
+          }
+        ]
+      },
+      {
+        "name": "EO_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Potential evapotranspiration rate",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "TK4_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Temperature to 4th power",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 30
+          }
+        ]
+      },
+      {
+        "name": "ALBEDO_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Reflectance of soil-crop surface",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "TMAX_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Maximum daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "SHAIR_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "= 1005.0.",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 27
+          }
+        ]
+      },
+      {
+        "name": "LHVAP_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Latent head of water vaporization",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "TMIN_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Minimum daily temperature",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 32
+          }
+        ]
+      },
+      {
+        "name": "XHLAI_COMMENT",
+        "domain": "COMMENT",
+        "description": [
+          {
+            "text": "Leaf area index",
+            "source": "petpt_extracted_comments.txt",
+            "sentIdx": 12
+          }
+        ]
+      },
+      {
+        "name": "basis_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE Penman-Monteith",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "ET_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "reference evapotranspiration",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Reference ET_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "is a function of local weather, represents the ET",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "equation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standardized surface",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ASCE-PM_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE Penman-Monteith",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "reference evapotranspiration_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "dense, actively growing vegetation having specified height and surface resistance",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "ET_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "reference evapotranspiration",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "standardization_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "reference ET",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 7
+          }
+        ]
+      },
+      {
+        "name": "data point_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "one-site year",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 23
+          }
+        ]
+      },
+      {
+        "name": "data_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "82 total site-years",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 23
+          }
+        ]
+      },
+      {
+        "name": "Flint Creek_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "desert weather station",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 64
+          }
+        ]
+      },
+      {
+        "name": "data_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "82 total site-years",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "data point_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "one-site year",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "Rn_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "clipped grass",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 43
+          }
+        ]
+      },
+      {
+        "name": "alfalfa_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "reference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "bottom_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "minimum relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 48
+          }
+        ]
+      },
+      {
+        "name": "top_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "daily dewpoint temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 48
+          }
+        ]
+      },
+      {
+        "name": "several papers_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Allen, et al.,",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "IA-WM_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Irrigation Association Water Management Committee",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "IA_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Irrigation Association",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "TC_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE-ET Task Committee",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 7
+          }
+        ]
+      },
+      {
+        "name": "two adopted ETref surfaces_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "short crop",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "equation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standard",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "Reference evapotranspiration_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "rate",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "equation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE-EWRI Task Committee Report",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ETsz_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u201cStandardized Reference Evapotranspiration Equation\u201d",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "reference evapotranspiration_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "dense, actively growing vegetation having specified height and surface resistance",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "Evapotranspiration_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "loss",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "/equation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Standardized Reference Evapotranspiration Equation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "0.12 m_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "similar to clipped, cool-season grass",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Units_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "m2 mm MJ-1",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 10
+          }
+        ]
+      },
+      {
+        "name": "ASCE-PM_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE Penman-Monteith",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Tall_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ETrs",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "ETc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "crop evapotranspiration (",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Selection_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "~50 m_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "weather station",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "parameters_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "minimum requirements to estimate ETos and ETrs",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "alfalfa_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "tall reference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "grass_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "short reference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "ASAE 2004_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASAE Engineering Practice EP505",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 7
+          }
+        ]
+      },
+      {
+        "name": "\u03c1w_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "water",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "2.45 MJ kg-1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "approximately 0.408 kg MJ-1",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "2 TT T minmax_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "P_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean atmospheric pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "5.26 101.3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "P",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "z_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "weather site elevation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "wet bulb_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "psychrometric data",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "variable \u03b3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same variable",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "RHmax_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "maximum relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 24
+          }
+        ]
+      },
+      {
+        "name": "dry bulb temperature_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "wet bulb temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 17
+          }
+        ]
+      },
+      {
+        "name": "Twet_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "wet bulb depression",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 17
+          }
+        ]
+      },
+      {
+        "name": "\u03b3psy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "psychrometric constant",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 17
+          }
+        ]
+      },
+      {
+        "name": "RH_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 22
+          }
+        ]
+      },
+      {
+        "name": "they_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same time",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 23
+          }
+        ]
+      },
+      {
+        "name": "Tmin_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "50/eo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 46
+          }
+        ]
+      },
+      {
+        "name": "Tmax_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "50/eo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 46
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "RHmean",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 46
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "RHmean",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 46
+          }
+        ]
+      },
+      {
+        "name": "T T17.27 exp_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u239f\u239f \u23a0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "5_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u239d \u239b \u2206",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "RHmean_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean daily relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 39
+          }
+        ]
+      },
+      {
+        "name": "function_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u239f \u23a0 \u239e \u239c",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u00b0C. Actual Vapor Pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "humidity_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "water content",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "e\u00b0_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Twet",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "RHmax_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "daily maximum",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "e\u00b0_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Tmax",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "e\u00b0_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Tmin",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "RHmin_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "daily minimum",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "Saturation Vapor Pressure_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "capacity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "Tdew_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "dew point temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 13
+          }
+        ]
+      },
+      {
+        "name": "RHmin_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 26
+          }
+        ]
+      },
+      {
+        "name": "\u2206_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "slope",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "T_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "daily mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "eo_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Tmax",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "Tmin_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "multiplier eo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "apsy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "coefficient",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "P_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean atmospheric pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "Pa psypsy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03b3",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "Pruitt_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "1975,1977",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "Rns_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net short-wave radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Net radiation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net amount",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "\u03b1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "albedo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Rns_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "short-wave radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "\u2212\u03c3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "2 TT e14.034.0fR 4 minK 4 maxK acdnl",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "K_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "273.16",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "fcd_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "cloudiness function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "TK max_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "maximum absolute temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "K_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "273.16",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "TK min_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "minimum",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "standardized ASCE procedure_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Rnl_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "difference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rlu_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standardized surface",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rnl_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Rlu",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "sky_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Rld",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "calculated clear-sky radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "Rs/Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "Rs_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "measured",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "more than 5 %_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Substantial variation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "18_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative cloudiness",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "modulus_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "remainder",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 40
+          }
+        ]
+      },
+      {
+        "name": "Extraterrestrial Radiation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "well-behaved function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 29
+          }
+        ]
+      },
+      {
+        "name": "23_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "J 365 2cos033.01dr",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 33
+          }
+        ]
+      },
+      {
+        "name": "Clearsky solar radiation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "amount",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Rs_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "24_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "365 2sin409.0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "J_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "number",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "Ra_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Extraterrestrial radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "z_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "station elevation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "Daily Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "M_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "number",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 37
+          }
+        ]
+      },
+      {
+        "name": "25_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "J M",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 37
+          }
+        ]
+      },
+      {
+        "name": "Figure 1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "theoretically derived curve",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 13
+          }
+        ]
+      },
+      {
+        "name": "28_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "arctan 2 \u03b4\u03d5\u03c0\u03c9",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 43
+          }
+        ]
+      },
+      {
+        "name": "bs_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "constant",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 21
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "clear-sky solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "Kab_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "as",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "Ra_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "extraterrestrial radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "Kab_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "coefficient",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "Kab_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "fraction",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 20
+          }
+        ]
+      },
+      {
+        "name": "levelness_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "maintenance (",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Clear-sky solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Rn_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "\u03d5_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "latitude",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "earth-sun [unitless], \u03c9s_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "sunset hour angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "Gsc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar constant [4.92 MJ m-2 h-1",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "Ra_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "extraterrestrial radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "\u03b4_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar declination",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "arc-tangent_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "inverse tangent",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "tanarccoss \u03b4\u03d5\u03c9_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "arc-cosine function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 41
+          }
+        ]
+      },
+      {
+        "name": "measured Rs data_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Rso envelope",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 12
+          }
+        ]
+      },
+      {
+        "name": "Soil heat flux density_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "thermal energy utilized to heat the soil",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Gday_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "daily soil heat flux density",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "i-1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "I_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "Tmonth,i+1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "zw_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "height",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "uz_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "measured wind speed",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "u2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "wind speed",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "\u03c1w_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "water",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "2.45 MJ kg-1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "approximately 0.408 kg MJ-1",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "\u03bb_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "vaporization",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "equations_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "mean air temperature_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "average",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "z_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "weather site elevation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "P_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean atmospheric pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "5.26 101.3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "P",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "wet bulb_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "psychrometric data",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "variable \u03b3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same variable",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "T_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Hourly Timestep Section \u2206_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "slope",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "e\u00b0_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Twet",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 14
+          }
+        ]
+      },
+      {
+        "name": "Hourly Timestep Section ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 14
+          }
+        ]
+      },
+      {
+        "name": "P_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean atmospheric pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "apsy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "coefficient",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "Pa psypsy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03b3",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "Actual Vapor Pressure_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "water content",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "\u03b3psy_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "psychrometric constant",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "Tdry_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "dry bulb temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "Tdry-Twet_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "wet bulb depression",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "Twet_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "wet bulb temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 15
+          }
+        ]
+      },
+      {
+        "name": "T 17.27exp 080.61_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Toe",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "T_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u00b0C. eo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "T_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "RH_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "RH_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean relative humidity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 21
+          }
+        ]
+      },
+      {
+        "name": "T_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean air temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 21
+          }
+        ]
+      },
+      {
+        "name": "Saturation Vapor Pressure_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "capacity",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "36_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u239d \u239b \u2206",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "List_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "plastic greenhouses",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "dew point temperature_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 12
+          }
+        ]
+      },
+      {
+        "name": "Rns_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net shortwave radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "Net radiation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net amount",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "condition_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "18 Reference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 7
+          }
+        ]
+      },
+      {
+        "name": "\u03b1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "albedo",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Rns_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "net solar",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Rs_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "incoming solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "~15o_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "0.3 radians",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 24
+          }
+        ]
+      },
+      {
+        "name": "following calculation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "method",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "fcd_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "cloudiness function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "TK hr_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "mean absolute temperature",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "ea_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "actual vapor pressure",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "K_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "273.16",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "standardized ASCE procedure_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ASCE-EWRI Task Committee Report",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "This_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "generally a reasonable assumption",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "\u03b2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "> 0.3 radians",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 36
+          }
+        ]
+      },
+      {
+        "name": "Rnl_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Rlu",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rnl_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "difference",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rlu_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standardized surface",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": "Rld_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "atmosphere",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 5
+          }
+        ]
+      },
+      {
+        "name": ">0.3_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "cloudiness function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "sun angle_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "less than 0.3 radians",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 16
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative solar radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "Rs_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "measured",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "calculated clear-sky radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "more than 5 %_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Substantial variation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "mountain peaks_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "20o",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "sun angle \u03b2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 19
+          }
+        ]
+      },
+      {
+        "name": "45_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "relative cloudiness",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "~17o_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "0.3 radians",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 18
+          }
+        ]
+      },
+      {
+        "name": "Rso_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "extraterrestrial radiation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "Hourly Timestep Section t_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standard clock time",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 40
+          }
+        ]
+      },
+      {
+        "name": "63_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03b2 5.02Y1 Yarctan",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 62
+          }
+        ]
+      },
+      {
+        "name": "arc tangent_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "inverse tangent",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 62
+          }
+        ]
+      },
+      {
+        "name": "tanarccoss \u03b4\u03d5\u03c9_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "inverse",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 54
+          }
+        ]
+      },
+      {
+        "name": "Clearsky solar radiation_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "amount",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 1
+          }
+        ]
+      },
+      {
+        "name": "52_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "J M",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "M_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "number",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 34
+          }
+        ]
+      },
+      {
+        "name": "2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03c9s",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 47
+          }
+        ]
+      },
+      {
+        "name": "1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03c9s",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 47
+          }
+        ]
+      },
+      {
+        "name": "1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03c92",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 47
+          }
+        ]
+      },
+      {
+        "name": "tl_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "length",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 38
+          }
+        ]
+      },
+      {
+        "name": "\u03c9_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar time angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 38
+          }
+        ]
+      },
+      {
+        "name": "47_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "well-behaved function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 28
+          }
+        ]
+      },
+      {
+        "name": "\u201carcsin\u201d function_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "inverse",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 61
+          }
+        ]
+      },
+      {
+        "name": "60_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "arctan 2 \u03b4\u03d5\u03c0\u03c9",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 55
+          }
+        ]
+      },
+      {
+        "name": "arc tangent_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "inverse tangent",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 55
+          }
+        ]
+      },
+      {
+        "name": "0Xif00001.0Xand \u2264_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "user",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 55
+          }
+        ]
+      },
+      {
+        "name": "value_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "function",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "modulus_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "remainder",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 37
+          }
+        ]
+      },
+      {
+        "name": "\u03c9_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 43
+          }
+        ]
+      },
+      {
+        "name": "\u03c9s_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "sunrise hour angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 43
+          }
+        ]
+      },
+      {
+        "name": "\u03c9s_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "sunset hour angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 43
+          }
+        ]
+      },
+      {
+        "name": "definition, Ra_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "zero",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 44
+          }
+        ]
+      },
+      {
+        "name": "\u03c9_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar time angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "\u03b4_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "solar declination",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "\u03b4\u03d5_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u03b2",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "\u03b2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "\u03d5_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "latitude",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 59
+          }
+        ]
+      },
+      {
+        "name": "51_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "365 2sin409.0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 30
+          }
+        ]
+      },
+      {
+        "name": "J_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "number",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 53
+          }
+        ]
+      },
+      {
+        "name": "J_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "number",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 31
+          }
+        ]
+      },
+      {
+        "name": "Lz_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "120\u00b0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Sc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "seasonal correction",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Bangkok_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Thailand",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Lz_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "0\u00b0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Paris_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "France",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Lm_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "longitude",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 42
+          }
+        ]
+      },
+      {
+        "name": "Lz_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "longitude",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 41
+          }
+        ]
+      },
+      {
+        "name": "t_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "14.5 hours",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 41
+          }
+        ]
+      },
+      {
+        "name": "MJ m-2 h-1_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "same measurement units",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "Soil heat flux density_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "thermal energy",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "hourly net radiation Rn_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "< 0",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 7
+          }
+        ]
+      },
+      {
+        "name": "Hourly Timestep Section zw_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "height",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 4
+          }
+        ]
+      },
+      {
+        "name": "u2_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "area",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "ETc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "ETc",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "ETc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "crop evapotranspiration",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "ETos_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "standardized reference evapotranspiration (",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Kc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "appropriate crop coefficient",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Coefficients_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "those",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "Martin_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "SCS NEH Part 623 Chapter 2",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "FAO-24_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Doorenbos",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 8
+          }
+        ]
+      },
+      {
+        "name": "Kc values_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "those",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 10
+          }
+        ]
+      },
+      {
+        "name": "Snyder_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "CIMIS Penman equation",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 9
+          }
+        ]
+      },
+      {
+        "name": "full-cover alfalfa reference crop_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "alfalfa",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 3
+          }
+        ]
+      },
+      {
+        "name": "e.g.,_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "\u201d crop coefficients",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 13
+          }
+        ]
+      },
+      {
+        "name": "grass reference crop_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "extensive, uniform surface",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 2
+          }
+        ]
+      },
+      {
+        "name": "There_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "tendency",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 11
+          }
+        ]
+      },
+      {
+        "name": "Kc_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "Crop coefficients (",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "Allen_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "24-h time step",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 12
+          }
+        ]
+      },
+      {
+        "name": "reference ET equations_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "measurable quantities",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 6
+          }
+        ]
+      },
+      {
+        "name": "radians_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "shorter period",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "radians_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "hour angle",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      },
+      {
+        "name": "radians_TEXT",
+        "domain": "TEXT",
+        "description": [
+          {
+            "text": "shorter period",
+            "source": "2005-THE ASCE STANDARDIZED REFERENCE EVAPOTRANSPIRATION EQUATION.json",
+            "sentIdx": 0
+          }
+        ]
+      }
+    ]
+  ],
+  "alignments": [
+    [
+      {
+        "src": "albedo",
+        "dst": "ALBEDO_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "tmin",
+        "dst": "TMIN_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "eo",
+        "dst": "EO_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "eeq",
+        "dst": "EEQ_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "xhlai",
+        "dst": "XHLAI_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "srad",
+        "dst": "SRAD_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "slang",
+        "dst": "SLANG_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "IF_3",
+        "dst": "RT_COMMENT",
+        "score": 0.2
+      },
+      {
+        "src": "IF_1",
+        "dst": "RT_COMMENT",
+        "score": 0.2
+      },
+      {
+        "src": "td",
+        "dst": "TD_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "IF_2",
+        "dst": "WIND2_COMMENT",
+        "score": 0.25
+      },
+      {
+        "src": "msalb",
+        "dst": "MSALB_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "tmax",
+        "dst": "TMAX_COMMENT",
+        "score": 1
+      },
+      {
+        "src": "RT_COMMENT",
+        "dst": "z_TEXT",
+        "score": 0.4741587406975618
+      },
+      {
+        "src": "RT_COMMENT",
+        "dst": "tl_TEXT",
+        "score": 0.4720667739855021
+      },
+      {
+        "src": "RT_COMMENT",
+        "dst": "P_TEXT",
+        "score": 0.45588013444791
+      },
+      {
+        "src": "RNET_COMMENT",
+        "dst": "Net radiation_TEXT",
+        "score": 1.4640970806746647
+      },
+      {
+        "src": "RNET_COMMENT",
+        "dst": "Net radiation_TEXT",
+        "score": 1.4640970806746647
+      },
+      {
+        "src": "RNET_COMMENT",
+        "dst": "Rn_TEXT",
+        "score": 1.379037488824891
+      },
+      {
+        "src": "S_COMMENT",
+        "dst": "Tdry_TEXT",
+        "score": 1.2171001703831148
+      },
+      {
+        "src": "S_COMMENT",
+        "dst": "dry bulb temperature_TEXT",
+        "score": 1.2123681251968972
+      },
+      {
+        "src": "S_COMMENT",
+        "dst": "dew point temperature_TEXT",
+        "score": 1.2085491623350957
+      },
+      {
+        "src": "PATM_COMMENT",
+        "dst": "5_TEXT",
+        "score": 1.544080287809415
+      },
+      {
+        "src": "PATM_COMMENT",
+        "dst": "36_TEXT",
+        "score": 1.544080287809415
+      },
+      {
+        "src": "PATM_COMMENT",
+        "dst": "\u03b2_TEXT",
+        "score": 1.544080287809415
+      },
+      {
+        "src": "CLOUDS_COMMENT",
+        "dst": "RHmin_TEXT",
+        "score": 1.3277404573537934
+      },
+      {
+        "src": "CLOUDS_COMMENT",
+        "dst": ">0.3_TEXT",
+        "score": 1.2918771740552661
+      },
+      {
+        "src": "CLOUDS_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.2703737663383279
+      },
+      {
+        "src": "VPSLOP_COMMENT",
+        "dst": "\u2206_TEXT",
+        "score": 1.2562074897749895
+      },
+      {
+        "src": "VPSLOP_COMMENT",
+        "dst": "dew point temperature_TEXT",
+        "score": 1.2378864027561787
+      },
+      {
+        "src": "VPSLOP_COMMENT",
+        "dst": "Twet_TEXT",
+        "score": 1.235844074602285
+      },
+      {
+        "src": "EAIR_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2557268367498562
+      },
+      {
+        "src": "EAIR_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2557268367498562
+      },
+      {
+        "src": "EAIR_COMMENT",
+        "dst": "Actual Vapor Pressure_TEXT",
+        "score": 1.2445869258208382
+      },
+      {
+        "src": "EO_COMMENT",
+        "dst": "Tmin_TEXT",
+        "score": 1.3177611432840033
+      },
+      {
+        "src": "EO_COMMENT",
+        "dst": "Tmin_TEXT",
+        "score": 1.2827922509575105
+      },
+      {
+        "src": "EO_COMMENT",
+        "dst": "Reference evapotranspiration_TEXT",
+        "score": 1.2740957445178704
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.3077628075358625
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.248876022696764
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.2473197799197508
+      },
+      {
+        "src": "TD_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.21853050633128
+      },
+      {
+        "src": "TD_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.1987769444062895
+      },
+      {
+        "src": "TD_COMMENT",
+        "dst": "dew point temperature_TEXT",
+        "score": 1.1969132768132444
+      },
+      {
+        "src": "SBZCON_COMMENT",
+        "dst": "e\u00b0_TEXT",
+        "score": 1.308139403982431
+      },
+      {
+        "src": "SBZCON_COMMENT",
+        "dst": "e\u00b0_TEXT",
+        "score": 1.308139403982431
+      },
+      {
+        "src": "SBZCON_COMMENT",
+        "dst": "e\u00b0_TEXT",
+        "score": 1.308139403982431
+      },
+      {
+        "src": "MSALB_COMMENT",
+        "dst": "\u03c1w_TEXT",
+        "score": 1.419102453897543
+      },
+      {
+        "src": "MSALB_COMMENT",
+        "dst": "\u03c1w_TEXT",
+        "score": 1.419102453897543
+      },
+      {
+        "src": "MSALB_COMMENT",
+        "dst": "\u03b1_TEXT",
+        "score": 1.3892301920857304
+      },
+      {
+        "src": "SHAIR_COMMENT",
+        "dst": "5_TEXT",
+        "score": 1.4938463165641624
+      },
+      {
+        "src": "SHAIR_COMMENT",
+        "dst": "28_TEXT",
+        "score": 1.4938463165641624
+      },
+      {
+        "src": "SHAIR_COMMENT",
+        "dst": "36_TEXT",
+        "score": 1.4938463165641624
+      },
+      {
+        "src": "EEQ_COMMENT",
+        "dst": "\u03b1_TEXT",
+        "score": 1.0792023032872602
+      },
+      {
+        "src": "EEQ_COMMENT",
+        "dst": "\u03b1_TEXT",
+        "score": 1.0792023032872602
+      },
+      {
+        "src": "EEQ_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 0.997873834153968
+      },
+      {
+        "src": "DAIR_COMMENT",
+        "dst": "\u03bb_TEXT",
+        "score": 0.5212823295282024
+      },
+      {
+        "src": "DAIR_COMMENT",
+        "dst": "z_TEXT",
+        "score": 0.5172529165724454
+      },
+      {
+        "src": "DAIR_COMMENT",
+        "dst": "z_TEXT",
+        "score": 0.5172529165724454
+      },
+      {
+        "src": "WINDSP_COMMENT",
+        "dst": "u2_TEXT",
+        "score": 1.2953897810462385
+      },
+      {
+        "src": "WINDSP_COMMENT",
+        "dst": "uz_TEXT",
+        "score": 1.2442794285086067
+      },
+      {
+        "src": "WINDSP_COMMENT",
+        "dst": "M_TEXT",
+        "score": 1.229774461600635
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.3077628075358625
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.248876022696764
+      },
+      {
+        "src": "TMAX_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.2473197799197508
+      },
+      {
+        "src": "LHVAP_COMMENT",
+        "dst": "\u03bb_TEXT",
+        "score": 1.406327994753895
+      },
+      {
+        "src": "LHVAP_COMMENT",
+        "dst": "\u03c1w_TEXT",
+        "score": 1.3182236908323681
+      },
+      {
+        "src": "LHVAP_COMMENT",
+        "dst": "\u03c1w_TEXT",
+        "score": 1.3182236908323681
+      },
+      {
+        "src": "SLANG_COMMENT",
+        "dst": "Rs/Rso_TEXT",
+        "score": 1.3410118211760076
+      },
+      {
+        "src": "SLANG_COMMENT",
+        "dst": "\u03b4_TEXT",
+        "score": 1.3291625899093442
+      },
+      {
+        "src": "SLANG_COMMENT",
+        "dst": "\u03b4_TEXT",
+        "score": 1.3291625899093442
+      },
+      {
+        "src": "WFNFAO_COMMENT",
+        "dst": "5_TEXT",
+        "score": 1.276289496644314
+      },
+      {
+        "src": "WFNFAO_COMMENT",
+        "dst": "28_TEXT",
+        "score": 1.276289496644314
+      },
+      {
+        "src": "WFNFAO_COMMENT",
+        "dst": "36_TEXT",
+        "score": 1.276289496644314
+      },
+      {
+        "src": "PSYCON_COMMENT",
+        "dst": "\u03b3psy_TEXT",
+        "score": 1.9999999999999996
+      },
+      {
+        "src": "PSYCON_COMMENT",
+        "dst": "\u03b3psy_TEXT",
+        "score": 1.9999999999999996
+      },
+      {
+        "src": "PSYCON_COMMENT",
+        "dst": "bs_TEXT",
+        "score": 1.4647223107470368
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "RHmin_TEXT",
+        "score": 1.4042510678402744
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.3300916642011062
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.293564392972431
+      },
+      {
+        "src": "RNETMG_COMMENT",
+        "dst": "Snyder_TEXT",
+        "score": 1.2644075700624624
+      },
+      {
+        "src": "RNETMG_COMMENT",
+        "dst": "/equation_TEXT",
+        "score": 1.2176443492025775
+      },
+      {
+        "src": "RNETMG_COMMENT",
+        "dst": "equation_TEXT",
+        "score": 1.2032990196190356
+      },
+      {
+        "src": "TDEW_COMMENT",
+        "dst": "Tdry_TEXT",
+        "score": 1.51100541109562
+      },
+      {
+        "src": "TDEW_COMMENT",
+        "dst": "dry bulb temperature_TEXT",
+        "score": 1.5044776642324982
+      },
+      {
+        "src": "TDEW_COMMENT",
+        "dst": "Twet_TEXT",
+        "score": 1.4979499173693764
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "RHmin_TEXT",
+        "score": 1.4042510678402744
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.3300916642011062
+      },
+      {
+        "src": "TMIN_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.293564392972431
+      },
+      {
+        "src": "WIND2_COMMENT",
+        "dst": "u2_TEXT",
+        "score": 1.1924058516613179
+      },
+      {
+        "src": "WIND2_COMMENT",
+        "dst": "uz_TEXT",
+        "score": 1.180342496756235
+      },
+      {
+        "src": "WIND2_COMMENT",
+        "dst": "zw_TEXT",
+        "score": 1.1680406784328157
+      },
+      {
+        "src": "ESAT_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2104700182359973
+      },
+      {
+        "src": "ESAT_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2104700182359973
+      },
+      {
+        "src": "ESAT_COMMENT",
+        "dst": "Actual Vapor Pressure_TEXT",
+        "score": 1.2061115686155568
+      },
+      {
+        "src": "ALBEDO_COMMENT",
+        "dst": "\u03b1_TEXT",
+        "score": 1.6479415890180729
+      },
+      {
+        "src": "ALBEDO_COMMENT",
+        "dst": "\u03b1_TEXT",
+        "score": 1.6479415890180729
+      },
+      {
+        "src": "ALBEDO_COMMENT",
+        "dst": "Rlu_TEXT",
+        "score": 1.3873015769335852
+      },
+      {
+        "src": "VPD_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2155069704305788
+      },
+      {
+        "src": "VPD_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2155069704305788
+      },
+      {
+        "src": "VPD_COMMENT",
+        "dst": "Actual Vapor Pressure_TEXT",
+        "score": 1.1882652087385994
+      },
+      {
+        "src": "RADB_COMMENT",
+        "dst": "Net radiation_TEXT",
+        "score": 1.2844893259075925
+      },
+      {
+        "src": "RADB_COMMENT",
+        "dst": "Net radiation_TEXT",
+        "score": 1.2844893259075925
+      },
+      {
+        "src": "RADB_COMMENT",
+        "dst": "Rs/Rso_TEXT",
+        "score": 1.2483733589889325
+      },
+      {
+        "src": "VPSAT_COMMENT",
+        "dst": "Actual Vapor Pressure_TEXT",
+        "score": 1.2406780694759618
+      },
+      {
+        "src": "VPSAT_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2369187097913537
+      },
+      {
+        "src": "VPSAT_COMMENT",
+        "dst": "Saturation Vapor Pressure_TEXT",
+        "score": 1.2369187097913537
+      },
+      {
+        "src": "VHCAIR_COMMENT",
+        "dst": "basis_TEXT",
+        "score": -1.7976931348623157e+308
+      },
+      {
+        "src": "VHCAIR_COMMENT",
+        "dst": "ET_TEXT",
+        "score": -1.7976931348623157e+308
+      },
+      {
+        "src": "VHCAIR_COMMENT",
+        "dst": "Reference ET_TEXT",
+        "score": -1.7976931348623157e+308
+      },
+      {
+        "src": "XHLAI_COMMENT",
+        "dst": "u2_TEXT",
+        "score": 1.2168480814741036
+      },
+      {
+        "src": "XHLAI_COMMENT",
+        "dst": "Tdry_TEXT",
+        "score": 0.6773879211901428
+      },
+      {
+        "src": "XHLAI_COMMENT",
+        "dst": "dry bulb temperature_TEXT",
+        "score": 0.6712897863334899
+      },
+      {
+        "src": "TK4_COMMENT",
+        "dst": "Tdry_TEXT",
+        "score": 1.1903066618240288
+      },
+      {
+        "src": "TK4_COMMENT",
+        "dst": "dew point temperature_TEXT",
+        "score": 1.1894264268415489
+      },
+      {
+        "src": "TK4_COMMENT",
+        "dst": "dry bulb temperature_TEXT",
+        "score": 1.1885338400956607
+      },
+      {
+        "src": "TAVG_COMMENT",
+        "dst": "RHmin_TEXT",
+        "score": 1.324543273488078
+      },
+      {
+        "src": "TAVG_COMMENT",
+        "dst": "top_TEXT",
+        "score": 1.3229368059175128
+      },
+      {
+        "src": "TAVG_COMMENT",
+        "dst": "RHmax_TEXT",
+        "score": 1.3097418706531356
+      },
+      {
+        "src": "G_COMMENT",
+        "dst": "Soil heat flux density_TEXT",
+        "score": 1.2495078235823345
+      },
+      {
+        "src": "G_COMMENT",
+        "dst": "Soil heat flux density_TEXT",
+        "score": 1.2159244460959944
+      },
+      {
+        "src": "G_COMMENT",
+        "dst": "Gday_TEXT",
+        "score": 1.2111596637454116
+      },
+      {
+        "src": "SRAD_COMMENT",
+        "dst": "Rs/Rso_TEXT",
+        "score": 1.5101599337883123
+      },
+      {
+        "src": "SRAD_COMMENT",
+        "dst": "\u03b4_TEXT",
+        "score": 1.4919508952051523
+      },
+      {
+        "src": "SRAD_COMMENT",
+        "dst": "\u03b4_TEXT",
+        "score": 1.4919508952051523
+      }
+    ]
+  ]
+}

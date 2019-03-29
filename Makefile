@@ -5,7 +5,6 @@ docs:
 
 test:
 	pytest \
-	  -s\
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
 	  --ignore=delphi/analysis/sensitivity/tests\

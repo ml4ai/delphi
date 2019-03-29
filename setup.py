@@ -22,6 +22,7 @@ setup(
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     install_requires=[
+        "indra",
         "tqdm",
         "numpy",
         "scipy",
@@ -41,8 +42,13 @@ setup(
         "jupyter-contrib-nbextensions",
         "python-dateutil",
         "salib",
-        "tangent",
+        "torch",
         "ruamel.yaml",
+        "flask-WTF",
+        "flask-codemirror",
+        "pygments",
+        "sympy",
+        "plotly",
     ],
     python_requires=">=3.6",
     extras_require={
@@ -52,8 +58,8 @@ setup(
             "shapely",
             "pyshp",
             "xlrd",
-            "fire",
-            "pyjnius"
+            "pyjnius",
+            "plotly"
             ],
         "test": [
             "pytest>=3.6.0",
