@@ -1,35 +1,43 @@
 <html>
   {% include "head.html" %}
   <body class="theme-base-08">
-    <div class="container-fluid"> 
+    <div class="container-fluid">
       {% include "navbar.html" %}
-      <div class="row justify-content-md-center" style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
-        {% for id, description in {
-          "petpt": "Priestley-Taylor evapotranspiration model",
-          "fib": "Forward Influence Blanket",
-          "petasce": "ASCE Evapotranspiration model",
-        }.items() %}
-          <div class="col" style="height: 90%">
-            <div class="row"><h3>{{ description }}</h3></div>
-            <div id="{{ id }}" class="row" style="height:50rem;"></div>
-          </div>
+      <div
+        class="row justify-content-md-center"
+        style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;"
+      >
+        {% for id, description in { "petpt": "Priestley-Taylor
+        evapotranspiration model", "fib": "Forward Influence Blanket",
+        "petasce": "ASCE Evapotranspiration model", }.items() %}
+        <div class="col" style="height: 50%">
+          <div class="row"><h3>{{ description }}</h3></div>
+          <div id="{{ id }}" class="row" style="height:50rem;"></div>
+        </div>
         {% endfor %}
       </div>
-  <script> {% include "cyjs.js" %} </script>
-  <script>
-    var petpt_graph = make_cyjs(
-      'petpt',
-      {{ petpt_elementsJSON | safe }}
-    );
-    var petasce_graph = make_cyjs(
-      'petasce',
-      {{ petasce_elementsJSON | safe }}
-    );
-    var fib_graph = make_cyjs(
-      'fib',
-      {{ fib_elementsJSON | safe }}
-    );
-  </script>
+      <div class="row" id="fibSurfacePlot"></div>
+      <script>
+        {% include "cyjs.js" %}
+      </script>
+      <script>
+        var fibGraph = {{ graphJSON | safe}};
+        Plotly.plot('fibSurfacePlot', fibGraph, {{ layout | safe }});
+      </script>
+      <script>
+        var petpt_graph = make_cyjs(
+          'petpt',
+          {{ petpt_elementsJSON | safe }}
+        );
+        var petasce_graph = make_cyjs(
+          'petasce',
+          {{ petasce_elementsJSON | safe }}
+        );
+        var fib_graph = make_cyjs(
+          'fib',
+          {{ fib_elementsJSON | safe }}
+        );
+      </script>
     </div>
   </body>
 </html>
