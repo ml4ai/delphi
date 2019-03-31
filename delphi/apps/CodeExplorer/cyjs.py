@@ -10,14 +10,31 @@ from pygments.formatters import HtmlFormatter
 PYTHON_LEXER = PythonLexer()
 PYTHON_FORMATTER = HtmlFormatter()
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+GRFN_WITH_ALIGNMENTS = os.path.join(
+    THIS_FOLDER, "petasce_with_alignments.json"
+)
 sys.path.insert(0, "/tmp/automates")
 
-with open(GRFN_WITH_ALIGNMENTS, "r") as f:
-    tr_dict = json.load(f)
+
+def process_tr_dicts():
+    with open(
+        os.path.join(THIS_FOLDER, "petasce_with_alignments.json"), "r"
+    ) as f:
+        tr_dict_1 = json.load(f)
+
+    with open(
+        os.path.join(THIS_FOLDER, "grfn_with_alignments.json"), "r"
+    ) as f:
+        tr_dict_2 = json.load(f)
+
+    tr_dict = {
+        "variables": tr_dict_1["variables"][0]+ tr_dict_2["variables"][0],
+        "alignments": tr_dict_1["alignments"][0]+ tr_dict_2["alignments"][0],
+    }
+
     tr_dict_processed = {}
-    variables = {v.pop("name"): v for v in tr_dict["variables"][0]}
-    alignments = tr_dict["alignments"][0]
+    variables = {v.pop("name"): v for v in tr_dict["variables"]}
+    alignments = tr_dict["alignments"]
     src_comment_alignments = {
         alignment["src"]: alignment["dst"]
         for alignment in alignments
@@ -36,6 +53,16 @@ with open(GRFN_WITH_ALIGNMENTS, "r") as f:
         }
         for src, comment in src_comment_alignments.items()
     }
+    return (
+        src_comment_alignments,
+        comment_text_alignments,
+        src_text_alignments,
+    )
+
+
+src_comments_alignments, comment_text_alignments, src_text_alignments = (
+    process_tr_dicts()
+)
 
 
 def get_tooltip(n):

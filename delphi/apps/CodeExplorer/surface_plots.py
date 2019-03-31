@@ -103,8 +103,8 @@ def get_fib_surface_plot(G, covers, num_samples=10):
                 zaxis=dict(title=G.output_node.split("::")[1]),
             ),
             autosize=True,
-            width=400,
-            height=400,
+            width=600,
+            height=600,
             margin=dict(l=65, r=50, b=65, t=90),
         )
     )
