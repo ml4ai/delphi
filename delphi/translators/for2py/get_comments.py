@@ -20,7 +20,7 @@ Example:
     categories to a list of comment strings:
 
     -- 'head' : whole-line comments just before the subprogram start;
-    -- 'neck' : whole-line comments just after the subprogram start; 
+    -- 'neck' : whole-line comments just after the subprogram start;
     -- 'foot' : whole-line comments just after the subprogram ends; and
     -- 'internal' : comments internal to the function (curently marked
             by "marker statements" of the form i_g_n_o_r_e__m_e___NNN = .True.
@@ -45,10 +45,15 @@ Example:
     corresponding entries in the comment dictionary are [].
 """
 
-import sys, re
-from collections import *
-from delphi.translators.for2py.syntax import *
-from typing import Tuple, Optional
+import sys
+import re
+from collections import OrderedDict
+from delphi.translators.for2py.syntax import (
+    line_is_comment,
+    line_starts_subpgm,
+    line_ends_subpgm,
+    line_is_continuation,
+)
 import json
 
 INTERNAL_COMMENT_MARKER = r"\s*(i_g_n_o_r_e__m_e___\d+)\s*=\s*\.True\."
@@ -76,7 +81,7 @@ def get_comments(src_file_name: str):
             if line_is_comment(line):
                 curr_comment.append(line)
             else:
-                if curr_fn == None and comments["$file_head"] == []:
+                if curr_fn is not None and comments["$file_head"] == []:
                     comments["$file_head"] = curr_comment
 
                 f_start, f_name_maybe = line_starts_subpgm(line)
@@ -138,7 +143,7 @@ def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
 def print_comments(comments):
 
     for fn, comment in comments.items():
-        if fn == "$file_head" or fn == "$file_foot":  # file-level comments
+        if fn in ("$file_head", "$file_foot"):  # file-level comments
             print(fn + ":")
             for line in comment:
                 print(f"    {line.rstrip()}")
