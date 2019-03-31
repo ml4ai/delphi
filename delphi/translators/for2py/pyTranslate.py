@@ -24,6 +24,7 @@ import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
 from delphi.translators.for2py import For2PyError
+from delphi.translators.for2py import syntax
 
 
 class PrintState:
@@ -155,14 +156,14 @@ class PythonCodeGenerator(object):
             "derived-type": self.printDerivedType,
         }
         self.operator_mapping = {
-            ".ne.": " != ",
-            ".gt.": " > ",
-            ".eq.": " == ",
-            ".lt.": " < ",
-            ".le.": " <= ",
-            ".ge.": " >= ",
-            ".and.": " and ",
-            ".or.": " or ",
+            ".ne.": "!=",
+            ".gt.": ">",
+            ".eq.": "==",
+            ".lt.": "<",
+            ".le.": "<=",
+            ".ge.": ">=",
+            ".and.": "and",
+            ".or.": "or",
         }
         self.readFormat = []
 
@@ -235,6 +236,135 @@ class PythonCodeGenerator(object):
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
+    # proc_intrinsic() processes a call to an intrinsic function
+    def proc_intrinsic(self, node):
+        intrinsic = node["name"].lower()
+        handler_info = syntax.F_INTRINSICS[intrinsic]
+
+        if handler_info == None:
+            raise For2PyError(f"No handler for Fortran intrinsic {intrinsic}")
+
+        py_fn, py_fn_type, py_mod = handler_info
+        arg_list = self.get_arg_list(node)
+        arg_strs = self.proc_expr_list(arg_list, False)
+
+        if py_mod != None:
+            handler = f"{py_mod}.{py_fn}"
+        else:
+            handler = py_fn
+
+        if py_fn_type == "FUNC":
+            arguments = ", ".join(arg_strs)
+            return f"{handler}({arguments})"
+        elif py_fn_type == "INFIXOP":
+            assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
+            return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
+        else:
+            assert False, f"Unknown py_fn_type: {py_fn_type}"
+
+    # get_arg_list() returns the list of arguments or subscripts at a node
+    def get_arg_list(self, node):
+        if "args" in node:
+            return node["args"]
+
+        if "subscripts" in node:
+            return node["subscripts"]
+
+        return []
+
+    # proc_call(): processes function calls, including calls to intrinsics.
+    # This code assumes that proc_expr() has used type info to correctly
+    # identify array references, and that proc_call() is therefore correctly
+    # called only on function calls.
+    def proc_call(self, node):
+        if node["name"].lower() == "index":
+            var = self.nameMapper[node["args"][0]["name"]]
+            toFind = node["args"][1]["value"]
+            return f"{var}[0].find({toFind})"
+
+        if node["name"].lower() in syntax.F_INTRINSICS:
+            return self.proc_intrinsic(node)
+
+        callee = f"{node['name']}"
+        arg_list = self.get_arg_list(node)
+        arg_strs = self.proc_expr_list(arg_list, True)
+        arguments = ", ".join(arg_strs)
+
+        exp_str = f"{callee}({arguments})"
+
+        #print(f">>> NODE = {node}\n    exp_str = {exp_str}")
+        return exp_str
+
+
+    # proc_expr_list() processes a list of expressions [e1, ..., eN] and
+    # returns a list of strings [s1, ..., sN] where si is the string obtained
+    # from processing expression ei.  The argument wrapper indicates
+    # whether the Python expression should refer to the list wrapper for 
+    # (scalar) variables.
+    def proc_expr_list(self, node, wrapper):
+        return [self.proc_expr(node[i], wrapper) for i in range(len(node))]
+
+    # proc_literal() processes a literal value.
+    def proc_literal(self, node):
+        if node["type"] == "bool":
+            return node["value"].title()
+        else:
+            return node["value"]
+
+    # proc_expr() processes an expression node.  The argument wrapper indicates
+    # whether or not the Python expression should refer to the list wrapper for 
+    # (scalar) variables.
+    def proc_expr(self, node, wrapper):
+        #print(f">>> proc_expr: {node}")
+
+        if node["tag"] == "literal":
+            return self.proc_literal(node)
+
+        if node["tag"] == "ref":
+            ref_str = self.nameMapper[node["name"]]
+            if "subscripts" in node:
+                # array reference or function call
+                if "isArray" in node and node["isArray"]:
+                    subs_strs = self.proc_expr_list(node["subscripts"], False)
+                    subscripts = ", ".join(subs_strs)
+                    expr_str = f"{ref_str}.get_(({subscripts}))"
+                else:
+                    expr_str = self.proc_call(node)
+            else:
+                # scalar variable
+                if wrapper:
+                    expr_str = ref_str
+                else:
+                    expr_str = ref_str + "[0]"
+
+            return expr_str
+
+        if node["tag"] == "call":
+            return self.proc_call(node)
+
+        expr_str = None
+        if node["tag"] == "op":
+            assert not wrapper
+            op_str = self.operator_mapping.get(
+                    node["operator"].lower(), f"{node['operator']}"
+                )
+
+            assert len(node["left"]) == 1
+            l_subexpr = self.proc_expr(node["left"][0], False)
+
+            if "right" in node:
+                assert len(node["right"]) == 1
+                r_subexpr = self.proc_expr(node["right"][0], False)
+                expr_str = f"({l_subexpr} {op_str} {r_subexpr})"
+            else:    # unary operator
+                expr_str = f"{op_str}({l_subexpr})"
+
+        #print(f">>> NODE = {node}\n    exp_str = {expr_str}")
+
+        assert expr_str != None, f">>> [proc_expr] NULL value: {node}"
+        return expr_str
+
+
     def printCall(self, node: Dict[str, str], printState: PrintState):
         if not printState.indexRef:
             self.pyStrings.append("[")
@@ -253,7 +383,7 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(f"{var}[0].find({toFind})")
 
         elif node["name"] == "mod":
-            self.printAst(
+            args_str = self.printAst(
                 node["args"],
                 printState.copy(
                     sep="%",
@@ -267,7 +397,7 @@ class PythonCodeGenerator(object):
             argSize = len(node["args"])
             self.pyStrings.append(f"{node['name']}(")
             for arg in range(0, argSize):
-                self.printAst(
+                arg_str = self.printAst(
                     [node["args"][arg]],
                     printState.copy(
                         sep=", ",
@@ -278,8 +408,10 @@ class PythonCodeGenerator(object):
                         indexRef=inRef,
                     ),
                 )
+
                 if arg < argSize - 1:
                     self.pyStrings.append(", ")
+
             self.pyStrings.append(")")
 
         if not printState.indexRef:
@@ -318,10 +450,6 @@ class PythonCodeGenerator(object):
         index = 0
         for item in node["args"]:
             if item["tag"] == "ref":
-                # if item["name"] in self.privFunctions:
-                #     var = "_" + item["name"]
-                # else:
-                #     var = item["name"]
                 self.printVariable(
                     {
                         "name": self.nameMapper[item["name"]],
@@ -499,48 +627,14 @@ class PythonCodeGenerator(object):
             )
 
     def printOp(self, node, printState: PrintState):
-        node["left"][0]["op"] = True
-        if not printState.indexRef:
-            self.pyStrings.append("[")
-        if "right" in node:
-            self.pyStrings.append("(")
-            self.printAst(
-                node["left"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
+        expr_str = self.proc_expr(node, False)
 
-            self.pyStrings.append(
-                self.operator_mapping.get(
-                    node["operator"].lower(), f" {node['operator']} "
-                )
-            )
-            self.printAst(
-                node["right"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
-            self.pyStrings.append(")")
-        else:
-            self.pyStrings.append(f"{node['operator']}(")
-            self.printAst(
-                node["left"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
-            self.pyStrings.append(")")
-        if not printState.indexRef:
-            self.pyStrings.append("]")
+        #print(f"@@@ node = {node},\n    expr: {expr_str}")
+
+        self.pyStrings.append(expr_str)
+
 
     def printLiteral(self, node, printState: PrintState):
-        # if printState.callSource == "Call":
-        #     self.pyStrings.append(f"[{node['value']}]")
-        # else:
-        #     self.pyStrings.append(node["value"])
-
         # Check if the value is a bool and convert to Title case if it is
         if node["type"] == "bool":
             node["value"] = node["value"].title()
@@ -629,7 +723,7 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(".")
                 else:
                     self.pyStrings.append("(")
-                self.printAst(
+                ref_str_1 = self.printAst(
                     node["subscripts"],
                     printState.copy(
                         sep=", ", add="", printFirst=False, indexRef=False
@@ -638,118 +732,26 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(")")
 
     def printAssignment(self, node, printState: PrintState):
-        # Writing a target variable syntax
-        if (
-            "subscripts" in node["target"][0]
-        ):  # Case where the target is an array
-            if node["isDevType"] and "field-name" in node["target"][0]:
-                if node["target"][0]["hasSubscripts"]:
-                    devObj = {
-                        "tag": node["target"][0]["tag"],
-                        "name": node["target"][0]["name"],
-                        "isDevType": node["target"][0]["isDevType"],
-                        "hasSubscripts": node["target"][0]["isDevType"],
-                        "subscripts": [node["target"][0]["subscripts"].pop(0)],
-                    }
-                    self.printAst(
-                        [devObj],
-                        printState.copy(
-                            sep="", add="", printFirst=True, indexRef=True
-                        ),
-                    )
-                else:
-                    self.pyStrings.append(f"{node['target'][0]['name']}")
-                self.pyStrings.append(f".{node['target'][0]['field-name']}")
+        assert len(node["target"]) == 1 and len(node["value"]) == 1
+        lhs, rhs = node["target"][0], node["value"][0]
+        
+        rhs_str = self.proc_expr(node["value"][0], False)
+                                        
+        if "subscripts" in lhs:
+            # target is an array element or derived type field
+            if "isArray" in lhs and lhs["isArray"]:
+                subs_strs = self.proc_expr_list(lhs["subscripts"], False)
+                subs = ", ".join(subs_strs)
+                assg_str = f"{lhs['name']}.set_(({subs}), {rhs_str})"
             else:
-                self.pyStrings.append(f"{node['target'][0]['name']}")
-            self.pyStrings.append(".set_((")
-            length = len(node["target"][0]["subscripts"])
-            for ind in node["target"][0]["subscripts"]:
-                index = ""
-                if (
-                    ind["tag"] == "literal"
-                ):  # Case where using literal value as an array index
-                    index = ind["value"]
-                    self.pyStrings.append(f"{index}")
-                if (
-                    ind["tag"] == "ref"
-                ):  # Case where using variable as an array index
-                    index = ind["name"]
-                    self.pyStrings.append(f"{index}[0]")
-                if (
-                    ind["tag"] == "op"
-                ):  # Case where a literal index has an operator
-                    operator = ind["operator"]
-                    # For left index
-                    if ind["left"][0]["tag"] == "literal":
-                        lIndex = ind["left"][0]["value"]
-                        self.pyStrings.append(f"{lIndex}")
-                    elif ind["left"][0]["tag"] == "ref":
-                        lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
-
-                    self.pyStrings.append(f" {operator} ")
-                    # For right index
-                    if ind["right"][0]["tag"] == "literal":
-                        rIndex = ind["right"][0]["value"]
-                        self.pyStrings.append(f"{rIndex}")
-                    elif ind["right"][0]["tag"] == "ref":
-                        rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
-
-                if length > 1:
-                    self.pyStrings.append(", ")
-                    length = length - 1
-            self.pyStrings.append("), ")
-        else:  # Case where the target is a single variable
-            self.printAst(
-                node["target"],
-                printState.copy(
-                    sep="", add="", printFirst=False, indexRef=True
-                ),
-            )
-            self.pyStrings.append(" = ")
-
-        # Writes a syntax for the source that is right side of the '=' operator
-        if "subscripts" in node["value"][0]:
-            self.pyStrings.append(f"{node['value'][0]['name']}.get_((")
-            arrayLen = len(node["value"][0]["subscripts"])
-            for ind in node["value"][0]["subscripts"]:
-                if "name" in ind:
-                    self.pyStrings.append(f"{ind['name']}[0]")
-                elif "operator" in ind:
-                    # For left index
-                    if ind["left"][0]["tag"] == "literal":
-                        lIndex = ind["left"][0]["value"]
-                        self.pyStrings.append(f"{lIndex}")
-                    elif ind["left"][0]["tag"] == "ref":
-                        lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
-
-                    self.pyStrings.append(f" {ind['operator']} ")
-                    # For right index
-                    if ind["right"][0]["tag"] == "literal":
-                        rIndex = ind["right"][0]["value"]
-                        self.pyStrings.append(f"{rIndex}")
-                    elif ind["right"][0]["tag"] == "ref":
-                        rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
-                else:
-                    assert ind["tag"] == "literal"
-                    self.pyStrings.append(f"{ind['value']}")
-                if arrayLen > 1:
-                    self.pyStrings.append(", ")
-                    arrayLen = arrayLen - 1
-            self.pyStrings.append("))")
+                # handling derived types might go here
+                assert False
         else:
-            self.printAst(
-                node["value"],
-                printState.copy(
-                    sep="", add="", printFirst=False, indexRef=True
-                ),
-            )
-        if "subscripts" in node["target"][0]:
-            self.pyStrings.append(")")
+            # target is a scalar variable
+            assg_str = f"{lhs['name']}[0] = {rhs_str}"
+
+        self.pyStrings.append(assg_str)
+        return
 
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
