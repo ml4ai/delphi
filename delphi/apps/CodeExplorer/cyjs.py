@@ -250,8 +250,6 @@ def to_cyjs_cag(G):
 
 
 def to_cyjs_fib(G):
-    for n in G.nodes(data=True):
-        print(n[1].get("lambda_fn"))
     elements = {
         "nodes": [
             {
