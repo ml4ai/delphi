@@ -10,25 +10,34 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
-CROP_YIELD_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
-PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
-PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
+
+@pytest.fixture
+def crop_yield_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
+
+@pytest.fixture
+def petpt_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
+
+@pytest.fixture
+def petasce_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
 
 
-def test_petpt_creation_and_execution():
-    assert isinstance(PETPT_GrFN, GroundedFunctionNetwork)
-    assert len(PETPT_GrFN.inputs) == 5
-    assert len(PETPT_GrFN.outputs) == 1
+def test_petpt_creation_and_execution(petpt_grfn):
+    assert isinstance(petpt_grfn, GroundedFunctionNetwork)
+    assert len(petpt_grfn.inputs) == 5
+    assert len(petpt_grfn.outputs) == 1
 
-    values = {name: 1 for name in PETPT_GrFN.inputs}
-    res = PETPT_GrFN.run(values)
+    values = {name: 1 for name in petpt_grfn.inputs}
+    res = petpt_grfn.run(values)
     assert res == 0.02998371219618677
 
 
-def test_petasce_creation():
-    A = PETASCE_GrFN.to_agraph()
-    CAG = PETASCE_GrFN.to_CAG_agraph()
-    CG = PETASCE_GrFN.to_call_agraph()
+def test_petasce_creation(petasce_grfn):
+    A = petasce_grfn.to_agraph()
+    CAG = petasce_grfn.to_CAG_agraph()
+    CG = petasce_grfn.to_call_agraph()
 
     values = {
         "petasce::doy_-1": 20,
@@ -46,13 +55,13 @@ def test_petasce_creation():
         "petasce::canht_-1": 2,
     }
 
-    res = PETASCE_GrFN.run(values)
+    res = petasce_grfn.run(values)
     assert res == 0.00012496980836348878
 
 
-def test_crop_yield_creation():
-    A = CROP_YIELD_GrFN.to_agraph()
-    assert isinstance(CROP_YIELD_GrFN, GroundedFunctionNetwork)
+def test_crop_yield_creation(crop_yield_grfn):
+    A = crop_yield_grfn.to_agraph()
+    assert isinstance(crop_yield_grfn, GroundedFunctionNetwork)
 
 
 @pytest.mark.skip

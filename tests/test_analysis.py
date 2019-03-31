@@ -5,16 +5,16 @@ import json
 import sys
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.sensitivity import sobol_analysis, FAST_analysis, RBD_FAST_analysis
+from delphi.GrFN.sensitivity import FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
-from test_GrFN import PETPT_GrFN, PETASCE_GrFN
+from test_GrFN import petpt_grfn, petasce_grfn
 
 
 sys.path.insert(0, "tests/data/program_analysis")
 
 
-def test_regular_PETPT():
-    args = PETPT_GrFN.inputs
+def test_regular_PETPT(petpt_grfn):
+    args = petpt_grfn.inputs
     bounds = {
         "petpt::msalb_-1": [0, 1],
         "petpt::srad_-1": [1, 20],
@@ -30,7 +30,7 @@ def test_regular_PETPT():
     }
 
     Ns = 1000 # TODO: Khan, experiment with this value
-    Si = sobol_analysis(PETPT_GrFN, Ns, problem)
+    Si = petpt_grfn.sobol_analysis(Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
@@ -57,7 +57,7 @@ def test_PETPT_with_torch():
     }
 
     Ns = 1000                      # TODO: Khan, experiment with this value
-    Si = sobol_analysis(G, Ns, problem, use_torch=True)
+    Si = G.sobol_analysis(Ns, problem, use_torch=True)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
@@ -70,7 +70,7 @@ def test_PETPT_with_torch():
     assert len(Si["S1"]) == len(args)
 
 
-def test_PETASCE_sobol_analysis():
+def test_PETASCE_sobol_analysis(petasce_grfn):
     bounds = {
         "petasce::doy_-1": [1, 365],
         "petasce::meevp_-1": [0, 1],
@@ -103,16 +103,16 @@ def test_PETASCE_sobol_analysis():
         "petasce::canht_-1": (float, [0.0]),
     }
 
-    args = PETASCE_GrFN.inputs
+    args = petasce_grfn.inputs
     problem = {
         'num_vars': len(args),
         'names': args,
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Si = sobol_analysis(PETASCE_GrFN, 100, problem, var_types=type_info)
-    assert len(Si["S1"]) == len(PETASCE_GrFN.inputs)
-    assert len(Si["S2"][0]) == len(PETASCE_GrFN.inputs)
+    Si = petasce_grfn.sobol_analysis(100, problem, var_types=type_info)
+    assert len(Si["S1"]) == len(petasce_grfn.inputs)
+    assert len(Si["S2"][0]) == len(petasce_grfn.inputs)
 
 
 def test_PETASCE_with_torch():
@@ -161,12 +161,12 @@ def test_PETASCE_with_torch():
         'bounds': [bounds[arg] for arg in args]
     }
 
-    tSi = sobol_analysis(tG, 1000, problem, var_types=type_info, use_torch=True)
+    tSi = tG.sobol_analysis(1000, problem, var_types=type_info, use_torch=True)
     assert len(tSi["S1"]) == len(tG.inputs)
     assert len(tSi["S2"][0]) == len(tG.inputs)
 
 
-def test_PETPT_sensitivity_surface():
+def test_PETPT_sensitivity_surface(petpt_grfn):
     bounds = {
         "petpt::msalb_-1": (0, 1),
         "petpt::srad_-1": (1, 20),
@@ -182,34 +182,18 @@ def test_PETPT_sensitivity_surface():
         "petpt::xhlai_-1": 10,
     }
 
-    args = PETPT_GrFN.inputs
-    Si = sobol_analysis(PETPT_GrFN, 1000, {
-        'num_vars': len(args),
-        'names': args,
-        'bounds': [bounds[arg] for arg in args]
-    })
-    S2 = Si["S2"]
-    (s2_max, v1, v2) = analysis.get_max_s2_sensitivity(S2)
-
-    x_var = args[v1]
-    y_var = args[v2]
-    search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-    preset_vals = {
-        arg: presets[arg] for i, arg in enumerate(args) if i != v1 and i != v2
-    }
-
-    (X, Y, Z) = analysis.S2_surface(PETPT_GrFN, (80, 60), search_space, preset_vals)
+    (X, Y, Z, x_var, y_var) = petpt_grfn.S2_surface((80, 60), bounds, presets)
 
     assert X.shape == (80,)
     assert Y.shape == (60,)
     assert Z.shape == (80, 60)
 
 
-def test_FIB_execution():
-    PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
-    PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
+def test_FIB_execution(petpt_grfn, petasce_grfn):
+    petpt_fib = petpt_grfn.to_FIB(petasce_grfn)
+    petasce_fib = petasce_grfn.to_FIB(petpt_grfn)
 
-    pt_inputs = {name: 1 for name in PETPT_GrFN.inputs}
+    pt_inputs = {name: 1 for name in petpt_grfn.inputs}
 
     asce_inputs = {
         "petasce::msalb_-1": 0.5,
@@ -232,8 +216,8 @@ def test_FIB_execution():
         "petasce::wnd_0": 3.5,
     }
 
-    res = PETPT_FIB.run(pt_inputs, {})
+    res = petpt_fib.run(pt_inputs, {})
     assert res == 0.02998371219618677
 
-    res = PETASCE_FIB.run(asce_inputs, asce_covers)
+    res = petasce_fib.run(asce_inputs, asce_covers)
     assert res == 0.00012496980836348878
