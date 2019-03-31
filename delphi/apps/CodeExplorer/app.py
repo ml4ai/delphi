@@ -29,8 +29,11 @@ from wtforms.fields import SubmitField
 from flask_codemirror import CodeMirror
 from pygments import highlight
 
-from .surface_plots import get_grfn_surface_plot, get_fib_surface_plot
-from .cyjs import (
+from delphi.apps.CodeExplorer.surface_plots import (
+    get_grfn_surface_plot,
+    get_fib_surface_plot,
+)
+from delphi.apps.CodeExplorer.cyjs import (
     to_cyjs_grfn,
     to_cyjs_cag,
     to_cyjs_fib,
