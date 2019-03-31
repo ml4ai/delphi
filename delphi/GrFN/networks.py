@@ -393,7 +393,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
 
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
-        os.remove(lambdas_path)
         return G
 
     def clear(self):

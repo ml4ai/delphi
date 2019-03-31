@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import inspect
 from sympy import latex, sympify
@@ -10,6 +11,7 @@ PYTHON_LEXER = PythonLexer()
 PYTHON_FORMATTER = HtmlFormatter()
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 GRFN_WITH_ALIGNMENTS = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+sys.path.insert(0, "/tmp/automates")
 
 with open(GRFN_WITH_ALIGNMENTS, "r") as f:
     tr_dict = json.load(f)
@@ -221,6 +223,8 @@ def to_cyjs_cag(G):
 
 
 def to_cyjs_fib(G):
+    for n in G.nodes(data=True):
+        print(n[1].get("lambda_fn"))
     elements = {
         "nodes": [
             {
