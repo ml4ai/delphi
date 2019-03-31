@@ -29,7 +29,7 @@ from wtforms.fields import SubmitField
 from flask_codemirror import CodeMirror
 from pygments import highlight
 
-from .surface_plots import get_grfn_surface_plot
+from .surface_plots import get_grfn_surface_plot, get_fib_surface_plot
 from .cyjs import (
     to_cyjs_grfn,
     to_cyjs_cag,
@@ -43,15 +43,6 @@ from .cyjs import (
 os.makedirs("/tmp/automates/", exist_ok=True)
 TMPDIR = "/tmp/automates"
 sys.path.insert(0, TMPDIR)
-
-
-ASCE_INPUTS = {
-    "petasce::msalb_-1": 0.5,
-    "petasce::srad_-1": 15,
-    "petasce::tmax_-1": 10,
-    "petasce::tmin_-1": -10,
-    "petasce::xhlai_-1": 10,
-}
 
 
 class MyForm(FlaskForm):
@@ -160,16 +151,39 @@ def modelAnalysis():
     PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(
         THIS_FOLDER + "/static/example_programs/petASCE.f", tmpdir=TMPDIR
     )
-    FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
 
-    graphJSON, layout = get_grfn_surface_plot(FIB, ASCE_INPUTS)
-    # graphJSON, layout = "{}", "{}"
+    PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
+    PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
+
+    asce_inputs = {
+        "petasce::msalb_-1": 0.5,
+        "petasce::srad_-1": 15,
+        "petasce::tmax_-1": 10,
+        "petasce::tmin_-1": -10,
+        "petasce::xhlai_-1": 10,
+    }
+
+
+    asce_covers = {
+        "petasce::canht_-1": 2,
+        "petasce::meevp_-1": "A",
+        "petasce::cht_0": 0.001,
+        "petasce::cn_4": 1600.0,
+        "petasce::cd_4": 0.38,
+        "petasce::rso_0": 0.062320,
+        "petasce::ea_0": 7007.82,
+        "petasce::wind2m_0": 3.5,
+        "petasce::psycon_0": 0.0665,
+        "petasce::wnd_0": 3.5,
+    }
+    graphJSON, layout = get_fib_surface_plot(PETASCE_FIB, asce_covers, 10)
+
 
     return render_template(
         "modelAnalysis.html",
         petpt_elementsJSON=to_cyjs_cag(PETPT_GrFN.to_CAG()),
         petasce_elementsJSON=to_cyjs_cag(PETASCE_GrFN.to_CAG()),
-        fib_elementsJSON=to_cyjs_fib(FIB),
+        fib_elementsJSON=to_cyjs_fib(PETASCE_FIB),
         layout=layout,
         graphJSON=graphJSON,
     )

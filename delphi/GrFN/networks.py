@@ -38,14 +38,11 @@ forestgreen = "#228b22"
 class ComputationalGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.call_graph = self.build_call_graph()
-        self.function_sets = self.build_function_sets()
         self.outputs = [
             n
             for n, d in self.out_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
-        self.output_node = self.outputs[-1]
 
     def build_call_graph(self):
         G = nx.DiGraph()
@@ -103,13 +100,9 @@ class ComputationalGraph(nx.DiGraph):
             A set of outputs from executing the GrFN, one for every set of
             inputs.
         """
-        # Abort run if inputs does not match our expected input set
-        if len(inputs) != len(self.inputs):
-            raise ValueError("Incorrect number of inputs.")
-
         # Set input values
-        for node_name, val in inputs.items():
-            self.nodes[node_name]["value"] = val
+        for i in self.inputs:
+            self.nodes[i]["value"] = inputs[i]
 
         for func_set in self.function_sets:
             for func_name in func_set:
@@ -117,8 +110,8 @@ class ComputationalGraph(nx.DiGraph):
                 output_node = list(self.successors(func_name))[0]
 
                 signature = self.nodes[func_name]["func_inputs"]
-                inputs = [self.nodes[n]["value"] for n in signature]
-                res = lambda_fn(*inputs)
+                input_values = [self.nodes[n]["value"] for n in signature]
+                res = lambda_fn(*input_values)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -153,6 +146,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
+        self.output_node = self.outputs[-1]
+        self.call_graph = self.build_call_graph()
+        self.function_sets = self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
@@ -396,7 +392,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         outputDict = xml_to_json_translator.analyze(trees, comments)
         pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
 
-        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+        os.remove(lambdas_path)
+        return G
 
     def clear(self):
         """Clear variable nodes for next computation."""
@@ -440,9 +438,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 values = {n: val for n, val in zip(prob_def["names"], sample)}
                 Y[i] = self.run(values)
 
-        return sobol.analyze(prob_def, Y, print_to_console=True)
+        return sobol.analyze(prob_def, Y)
 
-    def S2_surface(self, sizes, bounds, presets, use_torch=False):
+    def S2_surface(self, sizes, bounds, presets, use_torch=False,
+            num_samples=10):
         """Calculates the sensitivity surface of a GrFN for the two variables with
         the highest S2 index.
 
@@ -461,7 +460,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         """
         args = self.inputs
         Si = self.sobol_analysis(
-            10,
+            num_samples,
             {
                 "num_vars": len(args),
                 "names": args,
@@ -623,14 +622,15 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     """
 
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
-        super().__init__(G)
+        super().__init__()
+        self.output_node=G.output_node
         self.inputs = set(G.inputs).intersection(shared_nodes)
 
         # Get all paths from shared inputs to shared outputs
         path_inputs = shared_nodes - {self.output_node}
-        io_pairs = [(inp, self.output_node) for inp in path_inputs]
+        io_pairs = [(inp, G.output_node) for inp in path_inputs]
         paths = [
-            p for (i, o) in io_pairs for p in all_simple_paths(self, i, o)
+            p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)
         ]
 
         # Get all edges needed to blanket the included nodes
@@ -642,10 +642,10 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         add_nodes, add_edges = list(), list()
 
         def place_var_node(var_node):
-            prev_funcs = list(self.predecessors(var_node))
+            prev_funcs = list(G.predecessors(var_node))
             if (
                 len(prev_funcs) > 0
-                and self.nodes[prev_funcs[0]]["label"] == "L"
+                and G.nodes[prev_funcs[0]]["label"] == "L"
             ):
                 prev_func = prev_funcs[0]
                 add_nodes.extend([var_node, prev_func])
@@ -654,15 +654,15 @@ class ForwardInfluenceBlanket(ComputationalGraph):
                 self.cover_nodes.add(var_node)
 
         for node in main_nodes:
-            if self.nodes[node]["type"] == "function":
-                for var_node in self.predecessors(node):
+            if G.nodes[node]["type"] == "function":
+                for var_node in G.predecessors(node):
                     if var_node not in main_nodes:
                         add_edges.append((var_node, node))
                         if "::IF_" in var_node:
-                            if_func = list(self.predecessors(var_node))[0]
+                            if_func = list(G.predecessors(var_node))[0]
                             add_nodes.extend([if_func, var_node])
                             add_edges.append((if_func, var_node))
-                            for new_var_node in self.predecessors(if_func):
+                            for new_var_node in G.predecessors(if_func):
                                 add_edges.append((new_var_node, if_func))
                                 place_var_node(new_var_node)
                         else:
@@ -672,19 +672,33 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         main_edges |= set(add_edges)
         main_nodes = main_nodes - self.inputs - {self.output_node}
 
+        orig_nodes = G.nodes(data=True)
+
+        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in self.inputs])
         for node in self.inputs:
             self.nodes[node]["color"] = dodgerblue3
             self.nodes[node]["fontcolor"] = dodgerblue3
             self.nodes[node]["penwidth"] = 3.0
 
+        self.inputs = list(self.inputs)
+
+        self.add_nodes_from([(n, d) for n, d in orig_nodes
+                            if n in self.cover_nodes])
         for node in self.cover_nodes:
             self.nodes[node]["color"] = forestgreen
             self.nodes[node]["fontcolor"] = forestgreen
 
+        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
+        for node in main_nodes:
+            self.nodes[node]["fontname"] = FONT
+
+        self.add_node(self.output_node, **G.nodes[self.output_node])
         self.nodes[self.output_node]["color"] = dodgerblue3
         self.nodes[self.output_node]["fontcolor"] = dodgerblue3
 
         self.add_edges_from(main_edges)
+        self.call_graph = self.build_call_graph()
+        self.function_sets = self.build_function_sets()
 
     def run(
         self,
@@ -710,6 +724,100 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             self.nodes[node_name]["value"] = val
 
         return super().run(inputs, torch_size)
+
+    def sobol_analysis(
+        self, num_samples, prob_def, covers, use_torch=False, var_types=None
+    ):
+        def create_input_tensor(name, samples):
+            type_info = var_types[name]
+            if type_info[0] == str:
+                (val1, val2) = type_info[1]
+                return np.where(samples >= 0.5, val1, val2)
+            else:
+                return torch.tensor(samples)
+
+        samples = saltelli.sample(
+            prob_def, num_samples, calc_second_order=True
+        )
+        if use_torch:
+            samples = np.split(samples, samples.shape[1], axis=1)
+            samples = [s.squeeze() for s in samples]
+            if var_types is None:
+                values = {
+                    n: torch.tensor(s)
+                    for n, s in zip(prob_def["names"], samples)
+                }
+            else:
+                values = {
+                    n: create_input_tensor(n, s)
+                    for n, s in zip(prob_def["names"], samples)
+                }
+            Y = self.run(values, covers, torch_size=len(samples[0])).numpy()
+        else:
+            Y = np.zeros(samples.shape[0])
+            for i, sample in enumerate(samples):
+                values = {n: val for n, val in zip(prob_def["names"], sample)}
+                Y[i] = self.run(values, covers)
+
+        return sobol.analyze(prob_def, Y)
+
+    def S2_surface(self, sizes, bounds, presets, covers, use_torch=False,
+            num_samples = 10):
+        """Calculates the sensitivity surface of a GrFN for the two variables with
+        the highest S2 index.
+
+        Args:
+            num_samples: Number of samples for sensitivity analysis.
+            sizes: Tuple of (number of x inputs, number of y inputs).
+            bounds: Set of bounds for GrFN inputs.
+            presets: Set of standard values for GrFN inputs.
+
+        Returns:
+            Tuple:
+                Tuple: The names of the two variables that were selected
+                Tuple: The X, Y vectors of eval values
+                Z: The numpy matrix of output evaluations
+
+        """
+        args = self.inputs
+        Si = self.sobol_analysis(
+            num_samples,
+            {
+                "num_vars": len(args),
+                "names": args,
+                "bounds": [bounds[arg] for arg in args],
+            },
+            covers
+        )
+        S2 = Si["S2"]
+        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
+
+        x_var = args[v1]
+        y_var = args[v2]
+        search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
+        preset_vals = {
+            arg: presets[arg]
+            for i, arg in enumerate(args)
+            if i != v1 and i != v2
+        }
+
+        X = np.linspace(*search_space[0][1], sizes[0])
+        Y = np.linspace(*search_space[1][1], sizes[1])
+
+        if use_torch:
+            Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
+            inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
+            inputs.update({search_space[0][0]: Xm, search_space[1][0]: Ym})
+            Z = self.run(inputs, covers).numpy()
+        else:
+            Xm, Ym = np.meshgrid(X, Y)
+            Z = np.zeros((len(X), len(Y)))
+            for x, y in itertools.product(range(len(X)), range(len(Y))):
+                inputs = {n: v for n, v in presets.items()}
+                inputs.update({search_space[0][0]: x, search_space[1][0]: y})
+                Z[x][y] = self.run(inputs, covers)
+
+        return X, Y, Z, x_var, y_var
 
     def to_agraph(self):
         A = nx.nx_agraph.to_agraph(self)

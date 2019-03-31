@@ -66,6 +66,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
     for identifier in _dict["identifiers"]:
         del identifier["gensyms"]
 
+    os.remove(lambdas_filename)
     return _dict
 
 
@@ -87,14 +88,12 @@ def crop_yield_grfn_dict():
 def petpt_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/PETPT.for"))
     yield(_dict)
-    os.remove("PETPT_lambdas.py")
 
 
 @pytest.fixture
 def io_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))
     yield(_dict)
-    os.remove("iotest_05_lambdas.py")
 
 
 @pytest.fixture

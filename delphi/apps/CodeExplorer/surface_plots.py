@@ -35,6 +35,11 @@ PRESETS = {
     "petpt::tmax_-1": 20,
     "petpt::tmin_-1": 10,
     "petpt::xhlai_-1": 10,
+    "petasce::msalb_-1": 0.5,
+    "petasce::srad_-1": 15,
+    "petasce::tmax_-1": 10,
+    "petasce::tmin_-1": -10,
+    "petasce::xhlai_-1": 10,
 }
 
 COVERS = {
@@ -53,7 +58,8 @@ COVERS = {
 
 def get_grfn_surface_plot(G, presets=PRESETS, num_samples=10):
     try:
-        X, Y, Z, x_var, y_var = G.S2_surface((8, 6), BOUNDS, presets)
+        X, Y, Z, x_var, y_var = G.S2_surface((8, 6), BOUNDS, presets,
+                num_samples=num_samples)
         z_data = pd.DataFrame(Z, index=X, columns=Y)
         data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
         layout = json.dumps(
@@ -81,4 +87,27 @@ def get_grfn_surface_plot(G, presets=PRESETS, num_samples=10):
         )
         graphJSON = "{}"
         layout = "{}"
+    return graphJSON, layout
+
+def get_fib_surface_plot(G, covers, num_samples=10):
+    X, Y, Z, x_var, y_var = G.S2_surface((8, 6), BOUNDS, PRESETS, covers,
+            num_samples=num_samples)
+    z_data = pd.DataFrame(Z, index=X, columns=Y)
+    data = [go.Surface(z=z_data.as_matrix(), colorscale="Viridis")]
+    layout = json.dumps(
+        dict(
+            title="Sensitivity surface",
+            scene=dict(
+                xaxis=dict(title=x_var.split("::")[1]),
+                yaxis=dict(title=y_var.split("::")[1]),
+                zaxis=dict(title=G.output_node.split("::")[1]),
+            ),
+            autosize=True,
+            width=400,
+            height=400,
+            margin=dict(l=65, r=50, b=65, t=90),
+        )
+    )
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
     return graphJSON, layout

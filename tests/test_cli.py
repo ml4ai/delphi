@@ -9,7 +9,7 @@ def test_cli(G):
     sp.call(
         [
             "python",
-            "delphi/cli.py",
+            "delphi/apps/cli.py",
             "execute",
             "--input_dressed_cag",
             "delphi_model.pkl",
