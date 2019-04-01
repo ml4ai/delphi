@@ -123,6 +123,29 @@ class ComputationalGraph(nx.DiGraph):
         # Return the output
         return self.nodes[self.output_node]["value"]
 
+    def to_CAG(self):
+        G = nx.DiGraph()
+        for (name, attrs) in self.nodes(data=True):
+            if attrs["type"] == "variable":
+                for pred_fn in self.predecessors(name):
+                    if not any(
+                        fn_type in pred_fn
+                        for fn_type in ("condition", "decision")
+                    ):
+                        for pred_var in self.predecessors(pred_fn):
+                            G.add_node(
+                                self.nodes[pred_var]["basename"],
+                                **self.nodes[pred_var],
+                            )
+                            G.add_node(attrs["basename"], **attrs)
+                            G.add_edge(
+                                self.nodes[pred_var]["basename"],
+                                attrs["basename"],
+                            )
+                if attrs["is_loop_index"]:
+                    G.add_edge(attrs["basename"], attrs["basename"])
+
+        return G
 
 class GroundedFunctionNetwork(ComputationalGraph):
     """
@@ -496,29 +519,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         return X, Y, Z, x_var, y_var
 
-    def to_CAG(self):
-        G = nx.DiGraph()
-        for (name, attrs) in self.nodes(data=True):
-            if attrs["type"] == "variable":
-                for pred_fn in self.predecessors(name):
-                    if not any(
-                        fn_type in pred_fn
-                        for fn_type in ("condition", "decision")
-                    ):
-                        for pred_var in self.predecessors(pred_fn):
-                            G.add_node(
-                                self.nodes[pred_var]["basename"],
-                                **self.nodes[pred_var],
-                            )
-                            G.add_node(attrs["basename"], **attrs)
-                            G.add_edge(
-                                self.nodes[pred_var]["basename"],
-                                attrs["basename"],
-                            )
-                if attrs["is_loop_index"]:
-                    G.add_edge(attrs["basename"], attrs["basename"])
-
-        return G
 
     def to_FIB(self, other):
         if not isinstance(other, GroundedFunctionNetwork):

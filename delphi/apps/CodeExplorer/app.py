@@ -179,16 +179,16 @@ def modelAnalysis():
         "petasce::psycon_0": 0.0665,
         "petasce::wnd_0": 3.5,
     }
-    graphJSON, layout = get_fib_surface_plot(PETASCE_FIB, asce_covers, 10)
+    # graphJSON, layout = get_fib_surface_plot(PETASCE_FIB, asce_covers, 10)
 
 
     return render_template(
         "modelAnalysis.html",
         petpt_elementsJSON=to_cyjs_cag(PETPT_GrFN.to_CAG()),
         petasce_elementsJSON=to_cyjs_cag(PETASCE_GrFN.to_CAG()),
-        fib_elementsJSON=to_cyjs_fib(PETASCE_FIB),
-        layout=layout,
-        graphJSON=graphJSON,
+        fib_elementsJSON=to_cyjs_fib(PETASCE_FIB.to_CAG()),
+        # layout=layout,
+        # graphJSON=graphJSON,
     )
 
 

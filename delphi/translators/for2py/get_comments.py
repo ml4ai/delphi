@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Purpose:
     Read the Fortran source file specified and return subprogram
