@@ -31,14 +31,6 @@ delphi.assembly module
     :undoc-members:
     :show-inheritance:
 
-delphi.cli module
------------------
-
-.. automodule:: delphi.cli
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 delphi.db module
 ----------------
 
