@@ -14,18 +14,28 @@ You can see a prerendered HTML version of the notebook
 
 ### Command line usage
 
-In the following sections, we will go into more detail on model execution.
+The Delphi CLI app can be used to execute pickled AnalysisGraph models.
 
-### Execute model
+```
+usage: delphi execute [-h] [--input_dressed_cag INPUT_DRESSED_CAG]
+                      [--steps STEPS] [--samples SAMPLES]
+                      [--output_sequences OUTPUT_SEQUENCES]
+                      [--input_variables INPUT_VARIABLES]
 
-To execute the model, do:
-
-```bash
-delphi execute
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_dressed_cag INPUT_DRESSED_CAG
+                        Path to the input dressed cag
+  --steps STEPS         Number of time steps to take
+  --samples SAMPLES     Number of sequences to sample
+  --output_sequences OUTPUT_SEQUENCES
+                        Output file containing sampled sequences
+  --input_variables INPUT_VARIABLES
+                        Path to the variables of the input dressed cag
 ```
 
-This takes as input the files `dressed_CAG.pkl` which contains an AnalysisGraph object,
-and `bmi_config.txt`, which looks like this:
+The `input_variables` file for a model with rainfall influencing crop yield
+might look like this:
 
 ```
 rainfall,100.0
@@ -34,9 +44,9 @@ crop yield,100.0
 ∂(crop yield)/∂t,1.0
 ```
 
-and creates an output file `output_sequences.csv` (these are the default input
-and output filenames, but they can be changed with command line flags), that
-looks like this:
+Running `delphi execute` creates an output file `output_sequences.csv` (this
+is the default output filename, but it can be changed with
+the command line flag), that looks like this:
 
 ```
 seq_no,time_slice,rainfall,crop yield
@@ -56,5 +66,4 @@ seq_no,time_slice,rainfall,crop yield
     point. The spread of this histogram represents the uncertainty in our
     estimate.
 
-To see all the command line options and the help message, do `delphi -h`.
-
+To see all the command line options and the help message, do `delphi execute -h`.
