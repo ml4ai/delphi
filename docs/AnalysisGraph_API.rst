@@ -100,11 +100,12 @@ Sampling and Inference
 
 Export
 ------
-.. currentmodule:: delphi
+.. currentmodule:: delphi.AnalysisGraph
 .. autosummary::
     :toctree: generated/
 
-    export
+    AnalysisGraph.to_dict
+    AnalysisGraph.to_agraph
 
 
 Basic Model Interface
