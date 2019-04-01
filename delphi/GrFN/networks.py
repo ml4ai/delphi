@@ -696,12 +696,14 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             self.nodes[node]["color"] = dodgerblue3
             self.nodes[node]["fontcolor"] = dodgerblue3
             self.nodes[node]["penwidth"] = 3.0
+            self.nodes[node]["fontname"] = FONT
 
         self.inputs = list(self.inputs)
 
         self.add_nodes_from([(n, d) for n, d in orig_nodes
                             if n in self.cover_nodes])
         for node in self.cover_nodes:
+            self.nodes[node]["fontname"] = FONT
             self.nodes[node]["color"] = forestgreen
             self.nodes[node]["fontcolor"] = forestgreen
 
