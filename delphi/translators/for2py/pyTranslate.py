@@ -26,6 +26,94 @@ from delphi.translators.for2py.format import list_data_type
 from delphi.translators.for2py import For2PyError
 from delphi.translators.for2py import syntax
 
+###############################################################################
+#                                                                             #
+#                          FORTRAN-TO-PYTHON MAPPINGS                         #
+#                                                                             #
+###############################################################################
+
+# TYPE_MAP gives the mapping from Fortran types to Python types
+TYPE_MAP = {
+    "character" : "str",
+    "double" : "float",
+    "integer" : "int",
+    "logical" : "bool",
+    "real" : "float"
+}
+
+# OPERATOR_MAP gives the mapping from Fortran operators to Python operators
+OPERATOR_MAP = {
+    "+" : "+",
+    "-" : "-",
+    "*" : "*",
+    "/" : "/",
+    "**" : "**",
+    ".ne.": "!=",
+    ".gt.": ">",
+    ".eq.": "==",
+    ".lt.": "<",
+    ".le.": "<=",
+    ".ge.": ">=",
+    ".and.": "and",
+    ".or.": "or",
+}
+
+# INTRINSICS_MAP gives the mapping from Fortran intrinsics to Python operators
+# and functions.  Each entry in this map is of the form
+#
+#      fortran_fn : python_tgt
+#
+# where fortran_fn is the Fortran function; and python_tgt is the corresponding
+# Python target, specified as a tuple (py_fn, fn_type, py_mod), where:
+#            -- py_fn is a Python function or operator;
+#            -- fn_type is one of: 'FUNC', 'INFIXOP'; and
+#            -- py_mod is the module the Python function should be imported from,
+#               None if no explicit import is necessary.
+
+INTRINSICS_MAP = {
+    'abs' : ('abs', 'FUNC', None),
+    'acos' : ('acos', 'FUNC', 'math'),
+    'acosh' : ('acosh', 'FUNC', 'math'),
+    'asin' : ('asin', 'FUNC', 'math'),
+    'asinh' : ('asinh', 'FUNC', 'math'),
+    'atan' : ('atan', 'FUNC', 'math'),
+    'atanh' : ('atanh', 'FUNC', 'math'),
+    'ceiling' : ('ceil', 'FUNC', 'math'),
+    'cos' : ('cos', 'FUNC', 'math'),
+    'cosh' : ('cosh', 'FUNC', 'math'),
+    'erf' : ('erf', 'FUNC', 'math'),
+    'erfc' : ('erfc', 'FUNC', 'math'),
+    'exp' : ('exp', 'FUNC', 'math'),
+    'floor' : ('floor', 'FUNC', 'math'),
+    'gamma' : ('gamma', 'FUNC', 'math'),
+    'hypot' : ('hypot', 'FUNC', 'math'),
+    'index' : None,
+    'int' : ('int', 'FUNC', None),
+    'isnan' : ('isnan', 'FUNC', 'math'),
+    'lge' : ('>=', 'INFIXOP', None),    # lexical string comparison
+    'lgt' : ('>', 'INFIXOP', None),     # lexical string comparison
+    'lle' : ('<=', 'INFIXOP', None),    # lexical string comparison
+    'llt' : ('<', 'INFIXOP', None),     # lexical string comparison
+    'log' : ('log', 'FUNC', 'math'),
+    'log10' : ('log10', 'FUNC', 'math'),
+    'log_gamma' : ('lgamma', 'FUNC', 'math'),
+    'max' : ('max', 'FUNC', None),
+    'min' : ('min', 'FUNC', None),
+    'mod' : ('%', 'INFIXOP', None),
+    'modulo' : ('%', 'INFIXOP', None),
+    'sin' : ('sin', 'FUNC', 'math'),
+    'sinh' : ('sinh', 'FUNC', 'math'),
+    'sqrt' : ('sqrt', 'FUNC', 'math'),
+    'tan' : ('tan', 'FUNC', 'math'),
+    'tanh' : ('tanh', 'FUNC', 'math'),
+    'xor' : ('^', 'INFIXOP', None)
+}
+
+###############################################################################
+#                                                                             #
+#                                 TRANSLATION                                 #
+#                                                                             #
+###############################################################################
 
 class PrintState:
     def __init__(
@@ -155,16 +243,6 @@ class PythonCodeGenerator(object):
             "array": self.printArray,
             "derived-type": self.printDerivedType,
         }
-        self.operator_mapping = {
-            ".ne.": "!=",
-            ".gt.": ">",
-            ".eq.": "==",
-            ".lt.": "<",
-            ".le.": "<=",
-            ".ge.": ">=",
-            ".and.": "and",
-            ".or.": "or",
-        }
         self.readFormat = []
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
@@ -239,12 +317,13 @@ class PythonCodeGenerator(object):
     # proc_intrinsic() processes a call to an intrinsic function
     def proc_intrinsic(self, node):
         intrinsic = node["name"].lower()
-        handler_info = syntax.F_INTRINSICS[intrinsic]
+        assert intrinsic in syntax.F_INTRINSICS
 
-        if handler_info == None:
+        try:
+            py_fn, py_fn_type, py_mod = INTRINSICS_MAP[intrinsic]
+        except KeyError:
             raise For2PyError(f"No handler for Fortran intrinsic {intrinsic}")
 
-        py_fn, py_fn_type, py_mod = handler_info
         arg_list = self.get_arg_list(node)
         arg_strs = self.proc_expr_list(arg_list, False)
 
@@ -285,16 +364,13 @@ class PythonCodeGenerator(object):
         if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
 
-        callee = f"{node['name']}"
+        callee = self.nameMapper[f"{node['name']}"]
         arg_list = self.get_arg_list(node)
         arg_strs = self.proc_expr_list(arg_list, True)
         arguments = ", ".join(arg_strs)
 
         exp_str = f"{callee}({arguments})"
-
-        #print(f">>> NODE = {node}\n    exp_str = {exp_str}")
         return exp_str
-
 
     # proc_expr_list() processes a list of expressions [e1, ..., eN] and
     # returns a list of strings [s1, ..., sN] where si is the string obtained
@@ -321,6 +397,7 @@ class PythonCodeGenerator(object):
             return self.proc_literal(node)
 
         if node["tag"] == "ref":
+            # variable or array reference
             ref_str = self.nameMapper[node["name"]]
             if "subscripts" in node:
                 # array reference or function call
@@ -340,23 +417,28 @@ class PythonCodeGenerator(object):
             return expr_str
 
         if node["tag"] == "call":
+            # function call
             return self.proc_call(node)
 
         expr_str = None
         if node["tag"] == "op":
+            # operator
             assert not wrapper
-            op_str = self.operator_mapping.get(
-                    node["operator"].lower(), f"{node['operator']}"
-                )
+            try:
+                op_str = OPERATOR_MAP[node["operator"].lower()]
+            except KeyError:
+                raise For2PyError(f"unhndled operator {node['operator']}")
 
             assert len(node["left"]) == 1
             l_subexpr = self.proc_expr(node["left"][0], False)
 
             if "right" in node:
+                # binary operator
                 assert len(node["right"]) == 1
                 r_subexpr = self.proc_expr(node["right"][0], False)
                 expr_str = f"({l_subexpr} {op_str} {r_subexpr})"
-            else:    # unary operator
+            else:
+                # unary operator
                 expr_str = f"{op_str}({l_subexpr})"
 
         #print(f">>> NODE = {node}\n    exp_str = {expr_str}")
@@ -366,56 +448,9 @@ class PythonCodeGenerator(object):
 
 
     def printCall(self, node: Dict[str, str], printState: PrintState):
-        if not printState.indexRef:
-            self.pyStrings.append("[")
-
-        inRef = False
-
-        if node["name"].lower() in self.libFns:
-            node["name"] = node["name"].lower()
-            if node["name"] in self.mathFuncs:
-                node["name"] = f"math.{node['name']}"
-            inRef = 1
-
-        if node["name"].lower() == "index":
-            var = self.nameMapper[node["args"][0]["name"]]
-            toFind = node["args"][1]["value"]
-            self.pyStrings.append(f"{var}[0].find({toFind})")
-
-        elif node["name"] == "mod":
-            args_str = self.printAst(
-                node["args"],
-                printState.copy(
-                    sep="%",
-                    add="",
-                    printFirst=False,
-                    definedVars=[],
-                    indexRef=inRef,
-                ),
-            )
-        else:
-            argSize = len(node["args"])
-            self.pyStrings.append(f"{node['name']}(")
-            for arg in range(0, argSize):
-                arg_str = self.printAst(
-                    [node["args"][arg]],
-                    printState.copy(
-                        sep=", ",
-                        add="",
-                        printFirst=False,
-                        callSource="Call",
-                        definedVars=[],
-                        indexRef=inRef,
-                    ),
-                )
-
-                if arg < argSize - 1:
-                    self.pyStrings.append(", ")
-
-            self.pyStrings.append(")")
-
-        if not printState.indexRef:
-            self.pyStrings.append("]")
+        call_str = self.proc_call(node)
+        self.pyStrings.append(call_str)
+        return
 
     def printAst(self, root, printState: PrintState):
         for node in root:
@@ -461,21 +496,16 @@ class PythonCodeGenerator(object):
                 index += 1
 
     def printArg(self, node, printState: PrintState):
-        if node["type"].upper() == "INTEGER":
-            varType = "int"
-        elif node["type"].upper() in ("DOUBLE", "REAL"):
-            varType = "float"
-        elif node["type"].upper() == "CHARACTER":
-            varType = "str"
-        elif node["type"].upper() == "LOGICAL":
-            varType = "bool"
-        else:
+        try:
+            var_type = TYPE_MAP[node["type"].lower()]
+        except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
+
         if node["arg_type"] == "arg_array":
             self.pyStrings.append(f"{self.nameMapper[node['name']]}")
         else:
             self.pyStrings.append(
-                f"{self.nameMapper[node['name']]}: List[{varType}]"
+                f"{self.nameMapper[node['name']]}: List[{var_type}]"
             )
         printState.definedVars += [self.nameMapper[node["name"]]]
 
