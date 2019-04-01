@@ -82,8 +82,9 @@ class AnalysisGraph(nx.DiGraph):
         return cls.from_statements(sts)
 
     @classmethod
-    def from_statements(cls, sts: List[Influence],
-            assign_default_polarities: bool = True):
+    def from_statements(
+        cls, sts: List[Influence], assign_default_polarities: bool = True
+    ):
         """ Construct an AnalysisGraph object from a list of INDRA statements.
         Unknown polarities are set to positive by default.
 
@@ -105,7 +106,9 @@ class AnalysisGraph(nx.DiGraph):
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
-                if all(map(exists, (delta['polarity'] for delta in deltas(s)))):
+                if all(
+                    map(exists, (delta["polarity"] for delta in deltas(s)))
+                ):
                     if concepts in _dict:
                         _dict[concepts].append(s)
                     else:
@@ -127,16 +130,23 @@ class AnalysisGraph(nx.DiGraph):
 
     @classmethod
     def from_json_serialized_statements_list(cls, json_serialized_list):
+        """ Construct an AnalysisGraph object from a list of JSON serialized
+        INDRA statements. """
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
     def from_json_serialized_statements_file(cls, file):
+        """ Construct an AnalysisGraph object from a file containing
+        JSON-serialized INDRA statements. """
         return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
     def from_uncharted_json_file(cls, file):
+        """ Construct an AnalysisGraph object from a file containing INDRA
+        statements serialized exported by Uncharted's CauseMos webapp.
+        """
         with open(file, "r") as f:
             _dict = json.load(f)
         return cls.from_uncharted_json_serialized_dict(_dict)
@@ -145,6 +155,8 @@ class AnalysisGraph(nx.DiGraph):
     def from_uncharted_json_serialized_dict(
         cls, _dict, minimum_evidence_pieces_required: int = 1
     ):
+        """ Construct an AnalysisGraph object from a dict of INDRA statements
+        exported by Uncharted's CauseMos webapp. """
         sts = _dict["statements"]
         G = nx.DiGraph()
         for s in sts:
@@ -636,7 +648,7 @@ class AnalysisGraph(nx.DiGraph):
         return node_dict
 
     def to_dict(self) -> Dict:
-        """ Export the CAG to a dict. """
+        """ Export the CAG to a dict that can be serialized to JSON. """
         return {
             "name": self.name,
             "dateCreated": str(self.dateCreated),
@@ -1042,10 +1054,26 @@ class AnalysisGraph(nx.DiGraph):
                 db.session.add(evidence)
             db.session.commit()
 
-    def to_agraph(self, *args, **kwargs):
-        """ Exports the CAG as a pygraphviz AGraph for visualization. """
+    def to_agraph(
+        self,
+        indicators: bool = False,
+        indicator_values: bool = False,
+        nodes_to_highlight=None,
+        *args,
+        **kwargs,
+    ):
+        """ Exports the CAG as a pygraphviz AGraph for visualization.
+
+        Args:
+            indicators: Whether to display indicators in the AGraph
+            indicator_values: Whether to display indicator values in the AGraph
+            nodes_to_highlight: Nodes to highlight in the AGraph.
+        Returns:
+            A PyGraphviz AGraph representation of the AnalysisGraph.
+        """
 
         from delphi.utils.misc import choose_font
+
         FONT = choose_font()
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update(
@@ -1070,7 +1098,9 @@ class AnalysisGraph(nx.DiGraph):
         )
 
         nodes_with_indicators = [
-            n for n in self.nodes(data=True) if n[1].get("indicators") is not None
+            n
+            for n in self.nodes(data=True)
+            if n[1].get("indicators") is not None
         ]
 
         n_max = max(
@@ -1111,37 +1141,39 @@ class AnalysisGraph(nx.DiGraph):
             sts = e[2]["InfluenceStatements"]
             total_evidence_pieces = sum([len(s.evidence) for s in sts])
             reinforcement = (
-                sum([stmt.overall_polarity() * len(stmt.evidence) for stmt in sts])
+                sum(
+                    [
+                        stmt.overall_polarity() * len(stmt.evidence)
+                        for stmt in sts
+                    ]
+                )
                 / total_evidence_pieces
             )
             opacity = total_evidence_pieces / n_max
             h = (opacity * 255).hex()
 
-
             if list(self.edges(data=True))[0][2].get("βs") is not None:
-                penwidth=3 * abs(np.median(e[2]["βs"]) / max_median_betas)
+                penwidth = 3 * abs(np.median(e[2]["βs"]) / max_median_betas)
                 cmap = cm.Greens if reinforcement > 0 else cm.Reds
-                c_str = matplotlib.colors.rgb2hex(cmap(abs(reinforcement))) + h[4:6]
+                c_str = (
+                    matplotlib.colors.rgb2hex(cmap(abs(reinforcement)))
+                    + h[4:6]
+                )
             else:
-                penwidth=1
-                c_str = 'black'
+                penwidth = 1
+                c_str = "black"
 
-            A.add_edge(
-                e[0],
-                e[1],
-                color=c_str,
-                penwidth=penwidth,
-            )
+            A.add_edge(e[0], e[1], color=c_str, penwidth=penwidth)
 
         # Drawing indicator variables
 
-        if kwargs.get("indicators"):
+        if indicators:
             for n in nodes_with_indicators:
                 for indicator_name, ind in n[1]["indicators"].items():
                     node_label = _insert_line_breaks(
                         ind.name.replace("_", " "), 30
                     )
-                    if kwargs.get("indicator_values"):
+                    if indicator_values:
                         if ind.unit is not None:
                             units = f" {ind.unit}"
                         else:
@@ -1164,7 +1196,7 @@ class AnalysisGraph(nx.DiGraph):
                     )
                     A.add_edge(n[0], indicator_name, color="royalblue4")
 
-        if kwargs.get("nodes_to_highlight") is not None:
+        if nodes_to_highlight is not None:
             nodes = kwargs.pop("nodes_to_highlight")
             if isinstance(nodes, list):
                 for n in nodes:
