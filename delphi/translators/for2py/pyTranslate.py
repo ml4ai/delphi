@@ -36,9 +36,13 @@ from delphi.translators.for2py import syntax
 TYPE_MAP = {
     "character" : "str",
     "double" : "float",
+    "float" : "float",
+    "int" : "int",
     "integer" : "int",
     "logical" : "bool",
-    "real" : "float"
+    "real" : "float",
+    "str" : "str",
+    "string" : "str",
 }
 
 # OPERATOR_MAP gives the mapping from Fortran operators to Python operators
@@ -513,43 +517,27 @@ class PythonCodeGenerator(object):
         except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
 
+        arg_name = self.nameMapper[node["name"]]
         if node["arg_type"] == "arg_array":
-            self.pyStrings.append(f"{self.nameMapper[node['name']]}")
+            self.pyStrings.append(f"{arg_name}")
         else:
-            self.pyStrings.append(
-                f"{self.nameMapper[node['name']]}: List[{var_type}]"
-            )
-        printState.definedVars += [self.nameMapper[node["name"]]]
+            self.pyStrings.append(f"{arg_name}: List[{var_type}]")
+        printState.definedVars += [arg_name]
 
     def printVariable(self, node, printState: PrintState):
+        var_name = self.nameMapper[node["name"]]
         initial_set = False
-        if (
-            self.nameMapper[node["name"]] not in printState.definedVars
-            and self.nameMapper[node["name"]] not in printState.globalVars
-        ):
-            printState.definedVars += [self.nameMapper[node["name"]]]
+        if (var_name not in printState.definedVars + printState.globalVars):
+            printState.definedVars += [var_name]
             if node.get("value"):
-                init_val = node["value"][0]["value"]
-                initial_set = True
-
-            if node["type"].upper() in ("INTEGER", "INT"):
-                initVal = init_val if initial_set else 0
-                varType = "int"
-            elif node["type"].upper() in ("DOUBLE", "REAL", "FLOAT"):
-                initVal = init_val if initial_set else 0.0
-                varType = "float"
-            elif node["type"].upper() in ("STRING", "CHARACTER", "STR"):
-                initVal = init_val if initial_set else ""
-                varType = "str"
-            elif node["type"].upper() == "LOGICAL":
-                initVal = init_val if initial_set else False
-                varType = "bool"
+                initVal = node["value"][0]["value"]
             else:
-                if node["isDevTypeVar"]:
-                    initVal = init_val if initial_set else 0
-                    varType = node["type"]
-                else:
-                    raise For2PyError(f"unrecognized type {node['type']}")
+                initVal = None
+
+            try:
+                varType = TYPE_MAP[node["type"].lower()]
+            except KeyError:
+                raise For2PyError(f"unrecognized type {node['type']}")
 
             if "isDevTypeVar" in node and node["isDevTypeVar"]:
                 self.pyStrings.append(
@@ -557,20 +545,18 @@ class PythonCodeGenerator(object):
                 )
             else:
                 if printState.functionScope:
-                    if not self.nameMapper[node["name"]] in self.funcArgs.get(
+                    if not var_name in self.funcArgs.get(
                         printState.functionScope
                     ):
                         self.pyStrings.append(
-                            f"{self.nameMapper[node['name']]}: List[{varType}]"
+                            f"{var_name}: List[{varType}]"
                             f" = [{initVal}]"
                         )
                     else:
-                        self.pyStrings.append(
-                            f"{self.nameMapper[node['name']]}: List[{varType}]"
-                        )
+                        self.pyStrings.append(f"{var_name}: List[{varType}]")
                 else:
                     self.pyStrings.append(
-                        f"{self.nameMapper[node['name']]}: List[{varType}] = "
+                        f"{var_name}: List[{varType}] = "
                         f"[{initVal}]"
                     )
 
