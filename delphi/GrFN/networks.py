@@ -124,6 +124,10 @@ class ComputationalGraph(nx.DiGraph):
         return self.nodes[self.output_node]["value"]
 
     def to_CAG(self):
+        """ Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.
+        The CAG shows the influence relationships between the variables and
+        elides the function nodes."""
+
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "variable":
@@ -521,6 +525,16 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
 
     def to_FIB(self, other):
+        """ Creates a ForwardInfluenceBlanket object representing the
+        intersection of this model with the other input model.
+
+        Args:
+            other: The GroundedFunctionNetwork object to compare this model to.
+
+        Returns:
+            A ForwardInfluenceBlanket object to use for model comparison.
+        """
+
         if not isinstance(other, GroundedFunctionNetwork):
             raise TypeError(
                 f"Expected GroundedFunctionNetwork, but got {type(other)}"
@@ -553,6 +567,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return ForwardInfluenceBlanket(self, full_shared_vars)
 
     def to_agraph(self):
+        """ Export to a PyGraphviz AGraph object. """
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update(
             {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"}
@@ -601,6 +616,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return A
 
     def to_call_agraph(self):
+        """ Build a PyGraphviz AGraph object corresponding to a call graph of
+        functions. """
+
         A = nx.nx_agraph.to_agraph(self.call_graph)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
         A.node_attr.update(

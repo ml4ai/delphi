@@ -103,6 +103,7 @@ Delphi is also part of the
   usage
   model
   AnalysisGraph_API
+  GrFN_API
   grfn_spec
   CONTRIBUTING
 
