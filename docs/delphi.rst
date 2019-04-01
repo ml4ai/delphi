@@ -39,6 +39,14 @@ delphi.db module
     :undoc-members:
     :show-inheritance:
 
+delphi.example\_lambdas module
+------------------------------
+
+.. automodule:: delphi.example_lambdas
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 delphi.export module
 --------------------
 
@@ -75,6 +83,14 @@ delphi.random\_variables module
 -------------------------------
 
 .. automodule:: delphi.random_variables
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+delphi.relativistic\_energy\_lambdas module
+-------------------------------------------
+
+.. automodule:: delphi.relativistic_energy_lambdas
     :members:
     :undoc-members:
     :show-inheritance:
