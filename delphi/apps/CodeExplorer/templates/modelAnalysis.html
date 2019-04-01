@@ -10,20 +10,20 @@
         {% for id, description in { "petpt": "Priestley-Taylor
         evapotranspiration model", "fib": "Forward Influence Blanket",
         "petasce": "ASCE Evapotranspiration model", }.items() %}
-        <div class="col" style="height: 40%">
+        <div class="col" style="height: 90%">
           <div class="row"><h3>{{ description }}</h3></div>
-          <div id="{{ id }}" class="row" style="height:400px; height: 400px;"></div>
+          <div id="{{ id }}" class="row" style="height:80%; height: 80%;"></div>
         </div>
         {% endfor %}
       </div>
-      <div class="row" id="fibSurfacePlot"></div>
+      <!--<div class="row" id="fibSurfacePlot"></div>-->
       <script>
         {% include "cyjs.js" %}
       </script>
-      <script>
-        var fibGraph = {{ graphJSON | safe}};
-        Plotly.plot('fibSurfacePlot', fibGraph, {{ layout | safe }});
-      </script>
+      <!--<script>-->
+        <!--var fibGraph = {{ graphJSON | safe}};-->
+        <!--Plotly.plot('fibSurfacePlot', fibGraph, {{ layout | safe }});-->
+      <!--</script>-->
       <script>
         var petpt_graph = make_cyjs(
           'petpt',
