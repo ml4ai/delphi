@@ -35,7 +35,7 @@ Citing
 
 If you use Delphi, please cite the following:
 
-.. code-block:: bibtex
+```bibtex
 
    @misc{Delphi,
        Author = {Adarsh Pyarelal and Paul Hein and Jon Stephens and Pratik
@@ -45,19 +45,8 @@ If you use Delphi, please cite the following:
                 Models from Text and Software.},
        doi={10.5281/zenodo.1436915},
    }
+```
 
-
-.. toctree::
-  :maxdepth: 2
-  :caption: Contents:
-
-  self
-  installation
-  usage
-  model
-  AnalysisGraph_API
-  grfn_spec
-  CONTRIBUTING
 
 License and Funding
 -------------------
@@ -68,4 +57,3 @@ The development of Delphi was supported by the Defense Advanced Research
 Projects Agency (DARPA) under the World Modelers (grant no. W911NF1810014) and
 Automated Scientific Knowledge Extraction (agreement no. HR00111990011)
 programs.
-
