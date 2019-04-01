@@ -39,7 +39,12 @@ from .apps.rest_api.models import (
     CausalRelationship,
     DelphiModel,
 )
+import matplotlib
+import matplotlib.cm as cm
+from matplotlib.colors import Normalize
+from delphi.utils.misc import choose_font, _insert_line_breaks
 
+FONT = choose_font()
 
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
