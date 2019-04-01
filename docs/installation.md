@@ -1,7 +1,5 @@
 # Installation
 
-## Users
-
 Delphi is under active development in an academic, rather than a
 commercial setting, so we do not have the resources to test it out on
 the Windows operating system, or provide a one-step/one-click setup
@@ -43,14 +41,6 @@ Here are the steps for installation.
     ``` 
 
 
-## Developers
-
-If you are developing Delphi and want to run tests or compile the
-documentation, then also do the following (from the root of Delphi): 
-
-```
-pip install -e .[test,docs]
-```
 
 ### Graphviz installation notes
 
@@ -124,28 +114,23 @@ delphi project. This can be set in one of two places:
     ```
 
     Then set the variable enviornment (again, may be done within your bash
-    resource file or the virtual envrionment `project.pth`). 
+    resource file or the virtual environment `project.pth`). 
     The delphi.db name must appear at the end of the path, for example:
 
     ```bash
     export DELPHI_DB="/Users/claytonm/Documents/repository/delphi_db/delphi.db"
     ```
 
+If you are developing Delphi and want to run tests or compile the
+documentation, then also do the following (from the root of Delphi): 
 
-- *Optional*: If you are working on program analysis, you may want to
-optionally set the following environment variables as well (again, in 
-.bash_profile/.bashrc or viritual environment projects.pth).
-
-  - `DSSAT_REPOSITORY`: This should point to your local checkout of
-  the [DSSAT](https://github.com/DSSAT/dssat-csm) repository.
-
-  - `ED2_REPOSITORY`: This should point to your local checkout of the
-  [Ecosystem Demography Model](https://github.com/EDmodel/ED2)
-  repository.
+```
+pip install -e .[test,docs]
+```
 
 ### Building documentation
 
-(This requies you have performed the installation for developers, above.) 
+(This requires you have performed the installation for developers, above.) 
 To build and view the documentation, run the following commands from the root of
 the repository:
 
