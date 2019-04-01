@@ -22,13 +22,13 @@ models from information extracted from two sources:
   abstracted representations of scientific models from code that
   implements them, and convert these into probabilistic models.
 
-Delphi builds upon `INDRA <https://indra.bio>`_ and `Eidos <https://github.com/clulab/eidos>`_.
+Delphi builds upon [INDRA](https://indra.bio) and [Eidos](https://github.com/clulab/eidos).
 
 For a detailed description of our procedure to convert text to models,
-see `this document <http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf>`_.
+see [this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
 
 Delphi is also part of the
-`AutoMATES <https://ml4ai.github.io/automates/>`_ project.
+[AutoMATES](https://ml4ai.github.io/automates/) project.
 
 Citing
 ------
