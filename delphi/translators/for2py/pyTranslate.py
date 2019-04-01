@@ -249,6 +249,12 @@ class PythonCodeGenerator(object):
         }
         self.readFormat = []
 
+    ###########################################################################
+    #                                                                         #
+    #                      TOP-LEVEL PROGRAM COMPONENTS                       #
+    #                                                                         #
+    ###########################################################################
+
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
@@ -318,8 +324,16 @@ class PythonCodeGenerator(object):
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
-    # proc_intrinsic() processes a call to an intrinsic function
+    ###########################################################################
+    #                                                                         #
+    #                               EXPRESSIONS                               #
+    #                                                                         #
+    ###########################################################################
+
     def proc_intrinsic(self, node):
+        """Processes calls to intrinsic functions and returns a string that is
+           the corresponding Python code."""
+
         intrinsic = node["name"].lower()
         assert intrinsic in syntax.F_INTRINSICS
 
@@ -345,8 +359,10 @@ class PythonCodeGenerator(object):
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
 
-    # get_arg_list() returns the list of arguments or subscripts at a node
     def get_arg_list(self, node):
+        """Get_arg_list() returns the list of arguments or subscripts at a node.
+           If there are no arguments or subscripts, it returns the empty list."""
+
         if "args" in node:
             return node["args"]
 
@@ -355,11 +371,13 @@ class PythonCodeGenerator(object):
 
         return []
 
-    # proc_call(): processes function calls, including calls to intrinsics.
-    # This code assumes that proc_expr() has used type info to correctly
-    # identify array references, and that proc_call() is therefore correctly
-    # called only on function calls.
     def proc_call(self, node):
+        """Processes function calls, including calls to intrinsics, and returns
+           a string that is the corresponding Python code.  This code assumes
+           that proc_expr() has used type info to correctly identify array
+           references, and that proc_call() is therefore correctly called only
+           on function calls."""
+
         if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             toFind = node["args"][1]["value"]
@@ -376,25 +394,30 @@ class PythonCodeGenerator(object):
         exp_str = f"{callee}({arguments})"
         return exp_str
 
-    # proc_expr_list() processes a list of expressions [e1, ..., eN] and
-    # returns a list of strings [s1, ..., sN] where si is the string obtained
-    # from processing expression ei.  The argument wrapper indicates
-    # whether the Python expression should refer to the list wrapper for 
-    # (scalar) variables.
     def proc_expr_list(self, node, wrapper):
+        """Processes a list of expressions [e1, ..., eN] and returns a list of
+           strings [s1, ..., sN] where si is the string corresponding to the
+           Python code for expression ei.  The argument wrapper indicates 
+           whether the Python expression should refer to the list wrapper for
+           (scalar) variables."""
+
         return [self.proc_expr(node[i], wrapper) for i in range(len(node))]
 
-    # proc_literal() processes a literal value.
     def proc_literal(self, node):
+        """Processes a literal value and returns a string that is the
+           corresponding Python code."""
+
         if node["type"] == "bool":
             return node["value"].title()
         else:
             return node["value"]
 
-    # proc_ref() processes a reference node.  The argument "wrapper" 
-    # indicates whether or not the Python expression should refer to the list
-    # wrapper for (scalar) variables.
     def proc_ref(self, node, wrapper):
+        """Processes a reference node and returns a string that is the 
+           corresponding Python code.  The argument "wrapper" indicates whether
+           or not the Python expression should refer to the list wrapper for
+           (scalar) variables."""
+
         ref_str = self.nameMapper[node["name"]]
         if "subscripts" in node:
             # array reference or function call
@@ -413,8 +436,10 @@ class PythonCodeGenerator(object):
 
         return expr_str
 
-    # proc_op() processes expressions involving operators.
     def proc_op(self, node):
+        """Processes expressions involving operators and returns a string that
+           is the corresponding Python code."""
+
         try:
             op_str = OPERATOR_MAP[node["operator"].lower()]
         except KeyError:
@@ -435,10 +460,12 @@ class PythonCodeGenerator(object):
         return expr_str
 
 
-    # proc_expr() processes an expression node.  The argument "wrapper" 
-    # indicates whether or not the Python expression should refer to the list
-    # wrapper for (scalar) variables.
     def proc_expr(self, node, wrapper):
+        """Processes an expression node and returns a string that is the 
+           corresponding Python code.  The argument "wrapper" indicates 
+           whether or not the Python expression should refer to the list 
+           wrapper for (scalar) variables."""
+
         #print(f">>> proc_expr: {node}")
 
         if node["tag"] == "literal":
@@ -494,22 +521,6 @@ class PythonCodeGenerator(object):
     def printPrivate(self, node, prinState):
         self.privFunctions.append(node["name"])
         self.nameMapper[node["name"]] = "_" + node["name"]
-
-    def initializeFileVars(self, node, printState: PrintState):
-        label = node["args"][1]["value"]
-        data_type = list_data_type(self.format_dict[label])
-        index = 0
-        for item in node["args"]:
-            if item["tag"] == "ref":
-                self.printVariable(
-                    {
-                        "name": self.nameMapper[item["name"]],
-                        "type": data_type[index],
-                    },
-                    printState,
-                )
-                self.pyStrings.append(printState.sep)
-                index += 1
 
     def printArg(self, node, printState: PrintState):
         try:
@@ -568,6 +579,12 @@ class PythonCodeGenerator(object):
             self.variableMap[self.nameMapper[node["name"]]] = node["type"]
         else:
             printState.printFirst = False
+
+    ###########################################################################
+    #                                                                         #
+    #                                STATEMENTS                               #
+    #                                                                         #
+    ###########################################################################
 
     def printDo(self, node, printState: PrintState):
         self.pyStrings.append("for ")
@@ -657,7 +674,6 @@ class PythonCodeGenerator(object):
     def printOp(self, node, printState: PrintState):
         expr_str = self.proc_expr(node, False)
         self.pyStrings.append(expr_str)
-
 
     def printLiteral(self, node, printState: PrintState):
         expr_str = self.proc_literal(node)
@@ -1039,14 +1055,6 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"sys.stdout.write(write_line)")
 
-    def nameMapping(self, ast):
-        for item in ast:
-            if item.get("name"):
-                self.nameMapper[item["name"]] = item["name"]
-            for inner in item:
-                if isinstance(item[inner], list):
-                    self.nameMapping(item[inner])
-
     def printFormat(self, node, printState: PrintState):
         type_list = []
         temp_list = []
@@ -1085,6 +1093,12 @@ class PythonCodeGenerator(object):
             else self.nameMapper[node["args"][0]["name"]]
         )
         self.pyStrings.append(f"file_{file_id}.close()")
+
+    ###########################################################################
+    #                                                                         #
+    #                              DECLARATIONS                               #
+    #                                                                         #
+    ###########################################################################
 
     def printArray(self, node, printState: PrintState):
         """ Prints out the array declaration in a format of Array class
@@ -1168,6 +1182,36 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(" = None")
                 self.pyStrings.append(printState.sep)
                 fieldNum += 1
+
+    ###########################################################################
+    #                                                                         #
+    #                              MISCELLANEOUS                              #
+    #                                                                         #
+    ###########################################################################
+
+    def initializeFileVars(self, node, printState: PrintState):
+        label = node["args"][1]["value"]
+        data_type = list_data_type(self.format_dict[label])
+        index = 0
+        for item in node["args"]:
+            if item["tag"] == "ref":
+                self.printVariable(
+                    {
+                        "name": self.nameMapper[item["name"]],
+                        "type": data_type[index],
+                    },
+                    printState,
+                )
+                self.pyStrings.append(printState.sep)
+                index += 1
+
+    def nameMapping(self, ast):
+        for item in ast:
+            if item.get("name"):
+                self.nameMapper[item["name"]] = item["name"]
+            for inner in item:
+                if isinstance(item[inner], list):
+                    self.nameMapping(item[inner])
 
     def get_python_source(self):
         imports = "".join(self.imports)
