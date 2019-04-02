@@ -343,7 +343,7 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"No handler for Fortran intrinsic {intrinsic}")
 
         arg_list = self.get_arg_list(node)
-        arg_strs = self.proc_expr_list(arg_list, False)
+        arg_strs = [self.proc_expr(arg_list[i], False) for i in range(len(arg_list))]
 
         if py_mod != None:
             handler = f"{py_mod}.{py_fn}"
@@ -387,21 +387,11 @@ class PythonCodeGenerator(object):
             return self.proc_intrinsic(node)
 
         callee = self.nameMapper[f"{node['name']}"]
-        arg_list = self.get_arg_list(node)
-        arg_strs = self.proc_expr_list(arg_list, True)
+        args = self.get_arg_list(node)
+        arg_strs = [self.proc_expr(args[i], True) for i in range(len(args))]
         arguments = ", ".join(arg_strs)
-
         exp_str = f"{callee}({arguments})"
         return exp_str
-
-    def proc_expr_list(self, node, wrapper):
-        """Processes a list of expressions [e1, ..., eN] and returns a list of
-           strings [s1, ..., sN] where si is the string corresponding to the
-           Python code for expression ei.  The argument wrapper indicates 
-           whether the Python expression should refer to the list wrapper for
-           (scalar) variables."""
-
-        return [self.proc_expr(node[i], wrapper) for i in range(len(node))]
 
     def proc_literal(self, node):
         """Processes a literal value and returns a string that is the
@@ -422,7 +412,8 @@ class PythonCodeGenerator(object):
         if "subscripts" in node:
             # array reference or function call
             if "isArray" in node and node["isArray"]:
-                subs_strs = self.proc_expr_list(node["subscripts"], False)
+                subs = node["subscripts"]
+                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
                 subscripts = ", ".join(subs_strs)
                 expr_str = f"{ref_str}.get_(({subscripts}))"
             else:
@@ -458,7 +449,6 @@ class PythonCodeGenerator(object):
             expr_str = f"{op_str}({l_subexpr})"
 
         return expr_str
-
 
     def proc_expr(self, node, wrapper):
         """Processes an expression node and returns a string that is the 
@@ -537,7 +527,6 @@ class PythonCodeGenerator(object):
 
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
-        initial_set = False
         if (var_name not in printState.definedVars + printState.globalVars):
             printState.definedVars += [var_name]
             if node.get("value"):
@@ -692,9 +681,10 @@ class PythonCodeGenerator(object):
         if "subscripts" in lhs:
             # target is an array element or derived type field
             if "isArray" in lhs and lhs["isArray"]:
-                subs_strs = self.proc_expr_list(lhs["subscripts"], False)
-                subs = ", ".join(subs_strs)
-                assg_str = f"{lhs['name']}.set_(({subs}), {rhs_str})"
+                subs = lhs["subscripts"]
+                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                subscripts = ", ".join(subs_strs)
+                assg_str = f"{lhs['name']}.set_(({subscripts}), {rhs_str})"
             else:
                 # handling derived types might go here
                 assert False
