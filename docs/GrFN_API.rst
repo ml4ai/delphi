@@ -17,6 +17,7 @@ Constructors
 .. autosummary:: 
     :toctree: generated/
 
+    GroundedFunctionNetwork.from_fortran_src
     GroundedFunctionNetwork.from_fortran_file
     GroundedFunctionNetwork.from_python_src
     GroundedFunctionNetwork.from_python_file
