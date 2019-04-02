@@ -384,6 +384,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
+
+
     @classmethod
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
         """Builds GrFN object from a Fortran program."""
@@ -420,6 +422,27 @@ class GroundedFunctionNetwork(ComputationalGraph):
         pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
 
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+        return G
+
+    @classmethod
+    def from_fortran_src(cls, fortran_src: str, dir: str = "."):
+        """ Create a GroundedFunctionNetwork instance from a string with raw
+        Fortran code.
+
+        Args:
+            fortran_src: A string with Fortran source code.
+            dir: (Optional) - the directory in which the temporary Fortran file
+                will be created (make sure you have write permission!) Defaults to
+                the current directory.
+        Returns:
+            A GroundedFunctionNetwork instance
+        """
+        import tempfile
+        fp = tempfile.NamedTemporaryFile('w+t', delete=False, dir=dir)
+        fp.writelines(fortran_src)
+        fp.close()
+        G = cls.from_fortran_file(fp.name, dir)
+        os.remove(fp.name)
         return G
 
     def clear(self):
