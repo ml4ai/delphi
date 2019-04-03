@@ -1,3 +1,20 @@
+"""
+    This (rectify.py) program will receive OFP generated XML file as an input.
+    Then, it removes any unnecessary elements and refactor randomly structured
+    (nested) elements into a correct structure. The purpose of this program
+    is to do all the clean up for transplate.py.
+
+    Example:
+        This script is executed by the autoTranslate script as one
+        of the steps in converted a Fortran source file to Python
+        file. For standalone execution:::
+
+            $python rectify.py <ast_file>
+
+    ast_file: The XML represenatation of the AST of the Fortran file. This is
+    produced by the OpenFortranParser.
+"""
+
 import sys
 import re
 import xml.etree.ElementTree as ET
