@@ -745,7 +745,7 @@ def indent(elem, level=0):
 def buildNewAST(root, filename):
     tree = ET.ElementTree(indent(root))
     rectFilename = filename.split('/')[-1]
-    tree.write(f"{rectFilename}")
+    tree.write(f"rectified_{rectFilename}")
 
 def main():
     filename = sys.argv[1]
