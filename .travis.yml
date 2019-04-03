@@ -3,18 +3,15 @@ language: python
 python:
   - "3.6"
 
-env:
-  - DELPHI_DB=$TRAVIS_BUILD_DIR/delphi.db
-
 addons:
   apt:
     packages:
     - graphviz
 
 install:
-  - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR
-  - pip install .[test,docs]
-  - wget http://vision.cs.arizona.edu/adarsh/delphi.db
+  - pip install -e .[test,docs]
+  - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
+  - export DELPHI_DB=`pwd`/delphi.db
 
 script:
   - make test
