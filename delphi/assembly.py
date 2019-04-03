@@ -3,7 +3,6 @@ from .utils.indra import is_well_grounded
 from .random_variables import Delta, Indicator
 from typing import Tuple, List, Dict, Iterable, Optional, Callable
 from indra.statements import Influence
-from fuzzywuzzy import process
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
@@ -92,12 +91,6 @@ def constructConditionalPDF(
 
 def is_simulable(s: Influence) -> bool:
     return all(map(exists, map(lambda x: x["polarity"], deltas(s))))
-
-
-def get_best_match(indicator: Indicator, items: Iterable[str]) -> str:
-    """ Get the best match to an indicator name from a list of items. """
-    best_match = process.extractOne(indicator.name, items)[0]
-    return best_match
 
 
 def get_variable_and_source(x: str):

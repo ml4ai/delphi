@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import json
 from math import exp
@@ -185,7 +186,7 @@ def query(uuid: str):
 @bp.route("/icm/<string:uuid>/experiment", methods=["POST"])
 def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
-    data = json.loads(request.data)
+    data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
     if os.environ.get("TRAVIS") is not None:
         config_file="bmi_config.txt"

@@ -21,13 +21,55 @@ models from information extracted from two sources:
   abstracted representations of scientific models from code that
   implements them, and convert these into probabilistic models.
 
-Delphi builds upon `INDRA <https://indra.bio>`_ and `Eidos <https://github.com/clulab/eidos>`_.
+Usage
+-----
 
-For a detailed description of our procedure to convert text to models,
-see `this document <http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf>`_.
+- Assembling a model from text:
 
-Delphi is also part of the
-`AutoMATES <https://ml4ai.github.io/automates/>`_ project.
+.. code-block:: python
+
+  from delphi import AnalysisGraph
+
+  G = AnalysisGraph.from_text(
+      "Significantly increased conflict seen in South Sudan forced many"
+      " families to flee in 2017.")
+  G.map_concepts_to_indicators()
+  G.parameterize(country="South Sudan", year=2017, month=4)
+  A = G.to_agraph()
+  A.draw("CAG.png", prog="dot")
+
+.. figure:: CAG.png
+  :alt: Causal analysis graph example
+  :width: 100 %
+
+- Assembling a model from Fortran code:
+
+.. code-block:: python
+
+  from delphi import GroundedFunctionNetwork
+
+  with open("relativistic_energy.f", "w") as f:
+      f.write("""\
+        subroutine relativistic_energy(e, m, c, p)
+
+        implicit none
+
+        real e, m, c, p
+        e = sqrt((p**2)*(c**2) + (m**2)*(c**4))
+
+        return
+        end subroutine func""")
+
+  G = GroundedFunctionNetwork.from_fortran_file("relativistic_energy.f")
+  A = G.to_agraph()
+  A.draw("relativistic_energy_grfn.png", prog="dot")
+
+
+.. figure:: relativistic_energy_grfn.png
+  :alt: Executable Grounded Function Network constructed from Fortran source.
+  :width: 100 %
+
+
 
 Citing
 ------
@@ -46,6 +88,12 @@ If you use Delphi, please cite the following:
    }
 
 
+Delphi builds upon `INDRA <https://indra.bio>`_ and `Eidos <https://github.com/clulab/eidos>`_.
+For a detailed description of our procedure to convert text to models,
+see `this document <http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf>`_.
+Delphi is also part of the
+`AutoMATES <https://ml4ai.github.io/automates/>`_ project.
+
 .. toctree::
   :maxdepth: 2
   :caption: Contents:
@@ -55,6 +103,7 @@ If you use Delphi, please cite the following:
   usage
   model
   AnalysisGraph_API
+  GrFN_API
   grfn_spec
   CONTRIBUTING
 

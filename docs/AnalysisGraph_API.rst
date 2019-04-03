@@ -25,6 +25,8 @@ values of the dictionary are objects of the class
 
 The methods listed on this page constitute the public API for Delphi.
 
+.. autoclass:: AnalysisGraph
+
 Constructors
 ------------
 
@@ -100,11 +102,12 @@ Sampling and Inference
 
 Export
 ------
-.. currentmodule:: delphi
+.. currentmodule:: delphi.AnalysisGraph
 .. autosummary::
     :toctree: generated/
 
-    export
+    AnalysisGraph.to_dict
+    AnalysisGraph.to_agraph
 
 
 Basic Model Interface
