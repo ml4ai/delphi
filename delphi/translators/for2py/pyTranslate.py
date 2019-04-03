@@ -171,25 +171,6 @@ class PythonCodeGenerator(object):
     def __init__(self):
         self.programName = ""
         self.printFn = {}
-        self.libFns = [
-            "mod",
-            "exp",
-            "index",
-            "min",
-            "max",
-            "cexp",
-            "cmplx",
-            "atan",
-            "cos",
-            "sin",
-            "acos",
-            "asin",
-            "tan",
-            "atan",
-            "sqrt",
-            "log",
-            "abs",
-        ]
         self.variableMap = {}
         self.imports = []
         # This list contains the private functions
@@ -199,20 +180,6 @@ class PythonCodeGenerator(object):
         self.nameMapper = {}
         # Dictionary to hold functions and its arguments
         self.funcArgs = {}
-        self.mathFuncs = [
-            "exp",
-            "cexp",
-            "cmplx",
-            "cos",
-            "sin",
-            "acos",
-            "asin",
-            "tan",
-            "atan",
-            "sqrt",
-            "log",
-            "abs",
-        ]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
@@ -456,8 +423,6 @@ class PythonCodeGenerator(object):
            whether or not the Python expression should refer to the list 
            wrapper for (scalar) variables."""
 
-        #print(f">>> proc_expr: {node}")
-
         if node["tag"] == "literal":
             return self.proc_literal(node)
 
@@ -474,8 +439,6 @@ class PythonCodeGenerator(object):
             # operator
             assert not wrapper
             expr_str = self.proc_op(node)
-
-        #print(f">>> NODE = {node}\n    exp_str = {expr_str}")
 
         assert expr_str != None, f">>> [proc_expr] NULL value: {node}"
         return expr_str
@@ -833,153 +796,17 @@ class PythonCodeGenerator(object):
                 format_label = node["args"][1]["value"]
 
         if write_target == "file":
-            self.pyStrings.append(f"write_list_{file_id} = [")
+            self.pyStrings.append(f"write_list_{file_id} = ")
         elif write_target == "outStream":
-            self.pyStrings.append(f"write_list_stream = [")
+            self.pyStrings.append(f"write_list_stream = ")
 
-        # Check for variable arguments specified to the write statement
-        for item in node["args"]:
-            if item["tag"] == "ref":
-                write_string += f"{self.nameMapper[item['name']]}"
-                # Handles array or a variable that holds following attributes,
-                # such as var.x.y
-                if "subscripts" in item:
-                    # If a variable is derived type
-                    if item["isDevType"]:
-                        # If hasSubscripts is true, the derived type object is
-                        # also an array and has following subscripts.
-                        # Therefore, in order to handle the syntax
-                        # obj.get_((obj_index)).field.get_((field)), the code
-                        # below handles obj.get_((obj_index)) first before the
-                        # subscripts for the field variables
-                        if "hasSubscripts" in item and item["hasSubscripts"]:
-                            devObjSub = [item["subscripts"].pop(0)]
-                            write_string += ".get_(("
-                            for sub in devObjSub:
-                                if sub["tag"] == "ref":
-                                    write_string += f"{sub['name']}[0]"
-                                elif sub["tag"] == "literal":
-                                    write_string += f"{sub['value']}"
-                            write_string += "))"
-                        # This is a case where the very first variable is not
-                        # an array, but has subscripts, which holds information
-                        # of following derived type field variables. i.e.
-                        # var.x.y HOWEVER, the code below MUST be revisted and
-                        # fixed. This is a hack of hard coding in order to
-                        # print a format of var.x.y fixed number of 3 times In
-                        # order to fix this, the entire printWrite should be
-                        # modified that can do a recursion or break passed
-                        # lists from the translate.py to have more clear
-                        # groups.  It cannot be handled now as it may cause a
-                        # butterfly effect on all other I/O handling
-                        if (
-                            "hasSubscripts" in item
-                            and not item["hasSubscripts"]
-                            and "subscripts" in item
-                            and "arrayStat" not in item
-                        ):
-                            isubs = item["subscripts"]
-                            isubs2 = isubs[1]["subscripts"]
-                            write_string += "".join(
-                                (
-                                    f".{isubs[0]['name']}",
-                                    f".{isubs[0]['field-name']}",
-                                    ", ",
-                                    ".".join(
-                                        (
-                                            isubs[1]["name"],
-                                            isubs2[0]["name"],
-                                            isubs2[0]["field-name"],
-                                        )
-                                    ),
-                                    ", ",
-                                    ".".join(
-                                        (
-                                            isubs2[1]["name"],
-                                            isubs2[1]["subscripts"][0]["name"],
-                                            isubs2[1]["subscripts"][0][
-                                                "field-name"
-                                            ],
-                                        )
-                                    ),
-                                )
-                            )
-                        if "field-name" in item:
-                            write_string += f".{item['field-name']}"
-                    # Handling array
-                    if (
-                        "hasSubscripts" in item
-                        and item["hasSubscripts"]
-                        and "isArray" in item
-                        and item["isArray"]
-                    ) or (
-                        "arrayStat" in item and item["arrayStat"] == "isArray"
-                    ):
-                        i = 0
-                        write_string += ".get_(("
-                        for ind in item["subscripts"]:
-                            # When an array uses another array's value as its
-                            # index value
-                            if "subscripts" in ind:
-                                write_string += f"{ind['name']}.get_(("
-                                for sub in ind["subscripts"]:
-                                    if sub["tag"] == "ref":
-                                        write_string += f"{sub['name']}[0]"
-                                    elif sub["tag"] == "literal":
-                                        write_string += f"{sub['value']}"
-                                write_string += "))"
-                            elif "operator" in ind:
-                                if "right" not in ind:
-                                    write_string += f"{ind['operator']}"
-
-                                if ind["left"][0]["tag"] == "ref":
-                                    write_string += (
-                                        f"{ind['left'][0]['name']}[0] "
-                                    )
-                                else:
-                                    assert ind["left"][0]["tag"] == "literal"
-                                    write_string += (
-                                        f"{ind['left'][0]['value']} "
-                                    )
-
-                                if "right" in ind:
-                                    write_string += f"{ind['operator']} "
-
-                                    if ind["right"][0]["tag"] == "ref":
-                                        write_string += (
-                                            f"{ind['right'][0]['name']} "
-                                        )
-                                    else:
-                                        assert (
-                                            ind["right"][0]["tag"] == "literal"
-                                        )
-                                        write_string += (
-                                            f"{ind['right'][0]['value']} "
-                                        )
-                            else:
-                                if ind["tag"] == "ref":
-                                    write_string += f"{ind['name']}[0]"
-                                elif ind["tag"] == "op":
-                                    write_string += f"{ind['operator']}"
-                                    assert ind["left"][0]["tag"] == "literal"
-                                    write_string += (
-                                        f"{ind['left'][0]['value']}"
-                                    )
-                                elif ind["tag"] == "literal":
-                                    write_string += f"{ind['value']}"
-                            if i < len(item["subscripts"]) - 1:
-                                write_string += ", "
-                                i = i + 1
-                        write_string += "))"
-                if printState.indexRef and "subscripts" not in item:
-                    if "isDevType" not in item or (
-                        "isDevType" in item and not item["isDevType"]
-                    ):
-                        write_string += "[0]"
-                    elif "isDevType" in item and item["isDevType"]:
-                        write_string += f".{item['field-name']}"
-                write_string += ", "
-        self.pyStrings.append(f"{write_string[:-2]}]")
+        # Collect the expressions to be written out.  The first two arguments to
+        # a WRITE statement are the output stream and the format, so these are
+        # skipped.
+        args = node["args"][2:]
+        args_str = [self.proc_expr(args[i], False) for i in range(len(args))]
+        write_string = ', '.join(args_str)
+        self.pyStrings.append(f"[{write_string}]")
         self.pyStrings.append(printState.sep)
 
         # If format specified and output in a file, execute write_line on file
@@ -1027,6 +854,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(
                             f'"{self.variableMap[var.strip()]}",'
                         )
+
                 self.pyStrings.append("])" + printState.sep)
                 self.pyStrings.append(
                     "write_stream_obj = Format(output_fmt)" + printState.sep
