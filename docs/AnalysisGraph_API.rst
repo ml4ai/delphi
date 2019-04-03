@@ -25,6 +25,8 @@ values of the dictionary are objects of the class
 
 The methods listed on this page constitute the public API for Delphi.
 
+.. autoclass:: AnalysisGraph
+
 Constructors
 ------------
 

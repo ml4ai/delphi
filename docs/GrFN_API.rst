@@ -10,10 +10,12 @@ information about computational relationships between variables in code.
 Additionally, the ForwardInfluenceBlanket class is provided to facilitate model
 comparison
 
+.. currentmodule:: delphi.GrFN.networks
+.. autoclass:: GroundedFunctionNetwork
+
 Constructors
 ------------
 
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary:: 
     :toctree: generated/
 
@@ -24,7 +26,6 @@ Constructors
 
 Export
 ------
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary::
     :toctree: generated/
 
@@ -34,7 +35,6 @@ Export
 
 Execution
 ---------
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary::
     :toctree: generated/
 
@@ -42,7 +42,6 @@ Execution
 
 Model Analysis
 --------------
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary::
     :toctree: generated/
 
@@ -50,13 +49,11 @@ Model Analysis
 
 Sensitivity Analysis
 --------------------
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary::
     :toctree: generated/
 
     GroundedFunctionNetwork.S2_surface
 
-.. currentmodule:: delphi.GrFN.networks
 .. autosummary::
     :toctree: generated/
 

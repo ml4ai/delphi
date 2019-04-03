@@ -1,11 +1,11 @@
 Contributing
 ============
 
-Workflow
---------
+Suggested Git Workflow
+----------------------
 
-The following contribution workflow is suggested. To implement a new feature, do
-the following:
+The following git workflow is suggested for contributors. To implement a new
+feature, do the following:
 
 - Assuming you are on the `master` branch, check out a new feature branch. If
   the name of the feature is `new_feature`, you would do `git checkout -b new_feature`.
@@ -78,3 +78,37 @@ the following:
 - Committing changes directly to the `master` branch is *highly* discouraged.
   The only exception to this rule is documentation updates (updating READMEs,
   etc.) And even then, major documentation updates should be done via a PR.
+
+Running tests locally
+---------------------
+
+To run the complete test suite, invoke the following command from the Delphi
+repo root directory.
+
+```
+make test
+```
+
+To run a particular test module, e.g. `test_program_analysis.py`, invoke the
+following command instead:
+
+```
+pytest tests/test_program_analysis.py
+```
+
+To run a particular testing function within a test module, e.g. the
+`test_petpt_grfn_generation` test function in `test_program_analysis.py`,
+invoke the following instead:
+
+```
+pytest tests/test_program_analysis.py -k test_petpt_grfn_generation
+```
+
+If you would like the output of print statements (either in the library code or
+the testing code) to be displayed instead of suppressed, pass the `-s` flag to
+the `pytest` invocation:
+
+```
+pytest -s tests/test_program_analysis.py
+```
+suppressed
