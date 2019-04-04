@@ -1,9 +1,10 @@
 """
+    The purpose of this program is to do all the clean up for transplate.py.
     This (rectify.py) program will receive OFP generated XML file as an input.
     Then, it removes any unnecessary elements and refactor randomly structured
-    (nested) elements into a correct structure. The purpose of this program
-    is to do all the clean up for transplate.py.
-
+    (nested) elements into a correct structure. The output file will be apprx.
+    30%~40% lighter in terms of number of lines than the OFP XML.
+  
     Example:
         This script is executed by the autoTranslate script as one
         of the steps in converted a Fortran source file to Python
@@ -117,7 +118,7 @@ class OFPXMLToCleanedXML:
         for child in root:
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "type" or child.tag == "dimensions" or child.tag == "variables":
+                if child.tag == "type" or child.tag == "dimensions" or child.tag == "variables" or child.tag == "format":
                     if child.tag == "dimensions":
                         self.is_array = True
                     self.parseXMLTree(child, curElem)
@@ -301,7 +302,7 @@ class OFPXMLToCleanedXML:
     def handle_tag_value(self, root, parElem):
         for child in root:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
-            if child.tag == "literal" or child.tag == "operation":
+            if child.tag == "literal" or child.tag == "operation" or child.tag == "name":
                 self.parseXMLTree(child, curElem)
             else:
                 print (f'In self.handle_tag_value: "{child.tag}" not handled')
@@ -357,7 +358,7 @@ class OFPXMLToCleanedXML:
         for child in root:
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "header" or child.tag == "body":
+                if child.tag == "header" or child.tag == "body" or child.tag == "format":
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In self.handle_tag_loop_do: "{child.tag}" not handled')
@@ -402,7 +403,7 @@ class OFPXMLToCleanedXML:
         for child in root:
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "literal":
+                if child.tag == "literal" or child.tag == "name":
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In self.handle_tag_upper_bound: "{child.tag}" not handled')
