@@ -220,7 +220,7 @@ class RectifyOFPXML:
     def handle_tag_statement(self, root, parElem):
         for child in root:
             if child.tag == "assignment" or child.tag == "write" or child.tag == "format" or child.tag == "stop" or\
-               child.tag == "execution-part" or child.tag == "print":
+               child.tag == "execution-part" or child.tag == "print" or child.tag == "open":
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.text:
                     self.parseXMLTree(child, curElem) 
@@ -312,6 +312,8 @@ class RectifyOFPXML:
         </literal>
     """
     def handle_tag_literal(self, root, parElem):
+        if '"' in parElem.attrib['value']:
+            parElem.attrib['value'] = self.clean_id(parElem.attrib['value'])
         for child in root:
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -550,7 +552,7 @@ class RectifyOFPXML:
                     print (f'In handle_tag_format: "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elements between the format_items and its sub-element output.
+        This function handles cleaning up the XML elements between the format_items and its sub-element.
         <format_items>
             <format_item>
                 ...
@@ -566,6 +568,12 @@ class RectifyOFPXML:
             else:
                 print (f'In handle_tag_format_items: "{child.tag}" not handled')
 
+    """
+        This function handles cleaning up the XML elements between the print tags.
+        <print>
+            ...
+        </print>
+    """
     def handle_tag_print(self, root, parElem):
         for child in root:
             if child.tag != "print-stmt":
@@ -575,6 +583,30 @@ class RectifyOFPXML:
             else:
                 if child.tag != "print-format" and child.tag != "print-stmt":
                     print (f'In handle_tag_print: "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elements between the open tags.
+        <open>
+            ...
+        </open>
+    """
+    def handle_tag_open(self, root, parElem):
+        for child in root:
+            if child.text:
+                if child.tag == "keyword-arguments": 
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_open: "{child.tag}" not handled')
+
+    def handle_tag_keyword_arguments(self, root, parElem):
+        for child in root:
+            if child.text:
+                if child.tag == "keyword-argument" or child.tag == "literal":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_keyword_arguments: "{child.tag}" not handled')
 
     """
         parseXMLTree
@@ -657,6 +689,10 @@ class RectifyOFPXML:
             self.handle_tag_format_items(root, parElem)
         elif root.tag == "print":
             self.handle_tag_print(root, parElem)
+        elif root.tag == "open":
+            self.handle_tag_open(root, parElem)
+        elif root.tag == "keyword-arguments" or root.tag == "keyword-argument":
+            self.handle_tag_keyword_arguments(root, parElem)
         else:
             print (f"Currently, {root.tag} not supported")
 
@@ -716,7 +752,7 @@ class RectifyOFPXML:
     """
     def clean_derived_type_ref(self, parElem):
         current_id = parElem.attrib['id'] # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
-        self.derived_type_var_holder_list.append(re.findall(r"\"([^\"]+)\"", current_id)[0]) # 2. Extract the first variable name, for example, x in this case.
+        self.derived_type_var_holder_list.append(self.clean_id(current_id)) # 2. Extract the first variable name, for example, x in this case.
         percent_sign = current_id.find("%") # 3. Get the location of the '%' sign
         self.derived_type_var_holder_list.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
         self.reconstruct_derived_type_ref(parElem)
@@ -735,6 +771,13 @@ class RectifyOFPXML:
                 num_of_vars -= 1
         parElem.attrib['id'] = cleaned_id
         self.derived_type_var_holder_list.clear() # Clean up the list for re-use
+
+    """
+        This function refines current id by removing quotation marks stored in the id and returns only the variable name.
+        For example, from "OUTPUT" to OUTPUT and "x" to x.
+    """
+    def clean_id(self, unrefined_id):
+        return re.findall(r"\"([^\"]+)\"", unrefined_id)[0]
 
 # ==========================================================================================================================================================================================
 """
