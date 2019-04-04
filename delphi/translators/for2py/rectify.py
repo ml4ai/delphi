@@ -361,7 +361,7 @@ class OFPXMLToCleanedXML:
                 if child.tag == "header" or child.tag == "body" or child.tag == "format":
                     self.parseXMLTree(child, curElem)
                 else:
-                    print (f'In self.handle_tag_loop_do: "{child.tag}" not handled')
+                    print (f'In self.handle_tag_loop: "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elements between the index_variable or range elements.
