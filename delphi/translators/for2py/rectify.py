@@ -220,7 +220,7 @@ class RectifyOFPXML:
     def handle_tag_statement(self, root, parElem):
         for child in root:
             if child.tag == "assignment" or child.tag == "write" or child.tag == "format" or child.tag == "stop" or\
-               child.tag == "execution-part" or child.tag == "print" or child.tag == "open":
+               child.tag == "execution-part" or child.tag == "print" or child.tag == "open" or child.tag == "read":
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.text:
                     self.parseXMLTree(child, curElem) 
@@ -585,7 +585,7 @@ class RectifyOFPXML:
                     print (f'In handle_tag_print: "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elements between the open tags.
+        This function handles cleaning up the XML elements between the open tag.
         <open>
             ...
         </open>
@@ -598,7 +598,18 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_open: "{child.tag}" not handled')
+            else:
+                print (f'In handle_tag_open: Empty element "{child.tag}" not handled')
 
+    """
+        This function handles cleaning up the XML elements between the keyword-arguments and keyword-argument tags.
+        <keyword-arguments>
+            <keyword-argument>
+                ...
+            </keyword-argument>
+            ...
+        </keyword-arguments>
+    """
     def handle_tag_keyword_arguments(self, root, parElem):
         for child in root:
             if child.text:
@@ -606,7 +617,50 @@ class RectifyOFPXML:
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 else:
-                    print (f'In handle_tag_keyword_arguments: "{child.tag}" not handled')
+                    print (f'In handle_tag_keyword_arguments - {root.tag}: "{child.tag}" not handled')
+            else:
+                print (f'In handle_tag_keyword_arguments - {root.tag}: Empty element "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elements between the read tag.
+        <read>
+            ...
+        </read>
+    """
+    def handle_tag_read(self, root, parElem):
+        for child in root:
+            if child.text:
+                if child.tag == "io-controls" or child.tag == "inputs":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_read: "{child.tag}" not handled')
+            else:
+                if child.tag == "read-stmt":
+                    parElem.attrib.update(child.attrib)
+                else:
+                    print (f'In handle_tag_read: Empty element "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elements between the inputs and input tags.
+        <inputs>
+            <input>
+                ...
+            </input>
+            ...
+        </inputs>
+    """
+    def handle_tag_inputs(self, root, parElem):
+        for child in root:
+            if child.text:
+                if child.tag == "input" or child.tag == "name":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_input - {root.tag}: "{child.tag}" not handled')
+            else:
+                print (f'In handle_tag_input - {root.tag}: Empty element "{child.tag}" not handled')
+
 
     """
         parseXMLTree
@@ -693,6 +747,10 @@ class RectifyOFPXML:
             self.handle_tag_open(root, parElem)
         elif root.tag == "keyword-arguments" or root.tag == "keyword-argument":
             self.handle_tag_keyword_arguments(root, parElem)
+        elif root.tag == "read":
+            self.handle_tag_read(root, parElem)
+        elif root.tag == "inputs" or root.tag == "input":
+            self.handle_tag_inputs(root, parElem)
         else:
             print (f"Currently, {root.tag} not supported")
 
@@ -773,8 +831,10 @@ class RectifyOFPXML:
         self.derived_type_var_holder_list.clear() # Clean up the list for re-use
 
     """
-        This function refines current id by removing quotation marks stored in the id and returns only the variable name.
-        For example, from "OUTPUT" to OUTPUT and "x" to x.
+        This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
+        For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id name will be modified as below:
+            Unrefined id: id = ""OUTPUT""
+            Refined id: id = "OUTPUT"
     """
     def clean_id(self, unrefined_id):
         return re.findall(r"\"([^\"]+)\"", unrefined_id)[0]
