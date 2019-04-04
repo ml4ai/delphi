@@ -19,19 +19,16 @@
 import sys
 import re
 import xml.etree.ElementTree as ET
-import xml.dom.minidom
 
-# Read AST from the OFP generated XML file
-
-class OFPXMLToCleanedXML:
+class RectifyOFPXML:
     def __init__(self):
         self.is_derived_type = False
-        self.hasInitialValue = False
+        self.has_initial_value = False
         self.is_array = False
 
-        self.curDerivedTypeName = ""
-        self.derivedTypeList = []
-        self.parentType = ET.Element('')
+        self.cur_derived_type_name = ""
+        self.derived_type_var_holder_list = []
+        self.parent_type = ET.Element('')
 
     """
         This function handles cleaning up the XML elements between the file elements.
@@ -72,7 +69,7 @@ class OFPXMLToCleanedXML:
         for child in root:
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "index-variable":
+                if child.tag == "index-variable" or child.tag == "operation":
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_header: "{child.tag}" not handled')
@@ -126,15 +123,15 @@ class OFPXMLToCleanedXML:
                     print (f'In handle_tag_declaration: "{child.tag}" not handled')
             else:
                 if child.tag == "component-decl" or child.tag == "component-decl-list":
-                    self.derivedTypeList.append(child)
+                    self.derived_type_var_holder_list.append(child)
 
         if self.is_array == True:
             self.is_array = False
 
         if self.is_derived_type:
             # Modify or add 'name' attribute of the MAIN (or the outer most) <type> element with the name of derived type name
-            self.parentType.set('name', self.curDerivedTypeName)
-            self.reconDerivedType()
+            self.parent_type.set('name', self.cur_derived_type_name)
+            self.reconstruct_derived_type_declaratione()
 
     """
         This function handles cleaning up the XML elements between the variables elements.
@@ -156,27 +153,27 @@ class OFPXMLToCleanedXML:
             if child.tag == "type":
                 self.is_derived_type = True
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                self.parentType = parElem
+                self.parent_type = parElem
                 self.parseXMLTree(child, curElem)
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
-                    self.derivedTypeList.append(child)
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-stmt" and self.is_derived_type:
                 # Modify or add 'name' attribute of the <type> element with the name of derived type name
                 parElem.set('name', child.attrib['id'])
                 # And, store the name of the derived type name for later setting the outer most <type> element's name attribute
-                self.curDerivedTypeName = child.attrib['id'];
+                self.cur_derived_type_name = child.attrib['id'];
                 # curElem = ET.SubElement(parElem, child.tag, child.attrib)
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
                     parElem.set('name', child.attrib['typeName'])
                 else:
-                    self.derivedTypeList.append(child)
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
-                self.hasInitialValue = True
-                self.derivedTypeList.append(child)
+                self.has_initial_value = True
+                self.derived_type_var_holder_list.append(child)
             elif child.tag == "component-decl" or child.tag == "component-decl-list":
-                self.derivedTypeList.append(child)
+                self.derived_type_var_holder_list.append(child)
             else:
                 if child.tag != "declaration-type-spec" and child.tag != "type-param-or-comp-def-stmt-list" and\
                    child.tag != "component-decl-list__begin" and child.tag != "component-initialization" and\
@@ -222,7 +219,8 @@ class OFPXMLToCleanedXML:
     """
     def handle_tag_statement(self, root, parElem):
         for child in root:
-            if child.tag == "assignment" or child.tag == "write" or child.tag == "format" or child.tag == "stop" or child.tag == "execution-part":
+            if child.tag == "assignment" or child.tag == "write" or child.tag == "format" or child.tag == "stop" or\
+               child.tag == "execution-part" or child.tag == "print":
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.text:
                     self.parseXMLTree(child, curElem) 
@@ -234,8 +232,8 @@ class OFPXMLToCleanedXML:
                     name element (but store it to the temporary holder) and reconstruct it before
                     the end of statement
                 """
-                assert is_empty(self.derivedTypeList)
-                self.derivedTypeList.append(child.attrib['id'])
+                assert is_empty(self.derived_type_var_holder_list)
+                self.derived_type_var_holder_list.append(child.attrib['id'])
                 self.parseXMLTree(child, parElem)
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
@@ -284,9 +282,9 @@ class OFPXMLToCleanedXML:
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 elif child.tag == "output":
-                    assert is_empty(self.derivedTypeList)
+                    assert is_empty(self.derived_type_var_holder_list)
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                    self.derivedTypeList.append(root.attrib['id'])
+                    self.derived_type_var_holder_list.append(root.attrib['id'])
                     self.parseXMLTree(child, curElem)
                 elif child.tag == "name":
                     self.parseXMLTree(child, parElem)
@@ -531,7 +529,7 @@ class OFPXMLToCleanedXML:
     def handle_tag_output(self, root, parElem):
         for child in root:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
-            if child.tag == "name":
+            if child.tag == "name" or child.tag == "literal":
                 self.parseXMLTree(child, curElem)
             else:
                 print (f'In handle_tag_outputs: "{child.tag}" not handled')
@@ -566,8 +564,17 @@ class OFPXMLToCleanedXML:
             if child.tag == "format-items" or child.tag == "format-item":
                 self.parseXMLTree(child, curElem)
             else:
-                print (f'In handle_tag_format-items: "{child.tag}" not handled')
+                print (f'In handle_tag_format_items: "{child.tag}" not handled')
 
+    def handle_tag_print(self, root, parElem):
+        for child in root:
+            if child.tag != "print-stmt":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+            if child.tag == "outputs":
+                self.parseXMLTree(child, curElem)
+            else:
+                if child.tag != "print-format" and child.tag != "print-stmt":
+                    print (f'In handle_tag_print: "{child.tag}" not handled')
 
     """
         parseXMLTree
@@ -648,30 +655,32 @@ class OFPXMLToCleanedXML:
             self.handle_tag_format(root, parElem)
         elif root.tag == "format-items" or root.tag == "format-item":
             self.handle_tag_format_items(root, parElem)
+        elif root.tag == "print":
+            self.handle_tag_print(root, parElem)
         else:
             print (f"Currently, {root.tag} not supported")
 
     """
-        reconDerivedType reconstruct the derived type with the collected derived type declaration elements
+        reconstruct_derived_type_declaratione reconstruct the derived type with the collected derived type declaration elements
         in the handle_tag_declaration and handle_tag_type.
     """
-    def reconDerivedType(self):
-        if self.derivedTypeList:
-            if self.hasInitialValue:
+    def reconstruct_derived_type_declaratione(self):
+        if self.derived_type_var_holder_list:
+            if self.has_initial_value:
                 literal = ET.Element('')
             
             # Since component-decl-list appears after component-decl, the program needs to iterate the list
             # once first to pre-collect the variable counts
             counts = []
-            for elem in self.derivedTypeList:
+            for elem in self.derived_type_var_holder_list:
                 if elem.tag == "component-decl-list":
                     counts.append(elem.attrib['count'])
 
             # Initialize count to 0 for <variables> count attribute
             count = 0
             # 'component-decl-list__begin' tag is an indication of all the derived type member variable declarations will follow
-            derivedType = ET.SubElement(self.parentType, 'component-decl-list__begin')
-            for elem in self.derivedTypeList:
+            derivedType = ET.SubElement(self.parent_type, 'component-decl-list__begin')
+            for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['keyword1'], 'is_derived_type': str(self.is_derived_type)}
                     newType = ET.SubElement(derivedType, 'type', attributes)
@@ -687,17 +696,17 @@ class OFPXMLToCleanedXML:
                         attr = {'count': counts[count]}
                         newVariables = ET.SubElement(derivedType, 'variables', attr)
                         count += 1
-                    var_attribs = {'hasInitialValue': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
+                    var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
                     newVariable = ET.SubElement(newVariables, 'variable', var_attribs)
-                    entity_attribs = {'hasInitialValue': elem.attrib['hasComponentInitialization'], 'id': elem.attrib['id']}
-                    if self.hasInitialValue:
+                    entity_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'id': elem.attrib['id']}
+                    if self.has_initial_value:
                         initValue = ET.SubElement(newVariable, 'initial-value')
                         litValue = ET.SubElement(initValue, 'literal', literal.attrib)
-                        self.hasInitialValue = False
+                        self.has_initial_value = False
                     # newEntity_decl = ET.SubElement(newVariable, 'entity-decl', entity_attribs) # I'm commenting out this line currently, but may be required later
 
             # Once one derived type was successfully constructed, clear all the elements of a derived type list
-            self.derivedTypeList.clear()
+            self.derived_type_var_holder_list.clear()
             self.is_derived_type = False
 
     """
@@ -707,9 +716,9 @@ class OFPXMLToCleanedXML:
     """
     def clean_derived_type_ref(self, parElem):
         current_id = parElem.attrib['id'] # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
-        self.derivedTypeList.append(re.findall(r"\"([^\"]+)\"", current_id)[0]) # 2. Extract the first variable name, for example, x in this case.
+        self.derived_type_var_holder_list.append(re.findall(r"\"([^\"]+)\"", current_id)[0]) # 2. Extract the first variable name, for example, x in this case.
         percent_sign = current_id.find("%") # 3. Get the location of the '%' sign
-        self.derivedTypeList.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
+        self.derived_type_var_holder_list.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
         self.reconstruct_derived_type_ref(parElem)
 
     """
@@ -717,15 +726,15 @@ class OFPXMLToCleanedXML:
         One thing to notice is that this new form was generated in the python syntax, so it is a pre-process for translate.py and even pyTranslate.py that
     """
     def reconstruct_derived_type_ref(self, parElem):
-        num_of_vars = len(self.derivedTypeList)
+        num_of_vars = len(self.derived_type_var_holder_list)
         cleaned_id = ""
-        for var in self.derivedTypeList:
+        for var in self.derived_type_var_holder_list:
             cleaned_id += var
             if num_of_vars > 1:
                 cleaned_id += '.'
                 num_of_vars -= 1
         parElem.attrib['id'] = cleaned_id
-        self.derivedTypeList.clear() # Clean up the list for re-use
+        self.derived_type_var_holder_list.clear() # Clean up the list for re-use
 
 # ==========================================================================================================================================================================================
 """
@@ -772,7 +781,7 @@ def main():
     # Get a root of a tree
     root = ast.getroot()
 
-    XMLCreator = OFPXMLToCleanedXML()
+    XMLCreator = RectifyOFPXML()
     # A root of the new AST 
     newRoot = ET.Element(root.tag, root.attrib)
 
