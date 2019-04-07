@@ -23,12 +23,36 @@ import xml.etree.ElementTree as ET
 class RectifyOFPXML:
     def __init__(self):
         self.is_derived_type = False
-        self.has_initial_value = False
         self.is_array = False
 
         self.cur_derived_type_name = ""
         self.derived_type_var_holder_list = []
         self.parent_type = ET.Element('')
+
+    """
+        Since there are many children tags under 'statement',
+        I'm creating a separate tag list to check in the handle_tag_statement function.
+    """
+    STATEMENT_CHILD_TAGS = {
+        "assignment", "write", "format", "stop",
+        "execution-part", "print", "open", "read",
+        "close", "call", "statement", "label",
+        "literal", "continue-stmt", "do-term-action-stmt",
+        "return", "contains-stmt", "declaration", "prefix",
+        "function", "internal-subprogram", "internal-subprogram-part",
+        "prefix",
+    }
+
+    DERIVED_TYPE_TAGS = {
+        "declaration-type-spec", "type-param-or-comp-def-stmt-list",
+        "component-decl-list__begin", "component-initialization",
+        "data-component-def-stmt", "component-def-stmt", "component-attr-spec-list",
+        "component-attr-spec-list__begin", "explicit-shape-spec-list__begin",
+        "explicit-shape-spec", "explicit-shape-spec-list", "component-attr-spec",
+        "component-attr-spec-list__begin", "component-shape-spec-list__begin",
+        "explicit-shape-spec-list__begin", "explicit-shape-spec", "component-attr-spec",
+        "component-attr-spec-list",
+    }
 
     """
         This function handles cleaning up the XML elements between the file elements.
@@ -40,7 +64,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
-            if child.tag == "program" or child.tag == "subroutine":
+            if child.tag == "program" or child.tag == "subroutine" or child.tag == "module":
                 self.parseXMLTree(child, curElem)
             else:
                 print (f'In handle_tag_file: "{child.tag}" not handled')
@@ -72,7 +96,7 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "index-variable" or child.tag == "operation" or child.tag == "arguments":
+                if child.tag == "index-variable" or child.tag == "operation" or child.tag == "arguments" or child.tag == "names":
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_header: "{child.tag}" not handled')
@@ -116,10 +140,13 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "declaration":
+                if child.tag == "declaration" or child.tag == "use":
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_specification: "{child.tag}" not handled')
+            else:
+                if child.tag != "declaration":
+                    print (f'In handle_tag_specification: Empty element "{child.tag}" not handled')
                 
 
     """
@@ -132,24 +159,35 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "type" or child.tag == "dimensions" or child.tag == "variables" or child.tag == "format":
+                if child.tag == "type" or child.tag == "dimensions" or child.tag == "variables" or child.tag == "format" or child.tag == "name":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     if child.tag == "dimensions":
                         self.is_array = True
                     self.parseXMLTree(child, curElem)
+                elif child.tag == "component-array-spec" or child.tag == "literal":
+                    self.derived_type_var_holder_list.append(child)
                 else:
                     print (f'In handle_tag_declaration: "{child.tag}" not handled')
             else:
-                if child.tag == "component-decl" or child.tag == "component-decl-list":
+                if child.tag == "type-declaration-stmt" or child.tag == "prefix-spec" or child.tag == "save-stmt" or child.tag == "access-spec"\
+                   or child.tag == "attr-spec" or child.tag == "access-stmt" or child.tag == "access-id-list":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                elif child.tag == "component-decl" or child.tag == "component-decl-list":
                     self.derived_type_var_holder_list.append(child)
+                elif child.tag == "component-array-spec":
+                    self.derived_type_var_holder_list.append(child)
+                else:
+                    if child.tag != "attr-spec" and child.tag != "access-id":
+                        print (f'In handle_tag_declaration: Empty element "{child.tag}" not handled')
 
         if self.is_array == True:
             self.is_array = False
 
+        # If is_derived_type is true, reconstruct the derived type declaration AST structure
         if self.is_derived_type:
             # Modify or add 'name' attribute of the MAIN (or the outer most) <type> element with the name of derived type name
             self.parent_type.set('name', self.cur_derived_type_name)
-            self.reconstruct_derived_type_declaratione()
+            self.reconstruct_derived_type_declaration()
 
     """
         This function handles cleaning up the XML elements between the variables elements.
@@ -177,6 +215,7 @@ class RectifyOFPXML:
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
+                parElem.attrib['keyword2'] = child.attrib['keyword2']
             elif child.tag == "derived-type-stmt" and self.is_derived_type:
                 # Modify or add 'name' attribute of the <type> element with the name of derived type name
                 parElem.set('name', child.attrib['id'])
@@ -189,14 +228,13 @@ class RectifyOFPXML:
                 else:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
-                self.has_initial_value = True
+                self.derived_type_var_holder_list.append(child)
+            elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "component-decl" or child.tag == "component-decl-list":
                 self.derived_type_var_holder_list.append(child)
             else:
-                if child.tag != "declaration-type-spec" and child.tag != "type-param-or-comp-def-stmt-list" and\
-                   child.tag != "component-decl-list__begin" and child.tag != "component-initialization" and\
-                   child.tag != "data-component-def-stmt" and child.tag != "component-def-stmt":
+                if child.tag not in self.DERIVED_TYPE_TAGS:
                     print (f'In handle_tag_type: "{child.tag}" not handled')
         # This will mark whether this type declaration is for a derived type declaration or not
         parElem.set('is_derived_type', str(self.is_derived_type))
@@ -231,6 +269,11 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_variable: "{child.tag}" not handled')
+            else:
+                if child.tag == "entity-decl":
+                    parElem.attrib.update(child.attrib)
+                else:
+                    print (f'In handle_tag_variable: Empty element "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elements between the statement elements.
@@ -241,10 +284,7 @@ class RectifyOFPXML:
     def handle_tag_statement(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
-            if child.tag == "assignment" or child.tag == "write" or child.tag == "format" or child.tag == "stop" or\
-               child.tag == "execution-part" or child.tag == "print" or child.tag == "open" or child.tag == "read" or\
-               child.tag == "close" or child.tag == "call" or child.tag == "statement" or child.tag == "label" or\
-               child.tag == "literal":
+            if child.tag in self.STATEMENT_CHILD_TAGS:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.text:
                     self.parseXMLTree(child, curElem) 
@@ -293,10 +333,10 @@ class RectifyOFPXML:
                 print (f'In self.handle_tag_target: "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elements between the name elements.
-        <name>
-            ...
-        </name>
+        This function handles cleaning up the XML elements between the names and/or name elements.
+        <names>         <name>
+            ...     or     ...
+        </names>        <name>
     """
     def handle_tag_name(self, root, parElem):
         if 'id' in parElem.attrib and '%' in parElem.attrib['id']:
@@ -317,6 +357,13 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, parElem)
                 else:
                     print (f'In self.handle_tag_name: "{child.tag}" not handled')
+            else:
+                if child.tag == "name" or child.tag == "generic_spec":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                elif child.tag == "data-ref":
+                    parElem.attrib.update(child.attrib)
+                elif child.tag != "designator":
+                    print (f'In self.handle_tag_name: Empty element "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elements between the value elements.
@@ -410,10 +457,10 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "lower-bound" or child.tag == "upper-bound":
+                if child.tag == "lower-bound" or child.tag == "upper-bound" or child.tag == "step":
                     self.parseXMLTree(child, curElem)
                 else:
-                    print (f'In self.handle_tag_index_variable: "{child.tag}" not handled')
+                    print (f'In self.handle_tag_index_variable_or_range: "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elements between the lower_bound elements.
@@ -753,7 +800,7 @@ class RectifyOFPXML:
                     print (f'In handle_tag_close: Empty element "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elements between the close call. 
+        This function handles cleaning up the XML elements between the call element. 
         <call>
             ...
         </call>
@@ -774,10 +821,10 @@ class RectifyOFPXML:
                     print (f'In handle_tag_call: Empty element "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elements between the close call. 
-        <call>
+        This function handles cleaning up the XML elements between the subroutine element. 
+        <subroutine>
             ...
-        </call>
+        </subroutine>
     """
     def handle_tag_subroutine(self, root, parElem):
         for child in root:
@@ -792,6 +839,13 @@ class RectifyOFPXML:
                 if child.tag != "end-subroutine-stmt":
                     print (f'In handle_tag_subroutine: Empty element "{child.tag}" not handled')
 
+
+    """
+        This function handles cleaning up the XML elements between the arguments. 
+        <arguments>
+            ...
+        </arsuments>
+    """
     def handle_tag_arguments(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
@@ -800,6 +854,12 @@ class RectifyOFPXML:
             else:
                 print (f'In handle_tag_variable: "{child.tag}" not handled')
 
+    """
+        This function handles cleaning up the XML elements between the if element.
+        <if>
+            ...
+        </if>
+    """
     def handle_tag_if(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
@@ -815,6 +875,12 @@ class RectifyOFPXML:
                 else:
                     print (f'In handle_tag_if: Empty element "{child.tag}" not handled')
 
+    """
+        This function handles cleaning up the XML elements between the stop element 
+        <stop>
+            ...
+        </stop>
+    """
     def handle_tag_stop(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
@@ -822,6 +888,111 @@ class RectifyOFPXML:
                 parElem.attrib.update(child.attrib)
             else:
                 print (f'In handle_tag_stop: "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elements between the step element.
+        <step>
+            ...
+        </step>
+    """
+    def handle_tag_step(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.text:
+                if child.tag == "operation":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_step: "{child.tag}" not handled')
+            else:
+                print (f'In handle_tag_step: Empty element "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elements between the return and return-stmt elements.
+        However, since 'return-stmt' is an empty element with no sub-elements, the function will not keep
+        the element, but move the attribute to its parent element, return.
+        <return>
+            ...
+        </return>
+    """
+    def handle_tag_return(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag == "return-stmt":
+                parElem.attrib.update(child.attrib)
+            else:
+                print (f'In handle_tag_return: "{child.tag}" not handled')
+
+    def handle_tag_function(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.text:
+                if child.tag == "header" or child.tag == "body":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_function: "{child.tag}" not handled')
+            else:
+                if child.tag == "function-stmt" or child.tag == "end-function-stmt" or child.tag == "function-subprogram":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                else:
+                    print (f'In handle_tag_function: Empty element "{child.tag}" not handled')
+
+    def handle_tag_use(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag == "use-stmt" or child.tag == "only":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                if child.text:
+                    self.parseXMLTree(child, curElem)
+            else:
+                print (f'In handle_tag_use: "{child.tag}" not handled')
+
+    def handle_tag_module(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag == "header" or child.tag == "body" or child.tag == "module-stmt" or child.tag == "members"\
+               or child.tag == "end-module-stmt" or child.tag == "contains-stmt":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                if child.text:
+                    self.parseXMLTree(child, curElem)
+            else:
+                print (f'In handle_tag_module: "{child.tag}" not handled')
+
+    def handle_tag_initial_value(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.text:
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                if child.tag == "literal":
+                    self.parseXMLTree(child, curElem)
+                else:
+                    print (f'In handle_tag_initial_value: "{child.tag}" not handled')
+            else:
+                if child.tag == "initialization":
+                    parElem.attrib.update(child.attrib)
+                else:
+                    print (f'In handle_tag_initial_value: Empty element "{child.tag}" not handled')
+
+    def handle_tag_members(self, root, parElem):
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag == "subroutine" or child.tag == "module-subprogram" or child.tag == "module-subprogram-part":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                if child.text:
+                    self.parseXMLTree(child, curElem)
+            else:
+                print (f'In handle_tag_members: "{child.tag}" not handled')
+
+    def handle_tag_only(self, root, parElem):
+        for child in root:
+            if child.tag == "name" or child.tag == "only" or child.tag == "only-list":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                if child.text:
+                    self.parseXMLTree(child, curElem)
+            else:
+                print (f'In handle_tag_only: "{child.tag}" not handled')
+
     """
         parseXMLTree
 
@@ -863,7 +1034,7 @@ class RectifyOFPXML:
             self.handle_tag_target(root, parElem)
         elif root.tag == "value":
             self.handle_tag_value(root, parElem)
-        elif root.tag == "name":
+        elif root.tag == "names" or root.tag == "name":
             self.handle_tag_name(root, parElem)
         elif root.tag == "literal":
             self.handle_tag_literal(root, parElem)
@@ -923,6 +1094,22 @@ class RectifyOFPXML:
             self.handle_tag_if(root, parElem)
         elif root.tag == "stop":
             self.handle_tag_stop(root, parElem)
+        elif root.tag == "step":
+            self.handle_tag_step(root, parElem)
+        elif root.tag == "return":
+            self.handle_tag_return(root, parElem)
+        elif root.tag == "function":
+            self.handle_tag_function(root, parElem)
+        elif root.tag == "use":
+            self.handle_tag_use(root, parElem)
+        elif root.tag == "module":
+            self.handle_tag_module(root, parElem)
+        elif root.tag == "initial-value":
+            self.handle_tag_initial_value(root, parElem)
+        elif root.tag == "members":
+            self.handle_tag_members(root, parElem)
+        elif root.tag == "only":
+            self.handle_tag_only(root, parElem)
         else:
             print (f"In the parseXMLTree and, currently, {root.tag} is not supported")
 
@@ -930,10 +1117,10 @@ class RectifyOFPXML:
         reconstruct_derived_type_declaratione reconstruct the derived type with the collected derived type declaration elements
         in the handle_tag_declaration and handle_tag_type.
     """
-    def reconstruct_derived_type_declaratione(self):
+    def reconstruct_derived_type_declaration(self):
         if self.derived_type_var_holder_list:
-            if self.has_initial_value:
-                literal = ET.Element('')
+            literal = ET.Element('')
+            is_dimension = False 
             
             # Since component-decl-list appears after component-decl, the program needs to iterate the list
             # once first to pre-collect the variable counts
@@ -945,31 +1132,37 @@ class RectifyOFPXML:
             # Initialize count to 0 for <variables> count attribute
             count = 0
             # 'component-decl-list__begin' tag is an indication of all the derived type member variable declarations will follow
-            derivedType = ET.SubElement(self.parent_type, 'component-decl-list__begin')
+            derived_type = ET.SubElement(self.parent_type, 'component-decl-list__begin')
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['keyword1'], 'is_derived_type': str(self.is_derived_type)}
-                    newType = ET.SubElement(derivedType, 'type', attributes)
-                    # intrinsic = ET.SubElement(newType, elem.tag, elem.attrib) # I'm commenting out this line currently, but may be required later
-                elif elem.tag == "derived-type-spec":
-                    attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['typeName'], 'is_derived_type': str(self.is_derived_type)}
-                    newType = ET.SubElement(derivedType, 'type', attributes)
-                    derived = ET.SubElement(newType, elem.tag, elem.attrib)
+                    newType = ET.SubElement(derived_type, 'type', attributes)
                 elif elem.tag == "literal":
                     literal = elem;
+                elif elem.tag == "component-array-spec":
+                    is_dimension = True
                 elif elem.tag == "component-decl":
-                    if len(counts) > count:
-                        attr = {'count': counts[count]}
-                        newVariables = ET.SubElement(derivedType, 'variables', attr)
-                        count += 1
-                    var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
-                    newVariable = ET.SubElement(newVariables, 'variable', var_attribs)
-                    entity_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'id': elem.attrib['id']}
-                    if self.has_initial_value:
-                        initValue = ET.SubElement(newVariable, 'initial-value')
-                        litValue = ET.SubElement(initValue, 'literal', literal.attrib)
-                        self.has_initial_value = False
-                    # newEntity_decl = ET.SubElement(newVariable, 'entity-decl', entity_attribs) # I'm commenting out this line currently, but may be required later
+                    if not is_dimension:
+                        if len(counts) > count:
+                            attr = {'count': counts[count]}
+                            new_variables = ET.SubElement(derived_type, 'variables', attr) # <variables _attribs_>
+                            count += 1
+                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
+                        new_variable = ET.SubElement(new_variables, 'variable', var_attribs) # <variable _attribs_>
+                        if elem.attrib['hasComponentInitialization'] == "true":
+                            init_value_attrib = ET.SubElement(new_variable, 'initial-value')
+                            new_literal = ET.SubElement(init_value_attrib, 'literal', literal.attrib) # <initial-value _attribs_>
+                    else:
+                        new_dimensions = ET.SubElement(derived_type, 'dimensions', {'count': '1'}) # <dimensions count="1">
+                        new_dimension = ET.SubElement(new_dimensions, 'dimension', {'type': 'simple'}) # <dimension type="simple">
+                        new_literal = ET.SubElement(new_dimension, 'literal', literal.attrib) # <literal type="" value="">
+                        if len(counts) > count:
+                            attr = {'count': counts[count]}
+                            new_variables = ET.SubElement(derived_type, 'variables', attr)
+                            count += 1
+                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
+                        new_variable = ET.SubElement(new_variables, 'variable', var_attribs)
+                        is_dimension = False
 
             # Once one derived type was successfully constructed, clear all the elements of a derived type list
             self.derived_type_var_holder_list.clear()
@@ -1021,7 +1214,7 @@ class RectifyOFPXML:
         if "rule" in element.attrib:
             element.attrib.pop("rule")
 
-# ==========================================================================================================================================================================================
+# ================================================================================================================================================================================
 """
     This function is just a helper function for check whether the passed element (i.e. list) is empty or not
 """
@@ -1065,20 +1258,17 @@ def main():
     ast = ET.parse(filename)
     # Get a root of a tree
     root = ast.getroot()
-
     XMLCreator = RectifyOFPXML()
     # A root of the new AST 
     newRoot = ET.Element(root.tag, root.attrib)
-
     # First add the root to the new AST list
     for child in root:
         # Handle only non-empty elements
         if child.text:
             curElem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, curElem)
-
     # Build a new cleaned AST XML
     buildNewAST(newRoot, filename);
 
 main()
-# ==========================================================================================================================================================================================
+# ================================================================================================================================================================================
