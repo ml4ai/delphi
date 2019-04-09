@@ -51,7 +51,7 @@ class RectifyOFPXML:
         "explicit-shape-spec", "explicit-shape-spec-list", "component-attr-spec",
         "component-attr-spec-list__begin", "component-shape-spec-list__begin",
         "explicit-shape-spec-list__begin", "explicit-shape-spec", "component-attr-spec",
-        "component-attr-spec-list",
+        "component-attr-spec-list", "end-type-stmt", "derived-type-def",
     }
 
     """
@@ -183,8 +183,8 @@ class RectifyOFPXML:
                 elif child.tag == "component-array-spec":
                     self.derived_type_var_holder_list.append(child)
                 else:
-                    if child.tag != "attr-spec" and child.tag != "access-id":
-                        print (f'In handle_tag_declaration: Empty elements "{child.tag}" not handled')
+                    if child.tag != "attr-spec" and child.tag != "access-id" and child.tag not in self.DERIVED_TYPE_TAGS:
+                        print (f'self.In handle_tag_declaration: Empty elements "{child.tag}" not handled')
 
         if self.is_array == True:
             self.is_array = False
@@ -1195,7 +1195,7 @@ class RectifyOFPXML:
             # Initialize count to 0 for <variables> count attribute
             count = 0
             # 'component-decl-list__begin' tag is an indication of all the derived type member variable declarations will follow
-            derived_type = ET.SubElement(self.parent_type, 'component-decl-list__begin')
+            derived_type = ET.SubElement(self.parent_type, 'derived-type')
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['keyword1'], 'is_derived_type': str(self.is_derived_type)}
