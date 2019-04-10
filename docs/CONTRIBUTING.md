@@ -111,4 +111,3 @@ the `pytest` invocation:
 ```
 pytest -s tests/test_program_analysis.py
 ```
-suppressed
