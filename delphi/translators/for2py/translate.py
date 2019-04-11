@@ -9,7 +9,7 @@ Example:
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:::
 
-        python translate.py -f <ast_file> -g <pickle_file>
+        python translate.py -f <ast_file> -g <pickle_file> -i <original_fortran_file>
 
 ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
@@ -123,8 +123,10 @@ class XMLToJSONTranslator(object):
             "subroutine": self.process_subroutine_or_program_module,
             "type": self.process_type,
             "use": self.process_use,
+            "variables": self.process_variables,
             "variable": self.process_variable,
-            "write" : self.process_direct_map
+            "write" : self.process_direct_map,
+            "derived-types" : self.process_derived_types
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -177,190 +179,111 @@ class XMLToJSONTranslator(object):
     # *** This method is in desperate need of cleanup.
     # *** TODO after Apr deadline.
     def process_declaration(self, root, state) -> List[Dict]:
-        prog = []
-
-        decVars = []
-        decDims = []
-
-        # For handling derived types
-        decDevType = []
-        decDevFields = []
-        decDevTypeVars = []
-
-        devTypeArrayField = {}
-        decType = {}
-
-        count = 0
-
-        isArray = True
-        isDevType = False
-        isDevTypeVar = False
-        devTypeHasArrayField = False
-
+        declared_type = []
+        declared_variable = []
+        # root must be <declaration>
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
-
-            if node.tag == "format":
-                prog += self.parseTree(node, state)
-            if node.tag == "type":
-                if "name" in node.attrib:
-                    decType = {"type": node.attrib["name"]}
-                    decDevType += self.parseTree(
-                        node, state
-                    )  # For derived types
-                    if len(decDevType) > 1:
-                        isDevType = True
+            #if node.tag == "format":
+                #declaration += self.parseTree(node, state)
+            elif node.tag == "type": # Get the variable type
+                if node.attrib['is_derived_type'] == "False":
+                    declared_type += self.parseTree(node, state)
                 else:
-                    # This is the case where declaring fields for the derived
-                    # type
-                    if node[0].tag == "derived-type-spec":
-                        decType = {"type": self.parseTree(node, state)}
-                        isDevTypeVar = True
-            elif node.tag == "variables":
-                decVars = self.parseTree(node, state)
-                isArray = False
-                # This is a book keeping of derived type variables
-                if isDevTypeVar:
-                    for i in range(0, len(decVars)):
-                        devTypevarName = decVars[i]["name"]
-                        self.deriveTypeVars.append(devTypevarName)
-            elif node.tag == "access-spec":
-                if node.attrib["keyword"] == "PRIVATE":
-                    decVars = self.process_private_variable(root, state)
+                    declared_variable += self.parseTree(node, state)
             elif node.tag == "dimensions":
-                decDims = self.parseTree(node, state)
-                count = node.attrib["count"]
-            elif node.tag == "explicit-shape-spec-list__begin":
-                # Check if the last derived type declaration field is an array
-                # field
-                devTypeHasArrayField = True
-            elif node.tag == "literal" and devTypeHasArrayField:
-                # If the last field is an array field, get the value from the
-                # literal that is size
-                devTypeArrayField["array-size"] = node.attrib["value"]
-            elif node.tag == "component-decl":
-                if not devTypeHasArrayField:
-                    decDevType.append({"field-id": node.attrib["id"].lower()})
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "notArray"
-                else:
-                    devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "isArray"
-                    decDevType.append(devTypeArrayField)
-                    devTypeHasArrayField = False
+                declared_type[-1].update(self.parseTree(node, state)[-1])
+            elif node.tag == "variables":
+                variables = self.parseTree(node, state)
+                # declare variables based on the counts to handle the case where a multiple vars declared under a single type
+                for index in range(int(node.attrib["count"])):
+                    combined = declared_type[-1]
+                    combined.update(variables[index])
+                    declared_variable.append(combined.copy())
+                    if state.subroutine["name"] in self.functionList and declared_variable[-1]["name"] in state.args:  
+                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+                    if declared_variable[-1]["name"] in state.args:
+                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+        print ("declaration: ", declared_variable)
+        return declared_variable
 
-        for var in decVars:
-            if (
-                state.subroutine["name"] in self.functionList
-                and var["name"] in state.args
-            ):
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
-                continue
-            prog.append(decType.copy())
-            prog[-1].update(var)
-            if var["name"] in state.args:
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
+    """
+        This function handles <type> declaration.
+        There may be two different cases of <type>.
+            (1) Simple variable type declaration
+            (2) Derived type declaration
+    """
+    def process_type(self, root, state) -> List[Dict]:
+        declared_type = {}
+        derived_type = []
+        # root must be <type> element
+        if root.text: # Check if the <type> has sub-elements, which is the case of (2)
+            for node in root:
+                if node.tag == "type":
+                    derived_type += self.parseTree(node, state)
+                elif node.tag == "derived-types":
+                    derived_type[-1].update(self.parseTree(node, state))
+            return derived_type
+        else: # Else, this represents an empty element, which is the case of (1).
+            declared_type = {'type': root.attrib['name'], 'is_derived_type': root.attrib['is_derived_type'].lower(), 'keyword2': root.attrib['keyword2']}
+            return [declared_type]
 
-        # If the statement is for declaring array
-        if decDims:
-            for i in range(0, len(prog)):
-                if prog[i]["name"] not in self.arrays: # Checks if a name exists in the array tracker. If not, add it for later use
-                    self.arrays.append(prog[i]["name"])
-                counter = 0
-                for dim in decDims:
-                    if "literal" in dim:
-                        for lit in dim["literal"]:
-                            prog[i]["tag"] = "array"
-                            prog[i]["count"] = count
-                            prog[i]["low" + str(counter + 1)] = 1
-                            prog[i]["up" + str(counter + 1)] = lit["value"]
-                        counter = counter + 1
-                    elif "range" in dim:
-                        for ran in dim["range"]:
-                            prog[i]["tag"] = "array"
-                            prog[i]["count"] = count
-                            if "operator" in ran["low"][0]:
-                                op = ran["low"][0]["operator"]
-                                value = ran["low"][0]["left"][0]["value"]
-                                prog[i]["low" + str(counter + 1)] = op + value
-                            else:
-                                prog[i]["low" + str(counter + 1)] = ran["low"][
-                                    0
-                                ]["value"]
-                            if "operator" in ran["high"][0]:
-                                op = ran["high"][0]["operator"]
-                                value = ran["high"][0]["left"][0]["value"]
-                                prog[i]["up" + str(counter + 1)] = op + value
-                            else:
-                                prog[i]["up" + str(counter + 1)] = ran["high"][
-                                    0
-                                ]["value"]
-                        counter = counter + 1
-
-        # If the statement is for declaring derived type, which is a class in
-        # python
-        if isDevType:
-            prog.append({"tag": "derived-type"})
-            field_num = 0
-            field_id_num = 0
-            for field in decDevType:
-                fieldList = []
-                fields = {}
-                if "derived-type" in field:
-                    prog[0]["name"] = field["derived-type"]
-                elif "field-type" in field:
-                    fields["type"] = field["field-type"]
-                    prog[0][f"field{field_id_num}"] = [fields]
-                elif "field-id" in field:
-                    fields["name"] = field["field-id"]
-                    if "array-size" in field:
-                        fields["size"] = field["array-size"]
-                    if f"field{field_id_num}" in prog[0]:
-                        prog[0][f"field{field_id_num}"][0].update(field)
-                    else:
-                        fields["type"] = prog[0][f"field{field_id_num-1}"][0][
-                            "type"
-                        ]
-                        prog[0][f"field{field_id_num}"] = [fields]
-                        prog[0][f"field{field_id_num}"][0].update(field)
-                    field_id_num = field_id_num + 1
-            isDevTypeVar = True
-
-        # Adding additional attribute to distinguish derived type variables
-        if len(prog) > 0:
-            for pro in prog:
-                pro["isDevTypeVar"] = isDevTypeVar
-
-        # Set function (subroutine) arguments' types (variable or array)
-        for var in prog:
-            if "name" in var:
-                if var["name"] in state.args:
-                    state.subroutine["args"][state.args.index(var["name"])][
-                        "arg_type"
-                    ] = f"arg_{var['tag']}"
-        return prog
+    """
+        This function handles <variables> element, which its duty is to call <variable> tag processor.
+    """
+    def process_variables(self, root, state) -> List[Dict]:
+        try:
+            variables = []
+            for node in root:
+                variables += self.parseTree(node, state)
+            return variables
+        except:
+            return []
 
     def process_variable(self, root, state) -> List[Dict]:
         try:
             var_name = root.attrib["name"].lower()
-            for node in root:
-                if node.tag == "initial-value":
-                    value = self.parseTree(node, state)
-                    return [
-                        {"tag": "variable", "name": var_name, "value": value}
-                    ]
-                else:
-                    return [{"tag": "variable", "name": var_name}]
+            is_array = root.attrib['is_array'].lower()
+            if root.text:
+                for node in root:
+                    if node.tag == "initial-value":
+                        value = self.parseTree(node, state)
+                        return [
+                            {"tag": "variable", "name": var_name, "is_array": is_array, "value": value}
+                        ]
+            else:
+                return [{"tag": "variable", "name": var_name, "is_array": is_array}]
         except:
             return []
+
+    """
+        This function handles <derived-types> tag nested in the <type> tag.
+        Depends on the nested sub-elements of the tag, it will recursively call other tag processors.
+        (1) Main type declaration
+        (2) Single variable declaration (with initial values)
+        (3) Array declaration
+    """
+    def process_derived_types(self, root, state) -> List[Dict]:
+        derived_types = {'derived-types': []}
+        declared_type = []
+        declared_variable = []
+        # root must be <declaration>
+        for node in root:
+            if node.tag not in self.handled_tags:
+                self.unhandled_tags.add(node.tag)
+            elif node.tag == "type": # Get the variable type
+                declared_type += self.parseTree(node, state)
+            elif node.tag == "dimensions":
+                declared_type[-1].update(self.parseTree(node, state)[-1])
+            elif node.tag == "variables":
+                variables = self.parseTree(node, state)
+                # declare variables based on the counts to handle the case where a multiple vars declared under a single type
+                for index in range(int(node.attrib["count"])):
+                    combined = declared_type[-1]
+                    combined.update(variables[index])
+                    derived_types["derived-types"].append(combined.copy())
+        return derived_types
 
     def process_loop(self, root, state) -> List[Dict]:
         if root.attrib["type"] == "do":
@@ -679,59 +602,7 @@ class XMLToJSONTranslator(object):
 
         return []
 
-    # This function is needed for handling derived type declaration
-    # It will recursively traverse down to the deepest 'type' node,
-    # then returns the derived type id as well as the field types
-    def process_type(self, root, state) -> List[Dict]:
-        derived_types = []
-        devTypeHasArrayField = False
-        devTypeHasInitValue = False
-        devTypeArrayField = {}
-        devTypeVarField = {}
 
-        for node in root:
-            if node.tag == "type":
-                derived_types = self.parseTree(node, state)
-            elif node.tag == "derived-type-stmt":
-                derived_types.append(
-                    {"derived-type": node.attrib["id"].lower()}
-                )
-            elif node.tag == "intrinsic-type-spec":
-                derived_types.append(
-                    {"field-type": node.attrib["keyword1"].lower()}
-                )
-            elif node.tag == "explicit-shape-spec-list__begin":
-                devTypeHasArrayField = True
-            elif node.tag == "literal":
-                if devTypeHasArrayField:
-                    devTypeArrayField["array-size"] = node.attrib["value"]
-                else:
-                    devTypeVarField["value"] = node.attrib["value"]
-                    devTypeHasInitValue = True
-            elif node.tag == "component-decl":
-                if not devTypeHasArrayField:
-                    if devTypeHasInitValue:
-                        devTypeVarField["field-id"] = node.attrib["id"].lower()
-                        derived_types.append(devTypeVarField)
-                        devTypeHasInitValue = False
-                    else:
-                        derived_types.append(
-                            {"field-id": node.attrib["id"].lower()}
-                        )
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "notArray"
-                    derived_types.append(devTypeArrayField)
-                else:
-                    devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "isArray"
-                    derived_types.append(devTypeArrayField)
-                    devTypeHasArrayField = False
-            elif node.tag == "derived-type-spec":
-                return node.attrib["typeName"].lower()
-        return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
