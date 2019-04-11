@@ -191,6 +191,9 @@ class XMLToJSONTranslator(object):
                 if node.attrib['is_derived_type'] == "False":
                     declared_type += self.parseTree(node, state)
                 else:
+                    # If the current node is for declaring a derived type, every step from type declaration to variable (including array) declration
+                    # will be done in the "process_derived_types" function and return the completed AST list object back.
+                    # Thus, simply insert the received AST list object into the declared_variable object. No other work is done in the current function.
                     declared_variable += self.parseTree(node, state)
             elif node.tag == "dimensions":
                 declared_type[-1].update(self.parseTree(node, state)[-1])
@@ -241,6 +244,10 @@ class XMLToJSONTranslator(object):
         except:
             return []
 
+    """
+        This function will get called from the process_variables function, and it will construct the variable AST list,
+        then return it back to the called function.
+    """
     def process_variable(self, root, state) -> List[Dict]:
         try:
             var_name = root.attrib["name"].lower()

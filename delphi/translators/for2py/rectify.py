@@ -14,6 +14,9 @@
 
     ast_file: The XML represenatation of the AST of the Fortran file. This is
     produced by the OpenFortranParser.
+
+    Author: Terrence J. Lim
+    Last Modified: 4/11/2019
 """
 
 import sys
@@ -204,6 +207,13 @@ class RectifyOFPXML:
     def handle_tag_type(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
+            if 'keyword2' in child.attrib:
+                if child.attrib['keyword2'] == "":
+                    parElem.attrib['keyword2'] = 'none'
+                else:
+                    parElem.attrib['keyword2'] = child.attrib['keyword2']
+            else:
+                parElem.attrib['keyword2'] = 'none'
             """
                 Having a nested "type" indicates that this is a "derived type" declaration.
                 In other word, this is a case of
@@ -221,7 +231,6 @@ class RectifyOFPXML:
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
-                parElem.attrib['keyword2'] = child.attrib['keyword2']
             elif child.tag == "derived-type-stmt" and self.is_derived_type:
                 # Modify or add 'name' attribute of the <type> elements with the name of derived type name
                 parElem.set('name', child.attrib['id'])
@@ -1195,10 +1204,18 @@ class RectifyOFPXML:
             # Initialize count to 0 for <variables> count attribute
             count = 0
             # 'component-decl-list__begin' tag is an indication of all the derived type member variable declarations will follow
-            derived_type = ET.SubElement(self.parent_type, 'derived-type')
+            derived_type = ET.SubElement(self.parent_type, 'derived-types')
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
-                    attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['keyword1'], 'is_derived_type': str(self.is_derived_type)}
+                    keyword2 = ""
+                    if elem.attrib['keyword2'] == "":
+                        keyword2 = "none"
+                    else:
+                        keyword2 = elem.attrib['keyword2']
+                    attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['keyword1'], 'is_derived_type': str(self.is_derived_type), 'keyword2': keyword2}
+                    newType = ET.SubElement(derived_type, 'type', attributes)
+                elif elem.tag == "derived-type-spec":
+                    attributes = {'hasKind': 'false', 'hasLength': 'false', 'name': elem.attrib['typeName'], 'is_derived_type': str(self.is_derived_type), 'keyword2': 'none'}
                     newType = ET.SubElement(derived_type, 'type', attributes)
                 elif elem.tag == "literal":
                     literal = elem;
@@ -1210,7 +1227,7 @@ class RectifyOFPXML:
                             attr = {'count': counts[count]}
                             new_variables = ET.SubElement(derived_type, 'variables', attr) # <variables _attribs_>
                             count += 1
-                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
+                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id'], 'is_array': 'false'}
                         new_variable = ET.SubElement(new_variables, 'variable', var_attribs) # <variable _attribs_>
                         if elem.attrib['hasComponentInitialization'] == "true":
                             init_value_attrib = ET.SubElement(new_variable, 'initial-value')
@@ -1223,7 +1240,7 @@ class RectifyOFPXML:
                             attr = {'count': counts[count]}
                             new_variables = ET.SubElement(derived_type, 'variables', attr)
                             count += 1
-                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id']}
+                        var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id'], 'is_array': 'true'}
                         new_variable = ET.SubElement(new_variables, 'variable', var_attribs)
                         is_dimension = False
 
