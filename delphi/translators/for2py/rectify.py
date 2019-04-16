@@ -31,6 +31,7 @@ class RectifyOFPXML:
         self.cur_derived_type_name = ""
         self.derived_type_var_holder_list = []
         self.parent_type = ET.Element('')
+        self.subscripts_holder = []
 
     """
         Since there are many children tags under 'statement',
@@ -355,17 +356,29 @@ class RectifyOFPXML:
         <names>         <name>
             ...     or     ...
         </names>        <name>
+
+        There are three different types of names that the type attribute can hold:
+        (1) variable - Simple (single) variable or an array
+        (2) procedure - Function (or procedure) call
+        (3) ambiguous - None of the above two type
     """
     def handle_tag_name(self, root, parElem):
         if 'id' in parElem.attrib and '%' in parElem.attrib['id']:
             self.clean_derived_type_ref(parElem)
-
+        # All variables have default "is_array" value "false"
+        parElem.attrib['is_array'] = "false"
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "subscripts" or child.tag == "assignment":
+                    if child.tag == "subscripts":
+                        parElem.attrib['hasSubscripts'] = "true"
+                        # Since the procedure "call" has a same AST syntax as an array, check its type and set the "is_array" value
+                        if parElem.attrib['type'] != "procedure":
+                            parElem.attrib['is_array'] = "true"
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
+                    self.subscripts_holder.append(curElem)
                 elif child.tag == "output":
                     assert is_empty(self.derived_type_var_holder_list)
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -377,11 +390,21 @@ class RectifyOFPXML:
                     print (f'In self.handle_tag_name: "{child.tag}" not handled')
             else:
                 if child.tag == "name" or child.tag == "generic_spec":
+                    if child.tag == "name":
+                        parElem.attrib['is_array'] = "false"
+                        attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
+                        child.attrib.update(attributes)
+                    elif child.tag == "generic_spec":
+                        attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
+                        parElem.attrib.update(attributes)
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 elif child.tag == "data-ref":
                     parElem.attrib.update(child.attrib)
                 elif child.tag != "designator":
                     print (f'In self.handle_tag_name: Empty elements "{child.tag}" not handled')
+
+            if 'numPartRef' in parElem.attrib and int(parElem.attrib['numPartRef']) > 1 and parElem.attrib['hasSubscripts'] == "true":
+                self.subscripts_holder.clear()
 
     """
         This function handles cleaning up the XML elementss between the value elementss.
@@ -1265,14 +1288,14 @@ class RectifyOFPXML:
         One thing to notice is that this new form was generated in the python syntax, so it is a pre-process for translate.py and even pyTranslate.py that
     """
     def reconstruct_derived_type_ref(self, parElem):
+        id_number = 1
         num_of_vars = len(self.derived_type_var_holder_list)
-        cleaned_id = ""
         for var in self.derived_type_var_holder_list:
-            cleaned_id += var
-            if num_of_vars > 1:
-                cleaned_id += '.'
-                num_of_vars -= 1
-        parElem.attrib['id'] = cleaned_id
+            if id_number == 1:
+                parElem.attrib['id'] = var
+            else:
+                parElem.attrib[f'id{id_number}'] = var # Add new attribute(s) for each reference
+            id_number += 1
         self.derived_type_var_holder_list.clear() # Clean up the list for re-use
 
     """
