@@ -485,6 +485,8 @@ class PythonCodeGenerator(object):
         printState.definedVars += [arg_name]
 
     def printVariable(self, node, printState: PrintState):
+        # REMOVE 
+        print ("IN printVariable: ", node)
         var_name = self.nameMapper[node["name"]]
         if (var_name not in printState.definedVars + printState.globalVars):
             printState.definedVars += [var_name]
@@ -632,14 +634,21 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(ref_str)
 
     def printAssignment(self, node, printState: PrintState):
+        # REMOVE 
+        # print ("IN printAssignment: ", node)
+
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
+        # REMOVE 
+        # print ("lhs: ", lhs)
+        # print ("rhs: ", rhs)
         
         rhs_str = self.proc_expr(node["value"][0], False)
                                         
-        if "subscripts" in lhs:
-            # target is an array element or derived type field
-            if "isArray" in lhs and lhs["isArray"]:
+        if lhs["hasSubscripts"] == "true":
+            assert "subscripts" in lhs, "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+            # target is an array element
+            if "is_array" in lhs and lhs["is_array"] == "true":
                 subs = lhs["subscripts"]
                 subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
                 subscripts = ", ".join(subs_strs)
@@ -915,6 +924,8 @@ class PythonCodeGenerator(object):
     ###########################################################################
 
     def printArray(self, node, printState: PrintState):
+        # REMOVE
+        print ("in printArray: ", node)
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
@@ -923,46 +934,63 @@ class PythonCodeGenerator(object):
             and self.nameMapper[node["name"]] not in printState.globalVars
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
-            assert int(node["count"]) > 0
             printState.definedVars += [node["name"]]
+            
+            # Check and retrieve the array type
+            varType = self.get_type(node)
+            assert varType != "", "All declared variables must have a type"
 
-            varType = ""
-            if node["type"].upper() == "INTEGER":
-                varType = "int"
-            elif node["type"].upper() in ("DOUBLE", "REAL"):
-                varType = "float"
-            elif node["type"].upper() == "CHARACTER":
-                varType = "str"
-            elif node["isDevTypeVar"]:
-                varType = node["type"].lower() + "()"
+            array_range = None
+            if "literal" in node:
+                upBound = self.proc_literal(node["literal"][0])
+                array_range = f"0, {upBound}"
+            elif "range" in node:
+                array_range = self.get_range(node["range"][0])
+            else:
+                assert False, f"Array range case not handled. Reference node content: {node}"
 
-            assert varType != ""
+            self.pyStrings.append(f"{node['name']} = Array({varType}, [({array_range})])")
 
-            self.pyStrings.append(f"{node['name']} = Array({varType}, [")
-            for i in range(0, int(node["count"])):
-                loBound = node["low" + str(i + 1)]
-                upBound = node["up" + str(i + 1)]
-                dimensions = f"({loBound}, {upBound})"
-                if i < int(node["count"]) - 1:
-                    self.pyStrings.append(f"{dimensions}, ")
-                else:
-                    self.pyStrings.append(f"{dimensions}")
-            self.pyStrings.append("])")
+    """
+        This function checks the type of a variable and returns the appropriate python syntax type name
+    """
+    def get_type(self, node):
+        variable_type = node["type"].upper()
+        if variable_type == "INTEGER":
+            return "int"
+        elif variable_type in ("DOUBLE", "REAL"):
+            return "float"
+        elif variable_type == "CHARACTER":
+            return "str"
+        else:
+            assert False, f"Unknown variable type: {variable_type}"
 
-            if node["isDevTypeVar"]:
-                self.pyStrings.append(printState.sep)
-                # This may require updating later when we have to deal with the
-                # multi-dimensional derived type arrays
-                upBound = node["up1"]
-                self.pyStrings.append(
-                    f"for z in range(1, {upBound}+1):" + printState.sep
-                )
-                self.pyStrings.append(
-                    f"    obj = {node['type']}()" + printState.sep
-                )
-                self.pyStrings.append(
-                    f"    {node['name']}.set_(z, obj)" + printState.sep
-                )
+    """
+        This function will construct the range string in 'loBound, Upbound' format and return to the called function
+    """
+    def get_range(self, node):
+        loBound = "0"
+        upBound = "0" 
+
+        low = node["low"]
+        up = node["high"]
+        # Get lower bound value
+        if low[0]["tag"] == "literal":
+            loBound = self.proc_literal(low[0])
+        elif low[0]["tag"] == "op":
+            loBound = self.proc_op(low[0])
+        else:
+            assert False, f"Unknown tag in upper bound: {low[0]['tag']}"
+
+        # Get upper bound value
+        if up[0]["tag"] == "literal":
+            upBound = self.proc_literal(up[0])
+        elif up[0]["tag"] == "op":
+            upBound = self.proc_op(up[0])
+        else:
+            assert False, f"Unknown tag in upper bound: {up[0]['tag']}"
+
+        return f"{loBound}, {upBound}" 
 
     def printDerivedType(self, node, printState: PrintState):
         self.pyStrings.append("@dataclass\n")
