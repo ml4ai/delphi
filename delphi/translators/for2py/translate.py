@@ -278,15 +278,19 @@ class XMLToJSONTranslator(object):
         try:
             var_name = root.attrib["name"].lower()
             is_array = root.attrib['is_array'].lower()
+
+            variable = {"name": var_name, "is_array": is_array}
+            if is_array == "true":
+                variable["tag"] = "array"
+            else:
+                variable["tag"] = "variable"
+
             if root.text:
                 for node in root:
                     if node.tag == "initial-value":
                         value = self.parseTree(node, state)
-                        return [
-                            {"tag": "variable", "name": var_name, "is_array": is_array, "value": value}
-                        ]
-            else:
-                return [{"tag": "variable", "name": var_name, "is_array": is_array}]
+                        variable["value"] = value
+            return [variable]
         except:
             return []
 
