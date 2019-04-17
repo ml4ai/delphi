@@ -1,0 +1,2857 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ofp version="0.8.4">
+  <file path="/Users/hlim1/Research/delphi/delphi/translators/for2py/tmp/PETASCE_simple_processed.for">
+    <subroutine name="PETASCE">
+      <header>
+        <arguments count="14">
+          <argument name="CANHT"/>
+          <argument name="DOY"/>
+          <argument name="MSALB"/>
+          <argument name="MEEVP"/>
+          <argument name="SRAD"/>
+          <argument name="TDEW"/>
+          <argument name="TMAX"/>
+          <argument name="TMIN"/>
+          <argument name="WINDHT"/>
+          <argument name="WINDRUN"/>
+          <argument name="XHLAI"/>
+          <argument name="XLAT"/>
+          <argument name="XELEV"/>
+          <argument name="EO"/>
+        </arguments>
+        <subroutine-stmt hasArgSpecifier="true" hasBindingSpec="false" hasDummyArgList="true" hasPrefix="false" name="PETASCE" rule="1232"/>
+      </header>
+      <body>
+        <specification declarations="11" implicits="1" imports="0" uses="0">
+          <declaration subtype="none" type="implicit"/>
+          <declaration>
+            <save-stmt hasSavedEntityList="false" rule="543"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="8">
+              <variable hasInitialValue="false" name="CANHT">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="CANHT" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="MSALB">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="MSALB" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="SRAD">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="SRAD" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TDEW">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TDEW" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TMAX">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TMAX" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TMIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TMIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="WINDHT">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WINDHT" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="WINDRUN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WINDRUN" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="3">
+              <variable hasInitialValue="false" name="XHLAI">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="XHLAI" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="XLAT">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="XLAT" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="XELEV">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="XELEV" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="INTEGER">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="INTEGER" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="false" name="DOY">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="DOY" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="true" name="CHARACTER">
+              <length>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+                <char-length hasTypeParamValue="false" rule="426"/>
+              </length>
+              <char-selector hasAsterisk="true" kindOrLen1="300" kindOrLen2="300" rule="424" tk1="" tk2=""/>
+              <intrinsic-type-spec hasKindSelector="true" keyword1="CHARACTER" keyword2="" rule="403" type="405"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="false" name="MEEVP">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="MEEVP" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="false" name="EO">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EO" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="11">
+              <variable hasInitialValue="false" name="TAVG">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TAVG" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="PATM">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="PATM" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="PSYCON">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="PSYCON" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="UDELTA">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="UDELTA" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="EMAX">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EMAX" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="EMIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EMIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="ES">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="ES" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="EA">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EA" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="FC">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="FC" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="FEW">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="FEW" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="FW">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="FW" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="11">
+              <variable hasInitialValue="false" name="ALBEDO">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="ALBEDO" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RNS">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RNS" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="PIE">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="PIE" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="DR">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="DR" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="LDELTA">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="LDELTA" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="WS">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WS" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RA1">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RA1" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RA2">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RA2" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RA">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RA" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RSO">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RSO" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RATIO">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RATIO" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="11">
+              <variable hasInitialValue="false" name="FCD">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="FCD" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TK4">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TK4" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RNL">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RNL" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="G">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="G" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="WINDSP">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WINDSP" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="WIND2m">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WIND2m" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="Cn">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="Cn" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="Cd">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="Cd" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KCMAX">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KCMAX" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="RHMIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RHMIN" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="2">
+              <variable hasInitialValue="false" name="WND">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="WND" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="CHT">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="CHT" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="7">
+              <variable hasInitialValue="false" name="REFET">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="REFET" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="SKC">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="SKC" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KCBMIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KCBMIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KCBMAX">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KCBMAX" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KCB">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KCB" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KE">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KE" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KC">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KC" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="TAVG" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="TMAX" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <name hasSubscripts="false" id="TMIN" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="2.0">
+                    <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="PATM" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="101.3">
+                    <real-literal-constant kindParam="" realConstant="101.3" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <literal type="real" value="293.0">
+                                <real-literal-constant kindParam="" realConstant="293.0" rule="417"/>
+                              </literal>
+                            </operand>
+                            <operator operator="-"/>
+                            <operand>
+                              <operation type="multiary">
+                                <operand>
+                                  <literal type="real" value="0.0065">
+                                    <real-literal-constant kindParam="" realConstant="0.0065" rule="417"/>
+                                  </literal>
+                                </operand>
+                                <operator operator="*"/>
+                                <operand>
+                                  <name hasSubscripts="false" id="XELEV" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                              </operation>
+                            </operand>
+                          </operation>
+                        </operand>
+                        <operator operator="/"/>
+                        <operand>
+                          <literal type="real" value="293.0">
+                            <real-literal-constant kindParam="" realConstant="293.0" rule="417"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="**"/>
+                    <operand>
+                      <literal type="real" value="5.26">
+                        <real-literal-constant kindParam="" realConstant="5.26" rule="417"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="PSYCON" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="0.000665">
+                    <real-literal-constant kindParam="" realConstant="0.000665" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="PATM" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="UDELTA" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="2503.0">
+                    <real-literal-constant kindParam="" realConstant="2503.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="EXP" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <literal type="real" value="17.27">
+                              <real-literal-constant kindParam="" realConstant="17.27" rule="417"/>
+                            </literal>
+                          </operand>
+                          <operator operator="*"/>
+                          <operand>
+                            <name hasSubscripts="false" id="TAVG" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="TAVG" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="real" value="237.3">
+                                  <real-literal-constant kindParam="" realConstant="237.3" rule="417"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="TAVG" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="+"/>
+                        <operand>
+                          <literal type="real" value="237.3">
+                            <real-literal-constant kindParam="" realConstant="237.3" rule="417"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="**"/>
+                    <operand>
+                      <literal type="real" value="2.0">
+                        <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EMAX" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="0.6108">
+                    <real-literal-constant kindParam="" realConstant="0.6108" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="EXP" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <literal type="real" value="17.27">
+                                  <real-literal-constant kindParam="" realConstant="17.27" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="TMAX" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="TMAX" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="real" value="237.3">
+                                  <real-literal-constant kindParam="" realConstant="237.3" rule="417"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EMIN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="0.6108">
+                    <real-literal-constant kindParam="" realConstant="0.6108" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="EXP" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <literal type="real" value="17.27">
+                                  <real-literal-constant kindParam="" realConstant="17.27" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="TMIN" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="TMIN" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="real" value="237.3">
+                                  <real-literal-constant kindParam="" realConstant="237.3" rule="417"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="ES" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="EMAX" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <name hasSubscripts="false" id="EMIN" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="2.0">
+                    <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EA" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="0.6108">
+                    <real-literal-constant kindParam="" realConstant="0.6108" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="EXP" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <literal type="real" value="17.27">
+                                  <real-literal-constant kindParam="" realConstant="17.27" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="TDEW" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="TDEW" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="real" value="237.3">
+                                  <real-literal-constant kindParam="" realConstant="237.3" rule="417"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RHMIN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <literal type="real" value="20.0">
+                      <real-literal-constant kindParam="" realConstant="20.0" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="true" id="MIN" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <literal type="real" value="80.0">
+                            <real-literal-constant kindParam="" realConstant="80.0" rule="417"/>
+                          </literal>
+                        </subscript>
+                        <subscript type="simple">
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="EA" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="/"/>
+                            <operand>
+                              <name hasSubscripts="false" id="EMAX" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <literal type="real" value="100.0">
+                                <real-literal-constant kindParam="" realConstant="100.0" rule="417"/>
+                              </literal>
+                            </operand>
+                          </operation>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="XHLAI" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".LE."/>
+              <operand>
+                <literal type="real" value="0.0">
+                  <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="ALBEDO" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="false" id="MSALB" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <body type="else">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="ALBEDO" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.23">
+                    <real-literal-constant kindParam="" realConstant="0.23" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RNS" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="1.0">
+                        <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="-"/>
+                    <operand>
+                      <name hasSubscripts="false" id="ALBEDO" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="SRAD" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="PIE" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="3.14159265359">
+                <real-literal-constant kindParam="" realConstant="3.14159265359" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="DR" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="1.0">
+                    <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="+"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="0.033">
+                        <real-literal-constant kindParam="" realConstant="0.033" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="true" id="COS" type="ambiguous">
+                        <subscripts count="1">
+                          <subscript type="simple">
+                            <operation type="multiary">
+                              <operand>
+                                <literal type="real" value="2.0">
+                                  <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="PIE" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="/"/>
+                              <operand>
+                                <literal type="real" value="365.0">
+                                  <real-literal-constant kindParam="" realConstant="365.0" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="DOY" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </subscript>
+                          <subscript/>
+                        </subscripts>
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="LDELTA" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="0.409">
+                    <real-literal-constant kindParam="" realConstant="0.409" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="SIN" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <literal type="real" value="2.0">
+                                  <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="PIE" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="/"/>
+                              <operand>
+                                <literal type="real" value="365.0">
+                                  <real-literal-constant kindParam="" realConstant="365.0" rule="417"/>
+                                </literal>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <name hasSubscripts="false" id="DOY" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="-"/>
+                          <operand>
+                            <literal type="real" value="1.39">
+                              <real-literal-constant kindParam="" realConstant="1.39" rule="417"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="WS" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="ACOS" type="ambiguous">
+                <subscripts count="1">
+                  <subscript type="simple">
+                    <operation type="unary">
+                      <operator operator="-"/>
+                      <operand>
+                        <operation type="multiary">
+                          <operand>
+                            <literal type="real" value="1.0">
+                              <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                            </literal>
+                          </operand>
+                          <operator operator="*"/>
+                          <operand>
+                            <name hasSubscripts="true" id="TAN" type="ambiguous">
+                              <subscripts count="1">
+                                <subscript type="simple">
+                                  <operation type="multiary">
+                                    <operand>
+                                      <name hasSubscripts="false" id="XLAT" type="ambiguous">
+                                        <data-ref numPartRef="1" rule="612"/>
+                                      </name>
+                                    </operand>
+                                    <operator operator="*"/>
+                                    <operand>
+                                      <name hasSubscripts="false" id="PIE" type="ambiguous">
+                                        <data-ref numPartRef="1" rule="612"/>
+                                      </name>
+                                    </operand>
+                                    <operator operator="/"/>
+                                    <operand>
+                                      <literal type="real" value="180.0">
+                                        <real-literal-constant kindParam="" realConstant="180.0" rule="417"/>
+                                      </literal>
+                                    </operand>
+                                  </operation>
+                                </subscript>
+                                <subscript/>
+                              </subscripts>
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="*"/>
+                          <operand>
+                            <name hasSubscripts="true" id="TAN" type="ambiguous">
+                              <subscripts count="1">
+                                <subscript type="simple">
+                                  <name hasSubscripts="false" id="LDELTA" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </subscript>
+                                <subscript/>
+                              </subscripts>
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                        </operation>
+                      </operand>
+                    </operation>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RA1" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="WS" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="SIN" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="XLAT" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="*"/>
+                          <operand>
+                            <name hasSubscripts="false" id="PIE" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <literal type="real" value="180.0">
+                              <real-literal-constant kindParam="" realConstant="180.0" rule="417"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="SIN" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="LDELTA" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RA2" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="true" id="COS" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="XLAT" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="*"/>
+                          <operand>
+                            <name hasSubscripts="false" id="PIE" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="/"/>
+                          <operand>
+                            <literal type="real" value="180.0">
+                              <real-literal-constant kindParam="" realConstant="180.0" rule="417"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="COS" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="LDELTA" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="true" id="SIN" type="ambiguous">
+                    <subscripts count="1">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="WS" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RA" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="24.0">
+                    <real-literal-constant kindParam="" realConstant="24.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <name hasSubscripts="false" id="PIE" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <literal type="real" value="4.92">
+                    <real-literal-constant kindParam="" realConstant="4.92" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="DR" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="RA1" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <name hasSubscripts="false" id="RA2" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RSO" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="0.75">
+                        <real-literal-constant kindParam="" realConstant="0.75" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <literal type="real" value="2E-5">
+                            <real-literal-constant kindParam="" realConstant="2E-5" rule="417"/>
+                          </literal>
+                        </operand>
+                        <operator operator="*"/>
+                        <operand>
+                          <name hasSubscripts="false" id="XELEV" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="RA" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RATIO" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="SRAD" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <name hasSubscripts="false" id="RSO" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="RATIO" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".LT."/>
+              <operand>
+                <literal type="real" value="0.3">
+                  <real-literal-constant kindParam="" realConstant="0.3" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="RATIO" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.3">
+                    <real-literal-constant kindParam="" realConstant="0.3" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <header type="else-if">
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="RATIO" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".GT."/>
+              <operand>
+                <literal type="real" value="1.0">
+                  <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body type="else-if">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="RATIO" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="1.0">
+                    <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="FCD" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="1.35">
+                        <real-literal-constant kindParam="" realConstant="1.35" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="false" id="RATIO" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="-"/>
+                <operand>
+                  <literal type="real" value="0.35">
+                    <real-literal-constant kindParam="" realConstant="0.35" rule="417"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="TK4" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="TMAX" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="+"/>
+                            <operand>
+                              <literal type="real" value="273.16">
+                                <real-literal-constant kindParam="" realConstant="273.16" rule="417"/>
+                              </literal>
+                            </operand>
+                          </operation>
+                        </operand>
+                        <operator operator="**"/>
+                        <operand>
+                          <literal type="real" value="4.0">
+                            <real-literal-constant kindParam="" realConstant="4.0" rule="417"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="TMIN" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="+"/>
+                            <operand>
+                              <literal type="real" value="273.16">
+                                <real-literal-constant kindParam="" realConstant="273.16" rule="417"/>
+                              </literal>
+                            </operand>
+                          </operation>
+                        </operand>
+                        <operator operator="**"/>
+                        <operand>
+                          <literal type="real" value="4.0">
+                            <real-literal-constant kindParam="" realConstant="4.0" rule="417"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="2.0">
+                    <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RNL" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <literal type="real" value="4.901E-9">
+                    <real-literal-constant kindParam="" realConstant="4.901E-9" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="FCD" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="0.34">
+                        <real-literal-constant kindParam="" realConstant="0.34" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="-"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <literal type="real" value="0.14">
+                            <real-literal-constant kindParam="" realConstant="0.14" rule="417"/>
+                          </literal>
+                        </operand>
+                        <operator operator="*"/>
+                        <operand>
+                          <name hasSubscripts="true" id="SQRT" type="ambiguous">
+                            <subscripts count="1">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="EA" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="TK4" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="RN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="RNS" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="-"/>
+                <operand>
+                  <name hasSubscripts="false" id="RNL" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="G" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.0">
+                <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="WINDSP" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="WINDRUN" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <literal type="real" value="1000.0">
+                    <real-literal-constant kindParam="" realConstant="1000.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="24.0">
+                    <real-literal-constant kindParam="" realConstant="24.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="60.0">
+                    <real-literal-constant kindParam="" realConstant="60.0" rule="417"/>
+                  </literal>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <literal type="real" value="60.0">
+                    <real-literal-constant kindParam="" realConstant="60.0" rule="417"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="WIND2m" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="WINDSP" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="4.87">
+                        <real-literal-constant kindParam="" realConstant="4.87" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="/"/>
+                    <operand>
+                      <name hasSubscripts="true" id="LOG" type="ambiguous">
+                        <subscripts count="1">
+                          <subscript type="simple">
+                            <operation type="multiary">
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <literal type="real" value="67.8">
+                                      <real-literal-constant kindParam="" realConstant="67.8" rule="417"/>
+                                    </literal>
+                                  </operand>
+                                  <operator operator="*"/>
+                                  <operand>
+                                    <name hasSubscripts="false" id="WINDHT" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                </operation>
+                              </operand>
+                              <operator operator="-"/>
+                              <operand>
+                                <literal type="real" value="5.42">
+                                  <real-literal-constant kindParam="" realConstant="5.42" rule="417"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </subscript>
+                          <subscript/>
+                        </subscripts>
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="Cn" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.0">
+                <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="Cd" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.0">
+                <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="MEEVP" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".EQ."/>
+              <operand>
+                <literal type="char" value="'A'">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'A'"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="Cn" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="1600.0">
+                    <real-literal-constant kindParam="" realConstant="1600.0" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="Cd" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.38">
+                    <real-literal-constant kindParam="" realConstant="0.38" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <header type="else-if">
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="MEEVP" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".EQ."/>
+              <operand>
+                <literal type="char" value="'G'">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'G'"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body type="else-if">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="Cn" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="900.0">
+                    <real-literal-constant kindParam="" realConstant="900.0" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="Cd" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.34">
+                    <real-literal-constant kindParam="" realConstant="0.34" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="REFET" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <literal type="real" value="0.408">
+                        <real-literal-constant kindParam="" realConstant="0.408" rule="417"/>
+                      </literal>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="false" id="UDELTA" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="RN" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="-"/>
+                        <operand>
+                          <name hasSubscripts="false" id="G" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="+"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="PSYCON" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="Cn" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="/"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="TAVG" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="+"/>
+                            <operand>
+                              <literal type="real" value="273.0">
+                                <real-literal-constant kindParam="" realConstant="273.0" rule="417"/>
+                              </literal>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="false" id="WIND2m" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="ES" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="-"/>
+                        <operand>
+                          <name hasSubscripts="false" id="EA" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="REFET" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="REFET" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="UDELTA" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="PSYCON" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="*"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <literal type="real" value="1.0">
+                                <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                              </literal>
+                            </operand>
+                            <operator operator="+"/>
+                            <operand>
+                              <operation type="multiary">
+                                <operand>
+                                  <name hasSubscripts="false" id="Cd" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                                <operator operator="*"/>
+                                <operand>
+                                  <name hasSubscripts="false" id="WIND2m" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                              </operation>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="REFET" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <literal type="real" value="0.0001">
+                      <real-literal-constant kindParam="" realConstant="0.0001" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="false" id="REFET" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="SKC" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.8">
+                <real-literal-constant kindParam="" realConstant="0.8" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="KCBMIN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.3">
+                <real-literal-constant kindParam="" realConstant="0.3" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="KCBMAX" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="1.2">
+                <real-literal-constant kindParam="" realConstant="1.2" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="XHLAI" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".LE."/>
+              <operand>
+                <literal type="real" value="0.0">
+                  <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="KCB" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.0">
+                    <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <body type="else">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="KCB" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="MAX" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <literal type="real" value="0.0">
+                          <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                        </literal>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="KCBMIN" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <name hasSubscripts="false" id="KCBMAX" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                  <operator operator="-"/>
+                                  <operand>
+                                    <name hasSubscripts="false" id="KCBMIN" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                </operation>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <literal type="real" value="1.0">
+                                      <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                                    </literal>
+                                  </operand>
+                                  <operator operator="-"/>
+                                  <operand>
+                                    <name hasSubscripts="true" id="EXP" type="ambiguous">
+                                      <subscripts count="1">
+                                        <subscript type="simple">
+                                          <operation type="unary">
+                                            <operator operator="-"/>
+                                            <operand>
+                                              <operation type="multiary">
+                                                <operand>
+                                                  <literal type="real" value="1.0">
+                                                    <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                                                  </literal>
+                                                </operand>
+                                                <operator operator="*"/>
+                                                <operand>
+                                                  <name hasSubscripts="false" id="SKC" type="ambiguous">
+                                                    <data-ref numPartRef="1" rule="612"/>
+                                                  </name>
+                                                </operand>
+                                                <operator operator="*"/>
+                                                <operand>
+                                                  <name hasSubscripts="false" id="XHLAI" type="ambiguous">
+                                                    <data-ref numPartRef="1" rule="612"/>
+                                                  </name>
+                                                </operand>
+                                              </operation>
+                                            </operand>
+                                          </operation>
+                                        </subscript>
+                                        <subscript/>
+                                      </subscripts>
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                </operation>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="WND" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <literal type="real" value="1.0">
+                      <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="true" id="MIN" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="WIND2m" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="real" value="6.0">
+                            <real-literal-constant kindParam="" realConstant="6.0" rule="417"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="CHT" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <literal type="real" value="0.001">
+                      <real-literal-constant kindParam="" realConstant="0.001" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="false" id="CANHT" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="KCMAX" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.5">
+                <real-literal-constant kindParam="" realConstant="0.5" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="MEEVP" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".EQ."/>
+              <operand>
+                <literal type="char" value="'A'">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'A'"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="KCMAX" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="MAX" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <literal type="real" value="1.0">
+                          <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                        </literal>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="KCB" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="real" value="0.05">
+                              <real-literal-constant kindParam="" realConstant="0.05" rule="417"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <header type="else-if">
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="MEEVP" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".EQ."/>
+              <operand>
+                <literal type="char" value="'G'">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'G'"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body type="else-if">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="KCMAX" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="MAX" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <literal type="real" value="1.2">
+                              <real-literal-constant kindParam="" realConstant="1.2" rule="417"/>
+                            </literal>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <operation type="multiary">
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <operation type="multiary">
+                                      <operand>
+                                        <literal type="real" value="0.04">
+                                          <real-literal-constant kindParam="" realConstant="0.04" rule="417"/>
+                                        </literal>
+                                      </operand>
+                                      <operator operator="*"/>
+                                      <operand>
+                                        <operation type="multiary">
+                                          <operand>
+                                            <name hasSubscripts="false" id="WND" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </operand>
+                                          <operator operator="-"/>
+                                          <operand>
+                                            <literal type="real" value="2.0">
+                                              <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                                            </literal>
+                                          </operand>
+                                        </operation>
+                                      </operand>
+                                    </operation>
+                                  </operand>
+                                  <operator operator="-"/>
+                                  <operand>
+                                    <operation type="multiary">
+                                      <operand>
+                                        <literal type="real" value="0.004">
+                                          <real-literal-constant kindParam="" realConstant="0.004" rule="417"/>
+                                        </literal>
+                                      </operand>
+                                      <operator operator="*"/>
+                                      <operand>
+                                        <operation type="multiary">
+                                          <operand>
+                                            <name hasSubscripts="false" id="RHMIN" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </operand>
+                                          <operator operator="-"/>
+                                          <operand>
+                                            <literal type="real" value="45.0">
+                                              <real-literal-constant kindParam="" realConstant="45.0" rule="417"/>
+                                            </literal>
+                                          </operand>
+                                        </operation>
+                                      </operand>
+                                    </operation>
+                                  </operand>
+                                </operation>
+                              </operand>
+                              <operator operator="*"/>
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <operation type="multiary">
+                                      <operand>
+                                        <name hasSubscripts="false" id="CHT" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </operand>
+                                      <operator operator="/"/>
+                                      <operand>
+                                        <literal type="real" value="3.0">
+                                          <real-literal-constant kindParam="" realConstant="3.0" rule="417"/>
+                                        </literal>
+                                      </operand>
+                                    </operation>
+                                  </operand>
+                                  <operator operator="**"/>
+                                  <operand>
+                                    <literal type="real" value="0.3">
+                                      <real-literal-constant kindParam="" realConstant="0.3" rule="417"/>
+                                    </literal>
+                                  </operand>
+                                </operation>
+                              </operand>
+                            </operation>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="KCB" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="real" value="0.05">
+                              <real-literal-constant kindParam="" realConstant="0.05" rule="417"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="KCB" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".LE."/>
+              <operand>
+                <name hasSubscripts="false" id="KCBMIN" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="FC" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <literal type="real" value="0.0">
+                    <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                  </literal>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+          <body type="else">
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="FC" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="KCB" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="-"/>
+                            <operand>
+                              <name hasSubscripts="false" id="KCBMIN" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </operand>
+                        <operator operator="/"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="KCMAX" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="-"/>
+                            <operand>
+                              <name hasSubscripts="false" id="KCBMIN" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="**"/>
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <literal type="real" value="1.0">
+                            <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                          </literal>
+                        </operand>
+                        <operator operator="+"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <literal type="real" value="0.5">
+                                <real-literal-constant kindParam="" realConstant="0.5" rule="417"/>
+                              </literal>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <name hasSubscripts="false" id="CANHT" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="FW" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="1.0">
+                <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="FEW" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MIN" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <operation type="multiary">
+                      <operand>
+                        <literal type="real" value="1.0">
+                          <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                        </literal>
+                      </operand>
+                      <operator operator="-"/>
+                      <operand>
+                        <name hasSubscripts="false" id="FC" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                    </operation>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="false" id="FW" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="KE" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <literal type="real" value="0.0">
+                      <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript type="simple">
+                    <name hasSubscripts="true" id="MIN" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <operation type="multiary">
+                            <operand>
+                              <literal type="real" value="1.0">
+                                <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                              </literal>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <operation type="multiary">
+                                <operand>
+                                  <name hasSubscripts="false" id="KCMAX" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                                <operator operator="-"/>
+                                <operand>
+                                  <name hasSubscripts="false" id="KCB" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                              </operation>
+                            </operand>
+                          </operation>
+                        </subscript>
+                        <subscript type="simple">
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="FEW" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <name hasSubscripts="false" id="KCMAX" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EO" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="KCB" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <name hasSubscripts="false" id="KE" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <name hasSubscripts="false" id="REFET" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EO" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <name hasSubscripts="true" id="MAX" type="ambiguous">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <name hasSubscripts="false" id="EO" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript type="simple">
+                    <literal type="real" value="0.0001">
+                      <real-literal-constant kindParam="" realConstant="0.0001" rule="417"/>
+                    </literal>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+              </name>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <return hasValue="false">
+            <return-stmt hasScalarIntExpr="false" rule="1236"/>
+          </return>
+        </statement>
+        <statement>
+          <execution-part rule="208"/>
+        </statement>
+      </body>
+      <end-subroutine-stmt name="PETASCE" rule="1234"/>
+    </subroutine>
+  </file>
+</ofp>

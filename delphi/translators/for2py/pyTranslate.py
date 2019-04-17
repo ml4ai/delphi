@@ -3,17 +3,13 @@ Purpose:
     Convert a Fortran AST representation into a Python
     script having the same functionalities and performing
     the same operations as the original Fortran file.
-
 Example:
     This script is executed by the autoTranslate script as one
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:::
-
         python pyTranslate.py -f <pickle_file> -g <python_file>
-
 pickle_file: Pickled file containing the ast representation of the Fortran
 file along with other non-source code information.
-
 python_file: The Python file on which to write the resulting python script.
 """
 
@@ -24,7 +20,100 @@ import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
 from delphi.translators.for2py import For2PyError
+from delphi.translators.for2py import syntax
 
+###############################################################################
+#                                                                             #
+#                          FORTRAN-TO-PYTHON MAPPINGS                         #
+#                                                                             #
+###############################################################################
+
+# TYPE_MAP gives the mapping from Fortran types to Python types
+TYPE_MAP = {
+    "character" : "str",
+    "double" : "float",
+    "float" : "float",
+    "int" : "int",
+    "integer" : "int",
+    "logical" : "bool",
+    "real" : "float",
+    "str" : "str",
+    "string" : "str",
+}
+
+# OPERATOR_MAP gives the mapping from Fortran operators to Python operators
+OPERATOR_MAP = {
+    "+" : "+",
+    "-" : "-",
+    "*" : "*",
+    "/" : "/",
+    "**" : "**",
+    ".ne.": "!=",
+    ".gt.": ">",
+    ".eq.": "==",
+    ".lt.": "<",
+    ".le.": "<=",
+    ".ge.": ">=",
+    ".and.": "and",
+    ".or.": "or",
+}
+
+# INTRINSICS_MAP gives the mapping from Fortran intrinsics to Python operators
+# and functions.  Each entry in this map is of the form
+#
+#      fortran_fn : python_tgt
+#
+# where fortran_fn is the Fortran function; and python_tgt is the corresponding
+# Python target, specified as a tuple (py_fn, fn_type, py_mod), where:
+#            -- py_fn is a Python function or operator;
+#            -- fn_type is one of: 'FUNC', 'INFIXOP'; and
+#            -- py_mod is the module the Python function should be imported from,
+#               None if no explicit import is necessary.
+
+INTRINSICS_MAP = {
+    'abs' : ('abs', 'FUNC', None),
+    'acos' : ('acos', 'FUNC', 'math'),
+    'acosh' : ('acosh', 'FUNC', 'math'),
+    'asin' : ('asin', 'FUNC', 'math'),
+    'asinh' : ('asinh', 'FUNC', 'math'),
+    'atan' : ('atan', 'FUNC', 'math'),
+    'atanh' : ('atanh', 'FUNC', 'math'),
+    'ceiling' : ('ceil', 'FUNC', 'math'),
+    'cos' : ('cos', 'FUNC', 'math'),
+    'cosh' : ('cosh', 'FUNC', 'math'),
+    'erf' : ('erf', 'FUNC', 'math'),
+    'erfc' : ('erfc', 'FUNC', 'math'),
+    'exp' : ('exp', 'FUNC', 'math'),
+    'floor' : ('floor', 'FUNC', 'math'),
+    'gamma' : ('gamma', 'FUNC', 'math'),
+    'hypot' : ('hypot', 'FUNC', 'math'),
+    'index' : None,
+    'int' : ('int', 'FUNC', None),
+    'isnan' : ('isnan', 'FUNC', 'math'),
+    'lge' : ('>=', 'INFIXOP', None),    # lexical string comparison
+    'lgt' : ('>', 'INFIXOP', None),     # lexical string comparison
+    'lle' : ('<=', 'INFIXOP', None),    # lexical string comparison
+    'llt' : ('<', 'INFIXOP', None),     # lexical string comparison
+    'log' : ('log', 'FUNC', 'math'),
+    'log10' : ('log10', 'FUNC', 'math'),
+    'log_gamma' : ('lgamma', 'FUNC', 'math'),
+    'max' : ('max', 'FUNC', None),
+    'min' : ('min', 'FUNC', None),
+    'mod' : ('%', 'INFIXOP', None),
+    'modulo' : ('%', 'INFIXOP', None),
+    'sin' : ('sin', 'FUNC', 'math'),
+    'sinh' : ('sinh', 'FUNC', 'math'),
+    'sqrt' : ('sqrt', 'FUNC', 'math'),
+    'tan' : ('tan', 'FUNC', 'math'),
+    'tanh' : ('tanh', 'FUNC', 'math'),
+    'xor' : ('^', 'INFIXOP', None)
+}
+
+###############################################################################
+#                                                                             #
+#                                 TRANSLATION                                 #
+#                                                                             #
+###############################################################################
 
 class PrintState:
     def __init__(
@@ -78,25 +167,6 @@ class PythonCodeGenerator(object):
     def __init__(self):
         self.programName = ""
         self.printFn = {}
-        self.libFns = [
-            "mod",
-            "exp",
-            "index",
-            "min",
-            "max",
-            "cexp",
-            "cmplx",
-            "atan",
-            "cos",
-            "sin",
-            "acos",
-            "asin",
-            "tan",
-            "atan",
-            "sqrt",
-            "log",
-            "abs",
-        ]
         self.variableMap = {}
         self.imports = []
         # This list contains the private functions
@@ -106,20 +176,6 @@ class PythonCodeGenerator(object):
         self.nameMapper = {}
         # Dictionary to hold functions and its arguments
         self.funcArgs = {}
-        self.mathFuncs = [
-            "exp",
-            "cexp",
-            "cmplx",
-            "cos",
-            "sin",
-            "acos",
-            "asin",
-            "tan",
-            "atan",
-            "sqrt",
-            "log",
-            "abs",
-        ]
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
@@ -154,17 +210,13 @@ class PythonCodeGenerator(object):
             "array": self.printArray,
             "derived-type": self.printDerivedType,
         }
-        self.operator_mapping = {
-            ".ne.": " != ",
-            ".gt.": " > ",
-            ".eq.": " == ",
-            ".lt.": " < ",
-            ".le.": " <= ",
-            ".ge.": " >= ",
-            ".and.": " and ",
-            ".or.": " or ",
-        }
         self.readFormat = []
+
+    ###########################################################################
+    #                                                                         #
+    #                      TOP-LEVEL PROGRAM COMPONENTS                       #
+    #                                                                         #
+    ###########################################################################
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
@@ -235,55 +287,162 @@ class PythonCodeGenerator(object):
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
-    def printCall(self, node: Dict[str, str], printState: PrintState):
-        if not printState.indexRef:
-            self.pyStrings.append("[")
+    ###########################################################################
+    #                                                                         #
+    #                               EXPRESSIONS                               #
+    #                                                                         #
+    ###########################################################################
 
-        inRef = False
+    def proc_intrinsic(self, node):
+        """Processes calls to intrinsic functions and returns a string that is
+           the corresponding Python code."""
 
-        if node["name"].lower() in self.libFns:
-            node["name"] = node["name"].lower()
-            if node["name"] in self.mathFuncs:
-                node["name"] = f"math.{node['name']}"
-            inRef = 1
+        intrinsic = node["name"].lower()
+        assert intrinsic in syntax.F_INTRINSICS
+
+        try:
+            py_fn, py_fn_type, py_mod = INTRINSICS_MAP[intrinsic]
+        except KeyError:
+            raise For2PyError(f"No handler for Fortran intrinsic {intrinsic}")
+
+        arg_list = self.get_arg_list(node)
+        arg_strs = [self.proc_expr(arg_list[i], False) for i in range(len(arg_list))]
+
+        if py_mod != None:
+            handler = f"{py_mod}.{py_fn}"
+        else:
+            handler = py_fn
+
+        if py_fn_type == "FUNC":
+            arguments = ", ".join(arg_strs)
+            return f"{handler}({arguments})"
+        elif py_fn_type == "INFIXOP":
+            assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
+            return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
+        else:
+            assert False, f"Unknown py_fn_type: {py_fn_type}"
+
+    def get_arg_list(self, node):
+        """Get_arg_list() returns the list of arguments or subscripts at a node.
+           If there are no arguments or subscripts, it returns the empty list."""
+
+        if "args" in node:
+            return node["args"]
+
+        if "subscripts" in node:
+            return node["subscripts"]
+
+        return []
+
+    def proc_call(self, node):
+        """Processes function calls, including calls to intrinsics, and returns
+           a string that is the corresponding Python code.  This code assumes
+           that proc_expr() has used type info to correctly identify array
+           references, and that proc_call() is therefore correctly called only
+           on function calls."""
 
         if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             toFind = node["args"][1]["value"]
-            self.pyStrings.append(f"{var}[0].find({toFind})")
+            return f"{var}[0].find({toFind})"
 
-        elif node["name"] == "mod":
-            self.printAst(
-                node["args"],
-                printState.copy(
-                    sep="%",
-                    add="",
-                    printFirst=False,
-                    definedVars=[],
-                    indexRef=inRef,
-                ),
-            )
+        if node["name"].lower() in syntax.F_INTRINSICS:
+            return self.proc_intrinsic(node)
+
+        callee = self.nameMapper[f"{node['name']}"]
+        args = self.get_arg_list(node)
+        arg_strs = [self.proc_expr(args[i], True) for i in range(len(args))]
+        arguments = ", ".join(arg_strs)
+        exp_str = f"{callee}({arguments})"
+        return exp_str
+
+    def proc_literal(self, node):
+        """Processes a literal value and returns a string that is the
+           corresponding Python code."""
+
+        if node["type"] == "bool":
+            return node["value"].title()
         else:
-            argSize = len(node["args"])
-            self.pyStrings.append(f"{node['name']}(")
-            for arg in range(0, argSize):
-                self.printAst(
-                    [node["args"][arg]],
-                    printState.copy(
-                        sep=", ",
-                        add="",
-                        printFirst=False,
-                        callSource="Call",
-                        definedVars=[],
-                        indexRef=inRef,
-                    ),
-                )
-                if arg < argSize - 1:
-                    self.pyStrings.append(", ")
-            self.pyStrings.append(")")
+            return node["value"]
 
-        if not printState.indexRef:
-            self.pyStrings.append("]")
+    def proc_ref(self, node, wrapper):
+        """Processes a reference node and returns a string that is the 
+           corresponding Python code.  The argument "wrapper" indicates whether
+           or not the Python expression should refer to the list wrapper for
+           (scalar) variables."""
+
+        ref_str = self.nameMapper[node["name"]]
+        if "subscripts" in node:
+            # array reference or function call
+            if "isArray" in node and node["isArray"]:
+                subs = node["subscripts"]
+                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                subscripts = ", ".join(subs_strs)
+                expr_str = f"{ref_str}.get_(({subscripts}))"
+            else:
+                expr_str = self.proc_call(node)
+        else:
+            # scalar variable
+            if wrapper:
+                expr_str = ref_str
+            else:
+                expr_str = ref_str + "[0]"
+
+        return expr_str
+
+    def proc_op(self, node):
+        """Processes expressions involving operators and returns a string that
+           is the corresponding Python code."""
+
+        try:
+            op_str = OPERATOR_MAP[node["operator"].lower()]
+        except KeyError:
+            raise For2PyError(f"unhndled operator {node['operator']}")
+
+        assert len(node["left"]) == 1
+        l_subexpr = self.proc_expr(node["left"][0], False)
+
+        if "right" in node:
+            # binary operator
+            assert len(node["right"]) == 1
+            r_subexpr = self.proc_expr(node["right"][0], False)
+            expr_str = f"({l_subexpr} {op_str} {r_subexpr})"
+        else:
+            # unary operator
+            expr_str = f"{op_str}({l_subexpr})"
+
+        return expr_str
+
+    def proc_expr(self, node, wrapper):
+        """Processes an expression node and returns a string that is the 
+           corresponding Python code.  The argument "wrapper" indicates 
+           whether or not the Python expression should refer to the list 
+           wrapper for (scalar) variables."""
+
+        if node["tag"] == "literal":
+            return self.proc_literal(node)
+
+        if node["tag"] == "ref":
+            # variable or array reference
+            return self.proc_ref(node, wrapper)
+
+        if node["tag"] == "call":
+            # function call
+            return self.proc_call(node)
+
+        expr_str = None
+        if node["tag"] == "op":
+            # operator
+            assert not wrapper
+            expr_str = self.proc_op(node)
+
+        assert expr_str != None, f">>> [proc_expr] NULL value: {node}"
+        return expr_str
+
+    def printCall(self, node: Dict[str, str], printState: PrintState):
+        call_str = self.proc_call(node)
+        self.pyStrings.append(call_str)
+        return
 
     def printAst(self, root, printState: PrintState):
         for node in root:
@@ -312,74 +471,32 @@ class PythonCodeGenerator(object):
         self.privFunctions.append(node["name"])
         self.nameMapper[node["name"]] = "_" + node["name"]
 
-    def initializeFileVars(self, node, printState: PrintState):
-        label = node["args"][1]["value"]
-        data_type = list_data_type(self.format_dict[label])
-        index = 0
-        for item in node["args"]:
-            if item["tag"] == "ref":
-                # if item["name"] in self.privFunctions:
-                #     var = "_" + item["name"]
-                # else:
-                #     var = item["name"]
-                self.printVariable(
-                    {
-                        "name": self.nameMapper[item["name"]],
-                        "type": data_type[index],
-                    },
-                    printState,
-                )
-                self.pyStrings.append(printState.sep)
-                index += 1
-
     def printArg(self, node, printState: PrintState):
-        if node["type"].upper() == "INTEGER":
-            varType = "int"
-        elif node["type"].upper() in ("DOUBLE", "REAL"):
-            varType = "float"
-        elif node["type"].upper() == "CHARACTER":
-            varType = "str"
-        elif node["type"].upper() == "LOGICAL":
-            varType = "bool"
-        else:
+        try:
+            var_type = TYPE_MAP[node["type"].lower()]
+        except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
+
+        arg_name = self.nameMapper[node["name"]]
         if node["arg_type"] == "arg_array":
-            self.pyStrings.append(f"{self.nameMapper[node['name']]}")
+            self.pyStrings.append(f"{arg_name}")
         else:
-            self.pyStrings.append(
-                f"{self.nameMapper[node['name']]}: List[{varType}]"
-            )
-        printState.definedVars += [self.nameMapper[node["name"]]]
+            self.pyStrings.append(f"{arg_name}: List[{var_type}]")
+        printState.definedVars += [arg_name]
 
     def printVariable(self, node, printState: PrintState):
-        initial_set = False
-        if (
-            self.nameMapper[node["name"]] not in printState.definedVars
-            and self.nameMapper[node["name"]] not in printState.globalVars
-        ):
-            printState.definedVars += [self.nameMapper[node["name"]]]
+        var_name = self.nameMapper[node["name"]]
+        if (var_name not in printState.definedVars + printState.globalVars):
+            printState.definedVars += [var_name]
             if node.get("value"):
-                init_val = node["value"][0]["value"]
-                initial_set = True
-
-            if node["type"].upper() in ("INTEGER", "INT"):
-                initVal = init_val if initial_set else 0
-                varType = "int"
-            elif node["type"].upper() in ("DOUBLE", "REAL", "FLOAT"):
-                initVal = init_val if initial_set else 0.0
-                varType = "float"
-            elif node["type"].upper() in ("STRING", "CHARACTER", "STR"):
-                initVal = init_val if initial_set else ""
-                varType = "str"
-            elif node["type"].upper() == "LOGICAL":
-                initVal = init_val if initial_set else False
-                varType = "bool"
+                initVal = node["value"][0]["value"]
             else:
-                if node["isDevTypeVar"]:
-                    initVal = init_val if initial_set else 0
-                    varType = node["type"]
-                else:
-                    raise For2PyError(f"unrecognized type {node['type']}")
+                initVal = None
+
+            try:
+                varType = TYPE_MAP[node["type"].lower()]
+            except KeyError:
+                raise For2PyError(f"unrecognized type {node['type']}")
 
             if "isDevTypeVar" in node and node["isDevTypeVar"]:
                 self.pyStrings.append(
@@ -387,20 +504,18 @@ class PythonCodeGenerator(object):
                 )
             else:
                 if printState.functionScope:
-                    if not self.nameMapper[node["name"]] in self.funcArgs.get(
+                    if not var_name in self.funcArgs.get(
                         printState.functionScope
                     ):
                         self.pyStrings.append(
-                            f"{self.nameMapper[node['name']]}: List[{varType}]"
+                            f"{var_name}: List[{varType}]"
                             f" = [{initVal}]"
                         )
                     else:
-                        self.pyStrings.append(
-                            f"{self.nameMapper[node['name']]}: List[{varType}]"
-                        )
+                        self.pyStrings.append(f"{var_name}: List[{varType}]")
                 else:
                     self.pyStrings.append(
-                        f"{self.nameMapper[node['name']]}: List[{varType}] = "
+                        f"{var_name}: List[{varType}] = "
                         f"[{initVal}]"
                     )
 
@@ -412,6 +527,12 @@ class PythonCodeGenerator(object):
             self.variableMap[self.nameMapper[node["name"]]] = node["type"]
         else:
             printState.printFirst = False
+
+    ###########################################################################
+    #                                                                         #
+    #                                STATEMENTS                               #
+    #                                                                         #
+    ###########################################################################
 
     def printDo(self, node, printState: PrintState):
         self.pyStrings.append("for ")
@@ -499,257 +620,39 @@ class PythonCodeGenerator(object):
             )
 
     def printOp(self, node, printState: PrintState):
-        node["left"][0]["op"] = True
-        if not printState.indexRef:
-            self.pyStrings.append("[")
-        if "right" in node:
-            self.pyStrings.append("(")
-            self.printAst(
-                node["left"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
-
-            self.pyStrings.append(
-                self.operator_mapping.get(
-                    node["operator"].lower(), f" {node['operator']} "
-                )
-            )
-            self.printAst(
-                node["right"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
-            self.pyStrings.append(")")
-        else:
-            self.pyStrings.append(f"{node['operator']}(")
-            self.printAst(
-                node["left"],
-                printState.copy(
-                    sep="", add="", printFirst=True, indexRef=True
-                ),
-            )
-            self.pyStrings.append(")")
-        if not printState.indexRef:
-            self.pyStrings.append("]")
+        expr_str = self.proc_expr(node, False)
+        self.pyStrings.append(expr_str)
 
     def printLiteral(self, node, printState: PrintState):
-        # if printState.callSource == "Call":
-        #     self.pyStrings.append(f"[{node['value']}]")
-        # else:
-        #     self.pyStrings.append(node["value"])
-
-        # Check if the value is a bool and convert to Title case if it is
-        if node["type"] == "bool":
-            node["value"] = node["value"].title()
-
-        self.pyStrings.append(node["value"])
+        expr_str = self.proc_literal(node)
+        self.pyStrings.append(expr_str)
 
     def printRef(self, node, printState: PrintState):
-        self.pyStrings.append(self.nameMapper[node["name"]])
-        if printState.indexRef and "subscripts" not in node:
-            # Handles derived type variables
-            if "isDevType" not in node or not node["isDevType"]:
-                self.pyStrings.append("[0]")
-            if "isDevType" in node and node["isDevType"]:
-                self.pyStrings.append(f".{node['field-name']}")
-
-        if "subscripts" in node:
-            # Check if the node really holds an array. The is because the
-            # derive type with more than 1 field access, for example var%x%y,
-            # node holds x%y also under the subscripts. Thus, in order to avoid
-            # non-array derive types to be printed in an array syntax, this
-            # check is necessary
-            if (
-                "isArray" in node
-                and node["isArray"]
-                and "hasSubscripts" in node
-                and node["hasSubscripts"]
-            ):
-                if node["name"].lower() not in self.libFns:
-                    self.pyStrings.append(".get_((")
-                self.pyStrings.append("(")
-                subLength = len(node["subscripts"])
-                for ind in node["subscripts"]:
-                    if ind["tag"] == "ref":
-                        indName = ind["name"]
-                        self.pyStrings.append(f"{indName}")
-                        if "subscripts" in ind:
-                            self.pyStrings.append(".get_((")
-                            self.printAst(
-                                ind["subscripts"],
-                                printState.copy(
-                                    sep=", ",
-                                    add="",
-                                    printFirst=False,
-                                    indexRef=True,
-                                ),
-                            )
-                            self.pyStrings.append("))")
-                        else:
-                            self.pyStrings.append("[0]")
-                    if ind["tag"] == "op":
-                        if "right" not in ind:
-                            self.pyStrings.append(
-                                f"{ind['operator']}{ind['left'][0]['value']}"
-                            )
-                        else:
-                            self.printAst(
-                                ind["left"],
-                                printState.copy(
-                                    sep="",
-                                    add="",
-                                    printFirst=True,
-                                    indexRef=True,
-                                ),
-                            )
-                            self.pyStrings.append(f"{ind['operator']}")
-                            self.printAst(
-                                ind["right"],
-                                printState.copy(
-                                    sep="",
-                                    add="",
-                                    printFirst=True,
-                                    indexRef=True,
-                                ),
-                            )
-                    elif ind["tag"] == "literal" and "value" in ind:
-                        indValue = ind["value"]
-                        self.pyStrings.append(f"{indValue}")
-                    if subLength > 1:
-                        self.pyStrings.append(", ")
-                        subLength = subLength - 1
-                if node["name"].lower() not in self.libFns:
-                    self.pyStrings.append("))")
-                self.pyStrings.append(")")
-            else:
-                if "isDevType" in node and node["isDevType"]:
-                    self.pyStrings.append(".")
-                else:
-                    self.pyStrings.append("(")
-                self.printAst(
-                    node["subscripts"],
-                    printState.copy(
-                        sep=", ", add="", printFirst=False, indexRef=False
-                    ),
-                )
-                self.pyStrings.append(")")
+        ref_str = self.proc_ref(node, False)
+        self.pyStrings.append(ref_str)
 
     def printAssignment(self, node, printState: PrintState):
-        # Writing a target variable syntax
-        if (
-            "subscripts" in node["target"][0]
-        ):  # Case where the target is an array
-            if node["isDevType"] and "field-name" in node["target"][0]:
-                if node["target"][0]["hasSubscripts"]:
-                    devObj = {
-                        "tag": node["target"][0]["tag"],
-                        "name": node["target"][0]["name"],
-                        "isDevType": node["target"][0]["isDevType"],
-                        "hasSubscripts": node["target"][0]["isDevType"],
-                        "subscripts": [node["target"][0]["subscripts"].pop(0)],
-                    }
-                    self.printAst(
-                        [devObj],
-                        printState.copy(
-                            sep="", add="", printFirst=True, indexRef=True
-                        ),
-                    )
-                else:
-                    self.pyStrings.append(f"{node['target'][0]['name']}")
-                self.pyStrings.append(f".{node['target'][0]['field-name']}")
+        assert len(node["target"]) == 1 and len(node["value"]) == 1
+        lhs, rhs = node["target"][0], node["value"][0]
+        
+        rhs_str = self.proc_expr(node["value"][0], False)
+                                        
+        if "subscripts" in lhs:
+            # target is an array element or derived type field
+            if "isArray" in lhs and lhs["isArray"]:
+                subs = lhs["subscripts"]
+                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                subscripts = ", ".join(subs_strs)
+                assg_str = f"{lhs['name']}.set_(({subscripts}), {rhs_str})"
             else:
-                self.pyStrings.append(f"{node['target'][0]['name']}")
-            self.pyStrings.append(".set_((")
-            length = len(node["target"][0]["subscripts"])
-            for ind in node["target"][0]["subscripts"]:
-                index = ""
-                if (
-                    ind["tag"] == "literal"
-                ):  # Case where using literal value as an array index
-                    index = ind["value"]
-                    self.pyStrings.append(f"{index}")
-                if (
-                    ind["tag"] == "ref"
-                ):  # Case where using variable as an array index
-                    index = ind["name"]
-                    self.pyStrings.append(f"{index}[0]")
-                if (
-                    ind["tag"] == "op"
-                ):  # Case where a literal index has an operator
-                    operator = ind["operator"]
-                    # For left index
-                    if ind["left"][0]["tag"] == "literal":
-                        lIndex = ind["left"][0]["value"]
-                        self.pyStrings.append(f"{lIndex}")
-                    elif ind["left"][0]["tag"] == "ref":
-                        lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
-
-                    self.pyStrings.append(f" {operator} ")
-                    # For right index
-                    if ind["right"][0]["tag"] == "literal":
-                        rIndex = ind["right"][0]["value"]
-                        self.pyStrings.append(f"{rIndex}")
-                    elif ind["right"][0]["tag"] == "ref":
-                        rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
-
-                if length > 1:
-                    self.pyStrings.append(", ")
-                    length = length - 1
-            self.pyStrings.append("), ")
-        else:  # Case where the target is a single variable
-            self.printAst(
-                node["target"],
-                printState.copy(
-                    sep="", add="", printFirst=False, indexRef=True
-                ),
-            )
-            self.pyStrings.append(" = ")
-
-        # Writes a syntax for the source that is right side of the '=' operator
-        if "subscripts" in node["value"][0]:
-            self.pyStrings.append(f"{node['value'][0]['name']}.get_((")
-            arrayLen = len(node["value"][0]["subscripts"])
-            for ind in node["value"][0]["subscripts"]:
-                if "name" in ind:
-                    self.pyStrings.append(f"{ind['name']}[0]")
-                elif "operator" in ind:
-                    # For left index
-                    if ind["left"][0]["tag"] == "literal":
-                        lIndex = ind["left"][0]["value"]
-                        self.pyStrings.append(f"{lIndex}")
-                    elif ind["left"][0]["tag"] == "ref":
-                        lIndex = ind["left"][0]["name"]
-                        self.pyStrings.append(f"{lIndex}[0]")
-
-                    self.pyStrings.append(f" {ind['operator']} ")
-                    # For right index
-                    if ind["right"][0]["tag"] == "literal":
-                        rIndex = ind["right"][0]["value"]
-                        self.pyStrings.append(f"{rIndex}")
-                    elif ind["right"][0]["tag"] == "ref":
-                        rIndex = ind["right"][0]["name"]
-                        self.pyStrings.append(f"{rIndex}[0]")
-                else:
-                    assert ind["tag"] == "literal"
-                    self.pyStrings.append(f"{ind['value']}")
-                if arrayLen > 1:
-                    self.pyStrings.append(", ")
-                    arrayLen = arrayLen - 1
-            self.pyStrings.append("))")
+                # handling derived types might go here
+                assert False
         else:
-            self.printAst(
-                node["value"],
-                printState.copy(
-                    sep="", add="", printFirst=False, indexRef=True
-                ),
-            )
-        if "subscripts" in node["target"][0]:
-            self.pyStrings.append(")")
+            # target is a scalar variable
+            assg_str = f"{lhs['name']}[0] = {rhs_str}"
+
+        self.pyStrings.append(assg_str)
+        return
 
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
@@ -889,153 +792,17 @@ class PythonCodeGenerator(object):
                 format_label = node["args"][1]["value"]
 
         if write_target == "file":
-            self.pyStrings.append(f"write_list_{file_id} = [")
+            self.pyStrings.append(f"write_list_{file_id} = ")
         elif write_target == "outStream":
-            self.pyStrings.append(f"write_list_stream = [")
+            self.pyStrings.append(f"write_list_stream = ")
 
-        # Check for variable arguments specified to the write statement
-        for item in node["args"]:
-            if item["tag"] == "ref":
-                write_string += f"{self.nameMapper[item['name']]}"
-                # Handles array or a variable that holds following attributes,
-                # such as var.x.y
-                if "subscripts" in item:
-                    # If a variable is derived type
-                    if item["isDevType"]:
-                        # If hasSubscripts is true, the derived type object is
-                        # also an array and has following subscripts.
-                        # Therefore, in order to handle the syntax
-                        # obj.get_((obj_index)).field.get_((field)), the code
-                        # below handles obj.get_((obj_index)) first before the
-                        # subscripts for the field variables
-                        if "hasSubscripts" in item and item["hasSubscripts"]:
-                            devObjSub = [item["subscripts"].pop(0)]
-                            write_string += ".get_(("
-                            for sub in devObjSub:
-                                if sub["tag"] == "ref":
-                                    write_string += f"{sub['name']}[0]"
-                                elif sub["tag"] == "literal":
-                                    write_string += f"{sub['value']}"
-                            write_string += "))"
-                        # This is a case where the very first variable is not
-                        # an array, but has subscripts, which holds information
-                        # of following derived type field variables. i.e.
-                        # var.x.y HOWEVER, the code below MUST be revisted and
-                        # fixed. This is a hack of hard coding in order to
-                        # print a format of var.x.y fixed number of 3 times In
-                        # order to fix this, the entire printWrite should be
-                        # modified that can do a recursion or break passed
-                        # lists from the translate.py to have more clear
-                        # groups.  It cannot be handled now as it may cause a
-                        # butterfly effect on all other I/O handling
-                        if (
-                            "hasSubscripts" in item
-                            and not item["hasSubscripts"]
-                            and "subscripts" in item
-                            and "arrayStat" not in item
-                        ):
-                            isubs = item["subscripts"]
-                            isubs2 = isubs[1]["subscripts"]
-                            write_string += "".join(
-                                (
-                                    f".{isubs[0]['name']}",
-                                    f".{isubs[0]['field-name']}",
-                                    ", ",
-                                    ".".join(
-                                        (
-                                            isubs[1]["name"],
-                                            isubs2[0]["name"],
-                                            isubs2[0]["field-name"],
-                                        )
-                                    ),
-                                    ", ",
-                                    ".".join(
-                                        (
-                                            isubs2[1]["name"],
-                                            isubs2[1]["subscripts"][0]["name"],
-                                            isubs2[1]["subscripts"][0][
-                                                "field-name"
-                                            ],
-                                        )
-                                    ),
-                                )
-                            )
-                        if "field-name" in item:
-                            write_string += f".{item['field-name']}"
-                    # Handling array
-                    if (
-                        "hasSubscripts" in item
-                        and item["hasSubscripts"]
-                        and "isArray" in item
-                        and item["isArray"]
-                    ) or (
-                        "arrayStat" in item and item["arrayStat"] == "isArray"
-                    ):
-                        i = 0
-                        write_string += ".get_(("
-                        for ind in item["subscripts"]:
-                            # When an array uses another array's value as its
-                            # index value
-                            if "subscripts" in ind:
-                                write_string += f"{ind['name']}.get_(("
-                                for sub in ind["subscripts"]:
-                                    if sub["tag"] == "ref":
-                                        write_string += f"{sub['name']}[0]"
-                                    elif sub["tag"] == "literal":
-                                        write_string += f"{sub['value']}"
-                                write_string += "))"
-                            elif "operator" in ind:
-                                if "right" not in ind:
-                                    write_string += f"{ind['operator']}"
-
-                                if ind["left"][0]["tag"] == "ref":
-                                    write_string += (
-                                        f"{ind['left'][0]['name']}[0] "
-                                    )
-                                else:
-                                    assert ind["left"][0]["tag"] == "literal"
-                                    write_string += (
-                                        f"{ind['left'][0]['value']} "
-                                    )
-
-                                if "right" in ind:
-                                    write_string += f"{ind['operator']} "
-
-                                    if ind["right"][0]["tag"] == "ref":
-                                        write_string += (
-                                            f"{ind['right'][0]['name']} "
-                                        )
-                                    else:
-                                        assert (
-                                            ind["right"][0]["tag"] == "literal"
-                                        )
-                                        write_string += (
-                                            f"{ind['right'][0]['value']} "
-                                        )
-                            else:
-                                if ind["tag"] == "ref":
-                                    write_string += f"{ind['name']}[0]"
-                                elif ind["tag"] == "op":
-                                    write_string += f"{ind['operator']}"
-                                    assert ind["left"][0]["tag"] == "literal"
-                                    write_string += (
-                                        f"{ind['left'][0]['value']}"
-                                    )
-                                elif ind["tag"] == "literal":
-                                    write_string += f"{ind['value']}"
-                            if i < len(item["subscripts"]) - 1:
-                                write_string += ", "
-                                i = i + 1
-                        write_string += "))"
-                if printState.indexRef and "subscripts" not in item:
-                    if "isDevType" not in item or (
-                        "isDevType" in item and not item["isDevType"]
-                    ):
-                        write_string += "[0]"
-                    elif "isDevType" in item and item["isDevType"]:
-                        write_string += f".{item['field-name']}"
-                write_string += ", "
-        self.pyStrings.append(f"{write_string[:-2]}]")
+        # Collect the expressions to be written out.  The first two arguments to
+        # a WRITE statement are the output stream and the format, so these are
+        # skipped.
+        args = node["args"][2:]
+        args_str = [self.proc_expr(args[i], False) for i in range(len(args))]
+        write_string = ', '.join(args_str)
+        self.pyStrings.append(f"[{write_string}]")
         self.pyStrings.append(printState.sep)
 
         # If format specified and output in a file, execute write_line on file
@@ -1083,6 +850,7 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(
                             f'"{self.variableMap[var.strip()]}",'
                         )
+
                 self.pyStrings.append("])" + printState.sep)
                 self.pyStrings.append(
                     "write_stream_obj = Format(output_fmt)" + printState.sep
@@ -1100,14 +868,6 @@ class PythonCodeGenerator(object):
                 )
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"sys.stdout.write(write_line)")
-
-    def nameMapping(self, ast):
-        for item in ast:
-            if item.get("name"):
-                self.nameMapper[item["name"]] = item["name"]
-            for inner in item:
-                if isinstance(item[inner], list):
-                    self.nameMapping(item[inner])
 
     def printFormat(self, node, printState: PrintState):
         type_list = []
@@ -1147,6 +907,12 @@ class PythonCodeGenerator(object):
             else self.nameMapper[node["args"][0]["name"]]
         )
         self.pyStrings.append(f"file_{file_id}.close()")
+
+    ###########################################################################
+    #                                                                         #
+    #                              DECLARATIONS                               #
+    #                                                                         #
+    ###########################################################################
 
     def printArray(self, node, printState: PrintState):
         """ Prints out the array declaration in a format of Array class
@@ -1230,6 +996,36 @@ class PythonCodeGenerator(object):
                         self.pyStrings.append(" = None")
                 self.pyStrings.append(printState.sep)
                 fieldNum += 1
+
+    ###########################################################################
+    #                                                                         #
+    #                              MISCELLANEOUS                              #
+    #                                                                         #
+    ###########################################################################
+
+    def initializeFileVars(self, node, printState: PrintState):
+        label = node["args"][1]["value"]
+        data_type = list_data_type(self.format_dict[label])
+        index = 0
+        for item in node["args"]:
+            if item["tag"] == "ref":
+                self.printVariable(
+                    {
+                        "name": self.nameMapper[item["name"]],
+                        "type": data_type[index],
+                    },
+                    printState,
+                )
+                self.pyStrings.append(printState.sep)
+                index += 1
+
+    def nameMapping(self, ast):
+        for item in ast:
+            if item.get("name"):
+                self.nameMapper[item["name"]] = item["name"]
+            for inner in item:
+                if isinstance(item[inner], list):
+                    self.nameMapping(item[inner])
 
     def get_python_source(self):
         imports = "".join(self.imports)

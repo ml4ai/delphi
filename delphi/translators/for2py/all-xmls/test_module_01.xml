@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ofp version="0.8.4">
+  <file path="/Users/hlim1/Research/delphi/delphi/translators/for2py/test_module_01_processed.f">
+    <module name="MYMOD1">
+      <header/>
+      <module-stmt eos="&#10;" id="MYMOD1" moduleKeyword="MODULE" rule="1105"/>
+      <body>
+        <specification declarations="1" implicits="1" imports="0" uses="0">
+          <declaration subtype="none" type="implicit"/>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="INTEGER">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="INTEGER" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="true" name="X">
+                <initial-value>
+                  <literal type="int" value="1234">
+                    <int-literal-constant digitString="1234" kindParam="" rule="406"/>
+                  </literal>
+                  <initialization hasExpr="true" hasNullInit="false" rule="506"/>
+                </initial-value>
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="true" id="X" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement/>
+      </body>
+      <members/>
+      <end-module-stmt endKeyword="END" eos="&#10;" id="mymod1" moduleKeyword="MODULE" rule="1106"/>
+    </module>
+    <program name="PGM">
+      <header/>
+      <body>
+        <specification declarations="1" implicits="0" imports="0" uses="1">
+          <declaration/>
+          <use name="mymod1">
+            <use-stmt eos="&#10;" hasModuleNature="false" hasOnly="false" hasRenameList="false" id="mymod1" onlyKeyword="" rule="1109" useKeyword="USE"/>
+          </use>
+          <declaration>
+            <format>
+              <label lbl="10" rule="313"/>
+              <format-items count="1">
+                <format-item descOrDigit="I5" hasFormatItemList="false" rule="1003"/>
+              </format-items>
+            </format>
+          </declaration>
+        </specification>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="X" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="write"/>
+          </write>
+        </statement>
+        <statement>
+          <stop code=""/>
+        </statement>
+        <statement>
+          <execution-part rule="208"/>
+        </statement>
+      </body>
+      <end-program-stmt endKeyword="end" eos="&#10;" id="PGM" programKeyword="program" rule="1103"/>
+      <main-program hasExecutionPart="true" hasInternalSubprogramPart="false" hasProgramStmt="true" rule="1101"/>
+    </program>
+  </file>
+</ofp>

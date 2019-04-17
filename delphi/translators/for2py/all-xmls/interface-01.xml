@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ofp version="0.8.4">
+  <file path="/Users/hlim1/Research/delphi/delphi/translators/for2py/interface-01_processed.f">
+    <module name="mymod">
+      <header/>
+      <module-stmt eos="&#10;" id="mymod" moduleKeyword="module" rule="1105"/>
+      <body>
+        <specification declarations="1" implicits="1" imports="0" uses="0">
+          <declaration subtype="none" type="implicit"/>
+          <declaration>
+            <interface>
+              <header>
+                <name id="foo">
+                  <generic_spec keyword="" name="foo" rule="1207" type="1500"/>
+                </name>
+              </header>
+              <interface-stmt abstract_token="" hasGenericSpec="true" rule="1203"/>
+              <body>
+                <specification>
+                  <declaration>
+                    <names count="3">
+                      <name id="foo_int"/>
+                      <name id="foo_real"/>
+                      <name id="foo_bool"/>
+                    </names>
+                    <procedure-stmt eos="&#10;" module="module" procedureKeyword="procedure" rule="1206"/>
+                    <interface-specification rule="1202"/>
+                  </declaration>
+                </specification>
+              </body>
+              <end-interface-stmt hasGenericSpec="false" rule="1204"/>
+            </interface>
+            <interface-block rule="1201"/>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement/>
+      </body>
+      <contains-stmt rule="1237"/>
+      <members>
+        <subroutine name="foo_int">
+          <header>
+            <arguments count="2">
+              <argument name="x"/>
+              <argument name="result"/>
+            </arguments>
+            <subroutine-stmt hasArgSpecifier="true" hasBindingSpec="false" hasDummyArgList="true" hasPrefix="false" name="foo_int" rule="1232"/>
+          </header>
+          <body>
+            <specification declarations="1" implicits="0" imports="0" uses="0">
+              <declaration type="variable">
+                <type hasKind="false" hasLength="false" name="integer">
+                  <intrinsic-type-spec hasKindSelector="false" keyword1="integer" keyword2="" rule="403" type="400"/>
+                  <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                </type>
+                <variables count="2">
+                  <variable hasInitialValue="false" name="x">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="x" rule="503008"/>
+                  </variable>
+                  <variable hasInitialValue="false" name="result">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="result" rule="503008"/>
+                  </variable>
+                  <variable/>
+                </variables>
+                <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+              </declaration>
+              <declaration/>
+            </specification>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="result" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <literal type="int" value="47">
+                            <int-literal-constant digitString="47" kindParam="" rule="406"/>
+                          </literal>
+                        </operand>
+                        <operator operator="*"/>
+                        <operand>
+                          <name hasSubscripts="false" id="x" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <literal type="int" value="23">
+                        <int-literal-constant digitString="23" kindParam="" rule="406"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <return hasValue="false">
+                <return-stmt hasScalarIntExpr="false" rule="1236"/>
+              </return>
+            </statement>
+            <statement>
+              <execution-part rule="208"/>
+            </statement>
+          </body>
+          <end-subroutine-stmt name="foo_int" rule="1234"/>
+        </subroutine>
+        <module-subprogram hasPrefix="false" rule="1108"/>
+        <subroutine name="foo_real">
+          <header>
+            <arguments count="2">
+              <argument name="x"/>
+              <argument name="result"/>
+            </arguments>
+            <subroutine-stmt hasArgSpecifier="true" hasBindingSpec="false" hasDummyArgList="true" hasPrefix="false" name="foo_real" rule="1232"/>
+          </header>
+          <body>
+            <specification declarations="2" implicits="0" imports="0" uses="0">
+              <declaration type="variable">
+                <type hasKind="false" hasLength="false" name="real">
+                  <intrinsic-type-spec hasKindSelector="false" keyword1="real" keyword2="" rule="403" type="401"/>
+                  <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                </type>
+                <variables count="1">
+                  <variable hasInitialValue="false" name="x">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="x" rule="503008"/>
+                  </variable>
+                  <variable/>
+                </variables>
+                <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+              </declaration>
+              <declaration type="variable">
+                <type hasKind="false" hasLength="false" name="integer">
+                  <intrinsic-type-spec hasKindSelector="false" keyword1="integer" keyword2="" rule="403" type="400"/>
+                  <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                </type>
+                <variables count="1">
+                  <variable hasInitialValue="false" name="result">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="result" rule="503008"/>
+                  </variable>
+                  <variable/>
+                </variables>
+                <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+              </declaration>
+              <declaration/>
+            </specification>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="result" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="true" id="int" type="ambiguous">
+                            <subscripts count="1">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="x" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="*"/>
+                        <operand>
+                          <literal type="int" value="31">
+                            <int-literal-constant digitString="31" kindParam="" rule="406"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <literal type="int" value="17">
+                        <int-literal-constant digitString="17" kindParam="" rule="406"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <return hasValue="false">
+                <return-stmt hasScalarIntExpr="false" rule="1236"/>
+              </return>
+            </statement>
+            <statement>
+              <execution-part rule="208"/>
+            </statement>
+          </body>
+          <end-subroutine-stmt name="foo_real" rule="1234"/>
+        </subroutine>
+        <module-subprogram hasPrefix="false" rule="1108"/>
+        <subroutine name="foo_bool">
+          <header>
+            <arguments count="2">
+              <argument name="x"/>
+              <argument name="result"/>
+            </arguments>
+            <subroutine-stmt hasArgSpecifier="true" hasBindingSpec="false" hasDummyArgList="true" hasPrefix="false" name="foo_bool" rule="1232"/>
+          </header>
+          <body>
+            <specification declarations="2" implicits="0" imports="0" uses="0">
+              <declaration type="variable">
+                <type hasKind="false" hasLength="false" name="logical">
+                  <intrinsic-type-spec hasKindSelector="false" keyword1="logical" keyword2="" rule="403" type="406"/>
+                  <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                </type>
+                <variables count="1">
+                  <variable hasInitialValue="false" name="x">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="x" rule="503008"/>
+                  </variable>
+                  <variable/>
+                </variables>
+                <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+              </declaration>
+              <declaration type="variable">
+                <type hasKind="false" hasLength="false" name="integer">
+                  <intrinsic-type-spec hasKindSelector="false" keyword1="integer" keyword2="" rule="403" type="400"/>
+                  <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                </type>
+                <variables count="1">
+                  <variable hasInitialValue="false" name="result">
+                    <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="result" rule="503008"/>
+                  </variable>
+                  <variable/>
+                </variables>
+                <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+              </declaration>
+              <declaration/>
+            </specification>
+            <if>
+              <header>
+                <name hasSubscripts="false" id="x" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </header>
+              <body>
+                <statement>
+                  <assignment>
+                    <target>
+                      <name hasSubscripts="false" id="result" type="variable">
+                        <data-ref numPartRef="1" rule="612"/>
+                        <designator hasSubstringRange="false" rule="603"/>
+                      </name>
+                    </target>
+                    <value>
+                      <literal type="int" value="937">
+                        <int-literal-constant digitString="937" kindParam="" rule="406"/>
+                      </literal>
+                    </value>
+                  </assignment>
+                </statement>
+                <statement/>
+              </body>
+              <body type="else">
+                <statement>
+                  <assignment>
+                    <target>
+                      <name hasSubscripts="false" id="result" type="variable">
+                        <data-ref numPartRef="1" rule="612"/>
+                        <designator hasSubstringRange="false" rule="603"/>
+                      </name>
+                    </target>
+                    <value>
+                      <operation type="unary">
+                        <operator operator="-"/>
+                        <operand>
+                          <literal type="int" value="732">
+                            <int-literal-constant digitString="732" kindParam="" rule="406"/>
+                          </literal>
+                        </operand>
+                      </operation>
+                    </value>
+                  </assignment>
+                </statement>
+                <statement/>
+              </body>
+            </if>
+            <statement>
+              <return hasValue="false">
+                <return-stmt hasScalarIntExpr="false" rule="1236"/>
+              </return>
+            </statement>
+            <statement>
+              <execution-part rule="208"/>
+            </statement>
+          </body>
+          <end-subroutine-stmt name="foo_bool" rule="1234"/>
+        </subroutine>
+        <module-subprogram hasPrefix="false" rule="1108"/>
+        <module-subprogram-part count="3" rule="1107"/>
+      </members>
+      <end-module-stmt endKeyword="end" eos="&#10;" id="mymod" moduleKeyword="module" rule="1106"/>
+    </module>
+    <program name="main">
+      <header/>
+      <body>
+        <specification declarations="2" implicits="0" imports="0" uses="1">
+          <declaration/>
+          <use name="mymod">
+            <use-stmt eos="&#10;" hasModuleNature="false" hasOnly="false" hasRenameList="false" id="mymod" onlyKeyword="" rule="1109" useKeyword="use"/>
+          </use>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="integer">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="integer" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="false" name="x">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="x" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration>
+            <format>
+              <label lbl="10" rule="313"/>
+              <format-items count="1">
+                <format-item descOrDigit="I5" hasFormatItemList="false" rule="1003"/>
+              </format-items>
+            </format>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement>
+          <call>
+            <name hasSubscripts="true" id="foo" type="procedure">
+              <subscripts count="2">
+                <subscript type="simple">
+                  <literal type="int" value="12">
+                    <int-literal-constant digitString="12" kindParam="" rule="406"/>
+                  </literal>
+                </subscript>
+                <subscript type="simple">
+                  <name hasSubscripts="false" id="x" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </subscript>
+                <subscript/>
+              </subscripts>
+              <data-ref numPartRef="1" rule="612"/>
+            </name>
+            <call-stmt callKeyword="call" eos="&#10;" hasActualArgSpecList="false" rule="1218"/>
+          </call>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="x" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="write"/>
+          </write>
+        </statement>
+        <statement>
+          <call>
+            <name hasSubscripts="true" id="foo" type="procedure">
+              <subscripts count="2">
+                <subscript type="simple">
+                  <literal type="real" value="12.0">
+                    <real-literal-constant kindParam="" realConstant="12.0" rule="417"/>
+                  </literal>
+                </subscript>
+                <subscript type="simple">
+                  <name hasSubscripts="false" id="x" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </subscript>
+                <subscript/>
+              </subscripts>
+              <data-ref numPartRef="1" rule="612"/>
+            </name>
+            <call-stmt callKeyword="call" eos="&#10;" hasActualArgSpecList="false" rule="1218"/>
+          </call>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="x" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="write"/>
+          </write>
+        </statement>
+        <statement>
+          <call>
+            <name hasSubscripts="true" id="foo" type="procedure">
+              <subscripts count="2">
+                <subscript type="simple">
+                  <literal type="bool" value="true">
+                    <logical-literal-constant isTrue="true" kindParam="" logicalValue=".true." rule="428"/>
+                  </literal>
+                </subscript>
+                <subscript type="simple">
+                  <name hasSubscripts="false" id="x" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </subscript>
+                <subscript/>
+              </subscripts>
+              <data-ref numPartRef="1" rule="612"/>
+            </name>
+            <call-stmt callKeyword="call" eos="&#10;" hasActualArgSpecList="false" rule="1218"/>
+          </call>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="x" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="write"/>
+          </write>
+        </statement>
+        <statement>
+          <stop code=""/>
+        </statement>
+        <statement>
+          <execution-part rule="208"/>
+        </statement>
+      </body>
+      <end-program-stmt endKeyword="end" eos="&#10;" id="main" programKeyword="program" rule="1103"/>
+      <main-program hasExecutionPart="true" hasInternalSubprogramPart="false" hasProgramStmt="true" rule="1101"/>
+    </program>
+  </file>
+</ofp>

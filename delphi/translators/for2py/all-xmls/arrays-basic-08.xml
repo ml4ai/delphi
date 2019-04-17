@@ -1,0 +1,2198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ofp version="0.8.4">
+  <file path="/Users/hlim1/Research/delphi/delphi/translators/for2py/arrays-basic-08_processed.f">
+    <program name="MAIN">
+      <header/>
+      <body>
+        <specification declarations="3" implicits="1" imports="0" uses="0">
+          <declaration subtype="none" type="implicit"/>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <dimensions count="2">
+              <dimension type="simple">
+                <literal type="int" value="20">
+                  <int-literal-constant digitString="20" kindParam="" rule="406"/>
+                </literal>
+                <array-spec-element rule="510" type="700"/>
+              </dimension>
+              <dimension type="simple">
+                <literal type="int" value="21">
+                  <int-literal-constant digitString="21" kindParam="" rule="406"/>
+                </literal>
+                <array-spec-element rule="510" type="700"/>
+              </dimension>
+            </dimensions>
+            <attr-spec attr="809" attrKeyword="DIMENSION" rule="503"/>
+            <variables count="1">
+              <variable hasInitialValue="false" name="A">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="A" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="1" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="INTEGER">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="INTEGER" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="3">
+              <variable hasInitialValue="false" name="I">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="I" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="J">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="J" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="N">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="N" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration>
+            <format>
+              <label lbl="10" rule="313"/>
+              <format-items count="2">
+                <format-item descOrDigit="/" hasFormatItemList="false" rule="1003"/>
+                <format-item descOrDigit="' GAUSS ELIMINATION'" hasFormatItemList="false" rule="1003"/>
+              </format-items>
+            </format>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="N" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="int" value="4">
+                <int-literal-constant digitString="4" kindParam="" rule="406"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <format>
+            <label lbl="11" rule="313"/>
+            <format-items count="1">
+              <format-items count="2">
+                <format-item descOrDigit="X" hasFormatItemList="false" rule="1003"/>
+                <format-item descOrDigit="F8.2" hasFormatItemList="false" rule="1003"/>
+              </format-items>
+              <format-item descOrDigit="5" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <open>
+            <keyword-arguments count="2">
+              <keyword-argument argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+              </keyword-argument>
+              <keyword-argument argument-name="FILE">
+                <literal type="char" value="&quot;INFILE-GAUSSIAN&quot;">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;INFILE-GAUSSIAN&quot;"/>
+                </literal>
+              </keyword-argument>
+              <keyword-argument/>
+            </keyword-arguments>
+            <open-stmt eos="&#10;" openKeyword="OPEN" rule="904"/>
+          </open>
+        </statement>
+        <loop type="do">
+          <header>
+            <index-variable name="I">
+              <do-variable id="I" rule="831"/>
+              <lower-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </lower-bound>
+              <upper-bound>
+                <name hasSubscripts="false" id="N" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </upper-bound>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <read>
+                <io-controls count="2">
+                  <io-control argument-name="">
+                    <literal type="int" value="10">
+                      <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                    </literal>
+                    <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+                  </io-control>
+                  <io-control argument-name="">
+                    <literal type="int" value="11">
+                      <int-literal-constant digitString="11" kindParam="" rule="406"/>
+                    </literal>
+                    <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+                  </io-control>
+                </io-controls>
+                <inputs count="5">
+                  <input>
+                    <name hasSubscripts="true" id="A" type="variable">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="1">
+                            <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </input>
+                  <input>
+                    <name hasSubscripts="true" id="A" type="variable">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="2">
+                            <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </input>
+                  <input>
+                    <name hasSubscripts="true" id="A" type="variable">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="3">
+                            <int-literal-constant digitString="3" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </input>
+                  <input>
+                    <name hasSubscripts="true" id="A" type="variable">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="4">
+                            <int-literal-constant digitString="4" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </input>
+                  <input>
+                    <name hasSubscripts="true" id="A" type="variable">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="5">
+                            <int-literal-constant digitString="5" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </input>
+                </inputs>
+                <read-stmt eos="&#10;" hasInputItemList="true" readKeyword="READ" rule="910"/>
+              </read>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <close>
+            <keyword-arguments count="1">
+              <keyword-argument argument-name="">
+                <literal type="int" value="10">
+                  <int-literal-constant digitString="10" kindParam="" rule="406"/>
+                </literal>
+              </keyword-argument>
+              <keyword-argument/>
+            </keyword-arguments>
+            <close-stmt closeKeyword="CLOSE" eos="&#10;" rule="908"/>
+          </close>
+        </statement>
+        <statement>
+          <format>
+            <label lbl="12" rule="313"/>
+            <format-items count="3">
+              <format-item descOrDigit="/" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="' AUGMENTED MATRIX'" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="/" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="12">
+                  <int-literal-constant digitString="12" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <loop type="do">
+          <format>
+            <label lbl="61" rule="313"/>
+            <format-items count="1">
+              <format-items count="2">
+                <format-item descOrDigit="1X" hasFormatItemList="false" rule="1003"/>
+                <format-item descOrDigit="f8.4" hasFormatItemList="false" rule="1003"/>
+              </format-items>
+              <format-item descOrDigit="5" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <header>
+            <index-variable name="I">
+              <do-variable id="I" rule="831"/>
+              <lower-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </lower-bound>
+              <upper-bound>
+                <name hasSubscripts="false" id="N" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </upper-bound>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <write>
+                <io-controls count="2">
+                  <io-control argument-name="">
+                    <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+                  </io-control>
+                  <io-control argument-name="">
+                    <literal type="int" value="61">
+                      <int-literal-constant digitString="61" kindParam="" rule="406"/>
+                    </literal>
+                    <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+                  </io-control>
+                </io-controls>
+                <outputs count="5">
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="1">
+                            <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="2">
+                            <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="3">
+                            <int-literal-constant digitString="3" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="4">
+                            <int-literal-constant digitString="4" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <literal type="int" value="5">
+                            <int-literal-constant digitString="5" kindParam="" rule="406"/>
+                          </literal>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                </outputs>
+                <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="WRITE"/>
+              </write>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <format>
+            <label lbl="13" rule="313"/>
+            <format-items count="1">
+              <format-item descOrDigit="''" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <format>
+            <label lbl="14" rule="313"/>
+            <format-items count="1">
+              <format-item descOrDigit="' SOLUTION'" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <format>
+            <label lbl="15" rule="313"/>
+            <format-items count="1">
+              <format-item descOrDigit="' ...........................................'" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <format>
+            <label lbl="16" rule="313"/>
+            <format-items count="1">
+              <format-item descOrDigit="'         I       X(I)'" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="13">
+                  <int-literal-constant digitString="13" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <call>
+            <name hasSubscripts="true" id="GAUSS" type="procedure">
+              <subscripts count="2">
+                <subscript type="simple">
+                  <name hasSubscripts="false" id="N" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </subscript>
+                <subscript type="simple">
+                  <name hasSubscripts="false" id="A" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </subscript>
+                <subscript/>
+              </subscripts>
+              <data-ref numPartRef="1" rule="612"/>
+            </name>
+            <call-stmt callKeyword="CALL" eos="&#10;" hasActualArgSpecList="false" rule="1218"/>
+          </call>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="13">
+                  <int-literal-constant digitString="13" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="14">
+                  <int-literal-constant digitString="14" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="15">
+                  <int-literal-constant digitString="15" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="16">
+                  <int-literal-constant digitString="16" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="15">
+                  <int-literal-constant digitString="15" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <loop type="do">
+          <format>
+            <label lbl="72" rule="313"/>
+            <format-items count="3">
+              <format-item descOrDigit="5X" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="I5" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="F12.6" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <header>
+            <index-variable name="I">
+              <do-variable id="I" rule="831"/>
+              <lower-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </lower-bound>
+              <upper-bound>
+                <name hasSubscripts="false" id="N" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </upper-bound>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <write>
+                <io-controls count="2">
+                  <io-control argument-name="">
+                    <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+                  </io-control>
+                  <io-control argument-name="">
+                    <literal type="int" value="72">
+                      <int-literal-constant digitString="72" kindParam="" rule="406"/>
+                    </literal>
+                    <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+                  </io-control>
+                </io-controls>
+                <outputs count="2">
+                  <output>
+                    <name hasSubscripts="false" id="I" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="false" id="N" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="+"/>
+                            <operand>
+                              <literal type="int" value="1">
+                                <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                              </literal>
+                            </operand>
+                          </operation>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                </outputs>
+                <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="WRITE"/>
+              </write>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="15">
+                  <int-literal-constant digitString="15" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="13">
+                  <int-literal-constant digitString="13" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <write-stmt eos="&#10;" hasOutputItemList="false" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <stop code=""/>
+        </statement>
+        <statement>
+          <execution-part rule="208"/>
+        </statement>
+      </body>
+      <end-program-stmt endKeyword="END" eos="&#10;" id="MAIN" programKeyword="PROGRAM" rule="1103"/>
+      <main-program hasExecutionPart="true" hasInternalSubprogramPart="false" hasProgramStmt="true" rule="1101"/>
+    </program>
+    <subroutine name="GAUSS">
+      <header>
+        <arguments count="2">
+          <argument name="N"/>
+          <argument name="A"/>
+        </arguments>
+        <subroutine-stmt hasArgSpecifier="true" hasBindingSpec="false" hasDummyArgList="true" hasPrefix="false" name="GAUSS" rule="1232"/>
+      </header>
+      <body>
+        <specification declarations="3" implicits="0" imports="0" uses="0">
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <dimensions count="2">
+              <dimension type="simple">
+                <literal type="int" value="20">
+                  <int-literal-constant digitString="20" kindParam="" rule="406"/>
+                </literal>
+                <array-spec-element rule="510" type="700"/>
+              </dimension>
+              <dimension type="simple">
+                <literal type="int" value="21">
+                  <int-literal-constant digitString="21" kindParam="" rule="406"/>
+                </literal>
+                <array-spec-element rule="510" type="700"/>
+              </dimension>
+            </dimensions>
+            <attr-spec attr="809" attrKeyword="DIMENSION" rule="503"/>
+            <variables count="1">
+              <variable hasInitialValue="false" name="A">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="A" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="1" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="INTEGER">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="INTEGER" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="10">
+              <variable hasInitialValue="false" name="PV">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="PV" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="I">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="I" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="J">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="J" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="K">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="K" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="N">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="N" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="R">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="R" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="JC">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="JC" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="JR">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="JR" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="KC">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="KC" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="NV">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="NV" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="REAL">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="REAL" keyword2="" rule="403" type="401"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="6">
+              <variable hasInitialValue="false" name="EPS">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EPS" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="EPS2">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="EPS2" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="DET">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="DET" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TM">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TM" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TEMP">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TEMP" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="VA">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="VA" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EPS" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="1.0">
+                <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <loop type="do-while">
+          <header>
+            <operation type="multiary">
+              <operand>
+                <operation type="multiary">
+                  <operand>
+                    <literal type="real" value="1.0">
+                      <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                    </literal>
+                  </operand>
+                  <operator operator="+"/>
+                  <operand>
+                    <name hasSubscripts="false" id="EPS" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                </operation>
+              </operand>
+              <operator operator=".GT."/>
+              <operand>
+                <literal type="real" value="1.0">
+                  <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+            <loop-control doConstructType="1702" hasOptExpr="false" rule="818008" whileKeyword="WHILE"/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="EPS" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="EPS" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="/"/>
+                    <operand>
+                      <literal type="real" value="2.0">
+                        <real-literal-constant kindParam="" realConstant="2.0" rule="417"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EPS" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="EPS" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <literal type="int" value="2">
+                    <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <format>
+            <label lbl="11" rule="313"/>
+            <format-items count="2">
+              <format-item descOrDigit="'      MACHINE EPSILON='" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="E16.8" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="11">
+                  <int-literal-constant digitString="11" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="EPS" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="EPS2" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="false" id="EPS" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="*"/>
+                <operand>
+                  <literal type="int" value="2">
+                    <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                  </literal>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <label lbl="1005" rule="313"/>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="DET" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="1.0">
+                <real-literal-constant kindParam="" realConstant="1.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <loop type="do">
+          <header>
+            <index-variable name="I">
+              <do-variable id="I" rule="831"/>
+              <lower-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </lower-bound>
+              <upper-bound>
+                <operation type="multiary">
+                  <operand>
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                  <operator operator="-"/>
+                  <operand>
+                    <literal type="int" value="1">
+                      <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                    </literal>
+                  </operand>
+                </operation>
+              </upper-bound>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="1010" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="PV" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="false" id="I" type="ambiguous">
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <loop type="do">
+              <header>
+                <index-variable name="J">
+                  <do-variable id="J" rule="831"/>
+                  <lower-bound>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="false" id="I" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator="+"/>
+                      <operand>
+                        <literal type="int" value="1">
+                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                        </literal>
+                      </operand>
+                    </operation>
+                  </lower-bound>
+                  <upper-bound>
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </upper-bound>
+                </index-variable>
+                <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+              </header>
+              <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+              <body>
+                <if>
+                  <header>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="true" id="ABS" type="ambiguous">
+                          <subscripts count="1">
+                            <subscript type="simple">
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="PV" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="I" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </subscript>
+                            <subscript/>
+                          </subscripts>
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator=".LT."/>
+                      <operand>
+                        <name hasSubscripts="true" id="ABS" type="ambiguous">
+                          <subscripts count="1">
+                            <subscript type="simple">
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="J" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="I" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </subscript>
+                            <subscript/>
+                          </subscripts>
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                    </operation>
+                  </header>
+                  <body>
+                    <statement>
+                      <assignment>
+                        <target>
+                          <name hasSubscripts="false" id="PV" type="variable">
+                            <data-ref numPartRef="1" rule="612"/>
+                            <designator hasSubstringRange="false" rule="603"/>
+                          </name>
+                        </target>
+                        <value>
+                          <name hasSubscripts="false" id="J" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </value>
+                      </assignment>
+                    </statement>
+                    <statement/>
+                  </body>
+                  <if-stmt ifKeyword="IF" rule="807"/>
+                </if>
+                <statement/>
+                <statement/>
+              </body>
+            </loop>
+            <if>
+              <header>
+                <operation type="multiary">
+                  <operand>
+                    <name hasSubscripts="false" id="PV" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                  <operator operator=".NE."/>
+                  <operand>
+                    <name hasSubscripts="false" id="I" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                </operation>
+              </header>
+              <body>
+                <loop type="do">
+                  <header>
+                    <index-variable name="JC">
+                      <do-variable id="JC" rule="831"/>
+                      <lower-bound>
+                        <literal type="int" value="1">
+                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                        </literal>
+                      </lower-bound>
+                      <upper-bound>
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="N" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="1">
+                              <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </upper-bound>
+                    </index-variable>
+                    <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+                  </header>
+                  <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+                  <body>
+                    <statement>
+                      <assignment>
+                        <target>
+                          <name hasSubscripts="false" id="TM" type="variable">
+                            <data-ref numPartRef="1" rule="612"/>
+                            <designator hasSubstringRange="false" rule="603"/>
+                          </name>
+                        </target>
+                        <value>
+                          <name hasSubscripts="true" id="A" type="ambiguous">
+                            <subscripts count="2">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="I" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="JC" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </value>
+                      </assignment>
+                    </statement>
+                    <statement>
+                      <assignment>
+                        <target>
+                          <name hasSubscripts="true" id="A" type="variable">
+                            <subscripts count="2">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="I" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="JC" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                            <designator hasSubstringRange="false" rule="603"/>
+                          </name>
+                        </target>
+                        <value>
+                          <name hasSubscripts="true" id="A" type="ambiguous">
+                            <subscripts count="2">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="PV" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="JC" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </value>
+                      </assignment>
+                    </statement>
+                    <statement>
+                      <assignment>
+                        <target>
+                          <name hasSubscripts="true" id="A" type="variable">
+                            <subscripts count="2">
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="PV" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript type="simple">
+                                <name hasSubscripts="false" id="JC" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </subscript>
+                              <subscript/>
+                            </subscripts>
+                            <data-ref numPartRef="1" rule="612"/>
+                            <designator hasSubstringRange="false" rule="603"/>
+                          </name>
+                        </target>
+                        <value>
+                          <name hasSubscripts="false" id="TM" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </value>
+                      </assignment>
+                    </statement>
+                    <statement/>
+                  </body>
+                </loop>
+                <statement>
+                  <label lbl="1045" rule="313"/>
+                  <assignment>
+                    <target>
+                      <name hasSubscripts="false" id="DET" type="variable">
+                        <data-ref numPartRef="1" rule="612"/>
+                        <designator hasSubstringRange="false" rule="603"/>
+                      </name>
+                    </target>
+                    <value>
+                      <operation type="unary">
+                        <operator operator="-"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <literal type="int" value="1">
+                                <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                              </literal>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <name hasSubscripts="false" id="DET" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </value>
+                  </assignment>
+                </statement>
+                <statement/>
+              </body>
+            </if>
+            <if>
+              <header>
+                <label lbl="1050" rule="313"/>
+                <operation type="multiary">
+                  <operand>
+                    <name hasSubscripts="true" id="A" type="ambiguous">
+                      <subscripts count="2">
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript type="simple">
+                          <name hasSubscripts="false" id="I" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </subscript>
+                        <subscript/>
+                      </subscripts>
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                  <operator operator=".EQ."/>
+                  <operand>
+                    <literal type="real" value="0.0">
+                      <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                    </literal>
+                  </operand>
+                </operation>
+              </header>
+              <body>
+                <statement>
+                  <literal type="char" value="'MATRIX IS SINGULAR'">
+                    <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'MATRIX IS SINGULAR'"/>
+                    <int-constant id="" rule="308"/>
+                    <scalar-char-constant rule="-3"/>
+                    <stop code="">
+                      <stop-code digitString="" rule="850"/>
+                    </stop>
+                  </literal>
+                </statement>
+                <statement/>
+              </body>
+            </if>
+            <loop type="do">
+              <header>
+                <index-variable name="JR">
+                  <do-variable id="JR" rule="831"/>
+                  <lower-bound>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="false" id="I" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator="+"/>
+                      <operand>
+                        <literal type="int" value="1">
+                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                        </literal>
+                      </operand>
+                    </operation>
+                  </lower-bound>
+                  <upper-bound>
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </upper-bound>
+                </index-variable>
+                <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+              </header>
+              <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+              <body>
+                <if>
+                  <header>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="true" id="A" type="ambiguous">
+                          <subscripts count="2">
+                            <subscript type="simple">
+                              <name hasSubscripts="false" id="JR" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </subscript>
+                            <subscript type="simple">
+                              <name hasSubscripts="false" id="I" type="ambiguous">
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </subscript>
+                            <subscript/>
+                          </subscripts>
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator=".NE."/>
+                      <operand>
+                        <literal type="real" value="0.0">
+                          <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                        </literal>
+                      </operand>
+                    </operation>
+                  </header>
+                  <body>
+                    <statement>
+                      <assignment>
+                        <target>
+                          <name hasSubscripts="false" id="R" type="variable">
+                            <data-ref numPartRef="1" rule="612"/>
+                            <designator hasSubstringRange="false" rule="603"/>
+                          </name>
+                        </target>
+                        <value>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="JR" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="I" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="/"/>
+                            <operand>
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="I" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="I" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </value>
+                      </assignment>
+                    </statement>
+                    <loop type="do">
+                      <header>
+                        <index-variable name="KC">
+                          <do-variable id="KC" rule="831"/>
+                          <lower-bound>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="I" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="int" value="1">
+                                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </lower-bound>
+                          <upper-bound>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="false" id="N" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator="+"/>
+                              <operand>
+                                <literal type="int" value="1">
+                                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                                </literal>
+                              </operand>
+                            </operation>
+                          </upper-bound>
+                        </index-variable>
+                        <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+                      </header>
+                      <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+                      <body>
+                        <statement>
+                          <assignment>
+                            <target>
+                              <name hasSubscripts="false" id="TEMP" type="variable">
+                                <data-ref numPartRef="1" rule="612"/>
+                                <designator hasSubstringRange="false" rule="603"/>
+                              </name>
+                            </target>
+                            <value>
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="JR" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="KC" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </value>
+                          </assignment>
+                        </statement>
+                        <statement>
+                          <assignment>
+                            <target>
+                              <name hasSubscripts="true" id="A" type="variable">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="JR" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="KC" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                                <designator hasSubstringRange="false" rule="603"/>
+                              </name>
+                            </target>
+                            <value>
+                              <operation type="multiary">
+                                <operand>
+                                  <name hasSubscripts="true" id="A" type="ambiguous">
+                                    <subscripts count="2">
+                                      <subscript type="simple">
+                                        <name hasSubscripts="false" id="JR" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </subscript>
+                                      <subscript type="simple">
+                                        <name hasSubscripts="false" id="KC" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </subscript>
+                                      <subscript/>
+                                    </subscripts>
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                                <operator operator="-"/>
+                                <operand>
+                                  <operation type="multiary">
+                                    <operand>
+                                      <name hasSubscripts="false" id="R" type="ambiguous">
+                                        <data-ref numPartRef="1" rule="612"/>
+                                      </name>
+                                    </operand>
+                                    <operator operator="*"/>
+                                    <operand>
+                                      <name hasSubscripts="true" id="A" type="ambiguous">
+                                        <subscripts count="2">
+                                          <subscript type="simple">
+                                            <name hasSubscripts="false" id="I" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </subscript>
+                                          <subscript type="simple">
+                                            <name hasSubscripts="false" id="KC" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </subscript>
+                                          <subscript/>
+                                        </subscripts>
+                                        <data-ref numPartRef="1" rule="612"/>
+                                      </name>
+                                    </operand>
+                                  </operation>
+                                </operand>
+                              </operation>
+                            </value>
+                          </assignment>
+                        </statement>
+                        <if>
+                          <header>
+                            <operation type="multiary">
+                              <operand>
+                                <name hasSubscripts="true" id="ABS" type="ambiguous">
+                                  <subscripts count="1">
+                                    <subscript type="simple">
+                                      <name hasSubscripts="true" id="A" type="ambiguous">
+                                        <subscripts count="2">
+                                          <subscript type="simple">
+                                            <name hasSubscripts="false" id="JR" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </subscript>
+                                          <subscript type="simple">
+                                            <name hasSubscripts="false" id="KC" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </subscript>
+                                          <subscript/>
+                                        </subscripts>
+                                        <data-ref numPartRef="1" rule="612"/>
+                                      </name>
+                                    </subscript>
+                                    <subscript/>
+                                  </subscripts>
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                              <operator operator=".LT."/>
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <name hasSubscripts="false" id="EPS2" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                  <operator operator="*"/>
+                                  <operand>
+                                    <name hasSubscripts="false" id="TEMP" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </operand>
+                                </operation>
+                              </operand>
+                            </operation>
+                          </header>
+                          <body>
+                            <statement>
+                              <assignment>
+                                <target>
+                                  <name hasSubscripts="true" id="A" type="variable">
+                                    <subscripts count="2">
+                                      <subscript type="simple">
+                                        <name hasSubscripts="false" id="JR" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </subscript>
+                                      <subscript type="simple">
+                                        <name hasSubscripts="false" id="KC" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </subscript>
+                                      <subscript/>
+                                    </subscripts>
+                                    <data-ref numPartRef="1" rule="612"/>
+                                    <designator hasSubstringRange="false" rule="603"/>
+                                  </name>
+                                </target>
+                                <value>
+                                  <literal type="real" value="0.0">
+                                    <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                                  </literal>
+                                </value>
+                              </assignment>
+                            </statement>
+                            <statement/>
+                          </body>
+                          <if-stmt ifKeyword="IF" rule="807"/>
+                        </if>
+                        <statement/>
+                        <statement/>
+                      </body>
+                    </loop>
+                    <statement/>
+                  </body>
+                </if>
+                <statement/>
+                <label lbl="1060" rule="313"/>
+              </body>
+            </loop>
+            <statement/>
+            <label lbl="1010" rule="313"/>
+            <statement>
+              <continue-stmt continueKeyword="CONTINUE" eos="&#10;" rule="848"/>
+            </statement>
+            <statement>
+              <do-term-action-stmt doKeyword="" endKeyword="" eos="" id="" inserted="false" label="1010" rule="838"/>
+            </statement>
+          </body>
+        </loop>
+        <loop type="do">
+          <header>
+            <index-variable name="I">
+              <do-variable id="I" rule="831"/>
+              <lower-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </lower-bound>
+              <upper-bound>
+                <name hasSubscripts="false" id="N" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </upper-bound>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="DET" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="DET" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="true" id="A" type="ambiguous">
+                        <subscripts count="2">
+                          <subscript type="simple">
+                            <name hasSubscripts="false" id="I" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </subscript>
+                          <subscript type="simple">
+                            <name hasSubscripts="false" id="I" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </subscript>
+                          <subscript/>
+                        </subscripts>
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <format>
+            <label lbl="12" rule="313"/>
+            <format-items count="4">
+              <format-item descOrDigit="/" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="'  DETERMINANT= '" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="F16.5" hasFormatItemList="false" rule="1003"/>
+              <format-item descOrDigit="/" hasFormatItemList="false" rule="1003"/>
+            </format-items>
+          </format>
+          <write>
+            <io-controls count="2">
+              <io-control argument-name="">
+                <io-control-spec hasAsterisk="true" hasExpression="false" keyword="" rule="913"/>
+              </io-control>
+              <io-control argument-name="">
+                <literal type="int" value="12">
+                  <int-literal-constant digitString="12" kindParam="" rule="406"/>
+                </literal>
+                <io-control-spec hasAsterisk="false" hasExpression="true" keyword="" rule="913"/>
+              </io-control>
+            </io-controls>
+            <outputs count="1">
+              <output>
+                <name hasSubscripts="false" id="DET" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <write-stmt eos="&#10;" hasOutputItemList="true" rule="911" writeKeyword="WRITE"/>
+          </write>
+        </statement>
+        <if>
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="true" id="A" type="ambiguous">
+                  <subscripts count="2">
+                    <subscript type="simple">
+                      <name hasSubscripts="false" id="N" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </subscript>
+                    <subscript type="simple">
+                      <name hasSubscripts="false" id="N" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </subscript>
+                    <subscript/>
+                  </subscripts>
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator=".EQ."/>
+              <operand>
+                <literal type="real" value="0.0">
+                  <real-literal-constant kindParam="" realConstant="0.0" rule="417"/>
+                </literal>
+              </operand>
+            </operation>
+          </header>
+          <body>
+            <statement>
+              <literal type="char" value="'MATRIX IS SINGULAR'">
+                <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="'MATRIX IS SINGULAR'"/>
+                <int-constant id="" rule="308"/>
+                <scalar-char-constant rule="-3"/>
+                <stop code="">
+                  <stop-code digitString="" rule="850"/>
+                </stop>
+              </literal>
+            </statement>
+            <statement/>
+          </body>
+        </if>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="true" id="A" type="variable">
+                <subscripts count="2">
+                  <subscript type="simple">
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </subscript>
+                  <subscript type="simple">
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="false" id="N" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator="+"/>
+                      <operand>
+                        <literal type="int" value="1">
+                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                        </literal>
+                      </operand>
+                    </operation>
+                  </subscript>
+                  <subscript/>
+                </subscripts>
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <operation type="multiary">
+                <operand>
+                  <name hasSubscripts="true" id="A" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="N" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="N" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="1">
+                              <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+                <operator operator="/"/>
+                <operand>
+                  <name hasSubscripts="true" id="A" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="N" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="N" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </operand>
+              </operation>
+            </value>
+          </assignment>
+        </statement>
+        <loop type="do">
+          <header>
+            <index-variable name="NV">
+              <do-variable id="NV" rule="831"/>
+              <lower-bound>
+                <operation type="multiary">
+                  <operand>
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </operand>
+                  <operator operator="-"/>
+                  <operand>
+                    <literal type="int" value="1">
+                      <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                    </literal>
+                  </operand>
+                </operation>
+              </lower-bound>
+              <upper-bound>
+                <literal type="int" value="1">
+                  <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                </literal>
+              </upper-bound>
+              <step>
+                <operation type="unary">
+                  <operator operator="-"/>
+                  <operand>
+                    <literal type="int" value="1">
+                      <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                    </literal>
+                  </operand>
+                </operation>
+              </step>
+            </index-variable>
+            <loop-control doConstructType="1701" hasOptExpr="true" rule="818008" whileKeyword=""/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="VA" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="A" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="NV" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="N" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="1">
+                              <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <loop type="do">
+              <header>
+                <index-variable name="K">
+                  <do-variable id="K" rule="831"/>
+                  <lower-bound>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="false" id="NV" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator="+"/>
+                      <operand>
+                        <literal type="int" value="1">
+                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                        </literal>
+                      </operand>
+                    </operation>
+                  </lower-bound>
+                  <upper-bound>
+                    <name hasSubscripts="false" id="N" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </upper-bound>
+                </index-variable>
+                <loop-control doConstructType="1701" hasOptExpr="false" rule="818008" whileKeyword=""/>
+              </header>
+              <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+              <body>
+                <statement>
+                  <assignment>
+                    <target>
+                      <name hasSubscripts="false" id="VA" type="variable">
+                        <data-ref numPartRef="1" rule="612"/>
+                        <designator hasSubstringRange="false" rule="603"/>
+                      </name>
+                    </target>
+                    <value>
+                      <operation type="multiary">
+                        <operand>
+                          <name hasSubscripts="false" id="VA" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                        <operator operator="-"/>
+                        <operand>
+                          <operation type="multiary">
+                            <operand>
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="NV" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="K" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                            <operator operator="*"/>
+                            <operand>
+                              <name hasSubscripts="true" id="A" type="ambiguous">
+                                <subscripts count="2">
+                                  <subscript type="simple">
+                                    <name hasSubscripts="false" id="K" type="ambiguous">
+                                      <data-ref numPartRef="1" rule="612"/>
+                                    </name>
+                                  </subscript>
+                                  <subscript type="simple">
+                                    <operation type="multiary">
+                                      <operand>
+                                        <name hasSubscripts="false" id="N" type="ambiguous">
+                                          <data-ref numPartRef="1" rule="612"/>
+                                        </name>
+                                      </operand>
+                                      <operator operator="+"/>
+                                      <operand>
+                                        <literal type="int" value="1">
+                                          <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                                        </literal>
+                                      </operand>
+                                    </operation>
+                                  </subscript>
+                                  <subscript/>
+                                </subscripts>
+                                <data-ref numPartRef="1" rule="612"/>
+                              </name>
+                            </operand>
+                          </operation>
+                        </operand>
+                      </operation>
+                    </value>
+                  </assignment>
+                </statement>
+                <statement/>
+              </body>
+            </loop>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="true" id="A" type="variable">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="NV" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <operation type="multiary">
+                          <operand>
+                            <name hasSubscripts="false" id="N" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="1">
+                              <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="VA" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="/"/>
+                    <operand>
+                      <name hasSubscripts="true" id="A" type="ambiguous">
+                        <subscripts count="2">
+                          <subscript type="simple">
+                            <name hasSubscripts="false" id="NV" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </subscript>
+                          <subscript type="simple">
+                            <name hasSubscripts="false" id="NV" type="ambiguous">
+                              <data-ref numPartRef="1" rule="612"/>
+                            </name>
+                          </subscript>
+                          <subscript/>
+                        </subscripts>
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <return hasValue="false">
+            <return-stmt hasScalarIntExpr="false" rule="1236"/>
+          </return>
+        </statement>
+        <statement>
+          <label lbl="1100" rule="313"/>
+          <statement>
+            <continue-stmt continueKeyword="CONTINUE" eos="&#10;" label="1100" rule="848"/>
+          </statement>
+          <statement>
+            <return hasValue="false">
+              <return-stmt hasScalarIntExpr="false" rule="1236"/>
+            </return>
+          </statement>
+          <statement>
+            <execution-part rule="208"/>
+          </statement>
+        </statement>
+      </body>
+      <end-subroutine-stmt name="" rule="1234"/>
+    </subroutine>
+  </file>
+</ofp>

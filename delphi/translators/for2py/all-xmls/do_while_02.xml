@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ofp version="0.8.4">
+  <file path="/Users/hlim1/Research/delphi/delphi/translators/for2py/do_while_02_processed.f">
+    <program name="MAIN">
+      <header/>
+      <body>
+        <specification declarations="3" implicits="1" imports="0" uses="0">
+          <declaration subtype="none" type="implicit"/>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="INTEGER">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="INTEGER" keyword2="" rule="403" type="400"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="1">
+              <variable hasInitialValue="false" name="DAY">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="DAY" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="DOUBLE">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="4">
+              <variable hasInitialValue="false" name="RAIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RAIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="YIELD_EST">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="YIELD_EST" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="TOTAL_RAIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TOTAL_RAIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="NEWS">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="NEWS" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="DOUBLE">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <variables count="3">
+              <variable hasInitialValue="false" name="MAX_RAIN">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="MAX_RAIN" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="CONSISTENCY">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="CONSISTENCY" rule="503008"/>
+              </variable>
+              <variable hasInitialValue="false" name="ABSORBTION">
+                <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="ABSORBTION" rule="503008"/>
+              </variable>
+              <variable/>
+            </variables>
+            <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+          </declaration>
+          <declaration/>
+        </specification>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="MAX_RAIN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="4.0">
+                <real-literal-constant kindParam="" realConstant="4.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="CONSISTENCY" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="64.0">
+                <real-literal-constant kindParam="" realConstant="64.0" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="ABSORBTION" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="real" value="0.6">
+                <real-literal-constant kindParam="" realConstant="0.6" rule="417"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="YIELD_EST" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="int" value="0">
+                <int-literal-constant digitString="0" kindParam="" rule="406"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="TOTAL_RAIN" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="int" value="0">
+                <int-literal-constant digitString="0" kindParam="" rule="406"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <statement>
+          <assignment>
+            <target>
+              <name hasSubscripts="false" id="DAY" type="variable">
+                <data-ref numPartRef="1" rule="612"/>
+                <designator hasSubstringRange="false" rule="603"/>
+              </name>
+            </target>
+            <value>
+              <literal type="int" value="1">
+                <int-literal-constant digitString="1" kindParam="" rule="406"/>
+              </literal>
+            </value>
+          </assignment>
+        </statement>
+        <loop type="do-while">
+          <header>
+            <operation type="multiary">
+              <operand>
+                <name hasSubscripts="false" id="DAY" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </operand>
+              <operator operator="&lt;="/>
+              <operand>
+                <literal type="int" value="31">
+                  <int-literal-constant digitString="31" kindParam="" rule="406"/>
+                </literal>
+              </operand>
+            </operation>
+            <loop-control doConstructType="1702" hasOptExpr="false" rule="818008" whileKeyword="WHILE"/>
+          </header>
+          <do-stmt digitString="" doKeyword="DO" eos="&#10;" hasLoopControl="true" id="" rule="827"/>
+          <body>
+            <statement>
+              <print>
+                <print-format type="*"/>
+                <outputs count="6">
+                  <output>
+                    <literal type="char" value="&quot;(&quot;">
+                      <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;(&quot;"/>
+                    </literal>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="DAY" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="CONSISTENCY" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="MAX_RAIN" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="ABSORBTION" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <literal type="char" value="&quot;)&quot;">
+                      <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;)&quot;"/>
+                    </literal>
+                  </output>
+                </outputs>
+                <print-stmt eos="&#10;" hasOutputItemList="true" printKeyword="PRINT" rule="912"/>
+              </print>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="RAIN" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <operation type="multiary">
+                        <operand>
+                          <operation type="unary">
+                            <operator operator="-"/>
+                            <operand>
+                              <operation type="multiary">
+                                <operand>
+                                  <operation type="multiary">
+                                    <operand>
+                                      <operation type="multiary">
+                                        <operand>
+                                          <name hasSubscripts="false" id="DAY" type="ambiguous">
+                                            <data-ref numPartRef="1" rule="612"/>
+                                          </name>
+                                        </operand>
+                                        <operator operator="-"/>
+                                        <operand>
+                                          <literal type="int" value="16">
+                                            <int-literal-constant digitString="16" kindParam="" rule="406"/>
+                                          </literal>
+                                        </operand>
+                                      </operation>
+                                    </operand>
+                                    <operator operator="**"/>
+                                    <operand>
+                                      <literal type="int" value="2">
+                                        <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                                      </literal>
+                                    </operand>
+                                  </operation>
+                                </operand>
+                                <operator operator="/"/>
+                                <operand>
+                                  <name hasSubscripts="false" id="CONSISTENCY" type="ambiguous">
+                                    <data-ref numPartRef="1" rule="612"/>
+                                  </name>
+                                </operand>
+                              </operation>
+                            </operand>
+                          </operation>
+                        </operand>
+                        <operator operator="+"/>
+                        <operand>
+                          <name hasSubscripts="false" id="MAX_RAIN" type="ambiguous">
+                            <data-ref numPartRef="1" rule="612"/>
+                          </name>
+                        </operand>
+                      </operation>
+                    </operand>
+                    <operator operator="*"/>
+                    <operand>
+                      <name hasSubscripts="false" id="ABSORBTION" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <print>
+                <print-format type="*"/>
+                <outputs count="1">
+                  <output>
+                    <name hasSubscripts="false" id="RAIN" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                </outputs>
+                <print-stmt eos="&#10;" hasOutputItemList="true" printKeyword="PRINT" rule="912"/>
+              </print>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="YIELD_EST" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="UPDATE_EST" type="ambiguous">
+                    <subscripts count="3">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="RAIN" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="NEWS" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <name hasSubscripts="true" id="TEST_FUNC" type="ambiguous">
+                    <subscripts count="2">
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript type="simple">
+                        <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </subscript>
+                      <subscript/>
+                    </subscripts>
+                    <data-ref numPartRef="1" rule="612"/>
+                  </name>
+                </value>
+              </assignment>
+            </statement>
+            <statement>
+              <print>
+                <print-format type="*"/>
+                <outputs count="4">
+                  <output>
+                    <literal type="char" value="&quot;Day &quot;">
+                      <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;Day &quot;"/>
+                    </literal>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="DAY" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                  <output>
+                    <literal type="char" value="&quot; Estimate: &quot;">
+                      <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot; Estimate: &quot;"/>
+                    </literal>
+                  </output>
+                  <output>
+                    <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </output>
+                </outputs>
+                <print-stmt eos="&#10;" hasOutputItemList="true" printKeyword="PRINT" rule="912"/>
+              </print>
+            </statement>
+            <statement>
+              <assignment>
+                <target>
+                  <name hasSubscripts="false" id="DAY" type="variable">
+                    <data-ref numPartRef="1" rule="612"/>
+                    <designator hasSubstringRange="false" rule="603"/>
+                  </name>
+                </target>
+                <value>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="DAY" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator="+"/>
+                    <operand>
+                      <literal type="int" value="1">
+                        <int-literal-constant digitString="1" kindParam="" rule="406"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </value>
+              </assignment>
+            </statement>
+            <statement/>
+          </body>
+        </loop>
+        <statement>
+          <print>
+            <print-format type="*"/>
+            <outputs count="2">
+              <output>
+                <literal type="char" value="&quot;Crop Yield(%): &quot;">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;Crop Yield(%): &quot;"/>
+                </literal>
+              </output>
+              <output>
+                <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <print-stmt eos="&#10;" hasOutputItemList="true" printKeyword="PRINT" rule="912"/>
+          </print>
+        </statement>
+        <statement>
+          <print>
+            <print-format type="*"/>
+            <outputs count="2">
+              <output>
+                <literal type="char" value="&quot;News: &quot;">
+                  <char-literal-constant digitString-kind-param="" identifier-kind-param="" rule="427" str="&quot;News: &quot;"/>
+                </literal>
+              </output>
+              <output>
+                <name hasSubscripts="false" id="NEWS" type="ambiguous">
+                  <data-ref numPartRef="1" rule="612"/>
+                </name>
+              </output>
+            </outputs>
+            <print-stmt eos="&#10;" hasOutputItemList="true" printKeyword="PRINT" rule="912"/>
+          </print>
+        </statement>
+        <statement>
+          <execution-part rule="208"/>
+          <contains-stmt rule="1237"/>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="DOUBLE">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <prefix-spec isDecTypeSpec="true" rule="1228"/>
+          </declaration>
+          <prefix rule="1227" specCount="1"/>
+          <function name="UPDATE_EST">
+            <header>
+              <names count="3">
+                <name id="RAIN"/>
+                <name id="TOTAL_RAIN"/>
+                <name id="YIELD_EST"/>
+              </names>
+            </header>
+            <function-stmt hasGenericNameList="true" hasSuffix="false" name="UPDATE_EST" rule="1224"/>
+            <body>
+              <specification declarations="1" implicits="1" imports="0" uses="0">
+                <declaration subtype="none" type="implicit"/>
+                <declaration type="variable">
+                  <type hasKind="false" hasLength="false" name="DOUBLE">
+                    <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+                    <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                  </type>
+                  <variables count="3">
+                    <variable hasInitialValue="false" name="RAIN">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="RAIN" rule="503008"/>
+                    </variable>
+                    <variable hasInitialValue="false" name="YIELD_EST">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="YIELD_EST" rule="503008"/>
+                    </variable>
+                    <variable hasInitialValue="false" name="TOTAL_RAIN">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TOTAL_RAIN" rule="503008"/>
+                    </variable>
+                    <variable/>
+                  </variables>
+                  <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+                </declaration>
+                <declaration/>
+              </specification>
+              <statement>
+                <assignment>
+                  <target>
+                    <name hasSubscripts="false" id="TOTAL_RAIN" type="variable">
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </target>
+                  <value>
+                    <operation type="multiary">
+                      <operand>
+                        <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                      <operator operator="+"/>
+                      <operand>
+                        <name hasSubscripts="false" id="RAIN" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </operand>
+                    </operation>
+                  </value>
+                </assignment>
+              </statement>
+              <if>
+                <header>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator=".le."/>
+                    <operand>
+                      <literal type="int" value="40">
+                        <int-literal-constant digitString="40" kindParam="" rule="406"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </header>
+                <body>
+                  <statement>
+                    <assignment>
+                      <target>
+                        <name hasSubscripts="false" id="YIELD_EST" type="variable">
+                          <data-ref numPartRef="1" rule="612"/>
+                          <designator hasSubstringRange="false" rule="603"/>
+                        </name>
+                      </target>
+                      <value>
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="unary">
+                              <operator operator="-"/>
+                              <operand>
+                                <operation type="multiary">
+                                  <operand>
+                                    <operation type="multiary">
+                                      <operand>
+                                        <operation type="multiary">
+                                          <operand>
+                                            <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                                              <data-ref numPartRef="1" rule="612"/>
+                                            </name>
+                                          </operand>
+                                          <operator operator="-"/>
+                                          <operand>
+                                            <literal type="int" value="40">
+                                              <int-literal-constant digitString="40" kindParam="" rule="406"/>
+                                            </literal>
+                                          </operand>
+                                        </operation>
+                                      </operand>
+                                      <operator operator="**"/>
+                                      <operand>
+                                        <literal type="int" value="2">
+                                          <int-literal-constant digitString="2" kindParam="" rule="406"/>
+                                        </literal>
+                                      </operand>
+                                    </operation>
+                                  </operand>
+                                  <operator operator="/"/>
+                                  <operand>
+                                    <literal type="int" value="16">
+                                      <int-literal-constant digitString="16" kindParam="" rule="406"/>
+                                    </literal>
+                                  </operand>
+                                </operation>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="100">
+                              <int-literal-constant digitString="100" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </value>
+                    </assignment>
+                  </statement>
+                  <statement/>
+                </body>
+                <body type="else">
+                  <statement>
+                    <assignment>
+                      <target>
+                        <name hasSubscripts="false" id="YIELD_EST" type="variable">
+                          <data-ref numPartRef="1" rule="612"/>
+                          <designator hasSubstringRange="false" rule="603"/>
+                        </name>
+                      </target>
+                      <value>
+                        <operation type="multiary">
+                          <operand>
+                            <operation type="unary">
+                              <operator operator="-"/>
+                              <operand>
+                                <name hasSubscripts="false" id="TOTAL_RAIN" type="ambiguous">
+                                  <data-ref numPartRef="1" rule="612"/>
+                                </name>
+                              </operand>
+                            </operation>
+                          </operand>
+                          <operator operator="+"/>
+                          <operand>
+                            <literal type="int" value="140">
+                              <int-literal-constant digitString="140" kindParam="" rule="406"/>
+                            </literal>
+                          </operand>
+                        </operation>
+                      </value>
+                    </assignment>
+                  </statement>
+                  <statement/>
+                </body>
+              </if>
+              <statement>
+                <assignment>
+                  <target>
+                    <name hasSubscripts="false" id="UPDATE_EST" type="variable">
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </target>
+                  <value>
+                    <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                      <data-ref numPartRef="1" rule="612"/>
+                    </name>
+                  </value>
+                </assignment>
+              </statement>
+              <statement>
+                <execution-part rule="208"/>
+              </statement>
+            </body>
+            <end-function-stmt name="UPDATE_EST" rule="1230"/>
+            <function-subprogram hasExePart="true" hasIntSubProg="false" rule="1223"/>
+          </function>
+          <internal-subprogram rule="211"/>
+          <declaration type="variable">
+            <type hasKind="false" hasLength="false" name="DOUBLE">
+              <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+              <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+            </type>
+            <prefix-spec isDecTypeSpec="true" rule="1228"/>
+          </declaration>
+          <prefix rule="1227" specCount="1"/>
+          <function name="TEST_FUNC">
+            <header>
+              <names count="2">
+                <name id="TOTAL_RAIN"/>
+                <name id="YIELD_EST"/>
+              </names>
+            </header>
+            <function-stmt hasGenericNameList="true" hasSuffix="false" name="TEST_FUNC" rule="1224"/>
+            <body>
+              <specification declarations="1" implicits="1" imports="0" uses="0">
+                <declaration subtype="none" type="implicit"/>
+                <declaration type="variable">
+                  <type hasKind="false" hasLength="false" name="DOUBLE">
+                    <intrinsic-type-spec hasKindSelector="false" keyword1="DOUBLE" keyword2="PRECISION" rule="403" type="402"/>
+                    <declaration-type-spec rule="502" type="500" udtKeyword=""/>
+                  </type>
+                  <variables count="3">
+                    <variable hasInitialValue="false" name="TOTAL_RAIN">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="TOTAL_RAIN" rule="503008"/>
+                    </variable>
+                    <variable hasInitialValue="false" name="YIELD_EST">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="YIELD_EST" rule="503008"/>
+                    </variable>
+                    <variable hasInitialValue="false" name="NEW_VAR">
+                      <entity-decl hasArraySpec="false" hasCharLength="false" hasCoarraySpec="false" hasInitialization="false" id="NEW_VAR" rule="503008"/>
+                    </variable>
+                    <variable/>
+                  </variables>
+                  <type-declaration-stmt eos="&#10;" numAttributes="0" rule="501"/>
+                </declaration>
+                <declaration/>
+              </specification>
+              <statement>
+                <assignment>
+                  <target>
+                    <name hasSubscripts="false" id="NEW_VAR" type="variable">
+                      <data-ref numPartRef="1" rule="612"/>
+                      <designator hasSubstringRange="false" rule="603"/>
+                    </name>
+                  </target>
+                  <value>
+                    <literal type="real" value="5.0">
+                      <real-literal-constant kindParam="" realConstant="5.0" rule="417"/>
+                    </literal>
+                  </value>
+                </assignment>
+              </statement>
+              <if>
+                <header>
+                  <operation type="multiary">
+                    <operand>
+                      <name hasSubscripts="false" id="NEW_VAR" type="ambiguous">
+                        <data-ref numPartRef="1" rule="612"/>
+                      </name>
+                    </operand>
+                    <operator operator=".le."/>
+                    <operand>
+                      <literal type="real" value="4.0">
+                        <real-literal-constant kindParam="" realConstant="4.0" rule="417"/>
+                      </literal>
+                    </operand>
+                  </operation>
+                </header>
+                <body>
+                  <statement>
+                    <assignment>
+                      <target>
+                        <name hasSubscripts="false" id="TEST_FUNC" type="variable">
+                          <data-ref numPartRef="1" rule="612"/>
+                          <designator hasSubstringRange="false" rule="603"/>
+                        </name>
+                      </target>
+                      <value>
+                        <literal type="real" value="17.0">
+                          <real-literal-constant kindParam="" realConstant="17.0" rule="417"/>
+                        </literal>
+                      </value>
+                    </assignment>
+                  </statement>
+                  <statement/>
+                </body>
+                <body type="else">
+                  <statement>
+                    <assignment>
+                      <target>
+                        <name hasSubscripts="false" id="TEST_FUNC" type="variable">
+                          <data-ref numPartRef="1" rule="612"/>
+                          <designator hasSubstringRange="false" rule="603"/>
+                        </name>
+                      </target>
+                      <value>
+                        <name hasSubscripts="false" id="YIELD_EST" type="ambiguous">
+                          <data-ref numPartRef="1" rule="612"/>
+                        </name>
+                      </value>
+                    </assignment>
+                  </statement>
+                  <statement/>
+                </body>
+              </if>
+              <statement>
+                <execution-part rule="208"/>
+              </statement>
+            </body>
+            <end-function-stmt name="TEST_FUNC" rule="1230"/>
+            <function-subprogram hasExePart="true" hasIntSubProg="false" rule="1223"/>
+          </function>
+          <internal-subprogram rule="211"/>
+          <internal-subprogram-part count="2" rule="210"/>
+        </statement>
+      </body>
+      <end-program-stmt endKeyword="END" eos="&#10;" id="MAIN" programKeyword="PROGRAM" rule="1103"/>
+      <main-program hasExecutionPart="true" hasInternalSubprogramPart="true" hasProgramStmt="true" rule="1101"/>
+    </program>
+  </file>
+</ofp>
