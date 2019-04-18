@@ -20,8 +20,15 @@ Author:
 
 import sys
 from collections import OrderedDict
-from typing import List
-from delphi.translators.for2py.syntax import *
+from typing import List, Dict, Tuple
+from delphi.translators.for2py.syntax import (
+    line_is_comment,
+    line_is_continuation,
+    line_is_executable,
+    line_is_pgm_unit_end,
+    line_is_pgm_unit_start,
+    program_unit_name,
+)
 
 
 # INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
@@ -29,7 +36,7 @@ from delphi.translators.for2py.syntax import *
 INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
 
 
-def separate_trailing_comments(lines):
+def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of numbered Fortran source code lines, i.e., pairs of the
        form (n, code_line) where n is a line number and code_line is a line
        of code, separate_trailing_comments() behaves as follows: for each
@@ -40,21 +47,18 @@ def separate_trailing_comments(lines):
        The return value is the resulting list of numbered lines.
     """
 
-    chg = True
-    while chg:
-        chg = False
-        i = 0
-        while i < len(lines):
-            (n, code_line) = lines[i]
-            if not line_is_comment(code_line):
-                (code_part, comment_part) = split_trailing_comment(code_line)
-                if comment_part != None:
-                    lines[i] = (n, comment_part)
-                    lines.insert(i + 1, (n, code_part))
-                    chg = True
-            i += 1
+    enumerated_lines = list(enumerate(lines, 1))
+    i = 0
+    while i < len(enumerated_lines):
+        (n, code_line) = enumerated_lines[i]
+        if not line_is_comment(code_line):
+            (code_part, comment_part) = split_trailing_comment(code_line)
+            if comment_part is not None:
+                enumerated_lines[i] = (n, comment_part)
+                enumerated_lines.insert(i + 1, (n, code_part))
+        i += 1
 
-    return lines
+    return enumerated_lines
 
 
 def merge_continued_lines(lines):
@@ -150,13 +154,15 @@ def type_of_line(line):
             return "other"
 
 
-def extract_comments(lines):
-    """Given a list of numbered lines from a Fortran file where comments 
+def extract_comments(
+    lines: List[Tuple[int, str]]
+) -> Tuple[List[Tuple[int, str]], Dict[str, List[str]]]:
+    """Given a list of numbered lines from a Fortran file where comments
        internal to subprogram bodies have been moved out into their own lines,
        extract_comments() extracts comments into a dictionary and replaces
        each comment internal to subprogram bodies with a marker statement.
-       It returns a pair (code, comments) where code is a list of numbered 
-       lines with comments removed and marker statements (plus corresponding 
+       It returns a pair (code, comments) where code is a list of numbered
+       lines with comments removed and marker statements (plus corresponding
        variable declarations) added; and comments is a dictionary mapping
        marker statement variables to the corresponding comments."""
 
@@ -190,7 +196,7 @@ def extract_comments(lines):
                 pgm_unit_name = program_unit_name(line)
                 comments["$file_head"] = curr_comment
 
-                if prev_fn != None:
+                if prev_fn is not None:
                     comments[prev_fn]["foot"] = curr_comment
 
                 prev_fn = curr_fn
@@ -300,16 +306,13 @@ def split_trailing_comment(line: str) -> str:
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    nlines = len(inputLines)
-    numbered_lines = list(zip(range(1, nlines + 1), inputLines))
-    lines = separate_trailing_comments(numbered_lines)
+    lines = separate_trailing_comments(inputLines)
     merge_continued_lines(lines)
-
     (lines, comments) = extract_comments(lines)
     actual_lines = [
         line[1]
         for line in lines
-        if line[1] != None and "i_g_n_o_r_e___m_e_" not in line[1]
+        if line[1] is not None and "i_g_n_o_r_e___m_e_" not in line[1]
     ]
     return "".join(actual_lines)
 
@@ -323,14 +326,12 @@ if __name__ == "__main__":
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
 
-    nlines = len(inputLines)
-    numbered_lines = list(zip(range(1, nlines + 1), inputLines))
-    lines = separate_trailing_comments(numbered_lines)
+    lines = separate_trailing_comments(inputLines)
     merge_continued_lines(lines)
 
     (lines, comments) = extract_comments(lines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
-            if line != None:
+            if line is not None:
                 f.write(line)
