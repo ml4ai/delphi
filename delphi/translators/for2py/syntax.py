@@ -48,10 +48,7 @@ def line_is_comment(line: str) -> bool:
 #                                                                              #
 ################################################################################
 
-# SUB_START, FN_START, and SUBPGM_END are regular expressions that specify
-# patterns for the Fortran syntax for the start of subroutines and functions,
-# and their ends, respectively.  The corresponding re objects are RE_SUB_START,
-# and RE_FN_START, and RE_SUBPGM_END.
+# Regular expressions that specify patterns for various Fortran constructs.
 
 SUB_START = r"\s*subroutine\s+(\w+)\s*\("
 RE_SUB_START = re.compile(SUB_START, re.I)
@@ -59,8 +56,70 @@ RE_SUB_START = re.compile(SUB_START, re.I)
 FN_START = r"\s*[a-z]*\s*function\s+(\w+)\s*\("
 RE_FN_START = re.compile(FN_START, re.I)
 
+PGM_UNIT_START = r"\s+[a-z]*\s+(program|module|subroutine|function)\s+(\w+)"
+RE_PGM_UNIT_START = re.compile(PGM_UNIT_START, re.I)
+
+PGM_UNIT_END = r"\s+[a-z]*\s+end\s+(program|module|subroutine|function)\s+"
+RE_PGM_UNIT_END = re.compile(PGM_UNIT_END, re.I)
+
 SUBPGM_END = r"\s*end\s+"
 RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
+
+ASSG_STMT = r"\s*(\d+|&)?\s*.*=\s*"
+RE_ASSG_STMT = re.compile(ASSG_STMT, re.I)
+
+CALL_STMT = r"\s*(\d+|&)?\s*call\s*"
+RE_CALL_STMT = re.compile(CALL_STMT, re.I)
+
+IO_STMT = r"\s*(\d+|&)?\s*(open|close|read|write|print|format)\W*"
+RE_IO_STMT = re.compile(IO_STMT, re.I)
+
+DO_STMT = r"\s*(\d+|&)?\s*do\s*"
+RE_DO_STMT = re.compile(DO_STMT, re.I)
+
+ENDDO_STMT = r"\s*(\d+|&)?\s*end\s*do\s*"
+RE_ENDDO_STMT = re.compile(ENDDO_STMT, re.I)
+
+ENDIF_STMT = r"\s*(\d+|&)?\s*end\s*if\s*"
+RE_ENDIF_STMT = re.compile(ENDIF_STMT, re.I)
+
+GOTO_STMT = r"\s*(\d+|&)?\s*goto\s*"
+RE_GOTO_STMT = re.compile(GOTO_STMT, re.I)
+
+IF_STMT = r"\s*(\d+|&)?\s*(if|elseif|else)\s*"
+RE_IF_STMT = re.compile(IF_STMT, re.I)
+
+PAUSE_STMT = r"\s*(\d+|&)?\s*pause\s*"
+RE_PAUSE_STMT = re.compile(PAUSE_STMT, re.I)
+
+RETURN_STMT = r"\s*(\d+|&)?\s*return\s*"
+RE_RETURN_STMT = re.compile(RETURN_STMT, re.I)
+
+SAVE_STMT = r"\s*(\d+|&)?\s*save\s*"
+RE_SAVE_STMT = re.compile(SAVE_STMT, re.I)
+
+STOP_STMT = r"\s*(\d+|&)?\s*stop\s*"
+RE_STOP_STMT = re.compile(STOP_STMT, re.I)
+
+TYPE_NAMES = r"^\s*(integer|real|double|complex|character|logical|dimension|type)\W*"
+RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
+
+# EXECUTABLE_CODE_START is a list of regular expressions matching
+# lines that can start the executable code in a program or subroutine.
+# It is used to for handling comments internal to subroutine bodies.
+EXECUTABLE_CODE_START = [
+    RE_ASSG_STMT,
+    RE_CALL_STMT,
+    RE_DO_STMT,
+    RE_ENDDO_STMT,
+    RE_ENDIF_STMT,
+    RE_GOTO_STMT,
+    RE_IF_STMT,
+    RE_IO_STMT,
+    RE_PAUSE_STMT,
+    RE_RETURN_STMT,
+    RE_STOP_STMT
+]
 
 
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
@@ -88,8 +147,23 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     return (False, None)
 
 
-# line_is_continuation(line)
+def line_is_pgm_unit_start(line):
+    match = RE_PGM_UNIT_START.match(line)
+    return match != None
 
+
+def line_is_pgm_unit_end(line):
+    match = RE_PGM_UNIT_END.match(line)
+    return match != None
+
+
+def program_unit_name(line:str) -> str:
+   """Given a line that starts a program unit, i.e., a program, module,
+      subprogram, or function, this function returns the name associated
+      with that program unit."""
+   match = RE_PGM_UNIT_START.match(line)
+   assert match != None
+   return match.group(2)
 
 def line_is_continuation(line: str) -> bool:
     """
@@ -112,6 +186,24 @@ def line_ends_subpgm(line: str) -> bool:
     """
     match = RE_SUBPGM_END.match(line)
     return match != None
+
+
+def line_is_executable(line: str) -> bool:
+    """line_is_executable() returns True iff the line can start an
+       executable statement in a program."""
+
+    if line_is_comment(line):
+        return False
+
+    if re.match(RE_TYPE_NAMES, line):
+        return False
+
+    for exp in EXECUTABLE_CODE_START:
+        if re.match(exp, line) != None:
+            return True
+
+    return False
+            
 
 
 ################################################################################
