@@ -287,11 +287,16 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
-def process(lines: List[str]) -> str:
+def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
+    nlines = len(inputLines)
+    numbered_lines = list(zip(range(1,nlines+1), inputLines))
+    lines = separate_trailing_comments(numbered_lines)
+    merge_continued_lines(lines)
+
     (lines, comments) = extract_comments(lines)
-    actual_lines = [line[1] for line in lines if line != None]
+    actual_lines = [line[1] for line in lines if line[1] != None and "i_g_n_o_r_e___m_e_" not in line[1]]
     return ''.join(actual_lines)
 
 
