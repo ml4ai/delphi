@@ -27,17 +27,18 @@ class RectifyOFPXML:
     def __init__(self):
         self.is_derived_type = False
         self.is_array = False
+        self.is_format = False
 
         self.cur_derived_type_name = ""
+
         self.derived_type_var_holder_list = []
-        self.parent_type = ET.Element('')
         self.subscripts_holder = []
 
-    """
-        Since there are many children tags under 'statement',
-        I'm creating a separate tag list to check in the handle_tag_statement function.
-    """
-    STATEMENT_CHILD_TAGS = {
+        self.format_holder = ET.Element('')
+        self.parent_type = ET.Element('')
+        self.current_scope = ET.Element('')
+
+    STATEMENT_CHILD_TAGS = [
         "assignment", "write", "format", "stop",
         "execution-part", "print", "open", "read",
         "close", "call", "statement", "label",
@@ -45,9 +46,13 @@ class RectifyOFPXML:
         "return", "contains-stmt", "declaration", "prefix",
         "function", "internal-subprogram", "internal-subprogram-part",
         "prefix",
-    }
+    ]
 
-    DERIVED_TYPE_TAGS = {
+    LOOP_CHILD_TAGS = ["header", "body", "format"]
+
+    DECLARATION_CHILD_TAGS = ["type", "dimensions", "variables", "format", "name"]
+
+    DERIVED_TYPE_TAGS = [
         "declaration-type-spec", "type-param-or-comp-def-stmt-list",
         "component-decl-list__begin", "component-initialization",
         "data-component-def-stmt", "component-def-stmt", "component-attr-spec-list",
@@ -56,7 +61,7 @@ class RectifyOFPXML:
         "component-attr-spec-list__begin", "component-shape-spec-list__begin",
         "explicit-shape-spec-list__begin", "explicit-shape-spec", "component-attr-spec",
         "component-attr-spec-list", "end-type-stmt", "derived-type-def",
-    }
+    ]
 
     """
         This function handles cleaning up the XML elementss between the file elementss.
@@ -90,6 +95,8 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "header" or child.tag == "body":
+                if child.tag == "body":
+                    self.current_scope = curElem
                 self.parseXMLTree(child, curElem)
             else:
                 if child.tag != "end-program-stmt" and child.tag != "main-program":
@@ -139,6 +146,10 @@ class RectifyOFPXML:
                 elif child.tag != "statement":
                     print (f'In handle_tag_body: Empty elements  "{child.tag}" not handled')
 
+        if self.is_format:
+            self.reconstruct_format()
+            self.is_format = False
+
     """
         This function handles cleaning up the XML elementss between the specification elementss.
         <specification>
@@ -157,7 +168,6 @@ class RectifyOFPXML:
             else:
                 if child.tag != "declaration":
                     print (f'In handle_tag_specification: Empty elements "{child.tag}" not handled')
-                
 
     """
         This function handles cleaning up the XML elementss between the declaration elementss.
@@ -169,11 +179,15 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                if child.tag == "type" or child.tag == "dimensions" or child.tag == "variables" or child.tag == "format" or child.tag == "name":
-                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                    if child.tag == "dimensions":
-                        self.is_array = True
-                    self.parseXMLTree(child, curElem)
+                if child.tag in self.DECLARATION_CHILD_TAGS:
+                    if child.tag == "format":
+                        self.is_format = True
+                        self.format_holder = child
+                    else:
+                        curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                        if child.tag == "dimensions":
+                            self.is_array = True
+                        self.parseXMLTree(child, curElem)
                 elif child.tag == "component-array-spec" or child.tag == "literal":
                     self.derived_type_var_holder_list.append(child)
                 else:
@@ -481,9 +495,13 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "header" or child.tag == "body" or child.tag == "format":
-                    self.parseXMLTree(child, curElem)
+                if child.tag in self.LOOP_CHILD_TAGS:
+                    if child.tag == "format":
+                        self.is_format = True
+                        self.format_holder = child
+                    else:
+                        curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                        self.parseXMLTree(child, curElem)
                 else:
                     print (f'In self.handle_tag_loop: "{child.tag}" not handled')
 
@@ -872,6 +890,8 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
+                    if child.tag == "body":
+                        self.current_scope = curElem
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 else:
@@ -975,6 +995,8 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
+                    if child.tag == "body":
+                        self.current_scope = curElem
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 else:
@@ -1093,7 +1115,7 @@ class RectifyOFPXML:
         Arguments:
             root: The current root of the tree.
             parElem: The parent elements.
-
+new_format
         Returns:
             None
             
@@ -1272,18 +1294,6 @@ class RectifyOFPXML:
             self.is_derived_type = False
 
     """
-        This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
-        Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
-        of id with the cleaned version.
-    """
-    def clean_derived_type_ref(self, parElem):
-        current_id = parElem.attrib['id'] # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
-        self.derived_type_var_holder_list.append(self.clean_id(current_id)) # 2. Extract the first variable name, for example, x in this case.
-        percent_sign = current_id.find("%") # 3. Get the location of the '%' sign
-        self.derived_type_var_holder_list.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
-        self.reconstruct_derived_type_ref(parElem)
-
-    """
         This function reconstruct the id into x.y.k form from the messy looking id.
         One thing to notice is that this new form was generated in the python syntax, so it is a pre-process for translate.py and even pyTranslate.py that
     """
@@ -1297,6 +1307,33 @@ class RectifyOFPXML:
                 parElem.attrib[f'id{id_number}'] = var # Add new attribute(s) for each reference
             id_number += 1
         self.derived_type_var_holder_list.clear() # Clean up the list for re-use
+
+    """
+        This function is for reconstructing the <format> under the <statement> element.
+        The OFP XML nests formats under:
+            (1) statement
+            (2) declaration
+            (3) loop
+        tags, which are wrong except one that is declared under the statement.
+        Therefore, those formats declared under (2) and (3) will be extracted and reconstructed
+        to be nested under (1) in this function.
+    """
+    def reconstruct_format(self):
+        root_scope = ET.SubElement(self.current_scope, "statement")
+        curElem = ET.SubElement(root_scope, "format")
+        self.parseXMLTree(self.format_holder, curElem) 
+
+    """
+        This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
+        Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
+        of id with the cleaned version.
+    """
+    def clean_derived_type_ref(self, parElem):
+        current_id = parElem.attrib['id'] # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
+        self.derived_type_var_holder_list.append(self.clean_id(current_id)) # 2. Extract the first variable name, for example, x in this case.
+        percent_sign = current_id.find("%") # 3. Get the location of the '%' sign
+        self.derived_type_var_holder_list.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
+        self.reconstruct_derived_type_ref(parElem)
 
     """
         This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
