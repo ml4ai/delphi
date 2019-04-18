@@ -21,8 +21,8 @@ Author:
 import sys
 from collections import OrderedDict
 from typing import List
-#from delphi.translators.for2py.syntax import *
-from syntax import *
+from delphi.translators.for2py.syntax import *
+
 
 # INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
 # with comments internal to subprogram bodies.
