@@ -28,9 +28,10 @@ from delphi.translators.for2py.syntax import *
 # with comments internal to subprogram bodies.
 INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
 
+
 def separate_trailing_comments(lines):
     """Given a list of numbered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line 
+       form (n, code_line) where n is a line number and code_line is a line
        of code, separate_trailing_comments() behaves as follows: for each
        pair (n, code_line) where code_line can be broken into two parts -- a
        code portion code_part and a trailing comment portion comment_part, such
@@ -49,16 +50,16 @@ def separate_trailing_comments(lines):
                 (code_part, comment_part) = split_trailing_comment(code_line)
                 if comment_part != None:
                     lines[i] = (n, comment_part)
-                    lines.insert(i+1, (n, code_part))
+                    lines.insert(i + 1, (n, code_part))
                     chg = True
             i += 1
 
     return lines
-            
+
 
 def merge_continued_lines(lines):
     """Given a list of numered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line 
+       form (n, code_line) where n is a line number and code_line is a line
        of code, merge_continued_lines() merges sequences of lines that are
        indicated to be continuation lines.
     """
@@ -70,11 +71,11 @@ def merge_continued_lines(lines):
     while chg:
         chg = False
         i = 0
-        while i < len(lines)-1:
-            ln0, ln1 = lines[i], lines[i+1]
+        while i < len(lines) - 1:
+            ln0, ln1 = lines[i], lines[i + 1]
             if line_is_comment(ln0[1]) and line_is_continuation(ln1[1]):
                 # swap the code portions of lines[i] and lines[i+1]
-                lines[i], lines[i+1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
                 chg = True
             i += 1
 
@@ -87,16 +88,19 @@ def merge_continued_lines(lines):
             line = lines[i]
             if line_is_continuation(line[1]):
                 assert i > 0
-                (prev_linenum, prev_line_code) = lines[i-1]
-                curr_line_code = line[1].lstrip()[1:]  # remove continuation  char
+                (prev_linenum, prev_line_code) = lines[i - 1]
+                curr_line_code = line[1].lstrip()[
+                    1:
+                ]  # remove continuation  char
                 merged_code = prev_line_code.rstrip() + curr_line_code.lstrip()
-    
-                lines[i-1] = (prev_linenum, merged_code)
+
+                lines[i - 1] = (prev_linenum, merged_code)
                 lines.pop(i)
                 chg = True
             i += 1
 
     return lines
+
 
 # We use a finite-state machine to keep track of where the line currently
 # being processed sits w.r.t. the structure of the code; this affects how
@@ -115,17 +119,17 @@ def merge_continued_lines(lines):
 # the line being processed.
 
 TRANSITIONS = {
-    "outside" : { "comment" : "outside",
-                  "pgm_unit_start" : "in_neck"
-                },
-    "in_neck" : { "comment" : "in_neck",
-                  "exec_stmt" : "in_body",
-                  "other" : "in_neck"
-                },
-    "in_body" : { "comment" : "in_body",
-                  "exec_stmt" : "in_body",
-                  "pgm_unit_end" : "outside"
-                }
+    "outside": {"comment": "outside", "pgm_unit_start": "in_neck"},
+    "in_neck": {
+        "comment": "in_neck",
+        "exec_stmt": "in_body",
+        "other": "in_neck",
+    },
+    "in_body": {
+        "comment": "in_body",
+        "exec_stmt": "in_body",
+        "pgm_unit_end": "outside",
+    },
 }
 
 
@@ -144,7 +148,7 @@ def type_of_line(line):
             return "pgm_unit_start"
         else:
             return "other"
-    
+
 
 def extract_comments(lines):
     """Given a list of numbered lines from a Fortran file where comments 
@@ -168,13 +172,16 @@ def extract_comments(lines):
 
     for i in range(len(lines)):
         (linenum, line) = lines[i]
-        
+
         # determine what kind of line this is
         line_type = type_of_line(line)
 
         # process the line appropriately
         if curr_state == "outside":
-            assert line_type in ("comment", "pgm_unit_start"), (line_type, line)
+            assert line_type in ("comment", "pgm_unit_start"), (
+                line_type,
+                line,
+            )
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)
@@ -205,11 +212,14 @@ def extract_comments(lines):
                 comments[curr_fn]["neck"] = curr_comment
                 curr_comment = []
             else:
-                pass    # nothing to do -- continue
+                pass  # nothing to do -- continue
 
         elif curr_state == "in_body":
-            assert line_type in ("comment", "exec_stmt", "pgm_unit_end"), \
-                   f"[Line {linenum}]: {line}"
+            assert line_type in (
+                "comment",
+                "exec_stmt",
+                "pgm_unit_end",
+            ), f"[Line {linenum}]: {line}"
 
             if line_type == "comment":
                 # Ignore empty lines, which are technically comments but which
@@ -220,7 +230,7 @@ def extract_comments(lines):
                     internal_comments[marker_var] = line
                     lines[i] = (linenum, marker_stmt)
             else:
-                pass    # nothing to do -- continue
+                pass  # nothing to do -- continue
 
         # update the current state
         curr_state = TRANSITIONS[curr_state][line_type]
@@ -291,13 +301,17 @@ def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
     nlines = len(inputLines)
-    numbered_lines = list(zip(range(1,nlines+1), inputLines))
+    numbered_lines = list(zip(range(1, nlines + 1), inputLines))
     lines = separate_trailing_comments(numbered_lines)
     merge_continued_lines(lines)
 
     (lines, comments) = extract_comments(lines)
-    actual_lines = [line[1] for line in lines if line[1] != None and "i_g_n_o_r_e___m_e_" not in line[1]]
-    return ''.join(actual_lines)
+    actual_lines = [
+        line[1]
+        for line in lines
+        if line[1] != None and "i_g_n_o_r_e___m_e_" not in line[1]
+    ]
+    return "".join(actual_lines)
 
 
 if __name__ == "__main__":
@@ -310,7 +324,7 @@ if __name__ == "__main__":
         inputLines = f.readlines()
 
     nlines = len(inputLines)
-    numbered_lines = list(zip(range(1,nlines+1), inputLines))
+    numbered_lines = list(zip(range(1, nlines + 1), inputLines))
     lines = separate_trailing_comments(numbered_lines)
     merge_continued_lines(lines)
 
