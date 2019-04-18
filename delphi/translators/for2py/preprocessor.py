@@ -287,6 +287,14 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
+def process(lines: List[str]) -> str:
+    """process() provides the interface used by an earlier version of this
+       preprocessor."""
+    (lines, comments) = extract_comments(lines)
+    actual_lines = [line[1] for line in lines if line != None]
+    return ''.join(actual_lines)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
