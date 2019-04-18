@@ -21,7 +21,7 @@ from typing import Dict, Tuple
 
 DATA_DIR = "tests/data/program_analysis"
 
-def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, dict]:
+def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
     stem = original_fortran_file.stem
     preprocessed_fortran_file = stem + "_preprocessed.f"
     lambdas_filename = stem + "_lambdas.py"
