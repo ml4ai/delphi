@@ -107,7 +107,7 @@ class XMLToJSONTranslator(object):
             "function": self.process_function,
             "if": self.process_if,
             "index-variable": self.process_index_variable,
-            "io-control": self.process_io_control,
+            "io-controls": self.process_io_control,
             "keyword-argument": self.process_keyword_argument,
             "literal": self.process_literal,
             "loop" : self.process_loop,
@@ -191,8 +191,6 @@ class XMLToJSONTranslator(object):
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
-            #if node.tag == "format":
-                #declaration += self.parseTree(node, state)
             elif node.tag == "type": # Get the variable type
                 if node.attrib['is_derived_type'] == "False":
                     declared_type += self.parseTree(node, state)
@@ -202,9 +200,11 @@ class XMLToJSONTranslator(object):
                     # Thus, simply insert the received AST list object into the declared_variable object. No other work is done in the current function.
                     declared_variable += self.parseTree(node, state)
             elif node.tag == "dimensions":
+                num_of_dimensions = int(node.attrib["count"])
+                dimensions = {"count": num_of_dimensions, "dimensions": self.parseTree(node, state)}
                 # Since we always want to access the last element of the list that was added most recently
                 # (that is a currently handling variable), add [-1] index to access it.
-                declared_type[-1].update(self.parseTree(node, state)[-1])
+                declared_type[-1].update(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
                 # declare variables based on the counts to handle the case where a multiple variables declared under a single type
@@ -216,6 +216,7 @@ class XMLToJSONTranslator(object):
                         state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
                     if declared_variable[-1]["name"] in state.args:
                         state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+        print ("declared_variable: ", declared_variable)
         return declared_variable
 
     """
@@ -330,18 +331,14 @@ class XMLToJSONTranslator(object):
         assert (root.tag == "loop"), "The root must be <loop>"
         if root.attrib["type"] == "do":
             do = {"tag": "do"}
-            do_format = []
             for node in root:
-                if node.tag == "format":
-                    do_format = self.parseTree(node, state)
-                elif node.tag == "header":
+                if node.tag == "header":
                     do["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
                     do["body"] = self.parseTree(node, state)
-            if do_format:
-                return [do_format[0], do]
-            else:
-                return [do]
+                else:
+                    assert False, f"Unrecognized tag in the process_loop for 'do' type. {node.tag}"
+            return [do]
         elif root.attrib["type"] == "do-while":
             doWhile = {"tag": "do-while"}
             for node in root:
@@ -448,10 +445,14 @@ class XMLToJSONTranslator(object):
         read/writes).
     """
     def process_io_control(self, root, state) -> List[Dict]:
-        assert (root.tag == "io-control"), "The root must be <io-control>"
+        assert (root.tag == "io-controls"), "The root must be <io-controls>"
         io_control = []
-        for attr in root.attrib:
-            if attr == "hasAsterisk" and root.attrib[attr] == "true":
+        for node in root:
+            if node.text:
+                assert node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
+                io_control += self.parseTree(node, state)
+            else:
+                assert node.attrib["hasAsterisk"] == "true", "hasAsterisk is false. Something is wrong."
                 io_control = [{"tag": "literal", "type": "char", "value": "*"}]
         return io_control
 
@@ -580,6 +581,7 @@ class XMLToJSONTranslator(object):
         val = {"tag": root.tag, "args": []}
         for node in root:
             val["args"] += self.parseTree(node, state)
+        print ("IN process_direct_map: ", val)
         return [val]
 
     def process_terminal(self, root, state) -> List[Dict]:
@@ -598,6 +600,8 @@ class XMLToJSONTranslator(object):
             if node.tag == "label":
                 format_spec["label"] = node.attrib["lbl"]
             format_spec["args"] += self.parseTree(node, state)
+        # REMOVE
+        print ("IN process_format: ", format_spec)
         return [format_spec]
 
     """
@@ -654,7 +658,6 @@ class XMLToJSONTranslator(object):
         Returns:
                 ast: A JSON ast that defines the structure of the Fortran file.
         """
-
         if root.tag in self.AST_TAG_HANDLERS:
             return self.AST_TAG_HANDLERS[root.tag](root, state)
 
