@@ -7,7 +7,7 @@ Example:
     This script is executed by the autoTranslate script as one
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:::
-        python pyTranslate.py -f <pickle_file> -g <python_file>
+        python pyTranslate.py -f <pickle_file> -g <python_file> -o <outputFileList>
 pickle_file: Pickled file containing the ast representation of the Fortran
 file along with other non-source code information.
 python_file: The Python file on which to write the resulting python script.
@@ -370,11 +370,10 @@ class PythonCodeGenerator(object):
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
            (scalar) variables."""
-
         ref_str = self.nameMapper[node["name"]]
         if "subscripts" in node:
             # array reference or function call
-            if "isArray" in node and node["isArray"]:
+            if "is_array" in node and node["is_array"] == "true":
                 subs = node["subscripts"]
                 subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
                 subscripts = ", ".join(subs_strs)
@@ -484,51 +483,6 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
 
-    def printVariable(self, node, printState: PrintState):
-        # REMOVE 
-        print ("IN printVariable: ", node)
-        var_name = self.nameMapper[node["name"]]
-        if (var_name not in printState.definedVars + printState.globalVars):
-            printState.definedVars += [var_name]
-            if node.get("value"):
-                initVal = node["value"][0]["value"]
-            else:
-                initVal = None
-
-            try:
-                varType = TYPE_MAP[node["type"].lower()]
-            except KeyError:
-                raise For2PyError(f"unrecognized type {node['type']}")
-
-            if "isDevTypeVar" in node and node["isDevTypeVar"]:
-                self.pyStrings.append(
-                    f"{self.nameMapper[node['name']]} =  {varType}()"
-                )
-            else:
-                if printState.functionScope:
-                    if not var_name in self.funcArgs.get(
-                        printState.functionScope
-                    ):
-                        self.pyStrings.append(
-                            f"{var_name}: List[{varType}]"
-                            f" = [{initVal}]"
-                        )
-                    else:
-                        self.pyStrings.append(f"{var_name}: List[{varType}]")
-                else:
-                    self.pyStrings.append(
-                        f"{var_name}: List[{varType}] = "
-                        f"[{initVal}]"
-                    )
-
-            # The code below might cause issues on unexpected places.
-            # If weird variable declarations appear, check code below
-
-            if not printState.sep:
-                printState.sep = "\n"
-            self.variableMap[self.nameMapper[node["name"]]] = node["type"]
-        else:
-            printState.printFirst = False
 
     ###########################################################################
     #                                                                         #
@@ -704,6 +658,8 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
+        # REMOVE
+        print ("in printOpen: ", node)
         if node["args"][0].get("arg_name") == "UNIT":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
@@ -716,10 +672,11 @@ class PythonCodeGenerator(object):
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
                 if item["arg_name"] == "FILE":
-                    file_name = node["args"][index + 1]["value"][1:-1]
+                    file_name = node["args"][index + 1]["value"]
                     open_state = "r"
                 elif item["arg_name"] == "STATUS":
-                    open_state = node["args"][index + 1]["value"][1:-1]
+                    open_state = node["args"][index + 1]["value"]
+                    print ("open_state: ", open_state)
                     open_state = self.stateMap[open_state]
 
         self.pyStrings.append(f'open("{file_name}", "{open_state}")')
@@ -780,13 +737,15 @@ class PythonCodeGenerator(object):
                 ind = ind + 1
 
     def printWrite(self, node, printState: PrintState):
+        # REMOVE
+        print ("IN printWrite: ", node)
         write_string = ""
         # Check whether write to file or output stream
-        if str(node["args"][0].get("value")) == "*":
+        if node["args"][0]["value"] == "*":
             write_target = "outStream"
         else:
             write_target = "file"
-            if node["args"][0].get("value"):
+            if node["args"][0]["value"]:
                 file_id = str(node["args"][0]["value"])
             elif str(node["args"][0].get("tag")) == "ref":
                 file_id = str(self.nameMapper[node["args"][0].get("name")])
@@ -879,6 +838,8 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(f"sys.stdout.write(write_line)")
 
     def printFormat(self, node, printState: PrintState):
+        # REMOVE
+        print ("IN printFormat: ", node)
         type_list = []
         temp_list = []
         _re_int = re.compile(r"^\d+$")
@@ -923,9 +884,52 @@ class PythonCodeGenerator(object):
     #                                                                         #
     ###########################################################################
 
+    def printVariable(self, node, printState: PrintState):
+        # REMOVE 
+        print ("IN printVariable: ", node)
+        var_name = self.nameMapper[node["name"]]
+        if (var_name not in printState.definedVars + printState.globalVars):
+            printState.definedVars += [var_name]
+            if node.get("value"):
+                initVal = node["value"][0]["value"]
+            else:
+                initVal = None
+
+            varType = self.get_type(node)
+
+            if "isDevTypeVar" in node and node["isDevTypeVar"]:
+                self.pyStrings.append(
+                    f"{self.nameMapper[node['name']]} =  {varType}()"
+                )
+            else:
+                if printState.functionScope:
+                    if not var_name in self.funcArgs.get(
+                        printState.functionScope
+                    ):
+                        self.pyStrings.append(
+                            f"{var_name}: List[{varType}]"
+                            f" = [{initVal}]"
+                        )
+                    else:
+                        self.pyStrings.append(f"{var_name}: List[{varType}]")
+                else:
+                    self.pyStrings.append(
+                        f"{var_name}: List[{varType}] = "
+                        f"[{initVal}]"
+                    )
+
+            # The code below might cause issues on unexpected places.
+            # If weird variable declarations appear, check code below
+
+            if not printState.sep:
+                printState.sep = "\n"
+            self.variableMap[self.nameMapper[node["name"]]] = node["type"]
+        else:
+            printState.printFirst = False
+
     def printArray(self, node, printState: PrintState):
         # REMOVE
-        print ("in printArray: ", node)
+        print ("IN printArray: ", node)
         """ Prints out the array declaration in a format of Array class
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
@@ -936,61 +940,11 @@ class PythonCodeGenerator(object):
             printState.definedVars += [self.nameMapper[node["name"]]]
             printState.definedVars += [node["name"]]
             
-            # Check and retrieve the array type
             varType = self.get_type(node)
-            assert varType != "", "All declared variables must have a type"
 
-            array_range = None
-            if "literal" in node:
-                upBound = self.proc_literal(node["literal"][0])
-                array_range = f"0, {upBound}"
-            elif "range" in node:
-                array_range = self.get_range(node["range"][0])
-            else:
-                assert False, f"Array range case not handled. Reference node content: {node}"
+            array_range = self.get_array_dimension(node)
 
-            self.pyStrings.append(f"{node['name']} = Array({varType}, [({array_range})])")
-
-    """
-        This function checks the type of a variable and returns the appropriate python syntax type name
-    """
-    def get_type(self, node):
-        variable_type = node["type"].upper()
-        if variable_type == "INTEGER":
-            return "int"
-        elif variable_type in ("DOUBLE", "REAL"):
-            return "float"
-        elif variable_type == "CHARACTER":
-            return "str"
-        else:
-            assert False, f"Unknown variable type: {variable_type}"
-
-    """
-        This function will construct the range string in 'loBound, Upbound' format and return to the called function
-    """
-    def get_range(self, node):
-        loBound = "0"
-        upBound = "0" 
-
-        low = node["low"]
-        up = node["high"]
-        # Get lower bound value
-        if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0])
-        elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0])
-        else:
-            assert False, f"Unknown tag in upper bound: {low[0]['tag']}"
-
-        # Get upper bound value
-        if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0])
-        elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0])
-        else:
-            assert False, f"Unknown tag in upper bound: {up[0]['tag']}"
-
-        return f"{loBound}, {upBound}" 
+            self.pyStrings.append(f"{node['name']} = Array({varType}, [{array_range}])")
 
     def printDerivedType(self, node, printState: PrintState):
         self.pyStrings.append("@dataclass\n")
@@ -1064,6 +1018,67 @@ class PythonCodeGenerator(object):
 
         return "".join(self.pyStrings)
 
+    """
+        This function checks the type of a variable and returns the appropriate python syntax type name
+    """
+    def get_type(self, node):
+        variable_type = node["type"].lower()
+        if variable_type in TYPE_MAP: 
+            return TYPE_MAP[variable_type]
+        else:
+            if node["is_derived_type"] == "true":
+                return variable_type
+            else:
+                assert False, f"Unrecognized variable type: {variable_type}"
+
+    """
+        This function will construct the range string in 'loBound, Upbound' format and return to the called function
+    """
+    def get_range(self, node):
+        loBound = "0"
+        upBound = "0" 
+
+        low = node["low"]
+        up = node["high"]
+        # Get lower bound value
+        if low[0]["tag"] == "literal":
+            loBound = self.proc_literal(low[0])
+        elif low[0]["tag"] == "op":
+            loBound = self.proc_op(low[0])
+        else:
+            assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
+
+        # Get upper bound value
+        if up[0]["tag"] == "literal":
+            upBound = self.proc_literal(up[0])
+        elif up[0]["tag"] == "op":
+            upBound = self.proc_op(up[0])
+        else:
+            assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
+
+        return f"{loBound}, {upBound}"
+
+    """
+        This function is for extracting the dimensions' range information from the AST.
+        This function is needed for handling a multi-dimensional array(s).
+    """
+    def get_array_dimension(self, node):
+        count = 1
+        array_range = ""
+        for dimension in node["dimensions"]:
+            if "literal" in dimension:   # A case where no explicit low bound set
+                upBound = self.proc_literal(dimension["literal"][0])
+                array_range += f"(0, {upBound})"
+            elif "range" in dimension:   # A case where explict low and up bounds are set
+                array_range += f"({self.get_range(dimension['range'][0])})"
+            else:
+                assert False, f"Array range case not handled. Reference node content: {node}"
+
+            if count < int(node["count"]):
+                array_range += ", "
+                count += 1
+
+        return array_range
 
 def index_modules(root) -> Dict:
     """ Counts the number of modules in the Fortran file including the program
