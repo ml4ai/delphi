@@ -91,10 +91,22 @@ def test_getExperiment(G, client):
     rv = client.get(url)
     assert rv.json["id"] == experiment.id
 
+
 def test_getAllModels(G, client):
     rv = client.get("/delphi/models")
     assert G.id in rv.json
 
-@pytest.mark.skip
-def test_getIndicators(G):
-    pass
+
+def test_getIndicators(G, client):
+    with open("scripts/data/causemos_cag.json", "r") as f:
+        data = json.load(f)
+    data.update(
+        {
+            "start": 2012,
+            "end": 2016,
+            "geolocation": None,
+            "concept": None,
+            "func": "mean",
+        }
+    )
+    rv = client.post(f"/delphi/models/{G.id}/indicators", json=data)

@@ -25,10 +25,12 @@ bp = Blueprint("rest_api", __name__)
 # CauseMos API
 # ============
 
+
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
     return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+
 
 @bp.route("/delphi/models", methods=["POST"])
 def createNewModel():
@@ -41,8 +43,9 @@ def createNewModel():
     G.to_sql(app=current_app)
     return jsonify({"status": "success"})
 
-@bp.route("/delphi/models/<string:model_id>/indicators")
-def getIndicators():
+
+@bp.route("/delphi/models/<string:model_id>/indicators", methods=["POST"])
+def getIndicators(model_id: str):
     """ Search for indicator candidates pertaining to :model_id.
 
     The search options include:
@@ -63,34 +66,39 @@ def getIndicators():
     func = data.get("func")
     concept = data.get("concept")
 
-    if concept is None:
-        concepts = [
+    if concept is not None:
+        [
             v.deserialize()
             for v in CausalVariable.query.filter_by(model_id=model_id).all()
         ]
         query_parts = [
             "select `Indicator`, `Source`, `Score`",
             "from concept_to_indicator_mapping",
-            "where `Concept` like '{concept[0]}'",
+            f"where `Concept` like '{concept}'",
         ]
 
-    return jsonify({})
-
+    return jsonify("Not fully implemented yet!")
 
 
 def getConceptToIndicatorMapping():
-    concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
+    concepts = engine.execute(
+        "select `Concept` from concept_to_indicator_mapping"
+    )
     mapping = {}
     for concept in concepts:
-        results = engine.execute("select `Indicator`, `Source`, `Score` from "
-        f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'")
+        results = engine.execute(
+            "select `Indicator`, `Source`, `Score` from "
+            f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'"
+        )
         mapping[concept[0]] = [dict(r) for r in results]
 
     return jsonify(mapping)
 
+
 # ============
 # ICM API
 # ============
+
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
@@ -249,13 +257,13 @@ def createExperiment(uuid: str):
     data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
     if os.environ.get("TRAVIS") is not None:
-        config_file="bmi_config.txt"
+        config_file = "bmi_config.txt"
     else:
         if not os.path.exists("/tmp/delphi"):
             os.makedirs("/tmp/delphi", exist_ok=True)
-        config_file="/tmp/delphi/bmi_config.txt"
+        config_file = "/tmp/delphi/bmi_config.txt"
 
-    G.initialize(initialize_indicators = False, config_file=config_file)
+    G.initialize(initialize_indicators=False, config_file=config_file)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
@@ -320,13 +328,13 @@ def createExperiment(uuid: str):
         # Hack for 12-month evaluation - have the partial derivative decay over
         # time to restore equilibrium
 
-        tau = 1.0 # Time constant to control the rate of the decay
+        tau = 1.0  # Time constant to control the rate of the decay
         for n in G.nodes(data=True):
             for variable in data["interventions"]:
                 if n[1]["id"] == variable["id"]:
                     rv = n[1]["rv"]
                     for s0 in G.s0:
-                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau*i)
+                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
 
     db.session.add(result)
     db.session.commit()
