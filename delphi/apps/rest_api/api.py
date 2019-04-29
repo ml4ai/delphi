@@ -21,6 +21,11 @@ from flask import current_app
 
 bp = Blueprint("rest_api", __name__)
 
+@bp.route("/delphi/models", methods=["GET"])
+def listAllModels():
+    """ Return UUIDs for all the models in the database. """
+    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+
 @bp.route("/conceptToIndicatorMapping", methods=["GET"])
 def getConceptToIndicatorMapping():
     concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
