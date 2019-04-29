@@ -42,9 +42,7 @@ from .apps.rest_api.models import (
 import matplotlib
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
-from delphi.utils.misc import choose_font, _insert_line_breaks
-
-FONT = choose_font()
+from delphi.utils.misc import _insert_line_breaks
 
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
