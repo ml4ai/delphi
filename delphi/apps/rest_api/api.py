@@ -21,10 +21,25 @@ from flask import current_app
 
 bp = Blueprint("rest_api", __name__)
 
+# ============
+# CauseMos API
+# ============
+
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
     return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+
+@bp.route("/delphi/models", methods=["POST"])
+def createNewModel():
+    """ Create a new Delphi model. """
+    data = json.loads(request.data)
+    G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    G.id = data["model_id"]
+    G.to_sql(app=current_app)
+    return jsonify({"status": "success"})
 
 @bp.route("/conceptToIndicatorMapping", methods=["GET"])
 def getConceptToIndicatorMapping():
@@ -36,6 +51,10 @@ def getConceptToIndicatorMapping():
         mapping[concept[0]] = [dict(r) for r in results]
 
     return jsonify(mapping)
+
+# ============
+# ICM API
+# ============
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
