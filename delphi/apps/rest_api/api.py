@@ -41,7 +41,43 @@ def createNewModel():
     G.to_sql(app=current_app)
     return jsonify({"status": "success"})
 
-@bp.route("/conceptToIndicatorMapping", methods=["GET"])
+@bp.route("/delphi/models/<string:model_id>/indicators")
+def getIndicators():
+    """ Search for indicator candidates pertaining to :model_id.
+
+    The search options include:
+        - start/end: To specify search criteria in years (YYYY)
+        - geolocation: To match indicators with matching geolocation
+        - func: To apply a transform function onto the raw indicator values
+        - concept: To search for specific concept, if omitted search across all concepts within the model
+
+    The search will return a listing of matching indicators, sorted by
+    similarity score. For each concept a maximum of 10 indicator matches will
+    be returned. If there are no matches for a given concept an empty array is
+    returned.
+    """
+    data = json.loads(request.data)
+    start = data.get("start")
+    end = data.get("end")
+    geolocation = data.get("geolocation")
+    func = data.get("func")
+    concept = data.get("concept")
+
+    if concept is None:
+        concepts = [
+            v.deserialize()
+            for v in CausalVariable.query.filter_by(model_id=model_id).all()
+        ]
+        query_parts = [
+            "select `Indicator`, `Source`, `Score`",
+            "from concept_to_indicator_mapping",
+            "where `Concept` like '{concept[0]}'",
+        ]
+
+    return jsonify({})
+
+
+
 def getConceptToIndicatorMapping():
     concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
     mapping = {}

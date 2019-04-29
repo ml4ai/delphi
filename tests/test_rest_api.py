@@ -90,3 +90,11 @@ def test_getExperiment(G, client):
     url = "/".join(["icm", G.id, "experiment", experiment.id])
     rv = client.get(url)
     assert rv.json["id"] == experiment.id
+
+def test_getAllModels(G, client):
+    rv = client.get("/delphi/models")
+    assert G.id in rv.json
+
+@pytest.mark.skip
+def test_getIndicators(G):
+    pass
