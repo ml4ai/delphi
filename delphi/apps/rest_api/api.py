@@ -66,18 +66,28 @@ def getIndicators(model_id: str):
         concepts = [concept]
     else:
         concepts = G.nodes
-    print(concepts)
+
+    output_dict = {}
     for concept in concepts:
+        output_dict[concept] = []
         query_parts = [
             "select `Concept`, `Source`, `Indicator`, `Score`",
             "from concept_to_indicator_mapping",
             f"where `Concept` like '{concept}'",
         ]
-        query = " ".join(query_parts)
-        results = engine.execute(query)
-        print(list(results)[0].keys())
-
-    return jsonify("Not fully implemented yet!")
+        for indicator_mapping in engine.execute(" ".join(query_parts)):
+            query = f"select * from indicator where `Variable` like '{indicator_mapping['Indicator']}'"
+            records = list(engine.execute(query))
+            unit = records[0]['Unit'] #TODO Does this generalize?
+            values = [r['Value'] for r in records]
+            output_dict[concept].append({
+                "name": indicator_mapping['Indicator'],
+                "score":indicator_mapping['Score'],
+                "unit":unit,
+                "value":values,
+            })
+                
+    return jsonify(output_dict)
 
 
 def getConceptToIndicatorMapping():

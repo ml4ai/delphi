@@ -110,3 +110,4 @@ def test_getIndicators(G, client):
         }
     )
     rv = client.post(f"/delphi/models/{G.id}/indicators", json=data)
+    print(rv.json)
