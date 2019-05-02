@@ -60,22 +60,22 @@ def getIndicators(model_id: str):
     returned.
     """
     data = json.loads(request.data)
-    start = data.get("start")
-    end = data.get("end")
-    geolocation = data.get("geolocation")
-    func = data.get("func")
     concept = data.get("concept")
 
     if concept is not None:
-        [
-            v.deserialize()
-            for v in CausalVariable.query.filter_by(model_id=model_id).all()
-        ]
+        concepts = [concept]
+    else:
+        concepts = G.nodes
+    print(concepts)
+    for concept in concepts:
         query_parts = [
-            "select `Indicator`, `Source`, `Score`",
+            "select `Concept`, `Source`, `Indicator`, `Score`",
             "from concept_to_indicator_mapping",
             f"where `Concept` like '{concept}'",
         ]
+        query = " ".join(query_parts)
+        results = engine.execute(query)
+        print(list(results)[0].keys())
 
     return jsonify("Not fully implemented yet!")
 

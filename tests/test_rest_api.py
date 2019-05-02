@@ -105,7 +105,7 @@ def test_getIndicators(G, client):
             "start": 2012,
             "end": 2016,
             "geolocation": None,
-            "concept": None,
+            "concept": 'UN/events/human/conflict',
             "func": "mean",
         }
     )
