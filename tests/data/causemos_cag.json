@@ -1,0 +1,82 @@
+{
+    "concept_to_indicator_mapping": {
+        "UN/events/human/conflict": {
+            "name": "MITRE12/Internally displaced persons, total displaced by conflict and violence",
+            "value": 1
+        },
+        "UN/events/natural_disaster/flooding": {
+            "name": "WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)",
+            "value": 1
+        }
+    },
+    "statements": [
+        {
+            "belief": 0.65,
+            "evidence": [
+                {
+                    "annotations": {
+                        "agents": {
+                            "raw_text": [
+                                "Flooding",
+                                "the destruction"
+                            ]
+                        },
+                        "grounding_score": 1,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161020_UNICEF_South_Sudan_Humanitarian_SitRep_20_Oct_2016_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 11256,
+                                    "start": 11211
+                                },
+                                "sentence": "Sentence-ENG_NW_20161020_UNICEF_South_Sudan_Humanitarian_SitRep_20_Oct_2016_AL_0-60302"
+                            }
+                        ]
+                    },
+                    "context": {
+                        "geo_location": {
+                            "db_refs": {
+                                "GEOID": null
+                            },
+                            "name": "the area"
+                        },
+                        "time": null,
+                        "type": "world"
+                    },
+                    "grounding_score": 0,
+                    "source_api": "hume",
+                    "text": "Flooding in Fangak resulted in the destruction of crops and  extreme food shortage is observed in the area."
+                }
+            ],
+            "id": "6e5e0a73-a897-48fc-b43b-3ba2643a98f8",
+            "obj": {
+                "db_refs": {
+                    "TEXT": "the destruction",
+                    "concept": "UN/events/human/conflict"
+                },
+                "name": "Conflict"
+            },
+            "obj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "subj": {
+                "db_refs": {
+                    "TEXT": "Flooding",
+                    "concept": "UN/events/natural_disaster/flooding"
+                },
+                "name": "Flooding"
+            },
+            "subj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "type": "Influence"
+        }
+    ]
+}
