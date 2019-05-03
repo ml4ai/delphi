@@ -61,11 +61,20 @@ def getIndicators(model_id: str):
     """
     data = json.loads(request.data)
     concept = data.get("concept")
+    func_dict = {
+        "mean": np.mean,
+        "median": np.median,
+        "max": max,
+        "raw": lambda x: x,
+    }
 
     if concept is not None:
         concepts = [concept]
     else:
-        concepts = G.nodes
+        concepts = [
+            v.deserialize()['description']
+            for v in CausalVariable.query.filter_by(model_id=model_id).all()
+        ]
 
     output_dict = {}
     for concept in concepts:
@@ -76,17 +85,23 @@ def getIndicators(model_id: str):
             f"where `Concept` like '{concept}'",
         ]
         for indicator_mapping in engine.execute(" ".join(query_parts)):
-            query = f"select * from indicator where `Variable` like '{indicator_mapping['Indicator']}'"
+            query = (
+                f"select * from indicator"
+                f" where `Variable` like '{indicator_mapping['Indicator']}'"
+            )
             records = list(engine.execute(query))
-            unit = records[0]['Unit'] #TODO Does this generalize?
-            values = [r['Value'] for r in records]
-            output_dict[concept].append({
-                "name": indicator_mapping['Indicator'],
-                "score":indicator_mapping['Score'],
-                "unit":unit,
-                "value":values,
-            })
-                
+            unit = records[0]["Unit"]  # TODO Does this generalize?
+            output_dict[concept].append(
+                {
+                    "name": indicator_mapping["Indicator"],
+                    "score": indicator_mapping["Score"],
+                    "unit": unit,
+                    "value": func_dict[data["func"]](
+                        [float(r["Value"]) for r in records]
+                    ),
+                }
+            )
+
     return jsonify(output_dict)
 
 

@@ -98,16 +98,79 @@ def test_getAllModels(G, client):
 
 
 def test_getIndicators(G, client):
-    with open("scripts/data/causemos_cag.json", "r") as f:
+    with open("tests/data/causemos_cag.json", "r") as f:
         data = json.load(f)
     data.update(
         {
             "start": 2012,
             "end": 2016,
             "geolocation": None,
-            "concept": 'UN/events/human/conflict',
+            "concept": "UN/events/human/conflict",
             "func": "mean",
         }
     )
     rv = client.post(f"/delphi/models/{G.id}/indicators", json=data)
-    print(rv.json)
+    assert rv.json == {
+        "UN/events/human/conflict": [
+            {
+                "name": "Conflict incidences",
+                "score": 0.725169,
+                "unit": "number of cases",
+                "value": 12.63076923076923,
+            },
+            {
+                "name": "Internally displaced persons, total displaced by conflict and violence",
+                "score": 0.6580004,
+                "unit": "number of people",
+                "value": 1280166.6666666667,
+            },
+            {
+                "name": "Conflict fatalities",
+                "score": 0.64682186,
+                "unit": "number of cases",
+                "value": 59.042307692307695,
+            },
+            {
+                "name": "Internally displaced persons, new displacement associated with conflict and violence",
+                "score": 0.60062087,
+                "unit": "number of cases",
+                "value": 535666.6666666666,
+            },
+            {
+                "name": "Legislation exists on domestic violence",
+                "score": 0.56590945,
+                "unit": "1=yes; 0=no",
+                "value": 0.0,
+            },
+            {
+                "name": "Percentage of livestock migrating due to conflict / insecurity",
+                "score": 0.5439555,
+                "unit": "%",
+                "value": 29.4,
+            },
+            {
+                "name": "Value, Political stability and absence of violence/terrorism (index)",
+                "score": 0.5019650999999999,
+                "unit": "index",
+                "value": -1.961666666666667,
+            },
+            {
+                "name": "Average number of cattle died/slaughtered/lost per  household during last 4 weeks",
+                "score": 0.47536009999999995,
+                "unit": None,
+                "value": 73.71428571428571,
+            },
+            {
+                "name": "Refugee population by country or territory of asylum",
+                "score": 0.4751459,
+                "unit": None,
+                "value": 248216.0,
+            },
+            {
+                "name": "Refugee population by country or territory of origin",
+                "score": 0.47174284,
+                "unit": None,
+                "value": 912165.8333333334,
+            },
+        ]
+    }
