@@ -26,17 +26,30 @@ import xml.etree.ElementTree as ET
 class RectifyOFPXML:
     def __init__(self):
         self.is_derived_type = False
+        self.is_derived_type_ref = False
         self.is_array = False
         self.is_format = False
+        self.is_function_arg = False
 
         self.cur_derived_type_name = ""
+        self.current_scope = ""
+
+        # Keep a track of both array and non-array variables in the dictionary of {'name' : 'scope'}
+        self.declared_non_array_vars = {}
+        self.declared_array_vars = {}
 
         self.derived_type_var_holder_list = []
+        self.derived_type_refs = []
         self.subscripts_holder = []
 
         self.format_holder = ET.Element('')
         self.parent_type = ET.Element('')
-        self.current_scope = ET.Element('')
+        self.current_body_scope = ET.Element('')
+
+    """
+        Nested child tag list
+    """
+    FILE_CHILD_TAGS = ["program", "subroutine", "module"]
 
     STATEMENT_CHILD_TAGS = [
         "assignment", "write", "format", "stop",
@@ -45,14 +58,14 @@ class RectifyOFPXML:
         "literal", "continue-stmt", "do-term-action-stmt",
         "return", "contains-stmt", "declaration", "prefix",
         "function", "internal-subprogram", "internal-subprogram-part",
-        "prefix",
+        "prefix", "exit",
     ]
 
     LOOP_CHILD_TAGS = ["header", "body", "format"]
 
     DECLARATION_CHILD_TAGS = ["type", "dimensions", "variables", "format", "name"]
 
-    DERIVED_TYPE_TAGS = [
+    DERIVED_TYPE_CHILD_TAGS = [
         "declaration-type-spec", "type-param-or-comp-def-stmt-list",
         "component-decl-list__begin", "component-initialization",
         "data-component-def-stmt", "component-def-stmt", "component-attr-spec-list",
@@ -79,7 +92,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
-            if child.tag == "program" or child.tag == "subroutine" or child.tag == "module":
+            if child.tag in self.FILE_CHILD_TAGS:
                 self.parseXMLTree(child, curElem)
             else:
                 print (f'In handle_tag_file: "{child.tag}" not handled')
@@ -91,12 +104,13 @@ class RectifyOFPXML:
         </program>
     """
     def handle_tag_program(self, root, parElem):
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "header" or child.tag == "body":
                 if child.tag == "body":
-                    self.current_scope = curElem
+                    self.current_body_scope = curElem
                 self.parseXMLTree(child, curElem)
             else:
                 if child.tag != "end-program-stmt" and child.tag != "main-program":
@@ -197,11 +211,12 @@ class RectifyOFPXML:
                    or child.tag == "attr-spec" or child.tag == "access-stmt" or child.tag == "access-id-list":
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 elif child.tag == "component-decl" or child.tag == "component-decl-list":
+                    parElem.attrib["type"] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
                 elif child.tag == "component-array-spec":
                     self.derived_type_var_holder_list.append(child)
                 else:
-                    if child.tag != "attr-spec" and child.tag != "access-id" and child.tag not in self.DERIVED_TYPE_TAGS:
+                    if child.tag != "attr-spec" and child.tag != "access-id" and child.tag not in self.DERIVED_TYPE_CHILD_TAGS:
                         print (f'self.In handle_tag_declaration: Empty elements "{child.tag}" not handled')
 
         if self.is_array == True:
@@ -209,9 +224,11 @@ class RectifyOFPXML:
 
         # If is_derived_type is true, reconstruct the derived type declaration AST structure
         if self.is_derived_type:
-            # Modify or add 'name' attribute of the MAIN (or the outer most) <type> elements with the name of derived type name
-            self.parent_type.set('name', self.cur_derived_type_name)
-            self.reconstruct_derived_type_declaration()
+            if self.derived_type_var_holder_list:
+                # Modify or add 'name' attribute of the MAIN (or the outer most) <type> elements with the name of derived type name
+                self.parent_type.set('name', self.cur_derived_type_name)
+                self.reconstruct_derived_type_declaration()
+            self.is_derived_type = False
 
     """
         This function handles cleaning up the XML elementss between the variables elementss.
@@ -250,10 +267,10 @@ class RectifyOFPXML:
                 # Modify or add 'name' attribute of the <type> elements with the name of derived type name
                 parElem.set('name', child.attrib['id'])
                 # And, store the name of the derived type name for later setting the outer most <type> elements's name attribute
-                self.cur_derived_type_name = child.attrib['id'];
-                # curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                self.cur_derived_type_name = child.attrib['id']
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
+                    self.is_derived_type = True
                     parElem.set('name', child.attrib['typeName'])
                 else:
                     self.derived_type_var_holder_list.append(child)
@@ -267,7 +284,7 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 self.parseXMLTree(child, curElem)
             else:
-                if child.tag not in self.DERIVED_TYPE_TAGS and child.tag != "char-selector" and child.tag != "delcaration-type-spec":
+                if child.tag not in self.DERIVED_TYPE_CHILD_TAGS and child.tag != "char-selector" and child.tag != "delcaration-type-spec":
                     print (f'In handle_tag_type: "{child.tag}" not handled')
         # This will mark whether this type declaration is for a derived type declaration or not
         parElem.set('is_derived_type', str(self.is_derived_type))
@@ -294,6 +311,12 @@ class RectifyOFPXML:
         </variable>
     """
     def handle_tag_variable(self, root, parElem):
+        # Store all declared variables based on their array status
+        if parElem.attrib['is_array'] == "True":
+            self.declared_array_vars.update({parElem.attrib['name'] : self.current_scope})
+        else:
+            self.declared_non_array_vars.update({parElem.attrib['name'] : self.current_scope})
+
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -372,27 +395,38 @@ class RectifyOFPXML:
         </names>        <name>
 
         There are three different types of names that the type attribute can hold:
-        (1) variable - Simple (single) variable or an array
-        (2) procedure - Function (or procedure) call
-        (3) ambiguous - None of the above two type
+            (1) variable - Simple (single) variable or an array
+            (2) procedure - Function (or procedure) call
+            (3) ambiguous - None of the above two type
     """
     def handle_tag_name(self, root, parElem):
-        if 'id' in parElem.attrib and '%' in parElem.attrib['id']:
-            self.clean_derived_type_ref(parElem)
+        assert root.tag == "names" or root.tag == "name", f"The tag <names> or <name> must be passed to handle_tag_name. Currently, it's {root.tag}."
         # All variables have default "is_array" value "false"
         parElem.attrib['is_array'] = "false"
+
+        # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
+        # Thus, clean up the 'id' and reconstruct the <name> AST
+        if 'id' in parElem.attrib and '%' in parElem.attrib['id']:
+            self.is_derived_type_ref = True
+            self.clean_derived_type_ref(parElem)
+
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "subscripts" or child.tag == "assignment":
-                    if child.tag == "subscripts":
-                        parElem.attrib['hasSubscripts'] = "true"
-                        # Since the procedure "call" has a same AST syntax as an array, check its type and set the "is_array" value
-                        if parElem.attrib['type'] != "procedure":
-                            parElem.attrib['is_array'] = "true"
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    if child.tag == "subscripts":
+                        # Default
+                        parElem.attrib['hasSubscripts'] = "true"
+                        # Check whether the variable is an array AND the variable is for the current scope. This is important for derived type variable referencing
+                        if parElem.attrib['id'] in self.declared_array_vars and self.declared_array_vars[parElem.attrib['id']] == self.current_scope:
+                            # Since the procedure "call" has a same AST syntax as an array, check its type and set the "is_array" value
+                            assert parElem.attrib['type'] != "procedure", "Trying to assign a procedure call to is_array true. This is an error"
+                            parElem.attrib['is_array'] = "true"
+                        elif parElem.attrib['id'] in self.declared_non_array_vars and self.declared_non_array_vars[parElem.attrib['id']] == self.current_scope:
+                            parElem.attrib['hasSubscripts'] = "false"
                     self.parseXMLTree(child, curElem)
-                    self.subscripts_holder.append(curElem)
+                    #self.subscripts_holder.append(curElem)
                 elif child.tag == "output":
                     assert is_empty(self.derived_type_var_holder_list)
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -406,7 +440,14 @@ class RectifyOFPXML:
                 if child.tag == "name" or child.tag == "generic_spec":
                     if child.tag == "name":
                         parElem.attrib['is_array'] = "false"
+
                         attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
+                        # Check if the variable is a function argument
+                        if self.is_function_arg:
+                            attributes["is_arg"] = "true"
+                        else:
+                            attributes["is_arg"] = "false"
+
                         child.attrib.update(attributes)
                     elif child.tag == "generic_spec":
                         attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
@@ -417,8 +458,19 @@ class RectifyOFPXML:
                 elif child.tag != "designator":
                     print (f'In self.handle_tag_name: Empty elements "{child.tag}" not handled')
 
-            if 'numPartRef' in parElem.attrib and int(parElem.attrib['numPartRef']) > 1 and parElem.attrib['hasSubscripts'] == "true":
-                self.subscripts_holder.clear()
+            # Update reconstruced derived type references
+            if self.derived_type_refs:
+                assert self.is_derived_type_ref == True, "'self.is_derived_type_ref' must be true"
+                numPartRef = int(parElem.attrib["numPartRef"]) - 1
+                for idx in range (1, len(self.derived_type_refs)):
+                    self.derived_type_refs[idx].attrib.update({"numPartRef": str(numPartRef)})
+                    numPartRef -= 1
+                # Re-initialize to original values
+                self.is_derived_type_ref = False
+                self.derived_type_refs.clear()
+
+            # if 'numPartRef' in parElem.attrib and int(parElem.attrib['numPartRef']) > 1 and parElem.attrib['hasSubscripts'] == "true":
+                # self.subscripts_holder.clear()
 
     """
         This function handles cleaning up the XML elementss between the value elementss.
@@ -676,6 +728,7 @@ class RectifyOFPXML:
         </outputs>
     """
     def handle_tag_outputs(self, root, parElem):
+        assert root.tag == "outputs", f"The tag <outputs> must be passed to handle_tag_outputs. Currently, it's {root.tag}."
         for child in root:
             self.clean_attrib(child)
             if child.tag == "output":
@@ -886,12 +939,13 @@ class RectifyOFPXML:
         </subroutine>
     """
     def handle_tag_subroutine(self, root, parElem):
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
                     if child.tag == "body":
-                        self.current_scope = curElem
+                        self.current_body_scope = curElem
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 else:
@@ -991,12 +1045,15 @@ class RectifyOFPXML:
         </function>
     """
     def handle_tag_function(self, root, parElem):
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
-                    if child.tag == "body":
-                        self.current_scope = curElem
+                    if child.tag == "header":
+                        self.is_function_arg = True
+                    elif child.tag == "body":
+                        self.current_body_scope = curElem
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem)
                 else:
@@ -1273,6 +1330,8 @@ new_format
                             new_variables = ET.SubElement(derived_type, 'variables', attr) # <variables _attribs_>
                             count += 1
                         var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id'], 'is_array': 'false'}
+                        # Store variable name in the non array tracker
+                        self.declared_non_array_vars.update({elem.attrib['id'] : self.current_scope})
                         new_variable = ET.SubElement(new_variables, 'variable', var_attribs) # <variable _attribs_>
                         if elem.attrib['hasComponentInitialization'] == "true":
                             init_value_attrib = ET.SubElement(new_variable, 'initial-value')
@@ -1286,26 +1345,46 @@ new_format
                             new_variables = ET.SubElement(derived_type, 'variables', attr)
                             count += 1
                         var_attribs = {'has_initial_value': elem.attrib['hasComponentInitialization'], 'name': elem.attrib['id'], 'is_array': 'true'}
+                        # Store variable name in the array tracker
+                        self.declared_array_vars.update({elem.attrib['id'] : self.current_scope})
                         new_variable = ET.SubElement(new_variables, 'variable', var_attribs)
                         is_dimension = False
 
             # Once one derived type was successfully constructed, clear all the elementss of a derived type list
             self.derived_type_var_holder_list.clear()
-            self.is_derived_type = False
 
     """
         This function reconstruct the id into x.y.k form from the messy looking id.
         One thing to notice is that this new form was generated in the python syntax, so it is a pre-process for translate.py and even pyTranslate.py that
     """
     def reconstruct_derived_type_ref(self, parElem):
-        id_number = 1
-        num_of_vars = len(self.derived_type_var_holder_list)
-        for var in self.derived_type_var_holder_list:
-            if id_number == 1:
-                parElem.attrib['id'] = var
+        assert parElem.tag == "name", f"The tag <name> must be passed to reconstruct_derived_type_ref. Currently, it's {parElem.tag}."
+        # First the root <name> id gets the very first variable reference i.e. x in x.y.k (or x%y%k in Fortran syntax)
+        parElem.attrib['id'] = self.derived_type_var_holder_list[0]
+        if parElem.attrib['id'] in self.declared_array_vars and self.declared_array_vars[parElem.attrib['id']] == self.current_scope:
+            parElem.attrib['hasSubscripts'] = "true"
+            parElem.attrib['is_array'] = "true"
+        else:
+            parElem.attrib['hasSubscripts'] = "false"
+            parElem.attrib['is_array'] = "false"
+
+        number_of_vars = len(self.derived_type_var_holder_list);
+        attributes = {}
+        parent_ref = parElem 
+        self.derived_type_refs.append(parent_ref)
+        for var in range(1, number_of_vars):
+            variable_name = self.derived_type_var_holder_list[var]
+            attributes.update(parElem.attrib)
+            attributes['id'] = variable_name
+            if variable_name in self.declared_array_vars and self.declared_array_vars[variable_name] == self.current_scope:
+                attributes['hasSubscripts'] = "true"
+                attributes['is_array'] = "true"
             else:
-                parElem.attrib[f'id{id_number}'] = var # Add new attribute(s) for each reference
-            id_number += 1
+                attributes['is_array'] = "false"
+            # Create N (number_of_vars) number of new subElement under the root <name> for each referencing variable 
+            reference_var = ET.SubElement(parent_ref, "name", attributes)
+            parent_ref = reference_var
+            self.derived_type_refs.append(parent_ref)
         self.derived_type_var_holder_list.clear() # Clean up the list for re-use
 
     """
@@ -1319,7 +1398,7 @@ new_format
         to be nested under (1) in this function.
     """
     def reconstruct_format(self):
-        root_scope = ET.SubElement(self.current_scope, "statement")
+        root_scope = ET.SubElement(self.current_body_scope, "statement")
         curElem = ET.SubElement(root_scope, "format")
         self.parseXMLTree(self.format_holder, curElem) 
 
@@ -1390,7 +1469,7 @@ def indent(elem, level=0):
 def buildNewAST(root, filename):
     tree = ET.ElementTree(indent(root))
     rectFilename = filename.split('/')[-1]
-    tree.write(f"rectified_{rectFilename}")
+    tree.write(f"tmp/rectified_{rectFilename}")
 
 def main():
     filename = sys.argv[1]
