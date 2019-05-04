@@ -162,7 +162,7 @@ class XMLToJSONTranslator(object):
         This function handles <call> tag and its subelement <name>.
     """
     def process_call(self, root, state) -> List[Dict]:
-        assert (root.tag == "call"), "The root must be <call>"
+        assert (root.tag == "call"), "The root must be <call>. Current tag is {root.tag} with {root.attrib} attributes."
         call = {"tag": "call"}
         for node in root:
             if node.tag == "name":
@@ -187,12 +187,12 @@ class XMLToJSONTranslator(object):
     def process_declaration(self, root, state) -> List[Dict]:
         declared_type = []
         declared_variable = []
-        assert (root.tag == "declaration"), "The root must be <declaration>"
+        assert (root.tag == "declaration"), "The root must be <declaration>. Current tag is {root.tag} with {root.attrib} attributes."
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
             elif node.tag == "type": # Get the variable type
-                if node.attrib['is_derived_type'] == "False":
+                if root.attrib["type"] == "variable":
                     declared_type += self.parseTree(node, state)
                 else:
                     # If the current node is for declaring a derived type, every step from type declaration to variable (including array) declration
@@ -216,7 +216,6 @@ class XMLToJSONTranslator(object):
                         state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
                     if declared_variable[-1]["name"] in state.args:
                         state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
-        print ("declared_variable: ", declared_variable)
         return declared_variable
 
     """
@@ -226,7 +225,7 @@ class XMLToJSONTranslator(object):
             (2) Derived type declaration
     """
     def process_type(self, root, state) -> List[Dict]:
-        assert (root.tag == "type"), "The root must be <type>"
+        assert (root.tag == "type"), "The root must be <type>. Current tag is {root.tag} with {root.attrib} attributes."
         declared_type = {}
         derived_type = []
         if root.text: # Check if the <type> has sub-elements, which is the case of (2)
@@ -248,7 +247,7 @@ class XMLToJSONTranslator(object):
         This function handles <length> tag.
     """
     def process_length(self, root, state) -> List[Dict]:
-        assert (root.tag == "length"), "The root must be <length>"
+        assert (root.tag == "length"), "The root must be <length>. Current tag is {root.tag} with {root.attrib} attributes."
         length = {}
         for node in root:
             if node.tag == "literal":
@@ -263,7 +262,7 @@ class XMLToJSONTranslator(object):
     def process_variables(self, root, state) -> List[Dict]:
         try:
             variables = []
-            assert (root.tag == "variables"), "The root must be <variables>"
+            assert (root.tag == "variables"), "The root must be <variables>. Current tag is {root.tag} with {root.attrib} attributes."
             for node in root:
                 variables += self.parseTree(node, state)
             return variables
@@ -275,7 +274,7 @@ class XMLToJSONTranslator(object):
         then return it back to the called function.
     """
     def process_variable(self, root, state) -> List[Dict]:
-        assert (root.tag == "variable"), "The root must be <variable>"
+        assert (root.tag == "variable"), "The root must be <variable>. Current tag is {root.tag} with {root.attrib} attributes."
         try:
             var_name = root.attrib["name"].lower()
             is_array = root.attrib['is_array'].lower()
@@ -303,7 +302,7 @@ class XMLToJSONTranslator(object):
         (3) Array declaration
     """
     def process_derived_types(self, root, state) -> List[Dict]:
-        assert (root.tag == "type"), "The root must be <type>"
+        assert (root.tag == "derived-types"), f"The root must be <derived-type>. Current tag is {root.tag} with {root.attrib} attributes."
         derived_types = {'derived-types': []}
         declared_type = []
         declared_variable = []
@@ -313,7 +312,9 @@ class XMLToJSONTranslator(object):
             elif node.tag == "type": # Get the variable type
                 declared_type += self.parseTree(node, state)
             elif node.tag == "dimensions":
-                declared_type[-1].update(self.parseTree(node, state)[-1])
+                dimensions = {"count": node.attrib["count"], "dimensions": [{"tag": "dimension"}] }
+                dimensions["dimensions"][0].update(self.parseTree(node, state)[-1])
+                declared_type[-1].update(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
                 # declare variables based on the counts to handle the case where a multiple vars declared under a single type
@@ -328,7 +329,7 @@ class XMLToJSONTranslator(object):
         The type attribute indicates the current loop is either "do" or "do-while" loop.
     """
     def process_loop(self, root, state) -> List[Dict]:
-        assert (root.tag == "loop"), "The root must be <loop>"
+        assert (root.tag == "loop"), "The root must be <loop>. Current tag is {root.tag} with {root.attrib} attributes."
         if root.attrib["type"] == "do":
             do = {"tag": "do"}
             for node in root:
@@ -356,7 +357,7 @@ class XMLToJSONTranslator(object):
         index ranges of loops or arrays.
     """
     def process_index_variable(self, root, state) -> List[Dict]:
-        assert (root.tag == "index-variable"), "The root must be <index-variable>"
+        assert (root.tag == "index-variable"), "The root must be <index-variable>. Current tag is {root.tag} with {root.attrib} attributes."
         ind = {"tag": "index", "name": root.attrib["name"].lower()}
         for bounds in root:
             if bounds.tag == "lower-bound":
@@ -371,7 +372,7 @@ class XMLToJSONTranslator(object):
         This function handles <if> tag. Else and else if are nested under this tag.
     """
     def process_if(self, root, state) -> List[Dict]:
-        assert (root.tag == "if"), "The root must be <if>"
+        assert (root.tag == "if"), "The root must be <if>. Current tag is {root.tag} with {root.attrib} attributes."
         ifs = []
         curIf = None
         for node in root:
@@ -398,7 +399,7 @@ class XMLToJSONTranslator(object):
         should either be "operand" or "operator".
     """
     def process_operation(self, root, state) -> List[Dict]:
-        assert (root.tag == "operation"), "The root must be <operation>"
+        assert (root.tag == "operation"), "The root must be <operation>. Current tag is {root.tag} with {root.attrib} attributes."
         op = {"tag": "op"}
         for node in root:
             if node.tag == "operand":
@@ -422,7 +423,7 @@ class XMLToJSONTranslator(object):
         This function handles <literal> tag
     """
     def process_literal(self, root, state) -> List[Dict]:
-        assert (root.tag == "literal"), "The root must be <literal>"
+        assert (root.tag == "literal"), "The root must be <literal>. Current tag is {root.tag} with {root.attrib} attributes."
         for info in root:
             if info.tag == "pause-stmt":
                 return [{"tag": "pause", "msg": root.attrib["value"]}]
@@ -445,7 +446,7 @@ class XMLToJSONTranslator(object):
         read/writes).
     """
     def process_io_control(self, root, state) -> List[Dict]:
-        assert (root.tag == "io-controls"), "The root must be <io-controls>"
+        assert (root.tag == "io-controls"), "The root must be <io-controls>. Current tag is {root.tag} with {root.attrib} attributes."
         io_control = []
         for node in root:
             if node.text:
@@ -461,7 +462,7 @@ class XMLToJSONTranslator(object):
         AST for the pyTranslate.py with "ref" tag.
     """
     def process_name(self, root, state) -> List[Dict]:
-        assert (root.tag == "name"), "The root must be <name>"
+        assert (root.tag == "name"), f"The root must be <name>. Current tag is {root.tag} with {root.attrib} attributes."
         if root.attrib["id"].lower() in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
@@ -476,23 +477,31 @@ class XMLToJSONTranslator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         else:
-            ref = {"tag": "ref", "name": root.attrib["id"].lower()}
             # numPartRef represents the number of references in the name.
             # For example, numPartRef of x is 1 while numPartRef of x.y is 2, etc.
             numPartRef = int(root.attrib['numPartRef'])
-            for num in range(2, numPartRef+1):
-                ref.update({f"name{num}": root.attrib[f"id{num}"].lower()})
-            ref.update({"hasSubscripts": root.attrib["hasSubscripts"], "is_array": root.attrib["is_array"], "numPartRef": root.attrib["numPartRef"]})
-            if ref["hasSubscripts"] == "true":
+            ref = {
+                    "tag": "ref", "name": root.attrib["id"].lower(), "numPartRef": str(numPartRef), 
+                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": root.attrib["is_array"],
+                    "is_arg" : "false",
+                  }
+            if numPartRef > 1:
                 for node in root:
-                    ref["subscripts"]= self.parseTree(node, state)
+                    if node.tag == "name":
+                        nextRef = [self.parseTree(node, state)]
+                        ref.update({"ref": nextRef})
+            if root.attrib["hasSubscripts"] == "true":
+                subscripts = []
+                for node in root:
+                    subscripts.append(self.parseTree(node, state))
+                    ref["subscripts"] = self.parseTree(node, state) 
             return [ref]
 
     """
         This function handles <assignment> tag that nested elements of <target> and <value>.
     """
     def process_assignment(self, root, state) -> List[Dict]:
-        assert (root.tag == "assignment"), "The root must be <assignment>"
+        assert (root.tag == "assignment"), "The root must be <assignment>. Current tag is {root.tag} with {root.attrib} attributes."
         assign = {"tag": "assignment"}
         devTypeAssignment = False
         for node in root:
@@ -516,12 +525,15 @@ class XMLToJSONTranslator(object):
         This function handles <function> tag.
     """
     def process_function(self, root, state) -> List[Dict]:
-        assert (root.tag == "function"), "The root must be <function>"
+        assert (root.tag == "function"), "The root must be <function>. Current tag is {root.tag} with {root.attrib} attributes."
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
-                subroutine["args"] = self.parseTree(node, state)
+                args = self.parseTree(node, state)
+                for arg in args:
+                    arg["is_arg"] = "true"
+                subroutine["args"] = args
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = self.parseTree(node, subState)
@@ -533,7 +545,7 @@ class XMLToJSONTranslator(object):
         information about the array, such as the range and values.
     """
     def process_dimension(self, root, state) -> List[Dict]:
-        assert (root.tag == "dimension"), "The root must be <dimension>"
+        assert (root.tag == "dimension"), "The root must be <dimension>. Current tag is {root.tag} with {root.attrib} attributes."
         dimension = {"tag": "dimension"}
         for node in root:
             if node.tag == "range":
@@ -546,7 +558,7 @@ class XMLToJSONTranslator(object):
         This function handles <range> tag.
     """
     def process_range(self, root, state) -> List[Dict]:
-        assert (root.tag == "range"), "The root must be <range>"
+        assert (root.tag == "range"), "The root must be <range>. Current tag is {root.tag} with {root.attrib} attributes."
         ran = {}
         for node in root:
             if node.tag == "lower-bound":
@@ -559,7 +571,7 @@ class XMLToJSONTranslator(object):
         This function handles <keyword-argument> tag.
     """
     def process_keyword_argument(self, root, state) -> List[Dict]:
-        assert (root.tag == "keyword-argument"), "The root must be <keyword-argument>"
+        assert (root.tag == "keyword-argument"), "The root must be <keyword-argument>. Current tag is {root.tag} with {root.attrib} attributes."
         x = []
         if root.attrib and root.attrib["argument-name"] != "":
             x = [{"arg_name": root.attrib["argument-name"]}]
@@ -581,7 +593,6 @@ class XMLToJSONTranslator(object):
         val = {"tag": root.tag, "args": []}
         for node in root:
             val["args"] += self.parseTree(node, state)
-        print ("IN process_direct_map: ", val)
         return [val]
 
     def process_terminal(self, root, state) -> List[Dict]:
@@ -594,14 +605,12 @@ class XMLToJSONTranslator(object):
         This function handles <format> tag.
     """
     def process_format(self, root, state) -> List[Dict]:
-        assert (root.tag == "format"), "The root must be <format>"
+        assert (root.tag == "format"), "The root must be <format>. Current tag is {root.tag} with {root.attrib} attributes."
         format_spec = {"tag": "format", "args": []}
         for node in root:
             if node.tag == "label":
                 format_spec["label"] = node.attrib["lbl"]
             format_spec["args"] += self.parseTree(node, state)
-        # REMOVE
-        print ("IN process_format: ", format_spec)
         return [format_spec]
 
     """
