@@ -146,7 +146,7 @@ data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) d
 build:
 	mkdir -p $@
 
-PREASSEMBLED_CORPUS := $(HOME)/Downloads/wm_12_month_4_reader_20190118.json
+PREASSEMBLED_CORPUS := data/wm_12_month_4_reader_20190118.json
 
 build/pruned_corpus.json: evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build
 	python $^ $@
