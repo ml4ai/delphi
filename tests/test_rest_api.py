@@ -99,50 +99,84 @@ def test_getAllModels(G, client):
     assert G.id in rv.json
 
 
-def test_getIndicators(G, client):
+def test_getIndicators(client):
     with open("tests/data/causemos_cag.json", "r") as f:
         data = json.load(f)
-    data.update(
-        {
-            "start": 2012,
-            "end": 2016,
-            "geolocation": None,
-            "concept": "UN/events/human/conflict",
-            "func": "mean",
-        }
+
+    rv = client.post(f"/delphi/models", json=data)
+
+    indicator_get_request_params = {
+        "start": 2012,
+        "end": 2016,
+        "geolocation": None,
+        "func": "mean",
+    }
+    rv = client.get(
+        f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
     )
-    rv = client.get(f"/delphi/models/{G.id}/indicators", json=data)
     assert rv.json == {
-        "UN/events/human/conflict": [
+        "UN/entities/natural/natural_resources/solar_radiation": [
             {
-                "name": "Conflict incidences",
-                "score": 0.725_169,
-                "unit": "number of cases",
-                "value": 12.630_769_230_769_23,
+                "name": "Alternative and nuclear energy",
+                "score": 0.683_871_1,
+                "unit": "% of total energy use",
+                "value": 0.025_558_238_999_253_132,
             },
             {
-                "name": "Internally displaced persons, total displaced by conflict and violence",
-                "score": 0.658_000_4,
-                "unit": "number of people",
-                "value": 1_280_166.666_666_666_7,
+                "name": "Renewable energy consumption",
+                "score": 0.683_412_7,
+                "unit": "% of total final energy consumption",
+                "value": 32.200_623_464_611_276,
             },
             {
-                "name": "Conflict fatalities",
-                "score": 0.646_821_86,
-                "unit": "number of cases",
-                "value": 59.042_307_692_307_695,
+                "name": "Energy intensity level of primary energy",
+                "score": 0.663_611_95,
+                "unit": "MJ/$2011 PPP GDP",
+                "value": 1.259_060_596_485_224_8,
             },
             {
-                "name": "Internally displaced persons, new displacement associated with conflict and violence",
-                "score": 0.600_620_87,
-                "unit": "number of cases",
-                "value": 535_666.666_666_666_6,
+                "name": "CO2 emissions from electricity and heat production, total",
+                "score": 0.647_906_54,
+                "unit": "% of total fuel combustion",
+                "value": 29.307_395_472_808_995,
             },
             {
-                "name": "Legislation exists on domestic violence",
-                "score": 0.565_909_45,
-                "unit": "1=yes; 0=no",
-                "value": 0.0,
+                "name": "Fossil fuel energy consumption",
+                "score": 0.613_238_45,
+                "unit": "% of total",
+                "value": 71.555_697_411_767_94,
             },
-        ]
+        ],
+        "UN/events/weather/temperature": [
+            {
+                "name": "CO2 emissions from electricity and heat production, total",
+                "score": 0.541_949_300_000_000_1,
+                "unit": "% of total fuel combustion",
+                "value": 29.307_395_472_808_995,
+            },
+            {
+                "name": "Average precipitation in depth",
+                "score": 0.521_142_500_000_000_1,
+                "unit": "mm per year",
+                "value": 900.0,
+            },
+            {
+                "name": "Emissions intensity, Milk, whole fresh cow",
+                "score": 0.506_528_900_000_000_1,
+                "unit": "kg CO2eq/kg product",
+                "value": 4.648_339_999_999_999,
+            },
+            {
+                "name": "Adjusted savings: carbon dioxide damage",
+                "score": 0.485_740_57,
+                "unit": "% of GNI",
+                "value": 19_857_380.964_291_833,
+            },
+            {
+                "name": "Emissions intensity, Milk, whole fresh sheep",
+                "score": 0.472_487_48,
+                "unit": "kg CO2eq/kg product",
+                "value": 9.22012,
+            },
+        ],
     }

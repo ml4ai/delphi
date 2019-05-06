@@ -63,8 +63,7 @@ def getIndicators(model_id: str):
     be returned. If there are no matches for a given concept an empty array is
     returned.
     """
-    data = json.loads(request.data)
-    concept = data.get("concept")
+    concept = request.args.get("concept")
     func_dict = {
         "mean": np.mean,
         "median": np.median,
@@ -100,7 +99,7 @@ def getIndicators(model_id: str):
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
                     "unit": unit,
-                    "value": func_dict[data["func"]](
+                    "value": func_dict[request.args.get("func", "raw")](
                         [float(r["Value"]) for r in records]
                     ),
                 }
