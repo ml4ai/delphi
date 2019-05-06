@@ -48,7 +48,7 @@ def createNewModel():
     return jsonify({"status": "success"})
 
 
-@bp.route("/delphi/models/<string:model_id>/indicators", methods=["POST"])
+@bp.route("/delphi/models/<string:model_id>/indicators", methods=["GET"])
 def getIndicators(model_id: str):
     """ Search for indicator candidates pertaining to :model_id.
 

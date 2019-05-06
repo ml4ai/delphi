@@ -1,19 +1,21 @@
 import json
-import pytest
-from conftest import *
+from datetime import date
 from uuid import uuid4
+
+import numpy as np
+import pytest
+
+from conftest import *
 from delphi.apps.rest_api import create_app, db
 from delphi.apps.rest_api.models import (
-    Evidence,
-    ICMMetadata,
-    CausalVariable,
     CausalRelationship,
+    CausalVariable,
     DelphiModel,
+    Evidence,
     ForwardProjection,
+    ICMMetadata,
 )
-from datetime import date
 from delphi.random_variables import LatentVar
-import numpy as np
 
 
 @pytest.fixture(scope="module")
@@ -109,68 +111,38 @@ def test_getIndicators(G, client):
             "func": "mean",
         }
     )
-    rv = client.post(f"/delphi/models/{G.id}/indicators", json=data)
+    rv = client.get(f"/delphi/models/{G.id}/indicators", json=data)
     assert rv.json == {
         "UN/events/human/conflict": [
             {
                 "name": "Conflict incidences",
-                "score": 0.725169,
+                "score": 0.725_169,
                 "unit": "number of cases",
-                "value": 12.63076923076923,
+                "value": 12.630_769_230_769_23,
             },
             {
                 "name": "Internally displaced persons, total displaced by conflict and violence",
-                "score": 0.6580004,
+                "score": 0.658_000_4,
                 "unit": "number of people",
-                "value": 1280166.6666666667,
+                "value": 1_280_166.666_666_666_7,
             },
             {
                 "name": "Conflict fatalities",
-                "score": 0.64682186,
+                "score": 0.646_821_86,
                 "unit": "number of cases",
-                "value": 59.042307692307695,
+                "value": 59.042_307_692_307_695,
             },
             {
                 "name": "Internally displaced persons, new displacement associated with conflict and violence",
-                "score": 0.60062087,
+                "score": 0.600_620_87,
                 "unit": "number of cases",
-                "value": 535666.6666666666,
+                "value": 535_666.666_666_666_6,
             },
             {
                 "name": "Legislation exists on domestic violence",
-                "score": 0.56590945,
+                "score": 0.565_909_45,
                 "unit": "1=yes; 0=no",
                 "value": 0.0,
-            },
-            {
-                "name": "Percentage of livestock migrating due to conflict / insecurity",
-                "score": 0.5439555,
-                "unit": "%",
-                "value": 29.4,
-            },
-            {
-                "name": "Value, Political stability and absence of violence/terrorism (index)",
-                "score": 0.5019650999999999,
-                "unit": "index",
-                "value": -1.961666666666667,
-            },
-            {
-                "name": "Average number of cattle died/slaughtered/lost per  household during last 4 weeks",
-                "score": 0.47536009999999995,
-                "unit": None,
-                "value": 73.71428571428571,
-            },
-            {
-                "name": "Refugee population by country or territory of asylum",
-                "score": 0.4751459,
-                "unit": None,
-                "value": 248216.0,
-            },
-            {
-                "name": "Refugee population by country or territory of origin",
-                "score": 0.47174284,
-                "unit": None,
-                "value": 912165.8333333334,
             },
         ]
     }
