@@ -206,21 +206,6 @@ class AnalysisGraph(nx.DiGraph):
                         "InfluenceStatements"
                     ] = influence_sts
 
-        for concept, indicator in _dict[
-            "concept_to_indicator_mapping"
-        ].items():
-            if indicator is not None:
-                indicator_source, indicator_name = (
-                    indicator["name"].split("/")[0],
-                    "/".join(indicator["name"].split("/")[1:]),
-                )
-                if concept in G:
-                    if G.nodes[concept].get("indicators") is None:
-                        G.nodes[concept]["indicators"] = {}
-                    G.nodes[concept]["indicators"][indicator_name] = Indicator(
-                        indicator_name, indicator_source
-                    )
-
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
         return self
