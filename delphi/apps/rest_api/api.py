@@ -94,14 +94,18 @@ def getIndicators(model_id: str):
             )
             records = list(engine.execute(query))
             unit = records[0]["Unit"]  # TODO Does this generalize?
+            func = request.args.get("func", "raw")
+            if func == "raw":
+                value = [{"year":r["Year"], "value":float(r["Value"])} for r in records]
+            else:
+                value = func_dict[func]([float(r["Value"]) for r in records])
+
             output_dict[concept].append(
                 {
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
                     "unit": unit,
-                    "value": func_dict[request.args.get("func", "raw")](
-                        [float(r["Value"]) for r in records]
-                    ),
+                    "value": value,
                 }
             )
 
