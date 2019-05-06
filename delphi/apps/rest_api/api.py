@@ -29,7 +29,11 @@ bp = Blueprint("rest_api", __name__)
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
-    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+    if list(engine.execute("SELECT name FROM sqlite_master WHERE type='table' "
+            "AND name='icmmetadata'")) == []:
+        return jsonify([])
+    else:
+        return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
 @bp.route("/delphi/models", methods=["POST"])
