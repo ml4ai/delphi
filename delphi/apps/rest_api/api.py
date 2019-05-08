@@ -29,8 +29,15 @@ bp = Blueprint("rest_api", __name__)
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
-    if list(engine.execute("SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name='icmmetadata'")) == []:
+    if (
+        list(
+            engine.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name='icmmetadata'"
+            )
+        )
+        == []
+    ):
         return jsonify([])
     else:
         return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
@@ -75,7 +82,7 @@ def getIndicators(model_id: str):
         concepts = [concept]
     else:
         concepts = [
-            v.deserialize()['description']
+            v.deserialize()["description"]
             for v in CausalVariable.query.filter_by(model_id=model_id).all()
         ]
 
@@ -93,12 +100,31 @@ def getIndicators(model_id: str):
                 f" where `Variable` like '{indicator_mapping['Indicator']}'"
             )
             records = list(engine.execute(query))
-            unit = records[0]["Unit"]  # TODO Does this generalize?
             func = request.args.get("func", "raw")
             if func == "raw":
-                value = [{"year":r["Year"], "value":float(r["Value"])} for r in records]
+                value = [
+                    {
+                        "year": r["Year"],
+                        "value": float(r["Value"]),
+                        "unit": r["Unit"],
+                    }
+                    for r in records
+                ]
             else:
-                value = func_dict[func]([float(r["Value"]) for r in records])
+                values_dict = {}
+                for r in records:
+                    if r["Unit"] not in values_dict:
+                        values_dict[r["Unit"]] = [r["Value"]]
+                    else:
+                        values_dict[r["Unit"]].append(r["Value"])
+
+                value = [
+                    {
+                        "unit": unit,
+                        "value": func_dict[func](lmap(float, values)),
+                    }
+                    for unit, values in values_dict
+                ]
 
             output_dict[concept].append(
                 {
@@ -112,19 +138,21 @@ def getIndicators(model_id: str):
     return jsonify(output_dict)
 
 
-def getConceptToIndicatorMapping():
-    concepts = engine.execute(
-        "select `Concept` from concept_to_indicator_mapping"
-    )
-    mapping = {}
-    for concept in concepts:
-        results = engine.execute(
-            "select `Indicator`, `Source`, `Score` from "
-            f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'"
-        )
-        mapping[concept[0]] = [dict(r) for r in results]
+@bp.route("/delphi/models/<string:model_id>/export", methods=["POST"])
+def exportModel(model_id: str):
+    """ Sends quantification information to be attached to an existing model.
+    Sends concept-to-indicator mappings.
 
-    return jsonify(mapping)
+    Input: A map object of concepts and their associated
+           indicator/indicator-values
+    Output: Request status
+    """
+    data = json.loads(request.data)
+    G = DelphiModel.query.filter_by(id=model_id).first().model
+    for concept, indicator in data["concept_indicator_map"].values():
+        G.nodes[concept]["indicators"] = {
+            concept: Indicator(concept, indicator["source"])
+        }
 
 
 # ============
