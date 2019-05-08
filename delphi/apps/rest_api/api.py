@@ -123,7 +123,7 @@ def getIndicators(model_id: str):
                         "unit": unit,
                         "value": func_dict[func](lmap(float, values)),
                     }
-                    for unit, values in values_dict
+                    for unit, values in values_dict.items()
                 ]
 
             output_dict[concept].append(
