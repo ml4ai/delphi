@@ -1031,8 +1031,9 @@ class AnalysisGraph(nx.DiGraph):
         if app is None:
             app = create_app()
 
+        # Tag this model for displaying in the CauseWorks interface
+        self.tag_for_CX = True
         with app.app_context():
-            db.drop_all()
             db.create_all()
             db.session.add(icm_metadata)
             db.session.add(DelphiModel(id=self.id, model=self))

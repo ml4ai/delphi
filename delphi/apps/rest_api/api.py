@@ -11,11 +11,12 @@ from typing import Optional, List
 from itertools import product
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
-from delphi.utils import flatten
+from delphi.utils import flatten, lmap
 from flask import jsonify, request, Blueprint
 from delphi.db import engine
 from delphi.apps.rest_api import db
 from delphi.apps.rest_api.models import *
+from delphi.random_variables import Indicator
 import numpy as np
 from flask import current_app
 
@@ -130,7 +131,6 @@ def getIndicators(model_id: str):
                 {
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
-                    "unit": unit,
                     "value": value,
                 }
             )
@@ -149,10 +149,16 @@ def exportModel(model_id: str):
     """
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=model_id).first().model
-    for concept, indicator in data["concept_indicator_map"].values():
+    # Tag this model for display in the CauseWorks interface
+    G.tag_for_CX = True
+    for concept, indicator in data["concept_indicator_map"].items():
         G.nodes[concept]["indicators"] = {
-            concept: Indicator(concept, indicator["source"])
+            concept: Indicator(
+                concept, indicator["source"], value=indicator["value"]
+            )
         }
+
+    return jsonify({"status": "success"})
 
 
 # ============
