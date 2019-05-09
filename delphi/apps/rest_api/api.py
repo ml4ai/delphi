@@ -76,6 +76,7 @@ def getIndicators(model_id: str):
         "mean": np.mean,
         "median": np.median,
         "max": max,
+        "min": min,
         "raw": lambda x: x,
     }
 
