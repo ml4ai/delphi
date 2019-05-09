@@ -102,30 +102,31 @@ def getIndicators(model_id: str):
             )
             records = list(engine.execute(query))
             func = request.args.get("func", "raw")
+            value_dict = {}
             if func == "raw":
-                value = [
-                    {
-                        "year": r["Year"],
-                        "value": float(r["Value"]),
-                        "unit": r["Unit"],
-                    }
-                    for r in records
-                ]
-            else:
-                values_dict = {}
                 for r in records:
-                    if r["Unit"] not in values_dict:
-                        values_dict[r["Unit"]] = [r["Value"]]
+                    unit, value, year = r["Unit"], r["Value"], r["Year"]
+                    if unit not in value_dict:
+                        value_dict[unit] = [
+                            {"year": year, "value": float(value)}
+                        ]
                     else:
-                        values_dict[r["Unit"]].append(r["Value"])
+                        value_dict[unit].append(
+                            {"year": year, "value": float(value)}
+                        )
+                value = value_dict
+            else:
+                for r in records:
+                    unit, value = r["Unit"], r["Value"]
+                    if unit not in value_dict:
+                        value_dict[unit] = [value]
+                    else:
+                        value_dict[unit].append(value)
 
-                value = [
-                    {
-                        "unit": unit,
-                        "value": func_dict[func](lmap(float, values)),
-                    }
-                    for unit, values in values_dict.items()
-                ]
+                value = {
+                    unit: func_dict[func](lmap(float, values))
+                    for unit, values in value_dict.items()
+                }
 
             output_dict[concept].append(
                 {
