@@ -787,6 +787,9 @@ class PythonCodeGenerator(object):
                 file_id = str(self.nameMapper[node["args"][0].get("name")])
             file_handle = "file_" + file_id
 
+        #REMOVE
+        print ("in printWrite: ", node)
+
         # Check whether format has been specified
         if str(node["args"][1]["value"]) == "*":
             format_type = "runtime"

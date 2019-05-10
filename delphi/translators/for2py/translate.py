@@ -454,7 +454,7 @@ class XMLToJSONTranslator(object):
                 io_control += self.parseTree(node, state)
             else:
                 assert node.attrib["hasAsterisk"] == "true", "hasAsterisk is false. Something is wrong."
-                io_control = [{"tag": "literal", "type": "char", "value": "*"}]
+                io_control += [{"tag": "literal", "type": "char", "value": "*"}]
         return io_control
 
     """
@@ -592,6 +592,8 @@ class XMLToJSONTranslator(object):
 
         val = {"tag": root.tag, "args": []}
         for node in root:
+            # REMOVE
+            print ("in process_direct_map: ", node)
             val["args"] += self.parseTree(node, state)
         return [val]
 
