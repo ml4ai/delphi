@@ -222,7 +222,9 @@ def getICMByUUID(uuid: str):
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
     _metadata = ICMMetadata.query.filter_by(id=uuid).first()
+    G = DelphiModel.query.filter_by(id=uuid).first()
     db.session.delete(_metadata)
+    db.session.delete(G)
     db.session.commit()
     return ("", 204)
 
