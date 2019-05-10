@@ -354,6 +354,7 @@ def createExperiment(uuid: str):
             os.makedirs("/tmp/delphi", exist_ok=True)
         config_file = "/tmp/delphi/bmi_config.txt"
 
+    G.create_bmi_config_file(config_file)
     G.initialize(initialize_indicators=False, config_file=config_file)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
