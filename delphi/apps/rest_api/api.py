@@ -223,6 +223,8 @@ def deleteICM(uuid: str):
     """ Deletes an ICM"""
     _metadata = ICMMetadata.query.filter_by(id=uuid).first()
     G = DelphiModel.query.filter_by(id=uuid).first()
+    for primitive in CausalPrimitive.query.filter_by(model_id=uuid).all():
+        db.session.delete(primitive)
     db.session.delete(_metadata)
     db.session.delete(G)
     db.session.commit()
