@@ -71,7 +71,8 @@ def getIndicators(model_id: str):
     be returned. If there are no matches for a given concept an empty array is
     returned.
     """
-    concept = request.args.get("concept")
+    args = request.args
+    concept = args.get("concept")
     func_dict = {
         "mean": np.mean,
         "median": np.median,
@@ -91,30 +92,52 @@ def getIndicators(model_id: str):
     output_dict = {}
     for concept in concepts:
         output_dict[concept] = []
-        query_parts = [
-            "select `Concept`, `Source`, `Indicator`, `Score`",
-            "from concept_to_indicator_mapping",
-            f"where `Concept` like '{concept}'",
-        ]
-        for indicator_mapping in engine.execute(" ".join(query_parts)):
-            query = (
-                f"select * from indicator"
-                f" where `Variable` like '{indicator_mapping['Indicator']}'"
-            )
+        query = (
+            "select `Concept`, `Source`, `Indicator`, `Score` "
+            "from concept_to_indicator_mapping "
+            f"where `Concept` like '{concept}'"
+        )
+
+        for indicator_mapping in engine.execute(query):
+            query_parts = {
+                "base": (
+                    f"select * from indicator"
+                    f" where `Variable` like '{indicator_mapping['Indicator']}'"
+                )
+            }
+            for param in (
+                "country",
+                "state",
+                "county",
+                "year",
+                "month",
+                "unit",
+            ):
+                if args.get(param) is not None:
+                    query_parts[
+                        param
+                    ] = f"and `{param.capitalize()}` is '{args.get(param)}'"
+
+            query = " ".join(query_parts.values())
             records = list(engine.execute(query))
             func = request.args.get("func", "raw")
             value_dict = {}
             if func == "raw":
                 for r in records:
-                    unit, value, year = r["Unit"], r["Value"], r["Year"]
-                    if unit not in value_dict:
-                        value_dict[unit] = [
-                            {"year": year, "value": float(value)}
-                        ]
+                    if r["Unit"] not in value_dict:
+                        _dict = {
+                            param: r[param.capitalize()]
+                            for param in (
+                                "year",
+                                "value",
+                                "country",
+                                "county",
+                                "state",
+                            )
+                        }
+                        value_dict[r["Unit"]] = [_dict]
                     else:
-                        value_dict[unit].append(
-                            {"year": year, "value": float(value)}
-                        )
+                        value_dict[r["Unit"]].append(_dict)
                 value = value_dict
             else:
                 for r in records:
