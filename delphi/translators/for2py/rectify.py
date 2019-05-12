@@ -30,6 +30,7 @@ class RectifyOFPXML:
         self.is_array = False
         self.is_format = False
         self.is_function_arg = False
+        self.need_reconstruct = False
 
         self.cur_derived_type_name = ""
         self.current_scope = ""
@@ -44,6 +45,7 @@ class RectifyOFPXML:
 
         self.format_holder = ET.Element('')
         self.parent_type = ET.Element('')
+        self.derived_type_ref = ET.Element('')
         self.current_body_scope = ET.Element('')
 
     """
@@ -385,22 +387,52 @@ class RectifyOFPXML:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "name":
                 self.parseXMLTree(child, curElem)
+                if child.tag == "name" and self.need_reconstruct:
+                    self.reconstruct_name_element(curElem, parElem)
             else:
                 print (f'In self.handle_tag_target: "{child.tag}" not handled')
 
     """
-        This function handles cleaning up the XML elementss between the names and/or name elementss.
-        <names>         <name>
-            ...     or     ...
-        </names>        <name>
+        This function handles cleaning up the XML elements between the names elements.
+        <names>
+            ...
+        <names>
+    """
+    def handle_tag_names(self, root, parElem):
+        assert root.tag == "names", f"The tag <names> must be passed to handle_tag_name. Currently, it's {root.tag}."
+
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag == "name":
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                # If the element holds subelements, call the XML tree parser with created new <name> element
+                if child.text:
+                    self.parseXMLTree(child, curElem)
+                # Else, update the element's attribute with the default <name> element attributes
+                else:
+                    attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous" }
+                    # Check if the variable is a function argument
+                    if self.is_function_arg:
+                        attributes["is_arg"] = "true"
+                    else:
+                        attributes["is_arg"] = "false"
+                    curElem.attrib.update(attributes)
+            else:
+                print (f'In self.handle_tag_names: "{child.tag}" not handled')
+
+    """
+        This function handles cleaning up the XML elementss between the name elements.
+        <name>
+            ...
+        <name>
 
         There are three different types of names that the type attribute can hold:
-            (1) variable - Simple (single) variable or an array
+            (1) variable  - Simple (single) variable or an array
             (2) procedure - Function (or procedure) call
             (3) ambiguous - None of the above two type
     """
     def handle_tag_name(self, root, parElem):
-        assert root.tag == "names" or root.tag == "name", f"The tag <names> or <name> must be passed to handle_tag_name. Currently, it's {root.tag}."
+        assert root.tag == "name", f"The tag <name> must be passed to handle_tag_name. Currently, it's {root.tag}."
         # All variables have default "is_array" value "false"
         parElem.attrib['is_array'] = "false"
 
@@ -426,7 +458,6 @@ class RectifyOFPXML:
                         elif parElem.attrib['id'] in self.declared_non_array_vars and self.declared_non_array_vars[parElem.attrib['id']] == self.current_scope:
                             parElem.attrib['hasSubscripts'] = "false"
                     self.parseXMLTree(child, curElem)
-                    #self.subscripts_holder.append(curElem)
                 elif child.tag == "output":
                     assert is_empty(self.derived_type_var_holder_list)
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -437,40 +468,18 @@ class RectifyOFPXML:
                 else:
                     print (f'In self.handle_tag_name: "{child.tag}" not handled')
             else:
-                if child.tag == "name" or child.tag == "generic_spec":
-                    if child.tag == "name":
-                        parElem.attrib['is_array'] = "false"
-
-                        attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
-                        # Check if the variable is a function argument
-                        if self.is_function_arg:
-                            attributes["is_arg"] = "true"
-                        else:
-                            attributes["is_arg"] = "false"
-
-                        child.attrib.update(attributes)
-                    elif child.tag == "generic_spec":
-                        attributes = { "hasSubscripts": "false", "is_array": "false", "numPartRef": "1", "type": "ambiguous"}
-                        parElem.attrib.update(attributes)
+                if child.tag == "generic_spec":
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 elif child.tag == "data-ref":
                     parElem.attrib.update(child.attrib)
                 elif child.tag != "designator":
                     print (f'In self.handle_tag_name: Empty elements "{child.tag}" not handled')
 
-            # Update reconstruced derived type references
-            if self.derived_type_refs:
-                assert self.is_derived_type_ref == True, "'self.is_derived_type_ref' must be true"
-                numPartRef = int(parElem.attrib["numPartRef"]) - 1
-                for idx in range (1, len(self.derived_type_refs)):
-                    self.derived_type_refs[idx].attrib.update({"numPartRef": str(numPartRef)})
-                    numPartRef -= 1
-                # Re-initialize to original values
-                self.is_derived_type_ref = False
-                self.derived_type_refs.clear()
-
-            # if 'numPartRef' in parElem.attrib and int(parElem.attrib['numPartRef']) > 1 and parElem.attrib['hasSubscripts'] == "true":
-                # self.subscripts_holder.clear()
+        # If the name element is for handling derived type references, reconstruct it
+        if self.derived_type_refs:
+            self.reconstruct_derived_type_names(parElem)
+            self.is_derived_type_ref = False
+            self.need_reconstruct = True
 
     """
         This function handles cleaning up the XML elementss between the value elementss.
@@ -735,7 +744,8 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 self.parseXMLTree(child, curElem)
             elif child.tag == "name":
-                self.parseXMLTree(child, root)
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                self.parseXMLTree(child, curElem)
             else:
                 print (f'In handle_tag_outputs: "{child.tag}" not handled')
 
@@ -751,6 +761,8 @@ class RectifyOFPXML:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "name" or child.tag == "literal":
                 self.parseXMLTree(child, curElem)
+                if child.tag == "name" and self.need_reconstruct:
+                    self.reconstruct_name_element(curElem, parElem)
             else:
                 print (f'In handle_tag_outputs: "{child.tag}" not handled')
 
@@ -1206,7 +1218,9 @@ new_format
             self.handle_tag_target(root, parElem)
         elif root.tag == "value":
             self.handle_tag_value(root, parElem)
-        elif root.tag == "names" or root.tag == "name":
+        elif root.tag == "names":
+            self.handle_tag_names(root, parElem)
+        elif root.tag == "name":
             self.handle_tag_name(root, parElem)
         elif root.tag == "literal":
             self.handle_tag_literal(root, parElem)
@@ -1286,6 +1300,12 @@ new_format
             self.handle_tag_length(root, parElem)
         else:
             print (f"In the parseXMLTree and, currently, {root.tag} is not supported")
+
+    #################################################################
+    #                                                               #
+    #                       RECONSTRUCTORS                          #
+    #                                                               #
+    #################################################################
 
     """
         reconstruct_derived_type_declaratione reconstruct the derived type with the collected derived type declaration elementss
@@ -1403,6 +1423,70 @@ new_format
         self.parseXMLTree(self.format_holder, curElem) 
 
     """
+        This function reconstructs derived type reference syntax tree.
+        However, this functions is actually a preprocessor for the real final reconstruction.
+    """
+    def reconstruct_derived_type_names(self, parElem):
+        # Update reconstruced derived type references
+        assert self.is_derived_type_ref == True, "'self.is_derived_type_ref' must be true"
+        numPartRef = int(parElem.attrib["numPartRef"])
+        for idx in range (1, len(self.derived_type_refs)):
+            self.derived_type_refs[idx].attrib.update({"numPartRef": str(numPartRef)})
+        # Re-initialize to original values
+        self.derived_type_refs.clear()
+
+    """
+        This function performs a final reconstruction of derived type name element that was
+        preprocessed by 'reconstruct_derived_type_names' function. This function traverses
+        the preprocessed name element (including sub-elements) and split & store <name> and
+        <subscripts> into separate lists. Then, it comibines and reconstructs two lists
+        appropriately.
+    """
+    def reconstruct_name_element(self, curElem, parElem):
+        name_elements = [curElem]
+        # Remove the original <name> elements.
+        parElem.remove(curElem)
+        # Split & Store <name> element and <subscripts>.
+        subscripts_holder = []
+        for child in curElem:
+            if child.tag == "subscripts":
+                subscripts_holder.append(child)
+            else:
+                name_elements.append(child)
+                for third in child:
+                    name_elements.append(third)
+
+        # Combine & Reconstruct <name> element.
+        subscript_num = 0
+        curElem = ET.SubElement(parElem, name_elements[0].tag, name_elements[0].attrib)
+        if curElem.attrib['hasSubscripts'] == "true":
+            curElem.append(subscripts_holder[subscript_num])
+            subscript_num += 1
+
+        numPartRef = int(curElem.attrib['numPartRef']) - 1
+        name_element = ET.Element('')
+        for idx in range(1, len(name_elements)):
+            name_elements[idx].attrib['numPartRef'] = str(numPartRef)
+            numPartRef -= 1
+            name_element = ET.SubElement(curElem, name_elements[idx].tag, name_elements[idx].attrib)
+            # In order to handle the nested subelements of <name>, update the curElem at each iteration.
+            curElem = name_element
+            if name_elements[idx].attrib['hasSubscripts'] == "true":
+                name_element.append(subscripts_holder[subscript_num])
+                subscript_num += 1
+
+        # Clean out the lists for recyling. This is not really needed as they are local lists, but just in case.
+        name_elements.clear()
+        subscripts_holder.clear()
+        self.need_reconstruct = False
+
+    #################################################################
+    #                                                               #
+    #                       MISCELLANEOUS                           #
+    #                                                               #
+    #################################################################
+
+    """
         This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
         Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
         of id with the cleaned version.
@@ -1410,7 +1494,7 @@ new_format
     def clean_derived_type_ref(self, parElem):
         current_id = parElem.attrib['id'] # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
         self.derived_type_var_holder_list.append(self.clean_id(current_id)) # 2. Extract the first variable name, for example, x in this case.
-        percent_sign = current_id.find("%") # 3. Get the location of the '%' sign
+        percent_sign = current_id.find("%") # 3. Get the location of the '%' sign.
         self.derived_type_var_holder_list.append(current_id[percent_sign + 1 : len(current_id)]) # 4. Get the field variable. y in this example.
         self.reconstruct_derived_type_ref(parElem)
 
