@@ -485,10 +485,19 @@ class XMLToJSONTranslator(object):
                     "hasSubscripts": root.attrib["hasSubscripts"], "is_array": root.attrib["is_array"],
                     "is_arg" : "false",
                   }
+            # REMOVE
+            print ("in process_name: ", root.attrib)
+
+            # Check whether the passed element is for derived type reference
+            if "is_derived_type_ref" in root.attrib:
+                ref["is_derived_type_ref"] = "true"
+            else:
+                ref["is_derived_type_ref"] = "false"
+
             if numPartRef > 1:
                 for node in root:
                     if node.tag == "name":
-                        nextRef = [self.parseTree(node, state)]
+                        nextRef = self.parseTree(node, state)
                         ref.update({"ref": nextRef})
             if root.attrib["hasSubscripts"] == "true":
                 subscripts = []
@@ -592,8 +601,6 @@ class XMLToJSONTranslator(object):
 
         val = {"tag": root.tag, "args": []}
         for node in root:
-            # REMOVE
-            print ("in process_direct_map: ", node)
             val["args"] += self.parseTree(node, state)
         return [val]
 

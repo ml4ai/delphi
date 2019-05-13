@@ -254,8 +254,6 @@ class PythonCodeGenerator(object):
         self.funcArgs[self.nameMapper[node["name"]]] = [
             self.nameMapper[x["name"]] for x in node["args"]
         ]
-        # REMOVE
-        print ("in printFunction: ", node["args"], "\n")
         self.printAst(
             node["args"],
             printState.copy(
@@ -401,7 +399,16 @@ class PythonCodeGenerator(object):
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
            (scalar) variables."""
-        ref_str = self.nameMapper[node["name"]]
+        # REMOVE
+        print ("in proc_ref: ", node)
+        ref_str = ""
+        is_derived_type_ref = False
+        if "is_derived_type_ref" in node and node["is_derived_type_ref"] == "true":
+            ref_str = self.get_derived_type_ref(node)
+            is_derived_type_ref = True
+        else:
+            ref_str = self.nameMapper[node["name"]]
+
         if "subscripts" in node:
             # array reference or function call
             if "is_array" in node and node["is_array"] == "true":
@@ -416,10 +423,9 @@ class PythonCodeGenerator(object):
             if wrapper:
                 expr_str = ref_str
             else:
-                # REMOVE
-                print ("in proc_ref: ", node)
-                if "is_arg" in node and node["is_arg"] == "true":
+                if "is_arg" in node and node["is_arg"] == "true" or is_derived_type_ref:
                     expr_str = ref_str
+                    is_derived_type_ref = False
                 else:
                     expr_str = ref_str + "[0]"
 
@@ -506,8 +512,6 @@ class PythonCodeGenerator(object):
         self.nameMapper[node["name"]] = "_" + node["name"]
 
     def printArg(self, node, printState: PrintState):
-        # REMOVE
-        print ("printArg: ", node)
         try:
             var_type = TYPE_MAP[node["type"].lower()]
         except KeyError:
@@ -622,14 +626,14 @@ class PythonCodeGenerator(object):
 
     def printRef(self, node, printState: PrintState):
         ref_str = self.proc_ref(node, False)
-        # REMOVE
-        print ("in printRef: ", ref_str)
         self.pyStrings.append(ref_str)
 
     def printAssignment(self, node, printState: PrintState):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
         
+        # REMOVE
+        print ("in printAssignment: ", node["value"][0])
         rhs_str = self.proc_expr(node["value"][0], False)
                                         
         if lhs["hasSubscripts"] == "true":
@@ -644,12 +648,8 @@ class PythonCodeGenerator(object):
                 # handling derived types might go here
                 assert False
         else:
-            numPartRef = int(lhs["numPartRef"])
-            if numPartRef > 1:
-                assg_str = lhs["name"]
-                for i in range(2, numPartRef+1):
-                    nameNumber = lhs["name" + str(i)]
-                    assg_str += f".{nameNumber}"
+            if lhs["is_derived_type_ref"] == "true":
+                assg_str = self.get_derived_type_ref(lhs)
             else:
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
@@ -787,9 +787,6 @@ class PythonCodeGenerator(object):
                 file_id = str(self.nameMapper[node["args"][0].get("name")])
             file_handle = "file_" + file_id
 
-        #REMOVE
-        print ("in printWrite: ", node)
-
         # Check whether format has been specified
         if str(node["args"][1]["value"]) == "*":
             format_type = "runtime"
@@ -807,7 +804,13 @@ class PythonCodeGenerator(object):
         # a WRITE statement are the output stream and the format, so these are
         # skipped.
         args = node["args"][2:]
-        args_str = [self.proc_expr(args[i], False) for i in range(len(args))]
+        args_str = []
+        for i in range(len(args)):
+            if "is_derived_type_ref" in args[i] and args[i]["is_derived_type_ref"] == "true":
+                args_str.append(self.get_derived_type_ref(args[i]))
+            else:
+                args_str.append(self.proc_expr(args[i], False))
+            
         write_string = ', '.join(args_str)
         self.pyStrings.append(f"[{write_string}]")
         self.pyStrings.append(printState.sep)
@@ -1101,6 +1104,18 @@ class PythonCodeGenerator(object):
                 count += 1
 
         return array_range
+
+    """
+        This function forms a derived type reference and return to the caller
+    """
+    def get_derived_type_ref(self, node):
+        ref = ""
+        ref += node["name"]
+        if "ref" in node:
+            ref += f".{self.get_derived_type_ref(node['ref'][0])}"
+        return ref
+
+
 
 def index_modules(root) -> Dict:
     """ Counts the number of modules in the Fortran file including the program

@@ -493,6 +493,8 @@ class RectifyOFPXML:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "literal" or child.tag == "operation" or child.tag == "name":
                 self.parseXMLTree(child, curElem)
+                if child.tag == "name" and self.need_reconstruct:
+                    self.reconstruct_name_element(curElem, parElem)
             else:
                 print (f'In self.handle_tag_value: "{child.tag}" not handled')
 
@@ -674,6 +676,8 @@ class RectifyOFPXML:
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "name" or child.tag == "literal" or child.tag == "operation":
                 self.parseXMLTree(child, curElem)
+                if child.tag == "name" and self.need_reconstruct:
+                    self.reconstruct_name_element(curElem, parElem)
             else:
                 print (f'In handle_tag_operand: "{child.tag}" not handled')
 
@@ -1178,13 +1182,19 @@ class RectifyOFPXML:
             else:
                 print (f'In handle_tag_length: "{child.tag}" not handled')
 
+    #################################################################
+    #                                                               #
+    #                       XML TAG PARSER                          #
+    #                                                               #
+    #################################################################
+
     """
         parseXMLTree
 
         Arguments:
             root: The current root of the tree.
             parElem: The parent elements.
-new_format
+    
         Returns:
             None
             
@@ -1459,9 +1469,14 @@ new_format
         # Combine & Reconstruct <name> element.
         subscript_num = 0
         curElem = ET.SubElement(parElem, name_elements[0].tag, name_elements[0].attrib)
+        curElem.attrib['is_derived_type_ref'] = 'true'
         if curElem.attrib['hasSubscripts'] == "true":
             curElem.append(subscripts_holder[subscript_num])
             subscript_num += 1
+
+        # REMOVE
+        for i in range(len(name_elements)):
+            print (name_elements[i].tag, name_elements[i].attrib)
 
         numPartRef = int(curElem.attrib['numPartRef']) - 1
         name_element = ET.Element('')
@@ -1469,6 +1484,7 @@ new_format
             name_elements[idx].attrib['numPartRef'] = str(numPartRef)
             numPartRef -= 1
             name_element = ET.SubElement(curElem, name_elements[idx].tag, name_elements[idx].attrib)
+            name_element.attrib['is_derived_type_ref'] = 'true'
             # In order to handle the nested subelements of <name>, update the curElem at each iteration.
             curElem = name_element
             if name_elements[idx].attrib['hasSubscripts'] == "true":
@@ -1517,7 +1533,12 @@ new_format
         if "rule" in elements.attrib:
             elements.attrib.pop("rule")
 
-# ================================================================================================================================================================================
+    #################################################################
+    #                                                               #
+    #                     NON-CLASS FUNCTIONS                       #
+    #                                                               #
+    #################################################################
+
 """
     This function is just a helper function for check whether the passed elements (i.e. list) is empty or not
 """
@@ -1574,4 +1595,3 @@ def main():
     buildNewAST(newRoot, filename);
 
 main()
-# ================================================================================================================================================================================
