@@ -184,7 +184,9 @@ def createNewICM():
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
     """ List all ICMs"""
-    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+    ids = [metadata.id for metadata in ICMMetadata.query.all()]
+    ids.reverse()
+    return jsonify(ids)
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
