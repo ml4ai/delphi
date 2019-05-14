@@ -106,22 +106,21 @@ def getIndicators(model_id: str):
             value_dict = {}
             if func == "raw":
                 for r in records:
-                    unit, value, year = r["Unit"], r["Value"], r["Year"]
+                    unit, value, year, source = r["Unit"], r["Value"], r["Year"], r["Source"]
                     if unit not in value_dict:
                         value_dict[unit] = [
-                            {"year": year, "value": float(value), "source": r["Source"]}
+                            {"year": year, "value": float(value), "source": source}
                         ]
                     else:
                         value_dict[unit].append(
-                            {"year": year, "value": float(value), "source": r["Source"]}
+                            {"year": year, "value": float(value), "source": source}
                         )
                 value = value_dict
             else:
                 for r in records:
-                    unit, value = r["Unit"], r["Value"]
+                    unit, value, source = r["Unit"], r["Value"], r["Source"]
                     # HACK! if the variables have the same names but different
                     # sources, this will only give the most recent source
-                    source = r["Source"]
                     if unit not in value_dict:
                         value_dict[unit] = [value]
                     else:
