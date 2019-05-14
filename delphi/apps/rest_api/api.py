@@ -187,9 +187,21 @@ def createNewICM():
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
     """ List all ICMs"""
-    ids = [metadata.id for metadata in ICMMetadata.query.all()]
-    ids.reverse()
-    return jsonify(ids)
+    if (
+        list(
+            engine.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name='icmmetadata'"
+            )
+        )
+        == []
+    ):
+        return jsonify([])
+    else:
+        ids = [metadata.id for metadata in ICMMetadata.query.all()]
+        ids.reverse()
+        return jsonify(ids)
+
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
