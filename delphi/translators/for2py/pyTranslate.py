@@ -186,6 +186,9 @@ class PythonCodeGenerator(object):
         self.pyStrings = []
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
         self.format_dict = {}
+        self.declaredDerivedTVars = []
+        self.declaredDerivedTypes = []
+        
         self.printFn = {
             "subroutine": self.printSubroutine,
             "program": self.printProgram,
@@ -399,12 +402,10 @@ class PythonCodeGenerator(object):
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
            (scalar) variables."""
-        # REMOVE
-        print ("in proc_ref: ", node)
         ref_str = ""
         is_derived_type_ref = False
         if "is_derived_type_ref" in node and node["is_derived_type_ref"] == "true":
-            ref_str = self.get_derived_type_ref(node)
+            ref_str = self.get_derived_type_ref(node, int(node["numPartRef"]), False)
             is_derived_type_ref = True
         else:
             ref_str = self.nameMapper[node["name"]]
@@ -427,7 +428,10 @@ class PythonCodeGenerator(object):
                     expr_str = ref_str
                     is_derived_type_ref = False
                 else:
-                    expr_str = ref_str + "[0]"
+                    if ref_str in self.declaredDerivedTVars:
+                        expr_str = ref_str
+                    else:
+                        expr_str = ref_str + "[0]"
 
         return expr_str
 
@@ -632,27 +636,29 @@ class PythonCodeGenerator(object):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
         
-        # REMOVE
-        print ("in printAssignment: ", node["value"][0])
         rhs_str = self.proc_expr(node["value"][0], False)
-                                        
-        if lhs["hasSubscripts"] == "true":
-            assert "subscripts" in lhs, "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
-            # target is an array element
-            if "is_array" in lhs and lhs["is_array"] == "true":
-                subs = lhs["subscripts"]
-                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
-                subscripts = ", ".join(subs_strs)
-                assg_str = f"{lhs['name']}.set_(({subscripts}), {rhs_str})"
-            else:
-                # handling derived types might go here
-                assert False
+        
+        if lhs["is_derived_type_ref"] == "true":
+            assg_str = self.get_derived_type_ref(lhs, int(lhs["numPartRef"]), True)
         else:
-            if lhs["is_derived_type_ref"] == "true":
-                assg_str = self.get_derived_type_ref(lhs)
+            if lhs["hasSubscripts"] == "true":
+                assert "subscripts" in lhs, "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+                # target is an array element
+                if "is_array" in lhs and lhs["is_array"] == "true":
+                    subs = lhs["subscripts"]
+                    subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                    subscripts = ", ".join(subs_strs)
+                    assg_str = f"{lhs['name']}.set_(({subscripts}), "
+                else:
+                    # handling derived types might go here
+                    assert False
             else:
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
+
+        if "set_" in assg_str:
+            assg_str += f"{rhs_str})"
+        else:
             assg_str += f" = {rhs_str}"
 
         self.pyStrings.append(assg_str)
@@ -807,7 +813,7 @@ class PythonCodeGenerator(object):
         args_str = []
         for i in range(len(args)):
             if "is_derived_type_ref" in args[i] and args[i]["is_derived_type_ref"] == "true":
-                args_str.append(self.get_derived_type_ref(args[i]))
+                args_str.append(self.get_derived_type_ref(args[i], int(args[i]["numPartRef"]), False))
             else:
                 args_str.append(self.proc_expr(args[i], False))
             
@@ -939,6 +945,7 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(
                     f"{self.nameMapper[node['name']]} =  {varType}()"
                 )
+                self.declaredDerivedTVars.append(node["name"])
             else:
                 if printState.functionScope:
                     if not var_name in self.funcArgs.get(
@@ -989,12 +996,28 @@ class PythonCodeGenerator(object):
 
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(f"class {derived_type_class_info['type']}:\n")
+        # For a record, store the declared derived type names
+        self.declaredDerivedTypes.append(derived_type_class_info['type'])
+
         self.pyStrings.append("    def __init__(self):\n")
         for var in range(num_of_variables):
             name = derived_type_variables[var]["name"]
+
+            # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
+            is_derived_type_declaration = False
+            # If the type is not one of the default types, but it's a declared derived type,
+            # set the is_derived_type_declaration to True as the declaration of variable
+            # with such type has different declaration syntax from the default type variables.
+            if var_type not in TYPE_MAP and var_type in self.declaredDerivedTypes:
+                is_derived_type_declaration = True
+
             if derived_type_variables[var]["is_array"] == "false":
-                self.pyStrings.append(f"        self.{name} : {var_type}")
+                if not is_derived_type_declaration:
+                    self.pyStrings.append(f"        self.{name} : {var_type}")
+                else:
+                    self.pyStrings.append(f"        self.{name} = {var_type}()")
+
                 if "value" in derived_type_variables[var]:
                     value = self.proc_literal(derived_type_variables[var]["value"][0])
                     self.pyStrings.append(f" = {value}")
@@ -1108,11 +1131,24 @@ class PythonCodeGenerator(object):
     """
         This function forms a derived type reference and return to the caller
     """
-    def get_derived_type_ref(self, node):
+    def get_derived_type_ref(self, node, numPartRef, is_assignment):
         ref = ""
-        ref += node["name"]
+        if node["hasSubscripts"] == "true":
+            subscript = node["subscripts"][0]
+            if subscript["tag"] == "ref":
+                index = f"{subscript['name']}[0]"
+            else:
+                index = subscript["value"]
+
+            if numPartRef > 1 or not is_assignment:
+                ref += f"{node['name']}.get_({index})"
+            else:
+                ref += f"{node['name']}.set_({index}, "
+        else:
+            ref += node["name"]
+        numPartRef -= 1
         if "ref" in node:
-            ref += f".{self.get_derived_type_ref(node['ref'][0])}"
+            ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
         return ref
 
 

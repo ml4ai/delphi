@@ -613,6 +613,8 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.tag == "literal" or child.tag == "name" or child.tag == "operation":
                     self.parseXMLTree(child, curElem)
+                    if child.tag == "name" and self.need_reconstruct:
+                        self.reconstruct_name_element(curElem, parElem)
                 else:
                     print (f'In self.handle_tag_upper_bound: "{child.tag}" not handled')
 
@@ -748,8 +750,8 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 self.parseXMLTree(child, curElem)
             elif child.tag == "name":
-                curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                self.parseXMLTree(child, curElem)
+                # curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                self.parseXMLTree(child, parElem)
             else:
                 print (f'In handle_tag_outputs: "{child.tag}" not handled')
 
@@ -1473,10 +1475,6 @@ class RectifyOFPXML:
         if curElem.attrib['hasSubscripts'] == "true":
             curElem.append(subscripts_holder[subscript_num])
             subscript_num += 1
-
-        # REMOVE
-        for i in range(len(name_elements)):
-            print (name_elements[i].tag, name_elements[i].attrib)
 
         numPartRef = int(curElem.attrib['numPartRef']) - 1
         name_element = ET.Element('')
