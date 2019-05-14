@@ -109,16 +109,19 @@ def getIndicators(model_id: str):
                     unit, value, year = r["Unit"], r["Value"], r["Year"]
                     if unit not in value_dict:
                         value_dict[unit] = [
-                            {"year": year, "value": float(value)}
+                            {"year": year, "value": float(value), "source": r["Source"]}
                         ]
                     else:
                         value_dict[unit].append(
-                            {"year": year, "value": float(value)}
+                            {"year": year, "value": float(value), "source": r["Source"]}
                         )
                 value = value_dict
             else:
                 for r in records:
                     unit, value = r["Unit"], r["Value"]
+                    # HACK! if the variables have the same names but different
+                    # sources, this will only give the most recent source
+                    source = r["Source"]
                     if unit not in value_dict:
                         value_dict[unit] = [value]
                     else:
@@ -134,6 +137,7 @@ def getIndicators(model_id: str):
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
                     "value": value,
+                    "source": source
                 }
             )
 
