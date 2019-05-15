@@ -11,6 +11,8 @@ Example:
 
         python translate.py -f <ast_file> -g <pickle_file> -i <f_src_file>
 
+    where f_src_file is the Fortran source file for ast_file.
+
 ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 

@@ -1,6 +1,5 @@
 import sys
 import pickle
-from delphi.export import to_agraph
 
 
 def create_precipitation_centered_CAG(input, output):

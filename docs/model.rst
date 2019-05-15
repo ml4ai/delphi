@@ -48,6 +48,6 @@ below.
   latent state vectors, :math:`\mathbf{\theta}` is the transition model, and
   :math:`D` represents evidence from machine reading.
 
-For more details on the model construction, see these slides_.
+For more details on the model construction, see this document_.
 
-.. _slides: https://github.com/ml4ai/delphi/blob/master/docs/dbn_construction_from_cag.pdf
+.. _document: http://vision.cs.arizona.edu/adarsh/Arizona_Text_to_Model_Procedure.pdf
