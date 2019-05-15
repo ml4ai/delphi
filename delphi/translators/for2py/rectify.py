@@ -48,11 +48,16 @@ class RectifyOFPXML:
         self.derived_type_ref = ET.Element('')
         self.current_body_scope = ET.Element('')
 
+    #################################################################
+    #                                                               #
+    #                  TAG LISTS FOR EACH HANDLER                   #
+    #                                                               #
+    #################################################################
+
     """
         Nested child tag list
     """
     FILE_CHILD_TAGS = ["program", "subroutine", "module"]
-
     STATEMENT_CHILD_TAGS = [
         "assignment", "write", "format", "stop",
         "execution-part", "print", "open", "read",
@@ -62,11 +67,8 @@ class RectifyOFPXML:
         "function", "internal-subprogram", "internal-subprogram-part",
         "prefix", "exit",
     ]
-
     LOOP_CHILD_TAGS = ["header", "body", "format"]
-
     DECLARATION_CHILD_TAGS = ["type", "dimensions", "variables", "format", "name"]
-
     DERIVED_TYPE_CHILD_TAGS = [
         "declaration-type-spec", "type-param-or-comp-def-stmt-list",
         "component-decl-list__begin", "component-initialization",
@@ -77,6 +79,14 @@ class RectifyOFPXML:
         "explicit-shape-spec-list__begin", "explicit-shape-spec", "component-attr-spec",
         "component-attr-spec-list", "end-type-stmt", "derived-type-def",
     ]
+    HEADER_CHILD_TAGS = ["index-variable", "operation", "arguments", "names"]
+    BODY_CHILD_TAGS = ["specification", "statement", "loop", "if"]
+
+    #################################################################
+    #                                                               #
+    #                       HANDLER FUNCTONS                        #
+    #                                                               #
+    #################################################################
 
     """
         This function handles cleaning up the XML elementss between the file elementss.
@@ -91,6 +101,7 @@ class RectifyOFPXML:
         </file>
     """
     def handle_tag_file(self, root, parElem):
+        assert root.tag == "file", f"The tag <file> must be passed to handle_tag_file. Currently, it's {root.tag}."
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -106,15 +117,18 @@ class RectifyOFPXML:
         </program>
     """
     def handle_tag_program(self, root, parElem):
+        assert root.tag == "program", f"The tag <program> must be passed to handle_tag_program. Currently, it's {root.tag}."
         self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "header" or child.tag == "body":
                 if child.tag == "body":
+                    # Keep a track of current scope
                     self.current_body_scope = curElem
                 self.parseXMLTree(child, curElem)
             else:
+                # These tags are negligible, so they won't be presented in the rectified XML
                 if child.tag != "end-program-stmt" and child.tag != "main-program":
                     print (f'In handle_tag_program: "{child.tag}" not handled')
 
@@ -125,11 +139,12 @@ class RectifyOFPXML:
         </header>
     """
     def handle_tag_header(self, root, parElem):
+        assert root.tag == "header", f"The tag <header> must be passed to handle_tag_header. Currently, it's {root.tag}."
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "index-variable" or child.tag == "operation" or child.tag == "arguments" or child.tag == "names":
+                if child.tag in HEADER_CHILD_TAGS:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_header: "{child.tag}" not handled')
@@ -152,7 +167,7 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
-                if child.tag == "specification" or child.tag == "statement" or child.tag == "loop" or child.tag == "if":
+                if child.tag in BODY_CHILD_TAGS:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
@@ -161,11 +176,10 @@ class RectifyOFPXML:
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 elif child.tag != "statement":
                     print (f'In handle_tag_body: Empty elements  "{child.tag}" not handled')
-
+        # If format statement was presented in the progrm, reconstruct it at the end of the body
         if self.is_format:
             self.reconstruct_format()
             self.is_format = False
-
     """
         This function handles cleaning up the XML elementss between the specification elementss.
         <specification>
