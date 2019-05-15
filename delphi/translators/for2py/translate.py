@@ -211,13 +211,14 @@ class XMLToJSONTranslator(object):
                 variables = self.parseTree(node, state)
                 # declare variables based on the counts to handle the case where a multiple variables declared under a single type
                 for index in range(int(node.attrib["count"])):
-                    combined = declared_type[-1]
-                    combined.update(variables[index])
-                    declared_variable.append(combined.copy())
-                    if state.subroutine["name"] in self.functionList and declared_variable[-1]["name"] in state.args:  
-                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
-                    if declared_variable[-1]["name"] in state.args:
-                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+                    if len(declared_type) > 0:
+                        combined = declared_type[-1]
+                        combined.update(variables[index])
+                        declared_variable.append(combined.copy())
+                        if state.subroutine["name"] in self.functionList and declared_variable[-1]["name"] in state.args:  
+                            state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+                        if declared_variable[-1]["name"] in state.args:
+                            state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
         return declared_variable
 
     """
