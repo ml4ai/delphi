@@ -104,12 +104,12 @@ def array_python_IR_test():
 @pytest.fixture
 def derived_types_python_IR_test():
     yield get_python_source(
-        Path(f"{DATA_DIR}/derived-types/derived-types-03.f")
+        Path(f"{DATA_DIR}/derived-types/derived-types-04.f")
     )[0]
 
 
 def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open(f"{DATA_DIR}/crop_yield.json", "r") as f:
+    with open(f"{DATA_DIR}/crop_yield_GrFN.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
 
@@ -117,14 +117,14 @@ def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
 
 
 def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open(f"{DATA_DIR}/PETPT.json", "r") as f:
+    with open(f"{DATA_DIR}/PETPT_GrFN.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
     assert petpt_grfn_dict == json_dict
 
 
 def test_io_grfn_generation(io_grfn_dict):
-    with open(f"{DATA_DIR}/io-tests/iotest_05.json", "r") as f:
+    with open(f"{DATA_DIR}/io-tests/iotest_05_GrFN.json", "r") as f:
         json_dict = json.load(f)
         postprocess_test_data_grfn_dict(json_dict)
     assert io_grfn_dict == json_dict
@@ -137,6 +137,6 @@ def test_array_pythonIR_generation(array_python_IR_test):
 
 
 def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
-    with open(f"{DATA_DIR}/derived-types-03.py", "r") as f:
+    with open(f"{DATA_DIR}/derived-types-04.py", "r") as f:
         python_dict = f.read()
     assert derived_types_python_IR_test == python_dict
