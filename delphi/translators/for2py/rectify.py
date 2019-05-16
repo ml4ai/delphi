@@ -21,6 +21,7 @@
 
 import sys
 import re
+import argparse
 import xml.etree.ElementTree as ET
 
 class RectifyOFPXML:
@@ -1588,7 +1589,7 @@ def buildNewAST(root, filename):
     rectFilename = filename.split('/')[-1]
     tree.write(f"tmp/rectified_{rectFilename}")
 
-def main():
+if __name__ == "__main__":
     filename = sys.argv[1]
     # Read AST from the OFP generated XML file
     ast = ET.parse(filename)
@@ -1604,6 +1605,4 @@ def main():
             curElem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, curElem)
     # Build a new cleaned AST XML
-    buildNewAST(newRoot, filename);
-
-main()
+    buildNewAST(newRoot, filename)

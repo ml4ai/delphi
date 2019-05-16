@@ -206,18 +206,22 @@ class XMLToJSONTranslator(object):
                 dimensions = {"count": num_of_dimensions, "dimensions": self.parseTree(node, state)}
                 # Since we always want to access the last element of the list that was added most recently
                 # (that is a currently handling variable), add [-1] index to access it.
-                declared_type[-1].update(dimensions)
+                if len(declared_type) > 0:
+                    declared_type[-1].update(dimensions)
+                else:
+                    declared_type.append(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
                 # declare variables based on the counts to handle the case where a multiple variables declared under a single type
                 for index in range(int(node.attrib["count"])):
-                    combined = declared_type[-1]
-                    combined.update(variables[index])
-                    declared_variable.append(combined.copy())
-                    if state.subroutine["name"] in self.functionList and declared_variable[-1]["name"] in state.args:  
-                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
-                    if declared_variable[-1]["name"] in state.args:
-                        state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+                    if len(declared_type) > 0:
+                        combined = declared_type[-1]
+                        combined.update(variables[index])
+                        declared_variable.append(combined.copy())
+                        if state.subroutine["name"] in self.functionList and declared_variable[-1]["name"] in state.args:  
+                            state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
+                        if declared_variable[-1]["name"] in state.args:
+                            state.subroutine["args"][state.args.index(declared_variable[index]["name"])]["type"] = declared_variable[index]["type"]
         return declared_variable
 
     """
@@ -235,7 +239,13 @@ class XMLToJSONTranslator(object):
                 if node.tag == "type":
                     derived_type += self.parseTree(node, state)
                 elif node.tag == "length":
-                    declared_type = {'type': root.attrib['name'], 'is_derived_type': root.attrib['is_derived_type'].lower(), 'keyword2': root.attrib['keyword2']}
+                    is_derived_type = False
+                    if "is_derived_type" in root.attrib:
+                        is_derived_type = root.attrib['is_derived_type'].lower()
+                    keyword2 = "none"
+                    if "keyword2" in root.attrib:
+                        keyword2 = root.attrib['keyword2']
+                    declared_type = {'type': root.attrib['name'], 'is_derived_type': is_derived_type, 'keyword2': keyword2}
                     declared_type['value'] = self.parseTree(node, state)
                     return [declared_type]
                 elif node.tag == "derived-types":
@@ -452,7 +462,7 @@ class XMLToJSONTranslator(object):
         io_control = []
         for node in root:
             if node.text:
-                assert node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
+                assert "hasExpression" in node.attrib and node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
                 io_control += self.parseTree(node, state)
             else:
                 assert node.attrib["hasAsterisk"] == "true", "hasAsterisk is false. Something is wrong."
@@ -479,12 +489,19 @@ class XMLToJSONTranslator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         else:
-            # numPartRef represents the number of references in the name.
+            # numPartRef represents the number of references in the name. Default = 1
+            numPartRef = "1"
             # For example, numPartRef of x is 1 while numPartRef of x.y is 2, etc.
-            numPartRef = int(root.attrib['numPartRef'])
+            if "numPartRef" in root.attrib:
+                numPartRef = root.attrib['numPartRef']
+
+            is_array = "false"
+            if "is_array" in root.attrib:
+                is_array = root.attrib["is_array"]
+
             ref = {
                     "tag": "ref", "name": root.attrib["id"].lower(), "numPartRef": str(numPartRef), 
-                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": root.attrib["is_array"],
+                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": is_array,
                     "is_arg" : "false",
                   }
 
@@ -495,7 +512,7 @@ class XMLToJSONTranslator(object):
                 ref["is_derived_type_ref"] = "false"
             
             # Handling derived type references
-            if numPartRef > 1:
+            if int(numPartRef) > 1:
                 for node in root:
                     if node.tag == "name":
                         nextRef = self.parseTree(node, state)
