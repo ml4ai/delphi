@@ -242,7 +242,10 @@ class XMLToJSONTranslator(object):
                     is_derived_type = False
                     if "is_derived_type" in root.attrib:
                         is_derived_type = root.attrib['is_derived_type'].lower()
-                    declared_type = {'type': root.attrib['name'], 'is_derived_type': is_derived_type, 'keyword2': root.attrib['keyword2']}
+                    keyword2 = "none"
+                    if "keyword2" in root.attrib:
+                        keyword2 = root.attrib['keyword2']
+                    declared_type = {'type': root.attrib['name'], 'is_derived_type': is_derived_type, 'keyword2': keyword2}
                     declared_type['value'] = self.parseTree(node, state)
                     return [declared_type]
                 elif node.tag == "derived-types":
@@ -490,7 +493,7 @@ class XMLToJSONTranslator(object):
             numPartRef = "1"
             # For example, numPartRef of x is 1 while numPartRef of x.y is 2, etc.
             if "numPartRef" in root.attrib:
-                numPartRef = int(root.attrib['numPartRef'])
+                numPartRef = root.attrib['numPartRef']
 
             is_array = "false"
             if "is_array" in root.attrib:
@@ -509,7 +512,7 @@ class XMLToJSONTranslator(object):
                 ref["is_derived_type_ref"] = "false"
             
             # Handling derived type references
-            if numPartRef > 1:
+            if int(numPartRef) > 1:
                 for node in root:
                     if node.tag == "name":
                         nextRef = self.parseTree(node, state)
