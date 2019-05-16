@@ -498,7 +498,7 @@ class XMLToJSONTranslator(object):
 
             ref = {
                     "tag": "ref", "name": root.attrib["id"].lower(), "numPartRef": str(numPartRef), 
-                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": ,
+                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": is_array,
                     "is_arg" : "false",
                   }
 
