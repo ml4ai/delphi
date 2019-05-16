@@ -209,7 +209,7 @@ class XMLToJSONTranslator(object):
                 if len(declared_type) > 0:
                     declared_type[-1].update(dimensions)
                 else:
-                    declared_type[0] = dimensions
+                    declared_type.append(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
                 # declare variables based on the counts to handle the case where a multiple variables declared under a single type
@@ -240,7 +240,7 @@ class XMLToJSONTranslator(object):
                     derived_type += self.parseTree(node, state)
                 elif node.tag == "length":
                     is_derived_type = False
-                    if "is_derived_type":
+                    if "is_derived_type" in root.attrib:
                         is_derived_type = root.attrib['is_derived_type'].lower()
                     declared_type = {'type': root.attrib['name'], 'is_derived_type': is_derived_type, 'keyword2': root.attrib['keyword2']}
                     declared_type['value'] = self.parseTree(node, state)
@@ -459,7 +459,7 @@ class XMLToJSONTranslator(object):
         io_control = []
         for node in root:
             if node.text:
-                assert node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
+                assert "hasExpression" in node.attrib and node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
                 io_control += self.parseTree(node, state)
             else:
                 assert node.attrib["hasAsterisk"] == "true", "hasAsterisk is false. Something is wrong."
@@ -487,14 +487,18 @@ class XMLToJSONTranslator(object):
             return [fn]
         else:
             # numPartRef represents the number of references in the name. Default = 1
-            numPartRef = 1
+            numPartRef = "1"
             # For example, numPartRef of x is 1 while numPartRef of x.y is 2, etc.
             if "numPartRef" in root.attrib:
                 numPartRef = int(root.attrib['numPartRef'])
 
+            is_array = "false"
+            if "is_array" in root.attrib:
+                is_array = root.attrib["is_array"]
+
             ref = {
                     "tag": "ref", "name": root.attrib["id"].lower(), "numPartRef": str(numPartRef), 
-                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": root.attrib["is_array"],
+                    "hasSubscripts": root.attrib["hasSubscripts"], "is_array": ,
                     "is_arg" : "false",
                   }
 
