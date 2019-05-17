@@ -38,6 +38,7 @@ class PrintState:
         functionScope="",
         indexRef=True,
         varTypes={},
+        isFloatConv=False,
     ):
         self.sep = sep
         self.add = add
@@ -48,6 +49,7 @@ class PrintState:
         self.functionScope = functionScope
         self.indexRef = indexRef
         self.varTypes = varTypes
+        self.isFloatConv = isFloatConv
 
     def copy(
         self,
@@ -60,6 +62,7 @@ class PrintState:
         functionScope=None,
         indexRef=None,
         varTypes=None,
+        isFloatConv=None,
     ):
         return PrintState(
             self.sep if sep is None else sep,
@@ -71,6 +74,7 @@ class PrintState:
             self.functionScope if functionScope is None else functionScope,
             self.indexRef if indexRef is None else indexRef,
             self.varTypes if varTypes is None else varTypes,
+            self.isFloatConv if isFloatConv is None else isFloatConv,
         )
 
 
@@ -544,6 +548,9 @@ class PythonCodeGenerator(object):
         # Check if the value is a bool and convert to Title case if it is
         if node["type"] == "bool":
             node["value"] = node["value"].title()
+        elif node["type"] in ("double", "real"):
+            if printState.isFloatConv:
+                node["value"] = f"FloatConv({node['value']})"
 
         self.pyStrings.append(node["value"])
 
@@ -742,12 +749,21 @@ class PythonCodeGenerator(object):
                     arrayLen = arrayLen - 1
             self.pyStrings.append("))")
         else:
-            self.printAst(
-                node["value"],
-                printState.copy(
-                    sep="", add="", printFirst=False, indexRef=True
-                ),
-            )
+            # Check if it is a literal assignment to a number such that it needs to be masked with FloatConv
+            if node["value"][0]["tag"] == "literal":
+                self.printAst(
+                    node["value"],
+                    printState.copy(
+                        sep="", add="", printFirst=False, indexRef=True, isFloatConv=True
+                    ),
+                )
+            else:
+                self.printAst(
+                    node["value"],
+                    printState.copy(
+                        sep="", add="", printFirst=False, indexRef=True
+                    ),
+                )
         if "subscripts" in node["target"][0]:
             self.pyStrings.append(")")
 
@@ -1265,7 +1281,8 @@ def create_python_source_list(outputDict: Dict):
         "import math",
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
-        "from dataclasses import dataclass\n",
+        "from dataclasses import dataclass",
+        "from delphi.translators.for2py.floatConv import FloatConv\n",
     ]
 
     for module in module_index_dict:
