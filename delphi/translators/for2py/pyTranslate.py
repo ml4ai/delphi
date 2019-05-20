@@ -1034,6 +1034,9 @@ class PythonCodeGenerator(object):
     ###########################################################################
 
     def initializeFileVars(self, node, printState: PrintState):
+        # REMOVE
+        print ("initializeFileVars: ", node)
+
         label = node["args"][1]["value"]
         data_type = list_data_type(self.format_dict[label])
         index = 0
