@@ -1570,28 +1570,7 @@ def indent(elem, level=0):
 """
     Using the list of cleaned AST, construct a new XML AST and write to a file
 """
-def buildNewAST(root, filename):
-    tree = ET.ElementTree(indent(root))
-    rectFilename = filename.split('/')[-1]
-    tree.write(f"tmp/rectified_{rectFilename}")
-
-def buildNewASTfromXMLString(xmlString):
-    ast = ET.fromstring(xmlString)
-    XMLCreator = RectifyOFPXML()
-    # A root of the new AST 
-    newRoot = ET.Element(ast.tag, ast.attrib)
-    # First add the root to the new AST list
-    for child in ast:
-        # Handle only non-empty elementss
-        if child.text:
-            curElem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, curElem)
-    
-    tree = ET.ElementTree(indent(newRoot))
-    return tree.getroot()
-
-if __name__ == "__main__":
-    filename = sys.argv[1]
+def buildNewAST(filename: str):
     # Read AST from the OFP generated XML file
     ast = ET.parse(filename)
     # Get a root of a tree
@@ -1605,5 +1584,26 @@ if __name__ == "__main__":
         if child.text:
             curElem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, curElem)
+
+    tree = ET.ElementTree(indent(newRoot))
+    rectFilename = filename.split('/')[-1]
+    tree.write(f"tmp/rectified_{rectFilename}")
+
+def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+    ast = ET.XML(xmlString)
+    XMLCreator = RectifyOFPXML()
+    # A root of the new AST 
+    newRoot = ET.Element(ast.tag, ast.attrib)
+    # First add the root to the new AST list
+    for child in ast:
+        # Handle only non-empty elementss
+        if child.text:
+            curElem = ET.SubElement(newRoot, child.tag, child.attrib)
+            XMLCreator.parseXMLTree(child, curElem)
+    
+    return newRoot
+
+if __name__ == "__main__":
+    filename = sys.argv[1]
     # Build a new cleaned AST XML
-    buildNewAST(newRoot, filename)
+    buildNewAST(filename)

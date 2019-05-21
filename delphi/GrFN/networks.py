@@ -25,6 +25,7 @@ from delphi.translators.for2py import (
     get_comments,
     pyTranslate,
     genPGM,
+    rectify,
 )
 import numpy as np
 import torch
@@ -414,7 +415,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
             ],
             stdout=sp.PIPE,
         ).stdout
-        trees = [ET.fromstring(xml_string)]
+        root = rectify.buildNewASTfromXMLString(xml_string)
+        trees = [root]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
         xml_to_json_translator = translate.XMLToJSONTranslator()

@@ -48,12 +48,6 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
         stdout=sp.PIPE,
     ).stdout
 
-    # Need to pass xml_string to rectify.py to generate rectified XML.
-
-    # All other below programs need to received (or call) rectified XML to do their job.
-
-    #reesOne = [ET.fromstring(xml_string)]
-    #print (treesOne)
     tree = rectify.buildNewASTfromXMLString(xml_string)
     trees = [tree]
     comments = get_comments.get_comments(preprocessed_fortran_file)
@@ -87,18 +81,6 @@ def postprocess_test_data_grfn_dict(_dict):
             del identifier["gensyms"]
 
 @pytest.fixture
-def crop_yield_grfn_dict():
-    _dict = make_grfn_dict(Path(f"{DATA_DIR}/crop_yield.f"))
-    yield(_dict)
-
-
-@pytest.fixture
-def petpt_grfn_dict():
-    _dict = make_grfn_dict(Path(f"{DATA_DIR}/PETPT.for"))
-    yield(_dict)
-
-
-@pytest.fixture
 def io_grfn_dict():
     _dict = make_grfn_dict(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))
     yield(_dict)
@@ -114,21 +96,6 @@ def derived_types_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}/derived-types/derived-types-04.f")
     )[0]
-
-
-def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open(f"{DATA_DIR}/crop_yield_GrFN.json", "r") as f:
-        json_dict = json.load(f)
-        postprocess_test_data_grfn_dict(json_dict)
-
-    assert crop_yield_grfn_dict == json_dict
-
-
-def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open(f"{DATA_DIR}/PETPT_GrFN.json", "r") as f:
-        json_dict = json.load(f)
-        postprocess_test_data_grfn_dict(json_dict)
-    assert petpt_grfn_dict == json_dict
 
 
 def test_io_grfn_generation(io_grfn_dict):
