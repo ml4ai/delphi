@@ -13,6 +13,7 @@ from delphi.translators.for2py import (
     pyTranslate,
     genPGM,
     mod_index_generator,
+    rectify,
 )
 
 from pathlib import Path
@@ -47,11 +48,18 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
         stdout=sp.PIPE,
     ).stdout
 
-    trees = [ET.fromstring(xml_string)]
+    # Need to pass xml_string to rectify.py to generate rectified XML.
+
+    # All other below programs need to received (or call) rectified XML to do their job.
+
+    #reesOne = [ET.fromstring(xml_string)]
+    #print (treesOne)
+    tree = rectify.buildNewASTfromXMLString(xml_string)
+    trees = [tree]
     comments = get_comments.get_comments(preprocessed_fortran_file)
     os.remove(preprocessed_fortran_file)
     xml_to_json_translator = translate.XMLToJSONTranslator()
-    mode_mapper_tree = ET.fromstring(xml_string)
+    mode_mapper_tree = tree
     generator = mod_index_generator.moduleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
     outputDict = xml_to_json_translator.analyze(trees, comments)

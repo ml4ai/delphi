@@ -1575,6 +1575,21 @@ def buildNewAST(root, filename):
     rectFilename = filename.split('/')[-1]
     tree.write(f"tmp/rectified_{rectFilename}")
 
+def buildNewASTfromXMLString(xmlString):
+    ast = ET.fromstring(xmlString)
+    XMLCreator = RectifyOFPXML()
+    # A root of the new AST 
+    newRoot = ET.Element(ast.tag, ast.attrib)
+    # First add the root to the new AST list
+    for child in ast:
+        # Handle only non-empty elementss
+        if child.text:
+            curElem = ET.SubElement(newRoot, child.tag, child.attrib)
+            XMLCreator.parseXMLTree(child, curElem)
+    
+    tree = ET.ElementTree(indent(newRoot))
+    return tree.getroot()
+
 if __name__ == "__main__":
     filename = sys.argv[1]
     # Read AST from the OFP generated XML file
