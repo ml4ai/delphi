@@ -37,9 +37,18 @@ class RectifyOFPXML:
         self.need_op_negation = False
         self.need_reconstruct = False
         self.reconstruct_now = False
-        self.goto_target_lbl = []
+        self.label_before = False
+        self.label_after = False
+
+        self.goto_target_lbl_after = []
+        self.goto_target_lbl_before = []
+        self.label_lbl = []
+        self.statements_to_reconstruct_before = []
+        self.statements_to_reconstruct_after = []
+
         self.cur_derived_type_name = ""
         self.current_scope = ""
+
         self.goto_body = ET.Element('')
 
         # Keep a track of both array and non-array variables in the dictionary of {'name' : 'scope'}
@@ -210,17 +219,20 @@ class RectifyOFPXML:
                 if child.tag in self.BODY_CHILD_TAGS:
                     self.parseXMLTree(child, curElem)
                     if self.reconstruct_now:
-                        self.reconstruct_goto(child)
-                        self.reconstruct_now = False
-                    else:
-                        # Remove "goto-target" from the <body> (2nd traverse)
-                        if "goto-target" in parElem.attrib:
-                            # del parElem.attrib["goto-remove"]
-                            pass
-                        # Add "goto-target" to the <body>, so it can be reconstructed in the second traverse (1st traverse)
-                        # curElem here is <statement>, which needs to be removed
-                        if "goto-remove" in curElem.attrib:
-                            parElem.attrib["goto-target"] = "true"
+                        self.reconstruct_goto_after_label()
+                    # Remove "goto-target" from the <body> (2nd traverse)
+                    if "goto-target" in parElem.attrib:
+                        del parElem.attrib["goto-target"]
+                    # Remove statements that is marked to be removed in the 2nd traverse (2nd traverse)
+                    if "goto-remove" in child.attrib and "target-label-statement" not in child.attrib:
+                        parElem.remove(curElem)
+                    elif "target-label-statement" in child.attrib:
+                        del curElem.attrib["goto-remove"]
+                        del curElem.attrib["target-label-statement"]
+                    # Add "goto-target" to the <body>, so it can be reconstructed in the second traverse (1st traverse)
+                    # curElem here is <statement>, which needs to be removed
+                    if "goto-stmt" in curElem.attrib:
+                        parElem.attrib["goto-target"] = "true"
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
             else:
@@ -410,18 +422,35 @@ class RectifyOFPXML:
         </statement>
     """
     def handle_tag_statement(self, root, parElem):
+        # If label appears after goto, mark <statement> with goto-remove to remove it later (1st traverse)
+        if self.label_after:
+            parElem.attrib["goto-remove"] = "true"
+            self.statements_to_reconstruct_after.append(parElem)
+
+        label_presented = False
         for child in root:
             self.clean_attrib(child)
             if child.tag in self.STATEMENT_CHILD_TAGS:
+                curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.tag == "label":
+                    label_presented = True
                     lbl = child.attrib['lbl']
+                    self.label_lbl.append(lbl)
+                    # If current <statment> holds <label>, mark self.reconstruct_now to True, which will
+                    # immediately reconstruct the goto body when returned back to <body> from current statement
                     if "goto-remove" in parElem.attrib:
                         self.reconstruct_now = True
-                        return
-                    if lbl in self.goto_target_lbl:
-                        parElem.attrib['goto-remove'] = "true"
-                        parElem.attrib['target-label-statement'] = "true"
-                curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                    parElem.attrib['target-label-statement'] = "true"
+                    # If lbl is not in the lbl_after tracker, it can be assumened that the <label> is presnet
+                    # before the goto statment. If this label has nothing to do with goto, then undo at below.
+                    if lbl not in self.goto_target_lbl_after:
+                        self.statements_to_reconstruct_before.append(parElem)
+                # Since <format> is followed by <label>, check the case and undo all operations done for goto.
+                if child.tag == "format" and label_presented:
+                    del self.label_lbl[-1]
+                    del self.statements_to_reconstruct_before[-1]
+                    del parElem.attrib['target-label-statement']
+                    label_presented = False
                 if child.text:
                     self.parseXMLTree(child, curElem) 
             elif child.tag == "name":
@@ -436,15 +465,27 @@ class RectifyOFPXML:
                 self.derived_type_var_holder_list.append(child.attrib['id'])
                 self.parseXMLTree(child, parElem)
             elif child.tag == "goto-stmt":
+                """
+                    If goto-stmt was seen, we do not construct element for it. However, we collect
+                    the information (attributes) that is associated to the existing OFP generated element
+                """
                 self.need_goto_elimination = True
                 self.goto_in_scope = True
-                self.goto_target_lbl.append(child.attrib['target_label'])
+                target_lbl = child.attrib['target_label']
+                # A case where label appears "before" goto
+                if target_lbl in self.label_lbl:
+                    self.goto_target_lbl_before.append(target_lbl)
+                    self.label_before = True
+                # A case where label appears "after" goto
+                else:
+                    self.goto_target_lbl_after.append(target_lbl)
+                    self.label_after = True
                 """
                     This is a marking for 2nd traverse to remove the <statement> element that nest 
                     <goto-stmt> element. This will add "goto-remove" attribute to <statement> tag only if 
                     "goto-stmt" exists in the child.
                 """
-                parElem.attrib["goto-remove"] = "true"
+                parElem.attrib["goto-stmt"] = "true"
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
 
@@ -1596,13 +1637,23 @@ class RectifyOFPXML:
         subscripts_holder.clear()
         self.need_reconstruct = False
 
-    def reconstruct_goto(self, target_statement):
-        for child in target_statement:
-            if child.tag != "label":
-                curElem = ET.SubElement(self.goto_body, child.tag, child.attrib)
-                if child.text:
-                    self.parseXMLTree(child, curElem)
-        self.goto_body  = ET.Element('')
+    def reconstruct_goto_after_label(self):
+        # REMOVE
+        print ("in reconstruct_goto: ", self.goto_body.tag, self.goto_body.attrib)
+        for stmt in self.statements_to_reconstruct_after:
+            if "target-label-statement" not in stmt.attrib:
+                # Remove "goto-target" from the <body> (2nd traverse)
+                # del self.goto_body.attrib["goto-target"]
+                statement_tag = ET.SubElement(self.goto_body, "statement")
+                for child in stmt:
+                    curElem = ET.SubElement(statement_tag, child.tag, child.attrib)
+                    if child.text:
+                        self.parseXMLTree(child, curElem)
+        # Set all holders and checkers (markers) to default
+        self.goto_body = ET.Element('')
+        self.label_after = False
+        self.reconstruct_now = False
+        self.goto_target_lbl_after.clear()
 
     #################################################################
     #                                                               #
