@@ -991,7 +991,7 @@ class PythonCodeGenerator(object):
 
     def printDerivedType (self, node, printState: PrintState):
         derived_type_class_info = node[0]
-        derived_type_variables  = node[0]["derived-types"]
+        derived_type_variables  = derived_type_class_info["derived-types"]
         num_of_variables = len(derived_type_variables)
 
         self.pyStrings.append(printState.sep)

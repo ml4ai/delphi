@@ -461,7 +461,7 @@ class XMLToJSONTranslator(object):
         assert (root.tag == "io-controls"), f"The root must be <io-controls>. Current tag is {root.tag} with {root.attrib} attributes."
         io_control = []
         for node in root:
-            if node.text:
+            if node.attrib["hasExpression"] == "true":
                 assert "hasExpression" in node.attrib and node.attrib["hasExpression"] == "true", "hasExpression is false. Something is wrong."
                 io_control += self.parseTree(node, state)
             else:
