@@ -36,12 +36,12 @@ class RectifyOFPXML:
         self.need_goto_elimination = False
         self.need_op_negation = False
         self.need_reconstruct = False
-        self.reconstruct_now = False
+        self.reconstruct_after_case_now = False
+        self.reconstruct_before_case_now = False
         self.label_before = False
         self.label_after = False
 
         self.goto_target_lbl_after = []
-        self.goto_target_lbl_before = []
         self.label_lbl = []
         self.statements_to_reconstruct_before = []
         self.statements_to_reconstruct_after = []
@@ -218,15 +218,17 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.tag in self.BODY_CHILD_TAGS:
                     self.parseXMLTree(child, curElem)
-                    if self.reconstruct_now:
+                    if self.reconstruct_after_case_now:
                         self.reconstruct_goto_after_label()
+                    elif self.reconstruct_before_case_now:
+                        self.reconstruct_goto_before_label(parElem)
                     # Remove "goto-target" from the <body> (2nd traverse)
                     if "goto-target" in parElem.attrib:
                         del parElem.attrib["goto-target"]
                     # Remove statements that is marked to be removed in the 2nd traverse (2nd traverse)
                     if "goto-remove" in child.attrib and "target-label-statement" not in child.attrib:
                         parElem.remove(curElem)
-                    elif "target-label-statement" in child.attrib:
+                    elif "goto-remove" in child.attrib and "target-label-statement" in child.attrib:
                         del curElem.attrib["goto-remove"]
                         del curElem.attrib["target-label-statement"]
                     # Add "goto-target" to the <body>, so it can be reconstructed in the second traverse (1st traverse)
@@ -386,7 +388,8 @@ class RectifyOFPXML:
                 if self.need_goto_elimination:
                     curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 else:
-                    print (f'In handle_tag_variables: Empty elements "{child.tag}" not handled')
+                    if child.tag != "variable":
+                        print (f'In handle_tag_variables: Empty elements "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elementss between the variables elementss.
@@ -422,10 +425,15 @@ class RectifyOFPXML:
         </statement>
     """
     def handle_tag_statement(self, root, parElem):
-        # If label appears after goto, mark <statement> with goto-remove to remove it later (1st traverse)
+        assert root.tag == "statement", f"The tag <statement> must be passed to handle_tag_statement. Currently, it's {root.tag}."
+        # If label appears after <goto>, mark <statement> with goto-remove to remove it later (1st traverse)
         if self.label_after:
-            parElem.attrib["goto-remove"] = "true"
+            parElem.attrib['goto-remove'] = "true"
             self.statements_to_reconstruct_after.append(parElem)
+        # If label appears before <goto>, mark <statement> with goto-move to move it later (1st traverse)
+        elif self.label_before:
+            parElem.attrib['goto-move'] = "true"
+            self.statements_to_reconstruct_before.append(parElem)
 
         label_presented = False
         for child in root:
@@ -436,21 +444,25 @@ class RectifyOFPXML:
                     label_presented = True
                     lbl = child.attrib['lbl']
                     self.label_lbl.append(lbl)
-                    # If current <statment> holds <label>, mark self.reconstruct_now to True, which will
+                    # If current <statment> holds <label>, mark "self.reconstruct_after_case_now" to True, which will
                     # immediately reconstruct the goto body when returned back to <body> from current statement
                     if "goto-remove" in parElem.attrib:
-                        self.reconstruct_now = True
+                        self.reconstruct_after_case_now = True
+                    parElem.attrib['goto-move'] = "true"
                     parElem.attrib['target-label-statement'] = "true"
-                    # If lbl is not in the lbl_after tracker, it can be assumened that the <label> is presnet
+                    # If lbl is not in the lbl_after tracker, it can be assumed that the <label> is presnet
                     # before the goto statment. If this label has nothing to do with goto, then undo at below.
                     if lbl not in self.goto_target_lbl_after:
                         self.statements_to_reconstruct_before.append(parElem)
+                        self.label_before = True
                 # Since <format> is followed by <label>, check the case and undo all operations done for goto.
                 if child.tag == "format" and label_presented:
                     del self.label_lbl[-1]
                     del self.statements_to_reconstruct_before[-1]
                     del parElem.attrib['target-label-statement']
+                    del parElem.attrib['goto-move']
                     label_presented = False
+                    self.label_before = False
                 if child.text:
                     self.parseXMLTree(child, curElem) 
             elif child.tag == "name":
@@ -474,8 +486,8 @@ class RectifyOFPXML:
                 target_lbl = child.attrib['target_label']
                 # A case where label appears "before" goto
                 if target_lbl in self.label_lbl:
-                    self.goto_target_lbl_before.append(target_lbl)
-                    self.label_before = True
+                    self.reconstruct_before_case_now = True
+                    return
                 # A case where label appears "after" goto
                 else:
                     self.goto_target_lbl_after.append(target_lbl)
@@ -795,7 +807,7 @@ class RectifyOFPXML:
             if child.tag == "operator" and self.need_op_negation:
                 original_op = child.attrib["operator"].lower()
                 child.attrib["operator"] = self.NEGATED_OP[original_op].upper()
-                self.need_op_negation
+                self.need_op_negation = False
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
             if child.tag == "operand":
                 self.parseXMLTree(child, curElem)
@@ -851,6 +863,11 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_io_controls: "{child.tag}" not handled')
+            else:
+                if child.tag == "io-control":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                else:
+                    print (f'In handle_tag_io_controls: Empty elements "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elementss between the io-control elementss.
@@ -872,6 +889,11 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, curElem)
                 else:
                     print (f'In handle_tag_io_control: "{child.tag}" not handled')
+            else:
+                if child.tag == "literal":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                else:
+                    print (f'In handle_tag_io_control: Empty elements "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elementss between the outputs elementss
@@ -1043,7 +1065,10 @@ class RectifyOFPXML:
                 else:
                     print (f'In handle_tag_input - {root.tag}: "{child.tag}" not handled')
             else:
-                print (f'In handle_tag_input - {root.tag}: Empty elements "{child.tag}" not handled')
+                if child.tag == "name":
+                    curElem = ET.SubElement(parElem, child.tag, child.attrib)
+                else:
+                    print (f'In handle_tag_input - {root.tag}: Empty elements "{child.tag}" not handled')
 
     """
         This function handles cleaning up the XML elementss between the close elementss. 
@@ -1652,8 +1677,24 @@ class RectifyOFPXML:
         # Set all holders and checkers (markers) to default
         self.goto_body = ET.Element('')
         self.label_after = False
-        self.reconstruct_now = False
+        self.reconstruct_after_case_now = False
         self.goto_target_lbl_after.clear()
+
+    def reconstruct_goto_before_label(self, parent):
+        # REMOVE
+        print ("in reconstruct_goto_before_label")
+        for stmt in self.statements_to_reconstruct_before:
+            print (stmt.tag, stmt.attrib)
+            statement_tag = ET.SubElement(parent, "statement")
+            for child in stmt:
+                print (child.tag, child.attrib)
+                curElem = ET.SubElement(statement_tag, child.tag, child.attrib)
+                if child.text:
+                    for temp in child:
+                        print (temp.tag, temp.attrib)
+                    self.parseXMLTree(child, curElem)
+        self.label_before = False
+        self.reconstruct_before_case_now = False
 
     #################################################################
     #                                                               #
@@ -1734,6 +1775,7 @@ def buildNewAST(root, filename, XMLCreator):
     tree = ET.ElementTree(indent(root))
 
     # If the AST requires goto elimination, re-traverse the tree and refactor it once more
+    
     if XMLCreator.need_goto_elimination:
         root = tree.getroot()
         newRoot = ET.Element(root.tag, root.attrib)
@@ -1743,7 +1785,7 @@ def buildNewAST(root, filename, XMLCreator):
                 XMLCreator.parseXMLTree(child, curElem)
         tree = ET.ElementTree(indent(newRoot))
         XMLCreator.need_goto_elimination = False
-
+    
     rectFilename = filename.split('/')[-1]
     tree.write(f"tmp/rectified_{rectFilename}")
 
