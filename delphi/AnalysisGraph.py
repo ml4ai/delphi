@@ -42,9 +42,7 @@ from .apps.rest_api.models import (
 import matplotlib
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
-from delphi.utils.misc import choose_font, _insert_line_breaks
-
-FONT = choose_font()
+from delphi.utils.misc import _insert_line_breaks
 
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
@@ -207,21 +205,6 @@ class AnalysisGraph(nx.DiGraph):
                     G.edges[subj_name, obj_name][
                         "InfluenceStatements"
                     ] = influence_sts
-
-        for concept, indicator in _dict[
-            "concept_to_indicator_mapping"
-        ].items():
-            if indicator is not None:
-                indicator_source, indicator_name = (
-                    indicator["name"].split("/")[0],
-                    "/".join(indicator["name"].split("/")[1:]),
-                )
-                if concept in G:
-                    if G.nodes[concept].get("indicators") is None:
-                        G.nodes[concept]["indicators"] = {}
-                    G.nodes[concept]["indicators"][indicator_name] = Indicator(
-                        indicator_name, indicator_source
-                    )
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
@@ -1048,8 +1031,9 @@ class AnalysisGraph(nx.DiGraph):
         if app is None:
             app = create_app()
 
+        # Tag this model for displaying in the CauseWorks interface
+        self.tag_for_CX = True
         with app.app_context():
-            db.drop_all()
             db.create_all()
             db.session.add(icm_metadata)
             db.session.add(DelphiModel(id=self.id, model=self))
