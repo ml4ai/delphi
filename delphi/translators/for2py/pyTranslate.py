@@ -12,8 +12,8 @@ Example:
         python pyTranslate.py -f <pickle_file> -g <python_file> -o <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
-file along with other non-source code information.
-python_file: The Python file on which to write the resulting python script.
+             file along with other non-source code information.
+python_file: The Python file on which to write the resulting Python script.
 """
 
 import sys
@@ -22,8 +22,7 @@ import argparse
 import re
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
-from delphi.translators.for2py import For2PyError
-from delphi.translators.for2py import syntax
+from delphi.translators.for2py import For2PyError, syntax
 
 ###############################################################################
 #                                                                             #
@@ -33,24 +32,24 @@ from delphi.translators.for2py import syntax
 
 # TYPE_MAP gives the mapping from Fortran types to Python types
 TYPE_MAP = {
-    "character" : "str",
-    "double" : "float",
-    "float" : "float",
-    "int" : "int",
-    "integer" : "int",
-    "logical" : "bool",
-    "real" : "float",
-    "str" : "str",
-    "string" : "str",
+    "character": "str",
+    "double": "float",
+    "float": "float",
+    "int": "int",
+    "integer": "int",
+    "logical": "bool",
+    "real": "float",
+    "str": "str",
+    "string": "str",
 }
 
 # OPERATOR_MAP gives the mapping from Fortran operators to Python operators
 OPERATOR_MAP = {
-    "+" : "+",
-    "-" : "-",
-    "*" : "*",
-    "/" : "/",
-    "**" : "**",
+    "+": "+",
+    "-": "-",
+    "*": "*",
+    "/": "/",
+    "**": "**",
     "<=": "<=",
     ">=": ">=",
     "==": "==",
@@ -77,42 +76,42 @@ OPERATOR_MAP = {
 #               None if no explicit import is necessary.
 
 INTRINSICS_MAP = {
-    'abs' : ('abs', 'FUNC', None),
-    'acos' : ('acos', 'FUNC', 'math'),
-    'acosh' : ('acosh', 'FUNC', 'math'),
-    'asin' : ('asin', 'FUNC', 'math'),
-    'asinh' : ('asinh', 'FUNC', 'math'),
-    'atan' : ('atan', 'FUNC', 'math'),
-    'atanh' : ('atanh', 'FUNC', 'math'),
-    'ceiling' : ('ceil', 'FUNC', 'math'),
-    'cos' : ('cos', 'FUNC', 'math'),
-    'cosh' : ('cosh', 'FUNC', 'math'),
-    'erf' : ('erf', 'FUNC', 'math'),
-    'erfc' : ('erfc', 'FUNC', 'math'),
-    'exp' : ('exp', 'FUNC', 'math'),
-    'floor' : ('floor', 'FUNC', 'math'),
-    'gamma' : ('gamma', 'FUNC', 'math'),
-    'hypot' : ('hypot', 'FUNC', 'math'),
-    'index' : None,
-    'int' : ('int', 'FUNC', None),
-    'isnan' : ('isnan', 'FUNC', 'math'),
-    'lge' : ('>=', 'INFIXOP', None),    # lexical string comparison
-    'lgt' : ('>', 'INFIXOP', None),     # lexical string comparison
-    'lle' : ('<=', 'INFIXOP', None),    # lexical string comparison
-    'llt' : ('<', 'INFIXOP', None),     # lexical string comparison
-    'log' : ('log', 'FUNC', 'math'),
-    'log10' : ('log10', 'FUNC', 'math'),
-    'log_gamma' : ('lgamma', 'FUNC', 'math'),
-    'max' : ('max', 'FUNC', None),
-    'min' : ('min', 'FUNC', None),
-    'mod' : ('%', 'INFIXOP', None),
-    'modulo' : ('%', 'INFIXOP', None),
-    'sin' : ('sin', 'FUNC', 'math'),
-    'sinh' : ('sinh', 'FUNC', 'math'),
-    'sqrt' : ('sqrt', 'FUNC', 'math'),
-    'tan' : ('tan', 'FUNC', 'math'),
-    'tanh' : ('tanh', 'FUNC', 'math'),
-    'xor' : ('^', 'INFIXOP', None)
+    "abs": ("abs", "FUNC", None),
+    "acos": ("acos", "FUNC", "math"),
+    "acosh": ("acosh", "FUNC", "math"),
+    "asin": ("asin", "FUNC", "math"),
+    "asinh": ("asinh", "FUNC", "math"),
+    "atan": ("atan", "FUNC", "math"),
+    "atanh": ("atanh", "FUNC", "math"),
+    "ceiling": ("ceil", "FUNC", "math"),
+    "cos": ("cos", "FUNC", "math"),
+    "cosh": ("cosh", "FUNC", "math"),
+    "erf": ("erf", "FUNC", "math"),
+    "erfc": ("erfc", "FUNC", "math"),
+    "exp": ("exp", "FUNC", "math"),
+    "floor": ("floor", "FUNC", "math"),
+    "gamma": ("gamma", "FUNC", "math"),
+    "hypot": ("hypot", "FUNC", "math"),
+    "index": None,
+    "int": ("int", "FUNC", None),
+    "isnan": ("isnan", "FUNC", "math"),
+    "lge": (">=", "INFIXOP", None),  # lexical string comparison
+    "lgt": (">", "INFIXOP", None),  # lexical string comparison
+    "lle": ("<=", "INFIXOP", None),  # lexical string comparison
+    "llt": ("<", "INFIXOP", None),  # lexical string comparison
+    "log": ("log", "FUNC", "math"),
+    "log10": ("log10", "FUNC", "math"),
+    "log_gamma": ("lgamma", "FUNC", "math"),
+    "max": ("max", "FUNC", None),
+    "min": ("min", "FUNC", None),
+    "mod": ("%", "INFIXOP", None),
+    "modulo": ("%", "INFIXOP", None),
+    "sin": ("sin", "FUNC", "math"),
+    "sinh": ("sinh", "FUNC", "math"),
+    "sqrt": ("sqrt", "FUNC", "math"),
+    "tan": ("tan", "FUNC", "math"),
+    "tanh": ("tanh", "FUNC", "math"),
+    "xor": ("^", "INFIXOP", None),
 }
 
 ###############################################################################
@@ -120,6 +119,7 @@ INTRINSICS_MAP = {
 #                                 TRANSLATION                                 #
 #                                                                             #
 ###############################################################################
+
 
 class PrintState:
     def __init__(
@@ -188,7 +188,7 @@ class PythonCodeGenerator(object):
         self.format_dict = {}
         self.declaredDerivedTVars = []
         self.declaredDerivedTypes = []
-        
+
         self.printFn = {
             "subroutine": self.printSubroutine,
             "program": self.printProgram,
@@ -314,7 +314,9 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"No handler for Fortran intrinsic {intrinsic}")
 
         arg_list = self.get_arg_list(node)
-        arg_strs = [self.proc_expr(arg_list[i], False) for i in range(len(arg_list))]
+        arg_strs = [
+            self.proc_expr(arg_list[i], False) for i in range(len(arg_list))
+        ]
 
         if py_mod != None:
             handler = f"{py_mod}.{py_fn}"
@@ -372,18 +374,18 @@ class PythonCodeGenerator(object):
 
     def proc_print(self, arg_strs):
         arguments = ""
-        for idx in range(0,len(arg_strs)):
+        for idx in range(0, len(arg_strs)):
             if self.check_var_name(arg_strs[idx]):
                 arguments += f"{arg_strs[idx]}"
             else:
-                arguments += f"\"{arg_strs[idx]}\""
-            if idx < len(arg_strs)-1:
+                arguments += f'"{arg_strs[idx]}"'
+            if idx < len(arg_strs) - 1:
                 arguments += ", "
         return arguments
 
-    def check_var_name (self, name):
+    def check_var_name(self, name):
         if name.isalnum():
-            return True 
+            return True
         elif "-" not in name and "_" not in name:
             return False
         return True
@@ -398,14 +400,19 @@ class PythonCodeGenerator(object):
             return node["value"]
 
     def proc_ref(self, node, wrapper):
-        """Processes a reference node and returns a string that is the 
+        """Processes a reference node and returns a string that is the
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
            (scalar) variables."""
         ref_str = ""
         is_derived_type_ref = False
-        if "is_derived_type_ref" in node and node["is_derived_type_ref"] == "true":
-            ref_str = self.get_derived_type_ref(node, int(node["numPartRef"]), False)
+        if (
+            "is_derived_type_ref" in node
+            and node["is_derived_type_ref"] == "true"
+        ):
+            ref_str = self.get_derived_type_ref(
+                node, int(node["numPartRef"]), False
+            )
             is_derived_type_ref = True
         else:
             ref_str = self.nameMapper[node["name"]]
@@ -414,7 +421,9 @@ class PythonCodeGenerator(object):
             # array reference or function call
             if "is_array" in node and node["is_array"] == "true":
                 subs = node["subscripts"]
-                subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                subs_strs = [
+                    self.proc_expr(subs[i], False) for i in range(len(subs))
+                ]
                 subscripts = ", ".join(subs_strs)
                 expr_str = f"{ref_str}.get_(({subscripts}))"
             else:
@@ -424,7 +433,11 @@ class PythonCodeGenerator(object):
             if wrapper:
                 expr_str = ref_str
             else:
-                if "is_arg" in node and node["is_arg"] == "true" or is_derived_type_ref:
+                if (
+                    "is_arg" in node
+                    and node["is_arg"] == "true"
+                    or is_derived_type_ref
+                ):
                     expr_str = ref_str
                     is_derived_type_ref = False
                 else:
@@ -458,10 +471,10 @@ class PythonCodeGenerator(object):
         return expr_str
 
     def proc_expr(self, node, wrapper):
-        """Processes an expression node and returns a string that is the 
-           corresponding Python code.  The argument "wrapper" indicates 
-           whether or not the Python expression should refer to the list 
-           wrapper for (scalar) variables."""
+        """Processes an expression node and returns a string that is the
+        corresponding Python code. The argument "wrapper" indicates whether or
+        not the Python expression should refer to the list wrapper for (scalar)
+        variables."""
 
         if node["tag"] == "literal":
             return self.proc_literal(node)
@@ -527,7 +540,6 @@ class PythonCodeGenerator(object):
         else:
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
-
 
     ###########################################################################
     #                                                                         #
@@ -635,18 +647,25 @@ class PythonCodeGenerator(object):
     def printAssignment(self, node, printState: PrintState):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
-        
+
         rhs_str = self.proc_expr(node["value"][0], False)
-        
+
         if lhs["is_derived_type_ref"] == "true":
-            assg_str = self.get_derived_type_ref(lhs, int(lhs["numPartRef"]), True)
+            assg_str = self.get_derived_type_ref(
+                lhs, int(lhs["numPartRef"]), True
+            )
         else:
             if lhs["hasSubscripts"] == "true":
-                assert "subscripts" in lhs, "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+                assert (
+                    "subscripts" in lhs
+                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
                 # target is an array element
                 if "is_array" in lhs and lhs["is_array"] == "true":
                     subs = lhs["subscripts"]
-                    subs_strs = [self.proc_expr(subs[i], False) for i in range(len(subs))]
+                    subs_strs = [
+                        self.proc_expr(subs[i], False)
+                        for i in range(len(subs))
+                    ]
                     subscripts = ", ".join(subs_strs)
                     assg_str = f"{lhs['name']}.set_(({subscripts}), "
                 else:
@@ -812,12 +831,19 @@ class PythonCodeGenerator(object):
         args = node["args"][2:]
         args_str = []
         for i in range(len(args)):
-            if "is_derived_type_ref" in args[i] and args[i]["is_derived_type_ref"] == "true":
-                args_str.append(self.get_derived_type_ref(args[i], int(args[i]["numPartRef"]), False))
+            if (
+                "is_derived_type_ref" in args[i]
+                and args[i]["is_derived_type_ref"] == "true"
+            ):
+                args_str.append(
+                    self.get_derived_type_ref(
+                        args[i], int(args[i]["numPartRef"]), False
+                    )
+                )
             else:
                 args_str.append(self.proc_expr(args[i], False))
-            
-        write_string = ', '.join(args_str)
+
+        write_string = ", ".join(args_str)
         self.pyStrings.append(f"[{write_string}]")
         self.pyStrings.append(printState.sep)
 
@@ -932,7 +958,7 @@ class PythonCodeGenerator(object):
 
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
-        if (var_name not in printState.definedVars + printState.globalVars):
+        if var_name not in printState.definedVars + printState.globalVars:
             printState.definedVars += [var_name]
             if node.get("value"):
                 initVal = node["value"][0]["value"]
@@ -952,15 +978,13 @@ class PythonCodeGenerator(object):
                         printState.functionScope
                     ):
                         self.pyStrings.append(
-                            f"{var_name}: List[{varType}]"
-                            f" = [{initVal}]"
+                            f"{var_name}: List[{varType}]" f" = [{initVal}]"
                         )
                     else:
                         self.pyStrings.append(f"{var_name}: List[{varType}]")
                 else:
                     self.pyStrings.append(
-                        f"{var_name}: List[{varType}] = "
-                        f"[{initVal}]"
+                        f"{var_name}: List[{varType}] = " f"[{initVal}]"
                     )
 
             # The code below might cause issues on unexpected places.
@@ -982,22 +1006,24 @@ class PythonCodeGenerator(object):
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
             printState.definedVars += [node["name"]]
-            
+
             var_type = self.get_type(node)
 
             array_range = self.get_array_dimension(node)
 
-            self.pyStrings.append(f"{node['name']} = Array({var_type}, [{array_range}])")
+            self.pyStrings.append(
+                f"{node['name']} = Array({var_type}, [{array_range}])"
+            )
 
-    def printDerivedType (self, node, printState: PrintState):
+    def printDerivedType(self, node, printState: PrintState):
         derived_type_class_info = node[0]
-        derived_type_variables  = derived_type_class_info["derived-types"]
+        derived_type_variables = derived_type_class_info["derived-types"]
         num_of_variables = len(derived_type_variables)
 
         self.pyStrings.append(printState.sep)
         self.pyStrings.append(f"class {derived_type_class_info['type']}:\n")
         # For a record, store the declared derived type names
-        self.declaredDerivedTypes.append(derived_type_class_info['type'])
+        self.declaredDerivedTypes.append(derived_type_class_info["type"])
 
         self.pyStrings.append("    def __init__(self):\n")
         for var in range(num_of_variables):
@@ -1009,23 +1035,33 @@ class PythonCodeGenerator(object):
             # If the type is not one of the default types, but it's a declared derived type,
             # set the is_derived_type_declaration to True as the declaration of variable
             # with such type has different declaration syntax from the default type variables.
-            if var_type not in TYPE_MAP and var_type in self.declaredDerivedTypes:
+            if (
+                var_type not in TYPE_MAP
+                and var_type in self.declaredDerivedTypes
+            ):
                 is_derived_type_declaration = True
 
             if derived_type_variables[var]["is_array"] == "false":
                 if not is_derived_type_declaration:
                     self.pyStrings.append(f"        self.{name} : {var_type}")
                 else:
-                    self.pyStrings.append(f"        self.{name} = {var_type}()")
+                    self.pyStrings.append(
+                        f"        self.{name} = {var_type}()"
+                    )
 
                 if "value" in derived_type_variables[var]:
-                    value = self.proc_literal(derived_type_variables[var]["value"][0])
+                    value = self.proc_literal(
+                        derived_type_variables[var]["value"][0]
+                    )
                     self.pyStrings.append(f" = {value}")
             else:
-                array_range = self.get_array_dimension(derived_type_variables[var])
-                self.pyStrings.append(f"        self.{name} = Array({var_type}, [{array_range}])")
+                array_range = self.get_array_dimension(
+                    derived_type_variables[var]
+                )
+                self.pyStrings.append(
+                    f"        self.{name} = Array({var_type}, [{array_range}])"
+                )
             self.pyStrings.append(printState.sep)
-
 
     ###########################################################################
     #                                                                         #
@@ -1066,12 +1102,13 @@ class PythonCodeGenerator(object):
 
         return "".join(self.pyStrings)
 
-    """
-        This function checks the type of a variable and returns the appropriate python syntax type name
-    """
+
     def get_type(self, node):
+        """ This function checks the type of a variable and returns the appropriate
+        Python syntax type name. """
+
         variable_type = node["type"].lower()
-        if variable_type in TYPE_MAP: 
+        if variable_type in TYPE_MAP:
             return TYPE_MAP[variable_type]
         else:
             if node["is_derived_type"] == "true":
@@ -1079,12 +1116,12 @@ class PythonCodeGenerator(object):
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"
 
-    """
-        This function will construct the range string in 'loBound, Upbound' format and return to the called function
-    """
+
     def get_range(self, node):
+        """ This function will construct the range string in 'loBound, Upbound'
+        format and return to the called function. """
         loBound = "0"
-        upBound = "0" 
+        upBound = "0"
 
         low = node["low"]
         up = node["high"]
@@ -1106,21 +1143,28 @@ class PythonCodeGenerator(object):
 
         return f"{loBound}, {upBound}"
 
-    """
-        This function is for extracting the dimensions' range information from the AST.
-        This function is needed for handling a multi-dimensional array(s).
-    """
+
     def get_array_dimension(self, node):
+        """ This function is for extracting the dimensions' range information
+        from the AST.  This function is needed for handling a multi-dimensional
+        array(s). """
+
         count = 1
         array_range = ""
         for dimension in node["dimensions"]:
-            if "literal" in dimension:   # A case where no explicit low bound set
+            if (
+                "literal" in dimension
+            ):  # A case where no explicit low bound set
                 upBound = self.proc_literal(dimension["literal"][0])
                 array_range += f"(0, {upBound})"
-            elif "range" in dimension:   # A case where explict low and up bounds are set
+            elif (
+                "range" in dimension
+            ):  # A case where explicit low and up bounds are set
                 array_range += f"({self.get_range(dimension['range'][0])})"
             else:
-                assert False, f"Array range case not handled. Reference node content: {node}"
+                assert (
+                    False
+                ), f"Array range case not handled. Reference node content: {node}"
 
             if count < int(node["count"]):
                 array_range += ", "
@@ -1128,10 +1172,11 @@ class PythonCodeGenerator(object):
 
         return array_range
 
-    """
-        This function forms a derived type reference and return to the caller
-    """
+
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
+        """ This function forms a derived type reference and return to the
+        caller """
+
         ref = ""
         if node["hasSubscripts"] == "true":
             subscript = node["subscripts"][0]
@@ -1150,7 +1195,6 @@ class PythonCodeGenerator(object):
         if "ref" in node:
             ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
         return ref
-
 
 
 def index_modules(root) -> Dict:
@@ -1216,9 +1260,13 @@ def create_python_source_list(outputDict: Dict):
     if derived_type_ast:
         code_generator.pyStrings.append("@dataclass\n")
         for i in range(len(derived_type_ast)):
-            assert derived_type_ast[i]["is_derived_type"] == "true", "[derived_type_ast] holds non-derived type ast"
+            assert (
+                derived_type_ast[i]["is_derived_type"] == "true"
+            ), "[derived_type_ast] holds non-derived type ast"
             code_generator.nameMapping([derived_type_ast[i]])
-            code_generator.printDerivedType([derived_type_ast[i]], PrintState())
+            code_generator.printDerivedType(
+                [derived_type_ast[i]], PrintState()
+            )
 
     code_generator.nameMapping(main_ast)
     code_generator.printAst(main_ast, PrintState())
