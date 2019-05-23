@@ -415,8 +415,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
             ],
             stdout=sp.PIPE,
         ).stdout
-        root = rectify.buildNewASTfromXMLString(xml_string)
-        trees = [root]
+        tree = rectify.buildNewASTfromXMLString(xml_string)
+        trees = [tree]
         comments = get_comments.get_comments(preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
         xml_to_json_translator = translate.XMLToJSONTranslator()

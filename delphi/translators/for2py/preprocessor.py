@@ -3,38 +3,44 @@
 """
 This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
-problematic for the OpenFortranParser front end. It can also be run as a script,
-as seen below.
+problematic for the OpenFortranParser front end. It can also be run as a
+script, as seen below.
+
 Example:
     To invoke this script, do: ::
+
         ./preprocessor.py <infile> <outfile>
+
 where `infile` is the name of the input file, and `outfile` is the name of the
 file to which the preprocessed code will be written.
+
 Author:
     Saumya Debray
 """
 
 import sys
 from typing import List
-from delphi.translators.for2py.syntax import *
+from delphi.translators.for2py.syntax import line_is_comment
 
 
 def process(lines: List[str]) -> str:
     """ Preprocess a Fortran source file.
+
     Args:
         inputLines The input Fortran file.
+
     Returns:
         Preprocessed lines of Fortran.
     """
 
-    # remove lines that are entirely comments and partial-line comments
+    # Remove lines that are entirely comments and partial-line comments
     lines = [
         rm_trailing_comment(line)
         for line in lines
         if not line_is_comment(line)
     ]
 
-    # merge continuation lines
+    # Merge continuation lines
     chg = True
     while chg:
         chg = False
@@ -42,7 +48,7 @@ def process(lines: List[str]) -> str:
         while i < len(lines):
             line = lines[i]
             llstr = line.lstrip()
-            if len(llstr) > 0 and llstr[0] == "&":  # continuation character
+            if len(llstr) > 0 and llstr[0] == "&":  # Continuation character
                 prevline = lines[i - 1]
                 line = llstr[1:].lstrip()
                 prevline = prevline.rstrip() + line
@@ -54,9 +60,10 @@ def process(lines: List[str]) -> str:
 
 
 def rm_trailing_comment(line: str) -> str:
-    """Takes a line and returns the line with any
-    trailing comment (the '!' comment character and subsequent characters
-    to the end of the line) removed.
+    """Takes a line and returns the line with any trailing comment (the '!'
+    comment character and subsequent characters to the end of the line)
+    removed.
+
     Args:
         line: A line of Fortran source code.
     Returns:
@@ -82,7 +89,7 @@ def rm_trailing_comment(line: str) -> str:
                 return line
             else:
                 i = j + 1
-        elif line[i] == "!":  # partial-line comment
+        elif line[i] == "!":  # Partial-line comment
             return line[:i].rstrip() + "\n"
         else:
             i += 1
@@ -103,4 +110,3 @@ if __name__ == "__main__":
 
     with open(outfile, "w") as f:
         f.write(outputCode)
-
