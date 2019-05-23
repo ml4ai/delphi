@@ -52,9 +52,9 @@ class RectifyOFPXML:
     """
         Nested child tag list
     """
-    FILE_CHILD_TAGS = ["program", "subroutine", "module"]
+    file_child_tags = ["program", "subroutine", "module"]
 
-    STATEMENT_CHILD_TAGS = [
+    statement_child_tags = [
         "assignment", "write", "format", "stop",
         "execution-part", "print", "open", "read",
         "close", "call", "statement", "label",
@@ -64,11 +64,11 @@ class RectifyOFPXML:
         "prefix", "exit",
     ]
 
-    LOOP_CHILD_TAGS = ["header", "body", "format"]
+    loop_child_tags = ["header", "body", "format"]
 
-    DECLARATION_CHILD_TAGS = ["type", "dimensions", "variables", "format", "name"]
+    declaration_childtags = ["type", "dimensions", "variables", "format", "name"]
 
-    DERIVED_TYPE_CHILD_TAGS = [
+    derived_type_child_tags = [
         "declaration-type-spec", "type-param-or-comp-def-stmt-list",
         "component-decl-list__begin", "component-initialization",
         "data-component-def-stmt", "component-def-stmt", "component-attr-spec-list",
@@ -95,7 +95,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
-            if child.tag in self.FILE_CHILD_TAGS:
+            if child.tag in self.file_child_tags:
                 self.parseXMLTree(child, curElem)
             else:
                 print (f'In handle_tag_file: "{child.tag}" not handled')
@@ -196,7 +196,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                if child.tag in self.DECLARATION_CHILD_TAGS:
+                if child.tag in self.declaration_childtags:
                     if child.tag == "format":
                         self.is_format = True
                         self.format_holder = child
@@ -219,7 +219,7 @@ class RectifyOFPXML:
                 elif child.tag == "component-array-spec":
                     self.derived_type_var_holder_list.append(child)
                 else:
-                    if child.tag != "attr-spec" and child.tag != "access-id" and child.tag not in self.DERIVED_TYPE_CHILD_TAGS:
+                    if child.tag != "attr-spec" and child.tag != "access-id" and child.tag not in self.derived_type_child_tags:
                         print (f'self.In handle_tag_declaration: Empty elements "{child.tag}" not handled')
 
         if self.is_array == True:
@@ -287,7 +287,7 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 self.parseXMLTree(child, curElem)
             else:
-                if child.tag not in self.DERIVED_TYPE_CHILD_TAGS and child.tag != "char-selector" and child.tag != "delcaration-type-spec":
+                if child.tag not in self.derived_type_child_tags and child.tag != "char-selector" and child.tag != "delcaration-type-spec":
                     print (f'In handle_tag_type: "{child.tag}" not handled')
         # This will mark whether this type declaration is for a derived type declaration or not
         parElem.set('is_derived_type', str(self.is_derived_type))
@@ -343,7 +343,7 @@ class RectifyOFPXML:
     def handle_tag_statement(self, root, parElem):
         for child in root:
             self.clean_attrib(child)
-            if child.tag in self.STATEMENT_CHILD_TAGS:
+            if child.tag in self.statement_child_tags:
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 if child.text:
                     self.parseXMLTree(child, curElem) 
@@ -559,7 +559,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                if child.tag in self.LOOP_CHILD_TAGS:
+                if child.tag in self.loop_child_tags:
                     if child.tag == "format":
                         self.is_format = True
                         self.format_holder = child
