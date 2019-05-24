@@ -13,6 +13,7 @@ from delphi.translators.for2py import (
     pyTranslate,
     genPGM,
     mod_index_generator,
+    rectify,
 )
 
 from pathlib import Path
@@ -47,11 +48,12 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
         stdout=sp.PIPE,
     ).stdout
 
-    trees = [ET.fromstring(xml_string)]
+    tree = rectify.buildNewASTfromXMLString(xml_string)
+    trees = [tree]
     comments = get_comments.get_comments(preprocessed_fortran_file)
     os.remove(preprocessed_fortran_file)
     xml_to_json_translator = translate.XMLToJSONTranslator()
-    mode_mapper_tree = ET.fromstring(xml_string)
+    mode_mapper_tree = tree
     generator = mod_index_generator.moduleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
     outputDict = xml_to_json_translator.analyze(trees, comments)
@@ -79,64 +81,46 @@ def postprocess_test_data_grfn_dict(_dict):
             del identifier["gensyms"]
 
 @pytest.fixture
-def crop_yield_grfn_dict():
-    _dict = make_grfn_dict(Path(f"{DATA_DIR}/crop_yield.f"))
-    yield(_dict)
-
+def crop_yield_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/crop_yield.f"))[0]
 
 @pytest.fixture
-def petpt_grfn_dict():
-    _dict = make_grfn_dict(Path(f"{DATA_DIR}/PETPT.for"))
-    yield(_dict)
-
+def PETPT_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/PETPT.for"))[0]
 
 @pytest.fixture
-def io_grfn_dict():
-    _dict = make_grfn_dict(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))
-    yield(_dict)
-
+def io_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))[0]
 
 @pytest.fixture
 def array_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0]
 
-
 @pytest.fixture
-def derived_types_python_IR_test():
-    yield get_python_source(
-        Path(f"{DATA_DIR}/derived-types/derived-types-04.f")
-    )[0]
+def do_while_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/do-while/do_while_04.f"))[0]
 
+def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
+    with open(f"{DATA_DIR}/crop_yield.py", "r") as f:
+        python_src = f.read()
+    assert crop_yield_python_IR_test == python_src
 
-def test_crop_yield_grfn_generation(crop_yield_grfn_dict):
-    with open(f"{DATA_DIR}/crop_yield_GrFN.json", "r") as f:
-        json_dict = json.load(f)
-        postprocess_test_data_grfn_dict(json_dict)
+def test_PETPT_pythonIR_generation(PETPT_python_IR_test):
+    with open(f"{DATA_DIR}/PETPT.py", "r") as f:
+        python_src = f.read()
+    assert PETPT_python_IR_test == python_src
 
-    assert crop_yield_grfn_dict == json_dict
-
-
-def test_petpt_grfn_generation(petpt_grfn_dict):
-    with open(f"{DATA_DIR}/PETPT_GrFN.json", "r") as f:
-        json_dict = json.load(f)
-        postprocess_test_data_grfn_dict(json_dict)
-    assert petpt_grfn_dict == json_dict
-
-
-def test_io_grfn_generation(io_grfn_dict):
-    with open(f"{DATA_DIR}/io-tests/iotest_05_GrFN.json", "r") as f:
-        json_dict = json.load(f)
-        postprocess_test_data_grfn_dict(json_dict)
-    assert io_grfn_dict == json_dict
-
+def test_io_test_pythonIR_generation(io_python_IR_test):
+    with open(f"{DATA_DIR}/io-tests/iotest_05.py", "r") as f:
+        python_src = f.read()
+    assert io_python_IR_test == python_src
 
 def test_array_pythonIR_generation(array_python_IR_test):
     with open(f"{DATA_DIR}/arrays-basic-06.py", "r") as f:
         python_src = f.read()
     assert array_python_IR_test == python_src
 
-
-def test_derived_type_pythonIR_generation(derived_types_python_IR_test):
-    with open(f"{DATA_DIR}/derived-types-04.py", "r") as f:
-        python_dict = f.read()
-    assert derived_types_python_IR_test == python_dict
+def test_do_while_pythonIR_generation(do_while_python_IR_test):
+    with open(f"{DATA_DIR}/do-while/do_while_04.py", "r") as f:
+        python_src = f.read()
+    assert do_while_python_IR_test == python_src

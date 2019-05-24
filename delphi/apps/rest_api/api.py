@@ -11,26 +11,165 @@ from typing import Optional, List
 from itertools import product
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
-from delphi.utils import flatten
+from delphi.utils import flatten, lmap
 from flask import jsonify, request, Blueprint
 from delphi.db import engine
 from delphi.apps.rest_api import db
 from delphi.apps.rest_api.models import *
+from delphi.random_variables import Indicator
 import numpy as np
 from flask import current_app
 
 bp = Blueprint("rest_api", __name__)
 
-@bp.route("/conceptToIndicatorMapping", methods=["GET"])
-def getConceptToIndicatorMapping():
-    concepts = engine.execute("select `Concept` from concept_to_indicator_mapping")
-    mapping = {}
-    for concept in concepts:
-        results = engine.execute("select `Indicator`, `Source`, `Score` from "
-        f"concept_to_indicator_mapping where `Concept` like '{concept[0]}'")
-        mapping[concept[0]] = [dict(r) for r in results]
+# ============
+# CauseMos API
+# ============
 
-    return jsonify(mapping)
+
+@bp.route("/delphi/models", methods=["GET"])
+def listAllModels():
+    """ Return UUIDs for all the models in the database. """
+    if (
+        list(
+            engine.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name='icmmetadata'"
+            )
+        )
+        == []
+    ):
+        return jsonify([])
+    else:
+        return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+
+
+@bp.route("/delphi/models", methods=["POST"])
+def createNewModel():
+    """ Create a new Delphi model. """
+    data = json.loads(request.data)
+    G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    G.id = data["model_id"]
+    G.to_sql(app=current_app)
+    return jsonify({"status": "success"})
+
+
+@bp.route("/delphi/models/<string:model_id>/indicators", methods=["GET"])
+def getIndicators(model_id: str):
+    """ Search for indicator candidates pertaining to :model_id.
+
+    The search options include:
+        - start/end: To specify search criteria in years (YYYY)
+        - geolocation: To match indicators with matching geolocation
+        - func: To apply a transform function onto the raw indicator values
+        - concept: To search for specific concept, if omitted search across all concepts within the model
+
+    The search will return a listing of matching indicators, sorted by
+    similarity score. For each concept a maximum of 10 indicator matches will
+    be returned. If there are no matches for a given concept an empty array is
+    returned.
+    """
+    concept = request.args.get("concept")
+    func_dict = {
+        "mean": np.mean,
+        "median": np.median,
+        "max": max,
+        "min": min,
+        "raw": lambda x: x,
+    }
+
+    if concept is not None:
+        concepts = [concept]
+    else:
+        concepts = [
+            v.deserialize()["description"]
+            for v in CausalVariable.query.filter_by(model_id=model_id).all()
+        ]
+
+    output_dict = {}
+    for concept in concepts:
+        output_dict[concept] = []
+        query_parts = [
+            "select `Concept`, `Source`, `Indicator`, `Score`",
+            "from concept_to_indicator_mapping",
+            f"where `Concept` like '{concept}'",
+        ]
+        for indicator_mapping in engine.execute(" ".join(query_parts)):
+            query = (
+                f"select * from indicator"
+                f" where `Variable` like '{indicator_mapping['Indicator']}'"
+            )
+            records = list(engine.execute(query))
+            func = request.args.get("func", "raw")
+            value_dict = {}
+            if func == "raw":
+                for r in records:
+                    unit, value, year, source = r["Unit"], r["Value"], r["Year"], r["Source"]
+                    if unit not in value_dict:
+                        value_dict[unit] = [
+                            {"year": year, "value": float(value), "source": source}
+                        ]
+                    else:
+                        value_dict[unit].append(
+                            {"year": year, "value": float(value), "source": source}
+                        )
+                value = value_dict
+            else:
+                for r in records:
+                    unit, value, source = r["Unit"], r["Value"], r["Source"]
+                    # HACK! if the variables have the same names but different
+                    # sources, this will only give the most recent source
+                    if unit not in value_dict:
+                        value_dict[unit] = [value]
+                    else:
+                        value_dict[unit].append(value)
+
+                value = {
+                    unit: func_dict[func](lmap(float, values))
+                    for unit, values in value_dict.items()
+                }
+
+            output_dict[concept].append(
+                {
+                    "name": indicator_mapping["Indicator"],
+                    "score": indicator_mapping["Score"],
+                    "value": value,
+                    "source": source
+                }
+            )
+
+    return jsonify(output_dict)
+
+
+@bp.route("/delphi/models/<string:model_id>/export", methods=["POST"])
+def exportModel(model_id: str):
+    """ Sends quantification information to be attached to an existing model.
+    Sends concept-to-indicator mappings.
+
+    Input: A map object of concepts and their associated
+           indicator/indicator-values
+    Output: Request status
+    """
+    data = json.loads(request.data)
+    G = DelphiModel.query.filter_by(id=model_id).first().model
+    # Tag this model for display in the CauseWorks interface
+    G.tag_for_CX = True
+    for concept, indicator in data["concept_indicator_map"].items():
+        G.nodes[concept]["indicators"] = {
+            concept: Indicator(
+                concept, indicator["source"], value=indicator["value"]
+            )
+        }
+
+    return jsonify({"status": "success"})
+
+
+# ============
+# ICM API
+# ============
+
 
 @bp.route("/icm", methods=["POST"])
 def createNewICM():
@@ -48,7 +187,21 @@ def createNewICM():
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
     """ List all ICMs"""
-    return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
+    if (
+        list(
+            engine.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name='icmmetadata'"
+            )
+        )
+        == []
+    ):
+        return jsonify([])
+    else:
+        ids = [metadata.id for metadata in ICMMetadata.query.all()]
+        ids.reverse()
+        return jsonify(ids)
+
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
@@ -63,7 +216,11 @@ def getICMByUUID(uuid: str):
 def deleteICM(uuid: str):
     """ Deletes an ICM"""
     _metadata = ICMMetadata.query.filter_by(id=uuid).first()
+    G = DelphiModel.query.filter_by(id=uuid).first()
+    for primitive in CausalPrimitive.query.filter_by(model_id=uuid).all():
+        db.session.delete(primitive)
     db.session.delete(_metadata)
+    db.session.delete(G)
     db.session.commit()
     return ("", 204)
 
@@ -189,13 +346,14 @@ def createExperiment(uuid: str):
     data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
     if os.environ.get("TRAVIS") is not None:
-        config_file="bmi_config.txt"
+        config_file = "bmi_config.txt"
     else:
         if not os.path.exists("/tmp/delphi"):
             os.makedirs("/tmp/delphi", exist_ok=True)
-        config_file="/tmp/delphi/bmi_config.txt"
+        config_file = "/tmp/delphi/bmi_config.txt"
 
-    G.initialize(initialize_indicators = False, config_file=config_file)
+    G.create_bmi_config_file(config_file)
+    G.initialize(initialize_indicators=False, config_file=config_file)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
@@ -260,13 +418,13 @@ def createExperiment(uuid: str):
         # Hack for 12-month evaluation - have the partial derivative decay over
         # time to restore equilibrium
 
-        tau = 1.0 # Time constant to control the rate of the decay
+        tau = 1.0  # Time constant to control the rate of the decay
         for n in G.nodes(data=True):
             for variable in data["interventions"]:
                 if n[1]["id"] == variable["id"]:
                     rv = n[1]["rv"]
                     for s0 in G.s0:
-                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau*i)
+                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
 
     db.session.add(result)
     db.session.commit()
