@@ -154,7 +154,7 @@ class XMLToJSONTranslator(object):
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
-        subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         self.summaries[root.attrib["name"]] = None
         if root.tag == "subroutine":
             self.subroutineList.append(root.attrib["name"])
@@ -179,7 +179,7 @@ class XMLToJSONTranslator(object):
         call = {"tag": "call"}
         for node in root:
             if node.tag == "name":
-                call["name"] = node.attrib["id"].lower()
+                call["name"] = node.attrib["id"]
                 call["args"] = []
                 for arg in node:
                     call["args"] += self.parseTree(arg, state)
@@ -190,7 +190,7 @@ class XMLToJSONTranslator(object):
         list and copy the values (tag and attributes) to it.  """
 
         assert root.tag == "argument", "The root must be <argument>"
-        return [{"tag": "arg", "name": root.attrib["name"].lower()}]
+        return [{"tag": "arg", "name": root.attrib["name"]}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -276,9 +276,7 @@ class XMLToJSONTranslator(object):
                 elif node.tag == "length":
                     is_derived_type = False
                     if "is_derived_type" in root.attrib:
-                        is_derived_type = root.attrib[
-                            "is_derived_type"
-                        ].lower()
+                        is_derived_type = root.attrib["is_derived_type"]
                     keyword2 = "none"
                     if "keyword2" in root.attrib:
                         keyword2 = root.attrib["keyword2"]
@@ -295,7 +293,7 @@ class XMLToJSONTranslator(object):
         else:  # Else, this represents an empty element, which is the case of (1).
             declared_type = {
                 "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
+                "is_derived_type": root.attrib["is_derived_type"]
                 "keyword2": root.attrib["keyword2"],
             }
             return [declared_type]
@@ -338,8 +336,8 @@ class XMLToJSONTranslator(object):
             root.tag == "variable"
         ), f"The root must be <variable>. Current tag is {root.tag} with {root.attrib} attributes."
         try:
-            var_name = root.attrib["name"].lower()
-            is_array = root.attrib["is_array"].lower()
+            var_name = root.attrib["name"]
+            is_array = root.attrib["is_array"]
 
             variable = {"name": var_name, "is_array": is_array}
             if is_array == "true":
@@ -432,7 +430,7 @@ class XMLToJSONTranslator(object):
         assert (
             root.tag == "index-variable"
         ), f"The root must be <index-variable>. Current tag is {root.tag} with {root.attrib} attributes."
-        ind = {"tag": "index", "name": root.attrib["name"].lower()}
+        ind = {"tag": "index", "name": root.attrib["name"]}
         for bounds in root:
             if bounds.tag == "lower-bound":
                 ind["low"] = self.parseTree(bounds, state)
@@ -548,7 +546,7 @@ class XMLToJSONTranslator(object):
         assert (
             root.tag == "name"
         ), f"The root must be <name>. Current tag is {root.tag} with {root.attrib} attributes."
-        if root.attrib["id"].lower() in self.libFns:
+        if root.attrib["id"] in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += self.parseTree(node, state)
@@ -557,7 +555,7 @@ class XMLToJSONTranslator(object):
             root.attrib["id"] in self.functionList
             and state.subroutine["tag"] != "function"
         ):
-            fn = {"tag": "call", "name": root.attrib["id"].lower(), "args": []}
+            fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
                 fn["args"] += self.parseTree(node, state)
             return [fn]
@@ -574,7 +572,7 @@ class XMLToJSONTranslator(object):
 
             ref = {
                 "tag": "ref",
-                "name": root.attrib["id"].lower(),
+                "name": root.attrib["id"]
                 "numPartRef": str(numPartRef),
                 "hasSubscripts": root.attrib["hasSubscripts"],
                 "is_array": is_array,
@@ -618,10 +616,9 @@ class XMLToJSONTranslator(object):
                 assign["value"] = self.parseTree(node, state)
 
         if (
-            assign["target"][0]["name"]
-            in [x.lower() for x in self.functionList]
+            assign["target"][0]["name"] in [x for x in self.functionList]
         ) and (
-            assign["target"][0]["name"] == state.subroutine["name"].lower()
+            assign["target"][0]["name"] == state.subroutine["name"]
         ):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
@@ -633,7 +630,7 @@ class XMLToJSONTranslator(object):
         assert (
             root.tag == "function"
         ), f"The root must be <function>. Current tag is {root.tag} with {root.attrib} attributes."
-        subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
+        subroutine = {"tag": root.tag, "name": root.attrib["name"]}
         self.summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
@@ -757,7 +754,7 @@ class XMLToJSONTranslator(object):
         """
         for node in root:
             if node.tag == "name":
-                return [{"tag": "private", "name": node.attrib["id"].lower()}]
+                return [{"tag": "private", "name": node.attrib["id"]}]
 
         return []
 

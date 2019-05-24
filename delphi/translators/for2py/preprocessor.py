@@ -339,4 +339,4 @@ if __name__ == "__main__":
     with open(outfile, "w") as f:
         for _, line in lines:
             if line is not None:
-                f.write(line)
+                f.write(line.lower())
