@@ -1,4 +1,5 @@
 """
+
 The purpose of this program is to do all the clean up for translate.py.
 This (rectify.py) program will receive OFP generated XML file as an input.
 Then, it removes any unnecessary elements and refactor randomly structured
@@ -16,7 +17,8 @@ ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 Author: Terrence J. Lim
-Last Modified: 4/11/2019
+Last Modified: 5/23/2019
+
 """
 
 import sys
@@ -116,20 +118,19 @@ class RectifyOFPXML:
         "derived-type-def",
     ]
 
-    """
-        This function handles cleaning up the XML elementss between the file elementss.
-
-        In order to control new sub-element creation under the current element,
-        if child.tag == "__tag_name__" has been added. If any new tag(s) that is not being handled currently,
-        appears in the future, add child.tag == "__tag_name__" at the end of the last condition.
-        This applies all other handler functions.
-
-        <file>
-            ...
-        </file>
-    """
-
     def handle_tag_file(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the file elementss.
+
+            In order to control new sub-element creation under the current element,
+            if child.tag == "__tag_name__" has been added. If any new tag(s) that is not being handled currently,
+            appears in the future, add child.tag == "__tag_name__" at the end of the last condition.
+            This applies all other handler functions.
+
+            <file>
+                ...
+            </file>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -138,14 +139,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_file: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the program elementss.
-        <program>
-            ...
-        </program>
-    """
-
     def handle_tag_program(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the program elementss.
+            <program>
+                ...
+            </program>
+        """
         self.current_scope = root.attrib["name"]
         for child in root:
             self.clean_attrib(child)
@@ -161,14 +161,13 @@ class RectifyOFPXML:
                 ):
                     print(f'In handle_tag_program: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the header elementss.
-        <header>
-            ...
-        </header>
-    """
-
     def handle_tag_header(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the header elementss.
+            <header>
+                ...
+            </header>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -192,14 +191,13 @@ class RectifyOFPXML:
                         f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the body elementss.
-        <body>
-            ...
-        </body>
-    """
-
     def handle_tag_body(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the body elementss.
+            <body>
+                ...
+            </body>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -225,14 +223,13 @@ class RectifyOFPXML:
             self.reconstruct_format()
             self.is_format = False
 
-    """
-        This function handles cleaning up the XML elementss between the specification elementss.
-        <specification>
-            ...
-        </specification>
-    """
-
     def handle_tag_specification(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the specification elementss.
+            <specification>
+                ...
+            </specification>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -249,14 +246,13 @@ class RectifyOFPXML:
                         f'In handle_tag_specification: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the declaration elementss.
-        <declaration>
-            ...
-        </declaration>
-    """
-
     def handle_tag_declaration(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the declaration elementss.
+            <declaration>
+                ...
+            </declaration>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -322,14 +318,13 @@ class RectifyOFPXML:
                 self.reconstruct_derived_type_declaration()
             self.is_derived_type = False
 
-    """
-        This function handles cleaning up the XML elementss between the variables elementss.
-        <type>
-            ...
-        </type>
-    """
-
     def handle_tag_type(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the variables elementss.
+            <type>
+                ...
+            </type>
+        """
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -339,16 +334,16 @@ class RectifyOFPXML:
                     parElem.attrib["keyword2"] = child.attrib["keyword2"]
             else:
                 parElem.attrib["keyword2"] = "none"
-            """
-                Having a nested "type" indicates that this is a "derived type" declaration.
-                In other word, this is a case of
-                <type>
-                    <type>
-                        ...
-                    </type>
-                </type>
-            """
             if child.tag == "type":
+                """
+                    Having a nested "type" indicates that this is a "derived type" declaration.
+                    In other word, this is a case of
+                    <type>
+                        <type>
+                            ...
+                        </type>
+                    </type>
+                """
                 self.is_derived_type = True
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
                 self.parent_type = parElem
@@ -390,14 +385,13 @@ class RectifyOFPXML:
         # declaration or not
         parElem.set("is_derived_type", str(self.is_derived_type))
 
-    """
-        This function handles cleaning up the XML elementss between the variables elementss.
-        <variables>
-            ...
-        </variables>
-    """
-
     def handle_tag_variables(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the variables elementss.
+            <variables>
+                ...
+            </variables>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -407,14 +401,13 @@ class RectifyOFPXML:
                 curElem.set("is_array", str(self.is_array))
                 self.parseXMLTree(child, curElem)
 
-    """
-        This function handles cleaning up the XML elementss between the variables elementss.
-        <variable>
-            ...
-        </variable>
-    """
-
     def handle_tag_variable(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the variables elementss.
+            <variable>
+                ...
+            </variable>
+        """
         # Store all declared variables based on their array status
         if parElem.attrib["is_array"] == "True":
             self.declared_array_vars.update(
@@ -441,14 +434,13 @@ class RectifyOFPXML:
                         f'In handle_tag_variable: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the statement elementss.
-        <statement>
-            ...
-        </statement>
-    """
-
     def handle_tag_statement(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the statement elementss.
+            <statement>
+                ...
+            </statement>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag in self.statement_child_tags:
@@ -471,14 +463,13 @@ class RectifyOFPXML:
                     f'In self.handle_tag_statement: "{child.tag}" not handled'
                 )
 
-    """
-        This function handles cleaning up the XML elementss between the assignment elementss.
-        <assignment>
-            ...
-        </assignment>
-    """
-
     def handle_tag_assignment(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the assignment elementss.
+            <assignment>
+                ...
+            </assignment>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -489,14 +480,13 @@ class RectifyOFPXML:
                     f'In self.handle_tag_assignment: "{child.tag}" not handled'
                 )
 
-    """
-        This function handles cleaning up the XML elementss between the target elementss.
-        <target>
-            ...
-        </target>
-    """
-
     def handle_tag_target(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the target elementss.
+            <target>
+                ...
+            </target>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -507,14 +497,13 @@ class RectifyOFPXML:
             else:
                 print(f'In self.handle_tag_target: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elements between the names elements.
-        <names>
-            ...
-        <names>
-    """
-
     def handle_tag_names(self, root, parElem):
+        """
+            This function handles cleaning up the XML elements between the names elements.
+            <names>
+                ...
+            <names>
+        """
         assert (
             root.tag == "names"
         ), f"The tag <names> must be passed to handle_tag_name. Currently, it's {root.tag}."
@@ -543,19 +532,18 @@ class RectifyOFPXML:
             else:
                 print(f'In self.handle_tag_names: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the name elements.
-        <name>
-            ...
-        <name>
-
-        There are three different types of names that the type attribute can hold:
-            (1) variable  - Simple (single) variable or an array
-            (2) procedure - Function (or procedure) call
-            (3) ambiguous - None of the above two type
-    """
-
     def handle_tag_name(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the name elements.
+            <name>
+                ...
+            <name>
+
+            There are three different types of names that the type attribute can hold:
+                (1) variable  - Simple (single) variable or an array
+                (2) procedure - Function (or procedure) call
+                (3) ambiguous - None of the above two type
+        """
         assert (
             root.tag == "name"
         ), f"The tag <name> must be passed to handle_tag_name. Currently, it's {root.tag}."
@@ -626,14 +614,13 @@ class RectifyOFPXML:
             self.is_derived_type_ref = False
             self.need_reconstruct = True
 
-    """
-        This function handles cleaning up the XML elementss between the value elementss.
-        <value>
-            ...
-        </value>
-    """
-
     def handle_tag_value(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the value elementss.
+            <value>
+                ...
+            </value>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -648,14 +635,13 @@ class RectifyOFPXML:
             else:
                 print(f'In self.handle_tag_value: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the literal elementss.
-        <literal>
-            ...
-        </literal>
-    """
-
     def handle_tag_literal(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the literal elementss.
+            <literal>
+                ...
+            </literal>
+        """
         if '"' in parElem.attrib["value"]:
             parElem.attrib["value"] = self.clean_id(parElem.attrib["value"])
         for child in root:
@@ -669,14 +655,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_literal: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the dimensions elementss.
-        <dimensions>
-            ...
-        </dimensions>
-    """
-
     def handle_tag_dimensions(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the dimensions elementss.
+            <dimensions>
+                ...
+            </dimensions>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -688,14 +673,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_dimensions: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the dimension elementss.
-        <dimension>
-            ...
-        </dimension>
-    """
-
     def handle_tag_dimension(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the dimension elementss.
+            <dimension>
+                ...
+            </dimension>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -707,14 +691,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_dimension: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the do loop elementss.
-        <loop>
-            ...
-        </loop>
-    """
-
     def handle_tag_loop(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the do loop elementss.
+            <loop>
+                ...
+            </loop>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -732,14 +715,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_loop: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the index_variable or range elementss.
-        <index_variable>                        <range>
-            ...                 or                  ...
-        </index_variable>                       </range>
-    """
-
     def handle_tag_index_variable_or_range(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the index_variable or range elementss.
+            <index_variable>                        <range>
+                ...                 or                  ...
+            </index_variable>                       </range>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -755,14 +737,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_index_variable_or_range: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the lower_bound elementss.
-        <lower_bound>
-            ...
-        </lower_bound>
-    """
-
     def handle_tag_lower_bound(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the lower_bound elementss.
+            <lower_bound>
+                ...
+            </lower_bound>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -774,14 +755,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_lower_bound: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the upper_bound elementss.
-        <upper_bound>
-            ...
-        </upper_bound>
-    """
-
     def handle_tag_upper_bound(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the upper_bound elementss.
+            <upper_bound>
+                ...
+            </upper_bound>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -799,14 +779,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_upper_bound: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the subscripts elementss.
-        <supscripts>
-            ...
-        </supscripts>
-    """
-
     def handle_tag_subscripts(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the subscripts elementss.
+            <supscripts>
+                ...
+            </supscripts>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -818,14 +797,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_subscripts: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the subscript elementss.
-        <supscript>
-            ...
-        </supscript>
-    """
-
     def handle_tag_subscript(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the subscript elementss.
+            <supscript>
+                ...
+            </supscript>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -841,14 +819,13 @@ class RectifyOFPXML:
                         f'In self.handle_tag_subscript: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the operation elementss.
-        <operation>
-            ...
-        </operation>
-    """
-
     def handle_tag_operation(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the operation elementss.
+            <operation>
+                ...
+            </operation>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -860,14 +837,13 @@ class RectifyOFPXML:
                         f'In handle_tag_operation: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the operation elementss.
-        <operand>
-            ...
-        </operand>
-    """
-
     def handle_tag_operand(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the operation elementss.
+            <operand>
+                ...
+            </operand>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -882,14 +858,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_operand: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the operation elementss.
-        <operand>
-            ...
-        </operand>
-    """
-
     def handle_tag_write(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the operation elementss.
+            <operand>
+                ...
+            </operand>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -899,14 +874,13 @@ class RectifyOFPXML:
                 else:
                     print(f'In handle_tag_write: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the io-controls elementss.
-        <io-controls>
-            ...
-        </io-controls>
-    """
-
     def handle_tag_io_controls(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the io-controls elementss.
+            <io-controls>
+                ...
+            </io-controls>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -918,14 +892,13 @@ class RectifyOFPXML:
                         f'In handle_tag_io_controls: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the io-control elementss.
-        <io-control>
-            ...
-        </io-control>
-    """
-
     def handle_tag_io_control(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the io-control elementss.
+            <io-control>
+                ...
+            </io-control>
+        """
         for child in root:
             self.clean_attrib(child)
             # To make io-control elements simpler, the code below will append io-control-spec's attributes
@@ -942,14 +915,13 @@ class RectifyOFPXML:
                         f'In handle_tag_io_control: "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the outputs elementss
-        <outputs>
-            ...
-        </outputs>
-    """
-
     def handle_tag_outputs(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the outputs elementss
+            <outputs>
+                ...
+            </outputs>
+        """
         assert (
             root.tag == "outputs"
         ), f"The tag <outputs> must be passed to handle_tag_outputs. Currently, it's {root.tag}."
@@ -964,14 +936,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_outputs: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the output elementss.
-        <output>
-            ...
-        </output>
-    """
-
     def handle_tag_output(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the output elementss.
+            <output>
+                ...
+            </output>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -982,14 +953,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_outputs: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the format elementss.
-        <format>
-            ...
-        </format>
-    """
-
     def handle_tag_format(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the format elementss.
+            <format>
+                ...
+            </format>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -999,17 +969,16 @@ class RectifyOFPXML:
                 if child.tag != "label":
                     print(f'In handle_tag_format: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the format_items and its sub-elementss
-        <format_items>
-            <format_item>
-                ...
-            </format_item>
-            ...
-        </format_items>
-    """
-
     def handle_tag_format_items(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the format_items and its sub-elementss
+            <format_items>
+                <format_item>
+                    ...
+                </format_item>
+                ...
+            </format_items>
+        """
         for child in root:
             self.clean_attrib(child)
             curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -1018,14 +987,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_format_items: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the print tags.
-        <print>
-            ...
-        </print>
-    """
-
     def handle_tag_print(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the print tags.
+            <print>
+                ...
+            </print>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag != "print-stmt":
@@ -1036,14 +1004,13 @@ class RectifyOFPXML:
                 if child.tag != "print-format" and child.tag != "print-stmt":
                     print(f'In handle_tag_print: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the open elementss.
-        <open>
-            ...
-        </open>
-    """
-
     def handle_tag_open(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the open elementss.
+            <open>
+                ...
+            </open>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1060,17 +1027,16 @@ class RectifyOFPXML:
                         f'In handle_tag_open: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the keyword-arguments and keyword-argument elementss.
-        <keyword-arguments>
-            <keyword-argument>
-                ...
-            </keyword-argument>
-            ...
-        </keyword-arguments>
-    """
-
     def handle_tag_keyword_arguments(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the keyword-arguments and keyword-argument elementss.
+            <keyword-arguments>
+                <keyword-argument>
+                    ...
+                </keyword-argument>
+                ...
+            </keyword-arguments>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1087,14 +1053,13 @@ class RectifyOFPXML:
                         f'In handle_tag_keyword_arguments - {root.tag}: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the read elementss. 
-        <read>
-            ...
-        </read>
-    """
-
     def handle_tag_read(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the read elementss. 
+            <read>
+                ...
+            </read>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1111,17 +1076,16 @@ class RectifyOFPXML:
                         f'In handle_tag_read: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the inputs and input elementss.
-        <inputs>
-            <input>
-                ...
-            </input>
-            ...
-        </inputs>
-    """
-
     def handle_tag_inputs(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the inputs and input elementss.
+            <inputs>
+                <input>
+                    ...
+                </input>
+                ...
+            </inputs>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1137,14 +1101,13 @@ class RectifyOFPXML:
                     f'In handle_tag_input - {root.tag}: Empty elements "{child.tag}" not handled'
                 )
 
-    """
-        This function handles cleaning up the XML elementss between the close elementss. 
-        <close>
-            ...
-        </close>
-    """
-
     def handle_tag_close(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the close elementss. 
+            <close>
+                ...
+            </close>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1161,14 +1124,13 @@ class RectifyOFPXML:
                         f'In handle_tag_close: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the call elements. 
-        <call>
-            ...
-        </call>
-    """
-
     def handle_tag_call(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the call elements. 
+            <call>
+                ...
+            </call>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1185,14 +1147,13 @@ class RectifyOFPXML:
                         f'In handle_tag_call: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the subroutine elements. 
-        <subroutine>
-            ...
-        </subroutine>
-    """
-
     def handle_tag_subroutine(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the subroutine elements. 
+            <subroutine>
+                ...
+            </subroutine>
+        """
         self.current_scope = root.attrib["name"]
         for child in root:
             self.clean_attrib(child)
@@ -1212,14 +1173,13 @@ class RectifyOFPXML:
                         f'In handle_tag_subroutine: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the arguments. 
-        <arguments>
-            ...
-        </arsuments>
-    """
-
     def handle_tag_arguments(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the arguments. 
+            <arguments>
+                ...
+            </arsuments>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag == "argument":
@@ -1227,14 +1187,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_variable: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the if elements.
-        <if>
-            ...
-        </if>
-    """
-
     def handle_tag_if(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the if elements.
+            <if>
+                ...
+            </if>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1251,14 +1210,13 @@ class RectifyOFPXML:
                         f'In handle_tag_if: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the stop elements 
-        <stop>
-            ...
-        </stop>
-    """
-
     def handle_tag_stop(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the stop elements 
+            <stop>
+                ...
+            </stop>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag == "stop-code":
@@ -1266,14 +1224,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_stop: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the step elements.
-        <step>
-            ...
-        </step>
-    """
-
     def handle_tag_step(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the step elements.
+            <step>
+                ...
+            </step>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1287,16 +1244,15 @@ class RectifyOFPXML:
                     f'In handle_tag_step: Empty elements "{child.tag}" not handled'
                 )
 
-    """
-        This function handles cleaning up the XML elementss between the return and return-stmt elementss.
-        However, since 'return-stmt' is an empty elements with no sub-elementss, the function will not keep
-        the elements, but move the attribute to its parent elements, return.
-        <return>
-            ...
-        </return>
-    """
-
     def handle_tag_return(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the return and return-stmt elementss.
+            However, since 'return-stmt' is an empty elements with no sub-elementss, the function will not keep
+            the elements, but move the attribute to its parent elements, return.
+            <return>
+                ...
+            </return>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag == "return-stmt":
@@ -1304,14 +1260,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_return: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the function elements.
-        <function>
-            ...
-        </function>
-    """
-
     def handle_tag_function(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the function elements.
+            <function>
+                ...
+            </function>
+        """
         self.current_scope = root.attrib["name"]
         for child in root:
             self.clean_attrib(child)
@@ -1337,14 +1292,13 @@ class RectifyOFPXML:
                         f'In handle_tag_function: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the use elementss.
-        <use>
-            ...
-        </use>
-    """
-
     def handle_tag_use(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the use elementss.
+            <use>
+                ...
+            </use>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.tag == "use-stmt" or child.tag == "only":
@@ -1354,14 +1308,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_use: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the module elementss.
-        <module>
-            ...
-        </module>
-    """
-
     def handle_tag_module(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the module elementss.
+            <module>
+                ...
+            </module>
+        """
         for child in root:
             self.clean_attrib(child)
             if (
@@ -1378,14 +1331,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_module: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the initial-value elementss.
-        <initial-value>
-            ...
-        </initial-value>
-    """
-
     def handle_tag_initial_value(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the initial-value elementss.
+            <initial-value>
+                ...
+            </initial-value>
+        """
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1404,14 +1356,13 @@ class RectifyOFPXML:
                         f'In handle_tag_initial_value: Empty elements "{child.tag}" not handled'
                     )
 
-    """
-        This function handles cleaning up the XML elementss between the members elementss.
-        <members>       <member>
-            ...     or      ...
-        </members>      </member>
-    """
-
     def handle_tag_members(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the members elementss.
+            <members>       <member>
+                ...     or      ...
+            </members>      </member>
+        """
         for child in root:
             self.clean_attrib(child)
             if (
@@ -1428,14 +1379,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_members: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the only elementss.
-        <only>
-            ...
-        </only>
-    """
-
     def handle_tag_only(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the only elementss.
+            <only>
+                ...
+            </only>
+        """
         for child in root:
             if (
                 child.tag == "name"
@@ -1448,14 +1398,13 @@ class RectifyOFPXML:
             else:
                 print(f'In handle_tag_only: "{child.tag}" not handled')
 
-    """
-        This function handles cleaning up the XML elementss between the length elementss.
-        <length>
-            ...
-        </length>
-    """
-
     def handle_tag_length(self, root, parElem):
+        """
+            This function handles cleaning up the XML elementss between the length elementss.
+            <length>
+                ...
+            </length>
+        """
         for child in root:
             if child.tag == "literal" or child.tag == "char-length":
                 curElem = ET.SubElement(parElem, child.tag, child.attrib)
@@ -1470,21 +1419,20 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-    """
-        parseXMLTree
-
-        Arguments:
-            root: The current root of the tree.
-            parElem: The parent elements.
-    
-        Returns:
-            None
-            
-        Recursively traverse through the nested XML AST tree and calls appropriate tag handler, which will generate
-        a cleaned version of XML tree for translate.py. Any new tags handlers must be added under this this function.
-    """
-
     def parseXMLTree(self, root, parElem):
+        """
+            parseXMLTree
+
+            Arguments:
+                root: The current root of the tree.
+                parElem: The parent elements.
+        
+            Returns:
+                None
+                
+            Recursively traverse through the nested XML AST tree and calls appropriate tag handler, which will generate
+            a cleaned version of XML tree for translate.py. Any new tags handlers must be added under this this function.
+        """
         if root.tag == "file":
             self.handle_tag_file(root, parElem)
         elif root.tag == "program":
@@ -1602,26 +1550,26 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-    """
-        reconstruct_derived_type_declaratione reconstruct the derived type with the collected derived type declaration elementss
-        in the handle_tag_declaration and handle_tag_type.
-    """
-
     def reconstruct_derived_type_declaration(self):
+        """
+            reconstruct_derived_type_declaratione reconstruct the derived type with the collected 
+            derived type declaration elements in the handle_tag_declaration and handle_tag_type.
+        """
         if self.derived_type_var_holder_list:
             literal = ET.Element("")
             is_dimension = False
 
-            # Since component-decl-list appears after component-decl, the program needs to iterate the list
-            # once first to pre-collect the variable counts
+            # Since component-decl-list appears after component-decl, the program needs to 
+            # iterate the list once first to pre-collect the variable counts.
             counts = []
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "component-decl-list":
                     counts.append(elem.attrib["count"])
 
-            # Initialize count to 0 for <variables> count attribute
+            # Initialize count to 0 for <variables> count attribute.
             count = 0
-            # 'component-decl-list__begin' tag is an indication of all the derived type member variable declarations will follow
+            # 'component-decl-list__begin' tag is an indication of all the derived type member
+            # variable declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
@@ -1715,12 +1663,12 @@ class RectifyOFPXML:
             # Once one derived type was successfully constructed, clear all the elementss of a derived type list
             self.derived_type_var_holder_list.clear()
 
-    """
-        This function reconstruct the id into x.y.k form from the messy looking id.
-        One thing to notice is that this new form was generated in the python syntax, so it is a pre-process for translate.py and even pyTranslate.py that
-    """
-
     def reconstruct_derived_type_ref(self, parElem):
+        """
+            This function reconstruct the id into x.y.k form from the messy looking id.
+            One thing to notice is that this new form was generated in the python syntax,
+            so it is a pre-process for translate.py and even pyTranslate.py that
+        """
         assert (
             parElem.tag == "name"
         ), f"The tag <name> must be passed to reconstruct_derived_type_ref. Currently, it's {parElem.tag}."
@@ -1760,28 +1708,26 @@ class RectifyOFPXML:
             self.derived_type_refs.append(parent_ref)
         self.derived_type_var_holder_list.clear()  # Clean up the list for re-use
 
-    """
-        This function is for reconstructing the <format> under the <statement> element.
-        The OFP XML nests formats under:
-            (1) statement
-            (2) declaration
-            (3) loop
-        tags, which are wrong except one that is declared under the statement.
-        Therefore, those formats declared under (2) and (3) will be extracted and reconstructed
-        to be nested under (1) in this function.
-    """
-
     def reconstruct_format(self):
+        """
+            This function is for reconstructing the <format> under the <statement> element.
+            The OFP XML nests formats under:
+                (1) statement
+                (2) declaration
+                (3) loop
+            tags, which are wrong except one that is declared under the statement.
+            Therefore, those formats declared under (2) and (3) will be extracted and reconstructed
+            to be nested under (1) in this function.
+        """
         root_scope = ET.SubElement(self.current_body_scope, "statement")
         curElem = ET.SubElement(root_scope, "format")
         self.parseXMLTree(self.format_holder, curElem)
 
-    """
-        This function reconstructs derived type reference syntax tree.
-        However, this functions is actually a preprocessor for the real final reconstruction.
-    """
-
     def reconstruct_derived_type_names(self, parElem):
+        """
+            This function reconstructs derived type reference syntax tree.
+            However, this functions is actually a preprocessor for the real final reconstruction.
+        """
         # Update reconstruced derived type references
         assert (
             self.is_derived_type_ref == True
@@ -1794,15 +1740,14 @@ class RectifyOFPXML:
         # Re-initialize to original values
         self.derived_type_refs.clear()
 
-    """
-        This function performs a final reconstruction of derived type name element that was
-        preprocessed by 'reconstruct_derived_type_names' function. This function traverses
-        the preprocessed name element (including sub-elements) and split & store <name> and
-        <subscripts> into separate lists. Then, it comibines and reconstructs two lists
-        appropriately.
-    """
-
     def reconstruct_name_element(self, curElem, parElem):
+        """
+            This function performs a final reconstruction of derived type name element that was
+            preprocessed by 'reconstruct_derived_type_names' function. This function traverses
+            the preprocessed name element (including sub-elements) and split & store <name> and
+            <subscripts> into separate lists. Then, it comibines and reconstructs two lists
+            appropriately.
+        """
         name_elements = [curElem]
         # Remove the original <name> elements.
         parElem.remove(curElem)
@@ -1852,13 +1797,12 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-    """
-        This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
-        Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
-        of id with the cleaned version.
-    """
-
     def clean_derived_type_ref(self, parElem):
+        """
+            This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
+            Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
+            of id with the cleaned version.
+        """
         current_id = parElem.attrib[
             "id"
         ]  # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
@@ -1873,22 +1817,20 @@ class RectifyOFPXML:
         )  # 4. Get the field variable. y in this example.
         self.reconstruct_derived_type_ref(parElem)
 
-    """
-        This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
-        For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id name will be modified as below:
-            Unrefined id: id = ""OUTPUT""
-            Refined id: id = "OUTPUT"
-    """
-
     def clean_id(self, unrefined_id):
+        """
+            This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
+            For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id name will be modified as below:
+                Unrefined id: id = ""OUTPUT""
+                Refined id: id = "OUTPUT"
+        """
         return re.findall(r"\"([^\"]+)\"", unrefined_id)[0]
 
-    """
-        The original XML elements holds 'eos' and 'rule' attributes that are not necessary and being used.
-        Thus, this function will remove them in the rectified version of XML.
-    """
-
     def clean_attrib(self, elements):
+        """
+            The original XML elements holds 'eos' and 'rule' attributes that are not necessary and being used.
+            Thus, this function will remove them in the rectified version of XML.
+        """
         if "eos" in elements.attrib:
             elements.attrib.pop("eos")
         if "rule" in elements.attrib:
@@ -1901,25 +1843,23 @@ class RectifyOFPXML:
 #################################################################
 
 
-"""
-    This function is just a helper function for check whether the passed elements (i.e. list) is empty or not
-"""
-
-
 def is_empty(elem):
+    """
+        This function is just a helper function for
+        check whether the passed elements (i.e. list)
+        is empty or not
+    """
     if not elem:
         return True
     else:
         return False
 
 
-"""
-    This function indents each level of XML.
-    Source: https://stackoverflow.com/questions/3095434/inserting-newlines-in-xml-file-generated-via-xml-etree-elementstree-in-python
-"""
-
-
 def indent(elem, level=0):
+    """
+        This function indents each level of XML.
+        Source: https://stackoverflow.com/questions/3095434/inserting-newlines-in-xml-file-generated-via-xml-etree-elementstree-in-python
+    """
     i = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
@@ -1936,12 +1876,10 @@ def indent(elem, level=0):
     return elem
 
 
-"""
-    Using the list of cleaned AST, construct a new XML AST and write to a file
-"""
-
-
 def buildNewAST(filename: str):
+    """
+        Using the list of cleaned AST, construct a new XML AST and write to a file
+    """
     # Read AST from the OFP generated XML file
     ast = ET.parse(filename)
     # Get a root of a tree
