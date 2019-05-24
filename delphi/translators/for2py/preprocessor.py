@@ -17,8 +17,7 @@ Author:
 import sys
 from collections import OrderedDict
 from typing import List, Dict, Tuple
-#from delphi.translators.for2py.syntax import (
-from syntax import (
+from delphi.translators.for2py.syntax import (
     line_is_comment,
     line_is_continuation,
     line_is_executable,
