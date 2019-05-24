@@ -58,12 +58,14 @@ for file in "$@"; do
     processedFile=tmp/"$base"_processed."$extension"
     pickleFile=tmp/"$base"_pickle
     astFile=tmp/"$base".xml
+    rectifiedAstFile=tmp/rectified_"$base".xml
     ( set -x; $PYTRANSLATE preprocessor.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
+    ( set -x; $PYTRANSLATE rectify.py "$astFile")
 
     pyFile=tmp/"$base".py
     outputFileList=tmp/"$base"_outputList.txt
-    ( set -x; $PYTRANSLATE translate.py -f "$astFile" -g "$pickleFile" -i "$file")
+    ( set -x; $PYTRANSLATE translate.py -f "$rectifiedAstFile" -g "$pickleFile" -i "$file")
     ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -o "$outputFileList")
     pyFiles+=" $pyFile"
 done

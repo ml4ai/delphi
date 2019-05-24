@@ -5,15 +5,11 @@ This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
 problematic for the OpenFortranParser front end. It can also be run as a script,
 as seen below.
-
 Example:
     To invoke this script, do: ::
-
         ./preprocessor.py <infile> <outfile>
-
 where `infile` is the name of the input file, and `outfile` is the name of the
 file to which the preprocessed code will be written.
-
 Author:
     Saumya Debray
 """
@@ -264,10 +260,8 @@ def split_trailing_comment(line: str) -> str:
     where code_part is the line up to but not including any trailing
     comment (the '!' comment character and subsequent characters
     to the end of the line), while comment_part is the trailing comment.
-
     Args:
         line: A line of Fortran source code.
-
     Returns:
         A pair (code_part, comment_part) where comment_part is the trailing
         comment.  If the line does not contain any trailing comment, then

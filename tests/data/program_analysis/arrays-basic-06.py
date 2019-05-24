@@ -7,14 +7,14 @@ from dataclasses import dataclass
 
 
 def main():
-    format_10: List[str] = []
+    format_10: List[str] = [None]
     format_10 = ['5(I5,X)']
     format_10_obj = Format(format_10)
     
-    a = Array(int, [(-3, 1), (1, 5), (10, 14)])
-    i: List[int] = [0]
-    j: List[int] = [0]
-    k: List[int] = [0]
+    a = Array(int, [(-(3), 1), (0, 5), (10, 14)])
+    i: List[int] = [None]
+    j: List[int] = [None]
+    k: List[int] = [None]
     for i[0] in range(-(3), 1+1):
         for j[0] in range(1, 5+1):
             for k[0] in range(10, 14+1):
