@@ -3,8 +3,10 @@
 """
 This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
-problematic for the OpenFortranParser front end. It can also be run as a script,
-as seen below.
+problematic for the OpenFortranParser front end. Along the way it converts
+the input code into lower-case to simplify subsequent processing.
+
+This code can also be run as a script, as seen below.
 Example:
     To invoke this script, do: ::
         ./preprocessor.py <infile> <outfile>
