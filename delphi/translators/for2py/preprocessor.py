@@ -17,11 +17,13 @@ Author:
 import sys
 from collections import OrderedDict
 from typing import List, Dict, Tuple
-from delphi.translators.for2py.syntax import (
+#from delphi.translators.for2py.syntax import (
+from syntax import (
     line_is_comment,
     line_is_continuation,
     line_is_executable,
     line_is_pgm_unit_end,
+    line_is_pgm_unit_separator,
     line_is_pgm_unit_start,
     program_unit_name,
 )
@@ -119,7 +121,11 @@ def merge_continued_lines(lines):
 # the line being processed.
 
 TRANSITIONS = {
-    "outside": {"comment": "outside", "pgm_unit_start": "in_neck"},
+    "outside": {
+        "comment": "outside", 
+        "pgm_unit_start": "in_neck",
+        "pgm_unit_end": "outside",
+    },
     "in_neck": {
         "comment": "in_neck",
         "exec_stmt": "in_body",
@@ -128,6 +134,7 @@ TRANSITIONS = {
     "in_body": {
         "comment": "in_body",
         "exec_stmt": "in_body",
+        "pgm_unit_sep": "outside",
         "pgm_unit_end": "outside",
     },
 }
@@ -143,11 +150,12 @@ def type_of_line(line):
         return "exec_stmt"
     elif line_is_pgm_unit_end(line):
         return "pgm_unit_end"
+    elif line_is_pgm_unit_start(line):
+        return "pgm_unit_start"
+    elif line_is_pgm_unit_separator(line):
+        return "pgm_unit_sep"
     else:
-        if line_is_pgm_unit_start(line):
-            return "pgm_unit_start"
-        else:
-            return "other"
+        return "other"
 
 
 def extract_comments(
@@ -180,17 +188,20 @@ def extract_comments(
 
         # process the line appropriately
         if curr_state == "outside":
-            assert line_type in ("comment", "pgm_unit_start"), (
-                line_type,
-                line,
-            )
+            assert line_type in (
+                "comment", 
+                "pgm_unit_start", 
+                "pgm_unit_end"
+            ), (line_type, line)
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)
             else:
-                # line_type == "pgm_unit_start"
+                # line_type == "pgm_unit_start" 
                 pgm_unit_name = program_unit_name(line)
-                comments["$file_head"] = curr_comment
+
+                if curr_state == "outside":
+                    comments["$file_head"] = curr_comment
 
                 if prev_fn is not None:
                     comments[prev_fn]["foot"] = curr_comment
@@ -220,8 +231,9 @@ def extract_comments(
             assert line_type in (
                 "comment",
                 "exec_stmt",
+                "pgm_unit_sep",
                 "pgm_unit_end",
-            ), f"[Line {linenum}]: {line}"
+            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
 
             if line_type == "comment":
                 # Ignore empty lines, which are technically comments but which
@@ -306,7 +318,7 @@ def process(inputLines: List[str]) -> str:
     actual_lines = [
         line[1]
         for line in lines
-        if line[1] is not None and "i_g_n_o_r_e___m_e_" not in line[1]
+        if line[1] is not None and INTERNAL_COMMENT_PREFIX not in line[1]
     ]
     return "".join(actual_lines)
 
