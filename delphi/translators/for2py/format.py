@@ -427,9 +427,9 @@ def list_data_type(type_list):
         if not match:
             reps = 1
             if item[0] in "FfEegG":
-                data_type.append("REAL")
+                data_type.append("real")
             elif item[0] in "Ii":
-                data_type.append("INTEGER")
+                data_type.append("integer")
         else:
             reps = match.group(1)
             fmt = match.group(2)
@@ -442,9 +442,9 @@ def list_data_type(type_list):
             for i in range(int(reps)):
                 for ft in fmt:
                     if ft[0] in "FfEegG":
-                        data_type.append("REAL")
+                        data_type.append("real")
                     elif ft[0] in "Ii":
-                        data_type.append("INTEGER")
+                        data_type.append("integer")
     return data_type
 
 
