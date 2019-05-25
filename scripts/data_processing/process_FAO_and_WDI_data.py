@@ -22,7 +22,7 @@ data_dir = Path("data")
 
 def clean_FAOSTAT_data():
 
-    faostat_dir = "data/FAOSTAT"
+    faostat_dir = "data/raw/FAOSTAT"
     dfs = []
     for filename in tqdm(
         glob(str(faostat_dir) + "/*.csv"), desc="Processing FAOSTAT files"
@@ -122,7 +122,7 @@ def construct_FAO_ontology():
 def clean_WDI_data():
     print("Cleaning WDI data")
     df = pd.read_csv(
-        "data/WDI_csv/WDIData.csv",
+        "data/raw/WDI/WDIData.csv",
         usecols=[
             "Country Name",
             "Indicator Name",
