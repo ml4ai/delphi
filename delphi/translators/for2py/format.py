@@ -369,20 +369,20 @@ class Format:
 #           and-reference-rules-for-list-directed-sequential-write-statements
 
 LIST_WRITE_DEFAULTS = {
-    "BYTE": "I5",
-    "LOGICAL(1)": "L2",
-    "LOGICAL(2)": "L2",
-    "LOGICAL(4)": "L2",
-    "LOGICAL(8)": "L2",
-    "INTEGER": "I12",
-    "INTEGER(1)": "I5",
-    "INTEGER(2)": "I7",
-    "INTEGER(4)": "I12",
-    "INTEGER(8)": "I22",
-    "REAL": "1PE14.5E2",
-    "REAL(4)": "1PG15.7E2",
-    "REAL(8)": "1PG24.15E3",
-    "REAL(16)": "1PG43.33E4",
+    "byte": "i5",
+    "logical(1)": "l2",
+    "logical(2)": "l2",
+    "logical(4)": "l2",
+    "logical(8)": "l2",
+    "integer": "i12",
+    "integer(1)": "i5",
+    "integer(2)": "i7",
+    "integer(4)": "i12",
+    "integer(8)": "i22",
+    "real": "1pe14.5e2",
+    "real(4)": "1pg15.7e2",
+    "real(8)": "1pg24.15e3",
+    "real(16)": "1pg43.33e4",
 }
 
 
