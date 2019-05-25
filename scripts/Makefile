@@ -3,8 +3,8 @@
 
 all: report.pdf
 
-DSSAT_DATA := data/disaggregated_all_20190123_1451
-DSSAT_AGGREGATED_DATA := data/SSD_csv
+DSSAT_DATA := data/raw/DSSAT/disaggregated_all_20190123_1451
+DSSAT_AGGREGATED_DATA := data/raw/DSSAT/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
@@ -16,68 +16,10 @@ data/delphi.db: create_delphi_db.py\
 data:
 	mkdir -p $@
 
-# Intermediate files that will be deleted after they are no longer necessary
-
-
-.INTERMEDIATE: data/WDI_csv.tar.bz2 \
-			   data/FAOSTAT.zip\
-			   data/FEWSNET/ALL_HFIC.zip\
-			   data/FEWSNET/FEWSNET_World_Admin.zip\
-			   fews\
-			   $(DSSAT_DATA).zip\
-			   $(DSSAT_AGGREGATED_DATA).zip
-
-
-# =============================================================================
-# WDI data processing
-# =============================================================================
-
-data/WDI_csv.tar.bz2: | data
-	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
-
-data/WDI_csv/WDIData.csv: data/WDI_csv.tar.bz2
-	tar -C $(<D) -jxvf $<
-
-
-# =============================================================================
-# FAOSTAT data processing
-# =============================================================================
-
-data/FAOSTAT.zip: | data
-	curl http://fenixservices.fao.org/faostat/static/bulkdownloads/$(@F) -o $@
-
-data/FAOSTAT: data/FAOSTAT.zip
-	unzip $< -d $@
-	cd $@; find . -name '*.zip' -print0 | xargs -0 -I {} -P 8 unzip {}
-
-# =============================================================================
-# FEWSNET data processing
-# =============================================================================
-
-data/FEWSNET/FEWSNET_World_Admin.zip: | data
-	mkdir -p $(@D)
-	curl http://shapefiles.fews.net.s3.amazonaws.com/ADMIN/$(@F) -o $@
-
-data/FEWSNET/FEWSNET_World_Admin: data/FEWSNET/FEWSNET_World_Admin.zip
-	unzip $< -d $@
-
-data/FEWSNET/ALL_HFIC.zip:
-	curl http://shapefiles.fews.net.s3.amazonaws.com/$(@F) -o $@
-
-data/FEWSNET/ALL_HFIC: data/FEWSNET/ALL_HFIC.zip
-	unzip $< -d $(@D)
-	cd $@/East\ Africa; for f in EA2017*; do mv $$f $${f/EA/EA_}; done
-
-fews: data/FEWSNET/FEWSNET_World_Admin data/FEWSNET/ALL_HFIC
-
-# =============================================================================
-# Intermediate indicator file creation
-# =============================================================================
-
-data/south_sudan_data_fao.tsv: data/FAOSTAT
+data/south_sudan_data_fao.tsv: data/raw/FAOSTAT
 	python data_processing/process_FAO_and_WDI_data.py --fao
 
-data/south_sudan_data_wdi.tsv: data/WDI_csv/WDIData.csv
+data/south_sudan_data_wdi.tsv: data/raw/WDI/WDIData.csv
 	python data_processing/process_FAO_and_WDI_data.py --wdi
 
 data/south_sudan_data_fewsnet.tsv: data_processing/process_FEWSNET_data.py fews
@@ -85,17 +27,6 @@ data/south_sudan_data_fewsnet.tsv: data_processing/process_FEWSNET_data.py fews
 
 data/south_sudan_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
 	python $<
-
-data/south_sudan_data_conflict.tsv:
-	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
-
-$(DSSAT_AGGREGATED_DATA): | data
-	curl http://vision.cs.arizona.edu/adarsh/$(@F).tgz -o $@.tgz
-	cd data; tar -xvzf $(@F).tgz
-
-$(DSSAT_DATA): | data
-	curl http://vision.cs.arizona.edu/adarsh/$(@F).zip -o $@.zip
-	unzip $@.zip -d $@
 
 dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
@@ -109,7 +40,7 @@ data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_D
 data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_fao.tsv\
 						   data/south_sudan_data_wdi.tsv\
-						   data/south_sudan_data_conflict.tsv\
+						   data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
 						   data/south_sudan_data_dssat.tsv
@@ -118,8 +49,6 @@ data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 data/indicator_flat_list.txt: data/south_sudan_data.tsv
 
 
-data/adjectiveData.tsv: | data
-	curl http://vision.cs.arizona.edu/adarsh/$(@F) -o $@
 
 # =============================================================================
 # Creation of concept to indicator mapping
