@@ -724,7 +724,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
-        if node["args"][0].get("arg_name") == "UNIT":
+        if node["args"][0].get("arg_name") == "unit":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
             file_handle = "file_" + str(
