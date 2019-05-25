@@ -184,7 +184,7 @@ class PythonCodeGenerator(object):
         self.funcArgs = {}
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
-        self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
+        self.stateMap = {"unknown": "r", "replace": "w"}
         self.format_dict = {}
         self.declaredDerivedTVars = []
         self.declaredDerivedTypes = []
@@ -929,7 +929,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(printState.sep)
         self.nameMapper[f"format_{node['label']}"] = f"format_{node['label']}"
         self.printVariable(
-            {"name": "format_" + node["label"], "type": "STRING"}, printState
+            {"name": "format_" + node["label"], "type": "string"}, printState
         )
         self.format_dict[node["label"]] = type_list
         self.pyStrings.extend(
