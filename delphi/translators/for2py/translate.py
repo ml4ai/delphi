@@ -293,7 +293,7 @@ class XMLToJSONTranslator(object):
         else:  # Else, this represents an empty element, which is the case of (1).
             declared_type = {
                 "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"]
+                "is_derived_type": root.attrib["is_derived_type"],
                 "keyword2": root.attrib["keyword2"],
             }
             return [declared_type]
@@ -572,7 +572,7 @@ class XMLToJSONTranslator(object):
 
             ref = {
                 "tag": "ref",
-                "name": root.attrib["id"]
+                "name": root.attrib["id"],
                 "numPartRef": str(numPartRef),
                 "hasSubscripts": root.attrib["hasSubscripts"],
                 "is_array": is_array,
