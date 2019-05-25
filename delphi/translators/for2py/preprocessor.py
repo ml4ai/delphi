@@ -256,7 +256,13 @@ def extract_comments(
         comments[curr_fn]["foot"] = curr_comment
         comments["$file_foot"] = curr_comment
 
-    return (lines, comments)
+    # convert the code to lower-case to simplify subsequent processing
+    lowercased_lines = []
+    for line in lines:
+        if line[1] != None:
+            lowercased_lines.append((line[0], line[1].lower()))
+
+    return (lowercased_lines, comments)
 
 
 def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
@@ -341,4 +347,4 @@ if __name__ == "__main__":
     with open(outfile, "w") as f:
         for _, line in lines:
             if line is not None:
-                f.write(line.lower())
+                f.write(line)
