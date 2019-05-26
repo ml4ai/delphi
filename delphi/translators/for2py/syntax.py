@@ -59,6 +59,9 @@ RE_FN_START = re.compile(FN_START, re.I)
 PGM_UNIT_START = r"\s+[a-z]*\s+(program|module|subroutine|function)\s+(\w+)"
 RE_PGM_UNIT_START = re.compile(PGM_UNIT_START, re.I)
 
+PGM_UNIT_SEP = r"\s+contains(\W+)"
+RE_PGM_UNIT_SEP = re.compile(PGM_UNIT_SEP, re.I)
+
 PGM_UNIT_END = r"\s+[a-z]*\s+end\s+(program|module|subroutine|function)\s+"
 RE_PGM_UNIT_END = re.compile(PGM_UNIT_END, re.I)
 
@@ -154,6 +157,11 @@ def line_is_pgm_unit_start(line):
 
 def line_is_pgm_unit_end(line):
     match = RE_PGM_UNIT_END.match(line)
+    return match != None
+
+
+def line_is_pgm_unit_separator(line):
+    match = RE_PGM_UNIT_SEP.match(line)
     return match != None
 
 
