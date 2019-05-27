@@ -1,4 +1,4 @@
-C     File: goto_04.f
+C     File: goto_05.f
 C     A simple program with multiple gotos at the top level of the program,
 C     including some gotos to gotos.
 C     The program computes and prints out the values of n! for n in [1,10].
