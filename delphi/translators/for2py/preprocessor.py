@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
@@ -44,18 +42,17 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
        The return value is the resulting list of numbered lines.
     """
 
-    enumerated_lines = list(enumerate(lines, 1))
     i = 0
-    while i < len(enumerated_lines):
-        (n, code_line) = enumerated_lines[i]
+    while i < len(lines):
+        (n, code_line) = lines[i]
         if not line_is_comment(code_line):
             (code_part, comment_part) = split_trailing_comment(code_line)
             if comment_part is not None:
-                enumerated_lines[i] = (n, comment_part)
-                enumerated_lines.insert(i + 1, (n, code_part))
+                lines[i] = (n, comment_part)
+                lines.insert(i + 1, (n, code_part))
         i += 1
 
-    return enumerated_lines
+    return lines
 
 
 def merge_continued_lines(lines):
@@ -99,6 +96,29 @@ def merge_continued_lines(lines):
                 lines.pop(i)
                 chg = True
             i += 1
+
+    return lines
+
+
+def merge_adjacent_comment_lines(lines):
+    """Given a list of numered Fortran source code lines, i.e., pairs of the
+       form (n, code_line) where n is a line number and code_line is a line
+       of code, merge_adjacent_comment_lines() merges sequences of lines that are
+       indicated to be comment lines.
+    """
+
+    i = 0
+    while i < len(lines)-1:
+        lnum, line = lines[i]
+        if line_is_comment(line):
+            j = i+1
+            while j < len(lines) and line_is_comment(lines[j][1]):
+                line += lines[j][1]
+                lines.pop(j)
+                # pop() removes a line so lines[j] now refers to the next line
+
+            lines[i] = (lnum, line)
+        i += 1
 
     return lines
 
@@ -208,10 +228,8 @@ def extract_comments(
                 prev_fn = curr_fn
                 curr_fn = pgm_unit_name
 
-                internal_comments = OrderedDict()
-
                 comments[curr_fn] = init_comment_map(
-                    curr_comment, [], [], internal_comments
+                    curr_comment, [], [], OrderedDict()
                 )
                 curr_comment = []
 
@@ -235,13 +253,10 @@ def extract_comments(
             ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
 
             if line_type == "comment":
-                # Ignore empty lines, which are technically comments but which
-                # don't contribute any semantic content.
-                if line != "\n":
-                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                    marker_stmt = f"        {marker_var} = .True.\n"
-                    internal_comments[marker_var] = line
-                    lines[i] = (linenum, marker_stmt)
+                marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
+                marker_stmt = f"        {marker_var} = .True.\n"
+                comments[curr_fn]["internal"][marker_var] = line
+                lines[i] = (linenum, marker_stmt)
             else:
                 pass  # nothing to do -- continue
 
@@ -308,18 +323,58 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
+def preprocess(lines):
+    enumerated_lines = list(enumerate(lines, 1))
+
+    # Discard empty lines. Technically these are comments, but provide
+    # no semantic content.  
+    i = 0
+    while i < len(enumerated_lines):
+        line = enumerated_lines[i][1]
+        if line.rstrip() == "":
+            enumerated_lines.pop(i)
+        else:
+            i += 1
+
+    enumerated_lines = separate_trailing_comments(enumerated_lines)
+    enumerated_lines = merge_continued_lines(enumerated_lines)
+    enumerated_lines = merge_adjacent_comment_lines(enumerated_lines)
+    return extract_comments(enumerated_lines)
+
+
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines = separate_trailing_comments(inputLines)
-    merge_continued_lines(lines)
-    (lines, comments) = extract_comments(lines)
+    lines, comments = preprocess(lines)
     actual_lines = [
         line[1]
         for line in lines
         if line[1] is not None and INTERNAL_COMMENT_PREFIX not in line[1]
     ]
     return "".join(actual_lines)
+
+
+def print_comments(comments):
+
+    for fn, comment in comments.items():
+        if fn in ("$file_head", "$file_foot"):  # file-level comments
+            print(fn + ":")
+            for line in comment:
+                print(f"{line.rstrip()}")
+            print("")
+        else:  # subprogram comments
+            for ccat in ["head", "neck", "foot"]:
+                print(f"Function {fn} [{ccat}]:")
+                for line in comment[ccat]:
+                    print(line.rstrip())
+                print("")
+
+            if comment["internal"] != {}:
+                for marker in comment["internal"]:
+                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___") :]
+                    print(f"Function: {fn} [internal: line {comment_line_no}]:")
+                    print(comment["internal"][marker])
+                    print("")
 
 
 if __name__ == "__main__":
@@ -330,13 +385,11 @@ if __name__ == "__main__":
     infile, outfile = sys.argv[1], sys.argv[2]
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-
-    lines = separate_trailing_comments(inputLines)
-    merge_continued_lines(lines)
-
-    (lines, comments) = extract_comments(lines)
+        lines, comments = preprocess(inputLines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
             if line is not None:
                 f.write(line)
+
+    print_comments(comments)
