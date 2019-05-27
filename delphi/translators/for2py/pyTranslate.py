@@ -305,7 +305,7 @@ class PythonCodeGenerator(object):
         """Processes calls to intrinsic functions and returns a string that is
            the corresponding Python code."""
 
-        intrinsic = node["name"]
+        intrinsic = node["name"].lower()
         assert intrinsic in syntax.F_INTRINSICS
 
         try:
@@ -351,12 +351,12 @@ class PythonCodeGenerator(object):
            references, and that proc_call() is therefore correctly called only
            on function calls."""
 
-        if node["name"] == "index":
+        if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             toFind = node["args"][1]["value"]
             return f"{var}[0].find({toFind})"
 
-        if node["name"] in syntax.F_INTRINSICS:
+        if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
 
         callee = self.nameMapper[f"{node['name']}"]
@@ -452,7 +452,7 @@ class PythonCodeGenerator(object):
         """Processes expressions involving operators and returns a string that
            is the corresponding Python code."""
         try:
-            op_str = OPERATOR_MAP[node["operator"]]
+            op_str = OPERATOR_MAP[node["operator"].lower()]
         except KeyError:
             raise For2PyError(f"unhndled operator {node['operator']}")
 
@@ -530,7 +530,7 @@ class PythonCodeGenerator(object):
 
     def printArg(self, node, printState: PrintState):
         try:
-            var_type = TYPE_MAP[node["type"]]
+            var_type = TYPE_MAP[node["type"].lower()]
         except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
 
@@ -686,12 +686,12 @@ class PythonCodeGenerator(object):
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg']} "
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg']} import *\n"
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
             )
 
     def printFuncReturn(self, node, printState: PrintState):
@@ -1107,7 +1107,7 @@ class PythonCodeGenerator(object):
         """ This function checks the type of a variable and returns the appropriate
         Python syntax type name. """
 
-        variable_type = node["type"]
+        variable_type = node["type"].lower()
         if variable_type in TYPE_MAP:
             return TYPE_MAP[variable_type]
         else:
@@ -1308,8 +1308,8 @@ if __name__ == "__main__":
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
-            with open(f"m_{item[1]}.py", "w") as f:
-                outputList.append("m_" + item[1] + ".py")
+            with open(f"m_{item[1].lower()}.py", "w") as f:
+                outputList.append("m_" + item[1].lower() + ".py")
                 f.write(item[0])
         else:
             with open(args.gen[0], "w") as f:
