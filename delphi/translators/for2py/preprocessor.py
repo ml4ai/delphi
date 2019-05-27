@@ -345,7 +345,7 @@ def preprocess(lines):
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines, comments = preprocess(lines)
+    lines, comments = preprocess(inputLines)
     actual_lines = [
         line[1]
         for line in lines
