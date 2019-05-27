@@ -184,7 +184,7 @@ def combine_data():
     )
     fao_wdi_df["State"] = None
     conflict_data_df = pd.read_table(
-        "data/south_sudan_data_conflict.tsv", index_col=False
+        "data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv", index_col=False
     )
     fewsnet_df = pd.read_table(
         "data/south_sudan_data_fewsnet.tsv", index_col=False)
