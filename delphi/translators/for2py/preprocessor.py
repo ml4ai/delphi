@@ -324,22 +324,16 @@ def split_trailing_comment(line: str) -> str:
 
 
 def preprocess(lines):
-    enumerated_lines = list(enumerate(lines, 1))
+    enum_lines = list(enumerate(lines, 1))
 
-    # Discard empty lines. Technically these are comments, but provide
+    # Discard empty lines. While these are technically comments, they provide
     # no semantic content.  
-    i = 0
-    while i < len(enumerated_lines):
-        line = enumerated_lines[i][1]
-        if line.rstrip() == "":
-            enumerated_lines.pop(i)
-        else:
-            i += 1
+    enum_lines = [line for line in enum_lines if line[1].rstrip() != ""]
 
-    enumerated_lines = separate_trailing_comments(enumerated_lines)
-    enumerated_lines = merge_continued_lines(enumerated_lines)
-    enumerated_lines = merge_adjacent_comment_lines(enumerated_lines)
-    return extract_comments(enumerated_lines)
+    enum_lines = separate_trailing_comments(enum_lines)
+    enum_lines = merge_continued_lines(enum_lines)
+    enum_lines = merge_adjacent_comment_lines(enum_lines)
+    return extract_comments(enum_lines)
 
 
 def process(inputLines: List[str]) -> str:
