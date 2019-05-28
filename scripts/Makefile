@@ -62,7 +62,7 @@ TARGET_ONTOLOGY_NAME := MITRE12
 
 data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) data/south_sudan_data.tsv
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
-	cd $(EIDOS)/src/main/scala/org/clulab/wm/eidos/apps; time java -Xmx50g -cp target/scala-2.12/eidos-assembly-0.2.2-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
+	cd $(EIDOS); time java -Xmx50g -cp target/scala-2.12/eidos-assembly-0.2.3-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
 	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
