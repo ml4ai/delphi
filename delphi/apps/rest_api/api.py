@@ -99,7 +99,7 @@ def getIndicators(model_id: str):
         for indicator_mapping in engine.execute(" ".join(query_parts)):
             query = (
                 f"select * from indicator"
-                f" where `Variable` like '{indicator_mapping['Indicator']}'"
+                f" where `Variable` like '{indicator_mapping['Indicator'].replace("'", "''")}'"
             )
             records = list(engine.execute(query))
             func = request.args.get("func", "raw")
