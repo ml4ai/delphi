@@ -86,7 +86,7 @@ RE_ENDDO_STMT = re.compile(ENDDO_STMT, re.I)
 ENDIF_STMT = r"\s*(\d+|&)?\s*end\s*if\s*"
 RE_ENDIF_STMT = re.compile(ENDIF_STMT, re.I)
 
-GOTO_STMT = r"\s*(\d+|&)?\s*goto\s*"
+GOTO_STMT = r"\s*(\d+|&)?\s*go\s*to\s*"
 RE_GOTO_STMT = re.compile(GOTO_STMT, re.I)
 
 IF_STMT = r"\s*(\d+|&)?\s*(if|elseif|else)\s*"
