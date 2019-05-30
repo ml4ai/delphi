@@ -129,40 +129,43 @@ build:
 
 PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
 
-build/pruned_corpus.json: $(RAW) evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
-	python evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
+#Set SCENARIO to evaluations for preipitation build and hackathon for human migration build.
+SCENARIO := hackathon
 
-build/all_sts.pkl: evaluations/create_all_sts.py build/pruned_corpus.json
+build/pruned_corpus.json: $(RAW) $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
+	python $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
+
+build/all_sts.pkl: $(SCENARIO)/create_all_sts.py build/pruned_corpus.json
 	python $^ $@
 
-build/reference_cag.pkl: evaluations/create_reference_cag.py build/all_sts.pkl
+build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
-build/precipitation_centered_CAG.pkl: evaluations/create_precipitation_centered_CAG.py\
+build/precipitation_centered_CAG.pkl: $(SCENARIO)/create_precipitation_centered_CAG.py\
 									  build/reference_cag.pkl
 	python $^ $@
 
-build/CAG_with_indicators.pkl: evaluations/create_CAG_with_indicators.py\
+build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
 							   build/precipitation_centered_CAG.pkl\
 							   data/delphi.db
 	python $< build/precipitation_centered_CAG.pkl $@
 
-build/parameterized_CAG.pkl: evaluations/create_parameterized_CAG.py\
+build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
 							 data/delphi.db
 	python $^ $@
 
-build/quantified_CAG.pkl: evaluations/create_quantified_CAG.py build/parameterized_CAG.pkl
+build/quantified_CAG.pkl: $(SCENARIO)/create_quantified_CAG.py build/parameterized_CAG.pkl
 	python $^ $@
 
 report.pdf: report.tex apnotes.cls build/quantified_CAG.pkl
 	latexmk -lualatex $<
 	latexmk -c $(*F)
 
-insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl data/delphi.db
+insert_model: $(SCENARIO)/insert_model_into_db.py build/quantified_CAG.pkl data/delphi.db
 	python $^
 
-build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG.pkl
+build/delphi_cag.json: $(SCENARIO)/export_to_sri_and_cra.py build/quantified_CAG.pkl
 	python $^ $@
 
 # Via manual construction in the CauseMos HMI ---------------------------------
