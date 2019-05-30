@@ -129,7 +129,7 @@ build:
 
 PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
 
-#Set SCENARIO to evaluations for preipitation build and hackathon for human migration build.
+#Set SCENARIO to evaluations for precipitation build and hackathon for human migration build.
 SCENARIO := hackathon
 
 build/pruned_corpus.json: $(RAW) $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
@@ -141,14 +141,14 @@ build/all_sts.pkl: $(SCENARIO)/create_all_sts.py build/pruned_corpus.json
 build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
-build/precipitation_centered_CAG.pkl: $(SCENARIO)/create_precipitation_centered_CAG.py\
+build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
 									  build/reference_cag.pkl
 	python $^ $@
 
 build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-							   build/precipitation_centered_CAG.pkl\
+							   build/scenario_centered_CAG.pkl\
 							   data/delphi.db
-	python $< build/precipitation_centered_CAG.pkl $@
+	python $< build/scenario_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\
 							 build/CAG_with_indicators.pkl\
