@@ -1,7 +1,36 @@
 # This Makefile has not been fully tested. Please report any errors to
-# adarsh.pyarelal@gmail.com
+# champlin@email.arizona.edu
+#
+# =============================================================================
+# *Please read all comments before running Makefile*
+# WARNING: Running "make build/quantified_CAG.pkl" from scratch (a fresh
+# clone of the delphi backcasting branch) took approximately 2-3 hours on my
+# machine.
+# =============================================================================
+
 
 all: report.pdf
+
+# =============================================================================
+# Downloading and Unzipping Raw Data Directory
+# WARNING: Raw.zip is 1.88 GB zipped and 19.04 GB unzipped. Raw directory will
+# be deleted after processing.
+# =============================================================================
+
+RAW := data/raw
+RAW_ZIP := data/raw.zip
+DB_EXIST := data/delphi.db
+
+data/raw.zip:
+	if [ ! -d $(RAW) ] && [ ! -f $(DB_EXIST) ]; then curl http://vision.cs.arizona.edu/adarsh/data/raw.zip -o $@; fi
+	
+data/raw: data/raw.zip
+	if [ -f $(RAW_ZIP) ]; then unzip $< -d data; rm $<; fi
+
+# =============================================================================
+# Begin Data Processing
+# =============================================================================
+
 
 DSSAT_DATA := data/raw/DSSAT/disaggregated_all_20190123_1451
 DSSAT_AGGREGATED_DATA := data/raw/DSSAT/SSD_csv
@@ -9,9 +38,10 @@ DSSAT_AGGREGATED_DATA := data/raw/DSSAT/SSD_csv
 data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
 				data/un_to_indicators.tsv\
-				data/adjectiveData.tsv\
+				data/raw/adjectiveData.tsv\
 				$(DSSAT_AGGREGATED_DATA)
 	python $^ $@
+	rm -R data/raw
 
 data:
 	mkdir -p $@
@@ -52,9 +82,22 @@ data/indicator_flat_list.txt: data/south_sudan_data.tsv
 
 # =============================================================================
 # Creation of concept to indicator mapping
+# 
+# *Please read before running Makefile*
+# Instructions: You must clone/download the master branch from https://github.com/clulab/eidos
+# Please also read their instructions for the proper configuration and setup of 
+# Eidos. scala, java, and sbt must be downloaded and installed. The most
+# current versions of scala and sbt should work, however you cannot use the
+# current version of java. openjdk version 1.8.0_212 is known to work with
+# this build. You will need to reconfigure the below pathways in accordance to
+# where you downloaded/cloned EIDOS. You must run "sbt assembly" in "/eidos"
+# before running this portion of the Makefile. 
+#
+# WARNING: EIDOS download and setup requires initially approximately 26.94 GB,
+# however their instructions indicates options for optimizing and saving space.
 # =============================================================================
 
-EIDOS := ~/eidos
+EIDOS := /Volumes/lorens_drive/eidos
 EIDOS_SRC := $(EIDOS)/src/main
 ONTOLOGY_GEN_SCRIPT := $(EIDOS_SRC)/python/mk_yaml_ontology.py
 TARGET_ONTOLOGY_FILENAME := $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/mitre12_indicators.yml
@@ -77,8 +120,8 @@ build:
 
 PREASSEMBLED_CORPUS := data/raw/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
 
-build/pruned_corpus.json: evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build
-	python $^ $@
+build/pruned_corpus.json: data/raw evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
+	python evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
 
 build/all_sts.pkl: evaluations/create_all_sts.py build/pruned_corpus.json
 	python $^ $@
