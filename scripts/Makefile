@@ -18,22 +18,22 @@ all: report.pdf
 # =============================================================================
 
 RAW := data/raw
-RAW_ZIP := data/raw.zip
+RAW_ZIP := $(RAW).zip
 DB_EXIST := data/delphi.db
 
-data/raw.zip:
-	if [ ! -d $(RAW) ] && [ ! -f $(DB_EXIST) ]; then curl http://vision.cs.arizona.edu/adarsh/data/raw.zip -o $@; fi
+$(RAW_ZIP):
+	if [ ! -d $(RAW) ] && [ ! -f $(DB_EXIST) ]; then curl http://vision.cs.arizona.edu/adarsh/$@ -o $@; fi
 	
-data/raw: data/raw.zip
-	if [ -f $(RAW_ZIP) ]; then unzip $< -d data; rm $<; fi
+$(RAW): $(RAW_ZIP)
+	if [ -f $< ]; then unzip $< -d data; rm $<; fi
 
 # =============================================================================
 # Begin Data Processing
 # =============================================================================
 
 
-DSSAT_DATA := data/raw/DSSAT/disaggregated_all_20190123_1451
-DSSAT_AGGREGATED_DATA := data/raw/DSSAT/SSD_csv
+DSSAT_DATA := $(RAW)/DSSAT/disaggregated_all_20190123_1451
+DSSAT_AGGREGATED_DATA := $(RAW)/DSSAT/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
@@ -46,13 +46,13 @@ data/delphi.db: create_delphi_db.py\
 data:
 	mkdir -p $@
 
-data/south_sudan_data_fao.tsv: data/raw/FAOSTAT
+data/south_sudan_data_fao.tsv: $(RAW)/FAOSTAT
 	python data_processing/process_FAO_and_WDI_data.py --fao
 
-data/south_sudan_data_wdi.tsv: data/raw/WDI/WDIData.csv
+data/south_sudan_data_wdi.tsv: $(RAW)/WDI/WDIData.csv
 	python data_processing/process_FAO_and_WDI_data.py --wdi
 
-data/south_sudan_data_fewsnet.tsv: data/raw/FEWS
+data/south_sudan_data_fewsnet.tsv: $(RAW)/FEWS
 	python data_processing/process_FEWSNET_data.py	
 
 data/south_sudan_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
@@ -70,7 +70,7 @@ data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_D
 data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   data/south_sudan_data_fao.tsv\
 						   data/south_sudan_data_wdi.tsv\
-						   data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
+						   $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
 						   data/south_sudan_data_dssat.tsv
@@ -101,13 +101,20 @@ data/indicator_flat_list.txt: data/south_sudan_data.tsv
 # =============================================================================
 
 EIDOS_SRC := $(EIDOS)/src/main
+
+# Script that creates a YAML ontology from a flat list of variables gathered
+# from our data tables.
 ONTOLOGY_GEN_SCRIPT := $(EIDOS_SRC)/python/mk_yaml_ontology.py
+
 TARGET_ONTOLOGY_FILENAME := $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/mitre12_indicators.yml
 TARGET_ONTOLOGY_NAME := MITRE12
 
+SCALA_VERSION:=2.12
+EIDOS_VERSION:=0.2.3
+
 data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) data/south_sudan_data.tsv
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
-	cd $(EIDOS); time java -Xmx50g -cp target/scala-2.12/eidos-assembly-0.2.3-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
+	cd $(EIDOS); time java -Xmx50g -cp target/scala-$(SCALA_VERSION)/eidos-assembly-$(EIDOS_VERSION)-SNAPSHOT.jar org.clulab.wm.eidos.apps.CacheOntologies
 	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
@@ -120,9 +127,9 @@ data/un_to_indicators.tsv: data/indicator_flat_list.txt $(ONTOLOGY_GEN_SCRIPT) d
 build:
 	mkdir -p $@
 
-PREASSEMBLED_CORPUS := data/raw/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
+PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
 
-build/pruned_corpus.json: data/raw evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
+build/pruned_corpus.json: $(RAW) evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
 	python evaluations/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
 
 build/all_sts.pkl: evaluations/create_all_sts.py build/pruned_corpus.json
@@ -157,7 +164,7 @@ insert_model: evaluations/insert_model_into_db.py build/quantified_CAG.pkl data/
 
 build/delphi_cag.json: evaluations/export_to_sri_and_cra.py build/quantified_CAG.pkl
 	python $^ $@
-	#
+
 # Via manual construction in the CauseMos HMI ---------------------------------
 
 data/CauseMosCAG.json: | data
