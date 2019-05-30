@@ -10,6 +10,9 @@
         SWFAC = MIN(SWFAC1, SWFAC2)
         IF (FL .EQ. 1.0) THEN
             a = exp(EMP2 * (N-nb))
+                while ((1.0 + eps[0]) > 1.0):
+                    eps[0] = (eps[0] / 2.0)
+                eps[0] = (eps[0] * 2)
             dLAI = SWFAC * PD * EMP1 * PT * (a/(1+a)) * dN
         ELSEIF (FL .EQ. 2.0) THEN
 

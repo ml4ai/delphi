@@ -133,7 +133,8 @@ class PrintState:
         functionScope="",
         indexRef=True,
         varTypes={},
-        isFloatConv=False,
+        isFloatNumpy=False,
+        isAssignment=False,
     ):
         self.sep = sep
         self.add = add
@@ -144,7 +145,8 @@ class PrintState:
         self.functionScope = functionScope
         self.indexRef = indexRef
         self.varTypes = varTypes
-        self.isFloatConv = isFloatConv
+        self.isFloatNumpy = isFloatNumpy
+        self.isAssignment = isAssignment
 
     def copy(
         self,
@@ -157,7 +159,8 @@ class PrintState:
         functionScope=None,
         indexRef=None,
         varTypes=None,
-        isFloatConv=None,
+        isFloatNumpy=None,
+        isAssignment=None,
     ):
         return PrintState(
             self.sep if sep is None else sep,
@@ -169,7 +172,8 @@ class PrintState:
             self.functionScope if functionScope is None else functionScope,
             self.indexRef if indexRef is None else indexRef,
             self.varTypes if varTypes is None else varTypes,
-            self.isFloatConv if isFloatConv is None else isFloatConv,
+            self.isFloatNumpy if isFloatNumpy is None else isFloatNumpy,
+            self.isAssignment if isAssignment is None else isAssignment,
         )
 
 
@@ -400,9 +404,13 @@ class PythonCodeGenerator(object):
 
         if node["type"] == "bool":
             return node["value"].title()
-        elif node["type"] in ("double", "real"):
-            if printState.isFloatConv:
-                return f"FloatConv({node['value']})"
+        # elif node["type"] in ("real"):
+        #     if printState.isFloatNumpy:
+        #         return f"FloatNumpy({node['value']})"
+        #     else:
+        #         return node["value"]
+        else:
+            return node["value"]
 
     def proc_ref(self, node, wrapper, printState: PrintState):
         """Processes a reference node and returns a string that is the
@@ -482,10 +490,11 @@ class PythonCodeGenerator(object):
         variables."""
 
         if node["tag"] == "literal":
-            # Assign isFloatConv as True
-            printState = printState.copy(
-                        sep="", add="", printFirst=False, indexRef=True, isFloatConv=True
-                    )
+            # Assign isFloatNumpy as True
+            # if printState.isAssignment:
+            #     printState = printState.copy(
+            #                 sep="", add="", printFirst=False, indexRef=True, isFloatNumpy=True
+            #             )
             return self.proc_literal(node, printState)
 
         if node["tag"] == "ref":
@@ -655,9 +664,11 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(ref_str)
 
     def printAssignment(self, node, printState: PrintState):
+
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
 
+        printState.isAssignment = True
         rhs_str = self.proc_expr(node["value"][0], False, printState)
 
         if lhs["is_derived_type_ref"] == "true":
@@ -685,12 +696,17 @@ class PythonCodeGenerator(object):
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
 
+        # Check if the lhs is a real and convert the variable to a numpy float object if it is
+        if self.variableMap[lhs["name"]].lower() == "real" and rhs["tag"] == "literal":
+            rhs_str = f"FloatNumpy({rhs_str})"
+
         if "set_" in assg_str:
             assg_str += f"{rhs_str})"
         else:
             assg_str += f" = {rhs_str}"
 
         self.pyStrings.append(assg_str)
+        printState.isAssignment = False
         return
 
     def printUse(self, node, printState: PrintState):
@@ -1232,7 +1248,7 @@ def create_python_source_list(outputDict: Dict):
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
         "from dataclasses import dataclass",
-        "from delphi.translators.for2py.floatConv import FloatConv\n",
+        "from delphi.translators.for2py.floatNumpy import FloatNumpy\n",
     ]
 
     for module in module_index_dict:

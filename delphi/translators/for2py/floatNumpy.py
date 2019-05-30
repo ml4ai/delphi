@@ -1,68 +1,68 @@
 from numpy import float32
 
 ################################################################################
-class FloatConv:
+class FloatNumpy:
     def __init__(self, val):
         self._val = float32(val)
 
     def __add__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(self._val+n)
+        return FloatNumpy(self._val+n)
 
     def __radd__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(self._val+n)
+        return FloatNumpy(self._val+n)
 
     def __truediv__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(self._val/n)
+        return FloatNumpy(self._val/n)
 
     def __rtruediv__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(n/self._val)
+        return FloatNumpy(n/self._val)
 
     def __mul__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(self._val*n)
+        return FloatNumpy(self._val*n)
 
     def __sub__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(self._val-n)
+        return FloatNumpy(self._val-n)
 
     def __rsub__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
 
-        return FloatConv(n-self._val)
+        return FloatNumpy(n-self._val)
 
     def __eq__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
@@ -70,7 +70,7 @@ class FloatConv:
         return self._val == n
 
     def __gt__(self, other):
-        if isinstance(other, FloatConv):
+        if isinstance(other, FloatNumpy):
             n = other._val
         else:
             n = other
@@ -114,16 +114,16 @@ def eps_numpy_32_packaged_1():
 
     return eps
 
-def eps_FloatConv():
-    eps = FloatConv(1.0)
+def eps_FloatNumpy():
+    eps = FloatNumpy(1.0)
     while (eps + 1.0 > 1.0):
         eps = eps/2.0
     eps = eps * 2.0
 
     return eps
 
-def eps_FloatConv_1():
-    eps = FloatConv(1.0)
+def eps_FloatNumpy_1():
+    eps = FloatNumpy(1.0)
     while (eps + 1.0 > 1.0):
         eps /= 2.0
     eps *= 2.0
@@ -139,11 +139,11 @@ def main():
     print("Numpy_32 : {}".format(str(eps_numpy_32())))
     print("Numpy_32_Packaged_0 : {}".format(str(eps_numpy_32_packaged_0())))
     print("Numpy_32_Packaged_1 : {}".format(str(eps_numpy_32_packaged_1())))
-    print("FloatConv   : {}".format(str(eps_FloatConv())))
-    print("FloatConv_1 : {}".format(str(eps_FloatConv_1())))
+    print("FloatNumpy   : {}".format(str(eps_FloatNumpy())))
+    print("FloatNumpy_1 : {}".format(str(eps_FloatNumpy_1())))
 
-    a = [FloatConv(1.0)]
-    b = [FloatConv(2.0)]
+    a = [FloatNumpy(1.0)]
+    b = [FloatNumpy(2.0)]
     print(a[0])
     f(a, b)
     print(a[0])
