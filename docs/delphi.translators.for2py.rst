@@ -68,6 +68,14 @@ delphi.translators.for2py.pyTranslate module
     :undoc-members:
     :show-inheritance:
 
+delphi.translators.for2py.rectify module
+----------------------------------------
+
+.. automodule:: delphi.translators.for2py.rectify
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 delphi.translators.for2py.runner module
 ---------------------------------------
 

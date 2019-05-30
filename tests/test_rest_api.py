@@ -1,19 +1,21 @@
 import json
-import pytest
-from conftest import *
+from datetime import date
 from uuid import uuid4
+
+import numpy as np
+import pytest
+
+from conftest import *
 from delphi.apps.rest_api import create_app, db
 from delphi.apps.rest_api.models import (
-    Evidence,
-    ICMMetadata,
-    CausalVariable,
     CausalRelationship,
+    CausalVariable,
     DelphiModel,
+    Evidence,
     ForwardProjection,
+    ICMMetadata,
 )
-from datetime import date
 from delphi.random_variables import LatentVar
-import numpy as np
 
 
 @pytest.fixture(scope="module")
@@ -90,3 +92,26 @@ def test_getExperiment(G, client):
     url = "/".join(["icm", G.id, "experiment", experiment.id])
     rv = client.get(url)
     assert rv.json["id"] == experiment.id
+
+
+def test_getAllModels(G, client):
+    rv = client.get("/delphi/models")
+    assert G.id in rv.json
+
+
+def test_getIndicators(client):
+    with open("tests/data/causemos_cag.json", "r") as f:
+        data = json.load(f)
+
+    rv = client.post(f"/delphi/models", json=data)
+
+    indicator_get_request_params = {
+        "start": 2012,
+        "end": 2016,
+        "geolocation": None,
+        "func": "mean",
+    }
+    rv = client.get(
+        f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
+    )
+    assert True

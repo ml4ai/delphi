@@ -17,19 +17,16 @@ ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 pickle_file: The file which will contain the pickled version of JSON AST and
-supporting information.
-
-"""
+supporting information. """
 
 
 import sys
 import argparse
 import pickle
-import re
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py.get_comments import get_comments
 from typing import List, Dict
 from collections import OrderedDict
+from delphi.translators.for2py.get_comments import get_comments
 
 
 class ParseState(object):
@@ -75,8 +72,14 @@ class XMLToJSONTranslator(object):
         ]
         self.handled_tags = [
             "access-spec",
-            "argument", "assignment", "call", "close", "component-decl",
-            "declaration", "dimension", "dimensions",
+            "argument",
+            "assignment",
+            "call",
+            "close",
+            "component-decl",
+            "declaration",
+            "dimension",
+            "dimensions",
             "exit",
             "explicit-shape-spec-list__begin",
             "format",
@@ -87,46 +90,59 @@ class XMLToJSONTranslator(object):
             "io-control-spec",
             "keyword-argument",
             "literal",
-            "loop", "module", "name", "open", "operation", "program",
-            "range", "read", "return",
-            "stop", "subroutine",
+            "loop",
+            "module",
+            "name",
+            "open",
+            "operation",
+            "program",
+            "range",
+            "read",
+            "return",
+            "stop",
+            "subroutine",
             "type",
-            "use", "variable", "variables",
-            "write"
+            "use",
+            "variable",
+            "variables",
+            "write",
         ]
         self.handled_tags += self.libRtns
 
-        self.AST_TAG_HANDLERS = {
+        self.ast_tag_handlers = {
             "argument": self.process_argument,
             "assignment": self.process_assignment,
             "call": self.process_call,
-            "close" : self.process_direct_map,
+            "close": self.process_direct_map,
             "declaration": self.process_declaration,
             "dimension": self.process_dimension,
-            "exit" : self.process_terminal,
+            "exit": self.process_terminal,
             "format-item": self.process_format_item,
             "format": self.process_format,
             "function": self.process_function,
             "if": self.process_if,
             "index-variable": self.process_index_variable,
-            "io-control-spec": self.process_io_control_spec,
+            "io-controls": self.process_io_control,
             "keyword-argument": self.process_keyword_argument,
             "literal": self.process_literal,
-            "loop" : self.process_loop,
-            "module" : self.process_subroutine_or_program_module,
+            "loop": self.process_loop,
+            "module": self.process_subroutine_or_program_module,
             "name": self.process_name,
-            "open" : self.process_direct_map,
+            "open": self.process_direct_map,
             "operation": self.process_operation,
-            "program" : self.process_subroutine_or_program_module,
+            "program": self.process_subroutine_or_program_module,
             "range": self.process_range,
-            "read" : self.process_direct_map,
-            "return" : self.process_terminal,
-            "stop" : self.process_terminal,
+            "read": self.process_direct_map,
+            "return": self.process_terminal,
+            "stop": self.process_terminal,
             "subroutine": self.process_subroutine_or_program_module,
             "type": self.process_type,
             "use": self.process_use,
+            "variables": self.process_variables,
             "variable": self.process_variable,
-            "write" : self.process_direct_map
+            "write": self.process_direct_map,
+            "derived-types": self.process_derived_types,
+            "length": self.process_length,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -135,17 +151,9 @@ class XMLToJSONTranslator(object):
         self.functionList = []
         self.subroutineList = []
         self.entryPoint = []
-        self.deriveTypeVars = []
-        # The purpose of this global dictionary is to track the declared field
-        # variables and mark it's an array or not. For example, var.a.get(1)
-        # will be marked as hasSubscripts = False and arrayStat = "isArray".
-        # Thus, hasSubscripts represents the array existence of the very first
-        # variable and arrayStat represents the array existence of the
-        # following fields.
-        self.deriveTypeFields = {}
-        self.arrays = []
 
     def process_subroutine_or_program_module(self, root, state):
+        """ This function should be the very first function to be called """
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.summaries[root.attrib["name"]] = None
         if root.tag == "subroutine":
@@ -164,6 +172,10 @@ class XMLToJSONTranslator(object):
         return [subroutine]
 
     def process_call(self, root, state) -> List[Dict]:
+        """ This function handles <call> tag and its subelement <name>. """
+        assert (
+            root.tag == "call"
+        ), f"The root must be <call>. Current tag is {root.tag} with {root.attrib} attributes."
         call = {"tag": "call"}
         for node in root:
             if node.tag == "name":
@@ -174,231 +186,233 @@ class XMLToJSONTranslator(object):
         return [call]
 
     def process_argument(self, root, state) -> List[Dict]:
+        """ This function handles <argument> tag. It simply create a new AST
+        list and copy the values (tag and attributes) to it.  """
+
+        assert root.tag == "argument", "The root must be <argument>"
         return [{"tag": "arg", "name": root.attrib["name"].lower()}]
 
-    # *** This method is in desperate need of cleanup.
-    # *** TODO after Apr deadline.
     def process_declaration(self, root, state) -> List[Dict]:
-        prog = []
+        """ This function handles <declaration> tag and its sub-elements by
+        recursively calling the appropriate functions for the target tag. """
 
-        decVars = []
-        decDims = []
-
-        # For handling derived types
-        decDevType = []
-        decDevFields = []
-        decDevTypeVars = []
-
-        devTypeArrayField = {}
-        decType = {}
-
-        count = 0
-
-        isArray = True
-        isDevType = False
-        isDevTypeVar = False
-        devTypeHasArrayField = False
-
+        declared_type = []
+        declared_variable = []
+        assert (
+            root.tag == "declaration"
+        ), f"The root must be <declaration>. Current tag is {root.tag} with {root.attrib} attributes."
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
-
-            if node.tag == "format":
-                prog += self.parseTree(node, state)
-            if node.tag == "type":
-                if "name" in node.attrib:
-                    decType = {"type": node.attrib["name"]}
-                    decDevType += self.parseTree(
-                        node, state
-                    )  # For derived types
-                    if len(decDevType) > 1:
-                        isDevType = True
+            elif node.tag == "type":  # Get the variable type
+                if root.attrib["type"] == "variable":
+                    declared_type += self.parseTree(node, state)
                 else:
-                    # This is the case where declaring fields for the derived
-                    # type
-                    if node[0].tag == "derived-type-spec":
-                        decType = {"type": self.parseTree(node, state)}
-                        isDevTypeVar = True
-            elif node.tag == "variables":
-                decVars = self.parseTree(node, state)
-                isArray = False
-                # This is a book keeping of derived type variables
-                if isDevTypeVar:
-                    for i in range(0, len(decVars)):
-                        devTypevarName = decVars[i]["name"]
-                        self.deriveTypeVars.append(devTypevarName)
-            elif node.tag == "access-spec":
-                if node.attrib["keyword"] == "PRIVATE":
-                    decVars = self.process_private_variable(root, state)
+                    # If the current node is for declaring a derived type,
+                    # every step from type declaration to variable (including
+                    # array) declration will be done in the
+                    # "process_derived_types" function and return the completed
+                    # AST list object back.  Thus, simply insert the received
+                    # AST list object into the declared_variable object. No
+                    # other work is done in the current function.
+                    declared_variable += self.parseTree(node, state)
             elif node.tag == "dimensions":
-                decDims = self.parseTree(node, state)
-                count = node.attrib["count"]
-            elif node.tag == "explicit-shape-spec-list__begin":
-                # Check if the last derived type declaration field is an array
-                # field
-                devTypeHasArrayField = True
-            elif node.tag == "literal" and devTypeHasArrayField:
-                # If the last field is an array field, get the value from the
-                # literal that is size
-                devTypeArrayField["array-size"] = node.attrib["value"]
-            elif node.tag == "component-decl":
-                if not devTypeHasArrayField:
-                    decDevType.append({"field-id": node.attrib["id"].lower()})
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "notArray"
+                num_of_dimensions = int(node.attrib["count"])
+                dimensions = {
+                    "count": num_of_dimensions,
+                    "dimensions": self.parseTree(node, state),
+                }
+                # Since we always want to access the last element of the list
+                # that was added most recently (that is a currently handling
+                # variable), add [-1] index to access it.
+                if len(declared_type) > 0:
+                    declared_type[-1].update(dimensions)
                 else:
-                    devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "isArray"
-                    decDevType.append(devTypeArrayField)
-                    devTypeHasArrayField = False
+                    declared_type.append(dimensions)
+            elif node.tag == "variables":
+                variables = self.parseTree(node, state)
+                # Declare variables based on the counts to handle the case
+                # where a multiple variables declared under a single type
+                for index in range(int(node.attrib["count"])):
+                    if len(declared_type) > 0:
+                        combined = declared_type[-1]
+                        combined.update(variables[index])
+                        declared_variable.append(combined.copy())
+                        if (
+                            state.subroutine["name"] in self.functionList
+                            and declared_variable[-1]["name"] in state.args
+                        ):
+                            state.subroutine["args"][
+                                state.args.index(
+                                    declared_variable[index]["name"]
+                                )
+                            ]["type"] = declared_variable[index]["type"]
+                        if declared_variable[-1]["name"] in state.args:
+                            state.subroutine["args"][
+                                state.args.index(
+                                    declared_variable[index]["name"]
+                                )
+                            ]["type"] = declared_variable[index]["type"]
+        return declared_variable
 
-        for var in decVars:
-            if (
-                state.subroutine["name"] in self.functionList
-                and var["name"] in state.args
-            ):
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
-                continue
-            prog.append(decType.copy())
-            prog[-1].update(var)
-            if var["name"] in state.args:
-                state.subroutine["args"][state.args.index(var["name"])][
-                    "type"
-                ] = decType["type"]
+    def process_type(self, root, state) -> List[Dict]:
+        """ This function handles <type> declaration.
+        There may be two different cases of <type>.
+            (1) Simple variable type declaration
+            (2) Derived type declaration
+        """
 
-        # If the statement is for declaring array
-        if decDims:
-            for i in range(0, len(prog)):
-                if prog[i]["name"] not in self.arrays: # Checks if a name exists in the array tracker. If not, add it for later use
-                    self.arrays.append(prog[i]["name"])
-                counter = 0
-                for dim in decDims:
-                    if "literal" in dim:
-                        for lit in dim["literal"]:
-                            prog[i]["tag"] = "array"
-                            prog[i]["count"] = count
-                            prog[i]["low" + str(counter + 1)] = 1
-                            prog[i]["up" + str(counter + 1)] = lit["value"]
-                        counter = counter + 1
-                    elif "range" in dim:
-                        for ran in dim["range"]:
-                            prog[i]["tag"] = "array"
-                            prog[i]["count"] = count
-                            if "operator" in ran["low"][0]:
-                                op = ran["low"][0]["operator"]
-                                value = ran["low"][0]["left"][0]["value"]
-                                prog[i]["low" + str(counter + 1)] = op + value
-                            else:
-                                prog[i]["low" + str(counter + 1)] = ran["low"][
-                                    0
-                                ]["value"]
-                            if "operator" in ran["high"][0]:
-                                op = ran["high"][0]["operator"]
-                                value = ran["high"][0]["left"][0]["value"]
-                                prog[i]["up" + str(counter + 1)] = op + value
-                            else:
-                                prog[i]["up" + str(counter + 1)] = ran["high"][
-                                    0
-                                ]["value"]
-                        counter = counter + 1
-
-        # If the statement is for declaring derived type, which is a class in
-        # python
-        if isDevType:
-            prog.append({"tag": "derived-type"})
-            field_num = 0
-            field_id_num = 0
-            for field in decDevType:
-                fieldList = []
-                fields = {}
-                if "derived-type" in field:
-                    prog[0]["name"] = field["derived-type"]
-                elif "field-type" in field:
-                    fields["type"] = field["field-type"]
-                    prog[0][f"field{field_id_num}"] = [fields]
-                elif "field-id" in field:
-                    fields["name"] = field["field-id"]
-                    if "array-size" in field:
-                        fields["size"] = field["array-size"]
-                    if f"field{field_id_num}" in prog[0]:
-                        prog[0][f"field{field_id_num}"][0].update(field)
-                    else:
-                        fields["type"] = prog[0][f"field{field_id_num-1}"][0][
-                            "type"
-                        ]
-                        prog[0][f"field{field_id_num}"] = [fields]
-                        prog[0][f"field{field_id_num}"][0].update(field)
-                    field_id_num = field_id_num + 1
-            isDevTypeVar = True
-
-        # Adding additional attribute to distinguish derived type variables
-        if len(prog) > 0:
-            for pro in prog:
-                pro["isDevTypeVar"] = isDevTypeVar
-
-        # Set function (subroutine) arguments' types (variable or array)
-        for var in prog:
-            if "name" in var:
-                if var["name"] in state.args:
-                    state.subroutine["args"][state.args.index(var["name"])][
-                        "arg_type"
-                    ] = f"arg_{var['tag']}"
-        return prog
-
-    def process_variable(self, root, state) -> List[Dict]:
-        try:
-            var_name = root.attrib["name"].lower()
+        assert (
+            root.tag == "type"
+        ), f"The root must be <type>. Current tag is {root.tag} with {root.attrib} attributes."
+        declared_type = {}
+        derived_type = []
+        if (
+            root.text
+        ):  # Check if the <type> has sub-elements, which is the case of (2)
             for node in root:
-                if node.tag == "initial-value":
-                    value = self.parseTree(node, state)
-                    return [
-                        {"tag": "variable", "name": var_name, "value": value}
-                    ]
-                else:
-                    return [{"tag": "variable", "name": var_name}]
+                if node.tag == "type":
+                    derived_type += self.parseTree(node, state)
+                elif node.tag == "length":
+                    is_derived_type = False
+                    if "is_derived_type" in root.attrib:
+                        is_derived_type = root.attrib[
+                            "is_derived_type"
+                        ].lower()
+                    keyword2 = "none"
+                    if "keyword2" in root.attrib:
+                        keyword2 = root.attrib["keyword2"]
+                    declared_type = {
+                        "type": root.attrib["name"],
+                        "is_derived_type": is_derived_type,
+                        "keyword2": keyword2,
+                    }
+                    declared_type["value"] = self.parseTree(node, state)
+                    return [declared_type]
+                elif node.tag == "derived-types":
+                    derived_type[-1].update(self.parseTree(node, state))
+            return derived_type
+        else:  # Else, this represents an empty element, which is the case of (1).
+            declared_type = {
+                "type": root.attrib["name"],
+                "is_derived_type": root.attrib["is_derived_type"].lower(),
+                "keyword2": root.attrib["keyword2"],
+            }
+            return [declared_type]
+
+    def process_length(self, root, state) -> List[Dict]:
+        """ This function handles <length> tag.  """
+        assert (
+            root.tag == "length"
+        ), f"The root must be <length>. Current tag is {root.tag} with {root.attrib} attributes."
+        length = {}
+        for node in root:
+            if node.tag == "literal":
+                length.update(self.parseTree(node, state)[-1])
+            else:
+                self.unhandled_tags.add(node.tag)
+        return [length]
+
+    def process_variables(self, root, state) -> List[Dict]:
+        """ This function handles <variables> element, which its duty is to
+        call <variable> tag processor. """
+        try:
+            variables = []
+            assert (
+                root.tag == "variables"
+            ), f"The root must be <variables>. Current tag is {root.tag} with {root.attrib} attributes."
+            for node in root:
+                variables += self.parseTree(node, state)
+            return variables
         except:
             return []
 
+    def process_variable(self, root, state) -> List[Dict]:
+        """
+        This function will get called from the process_variables function, and
+        it will construct the variable AST list, then return it back to the
+        called function.
+        """
+
+        assert (
+            root.tag == "variable"
+        ), f"The root must be <variable>. Current tag is {root.tag} with {root.attrib} attributes."
+        try:
+            var_name = root.attrib["name"].lower()
+            is_array = root.attrib["is_array"].lower()
+
+            variable = {"name": var_name, "is_array": is_array}
+            if is_array == "true":
+                variable["tag"] = "array"
+            else:
+                variable["tag"] = "variable"
+
+            if root.text:
+                for node in root:
+                    if node.tag == "initial-value":
+                        value = self.parseTree(node, state)
+                        variable["value"] = value
+            return [variable]
+        except:
+            return []
+
+    def process_derived_types(self, root, state) -> List[Dict]:
+        """ This function handles <derived-types> tag nested in the <type> tag.
+        Depends on the nested sub-elements of the tag, it will recursively call
+        other tag processors.
+
+        (1) Main type declaration
+        (2) Single variable declaration (with initial values)
+        (3) Array declaration
+        """
+
+        assert (
+            root.tag == "derived-types"
+        ), f"The root must be <derived-type>. Current tag is {root.tag} with {root.attrib} attributes."
+        derived_types = {"derived-types": []}
+        declared_type = []
+        declared_variable = []
+        for node in root:
+            if node.tag not in self.handled_tags:
+                self.unhandled_tags.add(node.tag)
+            elif node.tag == "type":  # Get the variable type
+                declared_type += self.parseTree(node, state)
+            elif node.tag == "dimensions":
+                dimensions = {
+                    "count": node.attrib["count"],
+                    "dimensions": [{"tag": "dimension"}],
+                }
+                dimensions["dimensions"][0].update(
+                    self.parseTree(node, state)[-1]
+                )
+                declared_type[-1].update(dimensions)
+            elif node.tag == "variables":
+                variables = self.parseTree(node, state)
+                # declare variables based on the counts to handle the case where a multiple vars declared under a single type
+                for index in range(int(node.attrib["count"])):
+                    combined = declared_type[-1]
+                    combined.update(variables[index])
+                    derived_types["derived-types"].append(combined.copy())
+        return derived_types
+
     def process_loop(self, root, state) -> List[Dict]:
+        """ This function handles <loop type=""> tag.  The type attribute
+        indicates the current loop is either "do" or "do-while" loop. """
+        assert (
+            root.tag == "loop"
+        ), f"The root must be <loop>. Current tag is {root.tag} with {root.attrib} attributes."
         if root.attrib["type"] == "do":
             do = {"tag": "do"}
-            do_format = []
             for node in root:
-                if node.tag == "format":
-                    do_format = self.parseTree(node, state)
-                elif node.tag == "header":
+                if node.tag == "header":
                     do["header"] = self.parseTree(node, state)
-                    if do["header"][0]["low"][0]["tag"] == "ref":
-                        lowName = do["header"][0]["low"][0]["name"]
-                        if "%" in lowName:
-                            curName = lowName
-                            devVar = re.findall(r"\"([^\"]+)\"", curName)
-                            percInd = curName.find("%")
-                            fieldVar = curName[percInd + 1 : len(curName)]
-                            newName = devVar[0] + "." + fieldVar
-                            do["header"][0]["low"][0]["name"] = newName
-                            do["header"][0]["low"][0]["isDevType"] = True
-                    if do["header"][0]["high"][0]["tag"] == "ref":
-                        highName = do["header"][0]["high"][0]["name"]
-                        if "%" in highName:
-                            curName = highName
-                            devVar = re.findall(r"\"([^\"]+)\"", curName)
-                            percInd = curName.find("%")
-                            fieldVar = curName[percInd + 1 : len(curName)]
-                            newName = devVar[0] + "." + fieldVar
-                            do["header"][0]["high"][0]["name"] = newName
-                            do["header"][0]["high"][0]["isDevType"] = True
                 elif node.tag == "body":
                     do["body"] = self.parseTree(node, state)
-            if do_format:
-                return [do_format[0], do]
-            else:
-                return [do]
+                else:
+                    assert (
+                        False
+                    ), f"Unrecognized tag in the process_loop for 'do' type. {node.tag}"
+            return [do]
         elif root.attrib["type"] == "do-while":
             doWhile = {"tag": "do-while"}
             for node in root:
@@ -412,6 +426,12 @@ class XMLToJSONTranslator(object):
             return []
 
     def process_index_variable(self, root, state) -> List[Dict]:
+        """ This function handles <index-variable> tag. This tag represents
+        index ranges of loops or arrays. """
+
+        assert (
+            root.tag == "index-variable"
+        ), f"The root must be <index-variable>. Current tag is {root.tag} with {root.attrib} attributes."
         ind = {"tag": "index", "name": root.attrib["name"].lower()}
         for bounds in root:
             if bounds.tag == "lower-bound":
@@ -423,6 +443,11 @@ class XMLToJSONTranslator(object):
         return [ind]
 
     def process_if(self, root, state) -> List[Dict]:
+        """ This function handles <if> tag. Else and else if are nested under
+        this tag. """
+        assert (
+            root.tag == "if"
+        ), f"The root must be <if>. Current tag is {root.tag} with {root.attrib} attributes."
         ifs = []
         curIf = None
         for node in root:
@@ -445,6 +470,12 @@ class XMLToJSONTranslator(object):
         return ifs
 
     def process_operation(self, root, state) -> List[Dict]:
+        """ This function handles <operation> tag. The nested elements should
+        either be "operand" or "operator". """
+
+        assert (
+            root.tag == "operation"
+        ), f"The root must be <operation>. Current tag is {root.tag} with {root.attrib} attributes."
         op = {"tag": "op"}
         for node in root:
             if node.tag == "operand":
@@ -465,6 +496,10 @@ class XMLToJSONTranslator(object):
         return [op]
 
     def process_literal(self, root, state) -> List[Dict]:
+        """ This function handles <literal> tag """
+        assert (
+            root.tag == "literal"
+        ), f"The root must be <literal>. Current tag is {root.tag} with {root.attrib} attributes."
         for info in root:
             if info.tag == "pause-stmt":
                 return [{"tag": "pause", "msg": root.attrib["value"]}]
@@ -479,19 +514,40 @@ class XMLToJSONTranslator(object):
             }
         ]
 
-    # This function checks for an asterisk in the argument of a read/write
-    # statement and stores it if found.  An asterisk in the first argument
-    # specifies a input through or output to console.  An asterisk in the
-    # second argument specifies a read/write without a format (implicit
-    # read/writes).
-    def process_io_control_spec(self, root, state) -> List[Dict]:
-        x = []
-        for attr in root.attrib:
-            if attr == "hasAsterisk" and root.attrib[attr] == "true":
-                x = [{"tag": "literal", "type": "char", "value": "*"}]
-        return x
+    def process_io_control(self, root, state) -> List[Dict]:
+        """ This function checks for an asterisk in the argument of a
+        read/write statement and stores it if found.  An asterisk in the first
+        argument specifies a input through or output to console.  An asterisk
+        in the second argument specifies a read/write without a format
+        (implicit read/writes).  """
+
+        assert (
+            root.tag == "io-controls"
+        ), f"The root must be <io-controls>. Current tag is {root.tag} with {root.attrib} attributes."
+        io_control = []
+        for node in root:
+            if node.attrib["hasExpression"] == "true":
+                assert (
+                    "hasExpression" in node.attrib
+                    and node.attrib["hasExpression"] == "true"
+                ), "hasExpression is false. Something is wrong."
+                io_control += self.parseTree(node, state)
+            else:
+                assert (
+                    node.attrib["hasAsterisk"] == "true"
+                ), "hasAsterisk is false. Something is wrong."
+                io_control += [
+                    {"tag": "literal", "type": "char", "value": "*"}
+                ]
+        return io_control
 
     def process_name(self, root, state) -> List[Dict]:
+        """ This function handles <name> tag. The name tag will be added to the
+        new AST for the pyTranslate.py with "ref" tag.  """
+
+        assert (
+            root.tag == "name"
+        ), f"The root must be <name>. Current tag is {root.tag} with {root.attrib} attributes."
         if root.attrib["id"].lower() in self.libFns:
             fn = {"tag": "call", "name": root.attrib["id"], "args": []}
             for node in root:
@@ -506,60 +562,53 @@ class XMLToJSONTranslator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         else:
-            isDevType = False
-            singleReference = False
-            refName = root.attrib["id"].lower()
-            if "%" in refName:
-                curName = refName
-                devVar = re.findall(r"\"([^\"]+)\"", curName)
-                percInd = curName.find("%")
-                fieldVar = curName[percInd + 1 : len(curName)]
-                refName = devVar[0]
-                isDevType = True
-                singleReference = True
-            # As a solution to handle derived type variable accesses more than
-            # one field variables (via % in fortran and . in python), for
-            # example, var % x % y, we need to look up the variable name from
-            # the variable keep and mark isDevType attribute as True, so later
-            # it can be printed properly by pyTranslate.py
-            if refName in self.deriveTypeVars:
-                isDevType = True
-            if isDevType:
-                if singleReference:
-                    ref = {
-                        "tag": "ref",
-                        "name": refName,
-                        "field-name": fieldVar,
-                        "isDevType": True,
-                        "arrayStat": self.deriveTypeFields[fieldVar],
-                    }
-                else:
-                    ref = {"tag": "ref", "name": refName, "isDevType": True}
+            # numPartRef represents the number of references in the name. Default = 1
+            numPartRef = "1"
+            # For example, numPartRef of x is 1 while numPartRef of x.y is 2, etc.
+            if "numPartRef" in root.attrib:
+                numPartRef = root.attrib["numPartRef"]
+
+            is_array = "false"
+            if "is_array" in root.attrib:
+                is_array = root.attrib["is_array"]
+
+            ref = {
+                "tag": "ref",
+                "name": root.attrib["id"].lower(),
+                "numPartRef": str(numPartRef),
+                "hasSubscripts": root.attrib["hasSubscripts"],
+                "is_array": is_array,
+                "is_arg": "false",
+            }
+
+            # Check whether the passed element is for derived type reference
+            if "is_derived_type_ref" in root.attrib:
+                ref["is_derived_type_ref"] = "true"
             else:
-                ref = {"tag": "ref", "name": refName, "isDevType": False}
-            # If a very first variable (or the main variable) is an array,
-            # set hasSubscripts to true else false
-            if "hasSubscripts" in root.attrib:
-                if root.attrib["hasSubscripts"] == "true":
-                    ref["hasSubscripts"] = True
-                else:
-                    ref["hasSubscripts"] = False
+                ref["is_derived_type_ref"] = "false"
 
-            ref["isArray"] = False
-            subscripts = []
-            for node in root:
-                subscripts += self.parseTree(node, state)
-            if subscripts:
-                ref["subscripts"] = subscripts
-                if (ref["name"] in self.arrays):
-                    ref["isArray"] = True
+            # Handling derived type references
+            if int(numPartRef) > 1:
+                for node in root:
+                    if node.tag == "name":
+                        nextRef = self.parseTree(node, state)
+                        ref.update({"ref": nextRef})
 
-            if "arrayStat" in ref and ref["arrayStat"] == "isArray":
-                ref["isArray"] = True
+            # Handling arrays
+            if root.attrib["hasSubscripts"] == "true":
+                for node in root:
+                    if node.tag == "subscripts":
+                        ref["subscripts"] = self.parseTree(node, state)
 
             return [ref]
 
     def process_assignment(self, root, state) -> List[Dict]:
+        """ This function handles <assignment> tag that nested elements of
+        <target> and <value>. """
+
+        assert (
+            root.tag == "assignment"
+        ), f"The root must be <assignment>. Current tag is {root.tag} with {root.attrib} attributes."
         assign = {"tag": "assignment"}
         devTypeAssignment = False
         for node in root:
@@ -577,17 +626,21 @@ class XMLToJSONTranslator(object):
             assign["value"][0]["tag"] = "ret"
             return assign["value"]
         else:
-            if assign["target"][0]["isDevType"]:
-                devTypeAssignment = True
-            assign["isDevType"] = devTypeAssignment
             return [assign]
 
     def process_function(self, root, state) -> List[Dict]:
+        """ This function handles <function> tag.  """
+        assert (
+            root.tag == "function"
+        ), f"The root must be <function>. Current tag is {root.tag} with {root.attrib} attributes."
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
-                subroutine["args"] = self.parseTree(node, state)
+                args = self.parseTree(node, state)
+                for arg in args:
+                    arg["is_arg"] = "true"
+                subroutine["args"] = args
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = self.parseTree(node, subState)
@@ -595,6 +648,12 @@ class XMLToJSONTranslator(object):
         return [subroutine]
 
     def process_dimension(self, root, state) -> List[Dict]:
+        """ This function handles <dimension> tag. This is a tag that holds
+        information about the array, such as the range and values. """
+
+        assert (
+            root.tag == "dimension"
+        ), f"The root must be <dimension>. Current tag is {root.tag} with {root.attrib} attributes."
         dimension = {"tag": "dimension"}
         for node in root:
             if node.tag == "range":
@@ -604,6 +663,11 @@ class XMLToJSONTranslator(object):
         return [dimension]
 
     def process_range(self, root, state) -> List[Dict]:
+        """ This function handles <range> tag.  """
+
+        assert (
+            root.tag == "range"
+        ), f"The root must be <range>. Current tag is {root.tag} with {root.attrib} attributes."
         ran = {}
         for node in root:
             if node.tag == "lower-bound":
@@ -613,6 +677,10 @@ class XMLToJSONTranslator(object):
         return [ran]
 
     def process_keyword_argument(self, root, state) -> List[Dict]:
+        """ This function handles <keyword-argument> tag. """
+        assert (
+            root.tag == "keyword-argument"
+        ), f"The root must be <keyword-argument>. Current tag is {root.tag} with {root.attrib} attributes."
         x = []
         if root.attrib and root.attrib["argument-name"] != "":
             x = [{"arg_name": root.attrib["argument-name"]}]
@@ -643,6 +711,11 @@ class XMLToJSONTranslator(object):
         return [{"tag": root.tag}]
 
     def process_format(self, root, state) -> List[Dict]:
+        """ This function handles <format> tag. """
+
+        assert (
+            root.tag == "format"
+        ), f"The root must be <format>. Current tag is {root.tag} with {root.attrib} attributes."
         format_spec = {"tag": "format", "args": []}
         for node in root:
             if node.tag == "label":
@@ -651,6 +724,9 @@ class XMLToJSONTranslator(object):
         return [format_spec]
 
     def process_format_item(self, root, state) -> List[Dict]:
+        """ This function handles <format-item> tag. """
+
+        assert root.tag == "format-item", "The root must be <format-item>"
         variable_spec = {
             "tag": "literal",
             "type": "char",
@@ -658,10 +734,13 @@ class XMLToJSONTranslator(object):
         }
         return [variable_spec]
 
-    # This function adds the tag for use statements
-    # In case of "USE .. ONLY .." statements, the symbols to be included
-    # are stored in the "include" field of the "use" block
     def process_use(self, root, state) -> List[Dict]:
+        """
+            This function adds the tag for use statements
+            In case of "USE .. ONLY .." statements, the symbols to be included
+            are stored in the "include" field of the "use" block
+        """
+
         tag_spec = {"tag": "use", "arg": root.attrib["name"]}
         for node in root:
             if node.tag == "only":
@@ -672,68 +751,15 @@ class XMLToJSONTranslator(object):
 
         return [tag_spec]
 
-    # This function adds the tag for private symbols
-    # Any variable/function being initialized as private is added in this tag
     def process_private_variable(self, root, state) -> List[Dict]:
+        """ This function adds the tag for private symbols. Any
+        variable/function being initialized as private is added in this tag.
+        """
         for node in root:
             if node.tag == "name":
                 return [{"tag": "private", "name": node.attrib["id"].lower()}]
 
         return []
-
-    # This function is needed for handling derived type declaration
-    # It will recursively traverse down to the deepest 'type' node,
-    # then returns the derived type id as well as the field types
-    def process_type(self, root, state) -> List[Dict]:
-        derived_types = []
-        devTypeHasArrayField = False
-        devTypeHasInitValue = False
-        devTypeArrayField = {}
-        devTypeVarField = {}
-
-        for node in root:
-            if node.tag == "type":
-                derived_types = self.parseTree(node, state)
-            elif node.tag == "derived-type-stmt":
-                derived_types.append(
-                    {"derived-type": node.attrib["id"].lower()}
-                )
-            elif node.tag == "intrinsic-type-spec":
-                derived_types.append(
-                    {"field-type": node.attrib["keyword1"].lower()}
-                )
-            elif node.tag == "explicit-shape-spec-list__begin":
-                devTypeHasArrayField = True
-            elif node.tag == "literal":
-                if devTypeHasArrayField:
-                    devTypeArrayField["array-size"] = node.attrib["value"]
-                else:
-                    devTypeVarField["value"] = node.attrib["value"]
-                    devTypeHasInitValue = True
-            elif node.tag == "component-decl":
-                if not devTypeHasArrayField:
-                    if devTypeHasInitValue:
-                        devTypeVarField["field-id"] = node.attrib["id"].lower()
-                        derived_types.append(devTypeVarField)
-                        devTypeHasInitValue = False
-                    else:
-                        derived_types.append(
-                            {"field-id": node.attrib["id"].lower()}
-                        )
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "notArray"
-                    derived_types.append(devTypeArrayField)
-                else:
-                    devTypeArrayField["field-id"] = node.attrib["id"].lower()
-                    self.deriveTypeFields[
-                        node.attrib["id"].lower()
-                    ] = "isArray"
-                    derived_types.append(devTypeArrayField)
-                    devTypeHasArrayField = False
-            elif node.tag == "derived-type-spec":
-                return node.attrib["typeName"].lower()
-        return derived_types
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -749,9 +775,8 @@ class XMLToJSONTranslator(object):
         Returns:
                 ast: A JSON ast that defines the structure of the Fortran file.
         """
-
-        if root.tag in self.AST_TAG_HANDLERS:
-            return self.AST_TAG_HANDLERS[root.tag](root, state)
+        if root.tag in self.ast_tag_handlers:
+            return self.ast_tag_handlers[root.tag](root, state)
 
         elif root.tag in self.libRtns:
             return self.process_libRtn(root, state)
