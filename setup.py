@@ -22,7 +22,7 @@ setup(
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     install_requires=[
-        "indra",
+        "indra[eidos_offline]",
         "tqdm",
         "numpy",
         "scipy",
