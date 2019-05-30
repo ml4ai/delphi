@@ -1,6 +1,6 @@
 import sys
 import pickle
-from delphi.export import to_agraph
+
 
 def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"):
     """ Create a CAG with mapped indicators """
