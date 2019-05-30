@@ -85,19 +85,21 @@ data/indicator_flat_list.txt: data/south_sudan_data.tsv
 # 
 # *Please read before running Makefile*
 # Instructions: You must clone/download the master branch from https://github.com/clulab/eidos
+# and set the environment variable EIDOS to point to the local copy of the
+# repository on your computer.
+# 
 # Please also read their instructions for the proper configuration and setup of 
 # Eidos. scala, java, and sbt must be downloaded and installed. The most
 # current versions of scala and sbt should work, however you cannot use the
-# current version of java. openjdk version 1.8.0_212 is known to work with
-# this build. You will need to reconfigure the below pathways in accordance to
-# where you downloaded/cloned EIDOS. You must run "sbt assembly" in "/eidos"
+# current version of java. openjdk version 1.8 is known to work with
+# this build. You will need to reconfigure the below paths in accordance to
+# where you downloaded/cloned Eidos. You must run "sbt assembly" in "/eidos"
 # before running this portion of the Makefile. 
 #
 # WARNING: EIDOS download and setup requires initially approximately 26.94 GB,
 # however their instructions indicates options for optimizing and saving space.
 # =============================================================================
 
-EIDOS := /Volumes/lorens_drive/eidos
 EIDOS_SRC := $(EIDOS)/src/main
 ONTOLOGY_GEN_SCRIPT := $(EIDOS_SRC)/python/mk_yaml_ontology.py
 TARGET_ONTOLOGY_FILENAME := $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/mitre12_indicators.yml
