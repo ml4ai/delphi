@@ -494,7 +494,7 @@ if __name__ == "__main__":
         "Country",
     ]
 
-    data_dir = str(data_dir / "data" / "raw" / "wm_12_month_evaluation")
+    data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
