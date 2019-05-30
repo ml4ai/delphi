@@ -27,6 +27,7 @@ bp = Blueprint("rest_api", __name__)
 # ============
 
 
+PLACEHOLDER_UNIT = "No units specified."
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
@@ -108,6 +109,11 @@ def getIndicators(model_id: str):
             if func == "raw":
                 for r in records:
                     unit, value, year, source = r["Unit"], r["Value"], r["Year"], r["Source"]
+                    # Sort of a hack - some of the variables in the tables we
+                    # process don't have units specified, so we put a
+                    # placeholder string to get it to work with CauseMos.
+                    if unit is None:
+                        unit = PLACEHOLDER_UNIT
                     if unit not in value_dict:
                         value_dict[unit] = [
                             {"year": year, "value": float(value), "source": source}
@@ -120,6 +126,13 @@ def getIndicators(model_id: str):
             else:
                 for r in records:
                     unit, value, source = r["Unit"], r["Value"], r["Source"]
+
+                    # Sort of a hack - some of the variables in the tables we
+                    # process don't have units specified, so we put a
+                    # placeholder string to get it to work with CauseMos.
+                    if unit is None:
+                        unit = PLACEHOLDER_UNIT
+
                     # HACK! if the variables have the same names but different
                     # sources, this will only give the most recent source
                     if unit not in value_dict:
