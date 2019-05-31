@@ -9,10 +9,11 @@
 
         SWFAC = MIN(SWFAC1, SWFAC2)
         IF (FL .EQ. 1.0) THEN
-            a = exp(EMP2 * (N-nb))
-                while ((1.0 + eps[0]) > 1.0):
-                    eps[0] = (eps[0] / 2.0)
-                eps[0] = (eps[0] * 2)
+            a = exp(EMP2 * exp(N-nb))
+            DO WHILE (1.0+a.GT.1.0)
+                a=a/2.0
+            END DO
+            a=a*2
             dLAI = SWFAC * PD * EMP1 * PT * (a/(1+a)) * dN
         ELSEIF (FL .EQ. 2.0) THEN
 
@@ -29,12 +30,12 @@
 
         REAL nb,N,PT,di,p1,sla
         REAL PD,EMP1,EMP2
-        REAL dwr,dw,dn,dLAI, FL
+        REAL dn,dLAI, FL
 
         REAL SWFAC1, SWFAC2
 
         FL = 1.0
-        nb = 0.0
+        nb = 2.5
         di = 1.0
         PD = 2.0
         EMP1 = 2.0
@@ -51,6 +52,6 @@
         CALL LAIS(FL,di,PD,EMP1,EMP2,N,nb,SWFAC1,SWFAC2,PT,
      &             dN,p1, sla, dLAI)
 
-        PRINT *, "dLAI: ", dLAI
+        PRINT *, dLAI
 
         END PROGRAM MAIN

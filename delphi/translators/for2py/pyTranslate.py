@@ -331,14 +331,35 @@ class PythonCodeGenerator(object):
         else:
             handler = py_fn
 
+        for index, arg in enumerate(arg_list):
+            status = self.check_ref(index, arg, arg_strs)
+
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
-            return f"{handler}({arguments})"
+            return f"FloatNumpy({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
-            assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
+            assert len(arg_list) == 2, f"INFIXOP with {len(arg_list)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
+
+    def check_ref(self, index, arg, arg_strs):
+        if arg["tag"] == "ref":
+            if self.variableMap[arg["name"]].lower() == "real":
+                arg_strs[index] = arg_strs[index] + "._val"
+                return True
+            else:
+                return False
+        elif arg["tag"] == "op":
+            for item in arg["left"]:
+                st = self.check_ref(index, item, arg_strs)
+            if not st:
+                for item in arg["right"]:
+                    st = self.check_ref(index, item, arg_strs)
+            return st
+        elif arg["tag"] == "call":
+            for item in arg["args"]:
+                st = self.check_ref(index, item, arg_strs)
 
     def get_arg_list(self, node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
@@ -404,11 +425,6 @@ class PythonCodeGenerator(object):
 
         if node["type"] == "bool":
             return node["value"].title()
-        # elif node["type"] in ("real"):
-        #     if printState.isFloatNumpy:
-        #         return f"FloatNumpy({node['value']})"
-        #     else:
-        #         return node["value"]
         else:
             return node["value"]
 
@@ -490,11 +506,6 @@ class PythonCodeGenerator(object):
         variables."""
 
         if node["tag"] == "literal":
-            # Assign isFloatNumpy as True
-            # if printState.isAssignment:
-            #     printState = printState.copy(
-            #                 sep="", add="", printFirst=False, indexRef=True, isFloatNumpy=True
-            #             )
             return self.proc_literal(node, printState)
 
         if node["tag"] == "ref":
@@ -553,9 +564,13 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unrecognized type {node['type']}")
 
         arg_name = self.nameMapper[node["name"]]
+        self.variableMap[arg_name] = node["type"]
+
         if "is_array" in node and node["is_array"] == "true":
             self.pyStrings.append(f"{arg_name}")
         else:
+            if node["type"].lower() == "real":
+                var_type = "FloatNumpy"
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
 
@@ -697,7 +712,7 @@ class PythonCodeGenerator(object):
                 assg_str = f"{lhs['name']}[0]"
 
         # Check if the lhs is a real and convert the variable to a numpy float object if it is
-        if self.variableMap[lhs["name"]].lower() == "real" and rhs["tag"] == "literal":
+        if self.variableMap.get(lhs["name"]) == "REAL" and rhs["tag"] == "literal":
             rhs_str = f"FloatNumpy({rhs_str})"
 
         if "set_" in assg_str:
