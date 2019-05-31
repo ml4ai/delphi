@@ -810,44 +810,46 @@ class GrFNGenerator(object):
                 raise For2PyError("can't handle arrays right now.")
 
             val = self.genPgm(node.value, state, fnNames, "subscript")
-            if val[0]["var"]["variable"] in self.annassigned_list:
-                if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
-                        val[0]["var"]["variable"],
-                        state.lastDefs,
-                        state.nextDefs,
-                        state.lastDefDefault,
-                    )
-            elif val[0]["var"]["index"] == -1:
-                if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
-                        val[0]["var"]["variable"],
-                        state.lastDefs,
-                        state.nextDefs,
-                        state.lastDefDefault,
-                    )
+            if val:
+                if val[0]["var"]["variable"] in self.annassigned_list:
+                    if isinstance(node.ctx, ast.Store):
+                        val[0]["var"]["index"] = getNextDef(
+                            val[0]["var"]["variable"],
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        )
+                elif val[0]["var"]["index"] == -1:
+                    if isinstance(node.ctx, ast.Store):
+                        val[0]["var"]["index"] = getNextDef(
+                            val[0]["var"]["variable"],
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        )
+                        self.annassigned_list.append(val[0]["var"]["variable"])
+                else:
                     self.annassigned_list.append(val[0]["var"]["variable"])
-            else:
-                self.annassigned_list.append(val[0]["var"]["variable"])
 
             return val
 
         # Name: ('id', 'ctx')
         elif isinstance(node, ast.Name):
-            lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
-            if (
-                isinstance(node.ctx, ast.Store)
-                and state.nextDefs.get(node.id)
-                and call_source != "annassign"
-            ):
-                lastDef = getNextDef(
-                    node.id,
-                    state.lastDefs,
-                    state.nextDefs,
-                    state.lastDefDefault,
-                )
+            if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
+                lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
+                if (
+                    isinstance(node.ctx, ast.Store)
+                    and state.nextDefs.get(node.id)
+                    and call_source != "annassign"
+                ):
+                    lastDef = getNextDef(
+                        node.id,
+                        state.lastDefs,
+                        state.nextDefs,
+                        state.lastDefDefault,
+                    )
 
-            return [{"var": {"variable": node.id, "index": lastDef}}]
+                return [{"var": {"variable": node.id, "index": lastDef}}]
 
         # AnnAssign: ('target', 'annotation', 'value', 'simple')
         elif isinstance(node, ast.AnnAssign):
@@ -922,6 +924,7 @@ class GrFNGenerator(object):
             state.scope_path = scope_path
 
             sources = self.genPgm(node.value, state, fnNames, "assign")
+
             targets = reduce(
                 (lambda x, y: x.append(y)),
                 [
@@ -971,7 +974,7 @@ class GrFNGenerator(object):
                             dtypes.add(item["dtype"])
                             value.append(item["value"])
                         dtype = list(dtypes)
-                    elif sources[0].get("call") and sources[0]["call"]["function"] == "FloatConv":
+                    elif sources[0].get("call") and sources[0]["call"]["function"] == "FloatNumpy":
                         dtype = sources[0]["call"]["inputs"][0][0]["dtype"]
                         value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                     else:
@@ -1045,6 +1048,9 @@ class GrFNGenerator(object):
                 pgms.append(self.genPgm(item, state, fnNames, "boolop"))
 
             return pgms
+
+        # elif isinstance(node, ast.Attribute):
+        #     return []
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1632,7 +1638,7 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n", "from from delphi.translators.for2py.floatConv import FloatConv\n\n"]
+    lambdaStrings = ["import math\n", "from from delphi.translators.for2py.floatNumpy import FloatNumpy\n\n"]
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
