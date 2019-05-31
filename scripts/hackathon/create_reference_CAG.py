@@ -25,12 +25,6 @@ def filter_and_process_statements(
 
         update_counter("Original number of statements")
 
-        # Apply belief score threshold cutoff
-
-        if not s.belief > belief_score_cutoff:
-            continue
-        update_counter(f"Statements with belief score > {belief_score_cutoff}")
-
         # Select statements with UN groundings
 
         if s.subj.db_refs.get("UN") is None or s.obj.db_refs.get("UN") is None:
@@ -47,6 +41,13 @@ def filter_and_process_statements(
         update_counter(
             f"Statements with subj and obj grounding scores > {grounding_score_cutoff}"
         )
+
+
+        # Apply belief score threshold cutoff
+
+        if not s.belief > belief_score_cutoff:
+            continue
+        update_counter(f"Statements with belief score > {belief_score_cutoff}")
 
         # Assign default polarities
 
@@ -65,14 +66,16 @@ def filter_and_process_statements(
 def create_reference_CAG(inputPickleFile, outputPickleFile):
     with open(inputPickleFile, "rb") as f:
         all_sts = pickle.load(f)
-    filtered_sts = filter_and_process_statements(all_sts, 0.9)
+    #Second and Third Argument control grounding score and belief score cutoff,
+    #respectively.
+    filtered_sts = filter_and_process_statements(all_sts,0.50,.85)
     G = AnalysisGraph.from_statements(filtered_sts)
-    G.merge_nodes(
-        "UN/events/natural/weather/precipitation",
-        "UN/events/weather/precipitation",
-    )
+    #G.merge_nodes(
+    #    "UN/events/natural/weather/precipitation",
+    #    "UN/events/weather/precipitation",
+    #)
     for n in G.nodes():
-        G.delete_edge(n, "UN/events/weather/precipitation")
+        G.delete_edge("UN/events/human/human_migration",n)
 
     with open(outputPickleFile, "wb") as f:
         pickle.dump(G, f)
