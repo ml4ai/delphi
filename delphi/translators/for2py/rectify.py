@@ -54,20 +54,20 @@ class RectifyOFPXML:
         self.label_before = False
         self.label_after = False
         self.reconstructing = False
+        self.is_stop = False
 
         self.goto_target_lbl_after = []
         self.label_lbl = []
         self.statements_to_reconstruct_before = []
         self.statements_to_reconstruct_after = []
-        self.need_reconstruct = False
 
         self.cur_derived_type_name = ""
         self.current_scope = ""
 
         self.goto_body = ET.Element('')
 
-        # Keep a track of both array and non-array variables in the dictionary
-        # of {'name' : 'scope'}
+        # Keep a track of both array and non-array variables 
+        # in the dictionary of {'name' : 'scope'}
         self.declared_non_array_vars = {}
         self.declared_array_vars = {}
 
@@ -157,6 +157,15 @@ class RectifyOFPXML:
 
     ]
 
+    header_child_tags = [
+        "index-variable",
+        "operation",
+        "arguments",
+        "names",
+        "loop-control",
+        "label",
+    ]
+
     body_child_tags = [
         "specification",
         "statement",
@@ -227,24 +236,22 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 curElem = ET.SubElement(current, child.tag, child.attrib)
-                if (
-                    child.tag == "index-variable"
-                    or child.tag == "operation"
-                    or child.tag == "arguments"
-                    or child.tag == "names"
-                ):
+                if child.tag in self.header_child_tags:
                     self.parseXMLTree(child, curElem, current, traverse)
                 else:
                     print(f'In handle_tag_header: "{child.tag}" not handled')
             else:
                 if child.tag == "subroutine-stmt":
                     current.attrib.update(child.attrib)
-                elif child.tag == "loop-control" or child.tag == "label":
+                elif child.tag in self.header_child_tags:
                     curElem = ET.SubElement(current, child.tag, child.attrib)
+                    if self.reconstructing:
+                        self.parseXMLTree(child, curElem, current, traverse)
                 else:
                     print(
                         f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
                     )
+
 
     def handle_tag_body(self, root, current, parent, traverse):
         """
@@ -289,7 +296,7 @@ class RectifyOFPXML:
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
             else:
-                if child.tag in self.body_child_tags:
+                if child.tag in self.body_child_tags and child.tag != "statement":
                     curElem = ET.SubElement(current, child.tag, child.attrib)
                 elif child.tag != "statement":
                     print(
@@ -518,13 +525,10 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.tag in self.statement_child_tags:
-                # To solve the issue of <stop> gets extracted and treated
-                # as independent stemente, pull out make it to be
-                # the direct child of <statement>'s parent
                 if child.tag == "stop":
-                    curElem = ET.SubElement(parent, child.tag, child.attrib)
-                else:
-                    curElem = ET.SubElement(current, child.tag, child.attrib)
+                    self.is_stop = True
+                    current.attrib["has_stop"] = "true"
+                curElem = ET.SubElement(current, child.tag, child.attrib)
 
                 if child.tag == "label":
                     label_presented = True
@@ -596,7 +600,8 @@ class RectifyOFPXML:
         # If label appears before <goto>, mark <statement> with goto-move to move it later (1st traverse)
         if traverse == 1 and self.label_before:
             current.attrib['goto-move'] = "true"
-            self.statements_to_reconstruct_before.append(current)
+            if "has_stop" not in current.attrib:
+                self.statements_to_reconstruct_before.append(current)
 
     def handle_tag_assignment(self, root, current, parent, traverse):
         """
@@ -965,6 +970,10 @@ class RectifyOFPXML:
         """
         for child in root:
             self.clean_attrib(child)
+            # A process of negating the operator during goto elimination
+            if child.tag == "operator" and self.need_op_negation:
+                child.attrib["operator"] = NEGATED_OP[child.attrib["operator"]]
+                self.need_op_negation = False
             curElem = ET.SubElement(current, child.tag, child.attrib)
             if child.tag == "operand":
                 self.parseXMLTree(child, curElem, current, traverse)
@@ -1365,11 +1374,17 @@ class RectifyOFPXML:
                         if child.tag == "header" and self.need_goto_elimination:
                             self.need_op_negation = True
                         self.parseXMLTree(child, curElem, current, traverse)
+                        if child.tag == "body" and self.is_stop:
+                            current.attrib["extract-header"] = "true"
+                            self.is_stop = False
                 else:
                     print (f'In handle_tag_if: "{child.tag}" not handled')
             else:
                 if child.tag == "if-stmt":
                     current.attrib.update(child.attrib)
+                elif child.tag == "header" and self.reconstructing:
+                    curElem = ET.SubElement(current, child.tag, child.attrib)
+                    self.parseXMLTree(child, curElem, current, traverse)
                 else:
                     print(
                         f'In handle_tag_if: Empty elements "{child.tag}" not handled'
@@ -1985,25 +2000,35 @@ class RectifyOFPXML:
         self.reconstructing = True
         # REMOVE
         print ("in reconstruct_goto_before_label")
+        
+        loop = ET.SubElement(parent, "loop", {"type":"do-while"})
         for stmt in self.statements_to_reconstruct_before:
-            statement_tag = ET.SubElement(parent, stmt.tag, stmt.attrib)
+            # REMOVE
+            print ("stmt: ", stmt.tag, stmt.attrib)
+            if stmt.tag == "if" and "extract-header" in stmt.attrib:
+                for child in stmt:
+                    if child.tag == "header":
+                        loop_header = ET.SubElement(loop, child.tag, child.attrib)
+                        self.need_op_negation = True
+                        self.parseXMLTree(child, loop_header, loop, traverse)
 
-            if "goto-move" in statement_tag.attrib:
-                del statement_tag.attrib["goto-move"]
-            if "target-label-statement" in statement_tag.attrib:
-                del statement_tag.attrib["target-label-statement"]
+        for stmt in self.statements_to_reconstruct_before:
+            if len(stmt) > 0:
+                statement_tag = ET.SubElement(parent, stmt.tag, stmt.attrib)
 
-            for child in stmt:
-                curElem = ET.SubElement(statement_tag, child.tag, child.attrib)
-                # REMOVE
-                print (curElem.tag, curElem.attrib)
-                print (len(child))
-                if len(child) > 0:
-                    print (child.tag, child.attrib)
-                    self.parseXMLTree(child, curElem, statement_tag, traverse)
+                for child in stmt:
+                    curElem = ET.SubElement(statement_tag, child.tag, child.attrib)
+                    if len(child) > 0:
+                        self.parseXMLTree(child, curElem, statement_tag, traverse)
+                    
+                if "goto-move" in statement_tag.attrib:
+                    del statement_tag.attrib["goto-move"]
+                if "target-label-statement" in statement_tag.attrib:
+                    del statement_tag.attrib["target-label-statement"]
+        # Set all holders and checkers (markers) to default
         self.label_before = False
         self.reconstruct_before_case_now = False
-        self.reconstructing = True
+        self.reconstructing = False
         self.statements_to_reconstruct_before.clear()
 
     #################################################################
