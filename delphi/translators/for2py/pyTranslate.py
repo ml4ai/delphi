@@ -181,11 +181,13 @@ class PythonCodeGenerator(object):
         # names
         self.nameMapper = {}
         # Dictionary to hold functions and its arguments
+        self.functions = []
         self.funcArgs = {}
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
         self.pyStrings = []
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
         self.format_dict = {}
+        # List to hold derived type class and variables
         self.declaredDerivedTVars = []
         self.declaredDerivedTypes = []
 
@@ -252,6 +254,7 @@ class PythonCodeGenerator(object):
         )
 
     def printFunction(self, node, printState: PrintState):
+        self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
         self.funcArgs[self.nameMapper[node["name"]]] = [
@@ -703,7 +706,28 @@ class PythonCodeGenerator(object):
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]] + "[0]"
             else:
-                val = node["value"]
+                if "value" in node:
+                    val = node["value"]
+                else:
+                    assert (
+                        "left" in node and
+                        "operator" in node and
+                        "right" in node
+                    ), f"Something is missing. Detail of node content: {node}"
+
+                    left = ""
+                    if node["left"][0]["tag"] == "ref":
+                        left = node["left"][0]["name"]
+                    else:
+                        left = node["left"][0]["value"]
+                    operator = node["operator"]
+                    right = ""
+                    if node["right"][0]["tag"] == "ref":
+                        right = node["right"][0]["name"]
+                    else:
+                        right = node["right"][0]["value"]
+
+                    val = f"{left} {operator} {right}"
         else:
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]]
@@ -958,7 +982,10 @@ class PythonCodeGenerator(object):
 
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
-        if var_name not in printState.definedVars + printState.globalVars:
+        if (
+            var_name not in printState.definedVars + printState.globalVars
+            and var_name not in self.functions
+        ):
             printState.definedVars += [var_name]
             if node.get("value"):
                 initVal = node["value"][0]["value"]
@@ -1204,7 +1231,7 @@ def index_modules(root) -> Dict:
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
         for index, node in enumerate(root)
-        if node.get("tag") in ("module", "program", "subroutine")
+        if node.get("tag") in ("module", "program", "subroutine", "function")
     }
 
     return module_index_dict

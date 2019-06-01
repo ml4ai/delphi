@@ -1274,8 +1274,6 @@ class RectifyOFPXML:
                 ...
             </function>
         """
-        # REMOVE
-        print ("tag_function: ", root.tag, root.attrib)
         self.current_scope = root.attrib["name"]
         for child in root:
             self.clean_attrib(child)
