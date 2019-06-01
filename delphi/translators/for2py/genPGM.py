@@ -1049,8 +1049,8 @@ class GrFNGenerator(object):
 
             return pgms
 
-        # elif isinstance(node, ast.Attribute):
-        #     return []
+        elif isinstance(node, ast.Attribute):
+            return self.genPgm(node.value, state, fnNames, call_source)
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1529,7 +1529,7 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType == "float":
+        if dType in ("float", "FloatNumpy"):
             return "real"
         if dType == "int":
             return "integer"
@@ -1638,7 +1638,7 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n", "from from delphi.translators.for2py.floatNumpy import FloatNumpy\n\n"]
+    lambdaStrings = ["import math\n", "from delphi.translators.for2py.floatNumpy import FloatNumpy\n\n"]
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict

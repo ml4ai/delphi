@@ -226,6 +226,11 @@ def genCode(node, state):
                           genCode(node.op, state),
                           genCode(node.values[1], state))  
 
+    elif isinstance(node, ast.Attribute):
+        codeStr = genCode(node.value, state)
+        if node.attr == "_val":
+            codeStr = f"{codeStr}.{node.attr}"
+
     elif isinstance(node, ast.AST):
         sys.stderr.write(
             "No handler for AST.{0} in genCode, fields: {1}\n".format(
