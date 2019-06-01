@@ -56,7 +56,14 @@ class RectifyOFPXML:
     """
         Nested child tag list
     """
-    file_child_tags = ["program", "subroutine", "module"]
+    file_child_tags = [
+        "program", 
+        "subroutine", 
+        "module", 
+        "declaration", 
+        "function", 
+        "prefix"
+    ]
 
     statement_child_tags = [
         "assignment",
@@ -1267,6 +1274,8 @@ class RectifyOFPXML:
                 ...
             </function>
         """
+        # REMOVE
+        print ("tag_function: ", root.tag, root.attrib)
         self.current_scope = root.attrib["name"]
         for child in root:
             self.clean_attrib(child)
