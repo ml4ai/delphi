@@ -68,14 +68,12 @@ def create_reference_CAG(inputPickleFile, outputPickleFile):
         all_sts = pickle.load(f)
     #Second and Third Argument control grounding score and belief score cutoff,
     #respectively.
-    filtered_sts = filter_and_process_statements(all_sts,0.50,.85)
+    filtered_sts = filter_and_process_statements(all_sts,0.75,.85)
     G = AnalysisGraph.from_statements(filtered_sts)
     G.merge_nodes(
         "UN/events/natural/weather/precipitation",
         "UN/events/weather/precipitation",
     )
-    for n in G.nodes():
-        G.delete_edge("UN/events/human/human_migration",n)
 
     with open(outputPickleFile, "wb") as f:
         pickle.dump(G, f)

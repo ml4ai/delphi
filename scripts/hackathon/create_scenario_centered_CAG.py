@@ -11,13 +11,15 @@ def create_scenario_centered_CAG(input, output):
     G = G.get_subgraph_for_concept(
         "UN/events/human/human_migration", depth=2, reverse=True
     )
-    G.prune(cutoff=2)
+    G.prune(cutoff=4)
 
     # Manually correcting a bad CWMS extraction
     #G.edges[
     #    "UN/events/weather/precipitation",
     #    "UN/entities/human/infrastructure/transportation/road",
    # ]["InfluenceStatements"][0].obj_delta["polarity"] = -1
+    A=G.to_agraph(nodes_to_highlight="UN/events/human/human_migration")
+    A.draw("CAG.pdf", prog="dot")
     with open(output, "wb") as f:
         pickle.dump(G, f)
 
