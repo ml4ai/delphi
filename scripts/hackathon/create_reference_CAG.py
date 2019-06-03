@@ -70,10 +70,10 @@ def create_reference_CAG(inputPickleFile, outputPickleFile):
     #respectively.
     filtered_sts = filter_and_process_statements(all_sts,0.50,.85)
     G = AnalysisGraph.from_statements(filtered_sts)
-    #G.merge_nodes(
-    #    "UN/events/natural/weather/precipitation",
-    #    "UN/events/weather/precipitation",
-    #)
+    G.merge_nodes(
+        "UN/events/natural/weather/precipitation",
+        "UN/events/weather/precipitation",
+    )
     for n in G.nodes():
         G.delete_edge("UN/events/human/human_migration",n)
 
