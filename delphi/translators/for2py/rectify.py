@@ -87,7 +87,17 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-    file_child_tags = ["program", "subroutine", "module"]
+    """
+        Nested child tag list
+    """
+    file_child_tags = [
+        "program", 
+        "subroutine", 
+        "module", 
+        "declaration", 
+        "function", 
+        "prefix"
+    ]
 
     statement_child_tags = [
         "assignment",
