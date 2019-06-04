@@ -133,7 +133,7 @@ class PrintState:
         functionScope="",
         indexRef=True,
         varTypes={},
-        isFloatNumpy=False,
+        isFloat32=False,
         isAssignment=False,
     ):
         self.sep = sep
@@ -145,7 +145,7 @@ class PrintState:
         self.functionScope = functionScope
         self.indexRef = indexRef
         self.varTypes = varTypes
-        self.isFloatNumpy = isFloatNumpy
+        self.isFloat32 = isFloat32
         self.isAssignment = isAssignment
 
     def copy(
@@ -159,7 +159,7 @@ class PrintState:
         functionScope=None,
         indexRef=None,
         varTypes=None,
-        isFloatNumpy=None,
+        isFloat32=None,
         isAssignment=None,
     ):
         return PrintState(
@@ -172,7 +172,7 @@ class PrintState:
             self.functionScope if functionScope is None else functionScope,
             self.indexRef if indexRef is None else indexRef,
             self.varTypes if varTypes is None else varTypes,
-            self.isFloatNumpy if isFloatNumpy is None else isFloatNumpy,
+            self.isFloat32 if isFloat32 is None else isFloat32,
             self.isAssignment if isAssignment is None else isAssignment,
         )
 
@@ -336,7 +336,7 @@ class PythonCodeGenerator(object):
 
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
-            return f"FloatNumpy({handler}({arguments}))"
+            return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
             assert len(arg_list) == 2, f"INFIXOP with {len(arg_list)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
@@ -570,7 +570,7 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(f"{arg_name}")
         else:
             if node["type"].lower() == "real":
-                var_type = "FloatNumpy"
+                var_type = "Float32"
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
 
@@ -713,7 +713,7 @@ class PythonCodeGenerator(object):
 
         # Check if the lhs is a real and convert the variable to a numpy float object if it is
         if self.variableMap.get(lhs["name"]) == "REAL" and rhs["tag"] == "literal":
-            rhs_str = f"FloatNumpy({rhs_str})"
+            rhs_str = f"Float32({rhs_str})"
 
         if "set_" in assg_str:
             assg_str += f"{rhs_str})"
@@ -1263,7 +1263,7 @@ def create_python_source_list(outputDict: Dict):
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
         "from dataclasses import dataclass",
-        "from delphi.translators.for2py.floatNumpy import FloatNumpy\n",
+        "from delphi.translators.for2py.floatNumpy import Float32\n",
     ]
 
     for module in module_index_dict:

@@ -974,7 +974,7 @@ class GrFNGenerator(object):
                             dtypes.add(item["dtype"])
                             value.append(item["value"])
                         dtype = list(dtypes)
-                    elif sources[0].get("call") and sources[0]["call"]["function"] == "FloatNumpy":
+                    elif sources[0].get("call") and sources[0]["call"]["function"] == "Float32":
                         dtype = sources[0]["call"]["inputs"][0][0]["dtype"]
                         value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                     else:
@@ -1529,7 +1529,7 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType in ("float", "FloatNumpy"):
+        if dType in ("float", "Float32"):
             return "real"
         if dType == "int":
             return "integer"
@@ -1638,7 +1638,7 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n", "from delphi.translators.for2py.floatNumpy import FloatNumpy\n\n"]
+    lambdaStrings = ["import math\n", "from delphi.translators.for2py.floatNumpy import Float32\n\n"]
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
