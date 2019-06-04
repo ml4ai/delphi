@@ -1,6 +1,7 @@
 import sys
 import pickle
-
+import random
+import numpy as np
 
 def create_scenario_centered_CAG(input, output):
     """ Get a CAG that examines the upstream effects of changes in human
@@ -25,4 +26,7 @@ def create_scenario_centered_CAG(input, output):
 
 
 if __name__ == "__main__":
+    np.random.seed(87)
+    random.seed(87)
+
     create_scenario_centered_CAG(sys.argv[1], sys.argv[2])

@@ -3,6 +3,8 @@ from tqdm import tqdm
 from typing import List
 import pickle
 from delphi.AnalysisGraph import AnalysisGraph
+import random
+import numpy as np
 
 def filter_and_process_statements(
     sts,
@@ -68,15 +70,30 @@ def create_reference_CAG(inputPickleFile, outputPickleFile):
         all_sts = pickle.load(f)
     #Second and Third Argument control grounding score and belief score cutoff,
     #respectively.
-    filtered_sts = filter_and_process_statements(all_sts,0.75,.85)
+    filtered_sts = filter_and_process_statements(all_sts,0.79,.85)
     G = AnalysisGraph.from_statements(filtered_sts)
     G.merge_nodes(
         "UN/events/natural/weather/precipitation",
         "UN/events/weather/precipitation",
     )
-
+    G.delete_node("UN/entities/natural/natural_resources/biotic_resources/biotic_resources")
+    G.delete_node("UN/entities/natural/biology/ecosystem")
+    G.delete_node("UN/entities/human/livelihood")
+    G.delete_node("UN/entities/human/government/government_entity")
+    G.delete_node("UN/entities/human/fishery")
+    G.delete_node("UN/entities/human/infrastructure")
+    G.delete_node("UN/entities/human/health/nutrient")
+    G.delete_node("UN/events/human/agriculture/planting")
+    G.delete_node("UN/interventions/infrastructure")
+    G.delete_node("UN/events/human/economic_crisis")
+    G.delete_node("UN/entities/human/infrastructure/transportation/road")
+    G.delete_node("UN/events/human/agriculture/farming")
+    G.delete_node("UN/entities/natural/crop")
+    G.delete_node("UN/entities/human/food/food_insecurity")
     with open(outputPickleFile, "wb") as f:
         pickle.dump(G, f)
 
 if __name__ == "__main__":
+    random.seed(87)
+    np.random.seed(87)
     create_reference_CAG(sys.argv[1], sys.argv[2])
