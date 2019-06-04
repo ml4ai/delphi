@@ -301,7 +301,7 @@ class PythonCodeGenerator(object):
     #                                                                         #
     ###########################################################################
 
-    def proc_intrinsic(self, node, printState: PrintState):
+    def proc_intrinsic(self, node):
         """Processes calls to intrinsic functions and returns a string that is
            the corresponding Python code."""
 
@@ -315,7 +315,7 @@ class PythonCodeGenerator(object):
 
         arg_list = self.get_arg_list(node)
         arg_strs = [
-            self.proc_expr(arg_list[i], False, printState) for i in range(len(arg_list))
+            self.proc_expr(arg_list[i], False) for i in range(len(arg_list))
         ]
 
         if py_mod != None:
@@ -352,6 +352,8 @@ class PythonCodeGenerator(object):
         elif arg["tag"] == "call":
             for item in arg["args"]:
                 st = self.check_ref(index, item, arg_strs)
+        else:
+            assert False
 
     def get_arg_list(self, node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
@@ -365,7 +367,7 @@ class PythonCodeGenerator(object):
 
         return []
 
-    def proc_call(self, node, printState: PrintState):
+    def proc_call(self, node):
         """Processes function calls, including calls to intrinsics, and returns
            a string that is the corresponding Python code.  This code assumes
            that proc_expr() has used type info to correctly identify array
@@ -378,11 +380,11 @@ class PythonCodeGenerator(object):
             return f"{var}[0].find({toFind})"
 
         if node["name"].lower() in syntax.F_INTRINSICS:
-            return self.proc_intrinsic(node, printState)
+            return self.proc_intrinsic(node)
 
         callee = self.nameMapper[f"{node['name']}"]
         args = self.get_arg_list(node)
-        arg_strs = [self.proc_expr(args[i], True, printState) for i in range(len(args))]
+        arg_strs = [self.proc_expr(args[i], True) for i in range(len(args))]
 
         # Case where a call is a print method
         if callee == "print":
@@ -411,7 +413,7 @@ class PythonCodeGenerator(object):
             return False
         return True
 
-    def proc_literal(self, node, printState: PrintState):
+    def proc_literal(self, node):
         """Processes a literal value and returns a string that is the
            corresponding Python code."""
 
@@ -420,7 +422,7 @@ class PythonCodeGenerator(object):
         else:
             return node["value"]
 
-    def proc_ref(self, node, wrapper, printState: PrintState):
+    def proc_ref(self, node, wrapper):
         """Processes a reference node and returns a string that is the
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
@@ -443,12 +445,12 @@ class PythonCodeGenerator(object):
             if "is_array" in node and node["is_array"] == "true":
                 subs = node["subscripts"]
                 subs_strs = [
-                    self.proc_expr(subs[i], False, printState) for i in range(len(subs))
+                    self.proc_expr(subs[i], False) for i in range(len(subs))
                 ]
                 subscripts = ", ".join(subs_strs)
                 expr_str = f"{ref_str}.get_(({subscripts}))"
             else:
-                expr_str = self.proc_call(node, printState)
+                expr_str = self.proc_call(node)
         else:
             # scalar variable
             if wrapper:
@@ -469,7 +471,7 @@ class PythonCodeGenerator(object):
 
         return expr_str
 
-    def proc_op(self, node, printState: PrintState):
+    def proc_op(self, node):
         """Processes expressions involving operators and returns a string that
            is the corresponding Python code."""
         try:
@@ -478,12 +480,12 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unhndled operator {node['operator']}")
 
         assert len(node["left"]) == 1
-        l_subexpr = self.proc_expr(node["left"][0], False, printState)
+        l_subexpr = self.proc_expr(node["left"][0], False)
 
         if "right" in node:
             # binary operator
             assert len(node["right"]) == 1
-            r_subexpr = self.proc_expr(node["right"][0], False, printState)
+            r_subexpr = self.proc_expr(node["right"][0], False)
             expr_str = f"({l_subexpr} {op_str} {r_subexpr})"
         else:
             # unary operator
@@ -491,34 +493,34 @@ class PythonCodeGenerator(object):
 
         return expr_str
 
-    def proc_expr(self, node, wrapper, printState: PrintState):
+    def proc_expr(self, node, wrapper):
         """Processes an expression node and returns a string that is the
         corresponding Python code. The argument "wrapper" indicates whether or
         not the Python expression should refer to the list wrapper for (scalar)
         variables."""
 
         if node["tag"] == "literal":
-            return self.proc_literal(node, printState)
+            return self.proc_literal(node)
 
         if node["tag"] == "ref":
             # variable or array reference
-            return self.proc_ref(node, wrapper, printState)
+            return self.proc_ref(node, wrapper)
 
         if node["tag"] == "call":
             # function call
-            return self.proc_call(node, printState)
+            return self.proc_call(node)
 
         expr_str = None
         if node["tag"] == "op":
             # operator
             assert not wrapper
-            expr_str = self.proc_op(node, printState)
+            expr_str = self.proc_op(node)
 
         assert expr_str != None, f">>> [proc_expr] NULL value: {node}"
         return expr_str
 
     def printCall(self, node: Dict[str, str], printState: PrintState):
-        call_str = self.proc_call(node, printState)
+        call_str = self.proc_call(node)
         self.pyStrings.append(call_str)
         return
 
@@ -658,16 +660,16 @@ class PythonCodeGenerator(object):
             )
 
     def printOp(self, node, printState: PrintState):
-        expr_str = self.proc_expr(node, False, printState)
+        expr_str = self.proc_expr(node, False)
         self.pyStrings.append(expr_str)
 
     def printLiteral(self, node, printState: PrintState):
-        expr_str = self.proc_literal(node, printState)
+        expr_str = self.proc_literal(node)
         self.pyStrings.append(expr_str)
 
 
     def printRef(self, node, printState: PrintState):
-        ref_str = self.proc_ref(node, False, printState)
+        ref_str = self.proc_ref(node, False)
         self.pyStrings.append(ref_str)
 
     def printAssignment(self, node, printState: PrintState):
@@ -675,7 +677,7 @@ class PythonCodeGenerator(object):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
 
-        rhs_str = self.proc_expr(node["value"][0], False, printState)
+        rhs_str = self.proc_expr(node["value"][0], False)
 
         if lhs["is_derived_type_ref"] == "true":
             assg_str = self.get_derived_type_ref(
@@ -690,7 +692,7 @@ class PythonCodeGenerator(object):
                 if "is_array" in lhs and lhs["is_array"] == "true":
                     subs = lhs["subscripts"]
                     subs_strs = [
-                        self.proc_expr(subs[i], False, printState)
+                        self.proc_expr(subs[i], False)
                         for i in range(len(subs))
                     ]
                     subscripts = ", ".join(subs_strs)
@@ -872,7 +874,7 @@ class PythonCodeGenerator(object):
                     )
                 )
             else:
-                args_str.append(self.proc_expr(args[i], False, printState))
+                args_str.append(self.proc_expr(args[i], False))
 
         write_string = ", ".join(args_str)
         self.pyStrings.append(f"[{write_string}]")
@@ -1040,7 +1042,7 @@ class PythonCodeGenerator(object):
 
             var_type = self.get_type(node)
 
-            array_range = self.get_array_dimension(node, printState)
+            array_range = self.get_array_dimension(node)
 
             self.pyStrings.append(
                 f"{node['name']} = Array({var_type}, [{array_range}])"
@@ -1082,8 +1084,7 @@ class PythonCodeGenerator(object):
 
                 if "value" in derived_type_variables[var]:
                     value = self.proc_literal(
-                        derived_type_variables[var]["value"][0],
-                        printState
+                        derived_type_variables[var]["value"][0]
                     )
                     self.pyStrings.append(f" = {value}")
             else:
@@ -1149,7 +1150,7 @@ class PythonCodeGenerator(object):
                 assert False, f"Unrecognized variable type: {variable_type}"
 
 
-    def get_range(self, node, printState: PrintState):
+    def get_range(self, node):
         """ This function will construct the range string in 'loBound, Upbound'
         format and return to the called function. """
         loBound = "0"
@@ -1159,24 +1160,23 @@ class PythonCodeGenerator(object):
         up = node["high"]
         # Get lower bound value
         if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0], printState)
+            loBound = self.proc_literal(low[0])
         elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0], printState)
+            loBound = self.proc_op(low[0])
         else:
             assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
 
         # Get upper bound valuef
         if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0], printState)
+            upBound = self.proc_literal(up[0])
         elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0], printState)
+            upBound = self.proc_op(up[0])
         else:
             assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
 
         return f"{loBound}, {upBound}"
 
-
-    def get_array_dimension(self, node, printState: PrintState):
+    def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information
         from the AST.  This function is needed for handling a multi-dimensional
         array(s). """
@@ -1187,12 +1187,12 @@ class PythonCodeGenerator(object):
             if (
                 "literal" in dimension
             ):  # A case where no explicit low bound set
-                upBound = self.proc_literal(dimension["literal"][0], printState)
+                upBound = self.proc_literal(dimension["literal"][0])
                 array_range += f"(0, {upBound})"
             elif (
                 "range" in dimension
             ):  # A case where explicit low and up bounds are set
-                array_range += f"({self.get_range(dimension['range'][0], printState)})"
+                array_range += f"({self.get_range(dimension['range'][0])})"
             else:
                 assert (
                     False
