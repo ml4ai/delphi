@@ -1,7 +1,5 @@
 from numpy import float32
 
-################################################################################
-
 
 class Float32:
     def __init__(self, val):
@@ -42,8 +40,6 @@ class Float32:
             return other._val
         else:
             return other
-
-################################################################################
 
 
 def eps_native():
