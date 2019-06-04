@@ -1638,7 +1638,9 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n", "from delphi.translators.for2py.floatNumpy import Float32\n\n"]
+    lambdaStrings = ["import math\n"]
+    lambdaStrings.append("from delphi.translators.for2py.floatNumpy import Float32\n\n")
+
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
