@@ -133,8 +133,6 @@ class PrintState:
         functionScope="",
         indexRef=True,
         varTypes={},
-        isFloat32=False,
-        isAssignment=False,
     ):
         self.sep = sep
         self.add = add
@@ -145,8 +143,6 @@ class PrintState:
         self.functionScope = functionScope
         self.indexRef = indexRef
         self.varTypes = varTypes
-        self.isFloat32 = isFloat32
-        self.isAssignment = isAssignment
 
     def copy(
         self,
@@ -159,8 +155,6 @@ class PrintState:
         functionScope=None,
         indexRef=None,
         varTypes=None,
-        isFloat32=None,
-        isAssignment=None,
     ):
         return PrintState(
             self.sep if sep is None else sep,
@@ -172,8 +166,6 @@ class PrintState:
             self.functionScope if functionScope is None else functionScope,
             self.indexRef if indexRef is None else indexRef,
             self.varTypes if varTypes is None else varTypes,
-            self.isFloat32 if isFloat32 is None else isFloat32,
-            self.isAssignment if isAssignment is None else isAssignment,
         )
 
 
@@ -683,7 +675,6 @@ class PythonCodeGenerator(object):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
 
-        printState.isAssignment = True
         rhs_str = self.proc_expr(node["value"][0], False, printState)
 
         if lhs["is_derived_type_ref"] == "true":
@@ -721,7 +712,6 @@ class PythonCodeGenerator(object):
             assg_str += f" = {rhs_str}"
 
         self.pyStrings.append(assg_str)
-        printState.isAssignment = False
         return
 
     def printUse(self, node, printState: PrintState):
