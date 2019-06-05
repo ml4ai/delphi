@@ -9,7 +9,8 @@ Example:
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:
 
-        python pyTranslate.py -f <pickle_file> -g <python_file> -o <outputFileList>
+        python pyTranslate.py -f <pickle_file> -g <python_file> -o
+        <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
              file along with other non-source code information.
@@ -72,7 +73,8 @@ OPERATOR_MAP = {
 # Python target, specified as a tuple (py_fn, fn_type, py_mod), where:
 #            -- py_fn is a Python function or operator;
 #            -- fn_type is one of: 'FUNC', 'INFIXOP'; and
-#            -- py_mod is the module the Python function should be imported from,
+#            -- py_mod is the module the Python function should be imported
+#               from,
 #               None if no explicit import is necessary.
 
 INTRINSICS_MAP = {
@@ -330,12 +332,14 @@ class PythonCodeGenerator(object):
             arguments = ", ".join(arg_strs)
             return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
-            assert len(arg_list) == 2, f"INFIXOP with {len(arg_list)} arguments"
+            assert len(arg_list) == 2, \
+                f"INFIXOP with {len(arg_list)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
 
     def check_ref(self, index, arg, arg_strs):
+        st = False
         if arg["tag"] == "ref":
             if self.variableMap[arg["name"]].lower() == "real":
                 arg_strs[index] = arg_strs[index] + "._val"
@@ -343,21 +347,24 @@ class PythonCodeGenerator(object):
             else:
                 return False
         elif arg["tag"] == "op":
-            for item in arg["left"]:
-                st = self.check_ref(index, item, arg_strs)
+            for item_name in arg["left"]:
+                st = self.check_ref(index, item_name, arg_strs)
             if not st:
-                for item in arg["right"]:
-                    st = self.check_ref(index, item, arg_strs)
+                for item_name in arg["right"]:
+                    st = self.check_ref(index, item_name, arg_strs)
             return st
         elif arg["tag"] == "call":
-            for item in arg["args"]:
-                st = self.check_ref(index, item, arg_strs)
+            for item_name in arg["args"]:
+                st = self.check_ref(index, item_name, arg_strs)
+            return st
         else:
-            assert False
+            return False
 
     def get_arg_list(self, node):
-        """Get_arg_list() returns the list of arguments or subscripts at a node.
-           If there are no arguments or subscripts, it returns the empty list."""
+        """
+        Get_arg_list() returns the list of arguments or subscripts at a node.
+        If there are no arguments or subscripts, it returns the empty list.
+        """
 
         if "args" in node:
             return node["args"]
@@ -687,7 +694,9 @@ class PythonCodeGenerator(object):
             if lhs["hasSubscripts"] == "true":
                 assert (
                     "subscripts" in lhs
-                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+                ), \
+                    "lhs 'hasSubscripts' and actual 'subscripts' existence " \
+                    "does not match. Fix 'hasSubscripts' in rectify.py."
                 # target is an array element
                 if "is_array" in lhs and lhs["is_array"] == "true":
                     subs = lhs["subscripts"]
@@ -704,8 +713,10 @@ class PythonCodeGenerator(object):
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
 
-        # Check if the lhs is a real and convert the variable to a numpy float object if it is
-        if self.variableMap.get(lhs["name"]) == "REAL" and rhs["tag"] == "literal":
+        # Check if the lhs is a real and convert the variable to a numpy float
+        # object if it is
+        if (self.variableMap.get(lhs["name"]) == "REAL"
+                and rhs["tag"] == "literal"):
             rhs_str = f"Float32({rhs_str})"
 
         if "set_" in assg_str:
@@ -724,7 +735,8 @@ class PythonCodeGenerator(object):
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
+                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
+                f"import *\n"
             )
 
     def printFuncReturn(self, node, printState: PrintState):
@@ -858,7 +870,7 @@ class PythonCodeGenerator(object):
         elif write_target == "outStream":
             self.pyStrings.append(f"write_list_stream = ")
 
-        # Collect the expressions to be written out.  The first two arguments to
+        # Collect the expressions to be written out. The first two arguments to
         # a WRITE statement are the output stream and the format, so these are
         # skipped.
         args = node["args"][2:]
@@ -1065,9 +1077,10 @@ class PythonCodeGenerator(object):
             # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
             is_derived_type_declaration = False
-            # If the type is not one of the default types, but it's a declared derived type,
-            # set the is_derived_type_declaration to True as the declaration of variable
-            # with such type has different declaration syntax from the default type variables.
+            # If the type is not one of the default types, but it's a declared
+            # derived type, set the is_derived_type_declaration to True as the
+            # declaration of variable with such type has different declaration
+            # syntax from the default type variables.
             if (
                 var_type not in TYPE_MAP
                 and var_type in self.declaredDerivedTypes
@@ -1137,8 +1150,10 @@ class PythonCodeGenerator(object):
 
 
     def get_type(self, node):
-        """ This function checks the type of a variable and returns the appropriate
-        Python syntax type name. """
+        """
+        This function checks the type of a variable and returns the appropriate
+        Python syntax type name.
+        """
 
         variable_type = node["type"].lower()
         if variable_type in TYPE_MAP:
@@ -1151,30 +1166,32 @@ class PythonCodeGenerator(object):
 
 
     def get_range(self, node):
-        """ This function will construct the range string in 'loBound, Upbound'
-        format and return to the called function. """
-        loBound = "0"
-        upBound = "0"
+        """
+        This function will construct the range string in 'lo_bound, up_bound'
+        format and return to the called function.
+        """
+        lo_bound = "0"
+        up_bound = "0"
 
         low = node["low"]
         up = node["high"]
         # Get lower bound value
         if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0])
+            lo_bound = self.proc_literal(low[0])
         elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0])
+            lo_bound = self.proc_op(low[0])
         else:
             assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
 
-        # Get upper bound valuef
+        # Get upper bound value
         if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0])
+            up_bound = self.proc_literal(up[0])
         elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0])
+            up_bound = self.proc_op(up[0])
         else:
             assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
 
-        return f"{loBound}, {upBound}"
+        return f"{lo_bound}, {up_bound}"
 
     def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information
@@ -1187,8 +1204,8 @@ class PythonCodeGenerator(object):
             if (
                 "literal" in dimension
             ):  # A case where no explicit low bound set
-                upBound = self.proc_literal(dimension["literal"][0])
-                array_range += f"(0, {upBound})"
+                up_bound = self.proc_literal(dimension["literal"][0])
+                array_range += f"(0, {up_bound})"
             elif (
                 "range" in dimension
             ):  # A case where explicit low and up bounds are set
@@ -1196,7 +1213,8 @@ class PythonCodeGenerator(object):
             else:
                 assert (
                     False
-                ), f"Array range case not handled. Reference node content: {node}"
+                ), f"Array range case not handled. Reference node content: " \
+                    f"{node}"
 
             if count < int(node["count"]):
                 array_range += ", "
@@ -1225,7 +1243,9 @@ class PythonCodeGenerator(object):
             ref += node["name"]
         numPartRef -= 1
         if "ref" in node:
-            ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
+            derived_type_ref = self.get_derived_type_ref(node['ref'][0],
+                                    numPartRef, is_assignment)
+            ref += f".{derived_type_ref}"
         return ref
 
 
@@ -1332,7 +1352,8 @@ if __name__ == "__main__":
         "-o",
         "--out",
         nargs="+",
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files "
+             "being generated",
     )
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
