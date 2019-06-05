@@ -620,10 +620,11 @@ class RectifyOFPXML:
                         return
                 # A case where label appears "after" goto
                 else:
-                    self.statements_to_reconstruct_after["count-gotos"] += 1
-                    self.goto_target_lbl_after.append(target_lbl)
-                    self.collect_stmts_after_goto = True
-                    self.label_after = True
+                    if traverse == 1:
+                        self.statements_to_reconstruct_after["count-gotos"] += 1
+                        self.goto_target_lbl_after.append(target_lbl)
+                        self.collect_stmts_after_goto = True
+                        self.label_after = True
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
 
@@ -2020,7 +2021,15 @@ class RectifyOFPXML:
         # REMOVE
         print ("in reconstruct_goto_after_label")
 
+        number_of_gotos = self.statements_to_reconstruct_after["count-gotos"]
         stmts_follow_goto = self.statements_to_reconstruct_after["stmts-follow-goto"]
+
+        self.generate_declaration_element(parent, "goto", number_of_gotos)
+
+        # REMOVE
+        print ("count-gotos: ", number_of_gotos)
+        # REMOVE
+        print ("GOTO")
         # REMOVE
         for stmt in stmts_follow_goto:
             print ("stmt in _follow_goto: ", stmt.tag, stmt.attrib)
@@ -2048,7 +2057,7 @@ class RectifyOFPXML:
         stmts_follow_label = self.statements_to_reconstruct_before["stmts-follow-label"]
         number_of_gotos = self.statements_to_reconstruct_before["count-gotos"]
 
-        self.generate_label_flag(parent, number_of_gotos)
+        self.generate_declaration_element(parent, "label_flag", number_of_gotos)
 
         # Generate loop ast
         curElem_parent = parent
@@ -2083,10 +2092,10 @@ class RectifyOFPXML:
         self.reconstruct_before_case_now = False
         self.statements_to_reconstruct_before.clear()
 
-    def generate_label_flag(self, parent, number_of_gotos):
+    def generate_declaration_element(self, parent, default_name, number_of_gotos):
         """
             A flag declaration and assginment xml generation.
-            This will generate N number of label_flag_i,
+            This will generate N number of label_flag_i or goto_i,
             where N is the number of gotos in the Fortran code
             and i is the number assgined to the flag
         """
@@ -2113,14 +2122,14 @@ class RectifyOFPXML:
                             "is_array":"false",
         }
         for flag in range(number_of_gotos):
-            variable_attribs["id"] = f"label_flag_{flag+1}"
-            variable_attribs["name"] = f"label_flag_{flag+1}"
+            variable_attribs["id"] = f"{default_name}_{flag+1}"
+            variable_attribs["name"] = f"{default_name}_{flag+1}"
             variable_elem = ET.SubElement(variables_elem, "variable", variable_attribs)
 
         # Assignment
         for flag in range(number_of_gotos):
             statement_elem = ET.SubElement(parent, "statement")
-            self.generate_assignment_element(statement_elem, f"label_flag_{flag+1}", None, "literal")
+            self.generate_assignment_element(statement_elem, f"{default_name}_{flag+1}", None, "literal")
 
     def generate_assignment_element(self, parent, id_name, condition, value_type):
         """
