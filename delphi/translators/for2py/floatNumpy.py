@@ -84,6 +84,12 @@ class Float32:
         """
         return Float32(self._val*self.value(other))
 
+    def __rmul__(self, other):
+        """
+        Reverse sMultiplication
+        """
+        return Float32(self._val*self.value(other))
+
     def __sub__(self, other):
         """
         Subtraction
