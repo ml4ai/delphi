@@ -4,9 +4,10 @@ import math
 from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from dataclasses import dataclass
+from delphi.translators.for2py.floatNumpy import Float32
 
 
-def petpt(msalb: List[float], srad: List[float], tmax: List[float], tmin: List[float], xhlai: List[float], eo: List[float]):
+def petpt(msalb: List[Float32], srad: List[Float32], tmax: List[Float32], tmin: List[Float32], xhlai: List[Float32], eo: List[Float32]):
     albedo: List[float] = [None]
     eeq: List[float] = [None]
     slang: List[float] = [None]
@@ -15,7 +16,7 @@ def petpt(msalb: List[float], srad: List[float], tmax: List[float], tmin: List[f
     if (xhlai[0] <= 0.0):
         albedo[0] = msalb[0]
     else:
-        albedo[0] = (0.23 - ((0.23 - msalb[0]) * math.exp(-((0.75 * xhlai[0])))))
+        albedo[0] = (0.23 - ((0.23 - msalb[0]) * Float32(math.exp(-((0.75 * xhlai[0]))._val))))
     slang[0] = (srad[0] * 23.923)
     eeq[0] = ((slang[0] * (2.04E-4 - (1.83E-4 * albedo[0]))) * (td[0] + 29.0))
     eo[0] = (eeq[0] * 1.1)
@@ -23,6 +24,7 @@ def petpt(msalb: List[float], srad: List[float], tmax: List[float], tmin: List[f
         eo[0] = (eeq[0] * (((tmax[0] - 35.0) * 0.05) + 1.1))
     else:
         if (tmax[0] < 5.0):
-            eo[0] = ((eeq[0] * 0.01) * math.exp((0.18 * (tmax[0] + 20.0))))
-    eo[0] = max(eo[0], 0.0001)
-    
+            eo[0] = ((eeq[0] * 0.01) * Float32(math.exp((0.18 * (tmax[0] + 20.0))._val)))
+    i_g_n_o_r_e___m_e__58[0] = True
+    eo[0] = Float32(max(eo[0]._val, 0.0001))
+    i_g_n_o_r_e___m_e__61[0] = True
