@@ -29,8 +29,8 @@ import xml.etree.ElementTree as ET
 NEGATED_OP = {
                 ".le." : ".ge.",
                 ".ge." : ".le.",
-                ".lt." : ".gt.",
-                ".gt." : ".lt.",
+                ".lt." : ".ge.",
+                ".gt." : ".le.",
                 ".eq." : ".ne.",
                 ".ne." : ".eq.",
                 "<=" : ">=",
@@ -55,11 +55,21 @@ class RectifyOFPXML:
         self.label_after = False
         self.is_stop = False
 
-        self.goto_target_lbl_after = None
+        self.goto_target_lbl_after = []
         self.label_lbl_for_before = []
         self.label_lbl_for_after = []
-        self.statements_to_reconstruct_before = []
-        self.statements_to_reconstruct_after = []
+
+        # Dictionaries to hold statements
+        # before and after the gotos and labels
+        self.statements_to_reconstruct_before = {
+                                                    "stmts-follow-label": [], 
+                                                    "count-gotos" : 0,
+                                                }
+        self.statements_to_reconstruct_after = {
+                                                    "stmts-follow-goto": [],
+                                                    "stmts-follow-label": [],
+                                                    "count-gotos" : 0,
+                                               }
 
         self.cur_derived_type_name = None
         self.current_scope = None
@@ -227,6 +237,9 @@ class RectifyOFPXML:
             if child.tag == "header" or child.tag == "body":
                 if child.tag == "body":
                     self.current_body_scope = curElem
+                    # Mark the body to indicate that this body is
+                    # the main body of the program
+                    curElem.attrib["type"] = "program-body"
                 self.parseXMLTree(child, curElem, current, traverse)
             else:
                 if (
@@ -274,20 +287,22 @@ class RectifyOFPXML:
                 curElem = ET.SubElement(current, child.tag, child.attrib)
                 if child.tag in self.body_child_tags:
                     self.parseXMLTree(child, curElem, current, traverse)
-                    # Goto elimination (1st traverse)
-                    if self.reconstruct_after_case_now:
-                        self.reconstruct_goto_after_label(current, traverse)
-                    elif self.reconstruct_before_case_now:
-                        self.reconstruct_goto_before_label(current, traverse)
-                    # Remove statements that is marked to be removed (2nd traverse)
+                    # Reconstruction of statements
                     if (
-                        "goto-remove" in child.attrib and "keep-it-alive" not in child.attrib
-                        or "goto-move" in child.attrib
+                        traverse == 2 
+                        and "type" in current.attrib 
+                        and current.attrib["type"] == "program-body"
                     ):
-                        assert (
-                            traverse == 2
-                        ), "Removal of old statements must be done in the 2nd traverse"
-                        current.remove(curElem)
+                        if self.reconstruct_after_case_now:
+                            self.reconstruct_goto_after_label(current, traverse)
+                        elif self.reconstruct_before_case_now and traverse == 2:
+                            self.reconstruct_goto_before_label(current, traverse)
+                        # Remove statements that is marked to be removed (2nd traverse)
+                        if (
+                            "goto-remove" in child.attrib and "keep-it-alive" not in child.attrib
+                            or "goto-move" in child.attrib
+                        ):
+                            current.remove(curElem)
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
             else:
@@ -515,7 +530,9 @@ class RectifyOFPXML:
                 ...
             </statement>
         """
-        assert root.tag == "statement", f"The tag <statement> must be passed to handle_tag_statement. Currently, it's {root.tag}."
+        assert (
+                root.tag == "statement"
+        ), f"The tag <statement> must be passed to handle_tag_statement. Currently, it's {root.tag}."
         
         label_presented = False
         for child in root:
@@ -523,18 +540,23 @@ class RectifyOFPXML:
             if child.tag in self.statement_child_tags:
                 if child.tag == "stop":
                     self.is_stop = True
-                    current.attrib["has_stop"] = "true"
+                    current.attrib["has-stop"] = "true"
                 curElem = ET.SubElement(current, child.tag, child.attrib)
 
                 if child.tag == "label":
                     label_presented = True
                     lbl = child.attrib['lbl']
-                    if lbl !=  self.goto_target_lbl_after:
+
+                    if (
+                        not self.goto_target_lbl_after
+                        or lbl not in self.goto_target_lbl_after
+                    ):
                         self.label_lbl_for_before.append(lbl)
                         current_label_is_for = "before"
                     else:
                         self.label_lbl_for_after.append(lbl)
                         current_label_is_for = "after"
+
                     if traverse == 2 and "goto-remove" in current.attrib:
                         self.reconstruct_after_case_now = True
                     if traverse == 1:
@@ -574,40 +596,40 @@ class RectifyOFPXML:
                 self.need_goto_elimination = True
                 self.goto_in_scope = True
                 target_lbl = child.attrib['target_label']
+                curElem = ET.SubElement(current, child.tag, child.attrib)
                 # A case where label appears "before" goto
                 if target_lbl in self.label_lbl_for_before:
-                    self.reconstruct_before_case_now = True
-                    parent.remove(current)
-                    return
+                    if traverse == 1:
+                        current.attrib['goto-move'] = "true"
+                        self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
+                        self.statements_to_reconstruct_before["count-gotos"] += 1
+                        self.label_before = False
+                    else:
+                        assert traverse == 2, "Reconstruction needs to happen in the 2nd traverse"
+                        self.reconstruct_before_case_now = True
+                        return
                 # A case where label appears "after" goto
                 else:
-                    # Since we want to use current statement in case of
-                    # label after goto, we create the sub-element normally,
-                    # then mark it to keep it alive
-                    if (
-                        traverse == 1 and not self.label_after
-                        or "keep-it-alive" in current.attrib
-                    ):
-                        curElem = ET.SubElement(current, child.tag, child.attrib)
-                        current.attrib['keep-it-alive'] = "true"
-                        self.goto_body = current
-                        # REMOVE
-                        print ("Living goto: statement", current.tag, current.attrib)
-                        print ("Living goto: goto", curElem.tag, curElem.attrib)
-                    self.goto_target_lbl_after = target_lbl
+                    current.attrib['keep-it-alive'] = "true"
+                    self.goto_body = current
+                    self.goto_target_lbl_after.append(target_lbl)
                     self.label_after = True
-                # REMOVE
-                print ("statement: ", current.tag, current.attrib)
-                print ("goto: ", child.tag, child.attrib)
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
 
         # If label appears before <goto>, mark <statement> with goto-move to move it later (1st traverse)
         if traverse == 1:
             if self.label_before:
-                current.attrib['goto-move'] = "true"
-                if "has_stop" not in current.attrib:
-                    self.statements_to_reconstruct_before.append(current)
+                # Since we do not want to extract the stop statement from
+                # that is not a main body, check it before extraction
+                if "has-stop" not in current.attrib:
+                    current.attrib['goto-move'] = "true"
+                    self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
+                elif (
+                    "has-stop" in current.attrib 
+                    and "program-body" in parent.attrib
+                ):
+                    self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
             elif (
                     self.label_after
                     and not self.label_before
@@ -986,8 +1008,6 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             # A process of negating the operator during goto elimination
             if child.tag == "operator" and self.need_op_negation:
-                # REMOVE
-                print ("tag_operation: ", child.attrib["operator"])
                 child.attrib["operator"] = NEGATED_OP[child.attrib["operator"]]
                 self.need_op_negation = False
             curElem = ET.SubElement(current, child.tag, child.attrib)
@@ -1369,9 +1389,6 @@ class RectifyOFPXML:
                 if child.tag == "header" or child.tag == "body":
                     curElem = ET.SubElement(current, child.tag, child.attrib)
                     self.parseXMLTree(child, curElem, current, traverse)
-                    if child.tag == "body" and self.is_stop:
-                        current.attrib["extract-header"] = "true"
-                        self.is_stop = False
                 else:
                     print (f'In handle_tag_if: "{child.tag}" not handled')
             else:
@@ -1382,9 +1399,9 @@ class RectifyOFPXML:
                         f'In handle_tag_if: Empty elements "{child.tag}" not handled'
                     )
         # If label appears before <goto>, mark <if> with goto-move to move it later (1st traverse)
-        if self.label_before:
+        if traverse == 1 and self.label_before:
             current.attrib['goto-move'] = "true"
-            self.statements_to_reconstruct_before.append(current)
+            self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
 
     def handle_tag_stop(self, root, current, parent, traverse):
         """
@@ -2010,44 +2027,104 @@ class RectifyOFPXML:
     def reconstruct_goto_before_label(self, parent, traverse):
         # REMOVE
         print ("in reconstruct_goto_before_label")
-        loop = ET.SubElement(parent, "loop", {"type":"do-while"})
-        body = []
-        for stmt in self.statements_to_reconstruct_before:
-            print (stmt.tag, stmt.attrib)
-            if stmt.tag == "if" and "extract-header" in stmt.attrib:
-                for child in stmt:
-                    if child.tag == "header":
-                        loop_header = ET.SubElement(loop, child.tag, child.attrib)
-                        self.need_op_negation = True
-                        self.parseXMLTree(child, loop_header, loop, traverse)
-            else:
-                body.append(stmt)
 
-        loop_body = ET.SubElement(loop, "body")
+        stmts_follow_label = self.statements_to_reconstruct_before["stmts-follow-label"]
+        number_of_gotos = self.statements_to_reconstruct_before["count-gotos"]
 
-        for stmt in body:
-            if len(stmt) > 0:
-                body_element = ET.SubElement(loop_body, stmt.tag, stmt.attrib)
+        self.generate_label_flag(parent, number_of_gotos)
 
-                for child in stmt:
-                    curElem = ET.SubElement(body_element, child.tag, child.attrib)
-                    if len(child) > 0:
-                        self.parseXMLTree(child, curElem, body_element, traverse)
-                    
-                if "goto-move" in body_element.attrib:
-                    del body_element.attrib["goto-move"]
-                if "target-label-statement" in body_element.attrib:
-                    del body_element.attrib["target-label-statement"]
+        # Generate loop ast
+        for i in range(number_of_gotos):
+            loop_elem = ET.SubElement(parent, "loop", {"type":"do-while"})
 
-        if self.label_after:
-            self.goto_eliminated_elements_for_before = loop
-            parent.remove(loop)
-        
+            header_elem = ET.SubElement(loop_elem, "header")
+            # The outermost flag == N and the innermost flag == 1
+            name = f"label_flag_{str(number_of_gotos-i)}"
+            name_attrib = {
+                            "hasSubscripts":"false",
+                            "id":name,
+                            "type":"ambiguous",
+            }
+            name_elem = ET.SubElement(header_elem, "name", name_attrib)
+
+            body_elem = ET.SubElement(loop_elem, "body")
+            for stmt in stmts_follow_label:
+                if len(stmt) > 0:
+                    elems = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
+                    for child in stmt:
+                        if child.tag == "goto-stmt":
+                            # Unconditional
+                            self.generate_assignment_element(elems, name, None, "literal")
+                        else:
+                            child_elem = ET.SubElement(elems, child.tag, child.attrib)
+                            if len(child) > 0:
+                                self.parseXMLTree(child, child_elem, elems, traverse)
+
         # Set all holders and checkers (markers) to default
-        self.label_before = False
         self.reconstruct_before_case_now = False
         self.statements_to_reconstruct_before.clear()
-        self.label_lbl_for_before.clear()
+
+    def generate_label_flag(self, parent, number_of_gotos):
+        """
+            A flag declaration and assginment xml generation.
+            This will generate N number of label_flag_i,
+            where N is the number of gotos in the Fortran code
+            and i is the number assgined to the flag
+        """
+
+        # Declaration
+        specification_attribs = {"declaration":"1", "implicit":"1", "imports":"0", "uses":"0"}
+        specification_elem = ET.SubElement(parent, "specification", specification_attribs)
+        declaration_elem = ET.SubElement(specification_elem, "declaration", {"type":"variable"})
+        type_attribs = {
+                        "hasKind":"false", 
+                        "hasLength":"false",
+                        "is_derived_type":"False",
+                        "keyword2":"none",
+                        "name":"logical",
+        }
+        type_elem = ET.SubElement(declaration_elem, "type", type_attribs)
+        variables_elem = ET.SubElement(declaration_elem, "variables", {"count":str(number_of_gotos)})
+        variable_attribs = {
+                            "hasArraySpec":"false",
+                            "hasCharLength":"false",
+                            "hasCoarraySpec":"false",
+                            "hasInitialValue":"false",
+                            "hasInitialization":"false",
+                            "is_array":"false",
+        }
+        for flag in range(number_of_gotos):
+            variable_attribs["id"] = f"label_flag_{flag+1}"
+            variable_attribs["name"] = f"label_flag_{flag+1}"
+            variable_elem = ET.SubElement(variables_elem, "variable", variable_attribs)
+
+        # Assignment
+        for flag in range(number_of_gotos):
+            statement_elem = ET.SubElement(parent, "statement")
+            self.generate_assignment_element(statement_elem, f"label_flag_{flag+1}", None, "literal")
+
+    def generate_assignment_element(self, parent, id_name, condition, value_type):
+        """
+            This is a function for generating new assignment element xml
+            for goto reconstruction.
+        """
+        assignment_elem = ET.SubElement(parent, "assignment")
+        target_elem = ET.SubElement(assignment_elem, "target")
+        name_attribs = {
+                        "hasSubscripts":"false",
+                        "id":id_name,
+                        "is_array":"false",
+                        "numPartRef":"1",
+                        "type":"variable",
+        }
+        name_elem = ET.SubElement(target_elem, "name", name_attribs)
+        value_elem = ET.SubElement(assignment_elem, "value")
+        # Unconditional goto has default values of literal as below
+        if value_type == "literal":
+            literal_elem = ET.SubElement(value_elem, "literal", {"type":"bool", "value":"true"})
+        # Conditional goto has dynamic values of operation
+        else:
+            pass
 
     #################################################################
     #                                                               #
