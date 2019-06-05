@@ -25,6 +25,5 @@ def petpt(msalb: List[Float32], srad: List[Float32], tmax: List[Float32], tmin: 
     else:
         if (tmax[0] < 5.0):
             eo[0] = ((eeq[0] * 0.01) * Float32(math.exp((0.18 * (tmax[0] + 20.0))._val)))
-    i_g_n_o_r_e___m_e__58[0] = True
     eo[0] = Float32(max(eo[0]._val, 0.0001))
-    i_g_n_o_r_e___m_e__61[0] = True
+    

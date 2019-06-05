@@ -11,25 +11,21 @@ def main():
     format_10: List[str] = [None]
     format_10 = ['5(I5,X)']
     format_10_obj = Format(format_10)
-
+    
     a = Array(int, [(-(3), 1), (0, 5), (10, 14)])
     i: List[int] = [None]
     j: List[int] = [None]
     k: List[int] = [None]
-    for i[0] in range(-(3), 1 + 1):
-        for j[0] in range(1, 5 + 1):
-            for k[0] in range(10, 14 + 1):
-                i_g_n_o_r_e___m_e__15[0] = True
+    for i[0] in range(-(3), 1+1):
+        for j[0] in range(1, 5+1):
+            for k[0] in range(10, 14+1):
                 a.set_((i[0], j[0], k[0]), ((i[0] + j[0]) + k[0]))
-    i_g_n_o_r_e___m_e__20[0] = True
-    for i[0] in range(-(3), 1 + 1):
-        for j[0] in range(1, 5 + 1):
-            write_list_stream = [a.get_((i[0], j[0], 10)), a.get_((i[0], j[0], 11)), a.get_((i[0], j[0], 12)),
-                                 a.get_((i[0], j[0], 13)), a.get_((i[0], j[0], 14))]
+    for i[0] in range(-(3), 1+1):
+        for j[0] in range(1, 5+1):
+            write_list_stream = [a.get_((i[0], j[0], 10)), a.get_((i[0], j[0], 11)), a.get_((i[0], j[0], 12)), a.get_((i[0], j[0], 13)), a.get_((i[0], j[0], 14))]
             write_line = format_10_obj.write_line(write_list_stream)
             sys.stdout.write(write_line)
-
+    
     return
-
 
 main()
