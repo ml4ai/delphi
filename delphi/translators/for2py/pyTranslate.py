@@ -173,23 +173,40 @@ class PrintState:
 
 class PythonCodeGenerator(object):
     def __init__(self):
+        # Variable to hold the program name
         self.programName = ""
+        # Dictionary to hold the tag mapping to the
+        # print function that needs to be invoked
         self.printFn = {}
+        # Dictionary to hold the declared variable
+        # and its declared type
         self.variableMap = {}
+        # List to hold the imports in the program
         self.imports = []
-        # This list contains the private functions
+        # List to hold the private functions
         self.privFunctions = []
-        # This dictionary contains the mapping of symbol names to pythonic
-        # names
+        # Dictionary to hold declared symbols (variable,
+        # function, and format, etc) as key and map to
+        # the symbol name that will be used in the python IR output
         self.nameMapper = {}
+        # List to hold the declared function names
+        self.functions = []
         # Dictionary to hold functions and its arguments
         self.funcArgs = {}
+        # Pre-defined string format of system getframe
         self.getframe_expr = "sys._getframe({}).f_code.co_name"
+        # List to hold the translated python string that
+        # will be printed to the python IR output
         self.pyStrings = []
+        # Dictionary holding mapping of read/write 
+        # based on the file open state
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
+        # Dictionary to hold the mapping of {label:format-code}
         self.format_dict = {}
-        self.declaredDerivedTVars = []
+        # Lists to hold derived type class
         self.declaredDerivedTypes = []
+        # Lists to hold derived type variables
+        self.declaredDerivedTVars = []
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -254,6 +271,7 @@ class PythonCodeGenerator(object):
         )
 
     def printFunction(self, node, printState: PrintState):
+        self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
         self.funcArgs[self.nameMapper[node["name"]]] = [
@@ -748,7 +766,26 @@ class PythonCodeGenerator(object):
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]] + "[0]"
             else:
-                val = node["value"]
+                if "value" in node:
+                    val = node["value"]
+                else:
+                    assert (
+                        "left" in node and
+                        "operator" in node and
+                        "right" in node
+                    ), f"Something is missing. Detail of node content: {node}"
+
+                    if node["left"][0]["tag"] == "ref":
+                        left = node["left"][0]["name"]
+                    else:
+                        left = node["left"][0]["value"]
+                    operator = node["operator"]
+                    if node["right"][0]["tag"] == "ref":
+                        right = node["right"][0]["name"]
+                    else:
+                        right = node["right"][0]["value"]
+
+                    val = f"{left} {operator} {right}"
         else:
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]]
@@ -1003,7 +1040,10 @@ class PythonCodeGenerator(object):
 
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
-        if var_name not in printState.definedVars + printState.globalVars:
+        if (
+            var_name not in printState.definedVars + printState.globalVars
+            and var_name not in self.functions
+        ):
             printState.definedVars += [var_name]
             if node.get("value"):
                 initVal = node["value"][0]["value"]
@@ -1256,7 +1296,7 @@ def index_modules(root) -> Dict:
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
         for index, node in enumerate(root)
-        if node.get("tag") in ("module", "program", "subroutine")
+        if node.get("tag") in ("module", "program", "subroutine", "function")
     }
 
     return module_index_dict
