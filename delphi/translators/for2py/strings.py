@@ -12,7 +12,10 @@ class String:
             self._length = length
         else:
             self._length = len(value)
-        self._val = value
+
+        # Before value is assigned to self._val, it may need to be adjusted
+        # if len(value) != length
+        self.set_value(value)
 
     def value(self, obj):
         if isinstance(obj, String):
