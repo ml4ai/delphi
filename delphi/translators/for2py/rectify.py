@@ -2340,8 +2340,6 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-    return elem
-
 
 def buildNewAST(filename: str):
     """
@@ -2364,7 +2362,8 @@ def buildNewAST(filename: str):
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, cur_elem, newRoot, traverse)
 
-    tree = ET.ElementTree(indent(newRoot))
+    tree = ET.ElementTree(newRoot)
+    indent(newRoot)
     
     # Checks if the rectified AST requires goto elimination,
     # if it does, it does a 2nd traverse to eliminate and
@@ -2380,7 +2379,8 @@ def buildNewAST(filename: str):
             if child.text:	
                 cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
                 XMLCreator.parseXMLTree(child, cur_elem, newRoot, traverse)	
-        tree = ET.ElementTree(indent(newRoot))	
+        tree = ET.ElementTree(newRoot)	
+        indent(newRoot)
         XMLCreator.need_goto_elimination = False
 
     rectFilename = filename.split("/")[-1]
