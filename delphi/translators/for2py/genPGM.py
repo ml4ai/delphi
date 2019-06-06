@@ -49,6 +49,8 @@ class GrFNGenerator(object):
         self.exclude_list = []
         self.mode_mapper = {}
         self.alias_dict = {}
+        self.name_mapper = {}
+        self.current_function = None
 
     def genPgm(self, node, state, fnNames, call_source):
         types = (list, ast.Module, ast.FunctionDef)
@@ -80,6 +82,7 @@ class GrFNGenerator(object):
 
             # List out all the function definitions in the ast
             self.function_defs.append(node.name)
+            self.current_function = node.name
 
             localDefs = state.lastDefs.copy()
             localNext = state.nextDefs.copy()
@@ -391,7 +394,7 @@ class GrFNGenerator(object):
             state.nextDefs["#cond"] = condNum + 1
 
             condName = f"IF_{condNum}"
-            state.varTypes[condName] = "boolean"
+            state.varTypes[condName] = "bool"
             state.lastDefs[condName] = 0
             fnName = getFnName(
                 fnNames, f"{state.fnName}__condition__{condName}", {}
@@ -439,6 +442,7 @@ class GrFNGenerator(object):
                 fnName,
                 None,
                 [src["var"]["variable"] for src in condSrcs if "var" in src],
+                state,
             )
             state.lambdaStrings.append(lambda_string)
             startDefs = state.lastDefs.copy()
@@ -551,6 +555,7 @@ class GrFNGenerator(object):
                     fnName,
                     updatedDef,
                     [f"{src['variable']}_{src['index']}" for src in inputs],
+                    state,
                 )
                 state.lambdaStrings.append(lambda_string)
 
@@ -571,7 +576,7 @@ class GrFNGenerator(object):
                 state.nextDefs["#cond"] = condNum + 1
 
                 condName = f"IF_{condNum}"
-                state.varTypes[condName] = "boolean"
+                state.varTypes[condName] = "bool"
                 state.lastDefs[condName] = 0
                 fnName = getFnName(
                     fnNames, f"{state.fnName}__condition__{condName}", {}
@@ -622,6 +627,7 @@ class GrFNGenerator(object):
                         for src in condSrcs
                         if "var" in src
                     ],
+                    state,
                 )
                 state.lambdaStrings.append(lambda_string)
 
@@ -728,6 +734,7 @@ class GrFNGenerator(object):
                             f"{src['variable']}_{src['index']}"
                             for src in inputs
                         ],
+                        state,
                     )
                     state.lambdaStrings.append(lambda_string)
 
@@ -890,6 +897,7 @@ class GrFNGenerator(object):
                             for src in sources
                             if "var" in src
                         ],
+                        state,
                     )
                     state.lambdaStrings.append(lambda_string)
 
@@ -963,7 +971,7 @@ class GrFNGenerator(object):
                 source_list = self.make_source_list_dict(sources)
 
                 lambda_string = genFn(
-                    node, name, target["var"]["variable"], source_list
+                    node, name, target["var"]["variable"], source_list, state
                 )
                 state.lambdaStrings.append(lambda_string)
                 if not fn["sources"] and len(sources) == 1:
@@ -1437,10 +1445,25 @@ def printPgm(pgmFile, pgm):
     pgmFile.write(json.dumps(pgm, indent=2))
 
 
-def genFn(node, fnName: str, returnVal: bool, inputs):
+def genFn(node, fnName: str, returnVal: bool, inputs, state):
     lambda_strings = []
+    argument_strings = []
+
+    # Sort the arguments in the function call as it is used in the operation
+    input_list = sorted(set(inputs), key=inputs.index)
+
+    # Add type annotations to the function arguments
+    for ip in input_list:
+        annotation = state.varTypes.get(ip)
+        if annotation:
+            if annotation == "real":
+                annotation = "Float32"
+        else:
+            annotation = "bool"
+        argument_strings.append(f"{ip}: {annotation}")
+
     lambda_strings.append(
-        f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    "
+        f"def {fnName}({', '.join(argument_strings)}):\n    "
     )
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
