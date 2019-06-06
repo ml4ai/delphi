@@ -138,7 +138,7 @@ class RectifyOFPXML:
         "exit",
     ]
 
-    loop_child_tags = ["header", "body", "format"]
+    loop_child_tags = ['header", "body", "format']
 
     declaration_child_tags = [
         "type",
@@ -232,7 +232,7 @@ class RectifyOFPXML:
                 ...
             </program>
         """
-        self.current_scope = root.attrib["name"]
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
@@ -241,7 +241,7 @@ class RectifyOFPXML:
                     self.current_body_scope = cur_elem
                     # Mark the body to indicate that this body is
                     # the main body of the program
-                    cur_elem.attrib["type"] = "program-body"
+                    cur_elem.attrib['type'] = "program-body"
                 self.parseXMLTree(child, cur_elem, current, traverse)
             else:
                 if (
@@ -293,7 +293,7 @@ class RectifyOFPXML:
                     if (
                         traverse == 2 
                         and "type" in current.attrib 
-                        and current.attrib["type"] == "program-body"
+                        and current.attrib['type'] == "program-body"
                     ):
                         # Remove statements that is marked to be removed (2nd traverse)
                         if (
@@ -305,7 +305,8 @@ class RectifyOFPXML:
                         if self.reconstruct_after_case_now:
                             self.reconstruct_goto_after_label(current, traverse)
                         elif self.reconstruct_before_case_now:
-                            self.reconstruct_goto_before_label(current, traverse)
+                            pass
+                            # self.reconstruct_goto_before_label(current, traverse)
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
             else:
@@ -384,7 +385,7 @@ class RectifyOFPXML:
                     child.tag == "component-decl"
                     or child.tag == "component-decl-list"
                 ):
-                    current.attrib["type"] = "derived-type"
+                    current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
                 elif child.tag == "component-array-spec":
                     self.derived_type_var_holder_list.append(child)
@@ -420,12 +421,12 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
-                if child.attrib["keyword2"] == "":
-                    current.attrib["keyword2"] = "none"
+                if child.attrib['keyword2'] == "":
+                    current.attrib['keyword2'] = "none"
                 else:
-                    current.attrib["keyword2"] = child.attrib["keyword2"]
+                    current.attrib['keyword2'] = child.attrib['keyword2']
             else:
-                current.attrib["keyword2"] = "none"
+                current.attrib['keyword2'] = "none"
             if child.tag == "type":
                 """
                     Having a nested "type" indicates that this is a "derived type" declaration.
@@ -445,13 +446,13 @@ class RectifyOFPXML:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-stmt" and self.is_derived_type:
                 # Modify or add 'name' attribute of the <type> elements with the name of derived type name
-                current.set("name", child.attrib["id"])
+                current.set("name", child.attrib['id'])
                 # And, store the name of the derived type name for later setting the outer most <type> elements's name attribute
-                self.cur_derived_type_name = child.attrib["id"]
+                self.cur_derived_type_name = child.attrib['id']
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
                     self.is_derived_type = True
-                    current.set("name", child.attrib["typeName"])
+                    current.set("name", child.attrib['typeName'])
                 else:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
@@ -503,13 +504,13 @@ class RectifyOFPXML:
             </variable>
         """
         # Store all declared variables based on their array status
-        if current.attrib["is_array"] == "true":
+        if current.attrib['is_array'] == "true":
             self.declared_array_vars.update(
-                {current.attrib["name"]: self.current_scope}
+                {current.attrib['name']: self.current_scope}
             )
         else:
             self.declared_non_array_vars.update(
-                {current.attrib["name"]: self.current_scope}
+                {current.attrib['name']: self.current_scope}
             )
 
         for child in root:
@@ -544,7 +545,7 @@ class RectifyOFPXML:
             if child.tag in self.statement_child_tags:
                 if child.tag == "stop":
                     self.is_stop = True
-                    current.attrib["has-stop"] = "true"
+                    current.attrib['has-stop'] = "true"
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
 
                 if child.tag == "label":
@@ -583,7 +584,10 @@ class RectifyOFPXML:
                     label_presented = False
                     self.label_before = False
 
-                if child.text or len(child) > 0 or child.tag == "label":
+                if (
+                    child.text or len(child) > 0 
+                    and child.tag == "label"
+                ):
                     self.parseXMLTree(child, cur_elem, current, traverse)
             elif child.tag == "name":
                 """
@@ -603,6 +607,9 @@ class RectifyOFPXML:
                 """
                 # Reaching goto-stmt is a flag to stop collecting stmts
                 if self.collect_stmts_after_label:
+                    current.attrib['goto-remove'] = "true"
+                    current.attrib['has-goto-stmt'] = "true"
+                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
                     self.collect_stmts_after_label = False
 
                 self.need_goto_elimination = True
@@ -613,8 +620,8 @@ class RectifyOFPXML:
                 if target_lbl in self.label_lbl_for_before:
                     if traverse == 1:
                         current.attrib['goto-move'] = "true"
-                        self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
-                        self.statements_to_reconstruct_before["count-gotos"] += 1
+                        self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
+                        self.statements_to_reconstruct_before['count-gotos'] += 1
                         self.label_before = False
                     else:
                         assert traverse == 2, "Reconstruction needs to happen in the 2nd traverse"
@@ -623,11 +630,11 @@ class RectifyOFPXML:
                 # A case where label appears "after" goto
                 else:
                     if traverse == 1:
-                        self.statements_to_reconstruct_after["count-gotos"] += 1
+                        self.statements_to_reconstruct_after['count-gotos'] += 1
                         self.goto_target_lbl_after.append(target_lbl)
                         self.collect_stmts_after_goto = True
                         self.label_after = True
-                        current.attrib["skip-collect"] = "true"
+                        current.attrib['skip-collect'] = "true"
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
 
@@ -638,26 +645,26 @@ class RectifyOFPXML:
                 # that is not a main body, check it before extraction
                 if "has-stop" not in current.attrib:
                     current.attrib['goto-move'] = "true"
-                    self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
+                    self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
                 elif (
                     "has-stop" in current.attrib 
                     and "program-body" in parent.attrib
                 ):
-                    self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
+                    self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
             elif self.label_after:
                 if self.collect_stmts_after_goto:
                     if "has-stop" not in current.attrib:
                         current.attrib['goto-remove'] = "true"
                         if "skip-collect" not in current.attrib:
-                            self.statements_to_reconstruct_after["stmts-follow-goto"].append(current)
+                            self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
                     elif (
                         "has-stop" in current.attrib 
                         and "program-body" in parent.attrib
                     ):
-                        self.statements_to_reconstruct_after["stmts-follow-goto"].append(current)
+                        self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
                 elif self.collect_stmts_after_label:
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after["stmts-follow-label"].append(current)
+                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
 
     def handle_tag_assignment(self, root, current, parent, traverse):
         """
@@ -723,9 +730,9 @@ class RectifyOFPXML:
                     }
                     # Check if the variable is a function argument
                     if self.is_function_arg:
-                        attributes["is_arg"] = "true"
+                        attributes['is_arg'] = "true"
                     else:
-                        attributes["is_arg"] = "false"
+                        attributes['is_arg'] = "false"
                     cur_elem.attrib.update(attributes)
             else:
                 print(f'In self.handle_tag_names: "{child.tag}" not handled')
@@ -746,11 +753,11 @@ class RectifyOFPXML:
             root.tag == "name"
         ), f"The tag <name> must be passed to handle_tag_name. Currently, it's {root.tag}."
         # All variables have default "is_array" value "false"
-        current.attrib["is_array"] = "false"
+        current.attrib['is_array'] = "false"
 
         # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
         # Thus, clean up the 'id' and reconstruct the <name> AST
-        if "id" in current.attrib and "%" in current.attrib["id"]:
+        if "id" in current.attrib and "%" in current.attrib['id']:
             self.is_derived_type_ref = True
             self.clean_derived_type_ref(current)
 
@@ -761,34 +768,34 @@ class RectifyOFPXML:
                     cur_elem = ET.SubElement(current, child.tag, child.attrib)
                     if child.tag == "subscripts":
                         # Default
-                        current.attrib["hasSubscripts"] = "true"
+                        current.attrib['hasSubscripts'] = "true"
                         # Check whether the variable is an array AND the
                         # variable is for the current scope. This is important
                         # for derived type variable referencing
                         if (
-                            current.attrib["id"] in self.declared_array_vars
-                            and self.declared_array_vars[current.attrib["id"]]
+                            current.attrib['id'] in self.declared_array_vars
+                            and self.declared_array_vars[current.attrib['id']]
                             == self.current_scope
                         ):
                             # Since the procedure "call" has a same AST syntax as an array, check its type and set the "is_array" value
                             assert (
-                                current.attrib["type"] != "procedure"
+                                current.attrib['type'] != "procedure"
                             ), "Trying to assign a procedure call to is_array true. This is an error"
-                            current.attrib["is_array"] = "true"
+                            current.attrib['is_array'] = "true"
                         elif (
-                            current.attrib["id"]
+                            current.attrib['id']
                             in self.declared_non_array_vars
                             and self.declared_non_array_vars[
-                                current.attrib["id"]
+                                current.attrib['id']
                             ]
                             == self.current_scope
                         ):
-                            current.attrib["hasSubscripts"] = "false"
+                            current.attrib['hasSubscripts'] = "false"
                     self.parseXMLTree(child, cur_elem, current, traverse)
                 elif child.tag == "output":
                     assert is_empty(self.derived_type_var_holder_list)
                     cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                    self.derived_type_var_holder_list.append(root.attrib["id"])
+                    self.derived_type_var_holder_list.append(root.attrib['id'])
                     self.parseXMLTree(child, cur_elem, current, traverse)
                 elif child.tag == "name":
                     self.parseXMLTree(child, current, current, traverse)
@@ -840,8 +847,8 @@ class RectifyOFPXML:
                 ...
             </literal>
         """
-        if '"' in current.attrib["value"]:
-            current.attrib["value"] = self.clean_id(current.attrib["value"])
+        if '"' in current.attrib['value']:
+            current.attrib['value'] = self.clean_id(current.attrib['value'])
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1028,7 +1035,7 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             # A process of negating the operator during goto elimination
             if child.tag == "operator" and self.need_op_negation:
-                child.attrib["operator"] = NEGATED_OP[child.attrib["operator"]]
+                child.attrib['operator'] = NEGATED_OP[child.attrib['operator']]
                 self.need_op_negation = False
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
             if child.tag == "operand":
@@ -1363,7 +1370,7 @@ class RectifyOFPXML:
                 ...
             </subroutine>
         """
-        self.current_scope = root.attrib["name"]
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1426,14 +1433,14 @@ class RectifyOFPXML:
             # then we collect those reconstructed elements
             if self.label_before and not self.label_after:
                 current.attrib['goto-move'] = "true"
-                self.statements_to_reconstruct_before["stmts-follow-label"].append(current)
+                self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
             if self.label_after:
                 if self.collect_stmts_after_goto:
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after["stmts-follow-goto"].append(current)
+                    self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
                 elif self.collect_stmts_after_label:
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after["stmts-follow-label"].append(current)
+                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
 
     def handle_tag_stop(self, root, current, parent, traverse):
         """
@@ -1492,7 +1499,7 @@ class RectifyOFPXML:
                 ...
             </function>
         """
-        self.current_scope = root.attrib["name"]
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1768,7 +1775,7 @@ class RectifyOFPXML:
             self.handle_tag_length(root, current, parent, traverse)
         else:
             print(
-                f"In the parseXMLTree and, currently, {root.tag} is not supported"
+                f"In the parseXMLTree. Currently, <{root.tag}> passed from <{parent.tag}> is not supported"
             )
 
     #################################################################
@@ -1792,7 +1799,7 @@ class RectifyOFPXML:
             counts = []
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "component-decl-list":
-                    counts.append(elem.attrib["count"])
+                    counts.append(elem.attrib['count'])
 
             # Initialize count to 0 for <variables> count attribute.
             count = 0
@@ -1802,14 +1809,14 @@ class RectifyOFPXML:
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
-                    if elem.attrib["keyword2"] == "":
+                    if elem.attrib['keyword2'] == "":
                         keyword2 = "none"
                     else:
-                        keyword2 = elem.attrib["keyword2"]
+                        keyword2 = elem.attrib['keyword2']
                     attributes = {
                         "hasKind": "false",
                         "hasLength": "false",
-                        "name": elem.attrib["keyword1"],
+                        "name": elem.attrib['keyword1'],
                         "is_derived_type": str(self.is_derived_type),
                         "keyword2": keyword2,
                     }
@@ -1818,7 +1825,7 @@ class RectifyOFPXML:
                     attributes = {
                         "hasKind": "false",
                         "hasLength": "false",
-                        "name": elem.attrib["typeName"],
+                        "name": elem.attrib['typeName'],
                         "is_derived_type": str(self.is_derived_type),
                         "keyword2": "none",
                     }
@@ -1839,17 +1846,17 @@ class RectifyOFPXML:
                             "has_initial_value": elem.attrib[
                                 "hasComponentInitialization"
                             ],
-                            "name": elem.attrib["id"],
+                            "name": elem.attrib['id'],
                             "is_array": "false",
                         }
                         # Store variable name in the non array tracker
                         self.declared_non_array_vars.update(
-                            {elem.attrib["id"]: self.current_scope}
+                            {elem.attrib['id']: self.current_scope}
                         )
                         new_variable = ET.SubElement(
                             new_variables, "variable", var_attribs
                         )  # <variable _attribs_>
-                        if elem.attrib["hasComponentInitialization"] == "true":
+                        if elem.attrib['hasComponentInitialization'] == "true":
                             init_value_attrib = ET.SubElement(
                                 new_variable, "initial-value"
                             )
@@ -1876,12 +1883,12 @@ class RectifyOFPXML:
                             "has_initial_value": elem.attrib[
                                 "hasComponentInitialization"
                             ],
-                            "name": elem.attrib["id"],
+                            "name": elem.attrib['id'],
                             "is_array": "true",
                         }
                         # Store variable name in the array tracker
                         self.declared_array_vars.update(
-                            {elem.attrib["id"]: self.current_scope}
+                            {elem.attrib['id']: self.current_scope}
                         )
                         new_variable = ET.SubElement(
                             new_variables, "variable", var_attribs
@@ -1901,17 +1908,17 @@ class RectifyOFPXML:
             current.tag == "name"
         ), f"The tag <name> must be passed to reconstruct_derived_type_ref. Currently, it's {current.tag}."
         # First the root <name> id gets the very first variable reference i.e. x in x.y.k (or x%y%k in Fortran syntax)
-        current.attrib["id"] = self.derived_type_var_holder_list[0]
+        current.attrib['id'] = self.derived_type_var_holder_list[0]
         if (
-            current.attrib["id"] in self.declared_array_vars
-            and self.declared_array_vars[current.attrib["id"]]
+            current.attrib['id'] in self.declared_array_vars
+            and self.declared_array_vars[current.attrib['id']]
             == self.current_scope
         ):
-            current.attrib["hasSubscripts"] = "true"
-            current.attrib["is_array"] = "true"
+            current.attrib['hasSubscripts'] = "true"
+            current.attrib['is_array'] = "true"
         else:
-            current.attrib["hasSubscripts"] = "false"
-            current.attrib["is_array"] = "false"
+            current.attrib['hasSubscripts'] = "false"
+            current.attrib['is_array'] = "false"
 
         number_of_vars = len(self.derived_type_var_holder_list)
         attributes = {}
@@ -1920,16 +1927,16 @@ class RectifyOFPXML:
         for var in range(1, number_of_vars):
             variable_name = self.derived_type_var_holder_list[var]
             attributes.update(current.attrib)
-            attributes["id"] = variable_name
+            attributes['id'] = variable_name
             if (
                 variable_name in self.declared_array_vars
                 and self.declared_array_vars[variable_name]
                 == self.current_scope
             ):
-                attributes["hasSubscripts"] = "true"
-                attributes["is_array"] = "true"
+                attributes['hasSubscripts'] = "true"
+                attributes['is_array'] = "true"
             else:
-                attributes["is_array"] = "false"
+                attributes['is_array'] = "false"
             # Create N (number_of_vars) number of new subElement under the root <name> for each referencing variable
             reference_var = ET.SubElement(parent_ref, "name", attributes)
             parent_ref = reference_var
@@ -1960,7 +1967,7 @@ class RectifyOFPXML:
         assert (
             self.is_derived_type_ref == True
         ), "'self.is_derived_type_ref' must be true"
-        numPartRef = int(current.attrib["numPartRef"])
+        numPartRef = int(current.attrib['numPartRef'])
         for idx in range(1, len(self.derived_type_refs)):
             self.derived_type_refs[idx].attrib.update(
                 {"numPartRef": str(numPartRef)}
@@ -1994,23 +2001,23 @@ class RectifyOFPXML:
         cur_elem = ET.SubElement(
             current, name_elements[0].tag, name_elements[0].attrib
         )
-        cur_elem.attrib["is_derived_type_ref"] = "true"
-        if cur_elem.attrib["hasSubscripts"] == "true":
+        cur_elem.attrib['is_derived_type_ref'] = "true"
+        if cur_elem.attrib['hasSubscripts'] == "true":
             cur_elem.append(subscripts_holder[subscript_num])
             subscript_num += 1
 
-        numPartRef = int(cur_elem.attrib["numPartRef"]) - 1
+        numPartRef = int(cur_elem.attrib['numPartRef']) - 1
         name_element = ET.Element("")
         for idx in range(1, len(name_elements)):
-            name_elements[idx].attrib["numPartRef"] = str(numPartRef)
+            name_elements[idx].attrib['numPartRef'] = str(numPartRef)
             numPartRef -= 1
             name_element = ET.SubElement(
                 cur_elem, name_elements[idx].tag, name_elements[idx].attrib
             )
-            name_element.attrib["is_derived_type_ref"] = "true"
+            name_element.attrib['is_derived_type_ref'] = "true"
             # In order to handle the nested subelements of <name>, update the cur_elem at each iteration.
             cur_elem = name_element
-            if name_elements[idx].attrib["hasSubscripts"] == "true":
+            if name_elements[idx].attrib['hasSubscripts'] == "true":
                 name_element.append(subscripts_holder[subscript_num])
                 subscript_num += 1
 
@@ -2025,15 +2032,23 @@ class RectifyOFPXML:
         # REMOVE
         print ("in reconstruct_goto_after_label")
 
-        number_of_gotos = self.statements_to_reconstruct_after["count-gotos"]
-        stmts_follow_goto = self.statements_to_reconstruct_after["stmts-follow-goto"]
-        stmts_follow_label = self.statements_to_reconstruct_after["stmts-follow-label"]
+        number_of_gotos = self.statements_to_reconstruct_after['count-gotos']
+        stmts_follow_goto = self.statements_to_reconstruct_after['stmts-follow-goto']
+        stmts_follow_label = self.statements_to_reconstruct_after['stmts-follow-label']
 
         self.generate_declaration_element(parent, "goto_flag", number_of_gotos)
+       
+        # This variable is for storing goto that may appear
+        # after the current goto. If this variable is not empty, 
+        # then add this <goto-stmt> after the last if-statement.
+        next_goto = []
 
         for i in range(number_of_gotos):
-            self.generate_if_element(parent, stmts_follow_goto, True, "unary", f"goto_flag_{i+1}", None, ".not.", traverse)
-            self.generate_if_element(parent, stmts_follow_label, False, None, f"goto_flag_{i+1}", None, None, traverse)
+            self.generate_if_element(parent, stmts_follow_goto, next_goto, True, "unary", f"goto_flag_{i+1}", None, ".not.", traverse)
+            self.generate_if_element(parent, stmts_follow_label, next_goto, False, None, f"goto_flag_{i+1}", None, None, traverse)
+            if next_goto:
+                statement = ET.SubElement(parent, next_goto[0]['statement'].tag, next_goto[0]['statement'].attrib)
+                goto_stmt = ET.SubElement(statement, next_goto[0]['goto-stmt'].tag, next_goto[0]['goto-stmt'].attrib)
 
 
         # REMOVE
@@ -2064,8 +2079,8 @@ class RectifyOFPXML:
         # REMOVE
         print ("in reconstruct_goto_before_label")
 
-        stmts_follow_label = self.statements_to_reconstruct_before["stmts-follow-label"]
-        number_of_gotos = self.statements_to_reconstruct_before["count-gotos"]
+        stmts_follow_label = self.statements_to_reconstruct_before['stmts-follow-label']
+        number_of_gotos = self.statements_to_reconstruct_before['count-gotos']
 
         self.generate_declaration_element(parent, "label_flag", number_of_gotos)
 
@@ -2138,8 +2153,8 @@ class RectifyOFPXML:
                             "is_array":"false",
         }
         for flag in range(number_of_gotos):
-            variable_attribs["id"] = f"{default_name}_{flag+1}"
-            variable_attribs["name"] = f"{default_name}_{flag+1}"
+            variable_attribs['id'] = f"{default_name}_{flag+1}"
+            variable_attribs['name'] = f"{default_name}_{flag+1}"
             variable_elem = ET.SubElement(variables_elem, "variable", variable_attribs)
 
         # Assignment
@@ -2193,7 +2208,7 @@ class RectifyOFPXML:
         }
         name_elem = ET.SubElement(parent, "name", name_attribs)
 
-    def generate_if_element(self, parent, stored_stmts, need_operation, op_type, lhs, rhs, operator, traverse):
+    def generate_if_element(self, parent, stored_stmts, next_goto, need_operation, op_type, lhs, rhs, operator, traverse):
         """
             This is a function generating new if element.
             Since header can hold unary, multiary, or name, some arguments
@@ -2211,13 +2226,23 @@ class RectifyOFPXML:
         body_elem = ET.SubElement(goto_nest_if_elem, "body")
         for stmt in stored_stmts:
             if len(stmt) > 0:
-                if "goto-remove" in stmt.attrib:
-                    del stmt.attrib["goto-remove"]
-                cur_elem = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
-                for child in stmt:
-                    child_elem = ET.SubElement(cur_elem, child.tag, child.attrib)
-                    if len(child) > 0:
-                        self.parseXMLTree(child, child_elem, cur_elem, traverse)
+                if "has-goto-stmt" not in stmt.attrib:
+                    cur_elem = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
+                    if "goto-remove" in cur_elem.attrib:
+                        del cur_elem.attrib['goto-remove']
+                    for child in stmt:
+                        child_elem = ET.SubElement(cur_elem, child.tag, child.attrib)
+                        if len(child) > 0:
+                            self.parseXMLTree(child, child_elem, cur_elem, traverse)
+                else:
+                    goto_stmt = {}
+                    goto_stmt['statement'] = stmt
+                    for child in stmt:
+                        assert (
+                                child.tag == "goto-stmt"
+                        ), f"Must only store <goto-stmt> in next_goto['goto-stmt']. Current: <{child.tag}>."
+                        goto_stmt['goto-stmt'] = child
+                    next_goto.append(goto_stmt)
 
         # Unconditional goto sets goto_flag always to false when it enters 2nd if-statement
         if not need_operation:
@@ -2256,7 +2281,7 @@ class RectifyOFPXML:
                 Unrefined id: id = ""OUTPUT""
                 Refined id: id = "OUTPUT"
         """
-        return re.findall(r"\"([^\"]+)\"", unrefined_id)[0]
+        return re.findall(r"\"([^\']+)\"", unrefined_id)[0]
 
     def clean_attrib(self, elements):
         """
