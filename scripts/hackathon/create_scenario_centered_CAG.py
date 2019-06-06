@@ -13,7 +13,6 @@ def create_scenario_centered_CAG(input, output):
         "UN/events/human/human_migration", depth=2, reverse=True
     )
     G.prune(cutoff=4)
-
     # Manually correcting a bad CWMS extraction
     #G.edges[
     #    "UN/events/weather/precipitation",

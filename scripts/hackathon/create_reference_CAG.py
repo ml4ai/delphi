@@ -85,11 +85,13 @@ def create_reference_CAG(inputPickleFile, outputPickleFile):
     G.delete_node("UN/entities/human/health/nutrient")
     G.delete_node("UN/events/human/agriculture/planting")
     G.delete_node("UN/interventions/infrastructure")
-    G.delete_node("UN/events/human/economic_crisis")
+    G.delete_node("UN/entities/human/financial/economic/economy")
     G.delete_node("UN/entities/human/infrastructure/transportation/road")
     G.delete_node("UN/events/human/agriculture/farming")
     G.delete_node("UN/entities/natural/crop")
     G.delete_node("UN/entities/human/food/food_insecurity")
+    G.delete_node("UN/entities/human/financial/economic/fuel")
+   # G.delete_node("UN/entities/natural/crop_technology/product")
     with open(outputPickleFile, "wb") as f:
         pickle.dump(G, f)
 
