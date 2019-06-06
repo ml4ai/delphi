@@ -1458,6 +1458,12 @@ def genFn(node, fnName: str, returnVal: bool, inputs, state):
         if annotation:
             if annotation == "real":
                 annotation = "Float32"
+            elif annotation == "integer":
+                annotation = "int"
+            elif annotation == "string":
+                annotation = "str"
+            elif annotation == "array":
+                annotation = "[]"
         else:
             annotation = "bool"
         argument_strings.append(f"{ip}: {annotation}")
