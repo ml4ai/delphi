@@ -138,7 +138,11 @@ class RectifyOFPXML:
         "exit",
     ]
 
-    loop_child_tags = ['header", "body", "format']
+    loop_child_tags = [
+        "header",
+        "body",
+        "format"
+    ]
 
     declaration_child_tags = [
         "type",
@@ -291,7 +295,7 @@ class RectifyOFPXML:
                     self.parseXMLTree(child, cur_elem, current, traverse)
                     # Reconstruction of statements
                     if (
-                        traverse == 2 
+                        traverse > 1
                         and "type" in current.attrib 
                         and current.attrib['type'] == "program-body"
                     ):
@@ -303,10 +307,13 @@ class RectifyOFPXML:
                             current.remove(cur_elem)
 
                         if self.reconstruct_after_case_now:
+                            # REMOVE
+                            print ("self.goto_target_lbl_after - before recon:", self.goto_target_lbl_after)
                             self.reconstruct_goto_after_label(current, traverse)
+                            # REMOVE
+                            print ("self.goto_target_lbl_after - after recon:", self.goto_target_lbl_after)
                         elif self.reconstruct_before_case_now:
-                            pass
-                            # self.reconstruct_goto_before_label(current, traverse)
+                            self.reconstruct_goto_before_label(current, traverse)
                 else:
                     print (f'In handle_tag_body: "{child.tag}" not handled')
             else:
@@ -556,22 +563,28 @@ class RectifyOFPXML:
                         not self.goto_target_lbl_after
                         or lbl not in self.goto_target_lbl_after
                     ):
+                        # Since we want to handle label_after case before
+                        # label_before when both cases appear in the code,
+                        # we ignore all label_bafore case until _after case
+                        # get handled. Thus, mark label_before to false
+                        if self.label_after:
+                            self.label_before = False
+                        else:
+                            self.label_before = True
                         self.label_lbl_for_before.append(lbl)
-                        current_label_is_for = "before"
                     else:
                         self.collect_stmts_after_goto = False
                         self.collect_stmts_after_label = True
                         self.label_lbl_for_after.append(lbl)
-                        current_label_is_for = "after"
 
                     if traverse == 1:
-                        if current_label_is_for == "before":
+                        if self.label_before:
                             current.attrib['goto-move'] = "true"
                             self.label_before = True
                         else:
                             current.attrib['goto-remove'] = "true"
                         current.attrib['target-label-statement'] = "true"
-                    if traverse == 2 and self.collect_stmts_after_label:
+                    if traverse > 1 and self.collect_stmts_after_label:
                         self.reconstruct_after_case_now = True
 
                 # Since <format> is followed by <label>,
@@ -613,7 +626,6 @@ class RectifyOFPXML:
                     self.collect_stmts_after_label = False
 
                 self.need_goto_elimination = True
-                self.goto_in_scope = True
                 target_lbl = child.attrib['target_label']
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 # A case where label appears "before" goto
@@ -624,8 +636,9 @@ class RectifyOFPXML:
                         self.statements_to_reconstruct_before['count-gotos'] += 1
                         self.label_before = False
                     else:
-                        assert traverse == 2, "Reconstruction needs to happen in the 2nd traverse"
-                        self.reconstruct_before_case_now = True
+                        assert traverse > 1, "Reconstruction cannot happen in the first traverse"
+                        if self.label_before:
+                            self.reconstruct_before_case_now = True
                         return
                 # A case where label appears "after" goto
                 else:
@@ -905,7 +918,7 @@ class RectifyOFPXML:
         """
         for child in root:
             self.clean_attrib(child)
-            if child.text:
+            if child.text or len(child) > 0:
                 if child.tag in self.loop_child_tags:
                     if child.tag == "format":
                         self.is_format = True
@@ -2074,7 +2087,6 @@ class RectifyOFPXML:
         self.goto_target_lbl_after.clear()
         self.goto_body = None
 
-
     def reconstruct_goto_before_label(self, parent, traverse):
         # REMOVE
         print ("in reconstruct_goto_before_label")
@@ -2362,7 +2374,8 @@ def buildNewAST(filename: str):
         # REMOVE
         print ("2nd Traverse Begin")
         root = tree.getroot()	
-        newRoot = ET.Element(root.tag, root.attrib)	
+        newRoot = ET.Element(root.tag, root.attrib)
+        print ("newRoot: ", newRoot.tag)
         for child in root:	
             if child.text:	
                 cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
