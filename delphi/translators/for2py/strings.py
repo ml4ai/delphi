@@ -39,6 +39,10 @@ class String:
         """String concatenation"""
         return self._val + self.value(other)
 
+    def __radd__(self, other):
+        """String concatenation"""
+        return self.value(other) + self._val
+
     def adjustl(self):
         return self._val.lstrip()
 
