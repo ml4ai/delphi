@@ -52,7 +52,6 @@ Usage:
 import re, sys
 from . import For2PyError
 
-
 class Format:
     def __init__(self, format_list):
         self._format_list = format_list.copy()
@@ -155,8 +154,10 @@ class Format:
             out_width = self._out_widths[i]
 
             out_val = out_fmt.format(values[i])
-            if len(out_val) > out_width:  # value too big for field
-                out_val = "*" * out_width
+            # out_width == "*" indicates that the field can be arbitrarily wide 
+            if out_width != "*":
+                if len(out_val) > out_width:  # value too big for field
+                    out_val = "*" * out_width
 
             out_strs.append(out_val)
 
@@ -317,6 +318,12 @@ class Format:
                 gen_fmt = " "
                 rexp = [(gen_fmt, None, None)]
 
+            elif fmt[0] in "aA":
+                gen_fmt = "{}"
+                # the '*' in the third position of the tuple (corresponding to
+                # field width) indicates that the field can be arbitrarily wide
+                rexp = [(gen_fmt, "{}", "*")]
+
             elif fmt[0] in "eEfFgG":  # various floating point formats
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
@@ -340,7 +347,8 @@ class Format:
 
             elif fmt[0] in "'\"":  # character string
                 sz = len(fmt) - 2  # -2 for the quote at either end
-                gen_fmt = fmt[1:-1]
+                # escape any double-quotes in the string
+                gen_fmt = fmt[1:-1].replace('"', '\\\"')
                 rexp = [(gen_fmt, None, None)]
 
             elif fmt[0] == "/":  # newlines
@@ -349,7 +357,7 @@ class Format:
 
             else:
                 raise For2PyError(
-                    f"ERROR: Unrecognized format specifier {fmt}\n"
+                    f"ERROR: Unrecognized format specifier {fmt[0]}\n"
                 )
 
         # replicate the regular expression by the repetition factor in the format
