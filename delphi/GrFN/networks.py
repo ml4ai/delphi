@@ -15,6 +15,7 @@ from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
+from delphi.translators.for2py.floatNumpy import Float32
 from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
@@ -103,7 +104,11 @@ class ComputationalGraph(nx.DiGraph):
         """
         # Set input values
         for i in self.inputs:
-            self.nodes[i]["value"] = inputs[i]
+            value = inputs[i]
+            if isinstance(value, float):
+                value = Float32(value)
+
+            self.nodes[i]["value"] = value
 
         for func_set in self.function_sets:
             for func_name in func_set:

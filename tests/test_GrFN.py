@@ -6,6 +6,7 @@ import sys
 import numpy as np
 import torch
 
+from delphi.translators.for2py.floatNumpy import Float32
 from delphi.GrFN.networks import GroundedFunctionNetwork
 
 data_dir = "tests/data/GrFN/"
@@ -29,9 +30,9 @@ def test_petpt_creation_and_execution(petpt_grfn):
     assert len(petpt_grfn.inputs) == 5
     assert len(petpt_grfn.outputs) == 1
 
-    values = {name: 1 for name in petpt_grfn.inputs}
+    values = {name: 1.0 for name in petpt_grfn.inputs}
     res = petpt_grfn.run(values)
-    assert res == 0.02998371219618677
+    assert res == Float32(0.029983712)
 
 
 def test_petasce_creation(petasce_grfn):
@@ -40,23 +41,23 @@ def test_petasce_creation(petasce_grfn):
     CG = petasce_grfn.to_call_agraph()
 
     values = {
-        "petasce::doy_-1": 20,
+        "petasce::doy_-1": 20.0,
         "petasce::meevp_-1": "A",
         "petasce::msalb_-1": 0.5,
-        "petasce::srad_-1": 15,
-        "petasce::tmax_-1": 10,
-        "petasce::tmin_-1": -10,
-        "petasce::xhlai_-1": 10,
-        "petasce::tdew_-1": 20,
-        "petasce::windht_-1": 5,
-        "petasce::windrun_-1": 450,
-        "petasce::xlat_-1": 45,
-        "petasce::xelev_-1": 3000,
-        "petasce::canht_-1": 2,
+        "petasce::srad_-1": 15.0,
+        "petasce::tmax_-1": 10.0,
+        "petasce::tmin_-1": -10.0,
+        "petasce::xhlai_-1": 10.0,
+        "petasce::tdew_-1": 20.0,
+        "petasce::windht_-1": 5.0,
+        "petasce::windrun_-1": 450.0,
+        "petasce::xlat_-1": 45.0,
+        "petasce::xelev_-1": 3000.0,
+        "petasce::canht_-1": 2.0,
     }
 
     res = petasce_grfn.run(values)
-    assert res == 0.00012496980836348878
+    assert res == Float32(0.00012496980836348878)
 
 
 def test_crop_yield_creation(crop_yield_grfn):
