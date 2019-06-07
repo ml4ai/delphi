@@ -28,6 +28,13 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
+ANNOTATE_MAP = {
+    "real": "Float32",
+    "integer": "int",
+    "string": "str",
+    "array": "[]",
+    "bool": "bool",
+}
 
 UNNECESSARY_TYPES = (
     ast.Mult,
@@ -128,7 +135,8 @@ class GrFNGenerator(object):
 
             for item in variables:
                 match = re.match(
-                    r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|(write_line)",
+                    r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|"
+                    r"(write_line)",
                     item,
                 )
                 if not match:
@@ -282,12 +290,15 @@ class GrFNGenerator(object):
 
             loopBody, loopFns, iden_spec = get_body_and_functions(loop)
 
-            # If loopLastDef[x] == 0, this means that the variable was not declared before the loop and is being
-            # declared/defined within the loop. So we need to remove that from the variable_list
-            variable_list = [x for x in loopLastDef if (x != indexName and state.lastDefs[x] != 0)]
+            # If loopLastDef[x] == 0, this means that the variable was not
+            # declared before the loop and is being declared/defined within
+            # the loop. So we need to remove that from the variable_list
+            variable_list = [x for x in loopLastDef if (x != indexName and
+                                                        state.lastDefs[x] != 0)]
 
             variables = [
-                    {"name": variable, "domain": state.varTypes[variable]} for variable in variable_list
+                    {"name": variable, "domain": state.varTypes[variable]}
+                for variable in variable_list
                 ]
 
             # Removing the indexing of the loop index variable from the loopName
@@ -400,9 +411,10 @@ class GrFNGenerator(object):
                 fnNames, f"{state.fnName}__condition__{condName}", {}
             )
 
-            # The condName is of the form 'IF_1' and the index holds the ordering of the condName
-            # This means that index should increment of every new 'IF' statement
-            # Previously, it was set to set to 0. But, 'fnName' holds the current index of 'condName'
+            # The condName is of the form 'IF_1' and the index holds the
+            # ordering of the condName. This means that index should increment
+            # of every new 'IF' statement. Previously, it was set to set to 0.
+            # But, 'fnName' holds the current index of 'condName'
             # So, extract the index from 'fnName'.
             # condOutput = {"variable": condName, "index": 0}
             condOutput = {"variable": condName, "index": int(fnName[-1])}
@@ -699,11 +711,13 @@ class GrFNGenerator(object):
                         ],
                     }
 
-                    # Check for buggy __decision__ tag containing of only IF_ blocks
-                    # More information required on how __decision__ tags are made
+                    # Check for buggy __decision__ tag containing of only
+                    # IF_ blocks. More information required on how
+                    # __decision__ tags are made.
                     # This seems to be in development phase and documentation is
-                    # missing from the GrFN spec as well. Actual removal (or not)
-                    # of this tag depends on further information about this
+                    # missing from the GrFN spec as well. Actual removal
+                    # (or not) of this tag depends on further information
+                    # about this
 
                     if "IF_" in updatedDef:
                         count = 0
@@ -843,7 +857,8 @@ class GrFNGenerator(object):
         # Name: ('id', 'ctx')
         elif isinstance(node, ast.Name):
             if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-                lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
+                lastDef = getLastDef(node.id, state.lastDefs,
+                                     state.lastDefDefault)
                 if (
                     isinstance(node.ctx, ast.Store)
                     and state.nextDefs.get(node.id)
@@ -902,10 +917,10 @@ class GrFNGenerator(object):
                     state.lambdaStrings.append(lambda_string)
 
                 # In the case of assignments of the form:    "ud: List[float]"
-                # an assignment function will be created with an empty input list.
-                # Also, the function dictionary will be empty. We do not want such
-                # assignments in the GrFN so check for an empty <fn> dictionary and
-                # return [] if found
+                # an assignment function will be created with an empty input
+                # list. Also, the function dictionary will be empty. We do
+                # not want such assignments in the GrFN so check for an empty
+                # <fn> dictionary and return [] if found
                 if len(fn) == 0:
                     return []
                 if not fn["sources"] and len(sources) == 1:
@@ -951,7 +966,8 @@ class GrFNGenerator(object):
                     )
                     target = {"var": {"variable": targets, "index": 1}}
 
-                # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
+                # Check whether this is an alias assignment i.e. of the form
+                # y=x where y is now the alias of variable x
                 self.check_alias(target, sources)
 
                 name = getFnName(
@@ -959,7 +975,8 @@ class GrFNGenerator(object):
                     f"{state.fnName}__assign__{target['var']['variable']}",
                     target,
                 )
-                # If the index is -1, change it to the index in the fnName. This is a hack right now.
+                # If the index is -1, change it to the index in the fnName.
+                # This is a hack right now.
                 # if target["var"]["index"] < 0:
                 #     target["var"]["index"] = name[-1]
 
@@ -982,7 +999,8 @@ class GrFNGenerator(object):
                             dtypes.add(item["dtype"])
                             value.append(item["value"])
                         dtype = list(dtypes)
-                    elif sources[0].get("call") and sources[0]["call"]["function"] == "Float32":
+                    elif sources[0].get("call") and \
+                            sources[0]["call"]["function"] == "Float32":
                         dtype = sources[0]["call"]["inputs"][0][0]["dtype"]
                         value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                     else:
@@ -1106,11 +1124,12 @@ class GrFNGenerator(object):
         elif isinstance(targets, str):
             aliases = self.alias_dict.get(targets, "None")
 
-        # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
-        # Assign the base_name accordingly
+        # First, check whether the information is from a variable or a
+        # holder(assign, loop, if, etc). Assign the base_name accordingly
 
         if holder == "body":
-            # If we are making the identifier specification of a body holder, the base_name will be the holder
+            # If we are making the identifier specification of a body holder,
+            # the base_name will be the holder
             if isinstance(targets, dict):
                 base_name = (
                     name
@@ -1128,26 +1147,31 @@ class GrFNGenerator(object):
             base_name = targets
             gensyms_tag = "v"
 
-        # The name space should get the entire directory scope of the fortran file under which it is defined.
-        # For PETASCE.for, all modules are defined in the same fortran file so the namespace will be the same
+        # The name space should get the entire directory scope of the fortran
+        # file under which it is defined. For PETASCE.for, all modules are
+        # defined in the same fortran file so the namespace will be the same
         # for all identifiers
 
-        # TODO handle multiple file namespaces that handle multiple fortran file namespacing
+        # TODO handle multiple file namespaces that handle multiple fortran
+        #  file namespacing
 
-        # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
-        #  the intermediate python file's path
+        # TODO Is the namespace path for the python intermediates or the
+        #  original FORTRAN code? Currently, it captures the intermediate
+        #  python file's path
         name_space = self.mode_mapper["FileName"][1].split("/")
         name_space = ".".join(name_space)
 
-        # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
+        # The scope captures the scope within the file where it exists. The
+        # context of modules can be implemented here.
         if len(scope_path) == 0:
             scope_path.append("_TOP")
         elif scope_path[0] == "_TOP" and len(scope_path) > 1:
             scope_path.remove("_TOP")
         scope_path = ".".join(scope_path)
 
-        # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
-        #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
+        # TODO Source code reference: This is the line number in the Python
+        #  (or FORTRAN?) file. According to meeting on the 21st Feb, 2019,
+        #  this was the same as namespace. Exactly same though? Need clarity.
 
         source_reference = name_space
 
@@ -1250,7 +1274,8 @@ class GrFNGenerator(object):
 
         # Removing duplicates
         unique_source = []
-        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        [unique_source.append(obj) for obj in source_list if obj not in
+         unique_source]
         source_list = unique_source
 
         id_spec = self.make_identifier_spec(
@@ -1282,7 +1307,8 @@ class GrFNGenerator(object):
 
         # Removing duplicates
         unique_source = []
-        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        [unique_source.append(obj) for obj in source_list if obj not in
+         unique_source]
         source_list = unique_source
 
         return source_list
@@ -1292,9 +1318,11 @@ class GrFNGenerator(object):
         source = []
         fn = {}
 
-        # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
+        # Regular expression to check for all targets that need to be bypassed.
+        # This is related to I/O handling
         bypass_regex = (
-            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj"
+            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|"
+            r"^write_line$|^format_\d+_obj"
             r".*|^Format$|^list_output_formats$|^write_list_steam$"
         )
 
@@ -1308,10 +1336,12 @@ class GrFNGenerator(object):
 
         for src in sources:
             if "call" in src:
-                # Bypassing identifiers who have I/O constructs on their source fields too.
+                # Bypassing identifiers who have I/O constructs on their source
+                # fields too.
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
-                # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
+                # TODO this is only for PETASCE02.for. Will need to include 'i'
+                #  in the long run
                 bypass_match_source = re.match(
                     bypass_regex, src["call"]["function"]
                 )
@@ -1328,7 +1358,8 @@ class GrFNGenerator(object):
 
             # Removing duplicates
             unique_source = []
-            [unique_source.append(obj) for obj in source if obj not in unique_source]
+            [unique_source.append(obj) for obj in source if obj not in
+             unique_source]
             source = unique_source
 
             if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
@@ -1455,17 +1486,13 @@ def genFn(node, fnName: str, returnVal: bool, inputs, state):
     # Add type annotations to the function arguments
     for ip in input_list:
         annotation = state.varTypes.get(ip)
-        if annotation:
-            if annotation == "real":
-                annotation = "Float32"
-            elif annotation == "integer":
-                annotation = "int"
-            elif annotation == "string":
-                annotation = "str"
-            elif annotation == "array":
-                annotation = "[]"
-        else:
-            annotation = "bool"
+        if not annotation:
+            # varTypes does not contain annotations for variables for indexing
+            # such as 'abc_1', etc. Check if the such variables exist and
+            # assign appropriate annotations
+            key_match = lambda var, dicn: ([i for i in dicn if i in var])
+            annotation = state.varTypes[key_match(ip, state.varTypes)[0]]
+        annotation = ANNOTATE_MAP[annotation]
         argument_strings.append(f"{ip}: {annotation}")
 
     lambda_strings.append(
@@ -1598,20 +1625,24 @@ def get_body_and_functions(pgm):
 
 def generage_gensysm(tag):
 
-    # The gensym is used to uniquely identify any identifier in the program. Python's uuid library is used to
-    # generate a unique 12 digit HEX string. The uuid4() function of 'uuid' focuses on randomness. Each and every bit
-    # of a UUID v4 is generated randomly and with no inherent logic. To every gensym, we add a tag signifying the
-    # data type it represents. 'v' is for variables and 'h' is for holders.
+    # The gensym is used to uniquely identify any identifier in the program.
+    # Python's uuid library is used to generate a unique 12 digit HEX string.
+    # The uuid4() function of 'uuid' focuses on randomness. Each and every bit
+    # of a UUID v4 is generated randomly and with no inherent logic. To every
+    # gensym, we add a tag signifying the data type it represents. 'v' is for
+    # variables and 'h' is for holders.
 
     return uuid.uuid4().hex[:12] + "_" + tag
 
 
 def make_call_body_dict(source):
     source_list = []
-    # We are going to remove addition of functions such as "max", "exp", "sin", etc to
-    # the source list. The following two lines when commented helps us do that.
-    # If user-defined functions come up as sources, some other approaches might be required
-    # TODO Try with user defined functions and see if the below two lines need to be reworked
+    # We are going to remove addition of functions such as "max", "exp",
+    # "sin", \etc to the source list. The following two lines when commented
+    # helps us do that. If user-defined functions come up as sources,
+    # some other approaches might be required
+    # TODO Try with user defined functions and see if the below two lines need
+    #  to be reworked
     # name = source["call"]["function"]
     # source_list.append({"name": name, "type": "function"})
 
@@ -1622,7 +1653,8 @@ def make_call_body_dict(source):
                     variable = item["var"]["variable"]
                     source_list.append({"name": variable, "type": "variable"})
                 elif item.get("dtype") == "string":
-                    # TODO Do repetitions in this like in the above check need to be removed?
+                    # TODO Do repetitions in this like in the above check need
+                    #  to be removed?
                      # Will repetition occur here?
                     source_list.append(
                         {"name": item["value"], "type": "variable"}
@@ -1638,7 +1670,8 @@ def importAst(filename: str):
 
 
 # Get the absolute path of the python files whose PGMs are being generated.
-# TODO: For now the path is started from the directory "for2py" but need further discussion on this
+# TODO: For now the path is started from the directory "for2py" but need further
+#  discussion on this
 
 
 def get_path(fileName: str, instance: str):
@@ -1668,7 +1701,8 @@ def create_pgm_dict(
     JSON output. """
 
     lambdaStrings = ["import math\n"]
-    lambdaStrings.append("from delphi.translators.for2py.floatNumpy import Float32\n\n")
+    lambdaStrings.append("from delphi.translators.for2py.floatNumpy import "
+                         "Float32\n\n")
 
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
@@ -1681,8 +1715,8 @@ def create_pgm_dict(
 
     pgm["source"] = [[get_path(file_name, "source")]]
 
-    # dateCreated stores the date and time on which the lambda and PGM file was created.
-    # It is stored in YYYMMDD format
+    # dateCreated stores the date and time on which the lambda and PGM file
+    # was created. It is stored in YYYMMDD format
     pgm["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
     with open(lambdaFile, "w") as f:
@@ -1733,7 +1767,8 @@ if __name__ == "__main__":
         "--out",
         nargs=1,
         required=True,
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files being "
+             "generated",
     )
     parser.add_argument(
         "-a",
