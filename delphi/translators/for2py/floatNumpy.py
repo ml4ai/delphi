@@ -47,82 +47,82 @@ class Float32:
     def __add__(self, other):
         """ Addition
         """
-        return Float32(self._val+self.value(other))
+        return Float32(self._val+self.__value(other))
 
     def __radd__(self, other):
         """ Reverse Addition
         """
-        return Float32(self._val+self.value(other))
+        return Float32(self._val+self.__value(other))
 
     def __truediv__(self, other):
         """ True Division
         """
-        return Float32(self._val/self.value(other))
+        return Float32(self._val/self.__value(other))
 
     def __rtruediv__(self, other):
         """ Reverse True Division
         """
-        return Float32(self.value(other)/self._val)
+        return Float32(self.__value(other)/self._val)
 
     def __floordiv__(self, other):
         """ Floor Division
         """
-        return self._val//self.value(other)
+        return self._val//self.__value(other)
 
     def __rfloordiv__(self, other):
         """ Reverse Floor Division
         """
-        return self.value(other)//self._val
+        return self.__value(other)//self._val
 
     def __mul__(self, other):
         """ Multiplication
         """
-        return Float32(self._val*self.value(other))
+        return Float32(self._val*self.__value(other))
 
     def __rmul__(self, other):
         """ Reverse sMultiplication
         """
-        return Float32(self._val*self.value(other))
+        return Float32(self._val*self.__value(other))
 
     def __sub__(self, other):
         """ Subtraction
         """
-        return Float32(self._val-self.value(other))
+        return Float32(self._val-self.__value(other))
 
     def __rsub__(self, other):
         """ Reverse Subtraction
         """
-        return Float32(self.value(other)-self._val)
+        return Float32(self.__value(other)-self._val)
 
     def __eq__(self, other):
         """ Logical Equality
         """
-        return self._val == self.value(other)
+        return self._val == self.__value(other)
 
     def __gt__(self, other):
         """ Logical greater than
         """
-        return self._val > self.value(other)
+        return self._val > self.__value(other)
 
     def __ge__(self, other):
         """ Logical greater than or equals to
         """
-        return self._val >= self.value(other)
+        return self._val >= self.__value(other)
 
     def __lt__(self, other):
         """ Logical less than
         """
-        return self._val < self.value(other)
+        return self._val < self.__value(other)
 
     def __le__(self, other):
         """ Logical less than or equals to
         """
-        return self._val <= self.value(other)
+        return self._val <= self.__value(other)
 
     def __ne__(self, other):
         """ Logical not equal to
         """
-        return self._val != self.value(other)
+        return self._val != self.__value(other)
 
     def __str__(self):
         """ Float-to-string conversion
@@ -142,22 +142,22 @@ class Float32:
     def __mod__(self, other):
         """ Modulo operation
         """
-        return Float32(self._val % self.value(other))
+        return Float32(self._val % self.__value(other))
 
     def __rmod__(self, other):
         """ Reverse Modulo operation
         """
-        return Float32(self.value(other) % self._val)
+        return Float32(self.__value(other) % self._val)
 
     def __and__(self, other):
         """ Bitwise 'and' of two variables
         """
-        return Float32(self._val and self.value(other))
+        return Float32(self._val and self.__value(other))
 
     def __or__(self, other):
         """ Bitwise 'or' of two variables
         """
-        return Float32(self._val or self.value(other))
+        return Float32(self._val or self.__value(other))
 
     def __pos__(self):
         """ Return positive value
@@ -167,14 +167,14 @@ class Float32:
     def __pow__(self, other):
         """ Power operation
         """
-        return Float32(self._val ** self.value(other))
+        return Float32(self._val ** self.__value(other))
 
     def __rpow__(self, other):
         """ Reverse Power operation
         """
-        return Float32(self.value(other) ** self._val)
+        return Float32(self.__value(other) ** self._val)
 
-    def value(self, other):
+    def __value(self, other):
         """ This method checks whether the variable is a Float32 type or not and
         returns it's value likewise.
         """
