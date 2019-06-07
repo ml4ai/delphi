@@ -347,8 +347,14 @@ class PythonCodeGenerator(object):
             status = self.check_ref(index, arg, arg_strs)
 
         if py_fn_type == "FUNC":
-            arguments = ", ".join(arg_strs)
-            return f"Float32({handler}({arguments}))"
+            # If the handler is 'max' or 'min', Float32 casting is not required.
+            if handler in ("max", "min"):
+                arg_strs = [x.replace("._val", "") for x in arg_strs]
+                arguments = ", ".join(arg_strs)
+                return f"{handler}({arguments})"
+            else:
+                arguments = ", ".join(arg_strs)
+                return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
             assert len(arg_list) == 2, \
                 f"INFIXOP with {len(arg_list)} arguments"
