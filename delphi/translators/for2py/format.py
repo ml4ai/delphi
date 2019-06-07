@@ -347,7 +347,8 @@ class Format:
 
             elif fmt[0] in "'\"":  # character string
                 sz = len(fmt) - 2  # -2 for the quote at either end
-                gen_fmt = fmt[1:-1]
+                # escape any double-quotes in the string
+                gen_fmt = fmt[1:-1].replace('"', '\\\"')
                 rexp = [(gen_fmt, None, None)]
 
             elif fmt[0] == "/":  # newlines
