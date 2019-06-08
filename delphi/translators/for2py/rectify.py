@@ -66,6 +66,8 @@ class RectifyOFPXML:
         self.label_lbl_for_before = []
         self.label_lbl_for_after = []
 
+        self.declared_label_flags = []
+
         # Dictionaries to hold statements
         # before and after the gotos and labels
         self.statements_to_reconstruct_before = {
@@ -298,8 +300,6 @@ class RectifyOFPXML:
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 if child.tag in self.body_child_tags:
-                    # REMOVE
-                    print ("HEEEEEEEEEEEEEEEEEEEEEEEEEERE: ", cur_elem.tag)
                     self.parseXMLTree(child, cur_elem, current, traverse)
                     # Reconstruction of statements
                     if (
@@ -319,8 +319,6 @@ class RectifyOFPXML:
                             if self.label_lbl_for_before:
                                 self.continue_elimination = True
                         if self.reconstruct_before_case_now and not self.reconstruction_for_before_done:
-                            # REMOVE
-                            print ("self.label_lbl_for_before: ", self.label_lbl_for_before)
                             self.reconstruct_goto_before_label(new_parent, traverse)
                             if self.label_lbl_for_after :
                                 self.continue_elimination = True
@@ -353,7 +351,7 @@ class RectifyOFPXML:
         """
         for child in root:
             self.clean_attrib(child)
-            if child.text:
+            if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 if child.tag == "declaration" or child.tag == "use":
                     self.parseXMLTree(child, cur_elem, current, traverse)
@@ -506,7 +504,7 @@ class RectifyOFPXML:
         """
         for child in root:
             self.clean_attrib(child)
-            if child.text:
+            if len(child) > 0 or child.text:
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
@@ -534,7 +532,7 @@ class RectifyOFPXML:
 
         for child in root:
             self.clean_attrib(child)
-            if child.text:
+            if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 if child.tag == "initial-value":
                     self.parseXMLTree(child, cur_elem, current, traverse)
@@ -567,8 +565,6 @@ class RectifyOFPXML:
                     current.attrib['has-stop'] = "true"
 
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                # REMOVE
-                print ("ANOTHER  CHECKKKKKK: ", cur_elem.tag, cur_elem.attrib, len(child))
 
                 if child.tag == "label":
                     label_presented = True
@@ -706,8 +702,6 @@ class RectifyOFPXML:
         ), f"The tag <assignment> must be passed to handle_tag_assignment. Currently, it's {root.tag}."
 
         for child in root:
-            # REMOVE
-            print ("assignment child: ", child.tag, child.attrib)
             self.clean_attrib(child)
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
             if child.tag == "target" or child.tag == "value":
@@ -933,8 +927,6 @@ class RectifyOFPXML:
                 ...
             </loop>
         """
-        # REMOVE
-        print ("LOOOOOOOOOOP: ", root.tag, root.attrib)
         for child in root:
             self.clean_attrib(child)
             if child.text or len(child) > 0:
@@ -2070,7 +2062,8 @@ class RectifyOFPXML:
         stmts_follow_goto = self.statements_to_reconstruct_after['stmts-follow-goto']
         stmts_follow_label = self.statements_to_reconstruct_after['stmts-follow-label']
 
-        self.generate_declaration_element(parent, "goto_flag", number_of_gotos)
+        declared_goto_flag_num = []
+        self.generate_declaration_element(parent, "goto_flag", number_of_gotos, declared_goto_flag_num)
        
         # This variable is for storing goto that may appear at the end of if,
         # And, it does, we want to extract one scope out and place it right 
@@ -2127,8 +2120,10 @@ class RectifyOFPXML:
 
         stmts_follow_label = self.statements_to_reconstruct_before['stmts-follow-label']
         number_of_gotos = self.statements_to_reconstruct_before['count-gotos']
+        
+        declared_label_flag_num = []
+        self.generate_declaration_element(parent, "label_flag", number_of_gotos, declared_label_flag_num)
 
-        self.generate_declaration_element(parent, "label_flag", number_of_gotos)
         # REMOVE
         print ("BEFORE CLEANUP")
         print ("count-gotos: ", number_of_gotos)
@@ -2139,12 +2134,6 @@ class RectifyOFPXML:
             print ("stmt in _follow_goto: ", stmt.tag, stmt.attrib)
             for child in stmt:
                 print ("    child in _follow_goto: ", child.tag, child.attrib)
-                for b in child:
-                    print ("        b in _follow_goto: ", b.tag, b.attrib)
-                    for c in b:
-                        print ("            c in _follow_goto: ", c.tag, c.attrib)
-                        for d in c:
-                            print ("                d in _follow_goto: ", d.tag, d.attrib)
                 
         # A process for find the scope from label to goto,
         # then remove any statements that are not in the scope
@@ -2194,7 +2183,8 @@ class RectifyOFPXML:
 
             header_elem = ET.SubElement(loop_elem, "header")
             # The outermost flag == N and the innermost flag == 1
-            name = f"label_flag_{str(number_of_gotos-i)}"
+            flag_num = declared_label_flag_num[i]
+            name = f"label_flag_{str(flag_num)}"
             name_attrib = {
                             "hasSubscripts":"false",
                             "id":name,
@@ -2263,7 +2253,7 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-    def generate_declaration_element(self, parent, default_name, number_of_gotos):
+    def generate_declaration_element(self, parent, default_name, number_of_gotos, declared_flag_num):
         """
             A flag declaration and assginment xml generation.
             This will generate N number of label_flag_i or goto_i,
@@ -2293,14 +2283,24 @@ class RectifyOFPXML:
                             "is_array":"false",
         }
         for flag in range(number_of_gotos):
-            variable_attribs['id'] = f"{default_name}_{flag+1}"
-            variable_attribs['name'] = f"{default_name}_{flag+1}"
+            flag_num = flag+1
+            if default_name == "label_flag":
+                if flag_num in self.declared_label_flags:
+                    flag_num = self.declared_label_flags[-1]+1
+                self.declared_label_flags.append(flag_num)
+            declared_flag_num.append(flag_num)
+            variable_attribs['id'] = f"{default_name}_{flag_num}"
+            variable_attribs['name'] = f"{default_name}_{flag_num}"
+            # REMOVE
+            print ("in generate for name: ", variable_attribs['name'])
             variable_elem = ET.SubElement(variables_elem, "variable", variable_attribs)
 
         # Assignment
         for flag in range(number_of_gotos):
+            flag_num = declared_flag_num[flag]
+            declared_flag_num.append(flag_num)
             statement_elem = ET.SubElement(parent, "statement")
-            self.generate_assignment_element(statement_elem, f"{default_name}_{flag+1}", None, "literal", "true")
+            self.generate_assignment_element(statement_elem, f"{default_name}_{flag_num}", None, "literal", "true")
 
     def generate_assignment_element(self, parent, name_id, condition, value_type, value):
         """
