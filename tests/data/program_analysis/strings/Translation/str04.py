@@ -6,9 +6,9 @@ def main():
     str2 = String(5)
     str3 = String(15)
 
-    str1.set_("abcdefgh")
-    str2.set_(str1)
-    str3.set_(str1)
+    str1.set_("ab" + "cd")
+    str2.set_("ef" + str1)
+    str3.set_(str1 + str2)
 
     fmt_10 = Format(['A', '": len = "', 'I2', '"; value = \""', 'A', '"\""'])
     write_str = fmt_10.write_line(["str1", len(str1), str1])
