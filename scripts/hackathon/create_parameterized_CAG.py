@@ -2,7 +2,7 @@ import sys
 import pickle
 
 
-def create_parameterized_CAG(input, output, filename="CAG_with_indicators_and_values.pdf"):
+def create_parameterized_CAG(input, output):
     """ Create a CAG with mapped and parameterized indicators """
     with open(input, "rb") as f:
         G = pickle.load(f)
