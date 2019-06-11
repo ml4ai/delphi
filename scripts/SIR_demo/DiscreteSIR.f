@@ -136,7 +136,7 @@ C  *****************************************************************************
 
       if (do_init .eqv. .TRUE.) then        ! initialize
          open (2, file = 'PYTHON-RANDOM_SEQ')
-         do j = 1, 1000
+         do j = 1, N
             read (2, 10) pyrand_array(j)
  10         format(F20.18)
          end do
