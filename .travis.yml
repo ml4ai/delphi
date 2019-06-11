@@ -9,10 +9,10 @@ addons:
     - graphviz
 
 install:
-  - pip install -e .[test,docs]
   - curl -O http://github.com/sorgerlab/indra/zipball/master
-  - export PYTHONPATH=`pwd`:$PYTHONPATH
+  - export PYTHONPATH=`pwd`/indra:$PYTHONPATH
   - cd indra; pip install -e .; cd ../
+  - pip install -e .[test,docs]
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
   - export DELPHI_DB=`pwd`/delphi.db
 
