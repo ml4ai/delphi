@@ -124,11 +124,11 @@ class AnalysisGraph(nx.DiGraph):
         return cls(edges)
 
     @classmethod
-    def from_text(cls, text: str):
+    def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
 
-        eidosProcessor = process_text(text)
+        eidosProcessor = process_text(text,webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
