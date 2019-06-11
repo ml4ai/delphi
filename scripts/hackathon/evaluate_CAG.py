@@ -6,6 +6,8 @@ from delphi.db import engine
 import numpy as np
 import random
 from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
 np.random.seed(87)
 random.seed(87)
 
@@ -20,11 +22,12 @@ def get_predictions(G, target_node, intervened_node, delta, n_timesteps, dampen=
     G.initialize()
 
     pred = np.zeros(n_timesteps)
+    target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
     for t in range(n_timesteps):
         G.update(dampen=dampen)
         pred[t]=np.median(list(G.nodes(data=True)[target_node]['indicators'].values())[0].samples)
 
-    return pred
+    return pd.DataFrame(pred,columns=[target_indicator+'(Predictions)'])
 
 
 def get_true_values(G,target_node,n_timesteps,start_year,start_month):
@@ -34,7 +37,8 @@ def get_true_values(G,target_node,n_timesteps,start_year,start_month):
 
     true_vals = np.zeros(n_timesteps)
     year = start_year
-    month = start_month
+    month = start_month+1
+    date = []
     for j in range(n_timesteps):
         if target_df[target_df['Year'] == year].empty:
            true_vals[j] = target_df['Value'].values.astype(float).mean()
@@ -45,13 +49,16 @@ def get_true_values(G,target_node,n_timesteps,start_year,start_month):
         else:
             true_vals[j] = target_df[target_df['Year'] == year][target_df['Month']
                 == month]['Value'].values.astype(float).mean()
+
+        date.append(str(year)+'-'+str(month))
+
         if month == 12:
             year = year + 1
             month = 1
         else:
             month = month + 1
 
-    return true_vals
+    return pd.DataFrame(true_vals,date,columns=[target_indicator+'(True)'])
 
 
 def calculate_timestep(start_year,start_month,end_year,end_month):
@@ -88,28 +95,25 @@ def estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year
             end_year][intervened_df['Month'] ==
                     end_month]['Value'].values.astype(float).mean()
 
-    diff_val = end_val - start_val
-    return diff_val/n_timesteps
+    diff_val_per = (end_val - start_val)/start_val
+    return diff_val_per/n_timesteps
 
 def evaluate_CAG(
-    input,
+    G,
     target_node: str,
     intervened_node: str,
+    input = None,
     start_year=2012,
     start_month=None,
     end_year=2017,
     end_month=None,
     dampen=False,
-    res = 200
 ):
-    with open(input,"rb") as f:
-        G = pickle.load(f)
+    if input is not None:
+        with open(input,"rb") as f:
+            G = pickle.load(f)
 
     G.parameterize(year = start_year,month = start_month)
-    G.get_timeseries_values_for_indicators()
-    G.res = res
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
     G.get_timeseries_values_for_indicators()
 
     if start_month is None:
@@ -119,18 +123,27 @@ def evaluate_CAG(
 
     n_timesteps = calculate_timestep(start_year,start_month,end_year,end_month)
 
-    true_vals = get_true_values(G,target_node,n_timesteps,start_year,start_month)
+    true_vals_df = get_true_values(G,target_node,n_timesteps,start_year,start_month)
+
+    true_vals = true_vals_df.values
 
     delta = estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year,end_month)
 
-    preds = get_predictions(G, target_node, intervened_node, delta, n_timesteps, dampen=False)
+    preds_df = get_predictions(G, target_node, intervened_node, delta, n_timesteps, dampen=False)
+
+    preds_df = preds_df.set_index(true_vals_df.index)
+
+    preds = preds_df.values
 
     sq_error = (preds-true_vals)**2
 
     mean_sq_error = np.mean(sq_error)
 
-    print(sq_error, "\n")
-    print(mean_sq_error)
+    compare_df = pd.concat([true_vals_df,preds_df],axis=1,join_axes=[true_vals_df.index])
+
+    sns.set(rc={'figure.figsize':(15,8)},style='whitegrid')
+    ax = sns.lineplot(data=compare_df)
+    ax.set_xticklabels(compare_df.index,rotation=45,ha='right',fontsize=8)
 
 if __name__ == "__main__":
     evaluate_CAG(input = sys.argv[1],target_node = sys.argv[2], intervened_node
