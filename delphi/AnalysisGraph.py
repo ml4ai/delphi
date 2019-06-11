@@ -124,11 +124,11 @@ class AnalysisGraph(nx.DiGraph):
         return cls(edges)
 
     @classmethod
-    def from_text(cls, text: str):
+    def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
 
-        eidosProcessor = process_text(text)
+        eidosProcessor = process_text(text,webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
@@ -1047,8 +1047,7 @@ class AnalysisGraph(nx.DiGraph):
         self,
         indicators: bool = False,
         indicator_values: bool = False,
-        nodes_to_highlight=None,
-        *args,
+        nodes_to_highlight: Optional[Union[str, List[str]]]=None,
         **kwargs,
     ):
         """ Exports the CAG as a pygraphviz AGraph for visualization.
@@ -1185,15 +1184,17 @@ class AnalysisGraph(nx.DiGraph):
                     )
                     A.add_edge(n[0], indicator_name, color="royalblue4")
 
+        nodes_to_highlight = kwargs.get("nodes_to_highlight")
         if nodes_to_highlight is not None:
-            nodes = kwargs.pop("nodes_to_highlight")
-            if isinstance(nodes, list):
-                for n in nodes:
+            if isinstance(nodes_to_highlight, list):
+                for n in nodes_to_highlight:
                     if n in A.nodes():
                         A.add_node(n, fontcolor="royalblue")
-            elif isinstance(nodes, str):
-                if n in A.nodes():
-                    A.add_node(nodes, fontcolor="royalblue")
+            elif isinstance(nodes_to_highlight, str):
+                if nodes_to_highlight in A.nodes():
+                    A.add_node(nodes_to_highlight, fontcolor="royalblue")
+            else:
+                pass
 
         if kwargs.get("graph_label") is not None:
             A.graph_attr["label"] = kwargs["graph_label"]
