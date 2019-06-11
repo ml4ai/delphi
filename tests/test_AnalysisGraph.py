@@ -1,6 +1,5 @@
 import os
 from conftest import *
-from indra.statements import Influence, Concept
 from delphi.random_variables import Indicator
 from delphi.AnalysisGraph import AnalysisGraph
 import pickle

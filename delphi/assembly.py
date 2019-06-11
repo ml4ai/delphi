@@ -10,7 +10,7 @@ from .db import engine
 
 
 def deltas(s: Influence) -> Tuple[Delta, Delta]:
-    return s.subj_delta, s.obj_delta
+    return s.subj.delta, s.subj.delta
 
 
 def get_respdevs(gb):
@@ -49,9 +49,7 @@ def constructConditionalPDF(
                         adjective_response_dict[subj_adjective] = get_respdevs(
                             gb.get_group(subj_adjective)
                         )
-                    rs_subj = stmt.subj_delta[
-                        "polarity"
-                    ] * adjective_response_dict.get(subj_adjective, rs)
+                    rs_subj = stmt.subj.delta.polarity * adjective_response_dict.get(subj_adjective, rs)
 
                     for obj_adjective in ev.annotations["obj_adjectives"]:
                         if (
@@ -62,9 +60,7 @@ def constructConditionalPDF(
                                 obj_adjective
                             ] = get_respdevs(gb.get_group(obj_adjective))
 
-                        rs_obj = stmt.obj_delta[
-                            "polarity"
-                        ] * adjective_response_dict.get(obj_adjective, rs)
+                        rs_obj = stmt.obj.delta.polarity * adjective_response_dict.get(obj_adjective, rs)
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
                         θs = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
@@ -72,15 +68,12 @@ def constructConditionalPDF(
 
             # Prior
             xs1, ys1 = np.meshgrid(
-                stmt.subj_delta["polarity"] * rs,
-                stmt.obj_delta["polarity"] * rs,
+                stmt.subj.delta.polarity * rs,
+                stmt.obj.delta.polarity * rs,
                 indexing="xy",
             )
             # TODO - make the setting of σ_X and σ_Y more automated
             θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
-
-    # all_θs.append(θs)
-    # return gaussian_kde(np.concatenate(all_θs))
 
     if len(all_θs) == 0:
         all_θs.append(θs)

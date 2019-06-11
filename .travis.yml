@@ -10,6 +10,9 @@ addons:
 
 install:
   - pip install -e .[test,docs]
+  - curl -O http://github.com/sorgerlab/indra/zipball/master
+  - export PYTHONPATH=`pwd`:$PYTHONPATH
+  - cd indra; pip install -e .; cd ../
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
   - export DELPHI_DB=`pwd`/delphi.db
 
