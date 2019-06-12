@@ -26,6 +26,9 @@ from delphi.translators.for2py.syntax import (
 )
 
 
+# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
+IGNORE_INTERNAL_COMMENTS = True
+
 # INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
 # with comments internal to subprogram bodies.
 INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
@@ -253,10 +256,13 @@ def extract_comments(
             ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
 
             if line_type == "comment":
-                marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                marker_stmt = f"        {marker_var} = .True.\n"
-                comments[curr_fn]["internal"][marker_var] = line
-                lines[i] = (linenum, marker_stmt)
+                if IGNORE_INTERNAL_COMMENTS:
+                    lines[i] = (linenum, None)
+                else:
+                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
+                    marker_stmt = f"        {marker_var} = .True.\n"
+                    comments[curr_fn]["internal"][marker_var] = line
+                    lines[i] = (linenum, marker_stmt)
             else:
                 pass  # nothing to do -- continue
 
@@ -386,4 +392,4 @@ if __name__ == "__main__":
             if line is not None:
                 f.write(line)
 
-    print_comments(comments)
+    #print_comments(comments)
