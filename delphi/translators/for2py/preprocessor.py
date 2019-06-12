@@ -392,4 +392,6 @@ if __name__ == "__main__":
             if line is not None:
                 f.write(line)
 
+    # Temporarily commenting out the printing of comments by the preprocessor.
+    # To be reinstated later if it seems useful.  --SKD 06/2019
     #print_comments(comments)
