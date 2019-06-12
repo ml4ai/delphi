@@ -2,7 +2,7 @@ import sys
 import pickle
 
 
-def create_precipitation_centered_CAG(input, output):
+def create_scenario_centered_CAG(input, output):
     """ Get a CAG that examines the downstream effects of changes in precipitation. """
 
     with open(input, "rb") as f:
@@ -22,4 +22,4 @@ def create_precipitation_centered_CAG(input, output):
 
 
 if __name__ == "__main__":
-    create_precipitation_centered_CAG(sys.argv[1], sys.argv[2])
+    create_scenario_centered_CAG(sys.argv[1], sys.argv[2])

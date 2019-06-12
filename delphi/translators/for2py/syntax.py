@@ -53,11 +53,17 @@ def line_is_comment(line: str) -> bool:
 SUB_START = r"\s*subroutine\s+(\w+)\s*\("
 RE_SUB_START = re.compile(SUB_START, re.I)
 
-FN_START = r"\s*[a-z]*\s*function\s+(\w+)\s*\("
+# The start of a function can look like any of the following:
+#
+#       function myfunc(...
+#       integer function myfunc(...
+#       double precision myfunc(...
+
+FN_START = r"\s*(\w*\s*){0,2}function\s+(\w+)\s*\("
 RE_FN_START = re.compile(FN_START, re.I)
 
-PGM_UNIT_START = r"\s+[a-z]*\s+(program|module|subroutine|function)\s+(\w+)"
-RE_PGM_UNIT_START = re.compile(PGM_UNIT_START, re.I)
+PGM_UNIT = r"\s+\w*\s+(program|module|subroutine|(\w*\s*){0,2}function)\s+(\w+)"
+RE_PGM_UNIT_START = re.compile(PGM_UNIT, re.I)
 
 PGM_UNIT_SEP = r"\s+contains(\W+)"
 RE_PGM_UNIT_SEP = re.compile(PGM_UNIT_SEP, re.I)
@@ -104,7 +110,7 @@ RE_SAVE_STMT = re.compile(SAVE_STMT, re.I)
 STOP_STMT = r"\s*(\d+|&)?\s*stop\s*"
 RE_STOP_STMT = re.compile(STOP_STMT, re.I)
 
-TYPE_NAMES = r"^\s*(integer|real|double|complex|character|logical|dimension|type)\W*"
+TYPE_NAMES = r"^\s*(integer|real|double\s+precision|complex|character|logical|dimension|type)\W*"
 RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
 
 # EXECUTABLE_CODE_START is a list of regular expressions matching
@@ -144,7 +150,7 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
 
     match = RE_FN_START.match(line)
     if match != None:
-        f_name = match.group(1)
+        f_name = match.group(2)
         return (True, f_name)
 
     return (False, None)
