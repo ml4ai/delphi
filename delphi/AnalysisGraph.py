@@ -44,6 +44,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -126,29 +127,51 @@ class AnalysisGraph(nx.DiGraph):
     @classmethod
     def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
-        machine reading. """
+        machine reading.
 
-        eidosProcessor = process_text(text,webservice=webservice)
+        Args:
+            text: Input text to be processed by Eidos.
+            webservice: URL for Eidos webservice, either the INDRA web service,
+                or the instance of Eidos running locally on your computer (e.g.
+                http://localhost:9000.
+        """
+
+        eidosProcessor = process_text(text, webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
-    def from_json_serialized_statements_list(cls, json_serialized_list):
+    def from_json_serialized_statements_list(
+        cls, json_serialized_list: List[Dict]
+    ):
         """ Construct an AnalysisGraph object from a list of JSON serialized
-        INDRA statements. """
+        INDRA statements.
+
+        Args:
+            json_serialized_list: A list of JSON-serializable dicts
+                representing INDRA statements.
+        """
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
-    def from_json_serialized_statements_file(cls, file):
+    def from_json_serialized_statements_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing
-        JSON-serialized INDRA statements. """
+        JSON-serialized INDRA statements.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements.
+        """
         return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
-    def from_uncharted_json_file(cls, file):
+    def from_uncharted_json_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing INDRA
         statements serialized exported by Uncharted's CauseMos webapp.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements
+            from Uncharted's CauseMos HMI.
         """
         with open(file, "r") as f:
             _dict = json.load(f)
@@ -159,7 +182,14 @@ class AnalysisGraph(nx.DiGraph):
         cls, _dict, minimum_evidence_pieces_required: int = 1
     ):
         """ Construct an AnalysisGraph object from a dict of INDRA statements
-        exported by Uncharted's CauseMos webapp. """
+        exported by Uncharted's CauseMos webapp.
+
+        Args:
+            _dict: A dict of INDRA statements exported by Uncharted's CauseMos
+                HMI.
+            minimum_evidence_pieces_required: The minimum number of evidence
+                pieces required to consider a statement for assembly.
+        """
         sts = _dict["statements"]
         G = nx.DiGraph()
         for s in sts:
@@ -259,10 +289,6 @@ class AnalysisGraph(nx.DiGraph):
     def assemble_transition_model_from_gradable_adjectives(self):
         """ Add probability distribution functions constructed from gradable
         adjective data to the edges of the analysis graph data structure.
-
-        Args:
-            adjective_data
-            res
         """
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
@@ -1047,7 +1073,7 @@ class AnalysisGraph(nx.DiGraph):
         self,
         indicators: bool = False,
         indicator_values: bool = False,
-        nodes_to_highlight: Optional[Union[str, List[str]]]=None,
+        nodes_to_highlight: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         """ Exports the CAG as a pygraphviz AGraph for visualization.
