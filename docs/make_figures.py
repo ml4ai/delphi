@@ -1,4 +1,4 @@
-from delphi import AnalysisGraph
+from delphi.AnalysisGraph import AnalysisGraph
 
 G = AnalysisGraph.from_text(
     "Significantly increased conflict seen in "

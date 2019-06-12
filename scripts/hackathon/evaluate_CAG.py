@@ -69,38 +69,6 @@ def calculate_timestep(start_year,start_month,end_year,end_month):
     year_to_month = diff_year*12
     return year_to_month - (start_month - 1) + (end_month - 1)
 
-
-# This is specifically for when the dampen argument for G.update is set to False.
-def estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year,end_month):
-    df = pd.read_sql_table("indicator", con=engine)
-    intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]
-    intervened_df = df[df['Variable'] == intervener_indicator]
-
-    if intervened_df[intervened_df['Year'] == start_year].empty:
-        start_val = intervened_df['Value'].values.astype(float).mean()
-    elif intervened_df[intervened_df['Year'] ==
-            start_year][intervened_df['Month'] == start_month].empty:
-        start_val = intervened_df[intervened_df['Year'] ==
-                start_year]['Value'].values.astype(float).mean()
-    else:
-        start_val = intervened_df[intervened_df['Year'] ==
-            start_year][intervened_df['Month'] ==
-                    start_month]['Value'].values.astype(float).mean()
-
-    if intervened_df[intervened_df['Year'] == end_year].empty:
-        end_val = intervened_df['Value'].values.astype(float).mean()
-    elif intervened_df[intervened_df['Year'] ==
-            end_year][intervened_df['Month'] == end_month].empty:
-        end_val = intervened_df[intervened_df['Year'] ==
-                end_year]['Value'].values.astype(float).mean()
-    else:
-        end_val = intervened_df[intervened_df['Year'] ==
-            end_year][intervened_df['Month'] ==
-                    end_month]['Value'].values.astype(float).mean()
-
-    diff_val_per = (end_val - start_val)/start_val
-    return diff_val_per/n_timesteps
-
 def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
     df = pd.read_sql_table("indicator",con=engine)
     intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]

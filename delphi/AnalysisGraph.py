@@ -13,7 +13,7 @@ import numpy as np
 import warnings
 from scipy.stats import gaussian_kde, norm
 import pandas as pd
-from indra.statements import Influence, Concept
+from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
@@ -104,14 +104,14 @@ class AnalysisGraph(nx.DiGraph):
         for s in sts:
             if assign_default_polarities:
                 for delta in deltas(s):
-                    if delta["polarity"] is None:
-                        delta["polarity"] = 1
+                    if delta.polarity is None:
+                        delta.polarity = 1
             concepts = nameTuple(s)
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
                 if all(
-                    map(exists, (delta["polarity"] for delta in deltas(s)))
+                    map(exists, (delta.polarity for delta in deltas(s)))
                 ):
                     if concepts in _dict:
                         _dict[concepts].append(s)
@@ -185,10 +185,12 @@ class AnalysisGraph(nx.DiGraph):
                             delta["polarity"] = 1
 
                     influence_stmt = Influence(
-                        Concept(subj_name, db_refs=subj["db_refs"]),
-                        Concept(obj_name, db_refs=obj["db_refs"]),
-                        subj_delta=s["subj_delta"],
-                        obj_delta=s["obj_delta"],
+                        Event(Concept(subj_name, db_refs=subj["db_refs"]),
+                            delta=QualitativeDelta(s["subj_delta"]["polarity"],
+                                s["subj_delta"]["adjectives"])),
+                        Event(Concept(obj_name, db_refs=obj["db_refs"]),
+                            delta=QualitativeDelta(s["obj_delta"]["polarity"],
+                                s["obj_delta"]["adjectives"])),
                         evidence=[
                             INDRAEvidence(
                                 source_api=ev["source_api"],
@@ -825,7 +827,7 @@ class AnalysisGraph(nx.DiGraph):
         for p in self.predecessors(n1):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.obj_delta["polarity"] = -st.obj_delta["polarity"]
+                    st.obj.delta.polarity = -st.obj.delta.polarity
                 st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
 
             if not self.has_edge(p, n2):
@@ -842,7 +844,7 @@ class AnalysisGraph(nx.DiGraph):
         for s in self.successors(n1):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.subj_delta["polarity"] = -st.subj_delta["polarity"]
+                    st.subj.delta.polarity = -st.subj.delta.polarity
                 st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
 
             if not self.has_edge(n2, s):
@@ -1013,8 +1015,8 @@ class AnalysisGraph(nx.DiGraph):
                     True
                     if np.mean(
                         [
-                            stmt.subj_delta["polarity"]
-                            * stmt.obj_delta["polarity"]
+                            stmt.subj.delta.polarity
+                            * stmt.obj.delta.polarity
                             for stmt in e[2]["InfluenceStatements"]
                         ]
                     )
