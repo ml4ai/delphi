@@ -347,9 +347,6 @@ class RectifyOFPXML:
                                 rand_code = RD.randrange(RANGE)
                             self.code.append(rand_code)
 
-                            #REMOVE
-                            print ("Generate Random Code: ", rand_code)
-
                             parent.attrib['conditional-goto-stmt-lbl'] = cur_elem.attrib['lbl']
                             parent.attrib['code'] = str(rand_code)
                             cur_elem.attrib['conditional-goto-stmt'] = "true"
@@ -784,14 +781,12 @@ class RectifyOFPXML:
 
                         # Keep a track of label_after case <goto-stmt> scopes
                         if not self.goto_scopes or target_lbl not in self.goto_scopes:
-                            # REMOVE
-                            print ("Scope: ", self.current_goto_scope)
                             self.goto_scopes[target_lbl] = {'goto':[], 'label':[], 'end-of-scope':False}
-                            self.current_goto_scope.append(target_lbl)
                             if self.current_goto_scope:
                                 # [-1] because the last element is the current scope in process
                                 self.goto_scopes[self.current_goto_scope[-1]]['goto'].append(target_lbl)
                                 current.attrib['parent-scope'] = self.current_goto_scope[-1]
+                            self.current_goto_scope.append(target_lbl)
 
                         if "parent-scope" not in current.attrib:
                             current.attrib['skip-collect'] = "true"
@@ -1225,11 +1220,7 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             # A process of negating the operator during goto elimination
             if child.tag == "operator" and self.need_op_negation:
-                # REMOVE
-                print ("operator before: ", child.attrib['operator'])
                 child.attrib['operator'] = NEGATED_OP[child.attrib['operator']]
-                # REMOVE
-                print ("operator after: ", child.attrib['operator'])
                 self.need_op_negation = False
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
             if child.tag == "operand":
@@ -2242,10 +2233,6 @@ class RectifyOFPXML:
         self.need_reconstruct = False
 
     def reconstruct_goto_after_label(self, parent, traverse, reconstruct_target):
-        # REMOVE
-        print ("RECONSTRUCT_GOTO_AFTER_LABEL")
-        print ("Parent: ", parent.tag, parent.attrib)
-
         number_of_gotos = reconstruct_target['count-gotos']
         stmts_follow_goto = reconstruct_target['stmts-follow-goto']
 
@@ -2268,25 +2255,7 @@ class RectifyOFPXML:
                 header = stmt[0]
                 stmts_follow_goto.remove(stmt)
 
-        # REMOVE
-        print ("stmts_follow_goto")
-        for stmt in stmts_follow_goto:
-            print ("Stmt: ", stmt.tag, stmt.attrib)
-            for child in stmt:
-                print ("    Child: ", child.tag, child.attrib)
-                for gchild in child:
-                    print ("        gChild: ", gchild.tag, gchild.attrib)
-                    for tchild in gchild:
-                        print ("        tChild: ", tchild.tag, tchild.attrib)
         stmts_follow_label = reconstruct_target['stmts-follow-label']
-        # REMOVE
-        print ("stmts_follow_label")
-        for stmt in stmts_follow_label:
-            print ("Stmt: ", stmt.tag, stmt.attrib)
-            for child in stmt:
-                print ("    Child: ", child.tag, child.attrib)
-                for gchild in child:
-                    print ("        gChild: ", gchild.tag, gchild.attrib)
        
         goto_and_label_stmts_after_goto = []
         for stmt in stmts_follow_goto:
@@ -2332,8 +2301,6 @@ class RectifyOFPXML:
                 self.need_op_negation = True
                 self.generate_if_element(header, parent, stmts_follow_label, next_goto, True, None, f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem)
                 if len(reconstructed_if_elem) > 1:
-                    # REMOVE
-                    print ("reconstructed_if: ", reconstructed_if_elem)
                     stmts_follow_label = reconstructed_if_elem[1]
                 conditional_goto = False
             else:
@@ -2346,8 +2313,6 @@ class RectifyOFPXML:
             self.encapsulate_under_do_while = False
 
             if next_goto:
-                # REMOVE
-                print ("Has next_goto")
                 statement = ET.SubElement(parent, next_goto[0]['statement'].tag, next_goto[0]['statement'].attrib)
                 goto_stmt = ET.SubElement(statement, next_goto[0]['goto-stmt'].tag, next_goto[0]['goto-stmt'].attrib)
                 if reconstructed_if_elem and reconstructed_if_elem[0].attrib['label'] == goto_stmt.attrib['target_label']:
@@ -2369,9 +2334,6 @@ class RectifyOFPXML:
         self.statements_to_reconstruct_after.clear()
 
     def reconstruct_goto_before_label(self, parent, traverse, reconstruct_target):
-        # REMOVE
-        print ("RECONSTRUCT_GOTO_BEFORE_LABEL")
-
         stmts_follow_label = reconstruct_target['stmts-follow-label']
         number_of_gotos = reconstruct_target['count-gotos']
         
@@ -2384,19 +2346,13 @@ class RectifyOFPXML:
         goto_counter = 0
         goto_index_holder = []
         target_label_lbl = None
-        # REMOVE
-        print ("Stmts_Follow_Label:")
         for stmt in stmts_follow_label:
-            # REMOVE
-            print ("Stmt: ", stmt.tag, stmt.attrib)
             if (
                 index == 0
                 and "label" in stmt.attrib
             ):
                 target_label_lbl = stmt.attrib['label']
             for child in stmt:
-                # REMOVE
-                print ("    Child: ", child.tag, child.attrib)
                 if (
                     child.tag == "goto-stmt"
                     and child.attrib['target_label'] == target_label_lbl
@@ -2411,8 +2367,6 @@ class RectifyOFPXML:
         # list, which will then be used to recover the syntax after the elimination
         # process is done
         statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
-        # REMOVE
-        print ("Statements_to_Recover: ")
         for stmt in statements_to_recover:
             if (
                 stmt.tag == "if"
@@ -2659,8 +2613,6 @@ class RectifyOFPXML:
             Since header can hold unary, multiary, or name, some arguments
             may be passed with None. Check them to generate an appropriate XML.
         """
-        # REMOVE
-        print ("if-generation: ", parent.tag, parent.attrib)
         goto_nest_if_elem = ET.SubElement(parent, "if")
 
         header_elem = ET.SubElement(goto_nest_if_elem, "header")
@@ -2875,8 +2827,6 @@ def buildNewAST(filename: str):
     # reconstruct the AST once more
     while (XMLCreator.need_goto_elimination):
         traverse += 1
-        # REMOVE
-        print (f"{traverse}th Traverse Begin")
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)
         for child in root:	
@@ -2893,6 +2843,7 @@ def buildNewAST(filename: str):
 
 
 def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+    traverse = 1
     ast = ET.XML(xmlString)
     XMLCreator = RectifyOFPXML()
     # A root of the new AST
@@ -2902,7 +2853,7 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         # Handle only non-empty elementss
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, cur_elem, newRoot, traverse)
+            XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
 
     return newRoot
 
