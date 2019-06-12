@@ -131,38 +131,34 @@ def calculate_timestep(start_year,start_month,end_year,end_month):
     return year_to_month - (start_month - 1) + (end_month - 1)
 
 
-# This is specifically for when the dampen argument for G.update is set to False.
-def estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year,end_month):
-    df = pd.read_sql_table("indicator", con=engine)
-    intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]
-    intervened_df = df[df['Variable'] == intervener_indicator]
-
-    if intervened_df[intervened_df['Year'] == start_year].empty:
-        start_val = intervened_df['Value'].values.astype(float).mean()
-    elif intervened_df[intervened_df['Year'] ==
-            start_year][intervened_df['Month'] == start_month].empty:
-        start_val = intervened_df[intervened_df['Year'] ==
-                start_year]['Value'].values.astype(float).mean()
-    else:
-        start_val = intervened_df[intervened_df['Year'] ==
-            start_year][intervened_df['Month'] ==
-                    start_month]['Value'].values.astype(float).mean()
-
-    if intervened_df[intervened_df['Year'] == end_year].empty:
-        end_val = intervened_df['Value'].values.astype(float).mean()
-    elif intervened_df[intervened_df['Year'] ==
-            end_year][intervened_df['Month'] == end_month].empty:
-        end_val = intervened_df[intervened_df['Year'] ==
-                end_year]['Value'].values.astype(float).mean()
-    else:
-        end_val = intervened_df[intervened_df['Year'] ==
-            end_year][intervened_df['Month'] ==
-                    end_month]['Value'].values.astype(float).mean()
-
-    diff_val_per = (end_val - start_val)/start_val
-    return diff_val_per/n_timesteps
-
 def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
+    """ Utility function that estimates Rate of Change (deltas) for the
+    intervened node per timestep.
+
+    Deltas are estimated by percent change between each time step. (i.e,
+    (current - next)/current). Heuristics are in place to handle NAN and INF
+    values. If changed from 0 to 0 (NAN case), then delta = 0. If increasing
+    from 0 (+INF case), then delta = positive absolute mean of all finite
+    deltas. If decreasing from 0 (-INF case), then delta = negative absolute
+    mean of all finite deltas.
+
+    Args:
+        G: A completely parameterized and quantified CAG with indicators,
+        estimated transition matrx, and indicator values.
+
+        intervened_node: A string of the full name of the node in which we
+        are intervening on.
+
+        n_timesteps: Number of times steps.
+
+        start_year: An integer, designates the starting year (ex: 2012).
+
+        start_month: An integer, starting month (1-12).
+
+    Returns:
+        1D numpy array of deltas.
+    """
+
     df = pd.read_sql_table("indicator",con=engine)
     intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]
     intervened_df = df[df['Variable'] == intervener_indicator]
