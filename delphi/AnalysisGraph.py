@@ -110,9 +110,7 @@ class AnalysisGraph(nx.DiGraph):
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
-                if all(
-                    map(exists, (delta.polarity for delta in deltas(s)))
-                ):
+                if all(map(exists, (delta.polarity for delta in deltas(s)))):
                     if concepts in _dict:
                         _dict[concepts].append(s)
                     else:
@@ -214,12 +212,20 @@ class AnalysisGraph(nx.DiGraph):
                             delta["polarity"] = 1
 
                     influence_stmt = Influence(
-                        Event(Concept(subj_name, db_refs=subj["db_refs"]),
-                            delta=QualitativeDelta(s["subj_delta"]["polarity"],
-                                s["subj_delta"]["adjectives"])),
-                        Event(Concept(obj_name, db_refs=obj["db_refs"]),
-                            delta=QualitativeDelta(s["obj_delta"]["polarity"],
-                                s["obj_delta"]["adjectives"])),
+                        Event(
+                            Concept(subj_name, db_refs=subj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["subj_delta"]["polarity"],
+                                s["subj_delta"]["adjectives"],
+                            ),
+                        ),
+                        Event(
+                            Concept(obj_name, db_refs=obj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["obj_delta"]["polarity"],
+                                s["obj_delta"]["adjectives"],
+                            ),
+                        ),
                         evidence=[
                             INDRAEvidence(
                                 source_api=ev["source_api"],
@@ -255,43 +261,17 @@ class AnalysisGraph(nx.DiGraph):
 
     # ==========================================================================
     # Sampling and inference
+    # ----------------------
+    #
+    # This section contains code for sampling and Bayesian inference.
     # ==========================================================================
 
-    def update_log_prior(self, A: pd.DataFrame) -> float:
-        _list = [
-            edge[2]["ConditionalProbability"].evaluate(
-                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-            )
-            for edge in self.edges(data=True)
-        ]
+    def sample_from_prior(self):
+        """ Sample elements of the stochastic transition matrix from the prior
+        distribution, based on gradable adjectives. """
 
-        self.log_prior = sum(map(log, _list))
-
-    def update_log_likelihood(self):
-        _list = []
-        for latent_state, observed_state in zip(
-            self.latent_state_sequence, self.observed_state_sequence
-        ):
-            for n in self.nodes(data=True):
-                for indicator, value in observed_state[n[0]].items():
-                    ind = n[1]["indicators"][indicator]
-                    if ind.timeseries is not None:
-                        log_likelihood = np.log(
-                            norm.pdf(
-                                value, latent_state[n[0]] * ind.mean, ind.stdev
-                            )
-                        )
-                        _list.append(log_likelihood)
-
-        self.log_likelihood = sum(_list)
-
-    def update_log_joint_probability(self):
-        self.log_joint_probability = self.log_prior + self.log_likelihood
-
-    def assemble_transition_model_from_gradable_adjectives(self):
-        """ Add probability distribution functions constructed from gradable
-        adjective data to the edges of the analysis graph data structure.
-        """
+        # Add probability distribution functions constructed from gradable
+        # adjective data to the edges of the analysis graph data structure.
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
@@ -313,24 +293,14 @@ class AnalysisGraph(nx.DiGraph):
                 edge[2]["ConditionalProbability"].resample(self.res)[0]
             )
 
-    def set_latent_state_sequence(self, A, n_timesteps=10):
-        self.latent_state_sequence = ltake(
-            n_timesteps,
-            iterate(
-                lambda s: pd.Series(A.values @ s.values, index=s.index),
-                self.s0,
-            ),
-        )
+        # Sample a collection of transition matrices from the prior.
 
-    def sample_from_prior(self):
-        """ Sample elements of the stochastic transition matrix from the prior
-        distribution, based on gradable adjectives. """
+        node_pairs = list(permutations(self.nodes(), 2))
 
         # simple_path_dict caches the results of the graph traversal that finds
         # simple paths between pairs of nodes, so that it doesn't have to be
         # executed for every sampled transition matrix.
 
-        node_pairs = list(permutations(self.nodes(), 2))
         simple_path_dict = {
             node_pair: [
                 list(pairwise(path))
@@ -364,24 +334,7 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def sample_observed_state(self, s: pd.Series) -> Dict:
-        """ Sample observed state vector. This is the implementation of the
-        emission function.
-
-        Args:
-            s: Latent state vector.
-
-        Returns:
-            Observed state vector.
-        """
-
-        return {
-            n[0]: {
-                i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
-                for i in n[1]["indicators"].values()
-            }
-            for n in self.nodes(data=True)
-        }
+        return self.transition_matrix_collection
 
     def sample_from_likelihood(self, n_timesteps=10):
         """ Sample a collection of observed state sequences from the likelihood
@@ -406,44 +359,6 @@ class AnalysisGraph(nx.DiGraph):
             for latent_state_sequence in self.latent_state_sequences
         ]
 
-    def sample_from_proposal(self, A: pd.DataFrame) -> None:
-        """ Sample a new transition matrix from the proposal distribution,
-        given a current candidate transition matrix. In practice, this amounts
-        to the in-place perturbation of an element of the transition matrix
-        currently being used by the sampler.
-
-        Args
-        """
-
-        # Choose the element of A to perturb
-        self.source, self.target, self.edge_dict = random.choice(
-            list(self.edges(data=True))
-        )
-        self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
-
-    def get_timeseries_values_for_indicators(
-        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
-    ):
-        """ Attach timeseries to indicators, for performing Bayesian inference.
-         """
-        if resolution == "month":
-            funcs = [
-                partial(get_indicator_value, month=month) for month in months
-            ]
-        else:
-            raise NotImplementedError(
-                "Currently, only the 'month' resolution is supported."
-            )
-
-        for n in self.nodes(data=True):
-            for indicator in n[1]["indicators"].values():
-                indicator.timeseries = [
-                    func(indicator, year="2017")[0] for func in funcs
-                ]
-                if len(set(indicator.timeseries)) == 1:
-                    indicator.timeseries = None
-
     def sample_from_posterior(self, A: pd.DataFrame) -> None:
         """ Run Bayesian inference - sample from the posterior distribution."""
         self.sample_from_proposal(A)
@@ -461,11 +376,108 @@ class AnalysisGraph(nx.DiGraph):
         if acceptance_probability > np.random.rand():
             self.update_log_joint_probability()
         else:
-            A[f"∂({self.source})/∂t"][self.target] = self.original_value
+            A.iloc[self.i, self.j] = self.original_value
             self.set_latent_state_sequence(A)
             self.update_log_likelihood()
             self.update_log_prior(A)
             self.update_log_joint_probability()
+
+    def update_log_prior(self, A: pd.DataFrame) -> float:
+        _list = [
+            edge[2]["ConditionalProbability"].evaluate(
+                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
+            )
+            for edge in self.edges(data=True)
+        ]
+
+        self.log_prior = sum(map(log, _list))
+
+    def update_log_likelihood(self):
+        _list = []
+        for latent_state, observed_state in zip(
+            self.latent_state_sequence, self.observed_state_sequence
+        ):
+            for n in self.nodes(data=True):
+                for indicator, value in observed_state[n[0]].items():
+                    ind = n[1]["indicators"][indicator]
+                    log_likelihood = np.log(
+                        norm.pdf(
+                            value, latent_state[n[0]] * ind.mean, ind.stdev
+                        )
+                    )
+                    _list.append(log_likelihood)
+
+        self.log_likelihood = sum(_list)
+
+    def update_log_joint_probability(self):
+        self.log_joint_probability = self.log_prior + self.log_likelihood
+
+    def set_latent_state_sequence(self, A, n_timesteps=5):
+        self.latent_state_sequence = ltake(
+            n_timesteps,
+            iterate(
+                lambda s: pd.Series(A.values @ s.values, index=s.index),
+                self.s0,
+            ),
+        )
+
+    def sample_observed_state(self, s: pd.Series) -> Dict:
+        """ Sample observed state vector. This is the implementation of the
+        emission function.
+
+        Args:
+            s: Latent state vector.
+
+        Returns:
+            Observed state vector.
+        """
+
+        return {
+            n[0]: {
+                indicator.name: np.random.normal(
+                    s[n[0]] * indicator.mean, indicator.stdev
+                )
+                for indicator in n[1]["indicators"].values()
+            }
+            for n in self.nodes(data=True)
+        }
+
+    def sample_from_proposal(self, A: pd.DataFrame) -> None:
+        """ Sample a new transition matrix from the proposal distribution,
+        given a current candidate transition matrix. In practice, this amounts
+        to the in-place perturbation of an element of the transition matrix
+        currently being used by the sampler.
+        """
+
+        # Choose the element of A to perturb
+        self.i, self.j = random.choice(list(permutations(range(2*len(self)), 2)))
+
+        # Remember the original value of the element at (i, j), in case we need
+        # to revert the MCMC step.
+
+        self.original_value = A.iloc[self.i, self.j]
+        A.iloc[self.i, self.j] += np.random.normal(scale=0.001)
+
+    def get_timeseries_values_for_indicators(
+        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
+    ):
+        """Attach timeseries to indicators, for performing Bayesian inference."""
+        if resolution == "month":
+            funcs = [
+                partial(get_indicator_value, month=month) for month in months
+            ]
+        else:
+            raise NotImplementedError(
+                "Currently, only the 'month' resolution is supported."
+            )
+
+        for n in self.nodes(data=True):
+            for indicator in n[1]["indicators"].values():
+                indicator.timeseries = [
+                    func(indicator, year="2017")[0] for func in funcs
+                ]
+                if len(set(indicator.timeseries)) == 1:
+                    indicator.timeseries = None
 
     def infer_transition_matrix_coefficient_from_data(
         self,
@@ -1034,8 +1046,7 @@ class AnalysisGraph(nx.DiGraph):
                     True
                     if np.mean(
                         [
-                            stmt.subj.delta.polarity
-                            * stmt.obj.delta.polarity
+                            stmt.subj.delta.polarity * stmt.obj.delta.polarity
                             for stmt in e[2]["InfluenceStatements"]
                         ]
                     )
