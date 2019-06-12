@@ -12,19 +12,22 @@ np.random.seed(87)
 random.seed(87)
 
 
-def get_predictions(G, target_node, intervened_node, delta, n_timesteps, dampen=False):
+def get_predictions(G, target_node, intervened_node, deltas, n_timesteps, dampen=False):
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
     )[1]
-    s0.loc[f"∂({intervened_node})/∂t"] = delta
+    s0.loc[f"∂({intervened_node})/∂t"] = deltas[0]
     s0.to_csv("bmi_config.txt", index_label="variable")
     G.initialize()
 
     pred = np.zeros(n_timesteps)
     target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
     for t in range(n_timesteps):
-        G.update(dampen=dampen)
+        if t == 0:
+            G.update(dampen=dampen)
+        else:
+            G.update(dampen=dampen,set_delta = deltas[t])
         pred[t]=np.median(list(G.nodes(data=True)[target_node]['indicators'].values())[0].samples)
 
     return pd.DataFrame(pred,columns=[target_indicator+'(Predictions)'])
@@ -98,6 +101,45 @@ def estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year
     diff_val_per = (end_val - start_val)/start_val
     return diff_val_per/n_timesteps
 
+def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
+    df = pd.read_sql_table("indicator",con=engine)
+    intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]
+    intervened_df = df[df['Variable'] == intervener_indicator]
+
+    int_vals = np.zeros(n_timesteps+1)
+    year = start_year
+    month = start_month
+    for j in range(n_timesteps+1):
+        if intervened_df[intervened_df['Year'] == year].empty:
+           int_vals[j] = intervened_df['Value'].values.astype(float).mean()
+        elif intervened_df[intervened_df['Year'] == year][intervened_df['Month'] ==
+                month].empty:
+            int_vals[j] = intervened_df[intervened_df['Year'] ==
+                    year]['Value'].values.astype(float).mean()
+        else:
+            int_vals[j] = intervened_df[intervened_df['Year'] ==
+                    year][intervened_df['Month']
+                == month]['Value'].values.astype(float).mean()
+
+        if month == 12:
+            year = year + 1
+            month = 1
+        else:
+            month = month + 1
+
+    per_ch = (np.roll(int_vals,-1) - int_vals)
+
+    per_ch = per_ch/int_vals
+
+    per_mean = np.abs(np.mean(per_ch[np.isfinite(per_ch)]))
+
+    per_ch[np.isnan(per_ch)] = 0
+    per_ch[np.isposinf(per_ch)] = per_mean
+    per_ch[np.isneginf(per_ch)] = -per_mean
+
+    return np.delete(per_ch,-1)
+
+
 def evaluate_CAG(
     G,
     target_node: str,
@@ -127,9 +169,9 @@ def evaluate_CAG(
 
     true_vals = true_vals_df.values
 
-    delta = estimate_delta(G,intervened_node,n_timesteps,start_year,start_month,end_year,end_month)
+    deltas = estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month)
 
-    preds_df = get_predictions(G, target_node, intervened_node, delta, n_timesteps, dampen=False)
+    preds_df = get_predictions(G, target_node, intervened_node, deltas, n_timesteps, dampen=False)
 
     preds_df = preds_df.set_index(true_vals_df.index)
 
