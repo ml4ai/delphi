@@ -3,7 +3,7 @@
 The purpose of this program is to do all the clean up for translate.py.
 This (rectify.py) program will receive OFP generated XML file as an input.
 Then, it removes any unnecessary elements and refactor randomly structured
-(nested) elementss into a correct structure. The output file will be
+(nested) elements into a correct structure. The output file will be
 approximately 30%~40% lighter in terms of number of lines than the OFP XML.
 
 Example:
@@ -13,7 +13,7 @@ Example:
 
         $python rectify.py <ast_file>
 
-ast_file: The XML represenatation of the AST of the Fortran file. This is
+ast_file: The XML representation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 Author: Terrence J. Lim
@@ -77,6 +77,9 @@ class RectifyOFPXML:
         # 'label_flag_' variables
         self.declared_label_flags = []
         self.declared_goto_flags = []
+
+        # A list to hold save_entity tags
+        self.saved_entities = []
 
         self.encountered_goto_label = []
         self.scopes = {}
@@ -450,7 +453,7 @@ class RectifyOFPXML:
 
     def handle_tag_declaration(self, root, current, parent, grandparent, traverse):
         """
-            This function handles cleaning up the XML elementss between the declaration elementss.
+            This function handles cleaning up the XML elements between the declaration elements.
             <declaration>
                 ...
             </declaration>
@@ -481,6 +484,27 @@ class RectifyOFPXML:
             else:
                 if child.tag in self.declaration_child_tags:
                     cur_elem = ET.SubElement(current, child.tag, child.attrib)
+                    if child.tag == "saved-entity":
+                        """
+                            If you find saved-entity, add the element to a list 
+                            and remove it from the XML since you want to shift 
+                            it below save-stmt
+                        """
+                        self.saved_entities.append(cur_elem)
+                        current.remove(cur_elem)
+                    elif child.tag == "save-stmt":
+                        """
+                            If you find save-stmt, check if it contains 
+                            saved-entities and add it below this XML element
+                        """
+                        if len(self.saved_entities) > 0:
+                            for item in self.saved_entities:
+                                cur_elem = ET.SubElement(current, item.tag,
+                                                         item.attrib)
+
+                            # Reinitialize this list since you'll need an
+                            # empty one for the next SAVE statement
+                            self.saved_entities = []
                 elif (
                     child.tag == "component-decl"
                     or child.tag == "component-decl-list"
@@ -1949,6 +1973,12 @@ class RectifyOFPXML:
             self.handle_tag_only(root, current, parent, grandparent, traverse)
         elif root.tag == "length":
             self.handle_tag_length(root, current, parent, grandparent, traverse)
+        elif root.tag == "saved-entity":
+            self.handle_tag_saved_entity(root, current, parent, grandparent,
+                                    traverse)
+        elif root.tag == "save-stmt":
+            self.handle_tag_save_statement(root, current, parent, grandparent,
+                                     traverse)
         else:
             print(
                 f"In the parseXMLTree. Currently, <{root.tag}> passed from <{parent.tag}> is not supported"
@@ -2502,10 +2532,10 @@ class RectifyOFPXML:
 
     def generate_declaration_element(self, parent, default_name, number_of_gotos, declared_flag_num, traverse):
         """
-            A flag declaration and assginment xml generation.
+            A flag declaration and assignment xml generation.
             This will generate N number of label_flag_i or goto_i,
             where N is the number of gotos in the Fortran code
-            and i is the number assgined to the flag
+            and i is the number assigned to the flag
         """
 
         # Declaration
