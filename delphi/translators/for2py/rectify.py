@@ -77,7 +77,10 @@ class RectifyOFPXML:
         # 'label_flag_' variables
         self.declared_label_flags = []
         self.declared_goto_flags = []
-        #
+
+        self.encountered_goto_label = []
+        self.scopes = {}
+
         self.reconstructing_scope = None
         # Keep a track of operations for conditional goto
         # key will be the unique code assigned to each <goto-stmt>
@@ -107,9 +110,6 @@ class RectifyOFPXML:
                                                     "stmts-follow-label": [],
                                                     "count-gotos" : 0,
         }
-        # Keeps tracks of the goto-after scope
-        self.goto_scopes = {}
-        self.current_goto_scope = []
 
         self.cur_derived_type_name = None
         self.current_scope = None
@@ -665,6 +665,8 @@ class RectifyOFPXML:
                     lbl = child.attrib['lbl']
 
                     if traverse == 1:
+                        self.encountered_goto_label.append(lbl)
+
                         # Label-before case
                         if (
                             not self.goto_target_lbl_after
@@ -680,26 +682,12 @@ class RectifyOFPXML:
                                 self.label_before = True
                             if lbl not in self.label_lbl_for_before:
                                 self.label_lbl_for_before.append(lbl)
-                            
-                            # Keep a track of label_before case
-                            # goto-statements' label scopes
-                            if self.current_goto_scope:
-                                self.goto_scopes[self.current_goto_scope[-1]]['label'].append(lbl)
                         # Label-after case
                         else:
                             self.collect_stmts_after_goto = False
                             self.collect_stmts_after_label = True
                             if lbl not in self.label_lbl_for_after:
                                 self.label_lbl_for_after.append(lbl)
-
-                            if self.current_goto_scope:
-                                # If a goto-stmt encounters its target label,
-                                # then it's the end of scope
-                                self.goto_scopes[lbl]['end-of-scope'] = True
-                                del self.current_goto_scope[-1]
-                                for scope in self.goto_scopes:
-                                    if lbl in self.goto_scopes[scope]['goto']:
-                                        self.goto_scopes[scope]['label'].append(lbl)
 
                         if self.label_before or lbl in self.label_lbl_for_before:
                             current.attrib['goto-move'] = "true"
@@ -741,58 +729,41 @@ class RectifyOFPXML:
                     If goto-stmt was seen, we do not construct element for it. However, we collect
                     the information (attributes) that is associated to the existing OFP generated element
                 """
-                # Reaching goto-stmt is a flag to stop collecting stmts
-                if traverse == 1 and self.collect_stmts_after_label:
-                    current.attrib['goto-remove'] = "true"
-                    current.attrib['has-goto-stmt'] = "true"
-                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
-                    self.collect_stmts_after_label = False
-                    self.collecting_stmts_done = True
-
                 self.need_goto_elimination = True
                 target_lbl = child.attrib['target_label']
                 current.attrib['goto-stmt'] = "true"
                 current.attrib['lbl'] = target_lbl
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                # A case where label appears "before" goto
-                if target_lbl in self.label_lbl_for_before:
-                    if traverse == 1:
+                # Reaching goto-stmt is a flag to stop collecting stmts
+                if traverse == 1:
+                    self.encountered_goto_label.append(target_lbl)
+                    if self.collect_stmts_after_label:
+                        current.attrib['goto-remove'] = "true"
+                        current.attrib['has-goto-stmt'] = "true"
+                        self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
+                        self.collect_stmts_after_label = False
+                        self.collecting_stmts_done = True
+
+                    # A case where label appears "before" goto
+                    if target_lbl in self.label_lbl_for_before:
                         self.statements_to_reconstruct_before['count-gotos'] += 1
                         self.goto_target_lbl_before.append(target_lbl)
                         # self.label_before = False
-                        # Keep a track of label_before case <goto-stmt> scopes
-                        for scope in self.goto_scopes:
-                            if target_lbl in self.goto_scopes[scope]['label']:
-                                # A case where no parent scope, but it encapsulates all others
-                                if target_lbl in self.goto_scopes[scope]['goto'] and not self.current_goto_scope:
-                                    current.attrib['parent-scope'] = "none"
-                                else:
-                                    self.goto_scopes[scope]['goto'].append(target_lbl)
-                                    current.attrib['parent-scope'] = scope
+                    # A case where label appears "after" goto
                     else:
-                        assert traverse > 1, "Reconstruction cannot happen in the first traverse"
-                        if self.label_before:
-                            self.reconstruct_before_case_now = True
-                        return
-                # A case where label appears "after" goto
-                else:
-                    if traverse == 1:
                         self.statements_to_reconstruct_after['count-gotos'] += 1
-
-                        # Keep a track of label_after case <goto-stmt> scopes
-                        if not self.goto_scopes or target_lbl not in self.goto_scopes:
-                            self.goto_scopes[target_lbl] = {'goto':[], 'label':[], 'end-of-scope':False}
-                            if self.current_goto_scope:
-                                # [-1] because the last element is the current scope in process
-                                self.goto_scopes[self.current_goto_scope[-1]]['goto'].append(target_lbl)
-                                current.attrib['parent-scope'] = self.current_goto_scope[-1]
-                            self.current_goto_scope.append(target_lbl)
 
                         if "parent-scope" not in current.attrib:
                             current.attrib['skip-collect'] = "true"
                         self.goto_target_lbl_after.append(target_lbl)
                         self.collect_stmts_after_goto = True
                         self.label_after = True
+                else:
+                    if target_lbl in self.label_lbl_for_before:
+                        assert traverse > 1, "Reconstruction cannot happen in the first traverse"
+                        if self.label_before:
+                            self.reconstruct_before_case_now = True
+                        return
             else:
                 print (f'In self.handle_tag_statement: "{child.tag}" not handled')
 
@@ -2256,7 +2227,33 @@ class RectifyOFPXML:
                 stmts_follow_goto.remove(stmt)
 
         stmts_follow_label = reconstruct_target['stmts-follow-label']
-       
+
+        # REMOVE
+        print ("\nself.stmts_follow_goto")
+        for a in stmts_follow_goto:
+            print ("Stmt: ", a.tag, a.attrib)
+            for b in a:
+                print ("    Child: ", b.tag, b.attrib)
+                for c in b:
+                    print ("        Grand-child: ", c.tag, c.attrib)
+
+        # REMOVE
+        print ("\nself.stmts_follow_label")
+        for a in stmts_follow_label:
+            print ("Stmt: ", a.tag, a.attrib)
+            for b in a:
+                print ("    Child: ", b.tag, b.attrib)
+                for c in b:
+                    print ("        Grand-child: ", c.tag, c.attrib)
+
+        print ("\nself.statements_to_reconstruct_before")
+        for a in self.statements_to_reconstruct_before['stmts-follow-label']:
+            print ("Stmt: ", a.tag, a.attrib)
+            for b in a:
+                print ("    Child: ", b.tag, b.attrib)
+                for c in b:
+                    print ("        Grand-child: ", c.tag, c.attrib)
+
         goto_and_label_stmts_after_goto = []
         for stmt in stmts_follow_goto:
             if "label" in stmt.attrib:
@@ -2451,7 +2448,7 @@ class RectifyOFPXML:
                                 self.reconstruct_goto_after_label(body_elem, traverse, reconstruct_target)
 
                                 self.statements_to_reconstruct_after['stmts-follow-goto'] = []
-                                self.statements_to_reconstruct_after['stmts-follow-label'] = stmts_follow_label_copy
+                                # self.statements_to_reconstruct_after['stmts-follow-label'] = stmts_follow_label_copy
                                 inner_gotos_exist = False
                             else:
                                 elems = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
@@ -2827,6 +2824,92 @@ def buildNewAST(filename: str):
     # reconstruct the AST once more
     while (XMLCreator.need_goto_elimination):
         traverse += 1
+        # REMOVE
+        print (f"{traverse}th Start====================")
+        print ("encountered_goto_label: ", XMLCreator.encountered_goto_label)
+        scopes = {}
+        lbl_counter = {}
+        goto_label_in_order = []
+        for lbl in XMLCreator.encountered_goto_label:
+            if lbl not in lbl_counter:
+                lbl_counter[lbl] = 1
+            else:
+                lbl_counter[lbl] += 1
+
+            if not goto_label_in_order:
+                goto_label_in_order.append(lbl)
+            else:
+                if lbl not in goto_label_in_order:
+                    parent = goto_label_in_order[-1]
+                    scopes[lbl] = parent
+                    goto_label_in_order.append(lbl)
+        # REMOVE
+        print ("lbl_counter: ", lbl_counter)
+        print ("goto_label_in_order: ", goto_label_in_order)
+        print ("scopes: ", scopes)
+
+        for lbl in goto_label_in_order:
+            if lbl not in scopes:
+                for label, counter in lbl_counter.items():
+                    if counter % 2 > 0:
+                        scopes[lbl] = label
+        # REMOVE
+        print ("scopes: ", scopes)
+        scopes_for_label = scopes.copy()
+        print ("XMLCreator.statements_to_reconstruct_before: ", XMLCreator.statements_to_reconstruct_before)
+        for stmt in XMLCreator.statements_to_reconstruct_before['stmts-follow-label']:
+            if "goto-stmt" in stmt.attrib:
+                target_lbl = stmt.attrib['lbl']
+                if target_lbl in scopes:
+                    stmt.attrib['parent-scope'] = scopes[target_lbl]
+                    del scopes[target_lbl]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            if "target-label-statement" in stmt.attrib:
+                label = stmt.attrib['label']
+                if label in scopes_for_label:
+                    stmt.attrib['parent-scope'] = scopes_for_label[label]
+                    del scopes_for_label[label]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            print ("Stmt: ", stmt.tag, stmt.attrib)
+
+        print ("XMLCreator.statements_to_reconstruct_after: ", XMLCreator.statements_to_reconstruct_after)
+        for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-goto']:
+            if "goto-stmt" in stmt.attrib:
+                target_lbl = stmt.attrib['lbl']
+                if target_lbl in scopes:
+                    stmt.attrib['parent-scope'] = scopes[target_lbl]
+                    del scopes[target_lbl]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            if "target-label-statement" in stmt.attrib:
+                label = stmt.attrib['label']
+                if label in scopes_for_label:
+                    print ("In?")
+                    stmt.attrib['parent-scope'] = scopes_for_label[label]
+                    del scopes_for_label[label]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            print ("Stmt: ", stmt.tag, stmt.attrib)
+
+        for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-label']:
+            if "goto-stmt" in stmt.attrib:
+                target_lbl = stmt.attrib['lbl']
+                if target_lbl in scopes:
+                    stmt.attrib['parent-scope'] = scopes[target_lbl]
+                    del scopes[target_lbl]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            if "target-label-statement" in stmt.attrib:
+                label = stmt.attrib['label']
+                if label in scopes_for_label:
+                    stmt.attrib['parent-scope'] = scopes_for_label[label]
+                    del scopes_for_label[label]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+            print ("Stmt: ", stmt.tag, stmt.attrib)
+
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)
         for child in root:	
@@ -2854,6 +2937,20 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
+
+    # Checks if the rectified AST requires goto elimination,
+    # if it does, it does a 2nd traverse to eliminate and
+    # reconstruct the AST once more
+    while (XMLCreator.need_goto_elimination):
+        traverse += 1
+        ast = ET.XML(newRoot)
+        newRoot = ET.Element(ast.tag, ast.attrib)
+        for child in ast:	
+            if child.text:	
+                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
+                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
+        if not XMLCreator.continue_elimination:
+            XMLCreator.need_goto_elimination = False
 
     return newRoot
 
