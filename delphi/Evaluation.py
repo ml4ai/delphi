@@ -10,8 +10,29 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def get_predictions(G, target_node, intervened_node, deltas, n_timesteps,
-        dampen_delta=False):
+def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
+    """ Get predicted values for each timestep for a target node's indicator
+    variable given a intervened node and a set of deltas.
+
+    Args:
+        G: A completely parameterized and quantified CAG with indicators,
+        estimated transition matrx, and indicator values.
+
+        target_node: A string of the full name of the node in which we
+        wish to predict values for its attached indicator variable.
+
+        intervened_node: A string of the full name of the node in which we
+        are intervening on.
+
+        deltas: 1D array-like, contains rate of change (deltas) for each
+        time step. Its length must match equal n_timesteps.
+
+        n_timesteps: Number of times steps.
+
+    Returns:
+        Pandas Dataframe containing predictions.
+    """
+    assert (len(deltas) == n_timesteps), "The length of deltas must be equal to n_timesteps"
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
@@ -24,15 +45,36 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps,
     target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
     for t in range(n_timesteps):
         if t == 0:
-            G.update(dampen=dampen)
+            G.update(dampen=False)
         else:
-            G.update(dampen=dampen,set_delta = deltas[t])
+            G.update(dampen=False,set_delta = deltas[t])
         pred[t]=np.median(list(G.nodes(data=True)[target_node]['indicators'].values())[0].samples)
 
     return pd.DataFrame(pred,columns=[target_indicator+'(Predictions)'])
 
 
 def get_true_values(G,target_node,n_timesteps,start_year,start_month):
+    """ Get the true values of the indicator variable attached to the given
+    target node.
+
+    Args:
+        G: A completely parameterized and quantified CAG with indicators,
+        estimated transition matrx, and indicator values.
+
+        target_node: A string of the full name of the node in which we
+        wish to predict values for its attached indicator variable.
+
+        n_timesteps: Number of times steps.
+
+        start_year: An integer, designates the starting year in which to obtain
+        values.
+
+        start_month: An integer, starting month (1-12)
+
+    Returns:
+        Pandas Dataframe containing true values for target node's indicator
+        variable. The values are indexed by date.
+    """
     df = pd.read_sql_table("indicator", con=engine)
     target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
     target_df = df[df['Variable'] == target_indicator]
@@ -64,6 +106,26 @@ def get_true_values(G,target_node,n_timesteps,start_year,start_month):
 
 
 def calculate_timestep(start_year,start_month,end_year,end_month):
+    """ Utility function that converts a time range given a start date and end
+    date into a integer value.
+
+    Args:
+        start_year: An integer, designates the starting year (ex: 2012)
+
+        start_month: An integer, starting month (1-12)
+
+        end_year: An integer, ending year
+
+        end_month: An integer, ending month
+
+    Returns:
+        Integer value
+    """
+
+    assert (start_year <= end_year), "Starting date cannot exceed ending date."
+    if start_year == end_year:
+        assert (start_month <= end_month), "Starting date cannot exceed ending date."
+
     diff_year = end_year - start_year
     year_to_month = diff_year*12
     return year_to_month - (start_month - 1) + (end_month - 1)
