@@ -50,7 +50,6 @@ def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.id = data["model_id"]
     G.to_sql(app=current_app)

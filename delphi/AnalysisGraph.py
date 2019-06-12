@@ -266,50 +266,12 @@ class AnalysisGraph(nx.DiGraph):
     # This section contains code for sampling and Bayesian inference.
     # ==========================================================================
 
-<<<<<<< HEAD
     def sample_from_prior(self):
         """ Sample elements of the stochastic transition matrix from the prior
         distribution, based on gradable adjectives. """
 
         # Add probability distribution functions constructed from gradable
         # adjective data to the edges of the analysis graph data structure.
-=======
-    def update_log_prior(self, A: pd.DataFrame) -> float:
-        _list = [
-            edge[2]["ConditionalProbability"].evaluate(
-                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-            )
-            for edge in self.edges(data=True)
-        ]
-
-        self.log_prior = sum(map(log, _list))
-
-    def update_log_likelihood(self):
-        _list = []
-        for latent_state, observed_state in zip(
-            self.latent_state_sequence, self.observed_state_sequence
-        ):
-            for n in self.nodes(data=True):
-                for indicator, value in observed_state[n[0]].items():
-                    ind = n[1]["indicators"][indicator]
-                    if ind.timeseries is not None:
-                        log_likelihood = np.log(
-                            norm.pdf(
-                                value, latent_state[n[0]] * ind.mean, ind.stdev
-                            )
-                        )
-                        _list.append(log_likelihood)
-
-        self.log_likelihood = sum(_list)
-
-    def update_log_joint_probability(self):
-        self.log_joint_probability = self.log_prior + self.log_likelihood
-
-    def assemble_transition_model_from_gradable_adjectives(self):
-        """ Add probability distribution functions constructed from gradable
-        adjective data to the edges of the analysis graph data structure.
-        """
->>>>>>> 4aaa13325298b5d8fcd9174c75b6ede00e0eb430
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
