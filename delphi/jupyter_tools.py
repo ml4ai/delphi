@@ -211,7 +211,8 @@ def print_commit_hash_message():
     )
 
 
-def run_experiment(G, intervened_node, delta, n_timesteps: int):
+def run_experiment(G, intervened_node, delta, n_timesteps: int,est = np.median,
+        conf = 68,dampen = False):
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
@@ -229,7 +230,7 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
     }
 
     for t in range(1, n_timesteps + 1):
-        G.update(dampen=True)
+        G.update(dampen=dampen)
         for n in G.nodes(data=True):
             # TODO Fix this - make it more general (or justify it theoretically)
             ys = lmap(
@@ -243,8 +244,8 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
         fig, ax = plt.subplots()
         sns.lineplot(
             indicator_values[n[0]]["xs"], indicator_values[n[0]]["ys"], ax=ax,
-            ci=68,
-            estimator=np.median
+            ci=conf,
+            estimator=est
         )
         ax.set_title(f"{indicator_values[n[0]]['name']} ({list(n[1]['indicators'].values())[0].unit})")
         ax.set_xlabel("time step number")

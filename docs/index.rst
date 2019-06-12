@@ -28,7 +28,7 @@ Usage
 
 .. code-block:: python
 
-  from delphi import AnalysisGraph
+  from delphi.AnalysisGraph import AnalysisGraph
 
   G = AnalysisGraph.from_text(
       "Significantly increased conflict seen in South Sudan forced many"
@@ -46,7 +46,7 @@ Usage
 
 .. code-block:: python
 
-  from delphi import GroundedFunctionNetwork
+  from delphi.GrFN.networks import GroundedFunctionNetwork
 
   G = GroundedFunctionNetwork.from_fortran_src("""\
         subroutine relativistic_energy(e, m, c, p)

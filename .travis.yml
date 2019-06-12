@@ -9,6 +9,7 @@ addons:
     - graphviz
 
 install:
+  - pip install cython
   - pip install -e .[test,docs]
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
   - export DELPHI_DB=`pwd`/delphi.db
