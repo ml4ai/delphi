@@ -1,7 +1,7 @@
 import pickle
 import pytest
 from datetime import date
-from indra.statements import Concept, Influence, Evidence
+from indra.statements import Concept, Influence, Evidence, Event, QualitativeDelta
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.utils.indra import *
 from delphi.utils.shell import cd
@@ -9,28 +9,32 @@ from delphi.utils.shell import cd
 conflict_string = "UN/events/human/conflict"
 food_security_string = "UN/entities/human/food/food_security"
 
-conflict = Concept(
-    conflict_string,
-    db_refs={
-        "TEXT": "conflict",
-        "UN": [(conflict_string, 0.8), ("UN/events/crisis", 0.4)],
-    },
+conflict = Event(
+    Concept(
+        conflict_string,
+        db_refs={
+            "TEXT": "conflict",
+            "UN": [(conflict_string, 0.8), ("UN/events/crisis", 0.4)],
+        },
+    ),
+    delta=QualitativeDelta(1, ["large"]),
 )
 
-food_security = Concept(
-    food_security_string,
-    db_refs={"TEXT": "food security", "UN": [(food_security_string, 0.8)]},
+food_security = Event(
+    Concept(
+        food_security_string,
+        db_refs={"TEXT": "food security", "UN": [(food_security_string, 0.8)]},
+    ),
+    delta=QualitativeDelta(-1, ["small"]),
 )
 
-precipitation = Concept("precipitation")
+precipitation = Event(Concept("precipitation"))
 
 
-flooding = Concept("flooding")
+flooding = Event(Concept("flooding"))
 s1 = Influence(
     conflict,
     food_security,
-    {"adjectives": ["large"], "polarity": 1},
-    {"adjectives": ["small"], "polarity": -1},
     evidence=Evidence(
         annotations={"subj_adjectives": ["large"], "obj_adjectives": ["small"]}
     ),
@@ -56,6 +60,6 @@ def G():
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.map_concepts_to_indicators()
-    G.parameterize(year = 2014, month = 12)
+    G.parameterize(year=2014, month=12)
     G.to_pickle()
     yield G

@@ -17,7 +17,7 @@ ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 Author: Terrence J. Lim
-Last Modified: 5/23/2019
+Last Modified: 6/12/2019
 
 """
 
@@ -27,6 +27,7 @@ import argparse
 import random as RD
 import xml.etree.ElementTree as ET
 
+# Dictionary of negated operations
 NEGATED_OP = {
                 ".le." : ".ge.",
                 ".ge." : ".le.",
@@ -38,6 +39,9 @@ NEGATED_OP = {
                 ">=" : "<="
               }
 
+# Const variable for setting
+# a maximum range for random
+# number generation
 RANGE = 9999
 
 class RectifyOFPXML:
@@ -328,8 +332,6 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                # REMOVE
-                print ("%%%%%cur_elem: ", cur_elem.tag, cur_elem.attrib)
                 if child.tag in self.body_child_tags:
                     self.parseXMLTree(child, cur_elem, current, parent, traverse)
 
@@ -379,17 +381,11 @@ class RectifyOFPXML:
                                     current.remove(cur_elem)
 
                                     if self.reconstruct_after_case_now and not self.reconstruction_for_after_done:
-                                        # REMOVE
-                                        print ("+++self.reconstruct_after_case_now: ", self.reconstruct_after_case_now)
-                                        print ("+++self.reconstruction_for_after_done: ", self.reconstruction_for_after_done)
                                         self.reconstruct_goto_after_label(new_parent, traverse, self.statements_to_reconstruct_after)
                                         if self.label_lbl_for_before:
                                             self.continue_elimination = True
                                     if self.reconstruct_before_case_now and not self.reconstruction_for_before_done:
                                         reconstruct_target = self.statements_to_reconstruct_before
-                                        # REMOVE
-                                        print ("Reconstruct_target in tag_body:====================================")
-                                        print (reconstruct_target)
                                         self.reconstruct_goto_before_label(new_parent, traverse, reconstruct_target)
                                         if self.label_lbl_for_after :
                                             self.continue_elimination = True
@@ -2218,19 +2214,8 @@ class RectifyOFPXML:
         self.need_reconstruct = False
 
     def reconstruct_goto_after_label(self, parent, traverse, reconstruct_target):
-        # REMOVE
-        print ("RECONSTRUCT_GOTO_AFTER_LABEL")
         number_of_gotos = reconstruct_target['count-gotos']
         stmts_follow_goto = reconstruct_target['stmts-follow-goto']
-
-        # REMOVE
-        print ("\nself.stmts_follow_goto")
-        for a in stmts_follow_goto:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
                     
         conditional_goto = False
         header = None
@@ -2264,32 +2249,6 @@ class RectifyOFPXML:
                 last_goto = reconstruct_target['stmts-follow-goto'].pop()
                 last_goto.attrib['next-goto'] = "true"
                 stmts_follow_label.append(last_goto)
-
-        # REMOVE
-        print ("\nself.stmts_follow_goto - After scoping correction")
-        for a in stmts_follow_goto:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
-
-        # REMOVE
-        print ("\nself.stmts_follow_label")
-        for a in stmts_follow_label:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
-
-        print ("\nself.statements_to_reconstruct_before")
-        for a in self.statements_to_reconstruct_before['stmts-follow-label']:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
 
         goto_and_label_stmts_after_goto = []
         for stmt in stmts_follow_goto:
@@ -2349,8 +2308,6 @@ class RectifyOFPXML:
                     stmts_follow_label = reconstructed_if_elem[1]
                 conditional_goto = False
 
-                # REMOVE
-                print ("Reconstructed If: ", reconstructed_if_elem)
             else:
                 self.generate_if_element(None, parent, stmts_follow_goto, next_goto, True, "unary", f"goto_flag_{i+1}", None, ".not.", traverse, reconstructed_if_elem)
                 if reconstructed_if_elem:
@@ -2363,18 +2320,10 @@ class RectifyOFPXML:
             if next_goto:
                 statement = ET.SubElement(parent, next_goto[0]['statement'].tag, next_goto[0]['statement'].attrib)
                 goto_stmt = ET.SubElement(statement, next_goto[0]['goto-stmt'].tag, next_goto[0]['goto-stmt'].attrib)
-                # REMOVE
-                print ("reconstructed_if_elem")
-                print (reconstructed_if_elem)
-                print (reconstructed_if_elem[0].tag, reconstructed_if_elem[0].attrib)
-                print (reconstructed_if_elem[1].tag, reconstructed_if_elem[1].attrib)
-                print ("goto_stmt.attrib: ", goto_stmt.attrib)
                 if reconstructed_if_elem and reconstructed_if_elem[0].attrib['label'] == goto_stmt.attrib['target_label']:
                     for stmt in reconstructed_if_elem:
                         self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
                     self.statements_to_reconstruct_before['stmts-follow-label'].append(statement)
-                    # REMOVE
-                    print ("***self.statements_to_reconstruct_before: ", self.statements_to_reconstruct_before)
                     if self.statements_to_reconstruct_before['count-gotos'] < 1:
                         self.statements_to_reconstruct_before['count-gotos'] = 1
                     self.reconstruct_before_case_now = True
@@ -2389,8 +2338,6 @@ class RectifyOFPXML:
         self.statements_to_reconstruct_after.clear()
 
     def reconstruct_goto_before_label(self, parent, traverse, reconstruct_target):
-        # REMOVE
-        print ("RECONSTRUCT_GOTO_BEFORE_LABEL")
         stmts_follow_label = reconstruct_target['stmts-follow-label']
         number_of_gotos = reconstruct_target['count-gotos']
         
@@ -2420,15 +2367,6 @@ class RectifyOFPXML:
                 break
             index += 1
 
-        # REMOVE
-        print ("\nself.stmts_follow_label")
-        for a in stmts_follow_label:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
-
         # Store statements that are outside of the label-goto scope in a separate
         # list, which will then be used to recover the syntax after the elimination
         # process is done
@@ -2440,15 +2378,6 @@ class RectifyOFPXML:
             ):
                 statements_to_recover.remove(stmt)
         del stmts_follow_label[index+1:len(stmts_follow_label)]
-
-        # REMOVE
-        print ("\nself.stmts_follow_label")
-        for a in stmts_follow_label:
-            print ("Stmt: ", a.tag, a.attrib)
-            for b in a:
-                print ("    Child: ", b.tag, b.attrib)
-                for c in b:
-                    print ("        Grand-child: ", c.tag, c.attrib)
 
         # In case of multiple goto statements appears, slice them into N number of list objects
         # The location of goto statement (inner to outer) is represented by the increament of index
@@ -2557,8 +2486,6 @@ class RectifyOFPXML:
             else:
                 current_goto_num += 1
 
-        # REMOVE
-        print ("\nstatements_to_recover: ", statements_to_recover)
         for recover_stmt in statements_to_recover:
             statement = ET.SubElement(parent, recover_stmt.tag, recover_stmt.attrib)
             for child in recover_stmt:
@@ -2712,13 +2639,11 @@ class RectifyOFPXML:
         for stmt in stored_stmts:
             if len(stmt) > 0:
                 if "skip-collect" in stmt.attrib:
-                        # REMOVE
-                        print ("In If Generation: ", stmt.tag, stmt.attrib)
-                        parent_scope = stmt.attrib['parent-scope']
-                        if parent_scope in self.encountered_goto_label:
-                            if self.encountered_goto_label[parent_scope] == "before":
-                                goto_nest_if_elem.attrib['label'] = parent_scope
-                                self.encapsulate_under_do_while = True
+                    parent_scope = stmt.attrib['parent-scope']
+                    if parent_scope in self.encountered_goto_label:
+                        if self.encountered_goto_label[parent_scope] == "before":
+                            goto_nest_if_elem.attrib['label'] = parent_scope
+                            self.encapsulate_under_do_while = True
                 else:
                     if (
                         "next-goto" not in stmt.attrib
@@ -2776,8 +2701,6 @@ class RectifyOFPXML:
                                 if len(child) > 0:
                                     self.parseXMLTree(child, child_elem, cur_elem, parent, traverse)
                     else:
-                        # REMOVE
-                        print ("Next_Goto? ", stmt.tag, stmt.attrib)
                         goto_stmt = {}
                         goto_stmt['statement'] = stmt
                         for child in stmt:
@@ -2915,10 +2838,7 @@ def buildNewAST(filename: str):
     # reconstruct the AST once more
     while (XMLCreator.need_goto_elimination):
         traverse += 1
-        # REMOVE
-        print (f"{traverse}th Start====================")
-        # Put everything between this line and "===" into function later
-        print ("encountered_goto_label: ", XMLCreator.encountered_goto_label)
+
         scopes = {}
         lbl_counter = {}
         goto_label_in_order = []
@@ -2936,10 +2856,6 @@ def buildNewAST(filename: str):
                     parent = goto_label_in_order[-1]
                     scopes[lbl] = parent
                     goto_label_in_order.append(lbl)
-        # REMOVE
-        print ("lbl_counter: ", lbl_counter)
-        print ("goto_label_in_order: ", goto_label_in_order)
-        print ("scopes: ", scopes)
 
         # Since the relationship betwen label:goto-stmt is 1:M,
         # find the label that has multiple goto-stmts.
@@ -2950,11 +2866,8 @@ def buildNewAST(filename: str):
                 for label, counter in lbl_counter.items():
                     if counter > 1 and counter % 2 > 0:
                         scopes[lbl] = label
-        # REMOVE
-        print ("scopes: ", scopes)
 
         scopes_for_label = scopes.copy()
-        print ("XMLCreator.statements_to_reconstruct_before: ", XMLCreator.statements_to_reconstruct_before)
         for stmt in XMLCreator.statements_to_reconstruct_before['stmts-follow-label']:
             if "goto-stmt" in stmt.attrib:
                 target_lbl = stmt.attrib['lbl']
@@ -2970,9 +2883,7 @@ def buildNewAST(filename: str):
                     del scopes_for_label[label]
                 else:
                     stmt.attrib['parent-scope'] = "none"
-            print ("Stmt: ", stmt.tag, stmt.attrib)
 
-        print ("XMLCreator.statements_to_reconstruct_after: ", XMLCreator.statements_to_reconstruct_after)
         for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-goto']:
             if "goto-stmt" in stmt.attrib:
                 target_lbl = stmt.attrib['lbl']
@@ -2984,12 +2895,10 @@ def buildNewAST(filename: str):
             if "target-label-statement" in stmt.attrib:
                 label = stmt.attrib['label']
                 if label in scopes_for_label:
-                    print ("In?")
                     stmt.attrib['parent-scope'] = scopes_for_label[label]
                     del scopes_for_label[label]
                 else:
                     stmt.attrib['parent-scope'] = "none"
-            print ("Stmt: ", stmt.tag, stmt.attrib)
 
         for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-label']:
             if "goto-stmt" in stmt.attrib:
@@ -3006,8 +2915,7 @@ def buildNewAST(filename: str):
                     del scopes_for_label[label]
                 else:
                     stmt.attrib['parent-scope'] = "none"
-            print ("Stmt: ", stmt.tag, stmt.attrib)
-        # ================================================================================
+
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)
         for child in root:	
