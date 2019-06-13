@@ -344,6 +344,7 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
+        self.n_timesteps=n_timesteps
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
@@ -376,7 +377,7 @@ class AnalysisGraph(nx.DiGraph):
         if acceptance_probability > np.random.rand():
             self.update_log_joint_probability()
         else:
-            A.iloc[self.i, self.j] = self.original_value
+            A[f"∂({self.source})/∂t"][self.target] = self.original_value
             self.set_latent_state_sequence(A)
             self.update_log_likelihood()
             self.update_log_prior(A)
@@ -412,9 +413,9 @@ class AnalysisGraph(nx.DiGraph):
     def update_log_joint_probability(self):
         self.log_joint_probability = self.log_prior + self.log_likelihood
 
-    def set_latent_state_sequence(self, A, n_timesteps=5):
+    def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
-            n_timesteps,
+            self.n_timesteps,
             iterate(
                 lambda s: pd.Series(A.values @ s.values, index=s.index),
                 self.s0,
@@ -450,13 +451,14 @@ class AnalysisGraph(nx.DiGraph):
         """
 
         # Choose the element of A to perturb
-        self.i, self.j = random.choice(list(permutations(range(2*len(self)), 2)))
+        self.source, self.target, self.edge_dict = random.choice(
+            list(self.edges(data=True))
+        )
+        # Remember the original value of the element, in case we need to revert
+        # the MCMC step.
+        self.original_value = A[f"∂({self.source})/∂t"][self.target]
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.0001)
 
-        # Remember the original value of the element at (i, j), in case we need
-        # to revert the MCMC step.
-
-        self.original_value = A.iloc[self.i, self.j]
-        A.iloc[self.i, self.j] += np.random.normal(scale=0.001)
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)
