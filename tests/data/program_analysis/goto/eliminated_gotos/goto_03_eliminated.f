@@ -1,5 +1,5 @@
 C     File: goto_03.f
-C     A simple program with multiple gotos at the top level of the program.
+C     A simple program with a single top-level backward conditional goto.
 C     The program computes and prints out the values of n! for n in [1,10].
 C
 C     GOTO-elimination algorithm credit:
@@ -11,54 +11,23 @@ C     URL: https://ieeexplore.ieee.org/abstract/document/288377
       implicit none
 
       integer i, n, fact
+      logical label_flag_1
 
-      logical :: goto_222, goto_444
-C     For label 111 of first goto 111 appeared
-      logical :: label_flag_1
-C     For label 111 of second goto 111 appeared
-      logical :: label_flag_2
-C     For label 333
-      logical :: label_flag_3
-      goto_222 = .true.
-      goto_444 = .true.
-      label_flag_1 = .true.
-      label_flag_2 = .true.
-      label_flag_3 = .true.
+      i = 0
+      fact = 1
+      n = 10
 
-      do while (label_flag_3)
-          if (.not. goto_222) then
-              fact = 1
-              do while (label_flag_2)
-                  if (.not. goto_444) then 
-                      do while (label_flag_1)
-                          i = i + 1
-                          fact = fact * i
+      label_flag_1 = .true.    
+      do while (label_flag_1)
+          i = i + 1
+          fact = fact * i
 
-                          write (*, 10) i, fact
-                          if (i .eq. n) then
-                             stop
-                          endif
-
-                          label_flag_1 = .true.
-                      enddo
-
-                      label_flag_2 = .true.
-                  endif
-
-                  if (goto_444) then
-                      i = 0
-                      goto_444 = .false.
-                  endif
-              enddo
-          endif
-
-          if (goto_222) then
-              n = 10
-              goto_222 = .false.
-          endif
-
-          label_flag_3 = .true.
+          write (*, 10) i, fact
+          
+          label_flag_1 = i .lt. n   ! Using a boolean expression directly instead of if-statement
       enddo
 
+      stop
  10   format('i = ', I3, '; fact = ', I8)
+
       end program factorial

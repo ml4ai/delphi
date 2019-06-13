@@ -1,6 +1,5 @@
 C     File: goto_07.f
-C     A simple program with a single forward conditional goto and
-C     a single backward unconditional goto.
+C     A simple program with multiple gotos at the top level of the program.
 C     The program computes and prints out the values of n! for n in [1,10].
 C
 C     GOTO-elimination algorithm credit:
@@ -12,33 +11,54 @@ C     URL: https://ieeexplore.ieee.org/abstract/document/288377
       implicit none
 
       integer i, n, fact
-      logical label_flag_1
 
-      i = 0
-      n = 10
-      fact = 1
-
+      logical :: goto_222, goto_444
+C     For label 111 of first goto 111 appeared
+      logical :: label_flag_1
+C     For label 333
+      logical :: label_flag_2
+C     For label 111 of second goto 111 appeared
+      logical :: label_flag_3
+      goto_222 = .true.
+      goto_444 = .true.
       label_flag_1 = .true.
-      do while (label_flag_1)
-          i = i + 1
+      label_flag_2 = .true.
+      label_flag_3 = .true.
 
-C         Negate the condition and move all statements
-C         until before label 222 statement
-          if (i .le. n) then        
-              fact = fact * i       
+      do while (label_flag_3)
+          if (.not. goto_222) then
+              fact = 1
+              do while (label_flag_2)
+                  if (.not. goto_444) then 
+                      do while (label_flag_1)
+                          i = i + 1
+                          fact = fact * i
 
-              write (*, 10) i, fact
+                          write (*, 10) i, fact
+                          if (i .eq. n) then
+                             stop
+                          endif
 
-              label_flag_1 = .true.
+                          label_flag_1 = .true.
+                      enddo
+
+                      label_flag_2 = .true.
+                  endif
+
+                  if (goto_444) then
+                      i = 0
+                      goto_444 = .false.
+                  endif
+              enddo
           endif
 
-C         Move the label 222 statement to under the if
-C         statement with original condition
-          if (i .gt. n) then 
-              stop 
+          if (goto_222) then
+              n = 10
+              goto_222 = .false.
           endif
+
+          label_flag_3 = .true.
       enddo
 
  10   format('i = ', I3, '; fact = ', I8)
-
       end program factorial
