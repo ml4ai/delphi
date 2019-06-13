@@ -2920,12 +2920,6 @@ class RectifyOFPXML:
         # aseert and give out an error. Else, return nothing
         self.case_availability (scopes)
 
-        print ("encountered_goto_label: ", self.encountered_goto_label)
-        print ("goto_label_with_case", goto_label_with_case)
-        print ("goto_and_labels: ", goto_and_labels)
-        print ("Lbl_counter: ", lbl_counter)
-        print ("\nScopes: ", scopes, "\n")
-
         scopes_for_label = scopes.copy()
         self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_before['stmts-follow-label'])
         self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-goto'])
@@ -2953,7 +2947,7 @@ class RectifyOFPXML:
                     nested_gotos[root_scope] += 1
                     assert (
                         nested_gotos[root_scope] <= 2
-                    ), f"Do do not handle {nested_gotos[root_scope]} nested case at this moment."
+                    ), f"Do do not handle > 2 nested goto case at this moment."
                 else:
                     root_scope = goto
                     nested_gotos[root_scope] = 1
