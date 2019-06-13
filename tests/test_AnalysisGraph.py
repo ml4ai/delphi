@@ -10,8 +10,8 @@ import pytest
 
 def test_from_statements():
     G = AnalysisGraph.from_statements(STS, assign_default_polarities=False)
-    assert set(G.nodes()) == set([conflict_string, food_security_string])
-    assert set(G.edges()) == set([(conflict_string, food_security_string)])
+    assert set(G.nodes()) == set([conflict_string, food_security_string, human_migration_string])
+    assert set(G.edges()) == set([(conflict_string, food_security_string), (conflict_string, human_migration_string)])
 
 
 def test_from_statements_file():
@@ -21,8 +21,8 @@ def test_from_statements_file():
     with open(test_statements_file, "rb") as f:
         sts_from_file = pickle.load(f)
     G = AnalysisGraph.from_statements(sts_from_file, assign_default_polarities=False)
-    assert set(G.nodes()) == set([conflict_string, food_security_string])
-    assert set(G.edges()) == set([(conflict_string, food_security_string)])
+    assert set(G.nodes()) == set([conflict_string, food_security_string, human_migration_string])
+    assert set(G.edges()) == set([(conflict_string, food_security_string), (conflict_string, human_migration_string)])
     os.remove(test_statements_file)
 
 

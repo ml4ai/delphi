@@ -17,7 +17,7 @@ def test_inference_with_synthetic_data(G):
     # Get the original value of our parameter of interest (the ground truth
     # value that we can use to evaluate our inference.
     original_beta = A[f"∂({conflict_string})/∂t"][f"{food_security_string}"]
-    original_A = A.copy()
+    print(A.values)
     fig, ax = plt.subplots()
     sns.distplot(G.edges[conflict_string,
         food_security_string]["βs"], ax=ax)
@@ -29,7 +29,7 @@ def test_inference_with_synthetic_data(G):
 
     # Given the initial latent state vector and the sampled transition matrix,
     # sample a sequence of latent states and observed states
-    G.sample_from_likelihood(n_timesteps=20)
+    G.sample_from_likelihood(n_timesteps=10)
     G.latent_state_sequence = G.latent_state_sequences[0]
     G.observed_state_sequence = G.observed_state_sequences[0]
 
@@ -57,14 +57,14 @@ def test_inference_with_synthetic_data(G):
         rand = 0.1*np.random.rand()
         A[f"∂({edge[0]})/∂t"][edge[1]] = rand
 
-    n_samples: int = 10000
-    map_estimate_matrix = A.copy()
+    n_samples: int = 1000
+    map_estimate_matrix=A.copy()
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
         if G.log_joint_probability > map_log_joint_probability:
             map_log_joint_probability = G.log_joint_probability
             map_estimate = A[f"∂({conflict_string})/∂t"][food_security_string]
-        map_estimates.append(map_estimate)
+            map_estimate_matrix=A.copy()
         scores.append(G.log_joint_probability - original_score)
         betas.append(A[f"∂({conflict_string})/∂t"][food_security_string])
         log_likelihoods.append(G.log_likelihood)
@@ -73,7 +73,6 @@ def test_inference_with_synthetic_data(G):
     plt.style.use("ggplot")
     fig, axes = plt.subplots(3, 1, figsize=(8, 8), sharex=True)
     axes[0].plot(betas[::10], label="beta")
-    axes[0].plot(map_estimates[::10], label="map_estimate")
     axes[0].plot(
         original_beta * np.ones(len(betas[::10])), label="original_beta"
     )
@@ -87,7 +86,6 @@ def test_inference_with_synthetic_data(G):
     plt.savefig("betas.pdf")
 
     # This tolerance seems to work for now, so I'm leaving it in.
-    print(original_A.values)
     print(map_estimate_matrix.values)
     assert map_estimate == approx(original_beta, abs=0.1)
 

@@ -457,7 +457,7 @@ class AnalysisGraph(nx.DiGraph):
         # Remember the original value of the element, in case we need to revert
         # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.0001)
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
 
 
     def get_timeseries_values_for_indicators(
