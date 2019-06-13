@@ -101,7 +101,9 @@ class RectifyOFPXML:
         self.declared_label_flags = []
         self.declared_goto_flags = []
         # Keep a track of all encountered goto and label stmts
-        self.encountered_goto_label = {}
+        self.encountered_goto_label = []
+        # Keep a track of goto and label with its case
+        self.goto_label_with_case = {}
         # Keeps a track of current scope of goto-stmt
         self.reconstructing_scope = None
         # Keep a track of operations for conditional goto
@@ -763,6 +765,8 @@ class RectifyOFPXML:
                     label_presented = True
                     lbl = child.attrib['lbl']
 
+                    self.encountered_goto_label.append(lbl)
+
                     if traverse == 1:
                         # Label-before case
                         if (
@@ -770,7 +774,7 @@ class RectifyOFPXML:
                             or lbl not in self.goto_target_lbl_after
                         ):
 
-                            self.encountered_goto_label[lbl] = "before"
+                            self.goto_label_with_case[lbl] = "before"
                             # Since we want to handle label_after case before
                             # label_before when both cases appear in the code,
                             # we ignore all label_bafore case until _after case
@@ -783,7 +787,7 @@ class RectifyOFPXML:
                                 self.label_lbl_for_before.append(lbl)
                         # Label-after case
                         else:
-                            self.encountered_goto_label[lbl] = "after"
+                            self.goto_label_with_case[lbl] = "after"
                             self.collect_stmts_after_goto = False
                             self.collect_stmts_after_label = True
                             if lbl not in self.label_lbl_for_after:
@@ -836,6 +840,7 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 # Reaching goto-stmt is a flag to stop collecting stmts
                 if traverse == 1:
+                    self.encountered_goto_label.append(target_lbl)
                     if self.collect_stmts_after_label:
                         current.attrib['goto-remove'] = "true"
                         current.attrib['next-goto'] = "true"
@@ -845,13 +850,13 @@ class RectifyOFPXML:
 
                     # A case where label appears "before" goto
                     if target_lbl in self.label_lbl_for_before:
-                        self.encountered_goto_label[target_lbl] = "before"
+                        self.goto_label_with_case[target_lbl] = "before"
                         self.statements_to_reconstruct_before['count-gotos'] += 1
                         self.goto_target_lbl_before.append(target_lbl)
                         # self.label_before = False
                     # A case where label appears "after" goto
                     else:
-                        self.encountered_goto_label[target_lbl] = "after"
+                        self.goto_label_with_case[target_lbl] = "after"
                         self.statements_to_reconstruct_after['count-gotos'] += 1
 
                         if "parent-scope" not in current.attrib:
@@ -1047,9 +1052,7 @@ class RectifyOFPXML:
                 elif child.tag == "name":
                     self.parseXMLTree(child, current, current, parent, traverse)
                 else:
-                    print(
-                        f'In self.handle_tag_name: "{child.tag}" not handled'
-                    )
+                    assert False, f'In self.handle_tag_name: "{child.tag}" not handled'
             else:
                 if child.tag == "generic_spec":
                     cur_elem = ET.SubElement(current, child.tag, child.attrib)
@@ -1834,7 +1837,7 @@ class RectifyOFPXML:
                 if child.text:
                     self.parseXMLTree(child, cur_elem, current, parent, traverse)
             else:
-                print(f'In handle_tag_use: "{child.tag}" not handled')
+                assert False, f'In handle_tag_use: "{child.tag}" not handled'
 
     def handle_tag_module(self, root, current, parent, grandparent, traverse):
         """
@@ -2739,8 +2742,8 @@ class RectifyOFPXML:
             if len(stmt) > 0:
                 if "skip-collect" in stmt.attrib:
                     parent_scope = stmt.attrib['parent-scope']
-                    if parent_scope in self.encountered_goto_label:
-                        if self.encountered_goto_label[parent_scope] == "before":
+                    if parent_scope in self.goto_label_with_case:
+                        if self.goto_label_with_case[parent_scope] == "before":
                             goto_nest_if_elem.attrib['label'] = parent_scope
                             self.encapsulate_under_do_while = True
                 else:
@@ -2872,7 +2875,7 @@ class RectifyOFPXML:
         if "rule" in elements.attrib:
             elements.attrib.pop("rule")
 
-    def scope_identifier (self, encountered_goto_label):
+    def scope_identifier (self, goto_label_with_case):
         """
             This function will be called to dientify the scopes for each goto-
             and-label. The definition of scope here is that whether one goto-label
@@ -2887,7 +2890,7 @@ class RectifyOFPXML:
         scopes = {}
         lbl_counter = {}
         goto_label_in_order = []
-        goto_and_labels = encountered_goto_label.keys()
+        goto_and_labels = self.encountered_goto_label
         for lbl in goto_and_labels:
             if lbl not in lbl_counter:
                 lbl_counter[lbl] = 1
@@ -2912,10 +2915,52 @@ class RectifyOFPXML:
                     if counter > 1 and counter % 2 > 0:
                         scopes[lbl] = label
 
+        # This will check for the handled goto cases.
+        # If any unhandled case enountered, then it will
+        # aseert and give out an error. Else, return nothing
+        self.case_availability (scopes)
+
+        print ("encountered_goto_label: ", self.encountered_goto_label)
+        print ("goto_label_with_case", goto_label_with_case)
+        print ("goto_and_labels: ", goto_and_labels)
+        print ("Lbl_counter: ", lbl_counter)
+        print ("\nScopes: ", scopes, "\n")
+
         scopes_for_label = scopes.copy()
         self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_before['stmts-follow-label'])
         self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-goto'])
         self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-label'])
+
+    def case_availability(self, scopes):
+        """
+            This function checks for the goto cases in the code based
+            on the scope. If any unhandled case encountered, then it
+            will assert and halt the program.
+        """
+
+        # Case check for more than double nested goto case
+        nested_gotos = {}
+        root_scope = None
+        current_scope = None
+
+        for goto, scope in scopes.items():
+            if current_scope == None:
+                current_scope = goto
+                root_scope = goto
+                nested_gotos[root_scope] = 1
+            else:
+                if scope == current_scope:
+                    nested_gotos[root_scope] += 1
+                    assert (
+                        nested_gotos[root_scope] <= 2
+                    ), f"Do do not handle {nested_gotos[root_scope]} nested case at this moment."
+                else:
+                    root_scope = goto
+                    nested_gotos[root_scope] = 1
+                current_scope = goto
+                
+        # All cases are currently handled
+        return
 
     def parent_scope_assigner(self, scopes, scopes_for_label, statements_to_reconstruct):
         """
@@ -3005,7 +3050,7 @@ def buildNewAST(filename: str):
     while (XMLCreator.need_goto_elimination):
         traverse += 1
 
-        XMLCreator.scope_identifier(XMLCreator.encountered_goto_label)
+        XMLCreator.scope_identifier(XMLCreator.goto_label_with_case)
 
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)
