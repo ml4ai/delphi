@@ -2773,6 +2773,73 @@ class RectifyOFPXML:
         if "rule" in elements.attrib:
             elements.attrib.pop("rule")
 
+    def scope_identifier (self, encountered_goto_label):
+        """
+            This function will be called to dientify the scopes for each goto-
+            and-label. The definition of scope here is that whether one goto-label
+            is nested under another goto-label. For example,
+                <label with lbl = 111>
+                    <goto-stmt with lbl = 222>
+                    <label with lbl = 222>
+                <goto-stmt with lbl = 111>
+            In this case, "goto-label with lbl = 222" is within the scope of "lbl = 111"
+            Thus, the elements will be assigned with "parent-scope" attribute with 111.
+        """
+        scopes = {}
+        lbl_counter = {}
+        goto_label_in_order = []
+        goto_and_labels = encountered_goto_label.keys()
+        for lbl in goto_and_labels:
+            if lbl not in lbl_counter:
+                lbl_counter[lbl] = 1
+            else:
+                lbl_counter[lbl] += 1
+            # Identify each label's parent label (scope)
+            if not goto_label_in_order:
+                goto_label_in_order.append(lbl)
+            else:
+                if lbl not in goto_label_in_order:
+                    parent = goto_label_in_order[-1]
+                    scopes[lbl] = parent
+                    goto_label_in_order.append(lbl)
+
+        # Since the relationship betwen label:goto-stmt is 1:M,
+        # find the label that has multiple goto-stmts.
+        # Because that extra <goto-stmt> creates extra scope to
+        # encapsulate other 'label-goto' or 'goto-label'.
+        for lbl in goto_label_in_order:
+            if lbl not in scopes:
+                for label, counter in lbl_counter.items():
+                    if counter > 1 and counter % 2 > 0:
+                        scopes[lbl] = label
+
+        scopes_for_label = scopes.copy()
+        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_before['stmts-follow-label'])
+        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-goto'])
+        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-label'])
+
+    def parent_scope_assigner(self, scopes, scopes_for_label, statements_to_reconstruct):
+        """
+            This function actually assigns scope(s) to each goto and label statements
+        """
+        for stmt in statements_to_reconstruct:
+            if "goto-stmt" in stmt.attrib:
+                target_lbl = stmt.attrib['lbl']
+                if target_lbl in scopes:
+                    stmt.attrib['parent-scope'] = scopes[target_lbl]
+                    del scopes[target_lbl]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+
+            if "target-label-statement" in stmt.attrib:
+                label = stmt.attrib['label']
+                if label in scopes_for_label:
+                    stmt.attrib['parent-scope'] = scopes_for_label[label]
+                    del scopes_for_label[label]
+                else:
+                    stmt.attrib['parent-scope'] = "none"
+
+
 #################################################################
 #                                                               #
 #                     NON-CLASS FUNCTIONS                       #
@@ -2839,82 +2906,7 @@ def buildNewAST(filename: str):
     while (XMLCreator.need_goto_elimination):
         traverse += 1
 
-        scopes = {}
-        lbl_counter = {}
-        goto_label_in_order = []
-        goto_and_labels = XMLCreator.encountered_goto_label.keys()
-        for lbl in goto_and_labels:
-            if lbl not in lbl_counter:
-                lbl_counter[lbl] = 1
-            else:
-                lbl_counter[lbl] += 1
-            # Identify each label's parent label (scope)
-            if not goto_label_in_order:
-                goto_label_in_order.append(lbl)
-            else:
-                if lbl not in goto_label_in_order:
-                    parent = goto_label_in_order[-1]
-                    scopes[lbl] = parent
-                    goto_label_in_order.append(lbl)
-
-        # Since the relationship betwen label:goto-stmt is 1:M,
-        # find the label that has multiple goto-stmts.
-        # Because that extra <goto-stmt> creates extra scope to
-        # encapsulate other 'label-goto' or 'goto-label'.
-        for lbl in goto_label_in_order:
-            if lbl not in scopes:
-                for label, counter in lbl_counter.items():
-                    if counter > 1 and counter % 2 > 0:
-                        scopes[lbl] = label
-
-        scopes_for_label = scopes.copy()
-        for stmt in XMLCreator.statements_to_reconstruct_before['stmts-follow-label']:
-            if "goto-stmt" in stmt.attrib:
-                target_lbl = stmt.attrib['lbl']
-                if target_lbl in scopes:
-                    stmt.attrib['parent-scope'] = scopes[target_lbl]
-                    del scopes[target_lbl]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
-            if "target-label-statement" in stmt.attrib:
-                label = stmt.attrib['label']
-                if label in scopes_for_label:
-                    stmt.attrib['parent-scope'] = scopes_for_label[label]
-                    del scopes_for_label[label]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
-
-        for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-goto']:
-            if "goto-stmt" in stmt.attrib:
-                target_lbl = stmt.attrib['lbl']
-                if target_lbl in scopes:
-                    stmt.attrib['parent-scope'] = scopes[target_lbl]
-                    del scopes[target_lbl]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
-            if "target-label-statement" in stmt.attrib:
-                label = stmt.attrib['label']
-                if label in scopes_for_label:
-                    stmt.attrib['parent-scope'] = scopes_for_label[label]
-                    del scopes_for_label[label]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
-
-        for stmt in XMLCreator.statements_to_reconstruct_after['stmts-follow-label']:
-            if "goto-stmt" in stmt.attrib:
-                target_lbl = stmt.attrib['lbl']
-                if target_lbl in scopes:
-                    stmt.attrib['parent-scope'] = scopes[target_lbl]
-                    del scopes[target_lbl]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
-            if "target-label-statement" in stmt.attrib:
-                label = stmt.attrib['label']
-                if label in scopes_for_label:
-                    stmt.attrib['parent-scope'] = scopes_for_label[label]
-                    del scopes_for_label[label]
-                else:
-                    stmt.attrib['parent-scope'] = "none"
+        XMLCreator.scope_identifier(XMLCreator.encountered_goto_label)
 
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)
