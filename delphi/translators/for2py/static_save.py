@@ -23,7 +23,7 @@ Usage:
 def static_vars(var_list):  # This code is part of the runtime system
     def decorate(func):
         for var_name in var_list:
-            setattr(func, var_name, None)
+            setattr(func, var_name, [None])
         return func
 
     return decorate
