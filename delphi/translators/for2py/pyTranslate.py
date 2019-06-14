@@ -245,6 +245,7 @@ class PythonCodeGenerator(object):
     ###########################################################################
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
+        """prints Fortran subroutine in python function syntax"""
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
         self.printAst(
@@ -269,6 +270,8 @@ class PythonCodeGenerator(object):
         )
 
     def printFunction(self, node, printState: PrintState):
+        """prints Fortran function in python function
+           syntax"""
         self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
@@ -300,6 +303,7 @@ class PythonCodeGenerator(object):
         )
 
     def printModule(self, node, printState: PrintState):
+        """prints module syntax"""
         self.pyStrings.append("\n")
         args = []
         self.printAst(
@@ -310,6 +314,8 @@ class PythonCodeGenerator(object):
         )
 
     def printProgram(self, node, printState: PrintState):
+        """prints Fortran program in Python function syntax
+           by calling printSubroutine function"""
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
@@ -675,7 +681,8 @@ class PythonCodeGenerator(object):
             if lhs["hasSubscripts"] == "true":
                 assert (
                     "subscripts" in lhs
-                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match.\
+                    Fix 'hasSubscripts' in rectify.py."
                 # target is an array element
                 if "is_array" in lhs and lhs["is_array"] == "true":
                     subs = lhs["subscripts"]
@@ -1073,9 +1080,10 @@ class PythonCodeGenerator(object):
             # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
             is_derived_type_declaration = False
-            # If the type is not one of the default types, but it's a declared derived type,
-            # set the is_derived_type_declaration to True as the declaration of variable
-            # with such type has different declaration syntax from the default type variables.
+            # If the type is not one of the default types, but it's 
+            # a declared derived type, set the is_derived_type_declaration
+            # to True as the declaration of variable with such type has
+            # different declaration syntax from the default type variables.
             if (
                 var_type not in TYPE_MAP
                 and var_type in self.declaredDerivedTypes
@@ -1143,72 +1151,35 @@ class PythonCodeGenerator(object):
 
         return "".join(self.pyStrings)
 
-    """
-        This function checks the type of a variable and returns the appropriate python syntax type name
-    """
-    def get_type(self, node):
-        variable_type = node["type"].lower()
-        if variable_type in TYPE_MAP: 
-            return TYPE_MAP[variable_type]
-        else:
-            if node["is_derived_type"] == "true":
-                return variable_type
-            else:
-                assert False, f"Unrecognized variable type: {variable_type}"
-
-    """
-        This function will construct the range string in 'loBound, Upbound' format and return to the called function
-    """
     def get_range(self, node):
-        loBound = "0"
-        upBound = "0" 
+        """This function will construct the range string in 'loBound,
+           Upbound' format and return to the called function"""
 
-        low = node["low"]
-        up = node["high"]
-        # Get lower bound value
-        if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0])
-        elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
+        # [0]: lower bound
+        # [1]: upper bound
+        bounds = [0,0]
+        retrieved_bounds = [node["low"], node["high"]]
+        self.get_bound (bounds, retrieved_bounds)
+    
+        return f"{bounds[0]}, {bounds[1]}"
 
-        # Get upper bound value
-        if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0])
-        elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
-
-        return f"{loBound}, {upBound}"
-
-    """
-        This function is for extracting the dimensions' range information from the AST.
-        This function is needed for handling a multi-dimensional array(s).
-    """
-    def get_array_dimension(self, node):
-        count = 1
-        array_range = ""
-        for dimension in node["dimensions"]:
-            if "literal" in dimension:   # A case where no explicit low bound set
-                upBound = self.proc_literal(dimension["literal"][0])
-                array_range += f"(0, {upBound})"
-            elif "range" in dimension:   # A case where explict low and up bounds are set
-                array_range += f"({self.get_range(dimension['range'][0])})"
+    def get_bound(self, bounds, retrieved_bounds):
+        """This function will fill the bounds list with appropriately
+        retrieved bounds from the node."""
+        index = 0
+        for bound in retrieved_bounds:
+            if bound[0]["tag"] == "literal":
+                bounds[index] = self.proc_literal(bound[0])
+            elif bound[0]["tag"] == "op":
+                bounds[index] = self.proc_op(bound[0])
             else:
-                assert False, f"Array range case not handled. Reference node content: {node}"
+                assert False, f"Unrecognized tag in retrieved_bound:\
+                                {bound[0]['tag']}"
+            index += 1
 
-            if count < int(node["count"]):
-                array_range += ", "
-                count += 1
-
-        return array_range
-
-    """
-        This function forms a derived type reference and return to the caller
-    """
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
+        """This function forms a derived type reference
+        and return to the caller"""
         ref = ""
         if node["hasSubscripts"] == "true":
             subscript = node["subscripts"][0]
@@ -1228,11 +1199,9 @@ class PythonCodeGenerator(object):
             ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
         return ref
 
-
-
     def get_type(self, node):
-        """ This function checks the type of a variable and returns the appropriate
-        Python syntax type name. """
+        """ This function checks the type of a variable and returns
+            the appropriate Python syntax type name. """
 
         variable_type = node["type"].lower()
         if variable_type in TYPE_MAP:
@@ -1244,37 +1213,10 @@ class PythonCodeGenerator(object):
                 assert False, f"Unrecognized variable type: {variable_type}"
 
 
-    def get_range(self, node):
-        """ This function will construct the range string in 'loBound, Upbound'
-        format and return to the called function. """
-        loBound = "0"
-        upBound = "0"
-
-        low = node["low"]
-        up = node["high"]
-        # Get lower bound value
-        if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0])
-        elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
-
-        # Get upper bound value
-        if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0])
-        elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
-
-        return f"{loBound}, {upBound}"
-
-
     def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information
-        from the AST.  This function is needed for handling a multi-dimensional
-        array(s). """
+            from the AST. This function is needed for handling a multi-dimensional
+            array(s). """
 
         count = 1
         array_range = ""
@@ -1299,34 +1241,9 @@ class PythonCodeGenerator(object):
 
         return array_range
 
-
-    def get_derived_type_ref(self, node, numPartRef, is_assignment):
-        """ This function forms a derived type reference and return to the
-        caller """
-
-        ref = ""
-        if node["hasSubscripts"] == "true":
-            subscript = node["subscripts"][0]
-            if subscript["tag"] == "ref":
-                index = f"{subscript['name']}[0]"
-            else:
-                index = subscript["value"]
-
-            if numPartRef > 1 or not is_assignment:
-                ref += f"{node['name']}.get_({index})"
-            else:
-                ref += f"{node['name']}.set_({index}, "
-        else:
-            ref += node["name"]
-        numPartRef -= 1
-        if "ref" in node:
-            ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
-        return ref
-
-
 def index_modules(root) -> Dict:
     """ Counts the number of modules in the Fortran file including the program
-    file. Each module is written out into a separate Python file.  """
+        file. Each module is written out into a separate Python file.  """
 
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
