@@ -132,7 +132,6 @@ class PrintState:
         globalVars=[],
         functionScope="",
         indexRef=True,
-        varTypes={},
     ):
         self.sep = sep
         self.add = add
@@ -142,7 +141,6 @@ class PrintState:
         self.globalVars = globalVars
         self.functionScope = functionScope
         self.indexRef = indexRef
-        self.varTypes = varTypes
 
     def copy(
         self,
@@ -154,7 +152,6 @@ class PrintState:
         globalVars=None,
         functionScope=None,
         indexRef=None,
-        varTypes=None,
     ):
         return PrintState(
             self.sep if sep is None else sep,
@@ -165,7 +162,6 @@ class PrintState:
             self.globalVars if globalVars is None else globalVars,
             self.functionScope if functionScope is None else functionScope,
             self.indexRef if indexRef is None else indexRef,
-            self.varTypes if varTypes is None else varTypes,
         )
 
 
@@ -210,6 +206,9 @@ class PythonCodeGenerator(object):
         # String to hold the current name of the subroutine or function under
         # analysis
         self.current_module = ""
+        # Dictionary to map all the variables (under each function) to its
+        # corresponding types
+        self.var_type = {}
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -488,11 +487,19 @@ class PythonCodeGenerator(object):
 
     def proc_op(self, node):
         """Processes expressions involving operators and returns a string that
-           is the corresponding Python code."""
+           is the corresponding Python code."""p
         try:
             op_str = OPERATOR_MAP[node["operator"].lower()]
         except KeyError:
-            raise For2PyError(f"unhndled operator {node['operator']}")
+            raise For2PyError(f"unhandled operator {node['operator']}")
+
+        # Convert the operation string to // (floored division) if the target
+        # variable is an integer.
+        if op_str == "/":
+            for item in self.var_type[self.current_module]:
+                if item["name"] == self.nameMapper[node["left"][0]["name"]] \
+                        and item["type"] == "int":
+                    op_str = "//"
 
         assert len(node["left"]) == 1
         l_subexpr = self.proc_expr(node["left"][0], False)
@@ -581,6 +588,10 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unrecognized type {node['type']}")
 
         arg_name = self.nameMapper[node["name"]]
+        self.var_type.setdefault(self.current_module, []).append({
+            "name": arg_name,
+            "type": var_type
+        })
         if "is_array" in node and node["is_array"] == "true":
             self.pyStrings.append(f"{arg_name}")
         else:
@@ -1068,6 +1079,10 @@ class PythonCodeGenerator(object):
                 printState.sep = "\n"
             self.variableMap[self.nameMapper[node["name"]]] = node["type"]
         else:
+            # If the variable is a saved variable, add its type mapping to
+            # self.var_type
+            if var_name in self.saved_variables[self.current_module]:
+                varType = self.get_type(node)
             printState.printFirst = False
 
     def printArray(self, node, printState: PrintState):
@@ -1208,10 +1223,21 @@ class PythonCodeGenerator(object):
         Python syntax type name. """
 
         variable_type = node["type"].lower()
+        var_name = self.nameMapper[node["name"]]
+
         if variable_type in TYPE_MAP:
+            variable_type = TYPE_MAP[variable_type]
+            self.var_type.setdefault(self.current_module, []).append({
+                "name": var_name,
+                "type": variable_type
+            })
             return TYPE_MAP[variable_type]
         else:
             if node["is_derived_type"] == "true":
+                self.var_type.setdefault(self.current_module, []).append({
+                    "name": var_name,
+                    "type": variable_type
+                })
                 return variable_type
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"
