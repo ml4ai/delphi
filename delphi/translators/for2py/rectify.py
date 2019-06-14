@@ -24,7 +24,6 @@ Last Modified: 6/12/2019
 import re
 import sys
 import argparse
-import random as RD
 import xml.etree.ElementTree as ET
 from delphi.translators.for2py import For2PyError
 
@@ -110,10 +109,8 @@ class RectifyOFPXML:
         # key will be the unique code assigned to each <goto-stmt>
         # {code:Element}
         self.conditional_op = {}
-        # Keep a track of randomly generated code
-        # Main usage is to assign and match <goto-stmt>
-        # and <label> or <if> for conditional goto
-        self.code = []
+        # Counts the number of <goto-stmt> in the code
+        self.goto_stmt_counter = 0
         # Keep a track of collected goto-stmts and labels
         # for goto elimination and reconstruction
         self.stmts_after_goto = {
@@ -494,22 +491,19 @@ class RectifyOFPXML:
                                     "lbl" in cur_elem.attrib
                             ), "Label 'lbl' must be present to store the value in the <if> attrib"
 
-                            # This random (unique) number will be
-                            # used as an identifier for two statements
+                            # goto-stmt counter will be used as
+                            # an identifier for two statements
                             # that are nested one in another
-                            rand_code = RD.randrange(RANGE)
-                            while (rand_code in self.code):
-                                rand_code = RD.randrange(RANGE)
-                            self.code.append(rand_code)
+                            unique_code = str(self.goto_stmt_counter)
 
                             parent.attrib['conditional-goto-stmt-lbl'] = cur_elem.attrib['lbl']
-                            parent.attrib['code'] = str(rand_code)
+                            parent.attrib['code'] = unique_code
                             if "goto-move" in cur_elem.attrib:
                                 parent.attrib['goto-move'] = "true"
                             if "goto-remove" in cur_elem.attrib:
                                 parent.attrib['goto-remove'] = "true"
                             cur_elem.attrib['conditional-goto-stmt'] = "true"
-                            cur_elem.attrib['code'] = str(rand_code)
+                            cur_elem.attrib['code'] = unique_code
 
                         if parent.tag == "loop":
                             if (
@@ -793,8 +787,8 @@ class RectifyOFPXML:
                     )
                 else:
                     assert (
-                            False,
-                    )f'In handle_tag_variables: "{child.tag}" not handled'
+                            False
+                    ), f'In handle_tag_variables: "{child.tag}" not handled'
 
     def handle_tag_variable(
             self, root, current, parent, grandparent, traverse
@@ -933,6 +927,8 @@ class RectifyOFPXML:
                         child, current, current, parent, traverse
                 )
             elif child.tag == "goto-stmt":
+                # <goto-stmt> met, increment the counter
+                self.goto_stmt_counter += 1
                 # If goto-stmt was seen, we do not construct element for it.
                 # However, we collect the information (attributes) that is 
                 # associated to the existing OFP generated element
@@ -1041,8 +1037,8 @@ class RectifyOFPXML:
                 self.parseXMLTree(child, cur_elem, current, parent, traverse)
             else:
                 assert (
-                        False)
-                , f'In handle_tag_assignment: "{child.tag}" not handled'
+                        False
+                ), f'In handle_tag_assignment: "{child.tag}" not handled'
      
     def handle_tag_target(
             self, root, current, parent, grandparent, traverse
@@ -1331,7 +1327,7 @@ class RectifyOFPXML:
                 if (
                     child.tag == "literal"
                     or child.tag == "range"
-                :
+                ):
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1348,7 +1344,7 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    , f'In handle_tag_dimension: Empty "{child.tag}" not handled'
+                    ), f'In handle_tag_dimension: Empty "{child.tag}" not handled'
 
     def handle_tag_loop(
             self, root, current, parent, grandparent, traverse
@@ -1730,7 +1726,7 @@ class RectifyOFPXML:
                 if child.tag != "label":
                     assert (
                             False
-                    , f'In handle_tag_format: "{child.tag}" not handled'
+                    ), f'In handle_tag_format: "{child.tag}" not handled'
 
     def handle_tag_format_items(
             self, root, current, parent, grandparent, traverse
@@ -2666,7 +2662,7 @@ class RectifyOFPXML:
         """
         assert (
             current.tag == "name"
-        ), f"The tag <name> must be passed to reconstruct_derived_type_ref.\n
+        ), f"The tag <name> must be passed to reconstruct_derived_type_ref.\
              Currently, it's {current.tag}."
         # First the root <name> id gets the very first 
         # variable reference i.e. x in x.y.k (or x%y%k in Fortran syntax)
@@ -3087,11 +3083,11 @@ class RectifyOFPXML:
                     for stmt in statements:
                         if len(stmt) > 0:
                             if inner_gotos_exist:
-                                reconstruct_target['stmts-follow-goto']
+                                reconstruct_target['stmts-follow-goto']\
                                     = statements[index_scope[0]:index_scope[1]]
-                                reconstruct_target['stmts-follow-label']
+                                reconstruct_target['stmts-follow-label']\
                                     = statements[index_scope[1]]
-                                reconstruct_target['count-gotos']
+                                reconstruct_target['count-gotos']\
                                     = 1
 
                                 self.reconstruct_goto_after_label(
