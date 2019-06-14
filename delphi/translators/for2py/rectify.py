@@ -499,7 +499,7 @@ class RectifyOFPXML:
                         """
                         if len(self.saved_entities) > 0:
                             for item in self.saved_entities:
-                                cur_elem = ET.SubElement(current, item.tag,
+                                sub_elem = ET.SubElement(cur_elem, item.tag,
                                                          item.attrib)
 
                             # Reinitialize this list since you'll need an
