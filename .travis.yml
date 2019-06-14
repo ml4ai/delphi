@@ -10,7 +10,9 @@ addons:
 
 install:
   - pip install -e .[test,docs]
+  # Download SQLite3 database containing model parameterization data.
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
+  # Set the environment variable DELPHI_DB to point to the SQLite3 database.
   - export DELPHI_DB=`pwd`/delphi.db
 
 script:

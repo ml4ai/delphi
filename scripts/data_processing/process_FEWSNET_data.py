@@ -17,7 +17,7 @@ from shapely.geometry import Polygon, MultiPolygon
 
 
 def process_FEWSNET_IPC_data(shpfile: str, title: str):
-    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
+    admin_boundaries_shapefile = "data/raw/FEWS/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     colors = {
         0: "white",
@@ -112,13 +112,13 @@ def get_polygons(shape):
 
 
 def create_food_security_data_table(region: str, country: str):
-    admin_boundaries_shapefile = "data/FEWSNET/FEWSNET_World_Admin/FEWSNET_Admin2"
+    admin_boundaries_shapefile = "data/raw/FEWS/FEWSNET_World_Admin/FEWSNET_Admin2"
     sf_admin = shapefile.Reader(admin_boundaries_shapefile)
     south_sudan_srs = [
         x for x in sf_admin.shapeRecords() if x.record[3] == country
     ]
 
-    path = f"data/FEWSNET/ALL_HFIC/{region}"
+    path = f"data/raw/FEWS/ALL_HFIC/{region}"
     ipc_records = []
     with cd(path):
         shapefiles = glob("*.shp")
@@ -167,12 +167,12 @@ if __name__ == "__main__":
     region_year_str = (
         f"{region_str}{year}" if year == 2017 else f"{region_str}_{year}"
     )
-    shpfile = f"data/ALL_HFIC/{region}/{region_year_str}{month_str}_CS"
+    shpfile = f"data/raw/FEWS/ALL_HFIC/{region}/{region_year_str}{month_str}_CS"
     title = "\n".join(
         (
             f"{region} Food Security Outcomes",
             f"{calendar.month_name[month]} {year}",
         )
     )
-    # process_FEWSNET_IPC_data(shpfile, title)
+    #process_FEWSNET_IPC_data(shpfile, title)
     create_food_security_data_table("East Africa", "South Sudan")
