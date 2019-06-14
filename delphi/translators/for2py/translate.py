@@ -199,14 +199,9 @@ class XMLToJSONTranslator(object):
         list and copy the values (tag and attributes) to it.  """
 
         assert root.tag == "argument", "The root must be <argument>"
-
         var_name = root.attrib["name"].lower()
-
         # Store each argument respective to the function it is defined in
-        if self.argument_list.get(self.current_module):
-            self.argument_list[self.current_module].append(var_name)
-        else:
-            self.argument_list[self.current_module] = [var_name]
+        self.argument_list.setdefault(self.current_module, []).append(var_name)
 
         return [{"tag": "arg", "name": var_name}]
 
@@ -379,10 +374,8 @@ class XMLToJSONTranslator(object):
             # Map each variable declaration to this parent
             # function/subroutine to keep a track of local variables
             if var_name not in exclusion_list:
-                if self.variable_list.get(self.current_module):
-                    self.variable_list[self.current_module].append(var_name)
-                else:
-                    self.variable_list[self.current_module] = [var_name]
+                self.variable_list.setdefault(self.current_module,
+                                              []).append(var_name)
 
             variable = {"name": var_name, "is_array": is_array}
             if is_array == "true":
