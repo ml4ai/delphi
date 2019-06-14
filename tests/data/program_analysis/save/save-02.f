@@ -20,7 +20,7 @@ C subprograms.
       !    call f(1, a)
       !
       ! will set a to the values 111, 222, and 444 respectively.
-      
+
       if (n .eq. 0) then
           w = 111
       else
@@ -46,7 +46,7 @@ C ********************************************************************
       !    call g(1, a)
       !
       ! will set a to the values 999, 333, and 111 respectively.
-      
+
       if (n .eq. 0) then
           w = 999
       else
