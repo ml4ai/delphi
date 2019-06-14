@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from conftest import G, conflict_string, food_security_string
 import seaborn as sns
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_inference_with_synthetic_data(G):
     """ Smokescreen test for sampler. """
     # Generate synthetic data

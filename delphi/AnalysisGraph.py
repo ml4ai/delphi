@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 import random
-from math import exp, log
+from math import exp, log, pi
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
@@ -10,7 +10,7 @@ from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
 import numpy as np
-from scipy.stats import gaussian_kde, norm
+from scipy.stats import gaussian_kde
 import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
@@ -45,6 +45,15 @@ from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
 
+def normpdf(x, mean, sd):
+    """ Calculate pdf of normal distribution with a given mean and standard
+    deviation. Faster than scipy.stats.norm.pdf. From https://stackoverflow.com/a/12413491 """
+    var = float(sd) ** 2
+    denom = (2 * pi * var) ** 0.5
+    num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
+    return num / denom
+
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -62,6 +71,7 @@ class AnalysisGraph(nx.DiGraph):
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
+        self.log_prior = None
 
     def assign_uuids_to_nodes_and_edges(self):
         """ Assign uuids to nodes and edges. """
@@ -344,7 +354,7 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
-        self.n_timesteps=n_timesteps
+        self.n_timesteps = n_timesteps
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
@@ -384,14 +394,32 @@ class AnalysisGraph(nx.DiGraph):
             self.update_log_joint_probability()
 
     def update_log_prior(self, A: pd.DataFrame) -> float:
-        _list = [
-            edge[2]["ConditionalProbability"].evaluate(
-                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-            )
-            for edge in self.edges(data=True)
-        ]
+        if self.log_prior is None:
+            _list = [
+                edge[2]["ConditionalProbability"].evaluate(
+                    A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
+                )
+                for edge in self.edges(data=True)
+            ]
 
-        self.log_prior = sum(map(log, _list))
+            self.log_prior = sum(map(log, _list))
+
+        else:
+            self.log_prior = (
+                self.log_prior
+                + log(
+                    self.edges[self.source, self.target][
+                        "ConditionalProbability"
+                    ].evaluate(
+                        A[f"∂({self.source})/∂t"][self.target] / self.Δt
+                    )
+                )
+                - log(
+                    self.edges[self.source, self.target][
+                        "ConditionalProbability"
+                    ].evaluate(self.original_value / self.Δt)
+                )
+            )
 
     def update_log_likelihood(self):
         _list = []
@@ -401,8 +429,8 @@ class AnalysisGraph(nx.DiGraph):
             for n in self.nodes(data=True):
                 for indicator, value in observed_state[n[0]].items():
                     ind = n[1]["indicators"][indicator]
-                    log_likelihood = np.log(
-                        norm.pdf(
+                    log_likelihood = log(
+                        normpdf(
                             value, latent_state[n[0]] * ind.mean, ind.stdev
                         )
                     )
@@ -458,7 +486,6 @@ class AnalysisGraph(nx.DiGraph):
         # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
         A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
-
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)
