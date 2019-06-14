@@ -29,14 +29,14 @@ from delphi.translators.for2py import For2PyError
 
 # Dictionary of negated operations
 NEGATED_OP = {
-                ".le." : ".ge.",
-                ".ge." : ".le.",
+                ".le." : ".gt.",
+                ".ge." : ".lt.",
                 ".lt." : ".ge.",
                 ".gt." : ".le.",
                 ".eq." : ".ne.",
                 ".ne." : ".eq.",
-                "<=" : ">=",
-                ">=" : "<="
+                "<=" : ">",
+                ">=" : "<"
               }
 
 # Const variable for setting
