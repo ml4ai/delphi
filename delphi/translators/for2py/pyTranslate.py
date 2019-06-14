@@ -205,6 +205,11 @@ class PythonCodeGenerator(object):
         self.declaredDerivedTypes = []
         # Lists to hold derived type variables
         self.declaredDerivedTVars = []
+        # Dictionary to hold save variables local to a subroutine or function
+        self.saved_variables = {}
+        # String to hold the current name of the subroutine or function under
+        # analysis
+        self.current_module = ""
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -245,6 +250,11 @@ class PythonCodeGenerator(object):
     ###########################################################################
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
+
+        # Handle the save statement first since the decorator needs to be
+        # just above the function defintion
+        node = self.printSave(node, printState)
+        self.current_module = node["name"]
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
         self.printAst(
@@ -269,6 +279,11 @@ class PythonCodeGenerator(object):
         )
 
     def printFunction(self, node, printState: PrintState):
+
+        # Handle the save statement first since the decorator needs to be
+        # just above the function defintion
+        node = self.printSave(node, printState)
+        self.current_module = node["name"]
         self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
@@ -435,6 +450,11 @@ class PythonCodeGenerator(object):
         else:
             ref_str = self.nameMapper[node["name"]]
 
+        # If the variable is a saved variable, prefix it by the function name
+        # to access the saved value of the variable
+        if ref_str in self.saved_variables[self.current_module]:
+            ref_str = f"{self.current_module}.{ref_str}"
+
         if "subscripts" in node:
             # array reference or function call
             if "is_array" in node and node["is_array"] == "true":
@@ -495,7 +515,15 @@ class PythonCodeGenerator(object):
         variables."""
 
         if node["tag"] == "literal":
-            return self.proc_literal(node)
+            literal = self.proc_literal(node)
+
+            # If the literal is an argument to a function (when proc_expr has
+            # been called from proc_call), the literal needs to be sent using
+            # a list wrapper (e.g. f([1]) instead of f(1)
+            if wrapper:
+                return f"[{literal}]"
+            else:
+                return literal
 
         if node["tag"] == "ref":
             # variable or array reference
@@ -692,6 +720,11 @@ class PythonCodeGenerator(object):
             else:
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
+
+        # If the target variable is a saved variable add the
+        # subroutine/function name to it's prefix.
+        if lhs['name'] in self.saved_variables[self.current_module]:
+            assg_str = f"{self.current_module}.{assg_str}"
 
         if "set_" in assg_str:
             assg_str += f"{rhs_str})"
@@ -997,7 +1030,8 @@ class PythonCodeGenerator(object):
         var_name = self.nameMapper[node["name"]]
         if (
             var_name not in printState.definedVars + printState.globalVars
-            and var_name not in self.functions
+            and var_name not in self.functions and var_name not in
+                self.saved_variables[self.current_module]
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
@@ -1103,6 +1137,31 @@ class PythonCodeGenerator(object):
                 )
             self.pyStrings.append(printState.sep)
 
+    def printSave(self, node, printState: PrintState):
+        """
+        This function adds the Python string to handle Fortran SAVE
+        statements. It adds a decorator above a function definition and makes
+        a call to static_save function with the list of saved variables as
+        its argument.
+        """
+        parent = node["name"]
+        self.saved_variables[parent] = []
+        for item in node["body"]:
+            if item["tag"] == "save":
+                to_delete = item
+                self.pyStrings.append("\n@static_vars([")
+                variables = ''
+                for var in item["var_list"]:
+                    self.saved_variables[parent].append(var)
+                    variables += f'"{var}", '
+                self.pyStrings.append(f"{variables[:-2]}])")
+                node["body"].remove(to_delete)
+
+        return node
+
+
+
+
     ###########################################################################
     #                                                                         #
     #                              MISCELLANEOUS                              #
@@ -1127,11 +1186,12 @@ class PythonCodeGenerator(object):
 
     def nameMapping(self, ast):
         for item in ast:
-            if item.get("name"):
-                self.nameMapper[item["name"]] = item["name"]
-            for inner in item:
-                if isinstance(item[inner], list):
-                    self.nameMapping(item[inner])
+            if isinstance(item, list) or isinstance(item, dict):
+                if item.get("name"):
+                    self.nameMapper[item["name"]] = item["name"]
+                for inner in item:
+                    if isinstance(item[inner], list):
+                        self.nameMapping(item[inner])
 
     def get_python_source(self):
         imports = "".join(self.imports)
@@ -1260,6 +1320,7 @@ def create_python_source_list(outputDict: Dict):
         "import math",
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
+        "from delphi.translators.for2py.static_save import *",
         "from dataclasses import dataclass\n",
     ]
 
