@@ -33,7 +33,9 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
     Returns:
         Pandas Dataframe containing predictions.
     """
-    assert (len(deltas) == n_timesteps), "The length of deltas must be equal to n_timesteps."
+    assert (
+        len(deltas) == n_timesteps
+    ), "The length of deltas must be equal to n_timesteps."
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
@@ -43,18 +45,24 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
     G.initialize()
 
     pred = np.zeros(n_timesteps)
-    target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
+    target_indicator = list(
+        G.nodes(data=True)[target_node]["indicators"].keys()
+    )[0]
     for t in range(n_timesteps):
         if t == 0:
             G.update(dampen=False)
         else:
-            G.update(dampen=False,set_delta = deltas[t])
-        pred[t]=np.median(list(G.nodes(data=True)[target_node]['indicators'].values())[0].samples)
+            G.update(dampen=False, set_delta=deltas[t])
+        pred[t] = np.median(
+            list(G.nodes(data=True)[target_node]["indicators"].values())[
+                0
+            ].samples
+        )
 
-    return pd.DataFrame(pred,columns=[target_indicator+'(Predictions)'])
+    return pd.DataFrame(pred, columns=[target_indicator + "(Predictions)"])
 
 
-def get_true_values(G,target_node,n_timesteps,start_year,start_month):
+def get_true_values(G, target_node, n_timesteps, start_year, start_month):
     """ Get the true values of the indicator variable attached to the given
     target node.
 
@@ -84,25 +92,36 @@ def get_true_values(G,target_node,n_timesteps,start_year,start_month):
         variable. The values are indexed by date.
     """
     df = pd.read_sql_table("indicator", con=engine)
-    target_indicator = list(G.nodes(data=True)[target_node]['indicators'].keys())[0]
-    target_df = df[df['Variable'] == target_indicator]
+    target_indicator = list(
+        G.nodes(data=True)[target_node]["indicators"].keys()
+    )[0]
+    target_df = df[df["Variable"] == target_indicator]
 
     true_vals = np.zeros(n_timesteps)
     year = start_year
-    month = start_month+1
+    month = start_month + 1
     date = []
     for j in range(n_timesteps):
-        if target_df[target_df['Year'] == year].empty:
-           true_vals[j] = target_df['Value'].values.astype(float).mean()
-        elif target_df[target_df['Year'] == year][target_df['Month'] ==
-                month].empty:
-            true_vals[j] = target_df[target_df['Year'] ==
-                    year]['Value'].values.astype(float).mean()
+        if target_df[target_df["Year"] == year].empty:
+            true_vals[j] = target_df["Value"].values.astype(float).mean()
+        elif target_df[target_df["Year"] == year][
+            target_df["Month"] == month
+        ].empty:
+            true_vals[j] = (
+                target_df[target_df["Year"] == year]["Value"]
+                .values.astype(float)
+                .mean()
+            )
         else:
-            true_vals[j] = target_df[target_df['Year'] == year][target_df['Month']
-                == month]['Value'].values.astype(float).mean()
+            true_vals[j] = (
+                target_df[target_df["Year"] == year][
+                    target_df["Month"] == month
+                ]["Value"]
+                .values.astype(float)
+                .mean()
+            )
 
-        date.append(str(year)+'-'+str(month))
+        date.append(str(year) + "-" + str(month))
 
         if month == 12:
             year = year + 1
@@ -110,10 +129,10 @@ def get_true_values(G,target_node,n_timesteps,start_year,start_month):
         else:
             month = month + 1
 
-    return pd.DataFrame(true_vals,date,columns=[target_indicator+'(True)'])
+    return pd.DataFrame(true_vals, date, columns=[target_indicator + "(True)"])
 
 
-def calculate_timestep(start_year,start_month,end_year,end_month):
+def calculate_timestep(start_year, start_month, end_year, end_month):
     """ Utility function that converts a time range given a start date and end
     date into a integer value.
 
@@ -130,16 +149,18 @@ def calculate_timestep(start_year,start_month,end_year,end_month):
         Integer value, which is the computed time step.
     """
 
-    assert (start_year <= end_year), "Starting date cannot exceed ending date."
+    assert start_year <= end_year, "Starting date cannot exceed ending date."
     if start_year == end_year:
-        assert (start_month <= end_month), "Starting date cannot exceed ending date."
+        assert (
+            start_month <= end_month
+        ), "Starting date cannot exceed ending date."
 
     diff_year = end_year - start_year
-    year_to_month = diff_year*12
+    year_to_month = diff_year * 12
     return year_to_month - (start_month - 1) + (end_month - 1)
 
 
-def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
+def estimate_deltas(G, intervened_node, n_timesteps, start_year, start_month):
     """ Utility function that estimates Rate of Change (deltas) for the
     intervened node per timestep.
 
@@ -170,24 +191,34 @@ def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
         1D numpy array of deltas.
     """
 
-    df = pd.read_sql_table("indicator",con=engine)
-    intervener_indicator = list(G.nodes(data=True)[intervened_node]['indicators'].keys())[0]
-    intervened_df = df[df['Variable'] == intervener_indicator]
+    df = pd.read_sql_table("indicator", con=engine)
+    intervener_indicator = list(
+        G.nodes(data=True)[intervened_node]["indicators"].keys()
+    )[0]
+    intervened_df = df[df["Variable"] == intervener_indicator]
 
-    int_vals = np.zeros(n_timesteps+1)
+    int_vals = np.zeros(n_timesteps + 1)
     year = start_year
     month = start_month
-    for j in range(n_timesteps+1):
-        if intervened_df[intervened_df['Year'] == year].empty:
-           int_vals[j] = intervened_df['Value'].values.astype(float).mean()
-        elif intervened_df[intervened_df['Year'] == year][intervened_df['Month'] ==
-                month].empty:
-            int_vals[j] = intervened_df[intervened_df['Year'] ==
-                    year]['Value'].values.astype(float).mean()
+    for j in range(n_timesteps + 1):
+        if intervened_df[intervened_df["Year"] == year].empty:
+            int_vals[j] = intervened_df["Value"].values.astype(float).mean()
+        elif intervened_df[intervened_df["Year"] == year][
+            intervened_df["Month"] == month
+        ].empty:
+            int_vals[j] = (
+                intervened_df[intervened_df["Year"] == year]["Value"]
+                .values.astype(float)
+                .mean()
+            )
         else:
-            int_vals[j] = intervened_df[intervened_df['Year'] ==
-                    year][intervened_df['Month']
-                == month]['Value'].values.astype(float).mean()
+            int_vals[j] = (
+                intervened_df[intervened_df["Year"] == year][
+                    intervened_df["Month"] == month
+                ]["Value"]
+                .values.astype(float)
+                .mean()
+            )
 
         if month == 12:
             year = year + 1
@@ -195,9 +226,9 @@ def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
         else:
             month = month + 1
 
-    per_ch = (np.roll(int_vals,-1) - int_vals)
+    per_ch = np.roll(int_vals, -1) - int_vals
 
-    per_ch = per_ch/int_vals
+    per_ch = per_ch / int_vals
 
     per_mean = np.abs(np.mean(per_ch[np.isfinite(per_ch)]))
 
@@ -205,10 +236,10 @@ def estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month):
     per_ch[np.isposinf(per_ch)] = per_mean
     per_ch[np.isneginf(per_ch)] = -per_mean
 
-    return np.delete(per_ch,-1)
+    return np.delete(per_ch, -1)
 
 
-def setup_evaluate(G=None,input=None,res=200):
+def setup_evaluate(G=None, input=None, res=200):
     """ Optional Utility function that takes a CAG and assembles the transition
     model.
 
@@ -227,11 +258,15 @@ def setup_evaluate(G=None,input=None,res=200):
 
     if input is not None:
         if G is not None:
-            warnings.warn('The CAG passed to G will be suppressed by the CAG loaded from the pickle file.')
-        with open(input,"rb") as f:
+            warnings.warn(
+                "The CAG passed to G will be suppressed by the CAG loaded from the pickle file."
+            )
+        with open(input, "rb") as f:
             G = pickle.load(f)
 
-    assert (G is not None), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
+    assert (
+        G is not None
+    ), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
     G.res = res
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
@@ -241,14 +276,14 @@ def setup_evaluate(G=None,input=None,res=200):
 def evaluate(
     target_node: str,
     intervened_node: str,
-    G = None,
-    input = None,
+    G=None,
+    input=None,
     start_year=2012,
     start_month=None,
     end_year=2017,
     end_month=None,
-    plot = False,
-    plot_type ='Compare'
+    plot=False,
+    plot_type="Compare",
 ):
     """ This is the main function of this module. This parameterizes a given
     CAG (see requirements in Args) and calls other functions within this module
@@ -291,13 +326,17 @@ def evaluate(
 
     if input is not None:
         if G is not None:
-            warnings.warn('The CAG passed to G will be suppressed by the CAG loaded from the pickle file.')
-        with open(input,"rb") as f:
+            warnings.warn(
+                "The CAG passed to G will be suppressed by the CAG loaded from the pickle file."
+            )
+        with open(input, "rb") as f:
             G = pickle.load(f)
 
-    assert (G is not None), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
+    assert (
+        G is not None
+    ), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
 
-    G.parameterize(year = start_year,month = start_month)
+    G.parameterize(year=start_year, month=start_month)
     G.get_timeseries_values_for_indicators()
 
     if start_month is None:
@@ -305,37 +344,53 @@ def evaluate(
     if end_month is None:
         end_month = 1
 
-    n_timesteps = calculate_timestep(start_year,start_month,end_year,end_month)
+    n_timesteps = calculate_timestep(
+        start_year, start_month, end_year, end_month
+    )
 
-    true_vals_df = get_true_values(G,target_node,n_timesteps,start_year,start_month)
+    true_vals_df = get_true_values(
+        G, target_node, n_timesteps, start_year, start_month
+    )
 
     true_vals = true_vals_df.values
 
-    deltas = estimate_deltas(G,intervened_node,n_timesteps,start_year,start_month)
+    deltas = estimate_deltas(
+        G, intervened_node, n_timesteps, start_year, start_month
+    )
 
-    preds_df = get_predictions(G, target_node, intervened_node, deltas, n_timesteps)
+    preds_df = get_predictions(
+        G, target_node, intervened_node, deltas, n_timesteps
+    )
 
     preds_df = preds_df.set_index(true_vals_df.index)
 
     preds = preds_df.values
 
-    error = (preds-true_vals)
+    error = preds - true_vals
 
-    error_df = pd.DataFrame(error,columns=["Errors"])
+    error_df = pd.DataFrame(error, columns=["Errors"])
 
     error_df = error_df.set_index(true_vals_df.index)
 
-    compare_df =  pd.concat([true_vals_df,preds_df],axis=1,join_axes=[true_vals_df.index])
+    compare_df = pd.concat(
+        [true_vals_df, preds_df], axis=1, join_axes=[true_vals_df.index]
+    )
 
     if plot:
-        if plot_type == 'Error':
-            sns.set(rc={'figure.figsize':(15,8)},style='whitegrid')
+        if plot_type == "Error":
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=error_df)
-            ax.set_xticklabels(error_df.index,rotation=45,ha='right',fontsize=8)
-            ax.axhline(c = 'red')
+            ax.set_xticklabels(
+                error_df.index, rotation=45, ha="right", fontsize=8
+            )
+            ax.axhline(c="red")
         else:
-            sns.set(rc={'figure.figsize':(15,8)},style='whitegrid')
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=compare_df)
-            ax.set_xticklabels(compare_df.index,rotation=45,ha='right',fontsize=8)
+            ax.set_xticklabels(
+                compare_df.index, rotation=45, ha="right", fontsize=8
+            )
 
-    return pd.concat([compare_df,error_df],axis=1,join_axes=[true_vals_df.index])
+    return pd.concat(
+        [compare_df, error_df], axis=1, join_axes=[true_vals_df.index]
+    )
