@@ -289,7 +289,7 @@ def evaluate(
     CAG (see requirements in Args) and calls other functions within this module
     to predict values for a specified target node's indicator variable given a
     start date and end date. Returns pandas dataframe containing predicted
-    values, true values, and squared error.
+    values, true values, and error.
 
     Args:
         target_node: A string of the full name of the node in which we
