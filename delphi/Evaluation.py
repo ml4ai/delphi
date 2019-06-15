@@ -33,7 +33,7 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
     Returns:
         Pandas Dataframe containing predictions.
     """
-    assert (len(deltas) == n_timesteps), "The length of deltas must be equal to n_timesteps"
+    assert (len(deltas) == n_timesteps), "The length of deltas must be equal to n_timesteps."
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
