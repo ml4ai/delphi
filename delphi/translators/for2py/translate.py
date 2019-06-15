@@ -514,6 +514,7 @@ class XMLToJSONTranslator(object):
             }
         ]
 
+
     def process_io_control(self, root, state) -> List[Dict]:
         """ This function checks for an asterisk in the argument of a
         read/write statement and stores it if found.  An asterisk in the first
@@ -586,7 +587,6 @@ class XMLToJSONTranslator(object):
                 ref["is_derived_type_ref"] = "true"
             else:
                 ref["is_derived_type_ref"] = "false"
-
             # Handling derived type references
             if int(numPartRef) > 1:
                 for node in root:
@@ -710,6 +710,9 @@ class XMLToJSONTranslator(object):
 
         return [{"tag": root.tag}]
 
+    """
+        This function handles <format> tag.
+    """
     def process_format(self, root, state) -> List[Dict]:
         """ This function handles <format> tag. """
 
@@ -723,6 +726,9 @@ class XMLToJSONTranslator(object):
             format_spec["args"] += self.parseTree(node, state)
         return [format_spec]
 
+    """
+        This function handles <format-item> tag.
+    """
     def process_format_item(self, root, state) -> List[Dict]:
         """ This function handles <format-item> tag. """
 
@@ -750,7 +756,7 @@ class XMLToJSONTranslator(object):
                         tag_spec["include"] += [item.attrib["id"]]
 
         return [tag_spec]
-
+    
     def process_private_variable(self, root, state) -> List[Dict]:
         """ This function adds the tag for private symbols. Any
         variable/function being initialized as private is added in this tag.
