@@ -769,7 +769,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
-        if node["args"][0].get("arg_name") == "UNIT":
+        if node["args"][0].get("arg_name") == "unit":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
             file_handle = "file_" + str(
@@ -780,10 +780,10 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"{file_handle} = ")
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
-                if item["arg_name"] == "FILE":
+                if item["arg_name"] == "file":
                     file_name = node["args"][index + 1]["value"]
                     open_state = "r"
-                elif item["arg_name"] == "STATUS":
+                elif item["arg_name"] == "status":
                     open_state = node["args"][index + 1]["value"]
                     open_state = self.stateMap[open_state]
 
