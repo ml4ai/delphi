@@ -50,6 +50,8 @@ OPERATOR_MAP = {
     "*": "*",
     "/": "/",
     "**": "**",
+    "<": "<",
+    ">": ">",
     "<=": "<=",
     ">=": ">=",
     "==": "==",
@@ -1007,7 +1009,14 @@ class PythonCodeGenerator(object):
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
-                initVal = node["value"][0]["value"]
+                if node["value"][0]["tag"] == "literal":
+                    initVal = node["value"][0]["value"]
+                elif node["value"][0]["tag"] == "op":
+                    initVal = self.proc_op(node["value"][0])
+                else:
+                    assert (
+                            False
+                    ), f"Tag {node['value'][0]['tag']} currently not handled yet."
             else:
                 initVal = None
 
@@ -1172,11 +1181,12 @@ class PythonCodeGenerator(object):
                 bounds[index] = self.proc_literal(bound[0])
             elif bound[0]["tag"] == "op":
                 bounds[index] = self.proc_op(bound[0])
+            elif bound[0]["tag"] == "ref":
+                bounds[index] = self.proc_ref(bound[0], False)
             else:
-                assert False, f"Unrecognized tag in retrieved_bound:\
-                                {bound[0]['tag']}"
+                assert False, f"Unrecognized tag in retrieved_bound: {bound[0]['tag']}"
             index += 1
-
+        
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
         """This function forms a derived type reference
         and return to the caller"""
