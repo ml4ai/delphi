@@ -57,7 +57,7 @@ def test_inference_with_synthetic_data(G):
         rand = 0.1*np.random.rand()
         A[f"∂({edge[0]})/∂t"][edge[1]] = rand
 
-    n_samples: int = 1000
+    n_samples: int = 5000
     map_estimate_matrix=A.copy()
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
