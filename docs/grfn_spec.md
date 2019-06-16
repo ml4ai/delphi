@@ -25,6 +25,8 @@ In progress. Release target date: July 1, 2019
 
 ### [0.1.m7] - 2019-07-01
 
+Changes since [0.1.m5]
+
 #### Added
 - GrFN_spec Index with links for quick reference navigation
 - Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
@@ -37,7 +39,7 @@ In progress. Release target date: July 1, 2019
 
 ## grfn_spec Index
 
-- [`<grfn_spec>`](#top-level-GrFN-specification)[attrval] ::=
+- [`<grfn_spec>`](#top-level-grfn-specification)[attrval] ::=
 	- "date_created" : `<string>`
 	- "source" : list of [`<source_code_file_path>`](#scope-and-namespace-paths)
 	- "start": list of `<string>`
@@ -779,7 +781,7 @@ Inspired by [Keep a Changelog](https://keepachangelog.com)
 This project does not (yet) adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 
-## [0.1.m5] - 2019-05-01:
+## `[0.1.m5]` - 2019-05-01:
 
 ### Added
 - Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
@@ -793,7 +795,7 @@ This project does not (yet) adhere to [Semantic Versioning](https://semver.org/s
 - Removed [`<identifier_spec>`](#identifier-specification) "aliases" attribute. To be handled later as part of pointer/reference analysis.
 
 
-## [0.1.m3] - 2019-03-01:
+## `[0.1.m3]` - 2019-03-01:
 
 ### Added
 - Addition of identifiers: `<identifier_spec>`, `<identifier_string>`, and `<gensym>` (for identifiers in generated code)
@@ -805,8 +807,8 @@ This project does not (yet) adhere to [Semantic Versioning](https://semver.org/s
 
 
 ## Releases
-- [unreleased]: https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md
-- [0.1.m5]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m5_final_phase1_report/GrFN_specification_v0.1.m5.md
-- [0.1.m3]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m3_report_prototype_system/GrFN_specification_v0.1.m3.md
-- [0.1.m1]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m1_architecture_report/GrFN_specification_v0.1.md
+- [unreleased](https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md)
+- [0.1.m5](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m5_final_phase1_report/GrFN_specification_v0.1.m5.md)
+- [0.1.m3](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m3_report_prototype_system/GrFN_specification_v0.1.m3.md)
+- [0.1.m1](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m1_architecture_report/GrFN_specification_v0.1.md)
 
