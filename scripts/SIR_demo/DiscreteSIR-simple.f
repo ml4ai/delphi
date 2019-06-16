@@ -45,7 +45,7 @@ C  *****************************************************************************
       double precision, dimension(0:3) :: u
       double precision, dimension(0:4) :: params
       double precision S, I, R, Y, beta, gamma, iota, N, delta_t
-      double precision lambda, ifrac, rfrac, infection, recovery
+      double precision lambda_, ifrac, rfrac, infection, recovery
       double precision randbn
 
       S = u(0)
@@ -59,8 +59,8 @@ C  *****************************************************************************
       N = params(3)
       delta_t = params(4)      
 
-      lambda = beta * (I + iota) / N
-      ifrac = 1.0 - exp(-lambda * delta_t)
+      lambda_ = beta * (I + iota) / N
+      ifrac = 1.0 - exp(-lambda_ * delta_t)
       rfrac = 1.0 - exp(-gamma * delta_t)
       infection = randbn(S, ifrac)
       recovery = randbn(I, rfrac)
