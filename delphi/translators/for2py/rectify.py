@@ -152,6 +152,10 @@ class RectifyOFPXML:
         self.derived_type_ref = ET.Element('')
         # Actually holds XML of current scope
         self.current_body_scope = ET.Element('')
+        # Keeps a track of parent statements to goto-stmt
+        self.goto_stmt_parents = []
+        # Keeps a track of parent statements to label
+        self.label_parents = []
 
 
     #################################################################
@@ -2830,6 +2834,14 @@ class RectifyOFPXML:
                 stmts_follow_goto.remove(stmt)
 
         stmts_follow_label = reconstruct_target['stmts-follow-label']
+
+        print ("stmts_follow_goto")
+        for stmt in stmts_follow_goto:
+            print ("stmt: ", stmt.tag, stmt.attrib)
+
+        print ("\nstmts_follow_label")
+        for stmt in stmts_follow_label:
+            print ("stmt: ", stmt.tag, stmt.attrib)
 
         # If [0] <goto-stmt> is an inner scope statement of the [N-1]
         # <goto-stmt> (if it is a <goto-stmt> in the stmts_follow_goto, 
