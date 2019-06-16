@@ -3519,9 +3519,18 @@ class RectifyOFPXML:
         self.case_availability (boundary)
 
         boundary_for_label = boundary.copy()
-        self.parent_goto_assigner (boundary, boundary_for_label, self.statements_to_reconstruct_before['stmts-follow-label'])
-        self.parent_goto_assigner (boundary, boundary_for_label, self.statements_to_reconstruct_after['stmts-follow-goto'])
-        self.parent_goto_assigner (boundary, boundary_for_label, self.statements_to_reconstruct_after['stmts-follow-label'])
+        self.parent_goto_assigner (
+                boundary, boundary_for_label, 
+                self.statements_to_reconstruct_before['stmts-follow-label']
+        )
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-goto']
+        )
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-label']
+        )
 
     def case_availability(self, boundary):
         """
