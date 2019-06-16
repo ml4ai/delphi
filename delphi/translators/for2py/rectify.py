@@ -347,6 +347,7 @@ class RectifyOFPXML:
         "print-stmt",
         "print-format",
         "keyword-argument",
+        "logical-literal-constant",
         "end-subroutine-stmt",
     ] 
 
@@ -2880,14 +2881,15 @@ class RectifyOFPXML:
             self.generate_declaration_element(
                     parent, "goto_flag", number_of_gotos, declared_goto_flag_num, traverse
             )
-       
+        
         # This variable is for storing goto that may appear at the end of if
         # because we want to extract one scope out and place it right 
         # after the constructed if-statement
         next_goto = []
 
-        reconstructed_if_elem = []
+        reconstructed_goto_elem = []
         for i in range(number_of_gotos):
+            # Constructor for statements if and statements nested
             if conditional_goto:
                 assert (
                         header != None
@@ -2895,34 +2897,52 @@ class RectifyOFPXML:
                 self.need_op_negation = True
                 self.generate_if_element(
                         header, parent, stmts_follow_goto, next_goto, True, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
+                        None, None, None, traverse, reconstructed_goto_elem
                 )
-                if reconstructed_if_elem:
-                    stmts_follow_goto = reconstructed_if_elem[0]
-                self.need_op_negation = True
-                self.generate_if_element(
-                        header, parent, stmts_follow_label, next_goto, True, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
-                )
-                if len(reconstructed_if_elem) > 1:
-                    stmts_follow_label = reconstructed_if_elem[1]
-                conditional_goto = False
-
             else:
                 self.generate_if_element(
                         None, parent, stmts_follow_goto, next_goto, True, "unary", 
-                        f"goto_flag_{i+1}", None, ".not.", traverse, reconstructed_if_elem
+                        f"goto_flag_{i+1}", None, ".not.", traverse, reconstructed_goto_elem
                 )
-                if reconstructed_if_elem:
-                    stmts_follow_goto = reconstructed_if_elem[0]
-                self.generate_if_element(
-                        None, parent, stmts_follow_label, next_goto, False, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
-                )
-                if len(reconstructed_if_elem) > 1:
-                    stmts_follow_label = reconstructed_if_elem[1]
+            if reconstructed_goto_elem:
+                stmts_follow_goto = reconstructed_goto_elem[0]
+            # Constructor for statements with L_i:stmt_n
+            for stmt in stmts_follow_label:
+                if len(stmt) > 0:
+                    if "goto-stmt" in stmt.attrib:
+                        goto_stmt = {}
+                        goto_stmt['statement'] = stmt
+                        for child in stmt:
+                            if child.attrib['target_label'] in self.goto_target_lbl_before:
+                                goto_stmt['statement'].attrib['goto-move'] = "true"
+                            if (
+                                child.attrib['target_label'] not in self.goto_target_lbl_after
+                                and "goto-move" in goto_stmt['statement']
+                            ):
+                                del goto_stmt['statement'].attrib['goto-move']
+                            goto_stmt['goto-stmt'] = child
+                        next_goto.append(goto_stmt)
+                    else:
+                        reconstructed_goto_elem.append(stmt)
+
+            # When unconditional goto, it generates 'goto_flag_i = False'
+            # statement at the end of reconstrcted goto statement.
+            # Else, nothing gets printed, but set conditional_goto to False
+            if not conditional_goto:
+                statement = ET.SubElement(parent, "statement")
+                self.generate_assignment_element(statement, f"goto_flag_{i+1}", None, "literal", "false", traverse)
+                reconstructed_goto_elem.append(statement)
+                parent.remove(statement)
+            else:
+                conditional_goto = False
+
+            if len(reconstructed_goto_elem) > 1:
+                stmts_follow_label = reconstructed_goto_elem[1]
+
             self.encapsulate_under_do_while = False
 
+            # next_goto holds another goto after the current label_after
+            # case label, which will encapsulate reconstrcted goto element
             if next_goto:
                 statement = ET.SubElement(
                                     parent, next_goto[0]['statement'].tag,
@@ -2933,11 +2953,11 @@ class RectifyOFPXML:
                                     next_goto[0]['goto-stmt'].attrib
                 )
                 if (
-                    reconstructed_if_elem
-                    and reconstructed_if_elem[0].attrib['label']
+                    reconstructed_goto_elem
+                    and reconstructed_goto_elem[0].attrib['label']
                         == goto_stmt.attrib['target_label']
                 ):
-                    for stmt in reconstructed_if_elem:
+                    for stmt in reconstructed_goto_elem:
                         self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
                     self.statements_to_reconstruct_before['stmts-follow-label'].append(statement)
                     if self.statements_to_reconstruct_before['count-gotos'] < 1:
@@ -3304,7 +3324,7 @@ class RectifyOFPXML:
     def generate_if_element(
             self, header, parent, stored_stmts, next_goto,
             need_operation, op_type, lhs, rhs, operator,
-            traverse, reconstructed_if_elem
+            traverse, reconstructed_goto_elem
     ):
         """
             This is a function generating new if element.
@@ -3394,33 +3414,12 @@ class RectifyOFPXML:
                                 child_elem = ET.SubElement(cur_elem, child.tag, child.attrib)
                                 if len(child) > 0:
                                     self.parseXMLTree(child, child_elem, cur_elem, parent, traverse)
-                    else:
-                        goto_stmt = {}
-                        goto_stmt['statement'] = stmt
-                        for child in stmt:
-                            assert (
-                                    child.tag == "goto-stmt"
-                            ), f"Must only store <goto-stmt> in next_goto['goto-stmt']. Current: <{child.tag}>."
-                            if child.attrib['target_label'] in self.goto_target_lbl_before:
-                                goto_stmt['statement'].attrib['goto-move'] = "true"
-                            if (
-                                child.attrib['target_label'] not in self.goto_target_lbl_after
-                                and "goto-move" in goto_stmt['statement']
-                            ):
-                               del goto_stmt['statement'].attrib['goto-move']
-                            goto_stmt['goto-stmt'] = child
-                        next_goto.append(goto_stmt)
                     statement_num += 1
 
         if self.encapsulate_under_do_while:
             goto_nest_if_elem.attrib['goto-move'] = "true"
-            reconstructed_if_elem.append(goto_nest_if_elem)
+            reconstructed_goto_elem.append(goto_nest_if_elem)
             parent.remove(goto_nest_if_elem)
-
-        # Unconditional goto sets goto_flag always to false when it enters 2nd if-statement
-        if not need_operation:
-            statement = ET.SubElement(body_elem, "statement")
-            self.generate_assignment_element(statement, lhs, None, "literal", "false", traverse)
 
     #################################################################
     #                                                               #
