@@ -266,9 +266,8 @@ class RectifyOFPXML:
         "loop-control",
         "label",
         "literal",
-        "equiv-op",
         "equiv-operand__equiv-op",
-        "equiv-operand",
+        "subroutine-stmt",
     ]
 
     body_child_tags = [
@@ -353,6 +352,8 @@ class RectifyOFPXML:
         "keyword-argument",
         "end-subroutine-stmt",
         "logical-literal-constant",
+        "equiv-op",
+        "equiv-operand",
     ] 
 
     #################################################################
@@ -435,35 +436,46 @@ class RectifyOFPXML:
                 ...
             </header>
         """
+        # This holder will be used only when refactoring
+        # of header is needed, such as with odd syntax
+        # of .eqv. operator
+        temp_elem_holder = []
+        target_tags = [
+                "name",
+                "literal",
+                "equiv-operand__equiv-op"
+        ]
+        need_refactoring = False
         for child in root:
             self.clean_attrib(child)
-            if child.text or len(child) > 0:
-                cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
-                )
 
-                try:
-                    error_chk = self.header_child_tags.index(child.tag)
-                except ValueError:
-                    assert (
-                            False
-                    ), f'In handle_tag_header: "{child.tag}" not handled'
-
-                self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
-                )
-            else:
+            if child.tag in self.header_child_tags:
                 if child.tag == "subroutine-stmt":
                     current.attrib.update(child.attrib)
-                elif child.tag in self.header_child_tags:
+                else:
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
-                else:
+
+                    if len(child) > 0 or child.text:
+                        self.parseXMLTree(
+                                child, cur_elem, current, parent, traverse
+                        )
+
+                    if cur_elem.tag in target_tags:
+                        temp_elem_holder.append(cur_elem)
+                        if cur_elem.tag == "equiv-operand__equiv-op":
+                            need_refactoring = True
+            else:
+                try:
+                    error_chk = self.unnecessary_tags.index(child.tag)
+                except ValueError:
                     assert (
                             False
                     ), f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
-
+        if need_refactoring:
+            self.reconstruct_header(temp_elem_holder, current)
+            need_refactoring = False
 
     def handle_tag_body(
             self, root, current, parent, grandparent, traverse
@@ -1091,7 +1103,7 @@ class RectifyOFPXML:
                 # If the element holds subelements,
                 # call the XML tree parser with created
                 # new <name> element
-                if child.text:
+                if len(child) > 0 or child.text:
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
@@ -2008,14 +2020,14 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
-                    if child.tag == "body":
-                        self.current_body_scope = cur_elem
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
+                    if child.tag == "body":
+                        self.current_body_scope = cur_elem
                 else:
                     assert (
                             False
@@ -2208,16 +2220,16 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
-                    if child.tag == "header":
-                        self.is_function_arg = True
-                    elif child.tag == "body":
-                        self.current_body_scope = cur_elem
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
+                    if child.tag == "header":
+                        self.is_function_arg = True
+                    elif child.tag == "body":
+                        self.current_body_scope = cur_elem
                 else:
                     assert (
                             False
@@ -3161,6 +3173,40 @@ class RectifyOFPXML:
         self.label_lbl_for_before.clear()
         self.statements_to_reconstruct_before['stmts-follow-label'] = []
         self.statements_to_reconstruct_before['count-gotos'] = 0
+
+    def reconstruct_header(
+            self, temp_elem_holder, parent
+    ):
+        """
+            This function is for reconstructing the oddly
+            generated header AST to have an uniform structure
+            with other multiary type operation nested headers.
+        """
+        # This operation is basically for switching
+        # the location of operator and 2nd operand,
+        # so the output syntax can have a common structure
+        # with other operation AST
+        op = temp_elem_holder.pop()
+        temp_elem_holder.insert(1, op)
+
+        # First create <operation> element
+        # Currently, only assume multiary reconstruction
+        operation = ET.SubElement(
+                parent, "operation", {"type":"multiary"}
+        )
+        for elem in temp_elem_holder:
+            if elem.tag == "name" or elem.tag == "literal":
+               operand = ET.SubElement(operation, "operand")
+               value = ET.SubElement(operand, elem.tag, elem.attrib)
+            else:
+                assert (
+                        elem.tag == "equiv-operand__equiv-op" 
+                ), f"Tag must be 'equiv-operand__equiv-op'. Current: {elem.tag}."
+                operator = ET.SubElement(
+                        operation, "operator", {"operator":elem.attrib['equivOp']}
+                )
+            parent.remove(elem)
+
 
     #################################################################
     #                                                               #
