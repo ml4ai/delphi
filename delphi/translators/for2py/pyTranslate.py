@@ -64,6 +64,7 @@ OPERATOR_MAP = {
     ".ge.": ">=",
     ".and.": "and",
     ".or.": "or",
+    ".eqv.": "==",
 }
 
 # INTRINSICS_MAP gives the mapping from Fortran intrinsics to Python operators
