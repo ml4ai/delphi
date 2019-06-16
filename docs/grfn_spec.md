@@ -1,63 +1,71 @@
-Grounded Function Network (GrFN) JSON Specification
-===================================================
+# Grounded Function Network (GrFN) JSON Specification
 
 **Version 0.1.m7**
+
+## TODO
 
 In progress. Release date: July 1, 2019
 
 >TODO:
 >
->1. Namespace (corresonding to Fortran Modules)
+>- Add namespace (corresonding to Fortran Modules)
 >	- each module is a GrFN file (no matter how many source files)
 >	- each program is a GrFN file (no matter how many source files)
->2. Gounding metadata
+>- Add gounding metadata
 >	- variable definition
 >	- variable value units
 >	- variable value constraints
->3. Open-ended loops
+>- Change loops to open-ended representation
 >	- subsumes for/iteration loops
->4. Goto
->5. Structured Types
->	- Arrays
->6. Refine `<variable_domain_type>` with more precision info
->7. Add variable domain constraints
+>- Add goto
+>- Structured Types
+>	- Add arrays
+>- Add precision info to `<variable_domain_type>`
+>- Add variable domain constraints
 
-Changes from version 0.1.m5:
+### [0.1.m7] - 2019-07-01
 
-Changes from version 0.1.m3:
+#### Added
+- Added explicit Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
 
-- Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
-- Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house [`<variable_spec>`](#variable-specification)s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_string>`s](#identifier-string)).
-- Clarified distinction between [`<source_code_reference>`](#grounding-and-source-code-reference)s (linking identifiers to where they are used in the analyzed source code) and [`<lambda_function_reference>`](#function-assign-body-lambda)s (which denote functions in the Program Analysis-generated lambdas file source code); previously these two concepts were ambiguous.
-- Removed [`<identifier_spec>`](#identifier-specification) "aliases" attribute. To be handled later as part of pointer/reference analysis.
-- Added links to help topic navigation.
+#### Changed
+- Reorganized and rewrote portions of Introduction
 
-Shortcuts
----------
+
+## Shortcuts
 
 [Top-level GrFN Specification](#top-level-GrFN-Specification)
 
+[Change Log](#change-og) (from previous releases)
 
-Introduction
-------------
 
-GrFN, pronounced "Griffin", is the central representation generated/manipulated by the [AutoMATES](https://ml4ai.github.io/automates/) system.
+## Introduction
 
-There are four processes in AutoMATES that generate (contribute to) and/or consume (operate on) GrFN:
+### Background: From source code to dynamic system representation
 
-- Program Analysis (PA)
-- Text Reading (TR)
-- Equation Reading (ER)
-- Model Analysis (MA)
+GrFN, pronounced "Griffin", is the central representation generated and manipulated by the [AutoMATES](https://ml4ai.github.io/automates/) system (incorporating [Delphi](https://ml4ai.github.io/delphi)).
 
-GrFN integrates the extracted _Function Network_ representation of source code (the result of Program Analysis) along with associated extracted comments, links to natural language text (the result of natural language processing), and links to equations (the result of equation extraction).
+The goal of GrFN is to provide the end-point target for a translation from the semantics of program (computation) specification (as asserted in source code) and scientific domain concepts (as expressed in text and equations) to the semantics of a (discretized) dynamic system model (akin to an extended version of a probabilistic graphical model).
+
+A key assumption is that the program source code we are analyzing is intended to model aspects of some target physical domain, and that this target physical domain is a dynamical system that evolves over time. This means that some source code variables are assumed to correspond to dynamical system states of the represented system. 
+
+The system is decomposed into a set of individual states (represented as (random) variables), where the values of the states at any given time are a function of the values of zero or more other states at the current and/or previous time point(s). Because we are considering the evolution of the system over time, in general every variable has an index. The functional relationships may be instantaneous (based on the variables indexed at the same point in time) or a function of states of variables at different time indices.
+
+There are four components in AutoMATES that generate (contribute to) and/or consume (operate on) GrFN:
+
+- Program Analysis (PA) - generates
+- Text Reading (TR) - generates
+- Equation Reading (ER) - generates
+- Model Analysis (MA) - consumes
+
+GrFN integrates the extracted _Function Network_ representation of source code (the result of Program Analysis) along with associated extracted comments, links to natural language text (the result of natural language processing by Text Reading), and links to and representation of equations (the result of equation extraction by Equation Reading).
 
 
 ### Spec Notation Conventions
 
-This document describes the GrFN JSON schema, specifying the JSON format that is to be generated by program analysis and consumed by Delphi.
+This specification (spec) document describes the GrFN JSON schema, specifying the JSON format that is to be generated by Program Analysis, Text Reading and Equation Reading. Model Analysis is the current main consumer; we also hope that other scientific model analysis systems (e.g., from the ASKE Program) will also be consumers and/or generators.
 
-In this document we adopt a simplified [Backus-Naur Form (BNF)](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)-inspired grammar convention combined with a convention for intuitively defining specific JSON attribute-value lists. The schema definitions and instance GrFN examples are shown in `monospaced font`, and interspersed with comments/discussion.
+In this document we adopt a simplified [Backus-Naur Form (BNF)](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)-inspired grammar specification convention combined with a convention for intuitively defining JSON attribute-value lists. The schema definitions and instance GrFN examples are rendered in `monospaced font`, and interspersed with comments/discussion.
 
 Following BNF convention, elements in `<...>` denote nonterminals, with `::=` indicating a definition of how a nonterminal is expanded. We will use some common nonterminals with standard expected interpretations, such as `<string>` for strings, `<integer>` for integers, etc. Many of the definitions below will specify JSON attribute-value lists; when this is the case, we will decorate the nonterminal element definition by adding `[attrval]`, as follows::
 
@@ -71,15 +79,7 @@ We also use the following conventions in the discussion below:
 supported.
 - 'CHOICE': Captures discussion of a CHOICE that does not yet have a clear 
 resolution
-- 'FOR NOW': Tags approach being currently taken, eiher in response to FUTURE or CHOICE.
-
-### Background: From source code to dynamic system representation
-
-The goal of GrFN is to provide the end-point target for a translation from the semantics of program (computation) specification (as asserted in source code) to the semantics of a (discretized) dynamic system model.
-
-A key assumption is that the program source code we are analyzing is intended to model aspects of some target physical domain, and that this target physical domain is a dynamical system that evolves over time.
-
-The system is decomposed into a set of individual states (represented as random variables), where the values of the states at any given time are a function of the values of zero or more other states at the current and/or previous time point(s). Because we are considering the evolution of the system over time, in general every variable has an index. The functional relationships may be instantaneous (based on the variables indexed at the same point in time) or a function of states of variables at different time indices.
+- 'FOR NOW': Tags the approach being currently taken, eiher in response to FUTURE or CHOICE.
 
 
 Identifiers: grounding, scopes, namespaces and gensyms
@@ -697,3 +697,6 @@ The "index\_variable" is the named variable that stores the iteration state of t
         "end" : <integer> | <variable_reference> | <variable_name>
 
 This definition permits loop iteration bounds to be specified either as literal integers, or as the values of variables.
+
+
+{% include_relative CHANGELOG_grfn.md %}
