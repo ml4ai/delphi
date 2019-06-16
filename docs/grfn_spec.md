@@ -4,7 +4,7 @@
 
 ## TODO
 
-In progress. Release date: July 1, 2019
+In progress. Release target date: July 1, 2019
 
 >TODO:
 >
@@ -26,17 +26,16 @@ In progress. Release date: July 1, 2019
 ### [0.1.m7] - 2019-07-01
 
 #### Added
-- Added explicit Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
+- GrFN_spec Index with links for quick reference navigation
+- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
 
 #### Changed
 - Reorganized and rewrote portions of Introduction
 
-
-## Shortcuts
-
-[Top-level GrFN Specification](#top-level-GrFN-Specification)
-
 [Change Log](#change-og) (from previous releases)
+
+
+{% include_relative grfn_index.md %}
 
 
 ## Introduction
@@ -87,14 +86,20 @@ Identifiers: grounding, scopes, namespaces and gensyms
 
 ### Preamble
 
-The current GrFN design strategy is to separate identifiers (any program symbol used to denote a program element) from the program elements themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
+The current GrFN design strategy is to separate _identifiers_ (any program symbol used to denote a program element) from the _program elements_ themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
 
-A critical role of identifiers is in facilitating linking to information extracted by Text and Equation Reading. In particular, identifiers capture two types of information useful for this task:
+A critical role of identifiers is to enable _linking_ of program elements to information extracted by Text and Equation Reading. In particular, identifiers capture two types of information useful for this task:
 
-1. Information about the name and context of the indicator as it appears in source context -- to help connect to other textual sources based on string similarity;
-2. Information about where the indicator is used in source code (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- to help connect to other texture sources as docstrings and comments based on locality in the source code.
+1. Information about the name and namespace context of the identifier as it appears in program source context -- e.g., using the identifier name as evidence to be used in linking to other textual sources based on string similarity;
+2. Information about the location and neighborhood in source code where the identifier is used (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- e.g., to use as evidence when linking to other texture sources such as docstrings and comments, based on locality in the source code.
 
-Variables (and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an indicator means a denotation of the variable. So when information is associated with indicators from text and equation sources, this information can then be associated with variables themselves (e.g., the domain concept variable corresponds to (the "definition" of the variable), and eventually type information and possible value constraints).
+Variables (and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an identifier is a denotation of the variable. So when information is linked to terms ("mentions") from text and equation sources, this information can then be associated with variables themselves. For example, the indicator 'S' may be described in documentation as corresponding to the "susceptible population".
+
+Text Reading is currently working on extracting three types of information:
+
+- Definitions (e.g., 'wind speed', 'susceptible individuals')
+- Units (e.g., 'millimeters', 'per capita')
+- Constraints (e.g., '> 0', '<= 100')
 
 ### Identifier
 

@@ -32,7 +32,7 @@ This project does not (yet) adhere to [Semantic Versioning](https://semver.org/s
 
 
 ## Releases
-- [unreleased]: https://github.com/ml4ai/delphi/blob/master/docs/grfn_spec.md
+- [unreleased]: https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md
 - [0.1.m5]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m5_final_phase1_report/GrFN_specification_v0.1.m5.md
 - [0.1.m3]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m3_report_prototype_system/GrFN_specification_v0.1.m3.md
 - [0.1.m1]: https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m1_architecture_report/GrFN_specification_v0.1.md
