@@ -3,6 +3,7 @@ import delphi.AnalysisGraph as AG
 import pytest
 import numpy as np
 import random
+from conftest import G_eval
 import pickle
 import os
 
@@ -14,24 +15,13 @@ random.seed(2019)
 # Testing definitions
 
 
-def test_get_predictions():
-    G = AG.AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
-    G.map_concepts_to_indicators()
-    G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
-    G.parameterize(year=2013, month=9)
-    G.get_timeseries_values_for_indicators()
-
-    # Checking Assertion error when putting in len(deltas) != n_timesteps
+def test_get_predictions(G_eval):
+    # Checking assertion error when putting in len(deltas) != n_timesteps
     deltas = np.random.rand(10)
     n_timesteps = 9
     with pytest.raises(AssertionError) as excinfo:
         pred_df = EN.get_predictions(
-            G,
+            G_eval,
             "UN/entities/natural/crop_technology/product",
             "UN/events/human/human_migration",
             deltas,
@@ -45,7 +35,7 @@ def test_get_predictions():
     deltas = np.random.rand(10)
     n_timesteps = 10
     pred_df = EN.get_predictions(
-        G,
+        G_eval,
         "UN/entities/natural/crop_technology/product",
         "UN/events/human/human_migration",
         deltas,
@@ -55,21 +45,13 @@ def test_get_predictions():
     assert pred_df.columns[0] == "Import Quantity, Infant food(Predictions)"
 
 
-def test_get_true_values():
-    G = AG.AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
-    G.map_concepts_to_indicators()
-    G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
-    G.parameterize(year=2011, month=9)
-    G.get_timeseries_values_for_indicators()
+def test_get_true_values(G_eval):
+    G_eval.parameterize(year=2011, month=9)
+    G_eval.get_timeseries_values_for_indicators()
 
     # Checking number of rows, column title, and index names
     true_df = EN.get_true_values(
-        G, "UN/entities/natural/crop_technology/product", 48, 2011, 9
+        G_eval, "UN/entities/natural/crop_technology/product", 48, 2011, 9
     )
     assert len(true_df) == 48
     assert true_df.columns[0] == "Import Quantity, Infant food(True)"
@@ -125,21 +107,13 @@ def test_calculate_timestep():
     )
 
 
-def test_estimate_deltas():
-    G = AG.AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
-    G.map_concepts_to_indicators()
-    G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
-    G.parameterize(year=2011, month=9)
-    G.get_timeseries_values_for_indicators()
+def test_estimate_deltas(G_eval):
+    G_eval.parameterize(year=2011, month=9)
+    G_eval.get_timeseries_values_for_indicators()
 
     # Checking length
     deltas = EN.estimate_deltas(
-        G, "UN/entities/natural/crop_technology/product", 48, 2011, 9
+        G_eval, "UN/entities/natural/crop_technology/product", 48, 2011, 9
     )
     assert len(deltas) == 48
 
@@ -161,12 +135,7 @@ def test_estimate_deltas():
     assert len(deltas) == 10
 
 
-def test_setup_evaluate():
-    G = AG.AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
-    G.map_concepts_to_indicators()
+def test_setup_evaluate(G_eval):
 
     # Check Empty input Assertion Error
     with pytest.raises(AssertionError) as excinfo:
@@ -178,24 +147,16 @@ def test_setup_evaluate():
 
     # Check pickle file upload and warning when also passing G along with pickle file
     with open("test_CAG.pkl", "wb") as f:
-        pickle.dump(G, f)
+        pickle.dump(G_eval, f)
     with pytest.warns(
         UserWarning,
         match="The CAG passed to G will be suppressed by the CAG loaded from the pickle file.",
     ):
-        EN.setup_evaluate(G, input="test_CAG.pkl", res=200)
+        EN.setup_evaluate(G_eval, input="test_CAG.pkl", res=200)
     os.remove("test_CAG.pkl")
 
 
-def test_evaluate():
-    G = AG.AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
-    G.map_concepts_to_indicators()
-    G.Res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
-    G.sample_from_prior()
+def test_evaluate(G_eval):
     target_node = "UN/entities/natural/crop_technology/product"
     intervened_node = "UN/events/human/human_migration"
     start_year = 2013
@@ -220,7 +181,7 @@ def test_evaluate():
 
     # Check pickle file upload and warning when also passing G along with pickle file
     with open("test_CAG.pkl", "wb") as f:
-        pickle.dump(G, f)
+        pickle.dump(G_eval, f)
     with pytest.warns(
         UserWarning,
         match="The CAG passed to G will be suppressed by the CAG loaded from the pickle file.",
@@ -228,7 +189,7 @@ def test_evaluate():
         EN.evaluate(
             target_node=target_node,
             intervened_node=intervened_node,
-            G=G,
+            G = G_eval,
             input="test_CAG.pkl",
             start_year=start_year,
             start_month=start_month,
@@ -243,7 +204,7 @@ def test_evaluate():
     df = EN.evaluate(
         target_node=target_node,
         intervened_node=intervened_node,
-        G=G,
+        G=G_eval,
         start_year=start_year,
         start_month=start_month,
         end_year=end_year,
@@ -258,7 +219,7 @@ def test_evaluate():
     EN.evaluate(
         target_node=target_node,
         intervened_node=intervened_node,
-        G=G,
+        G=G_eval,
         start_year=start_year,
         start_month=start_month,
         end_year=end_year,

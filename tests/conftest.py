@@ -63,3 +63,17 @@ def G():
     G.parameterize(year=2014, month=12)
     G.to_pickle()
     yield G
+
+@pytest.fixture(scope="session")
+def G_eval():
+    G = AnalysisGraph.from_text(
+        "Improved migration causes increased product",
+        webservice="http://54.84.114.146:9000",
+    )
+    G.map_concepts_to_indicators()
+    G.res = 200
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    G.parameterize(year=2013, month=9)
+    G.get_timeseries_values_for_indicators()
+    yield G
