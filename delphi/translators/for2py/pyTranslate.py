@@ -50,6 +50,8 @@ OPERATOR_MAP = {
     "*": "*",
     "/": "/",
     "**": "**",
+    "<": "<",
+    ">": ">",
     "<=": "<=",
     ">=": ">=",
     "==": "==",
@@ -62,6 +64,7 @@ OPERATOR_MAP = {
     ".ge.": ">=",
     ".and.": "and",
     ".or.": "or",
+    ".eqv.": "==",
 }
 
 # INTRINSICS_MAP gives the mapping from Fortran intrinsics to Python operators
@@ -767,7 +770,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
-        if node["args"][0].get("arg_name") == "UNIT":
+        if node["args"][0].get("arg_name") == "unit":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
             file_handle = "file_" + str(
@@ -778,10 +781,10 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"{file_handle} = ")
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
-                if item["arg_name"] == "FILE":
+                if item["arg_name"].lower() == "file":
                     file_name = node["args"][index + 1]["value"]
                     open_state = "r"
-                elif item["arg_name"] == "STATUS":
+                elif item["arg_name"].lower() == "status":
                     open_state = node["args"][index + 1]["value"]
                     open_state = self.stateMap[open_state]
 
@@ -1007,7 +1010,14 @@ class PythonCodeGenerator(object):
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
-                initVal = node["value"][0]["value"]
+                if node["value"][0]["tag"] == "literal":
+                    initVal = node["value"][0]["value"]
+                elif node["value"][0]["tag"] == "op":
+                    initVal = self.proc_op(node["value"][0])
+                else:
+                    assert (
+                            False
+                    ), f"Tag {node['value'][0]['tag']} currently not handled yet."
             else:
                 initVal = None
 
@@ -1172,11 +1182,12 @@ class PythonCodeGenerator(object):
                 bounds[index] = self.proc_literal(bound[0])
             elif bound[0]["tag"] == "op":
                 bounds[index] = self.proc_op(bound[0])
+            elif bound[0]["tag"] == "ref":
+                bounds[index] = self.proc_ref(bound[0], False)
             else:
-                assert False, f"Unrecognized tag in retrieved_bound:\
-                                {bound[0]['tag']}"
+                assert False, f"Unrecognized tag in retrieved_bound: {bound[0]['tag']}"
             index += 1
-
+        
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
         """This function forms a derived type reference
         and return to the caller"""
