@@ -940,7 +940,8 @@ class GrFNGenerator(object):
                     )
                     target = {"var": {"variable": targets, "index": 1}}
 
-                # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
+                # Check whether this is an alias assignment i.e. of the form
+                # y=x where y is now the alias of variable x
                 self.check_alias(target, sources)
 
                 name = getFnName(
@@ -948,7 +949,8 @@ class GrFNGenerator(object):
                     f"{state.fnName}__assign__{target['var']['variable']}",
                     target,
                 )
-                # If the index is -1, change it to the index in the fnName. This is a hack right now.
+                # If the index is -1, change it to the index in the fnName.
+                # This is a hack right now.
                 # if target["var"]["index"] < 0:
                 #     target["var"]["index"] = name[-1]
 
@@ -1042,6 +1044,26 @@ class GrFNGenerator(object):
                 pgms.append(self.genPgm(item, state, fnNames, "boolop"))
 
             return pgms
+
+        # Handle Attributes
+        # Currently, this branch works as a bypass for the `feature_save`
+        # branch to work-around the SAVE feature and its implementation.
+        elif isinstance(node, ast.Attribute):
+            lastDef = getLastDef(node.attr, state.lastDefs,
+                                 state.lastDefDefault)
+            if (
+                isinstance(node.ctx, ast.Store)
+                and state.nextDefs.get(node.attr)
+                and call_source != "annassign"
+            ):
+                lastDef = getNextDef(
+                    node.attr,
+                    state.lastDefs,
+                    state.nextDefs,
+                    state.lastDefDefault,
+                )
+
+            return [{"var": {"variable": node.attr, "index": lastDef}}]
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1275,10 +1297,11 @@ class GrFNGenerator(object):
         source = []
         fn = {}
 
-        # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
+        # Regular expression to check for all targets that need to be bypassed.
+        # This is related to I/O handling
         bypass_regex = (
             r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj"
-            r".*|^Format$|^list_output_formats$|^write_list_steam$"
+            r".*|^Format$|^list_output_formats$|^write_list_stream$"
         )
 
         # Preprocessing and removing certain Assigns which only pertain to the
@@ -1377,7 +1400,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
     for fields.  This makes the code impossible to evaluate, so if evaluation
-    is wanted *annotate_fields* must be set to False.  Attributes such as line
+    is wanted *annotate_fields* must be set to False. Attributes such as line
     numbers and column offsets are not dumped by default. If this is wanted,
     *include_attributes* can be set to True.
     """
@@ -1499,11 +1522,25 @@ def getFnName(fnNames, basename, target):
 
 def getLastDef(var, lastDefs, lastDefDefault):
     index = lastDefDefault
-    if var in lastDefs:
-        index = lastDefs[var]
+
+    bypass_regex = (
+        r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|"
+        r"^write_line$|^format_\d+_obj"
+        r".*|^Format$|^list_output_formats$|^write_list_stream$"
+    )
+
+    # Preprocessing and removing certain Assigns which only pertain to the
+    # Python code and do not relate to the FORTRAN code in any way.
+    bypass_match = re.match(bypass_regex, var)
+
+    if not bypass_match:
+        if var in lastDefs:
+            index = lastDefs[var]
+        else:
+            lastDefs[var] = index
+        return index
     else:
-        lastDefs[var] = index
-    return index
+        return 0
 
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
