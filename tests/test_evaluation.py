@@ -134,4 +134,38 @@ def test_setup_evaluate():
 
     #Check pickle file upload and warning when also passing G along with pickle file
     with pytest.warns(UserWarning, match='The CAG passed to G will be suppressed by the CAG loaded from the pickle file.'):
-        EN.setup_evaluate(G,input='data/evaluation/test_CAG.pkl',res=200)
+        EN.setup_evaluate(G,input='data/evaluation/test_setup_evaluate_CAG.pkl',res=200)
+
+def test_evaluate():
+    G = AG.AnalysisGraph.from_text('Improved migration causes increased product', webservice='http://54.84.114.146:9000')
+    G.map_concepts_to_indicators()
+    G.Res = 200
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
+    target_node = "UN/entities/natural/crop_technology/product"
+    intervened_node = "UN/events/human/human_migration"
+    start_year = 2013
+    start_month = 9
+    end_year = 2017
+    end_month = 9
+
+
+    #Check empty input Assertion Error
+    with pytest.raises(AssertionError) as excinfo:
+        EN.evaluate(target_node=target_node,intervened_node=intervened_node,start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month)
+    assert "A CAG must be passed to G or a pickle file containing a CAG must be passed to input." in str(excinfo.value)
+
+    #Check pickle file upload and warning when also passing G along with pickle file
+    with pytest.warns(UserWarning, match='The CAG passed to G will be suppressed by the CAG loaded from the pickle file.'):
+        EN.evaluate(target_node=target_node,intervened_node=intervened_node,G=G,input='data/evaluation/test_evaluate_CAG.pkl',start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month)
+
+    #Check start_month = None, end_month = None case and plotting option
+    start_month = None
+    end_month = None
+    df = EN.evaluate(target_node=target_node,intervened_node=intervened_node,G=G,start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month,plot=True)
+    assert len(df) == 48
+    assert df.index[0] == '2013-2'
+    assert df.index[47] == '2017-1'
+
+    #Check plotting Error plot
+    EN.evaluate(target_node=target_node,intervened_node=intervened_node,G=G,start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month,plot=True,plot_type = 'Error')
