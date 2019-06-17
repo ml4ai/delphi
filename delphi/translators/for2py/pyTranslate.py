@@ -50,10 +50,13 @@ OPERATOR_MAP = {
     "*": "*",
     "/": "/",
     "**": "**",
+    "<": "<",
+    ">": ">",
     "<=": "<=",
     ">=": ">=",
     "==": "==",
     ".ne.": "!=",
+    ".not.": "not",
     ".gt.": ">",
     ".eq.": "==",
     ".lt.": "<",
@@ -61,6 +64,7 @@ OPERATOR_MAP = {
     ".ge.": ">=",
     ".and.": "and",
     ".or.": "or",
+    ".eqv.": "==",
 }
 
 # INTRINSICS_MAP gives the mapping from Fortran intrinsics to Python operators
@@ -114,24 +118,24 @@ INTRINSICS_MAP = {
     "xor": ("^", "INFIXOP", None),
 }
 
+
 ###############################################################################
 #                                                                             #
 #                                 TRANSLATION                                 #
 #                                                                             #
 ###############################################################################
 
-
 class PrintState:
     def __init__(
-        self,
-        sep="\n",
-        add="    ",
-        printFirst=True,
-        callSource=None,
-        definedVars=[],
-        globalVars=[],
-        functionScope="",
-        indexRef=True,
+            self,
+            sep="\n",
+            add="    ",
+            printFirst=True,
+            callSource=None,
+            definedVars=[],
+            globalVars=[],
+            functionScope="",
+            indexRef=True,
     ):
         self.sep = sep
         self.add = add
@@ -143,15 +147,15 @@ class PrintState:
         self.indexRef = indexRef
 
     def copy(
-        self,
-        sep=None,
-        add=None,
-        printFirst=None,
-        callSource=None,
-        definedVars=None,
-        globalVars=None,
-        functionScope=None,
-        indexRef=None,
+            self,
+            sep=None,
+            add=None,
+            printFirst=None,
+            callSource=None,
+            definedVars=None,
+            globalVars=None,
+            functionScope=None,
+            indexRef=None,
     ):
         return PrintState(
             self.sep if sep is None else sep,
@@ -192,7 +196,7 @@ class PythonCodeGenerator(object):
         # List to hold the translated python string that
         # will be printed to the python IR output
         self.pyStrings = []
-        # Dictionary holding mapping of read/write 
+        # Dictionary holding mapping of read/write
         # based on the file open state
         self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
         # Dictionary to hold the mapping of {label:format-code}
@@ -249,9 +253,10 @@ class PythonCodeGenerator(object):
     ###########################################################################
 
     def printSubroutine(self, node: Dict[str, str], printState: PrintState):
+        """prints Fortran subroutine in python function syntax"""
 
         # Handle the save statement first since the decorator needs to be
-        # just above the function defintion
+        # just above the function definition
         node = self.printSave(node, printState)
         self.current_module = node["name"]
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
@@ -278,9 +283,11 @@ class PythonCodeGenerator(object):
         )
 
     def printFunction(self, node, printState: PrintState):
+        """prints Fortran function in python function
+           syntax"""
 
         # Handle the save statement first since the decorator needs to be
-        # just above the function defintion
+        # just above the function definition
         node = self.printSave(node, printState)
         self.current_module = node["name"]
         self.functions.append(self.nameMapper[node['name']])
@@ -314,6 +321,7 @@ class PythonCodeGenerator(object):
         )
 
     def printModule(self, node, printState: PrintState):
+        """prints module syntax"""
         self.pyStrings.append("\n")
         args = []
         self.printAst(
@@ -324,6 +332,8 @@ class PythonCodeGenerator(object):
         )
 
     def printProgram(self, node, printState: PrintState):
+        """prints Fortran program in Python function syntax
+           by calling printSubroutine function"""
         self.printSubroutine(node, printState)
         self.programName = self.nameMapper[node["name"]]
 
@@ -336,7 +346,6 @@ class PythonCodeGenerator(object):
     def proc_intrinsic(self, node):
         """Processes calls to intrinsic functions and returns a string that is
            the corresponding Python code."""
-
         intrinsic = node["name"].lower()
         assert intrinsic in syntax.F_INTRINSICS
 
@@ -439,8 +448,8 @@ class PythonCodeGenerator(object):
         ref_str = ""
         is_derived_type_ref = False
         if (
-            "is_derived_type_ref" in node
-            and node["is_derived_type_ref"] == "true"
+                "is_derived_type_ref" in node
+                and node["is_derived_type_ref"] == "true"
         ):
             ref_str = self.get_derived_type_ref(
                 node, int(node["numPartRef"]), False
@@ -471,9 +480,9 @@ class PythonCodeGenerator(object):
                 expr_str = ref_str
             else:
                 if (
-                    "is_arg" in node
-                    and node["is_arg"] == "true"
-                    or is_derived_type_ref
+                        "is_arg" in node
+                        and node["is_arg"] == "true"
+                        or is_derived_type_ref
                 ):
                     expr_str = ref_str
                     is_derived_type_ref = False
@@ -487,19 +496,11 @@ class PythonCodeGenerator(object):
 
     def proc_op(self, node):
         """Processes expressions involving operators and returns a string that
-           is the corresponding Python code."""p
+           is the corresponding Python code."""
         try:
             op_str = OPERATOR_MAP[node["operator"].lower()]
         except KeyError:
             raise For2PyError(f"unhandled operator {node['operator']}")
-
-        # Convert the operation string to // (floored division) if the target
-        # variable is an integer.
-        if op_str == "/":
-            for item in self.var_type[self.current_module]:
-                if item["name"] == self.nameMapper[node["left"][0]["name"]] \
-                        and item["type"] == "int":
-                    op_str = "//"
 
         assert len(node["left"]) == 1
         l_subexpr = self.proc_expr(node["left"][0], False)
@@ -714,8 +715,9 @@ class PythonCodeGenerator(object):
         else:
             if lhs["hasSubscripts"] == "true":
                 assert (
-                    "subscripts" in lhs
-                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match. Fix 'hasSubscripts' in rectify.py."
+                        "subscripts" in lhs
+                ), "lhs 'hasSubscripts' and actual 'subscripts' existence does not match.\
+                    Fix 'hasSubscripts' in rectify.py."
                 # target is an array element
                 if "is_array" in lhs and lhs["is_array"] == "true":
                     subs = lhs["subscripts"]
@@ -731,6 +733,14 @@ class PythonCodeGenerator(object):
             else:
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
+
+        # Check if true division (/) exists in the rhs_str and convert into
+        # floored division (//) if the target variable is an integer
+        if '/' in rhs_str:
+            for item in self.var_type[self.current_module]:
+                if item["name"] == self.nameMapper[lhs["name"]] \
+                        and item["type"] == "int":
+                    rhs_str = rhs_str.replace('/', '//')
 
         # If the target variable is a saved variable add the
         # subroutine/function name to it's prefix.
@@ -753,7 +763,8 @@ class PythonCodeGenerator(object):
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg'].lower()} import *\n"
+                f"from delphi.translators.for2py.m_"
+                f"{node['arg'].lower()} import *\n"
             )
 
     def printFuncReturn(self, node, printState: PrintState):
@@ -769,9 +780,9 @@ class PythonCodeGenerator(object):
                     val = node["value"]
                 else:
                     assert (
-                        "left" in node and
-                        "operator" in node and
-                        "right" in node
+                            "left" in node and
+                            "operator" in node and
+                            "right" in node
                     ), f"Something is missing. Detail of node content: {node}"
 
                     if node["left"][0]["tag"] == "ref":
@@ -805,7 +816,7 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
-        if node["args"][0].get("arg_name") == "UNIT":
+        if node["args"][0].get("arg_name") == "unit":
             file_handle = "file_" + str(node["args"][1]["value"])
         elif node["args"][0].get("tag") == "ref":
             file_handle = "file_" + str(
@@ -816,10 +827,10 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(f"{file_handle} = ")
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
-                if item["arg_name"] == "FILE":
+                if item["arg_name"].lower() == "file":
                     file_name = node["args"][index + 1]["value"]
                     open_state = "r"
-                elif item["arg_name"] == "STATUS":
+                elif item["arg_name"].lower() == "status":
                     open_state = node["args"][index + 1]["value"]
                     open_state = self.stateMap[open_state]
 
@@ -913,8 +924,8 @@ class PythonCodeGenerator(object):
         args_str = []
         for i in range(len(args)):
             if (
-                "is_derived_type_ref" in args[i]
-                and args[i]["is_derived_type_ref"] == "true"
+                    "is_derived_type_ref" in args[i]
+                    and args[i]["is_derived_type_ref"] == "true"
             ):
                 args_str.append(
                     self.get_derived_type_ref(
@@ -1040,13 +1051,21 @@ class PythonCodeGenerator(object):
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
         if (
-            var_name not in printState.definedVars + printState.globalVars
-            and var_name not in self.functions and var_name not in
+                var_name not in printState.definedVars + printState.globalVars
+                and var_name not in self.functions and var_name not in
                 self.saved_variables[self.current_module]
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
-                initVal = node["value"][0]["value"]
+                if node["value"][0]["tag"] == "literal":
+                    initVal = node["value"][0]["value"]
+                elif node["value"][0]["tag"] == "op":
+                    initVal = self.proc_op(node["value"][0])
+                else:
+                    assert (
+                        False
+                    ), f"Tag {node['value'][0]['tag']} " \
+                        f"currently not handled yet."
             else:
                 initVal = None
 
@@ -1060,7 +1079,7 @@ class PythonCodeGenerator(object):
             else:
                 if printState.functionScope:
                     if not var_name in self.funcArgs.get(
-                        printState.functionScope
+                            printState.functionScope
                     ):
                         self.pyStrings.append(
                             f"{var_name}: List[{varType}]" f" = [{initVal}]"
@@ -1090,11 +1109,13 @@ class PythonCodeGenerator(object):
             object declaration. 'arrayName = Array(Type, [bounds])'
         """
         if (
-            self.nameMapper[node["name"]] not in printState.definedVars
-            and self.nameMapper[node["name"]] not in printState.globalVars
+                self.nameMapper[node["name"]] not in printState.definedVars
+                and self.nameMapper[node["name"]] not in printState.globalVars
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
             printState.definedVars += [node["name"]]
+
+            var_type = self.get_type(node)
 
             var_type = self.get_type(node)
 
@@ -1121,12 +1142,13 @@ class PythonCodeGenerator(object):
             # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
             is_derived_type_declaration = False
-            # If the type is not one of the default types, but it's a declared derived type,
-            # set the is_derived_type_declaration to True as the declaration of variable
-            # with such type has different declaration syntax from the default type variables.
+            # If the type is not one of the default types, but it's
+            # a declared derived type, set the is_derived_type_declaration
+            # to True as the declaration of variable with such type has
+            # different declaration syntax from the default type variables.
             if (
-                var_type not in TYPE_MAP
-                and var_type in self.declaredDerivedTypes
+                    var_type not in TYPE_MAP
+                    and var_type in self.declaredDerivedTypes
             ):
                 is_derived_type_declaration = True
 
@@ -1175,8 +1197,6 @@ class PythonCodeGenerator(object):
         return node
 
 
-
-
     ###########################################################################
     #                                                                         #
     #                              MISCELLANEOUS                              #
@@ -1217,10 +1237,59 @@ class PythonCodeGenerator(object):
 
         return "".join(self.pyStrings)
 
+    def get_range(self, node):
+        """This function will construct the range string in 'loBound,
+           Upbound' format and return to the called function"""
+
+        # [0]: lower bound
+        # [1]: upper bound
+        bounds = [0, 0]
+        retrieved_bounds = [node["low"], node["high"]]
+        self.get_bound(bounds, retrieved_bounds)
+
+        return f"{bounds[0]}, {bounds[1]}"
+
+    def get_bound(self, bounds, retrieved_bounds):
+        """This function will fill the bounds list with appropriately
+        retrieved bounds from the node."""
+        index = 0
+        for bound in retrieved_bounds:
+            if bound[0]["tag"] == "literal":
+                bounds[index] = self.proc_literal(bound[0])
+            elif bound[0]["tag"] == "op":
+                bounds[index] = self.proc_op(bound[0])
+            elif bound[0]["tag"] == "ref":
+                bounds[index] = self.proc_ref(bound[0], False)
+            else:
+                assert False, f"Unrecognized tag in retrieved_bound: " \
+                    f"{bound[0]['tag']}"
+            index += 1
+
+    def get_derived_type_ref(self, node, numPartRef, is_assignment):
+        """This function forms a derived type reference
+        and return to the caller"""
+        ref = ""
+        if node["hasSubscripts"] == "true":
+            subscript = node["subscripts"][0]
+            if subscript["tag"] == "ref":
+                index = f"{subscript['name']}[0]"
+            else:
+                index = subscript["value"]
+
+            if numPartRef > 1 or not is_assignment:
+                ref += f"{node['name']}.get_({index})"
+            else:
+                ref += f"{node['name']}.set_({index}, "
+        else:
+            ref += node["name"]
+        numPartRef -= 1
+        if "ref" in node:
+            ref += f".{self.get_derived_type_ref( node['ref'][0], numPartRef, is_assignment)}"
+        return ref
 
     def get_type(self, node):
-        """ This function checks the type of a variable and returns the appropriate
-        Python syntax type name. """
+        """ This function checks the type of a variable and returns
+            the appropriate Python syntax type name. """
 
         variable_type = node["type"].lower()
         var_name = self.nameMapper[node["name"]]
@@ -1242,49 +1311,21 @@ class PythonCodeGenerator(object):
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"
 
-
-    def get_range(self, node):
-        """ This function will construct the range string in 'loBound, Upbound'
-        format and return to the called function. """
-        loBound = "0"
-        upBound = "0"
-
-        low = node["low"]
-        up = node["high"]
-        # Get lower bound value
-        if low[0]["tag"] == "literal":
-            loBound = self.proc_literal(low[0])
-        elif low[0]["tag"] == "op":
-            loBound = self.proc_op(low[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {low[0]['tag']}"
-
-        # Get upper bound value
-        if up[0]["tag"] == "literal":
-            upBound = self.proc_literal(up[0])
-        elif up[0]["tag"] == "op":
-            upBound = self.proc_op(up[0])
-        else:
-            assert False, f"Unrecognized tag in upper bound: {up[0]['tag']}"
-
-        return f"{loBound}, {upBound}"
-
-
     def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information
-        from the AST.  This function is needed for handling a multi-dimensional
-        array(s). """
+            from the AST. This function is needed for handling a multi-dimensional
+            array(s). """
 
         count = 1
         array_range = ""
         for dimension in node["dimensions"]:
             if (
-                "literal" in dimension
+                    "literal" in dimension
             ):  # A case where no explicit low bound set
                 upBound = self.proc_literal(dimension["literal"][0])
                 array_range += f"(0, {upBound})"
             elif (
-                "range" in dimension
+                    "range" in dimension
             ):  # A case where explicit low and up bounds are set
                 array_range += f"({self.get_range(dimension['range'][0])})"
             else:
@@ -1299,33 +1340,9 @@ class PythonCodeGenerator(object):
         return array_range
 
 
-    def get_derived_type_ref(self, node, numPartRef, is_assignment):
-        """ This function forms a derived type reference and return to the
-        caller """
-
-        ref = ""
-        if node["hasSubscripts"] == "true":
-            subscript = node["subscripts"][0]
-            if subscript["tag"] == "ref":
-                index = f"{subscript['name']}[0]"
-            else:
-                index = subscript["value"]
-
-            if numPartRef > 1 or not is_assignment:
-                ref += f"{node['name']}.get_({index})"
-            else:
-                ref += f"{node['name']}.set_({index}, "
-        else:
-            ref += node["name"]
-        numPartRef -= 1
-        if "ref" in node:
-            ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef, is_assignment)}"
-        return ref
-
-
 def index_modules(root) -> Dict:
     """ Counts the number of modules in the Fortran file including the program
-    file. Each module is written out into a separate Python file.  """
+        file. Each module is written out into a separate Python file.  """
 
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
@@ -1388,7 +1405,7 @@ def create_python_source_list(outputDict: Dict):
         code_generator.pyStrings.append("@dataclass\n")
         for i in range(len(derived_type_ast)):
             assert (
-                derived_type_ast[i]["is_derived_type"] == "true"
+                    derived_type_ast[i]["is_derived_type"] == "true"
             ), "[derived_type_ast] holds non-derived type ast"
             code_generator.nameMapping([derived_type_ast[i]])
             code_generator.printDerivedType(
@@ -1431,6 +1448,7 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
     with open(args.files[0], "rb") as f:
         outputDict = pickle.load(f)
+
     python_source_list = create_python_source_list(outputDict)
     outputList = []
     for item in python_source_list:
