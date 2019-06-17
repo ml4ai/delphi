@@ -1,57 +1,72 @@
 import pickle
 import pytest
 from datetime import date
-from indra.statements import Concept, Influence, Evidence, Event, QualitativeDelta
+from indra.statements import (
+    Concept,
+    Influence,
+    Evidence,
+    Event,
+    QualitativeDelta,
+)
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.utils.indra import *
 from delphi.utils.shell import cd
 
-conflict_string = "UN/events/human/conflict"
-food_security_string = "UN/entities/human/food/food_security"
+concepts = {
+    "conflict": {
+        "grounding": "UN/events/human/conflict",
+        "delta": {"polarity": 1, "adjective": ["large"]},
+    },
+    "food security": {
+        "grounding": "UN/entities/human/food/food_security",
+        "delta": {"polarity": -1, "adjective": ["small"]},
+    },
+    "migration": {
+        "grounding": "UN/events/human/human_migration",
+        "delta": {"polarity": 1, "adjective": None},
+    },
+    "product": {
+        "grounding": "UN/entities/natural/crop_technology/product",
+        "delta": {"polarity": 1, "adjective": None},
+    },
+}
 
-conflict = Event(
-    Concept(
-        conflict_string,
-        db_refs={
-            "TEXT": "conflict",
-            "UN": [(conflict_string, 0.8), ("UN/events/crisis", 0.4)],
-        },
-    ),
-    delta=QualitativeDelta(1, ["large"]),
-)
 
-food_security = Event(
-    Concept(
-        food_security_string,
-        db_refs={"TEXT": "food security", "UN": [(food_security_string, 0.8)]},
-    ),
-    delta=QualitativeDelta(-1, ["small"]),
-)
+def make_event(concept, attrs):
+    return Event(
+        Concept(
+            attrs["grounding"],
+            db_refs={"TEXT": concept, "UN": [(attrs["grounding"], 0.8)]},
+        ),
+        delta=QualitativeDelta(
+            attrs["delta"]["polarity"], attrs["delta"]["adjective"]
+        ),
+    )
+
+
+def make_statement(event1, event2):
+    return Influence(
+        event1,
+        event2,
+        evidence=Evidence(
+            annotations={
+                "subj_adjectives": event1.delta.adjectives,
+                "obj_adjectives": event2.delta.adjectives,
+            }
+        ),
+    )
+
+
+events = {
+    concept: make_event(concept, attrs) for concept, attrs in concepts.items()
+}
 
 precipitation = Event(Concept("precipitation"))
 
+s1 = make_statement(events["conflict"], events["food security"])
+s2 = make_statement(events["migration"], events["product"])
 
-flooding = Event(Concept("flooding"))
-s1 = Influence(
-    conflict,
-    food_security,
-    evidence=Evidence(
-        annotations={"subj_adjectives": ["large"], "obj_adjectives": ["small"]}
-    ),
-)
-
-default_annotations = {"subj_adjectives": [], "obj_adjectives": []}
-
-s2 = Influence(
-    precipitation,
-    food_security,
-    evidence=Evidence(annotations=default_annotations),
-)
-s3 = Influence(
-    precipitation, flooding, evidence=Evidence(annotations=default_annotations)
-)
-
-STS = [s1, s2, s3]
+STS = [s1]
 
 
 @pytest.fixture(scope="session")
@@ -64,12 +79,10 @@ def G():
     G.to_pickle()
     yield G
 
+
 @pytest.fixture(scope="session")
 def G_eval():
-    G = AnalysisGraph.from_text(
-        "Improved migration causes increased product",
-        webservice="http://54.84.114.146:9000",
-    )
+    G = AnalysisGraph.from_statements([s2])
     G.map_concepts_to_indicators()
     G.res = 200
     G.assemble_transition_model_from_gradable_adjectives()

@@ -3,7 +3,7 @@ from pytest import approx
 from tqdm import trange
 import numpy as np
 from matplotlib import pyplot as plt
-from conftest import G, conflict_string, food_security_string
+from conftest import G, concepts
 import seaborn as sns
 
 @pytest.mark.skip
