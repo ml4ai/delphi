@@ -1,16 +1,11 @@
+from format import *
 from strings import *
 
-def str02():
-    str1 = String(value="abcdef")
-    str2 = String(10)
-    str3 = String(15)
+def main():
+    str1 = String(10, "abcdef")
 
-    str2.set_value("ijklmnop")
-    str3.set_value(str1 + str2)
+    fmt_10 = Format(['A', '": len = "', 'I2', '"; value = \""', 'A', '"\""'])
+    write_str = fmt_10.write_line(["str1", len(str1), str1])
+    sys.stdout.write(write_str)
 
-    print(f'str1: len = {len(str1)}, value = "{str1._val}"')
-    print(f'str2: len = {len(str2)}, value = "{str2._val}"')
-    print(f'str1//str2: len = {len(str1+str2)}, value = "{str1+str2}"')
-    print(f'str3: len = {len(str3)}, value = "{str3._val}"')
-
-str02()
+main()

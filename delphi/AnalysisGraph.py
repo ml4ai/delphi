@@ -12,7 +12,7 @@ import networkx as nx
 import numpy as np
 from scipy.stats import gaussian_kde, norm
 import pandas as pd
-from indra.statements import Influence, Concept
+from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
 from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
@@ -103,14 +103,14 @@ class AnalysisGraph(nx.DiGraph):
         for s in sts:
             if assign_default_polarities:
                 for delta in deltas(s):
-                    if delta["polarity"] is None:
-                        delta["polarity"] = 1
+                    if delta.polarity is None:
+                        delta.polarity = 1
             concepts = nameTuple(s)
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
                 if all(
-                    map(exists, (delta["polarity"] for delta in deltas(s)))
+                    map(exists, (delta.polarity for delta in deltas(s)))
                 ):
                     if concepts in _dict:
                         _dict[concepts].append(s)
@@ -124,11 +124,11 @@ class AnalysisGraph(nx.DiGraph):
         return cls(edges)
 
     @classmethod
-    def from_text(cls, text: str):
+    def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
 
-        eidosProcessor = process_text(text)
+        eidosProcessor = process_text(text,webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
@@ -184,10 +184,12 @@ class AnalysisGraph(nx.DiGraph):
                             delta["polarity"] = 1
 
                     influence_stmt = Influence(
-                        Concept(subj_name, db_refs=subj["db_refs"]),
-                        Concept(obj_name, db_refs=obj["db_refs"]),
-                        subj_delta=s["subj_delta"],
-                        obj_delta=s["obj_delta"],
+                        Event(Concept(subj_name, db_refs=subj["db_refs"]),
+                            delta=QualitativeDelta(s["subj_delta"]["polarity"],
+                                s["subj_delta"]["adjectives"])),
+                        Event(Concept(obj_name, db_refs=obj["db_refs"]),
+                            delta=QualitativeDelta(s["obj_delta"]["polarity"],
+                                s["obj_delta"]["adjectives"])),
                         evidence=[
                             INDRAEvidence(
                                 source_api=ev["source_api"],
@@ -818,7 +820,7 @@ class AnalysisGraph(nx.DiGraph):
         for p in self.predecessors(n1):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.obj_delta["polarity"] = -st.obj_delta["polarity"]
+                    st.obj.delta.polarity = -st.obj.delta.polarity
                 st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
 
             if not self.has_edge(p, n2):
@@ -835,7 +837,7 @@ class AnalysisGraph(nx.DiGraph):
         for s in self.successors(n1):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.subj_delta["polarity"] = -st.subj_delta["polarity"]
+                    st.subj.delta.polarity = -st.subj.delta.polarity
                 st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
 
             if not self.has_edge(n2, s):
@@ -1006,8 +1008,8 @@ class AnalysisGraph(nx.DiGraph):
                     True
                     if np.mean(
                         [
-                            stmt.subj_delta["polarity"]
-                            * stmt.obj_delta["polarity"]
+                            stmt.subj.delta.polarity
+                            * stmt.obj.delta.polarity
                             for stmt in e[2]["InfluenceStatements"]
                         ]
                     )
@@ -1047,8 +1049,7 @@ class AnalysisGraph(nx.DiGraph):
         self,
         indicators: bool = False,
         indicator_values: bool = False,
-        nodes_to_highlight=None,
-        *args,
+        nodes_to_highlight: Optional[Union[str, List[str]]]=None,
         **kwargs,
     ):
         """ Exports the CAG as a pygraphviz AGraph for visualization.
@@ -1185,15 +1186,17 @@ class AnalysisGraph(nx.DiGraph):
                     )
                     A.add_edge(n[0], indicator_name, color="royalblue4")
 
+        nodes_to_highlight = kwargs.get("nodes_to_highlight")
         if nodes_to_highlight is not None:
-            nodes = kwargs.pop("nodes_to_highlight")
-            if isinstance(nodes, list):
-                for n in nodes:
+            if isinstance(nodes_to_highlight, list):
+                for n in nodes_to_highlight:
                     if n in A.nodes():
                         A.add_node(n, fontcolor="royalblue")
-            elif isinstance(nodes, str):
-                if n in A.nodes():
-                    A.add_node(nodes, fontcolor="royalblue")
+            elif isinstance(nodes_to_highlight, str):
+                if nodes_to_highlight in A.nodes():
+                    A.add_node(nodes_to_highlight, fontcolor="royalblue")
+            else:
+                pass
 
         if kwargs.get("graph_label") is not None:
             A.graph_attr["label"] = kwargs["graph_label"]

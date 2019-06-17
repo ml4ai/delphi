@@ -1,12 +1,12 @@
 import sys
 import pickle
-from delphi.export import to_agraph
+
 
 def create_CAG_with_indicators(input, output, filename="CAG_with_indicators.pdf"):
     """ Create a CAG with mapped indicators """
     with open(input, "rb") as f:
         G = pickle.load(f)
-    G.map_concepts_to_indicators(min_temporal_res="month")
+    G.map_concepts_to_indicators()
     G.set_indicator("UN/events/weather/precipitation", "Historical Average Total Daily Rainfall (Maize)", "DSSAT")
     G.set_indicator("UN/events/human/agriculture/food_production",
             "Historical Production (Maize)", "DSSAT")

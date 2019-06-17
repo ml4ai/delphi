@@ -159,7 +159,7 @@ def process_climis_crop_production_data(data_dir: str):
         "Crops_EstimatedProductionConsumptionBalance*.csv"
     )
     state_county_df = pd.read_csv(
-        f"{data_dir}/ipc_data.csv", skipinitialspace=True
+        f"data/south_sudan_data_fewsnet.tsv", skipinitialspace=True
     )
     combined_records = []
 
@@ -494,7 +494,7 @@ if __name__ == "__main__":
         "Country",
     ]
 
-    data_dir = str(data_dir / "evaluations" / "12_month")
+    data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
     df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
