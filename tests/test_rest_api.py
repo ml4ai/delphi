@@ -5,7 +5,7 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from conftest import *
+from conftest import G, concepts
 from delphi.apps.rest_api import create_app, db
 from delphi.apps.rest_api.models import (
     CausalRelationship,
@@ -60,7 +60,7 @@ def test_createExperiment(G, client):
     post_data = {
         "interventions": [
             {
-                "id": G.nodes[conflict_string]["id"],
+                "id": G.nodes[concepts['conflict']['grounding']]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -68,7 +68,7 @@ def test_createExperiment(G, client):
                 },
             },
             {
-                "id": G.nodes[food_security_string]["id"],
+                "id": G.nodes[concepts['food security']['grounding']]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,

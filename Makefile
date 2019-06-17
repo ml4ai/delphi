@@ -4,7 +4,7 @@ docs:
 	cd docs; make html
 
 test:
-	pytest \
+	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
 	  --ignore=delphi/analysis/sensitivity/tests\
