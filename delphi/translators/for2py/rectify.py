@@ -84,7 +84,7 @@ class RectifyOFPXML:
         self.reconstruction_for_before_done = False
         # True if one reconstructed statement needs another
         # reconstruction by nesting it under do while due to
-        # label_before case exist as it's parent scope
+        # label_before case exist as it's parent goto
         self.encapsulate_under_do_while = False
         # Keep a track where goto was declared
         # whether it's under program(main) or loop body
@@ -103,8 +103,8 @@ class RectifyOFPXML:
         self.encountered_goto_label = []
         # Keep a track of goto and label with its case
         self.goto_label_with_case = {}
-        # Keeps a track of current scope of goto-stmt
-        self.reconstructing_scope = None
+        # Keeps a track of current label of goto-stmt
+        self.current_label = None
         # Keep a track of operations for conditional goto
         # key will be the unique code assigned to each <goto-stmt>
         # {code:Element}
@@ -265,6 +265,9 @@ class RectifyOFPXML:
         "name",
         "loop-control",
         "label",
+        "literal",
+        "equiv-operand__equiv-op",
+        "subroutine-stmt",
     ]
 
     body_child_tags = [
@@ -348,6 +351,9 @@ class RectifyOFPXML:
         "print-format",
         "keyword-argument",
         "end-subroutine-stmt",
+        "logical-literal-constant",
+        "equiv-op",
+        "equiv-operand",
     ] 
 
     #################################################################
@@ -387,7 +393,8 @@ class RectifyOFPXML:
                         False
                 ), f'In handle_tag_file: "{child.tag}" not handled'
 
-            self.parseXMLTree(child, cur_elem, current, parent, traverse)
+            if len(child) > 0 or child.text:
+                self.parseXMLTree(child, cur_elem, current, parent, traverse)
 
     def handle_tag_program(
             self, root, current, parent, grandparent, traverse
@@ -429,35 +436,46 @@ class RectifyOFPXML:
                 ...
             </header>
         """
+        # This holder will be used only when refactoring
+        # of header is needed, such as with odd syntax
+        # of .eqv. operator
+        temp_elem_holder = []
+        target_tags = [
+                "name",
+                "literal",
+                "equiv-operand__equiv-op"
+        ]
+        need_refactoring = False
         for child in root:
             self.clean_attrib(child)
-            if child.text or len(child) > 0:
-                cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
-                )
 
-                try:
-                    error_chk = self.header_child_tags.index(child.tag)
-                except ValueError:
-                    assert (
-                            False
-                    ), f'In handle_tag_header: "{child.tag}" not handled'
-
-                self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
-                )
-            else:
+            if child.tag in self.header_child_tags:
                 if child.tag == "subroutine-stmt":
                     current.attrib.update(child.attrib)
-                elif child.tag in self.header_child_tags:
+                else:
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
-                else:
+
+                    if len(child) > 0 or child.text:
+                        self.parseXMLTree(
+                                child, cur_elem, current, parent, traverse
+                        )
+
+                    if cur_elem.tag in target_tags:
+                        temp_elem_holder.append(cur_elem)
+                        if cur_elem.tag == "equiv-operand__equiv-op":
+                            need_refactoring = True
+            else:
+                try:
+                    error_chk = self.unnecessary_tags.index(child.tag)
+                except ValueError:
                     assert (
                             False
                     ), f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
-
+        if need_refactoring:
+            self.reconstruct_header(temp_elem_holder, current)
+            need_refactoring = False
 
     def handle_tag_body(
             self, root, current, parent, grandparent, traverse
@@ -958,7 +976,7 @@ class RectifyOFPXML:
                         self.goto_label_with_case[target_lbl] = "after"
                         self.statements_to_reconstruct_after['count-gotos'] += 1
 
-                        if "parent-scope" not in current.attrib:
+                        if "parent-goto" not in current.attrib:
                             current.attrib['skip-collect'] = "true"
                         self.goto_target_lbl_after.append(target_lbl)
                         self.collect_stmts_after_goto = True
@@ -1085,7 +1103,7 @@ class RectifyOFPXML:
                 # If the element holds subelements,
                 # call the XML tree parser with created
                 # new <name> element
-                if child.text:
+                if len(child) > 0 or child.text:
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
@@ -2002,14 +2020,14 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
-                    if child.tag == "body":
-                        self.current_body_scope = cur_elem
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
+                    if child.tag == "body":
+                        self.current_body_scope = cur_elem
                 else:
                     assert (
                             False
@@ -2202,16 +2220,16 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "header" or child.tag == "body":
-                    if child.tag == "header":
-                        self.is_function_arg = True
-                    elif child.tag == "body":
-                        self.current_body_scope = cur_elem
                     cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
+                    if child.tag == "header":
+                        self.is_function_arg = True
+                    elif child.tag == "body":
+                        self.current_body_scope = cur_elem
                 else:
                     assert (
                             False
@@ -2297,7 +2315,7 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                 )
-                if child.tag == "literal":
+                if child.tag == "literal" or child.tag == "operation":
                     self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                     )
@@ -2837,7 +2855,7 @@ class RectifyOFPXML:
         last_stmt = reconstruct_target['stmts-follow-goto'][-1]
         if "goto-stmt" in last_stmt.attrib:
             first_goto = reconstruct_target['stmts-follow-goto'][0]
-            if last_stmt.attrib['lbl'] == first_goto.attrib['parent-scope']:
+            if last_stmt.attrib['lbl'] == first_goto.attrib['parent-goto']:
                 last_goto = reconstruct_target['stmts-follow-goto'].pop()
                 last_goto.attrib['next-goto'] = "true"
                 stmts_follow_label.append(last_goto)
@@ -3156,6 +3174,40 @@ class RectifyOFPXML:
         self.statements_to_reconstruct_before['stmts-follow-label'] = []
         self.statements_to_reconstruct_before['count-gotos'] = 0
 
+    def reconstruct_header(
+            self, temp_elem_holder, parent
+    ):
+        """
+            This function is for reconstructing the oddly
+            generated header AST to have an uniform structure
+            with other multiary type operation nested headers.
+        """
+        # This operation is basically for switching
+        # the location of operator and 2nd operand,
+        # so the output syntax can have a common structure
+        # with other operation AST
+        op = temp_elem_holder.pop()
+        temp_elem_holder.insert(1, op)
+
+        # First create <operation> element
+        # Currently, only assume multiary reconstruction
+        operation = ET.SubElement(
+                parent, "operation", {"type":"multiary"}
+        )
+        for elem in temp_elem_holder:
+            if elem.tag == "name" or elem.tag == "literal":
+               operand = ET.SubElement(operation, "operand")
+               value = ET.SubElement(operand, elem.tag, elem.attrib)
+            else:
+                assert (
+                        elem.tag == "equiv-operand__equiv-op" 
+                ), f"Tag must be 'equiv-operand__equiv-op'. Current: {elem.tag}."
+                operator = ET.SubElement(
+                        operation, "operator", {"operator":elem.attrib['equivOp']}
+                )
+            parent.remove(elem)
+
+
     #################################################################
     #                                                               #
     #                       ELEMENT GENERATORS                      #
@@ -3333,7 +3385,7 @@ class RectifyOFPXML:
         for stmt in stored_stmts:
             if len(stmt) > 0:
                 if "skip-collect" in stmt.attrib:
-                    parent_scope = stmt.attrib['parent-scope']
+                    parent_scope = stmt.attrib['parent-goto']
                     if parent_scope in self.goto_label_with_case:
                         if self.goto_label_with_case[parent_scope] == "before":
                             goto_nest_if_elem.attrib['label'] = parent_scope
@@ -3342,7 +3394,7 @@ class RectifyOFPXML:
                     if (
                         "next-goto" not in stmt.attrib
                         or "lbl" in stmt.attrib
-                        and stmt.attrib['lbl'] == self.reconstructing_scope
+                        and stmt.attrib['lbl'] == self.current_label
                     ):
                         if "goto-move" in stmt.attrib and not label_before_within_scope:
                             if "target-label-statement" in stmt.attrib:
@@ -3358,26 +3410,26 @@ class RectifyOFPXML:
                                 # only within the current scope
                                 self.statements_to_reconstruct_before['count-gotos'] = 0
                                 self.statements_to_reconstruct_before['stmts-follow-label'] = []
-                                self.reconstructing_scope = stmt.attrib['label']
+                                self.current_label = stmt.attrib['label']
                         if label_before_within_scope:
                             # del stmt.attrib['goto-remove']
                             self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
                             for child in stmt:
                                 if child.tag == "label":
                                     label = child.attrib['lbl']
-                                    if self.reconstructing_scope == label:
+                                    if self.current_label == label:
                                         if self.encapsulate_under_do_while:
                                             goto_nest_if_elem.attrib['label'] = label
                                 if child.tag == "goto-stmt":
                                     # If current goto-stmt label is equal to the scope label,
                                     # it means that end-of-scope is met and ready to reconstruct
-                                    if self.reconstructing_scope == child.attrib['target_label']:
+                                    if self.current_label == child.attrib['target_label']:
                                         self.statements_to_reconstruct_before['count-gotos'] += 1
                                         # Since we are going to handle the first label-before
                                         # case, remove the label lbl from the list
                                         del self.goto_target_lbl_before[0]
                                         label_before_within_scope = False
-                                        self.reconstructing_scope = None
+                                        self.current_label = None
 
                                         reconstruct_target = self.statements_to_reconstruct_before
                                         self.reconstruct_goto_before_label(body_elem, traverse, reconstruct_target)
@@ -3385,7 +3437,7 @@ class RectifyOFPXML:
                                     # Else, a new goto-stmt was found that is nested current label_before
                                     # case scope, so we need to update the parent for it
                                     else:
-                                        stmt.attrib['parent-scope'] = self.reconstructing_scope
+                                        stmt.attrib['parent-goto'] = self.current_label
                         else:
                             cur_elem = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
                             if "goto-remove" in cur_elem.attrib:
@@ -3467,9 +3519,9 @@ class RectifyOFPXML:
         if "rule" in elements.attrib:
             elements.attrib.pop("rule")
 
-    def scope_identifier (self, goto_label_with_case):
+    def boundary_identifier (self, goto_label_with_case):
         """
-            This function will be called to dientify the scopes for each goto-
+            This function will be called to dientify the boundary for each goto-
             and-label. The definition of scope here is that whether one goto-label
             is nested under another goto-label. For example,
                 <label with lbl = 111>
@@ -3477,9 +3529,9 @@ class RectifyOFPXML:
                     <label with lbl = 222>
                 <goto-stmt with lbl = 111>
             In this case, "goto-label with lbl = 222" is within the scope of "lbl = 111"
-            Thus, the elements will be assigned with "parent-scope" attribute with 111.
+            Thus, the elements will be assigned with "parent-goto" attribute with 111.
         """
-        scopes = {}
+        boundary = {}
         lbl_counter = {}
         goto_label_in_order = []
         goto_and_labels = self.encountered_goto_label
@@ -3494,7 +3546,7 @@ class RectifyOFPXML:
             else:
                 if lbl not in goto_label_in_order:
                     parent = goto_label_in_order[-1]
-                    scopes[lbl] = parent
+                    boundary[lbl] = parent
                     goto_label_in_order.append(lbl)
 
         # Since the relationship betwen label:goto-stmt is 1:M,
@@ -3502,22 +3554,31 @@ class RectifyOFPXML:
         # Because that extra <goto-stmt> creates extra scope to
         # encapsulate other 'label-goto' or 'goto-label'.
         for lbl in goto_label_in_order:
-            if lbl not in scopes:
+            if lbl not in boundary:
                 for label, counter in lbl_counter.items():
                     if counter > 1 and counter % 2 > 0:
-                        scopes[lbl] = label
+                        boundary[lbl] = label
 
         # This will check for the handled goto cases.
         # If any unhandled case enountered, then it will
         # aseert and give out an error. Else, return nothing
-        self.case_availability (scopes)
+        self.case_availability (boundary)
 
-        scopes_for_label = scopes.copy()
-        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_before['stmts-follow-label'])
-        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-goto'])
-        self.parent_scope_assigner (scopes, scopes_for_label, self.statements_to_reconstruct_after['stmts-follow-label'])
+        boundary_for_label = boundary.copy()
+        self.parent_goto_assigner (
+                boundary, boundary_for_label, 
+                self.statements_to_reconstruct_before['stmts-follow-label']
+        )
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-goto']
+        )
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-label']
+        )
 
-    def case_availability(self, scopes):
+    def case_availability(self, boundary):
         """
             This function checks for the goto cases in the code based
             on the scope. If any unhandled case encountered, then it
@@ -3529,7 +3590,7 @@ class RectifyOFPXML:
         root_scope = None
         current_scope = None
 
-        for goto, scope in scopes.items():
+        for goto, scope in boundary.items():
             if current_scope == None:
                 current_scope = goto
                 root_scope = goto
@@ -3548,26 +3609,26 @@ class RectifyOFPXML:
         # All cases are currently handled
         return
 
-    def parent_scope_assigner(self, scopes, scopes_for_label, statements_to_reconstruct):
+    def parent_goto_assigner(self, boundary, boundary_for_label, statements_to_reconstruct):
         """
             This function actually assigns scope(s) to each goto and label statements
         """
         for stmt in statements_to_reconstruct:
             if "goto-stmt" in stmt.attrib:
                 target_lbl = stmt.attrib['lbl']
-                if target_lbl in scopes:
-                    stmt.attrib['parent-scope'] = scopes[target_lbl]
-                    del scopes[target_lbl]
+                if target_lbl in boundary:
+                    stmt.attrib['parent-goto'] = boundary[target_lbl]
+                    del boundary[target_lbl]
                 else:
-                    stmt.attrib['parent-scope'] = "none"
+                    stmt.attrib['parent-goto'] = "none"
 
             if "target-label-statement" in stmt.attrib:
                 label = stmt.attrib['label']
-                if label in scopes_for_label:
-                    stmt.attrib['parent-scope'] = scopes_for_label[label]
-                    del scopes_for_label[label]
+                if label in boundary_for_label:
+                    stmt.attrib['parent-goto'] = boundary_for_label[label]
+                    del boundary_for_label[label]
                 else:
-                    stmt.attrib['parent-scope'] = "none"
+                    stmt.attrib['parent-goto'] = "none"
 
 
 #################################################################
@@ -3637,7 +3698,7 @@ def buildNewAST(filename: str):
     while (XMLCreator.need_goto_elimination):
         traverse += 1
 
-        XMLCreator.scope_identifier(XMLCreator.goto_label_with_case)
+        XMLCreator.boundary_identifier(XMLCreator.goto_label_with_case)
 
         root = tree.getroot()	
         newRoot = ET.Element(root.tag, root.attrib)

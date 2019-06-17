@@ -37,11 +37,11 @@ class ParseState(object):
 
     def __init__(self, subroutine=None):
         self.subroutine = subroutine if subroutine is not None else {}
-        self.args = (
-            [arg["name"] for arg in self.subroutine["args"]]
-            if "args" in self.subroutine
-            else []
-        )
+        self.args = []
+        if "args" in self.subroutine:
+            for arg in self.subroutine["args"]:
+                if "name" in arg:
+                    self.args.append(arg["name"])
 
     def copy(self, subroutine=None):
         return ParseState(
