@@ -308,9 +308,9 @@ def evaluate(
 
         start_month: An integer, starting month (1-12).
 
-        end_year: An integer, ending year
+        end_year: An integer, ending year.
 
-        end_month: An integer, ending month
+        end_month: An integer, ending month.
 
         plot: Set to true to display a plot according to the plot type.
 
