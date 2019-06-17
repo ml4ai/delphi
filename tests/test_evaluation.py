@@ -5,6 +5,7 @@ import numpy as np
 import random
 import pandas as pd
 import pickle
+import os
 
 
 #Set seeds
@@ -133,8 +134,11 @@ def test_setup_evaluate():
     assert "A CAG must be passed to G or a pickle file containing a CAG must be passed to input." in str(excinfo.value)
 
     #Check pickle file upload and warning when also passing G along with pickle file
+    with open('test_CAG.pkl',"wb") as f:
+        pickle.dump(G,f)
     with pytest.warns(UserWarning, match='The CAG passed to G will be suppressed by the CAG loaded from the pickle file.'):
-        EN.setup_evaluate(G,input='data/evaluation/test_setup_evaluate_CAG.pkl',res=200)
+        EN.setup_evaluate(G,input='test_CAG.pkl',res=200)
+    os.remove('test_CAG.pkl')
 
 def test_evaluate():
     G = AG.AnalysisGraph.from_text('Improved migration causes increased product', webservice='http://54.84.114.146:9000')
@@ -156,8 +160,11 @@ def test_evaluate():
     assert "A CAG must be passed to G or a pickle file containing a CAG must be passed to input." in str(excinfo.value)
 
     #Check pickle file upload and warning when also passing G along with pickle file
+    with open('test_CAG.pkl',"wb") as f:
+        pickle.dump(G,f)
     with pytest.warns(UserWarning, match='The CAG passed to G will be suppressed by the CAG loaded from the pickle file.'):
-        EN.evaluate(target_node=target_node,intervened_node=intervened_node,G=G,input='data/evaluation/test_evaluate_CAG.pkl',start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month)
+        EN.evaluate(target_node=target_node,intervened_node=intervened_node,G=G,input='test_CAG.pkl',start_year=start_year,start_month=start_month,end_year=end_year,end_month=end_month)
+    os.remove('test_CAG.pkl')
 
     #Check start_month = None, end_month = None case and plotting option
     start_month = None
