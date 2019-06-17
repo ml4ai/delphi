@@ -3,7 +3,7 @@ from pytest import approx
 from tqdm import trange
 import numpy as np
 from matplotlib import pyplot as plt
-from conftest import G, conflict_string, food_security_string
+from conftest import G, conflict_string, food_security_string, human_migration_string
 import seaborn as sns
 
 # @pytest.mark.skip
@@ -16,16 +16,12 @@ def test_inference_with_synthetic_data(G):
 
     # Get the original value of our parameter of interest (the ground truth
     # value that we can use to evaluate our inference.
-    original_beta = A[f"∂({conflict_string})/∂t"][f"{food_security_string}"]
-    print(A.values)
+    original_beta = A[f"∂({conflict_string})/∂t"][food_security_string]
+    original_beta_2 = A[f"∂({conflict_string})/∂t"][human_migration_string]
     fig, ax = plt.subplots()
-    sns.distplot(G.edges[conflict_string,
-        food_security_string]["βs"], ax=ax)
-    plt.savefig("betas_dist.pdf")
 
     # Initialize the latent state vector at time 0
     G.s0 = G.construct_default_initial_state()
-    G.s0[f"∂({conflict_string})/∂t"] = 0.1
 
     # Given the initial latent state vector and the sampled transition matrix,
     # sample a sequence of latent states and observed states
@@ -33,21 +29,9 @@ def test_inference_with_synthetic_data(G):
     G.latent_state_sequence = G.latent_state_sequences[0]
     G.observed_state_sequence = G.observed_state_sequences[0]
 
-    # Perform an initial calculation of the log prior and the log likelihood.
-    G.update_log_prior(A)
-    G.update_log_likelihood()
-    G.update_log_joint_probability()
-    original_score = G.log_joint_probability
-
-    # Save the current MAP estimate of the beta parameter (i.e. the value that
-    # we are starting with.
-    map_estimate = A[f"∂({conflict_string})/∂t"][food_security_string]
-    map_log_joint_probability = original_score
-
-
     # Create empty lists to hold the scores
-    scores = []
     betas = []
+    betas_2 = []
     log_likelihoods = []
     log_priors = []
     map_estimates=[]
@@ -57,37 +41,36 @@ def test_inference_with_synthetic_data(G):
         rand = 0.1*np.random.rand()
         A[f"∂({edge[0]})/∂t"][edge[1]] = rand
 
-    n_samples: int = 5000
-    map_estimate_matrix=A.copy()
+    n_samples: int = 30000
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
-        if G.log_joint_probability > map_log_joint_probability:
-            map_log_joint_probability = G.log_joint_probability
-            map_estimate = A[f"∂({conflict_string})/∂t"][food_security_string]
-            map_estimate_matrix=A.copy()
-        scores.append(G.log_joint_probability - original_score)
         betas.append(A[f"∂({conflict_string})/∂t"][food_security_string])
-        log_likelihoods.append(G.log_likelihood)
-        log_priors.append(G.log_prior)
+        betas_2.append(A[f"∂({conflict_string})/∂t"][human_migration_string])
 
     plt.style.use("ggplot")
-    fig, axes = plt.subplots(3, 1, figsize=(8, 8), sharex=True)
-    axes[0].plot(betas[::10], label="beta")
+    fig, axes = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
+    axes[0].plot(betas, label="beta")
     axes[0].plot(
-        original_beta * np.ones(len(betas[::10])), label="original_beta"
+        original_beta * np.ones(len(betas)), label="original_beta"
     )
-    axes[1].plot(log_priors[::10], label="log_prior")
-    axes[2].plot(log_likelihoods[::10], label="log_likelihood")
+    axes[1].plot(betas_2, label="beta_2")
+    axes[1].plot(
+        original_beta_2 * np.ones(len(betas)), label="original_beta_2"
+    )
+
     for ax in axes:
         ax.legend()
     plt.savefig("mcmc_results.pdf")
-    fig, ax = plt.subplots()
-    plt.hist(betas, bins=40)
-    plt.savefig("betas.pdf")
+    fig, ax = plt.subplots(1,2,sharey=True, figsize=(6,3))
+    sns.distplot(betas, ax=ax[0], norm_hist=True)
+
+    ax[0].set_title(f"$\\beta_{{c, fs}}={original_beta:.3f}$", fontsize=10)
+    sns.distplot(betas_2, ax=ax[1], norm_hist=True)
+    ax[1].set_title(f"$\\beta_{{c, hm}}={original_beta_2:.3f}$", fontsize=10)
+    plt.savefig("betas_combined.pdf")
 
     # This tolerance seems to work for now, so I'm leaving it in.
-    print(map_estimate_matrix.values)
-    assert map_estimate == approx(original_beta, abs=0.1)
+    # assert map_estimate == approx(original_beta, abs=0.1)
 
 @pytest.mark.skip
 def test_inference_with_real_data(G):

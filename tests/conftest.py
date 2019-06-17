@@ -1,7 +1,13 @@
 import pickle
 import pytest
 from datetime import date
-from indra.statements import Concept, Influence, Evidence, Event, QualitativeDelta
+from indra.statements import (
+    Concept,
+    Influence,
+    Evidence,
+    Event,
+    QualitativeDelta,
+)
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.utils.indra import *
 from delphi.utils.shell import cd
@@ -59,8 +65,13 @@ s2 = Influence(
 s3 = Influence(
     precipitation, flooding, evidence=Evidence(annotations=default_annotations)
 )
-s4 = Influence(conflict, human_migration, evidence=Evidence(annotations =
-    default_annotations))
+s4 = Influence(
+    conflict,
+    human_migration,
+    evidence=Evidence(
+        annotations={"subj_adjectives": ["large"], "obj_adjectives": ["small"]}
+    ),
+)
 
 STS = [s1, s2, s3, s4]
 

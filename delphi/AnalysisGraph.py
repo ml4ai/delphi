@@ -72,6 +72,7 @@ class AnalysisGraph(nx.DiGraph):
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
         self.log_prior = None
+        self.log_likelihood = None
 
     def assign_uuids_to_nodes_and_edges(self):
         """ Assign uuids to nodes and edges. """
@@ -370,59 +371,50 @@ class AnalysisGraph(nx.DiGraph):
             for latent_state_sequence in self.latent_state_sequences
         ]
 
-    def sample_from_posterior(self, A: pd.DataFrame) -> None:
+    def sample_from_posterior(self, A: pd.DataFrame) -> pd.DataFrame:
         """ Run Bayesian inference - sample from the posterior distribution."""
+        if self.log_likelihood is None:
+            self.log_likelihood = self.calculate_log_likelihood(A)
+
+        # Sample a new transition matrix from the proposal distribution.
         self.sample_from_proposal(A)
-        self.set_latent_state_sequence(A)
-        self.update_log_prior(A)
-        self.update_log_likelihood()
 
-        candidate_log_joint_probability = self.log_prior + self.log_likelihood
+        Δ_log_prior = self.calculate_Δ_log_prior(A)
 
-        delta_log_joint_probability = (
-            candidate_log_joint_probability - self.log_joint_probability
-        )
+        candidate_log_likelihood = self.calculate_log_likelihood(A)
+        Δ_log_likelihood = candidate_log_likelihood - self.log_likelihood
+
+        delta_log_joint_probability = Δ_log_prior + Δ_log_likelihood
 
         acceptance_probability = min(1, np.exp(delta_log_joint_probability))
-        if acceptance_probability > np.random.rand():
-            self.update_log_joint_probability()
-        else:
+        if acceptance_probability < np.random.rand():
             A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.set_latent_state_sequence(A)
-            self.update_log_likelihood()
-            self.update_log_prior(A)
-            self.update_log_joint_probability()
+            self.log_likelihood = candidate_log_likelihood
 
-    def update_log_prior(self, A: pd.DataFrame) -> float:
-        if self.log_prior is None:
-            _list = [
-                edge[2]["ConditionalProbability"].evaluate(
-                    A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
+        return A
+
+    def calculate_Δ_log_prior(self, A: pd.DataFrame) -> float:
+        priors = self.edges[self.source, self.target]["ConditionalProbability"].evaluate(
+                    (A[f"∂({self.source})/∂t"][self.target] / self.Δt, self.original_value / self.Δt)
                 )
-                for edge in self.edges(data=True)
-            ]
 
-            self.log_prior = sum(map(log, _list))
+        Δ_log_prior = log(priors[0]) - log(priors[1])
+        # Δ_log_prior = log(
+                # self.edges[self.source, self.target][
+                    # "ConditionalProbability"
+                # ].evaluate(
+                    # A[f"∂({self.source})/∂t"][self.target] / self.Δt
+                # )
+            # ) - log(
+                # self.edges[self.source, self.target][
+                    # "ConditionalProbability"
+                # ].evaluate(self.original_value / self.Δt)
+            # )
+        return Δ_log_prior
 
-        else:
-            self.log_prior = (
-                self.log_prior
-                + log(
-                    self.edges[self.source, self.target][
-                        "ConditionalProbability"
-                    ].evaluate(
-                        A[f"∂({self.source})/∂t"][self.target] / self.Δt
-                    )
-                )
-                - log(
-                    self.edges[self.source, self.target][
-                        "ConditionalProbability"
-                    ].evaluate(self.original_value / self.Δt)
-                )
-            )
-
-    def update_log_likelihood(self):
+    def calculate_log_likelihood(self, A):
         _list = []
+        self.set_latent_state_sequence(A)
         for latent_state, observed_state in zip(
             self.latent_state_sequence, self.observed_state_sequence
         ):
@@ -436,10 +428,8 @@ class AnalysisGraph(nx.DiGraph):
                     )
                     _list.append(log_likelihood)
 
-        self.log_likelihood = sum(_list)
-
-    def update_log_joint_probability(self):
-        self.log_joint_probability = self.log_prior + self.log_likelihood
+        log_likelihood_total = sum(_list)
+        return log_likelihood_total
 
     def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
