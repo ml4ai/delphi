@@ -9,14 +9,6 @@ addons:
     - graphviz
 
 install:
-  # Download the latest version of INDRA from Github
-  - curl -L http://github.com/sorgerlab/indra/archive/master.zip -o indra.zip
-  - unzip indra.zip
-  # Put the Github version of INDRA on the PYTHONPATH
-  - export PYTHONPATH=`pwd`/indra-master:$PYTHONPATH
-  # Install Cython separately, to prevent funky errors with pyjnius
-  - pip install cython
-  # Install extras relevant to Travis CI for running tests and building API documentation.
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
