@@ -1,17 +1,19 @@
-import sys
+from typing import List
 import pickle
-import delphi.AnalysisGraph as AG
 import pandas as pd
 from .db import engine
 import numpy as np
-import random
-from scipy import stats
 import seaborn as sns
-import matplotlib.pyplot as plt
 import warnings
 
 
-def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
+def get_predictions(
+    G,
+    target_node: str,
+    intervened_node: str,
+    deltas: List[float],
+    n_timesteps: int,
+) -> pd.DataFrame:
     """ Get predicted values for each timestep for a target node's indicator
     variable given a intervened node and a set of deltas.
 
@@ -19,16 +21,16 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
         G: A completely parameterized and quantified CAG with indicators,
         estimated transition matrx, and indicator values.
 
-        target_node: A string of the full name of the node in which we
+        target_node: The full name of the node in which we
         wish to predict values for its attached indicator variable.
 
-        intervened_node: A string of the full name of the node in which we
+        intervened_node: The full name of the node in which we
         are intervening on.
 
         deltas: 1D array-like, contains rate of change (deltas) for each
         time step. Its length must match equal n_timesteps.
 
-        n_timesteps: Number of times steps.
+        n_timesteps: Number of time steps.
 
     Returns:
         Pandas Dataframe containing predictions.
@@ -62,7 +64,9 @@ def get_predictions(G, target_node, intervened_node, deltas, n_timesteps):
     return pd.DataFrame(pred, columns=[target_indicator + "(Predictions)"])
 
 
-def get_true_values(G, target_node, n_timesteps, start_year, start_month):
+def get_true_values(
+    G, target_node: str, n_timesteps: str, start_year: int, start_month: int
+) -> pd.DataFrame:
     """ Get the true values of the indicator variable attached to the given
     target node.
 
@@ -77,15 +81,15 @@ def get_true_values(G, target_node, n_timesteps, start_year, start_month):
         G: A completely parameterized and quantified CAG with indicators,
         estimated transition matrx, and indicator values.
 
-        target_node: A string of the full name of the node in which we
+        target_node: The full name of the node in which we
         wish to predict values for its attached indicator variable.
 
-        n_timesteps: Number of times steps.
+        n_timesteps: Number of time steps.
 
-        start_year: An integer, designates the starting year in which to obtain
+        start_year: The starting year in which to obtain
         values.
 
-        start_month: An integer, starting month (1-12)
+        start_month: The starting month (1-12).
 
     Returns:
         Pandas Dataframe containing true values for target node's indicator
@@ -132,21 +136,23 @@ def get_true_values(G, target_node, n_timesteps, start_year, start_month):
     return pd.DataFrame(true_vals, date, columns=[target_indicator + "(True)"])
 
 
-def calculate_timestep(start_year, start_month, end_year, end_month):
+def calculate_timestep(
+    start_year: int, start_month: int, end_year: int, end_month: int
+) -> int:
     """ Utility function that converts a time range given a start date and end
     date into a integer value.
 
     Args:
-        start_year: An integer, designates the starting year (ex: 2012)
+        start_year: The starting year (ex: 2012)
 
-        start_month: An integer, starting month (1-12)
+        start_month: Starting month (1-12)
 
-        end_year: An integer, ending year
+        end_year: Ending year
 
-        end_month: An integer, ending month
+        end_month: Ending month
 
     Returns:
-        Integer value, which is the computed time step.
+        The computed time step.
     """
 
     assert start_year <= end_year, "Starting date cannot exceed ending date."
@@ -160,7 +166,13 @@ def calculate_timestep(start_year, start_month, end_year, end_month):
     return year_to_month - (start_month - 1) + (end_month - 1)
 
 
-def estimate_deltas(G, intervened_node, n_timesteps, start_year, start_month):
+def estimate_deltas(
+    G,
+    intervened_node: str,
+    n_timesteps: int,
+    start_year: int,
+    start_month: int,
+):
     """ Utility function that estimates Rate of Change (deltas) for the
     intervened node per timestep.
 
@@ -181,11 +193,11 @@ def estimate_deltas(G, intervened_node, n_timesteps, start_year, start_month):
         intervened_node: A string of the full name of the node in which we
         are intervening on.
 
-        n_timesteps: Number of times steps.
+        n_timesteps: Number of time steps.
 
-        start_year: An integer, designates the starting year (ex: 2012).
+        start_year: The starting year (e.g, 2012).
 
-        start_month: An integer, starting month (1-12).
+        start_month: The starting month (1-12).
 
     Returns:
         1D numpy array of deltas.
@@ -250,7 +262,7 @@ def setup_evaluate(G=None, input=None, res=200):
         passing it directly as an argument. The CAG must have mapped
         indicators.
 
-        res: Sampling Resolution. Default is 200 samples.
+        res: Sampling resolution. Default is 200 samples.
 
     Returns:
         Returns CAG.
@@ -259,14 +271,16 @@ def setup_evaluate(G=None, input=None, res=200):
     if input is not None:
         if G is not None:
             warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from the pickle file."
+                "The CAG passed to G will be suppressed by the CAG loaded from"
+                "the pickle file."
             )
         with open(input, "rb") as f:
             G = pickle.load(f)
 
-    assert (
-        G is not None
-    ), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
+    assert G is not None, (
+        "A CAG must be passed to G or a pickle file containing a CAG must be "
+        "passed to input."
+    )
     G.res = res
     G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
@@ -295,10 +309,11 @@ def evaluate(
         target_node: A string of the full name of the node in which we
         wish to predict values for its attached indicator variable.
 
-        intervened_node: A string of the full name of the node in which we
-        are intervening on.
+        intervened_node: A string of the full name of the node upon which we
+        are intervening.
 
-        G: A CAG. It must have mapped indicator values and estimated transition matrix.
+        G: A CAG. It must have mapped indicator values and estimated transition
+        matrix.
 
         input: This allows you to upload a CAG from a pickle file, instead of
         passing it directly as an argument. The CAG must have mapped
@@ -327,14 +342,16 @@ def evaluate(
     if input is not None:
         if G is not None:
             warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from the pickle file."
+                "The CAG passed to G will be suppressed by the CAG loaded from"
+                "the pickle file."
             )
         with open(input, "rb") as f:
             G = pickle.load(f)
 
-    assert (
-        G is not None
-    ), "A CAG must be passed to G or a pickle file containing a CAG must be passed to input."
+    assert G is not None, (
+        "A CAG must be passed to G or a pickle file containing a CAG must be "
+        "passed to input."
+    )
 
     G.parameterize(year=start_year, month=start_month)
     G.get_timeseries_values_for_indicators()
