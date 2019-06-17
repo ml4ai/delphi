@@ -29,15 +29,15 @@ from delphi.translators.for2py import For2PyError
 
 # Dictionary of negated operations
 NEGATED_OP = {
-    ".le.": ".gt.",
-    ".ge.": ".lt.",
-    ".lt.": ".ge.",
-    ".gt.": ".le.",
-    ".eq.": ".ne.",
-    ".ne.": ".eq.",
-    "<=": ">",
-    ">=": "<"
-}
+                ".le." : ".gt.",
+                ".ge." : ".lt.",
+                ".lt." : ".ge.",
+                ".gt." : ".le.",
+                ".eq." : ".ne.",
+                ".ne." : ".eq.",
+                "<=" : ">",
+                ">=" : "<"
+              }
 
 # Const variable for setting
 # a maximum range for random
@@ -446,9 +446,9 @@ class RectifyOFPXML:
         # of .eqv. operator
         temp_elem_holder = []
         target_tags = [
-            "name",
-            "literal",
-            "equiv-operand__equiv-op"
+                "name",
+                "literal",
+                "equiv-operand__equiv-op"
         ]
         need_refactoring = False
         for child in root:
@@ -464,7 +464,7 @@ class RectifyOFPXML:
 
                     if len(child) > 0 or child.text:
                         self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                                child, cur_elem, current, parent, traverse
                         )
 
                     if cur_elem.tag in target_tags:
@@ -810,7 +810,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the variables elementss.
+            between the variables elements.
             <variables>
                 ...
             </variables>
@@ -3283,7 +3283,7 @@ class RectifyOFPXML:
         # First create <operation> element
         # Currently, only assume multiary reconstruction
         operation = ET.SubElement(
-            parent, "operation", {"type": "multiary"}
+                parent, "operation", {"type":"multiary"}
         )
         for elem in temp_elem_holder:
             if elem.tag == "name" or elem.tag == "literal":
@@ -3291,12 +3291,13 @@ class RectifyOFPXML:
                 value = ET.SubElement(operand, elem.tag, elem.attrib)
             else:
                 assert (
-                        elem.tag == "equiv-operand__equiv-op"
+                        elem.tag == "equiv-operand__equiv-op" 
                 ), f"Tag must be 'equiv-operand__equiv-op'. Current: {elem.tag}."
                 operator = ET.SubElement(
-                    operation, "operator", {"operator": elem.attrib['equivOp']}
+                        operation, "operator", {"operator":elem.attrib['equivOp']}
                 )
             parent.remove(elem)
+
 
     #################################################################
     #                                                               #
@@ -3309,10 +3310,10 @@ class RectifyOFPXML:
             declared_flag_num, traverse
     ):
         """
-            A flag declaration and assginment xml generation.
+            A flag declaration and assignment xml generation.
             This will generate N number of label_flag_i or goto_i,
             where N is the number of gotos in the Fortran code
-            and i is the number assgined to the flag
+            and i is the number assigned to the flag
         """
 
         # Declaration
@@ -3490,9 +3491,9 @@ class RectifyOFPXML:
                             self.encapsulate_under_do_while = True
                 else:
                     if (
-                            "next-goto" not in stmt.attrib
-                            or "lbl" in stmt.attrib
-                            and stmt.attrib['lbl'] == self.current_label
+                        "next-goto" not in stmt.attrib
+                        or "lbl" in stmt.attrib
+                        and stmt.attrib['lbl'] == self.current_label
                     ):
                         if "goto-move" in stmt.attrib and not label_before_within_scope:
                             if "target-label-statement" in stmt.attrib:
@@ -3506,10 +3507,8 @@ class RectifyOFPXML:
                                     self.encapsulate_under_do_while = True
                                 # Reinitialize counter to 0 to count the number of gotos
                                 # only within the current scope
-                                self.statements_to_reconstruct_before[
-                                    'count-gotos'] = 0
-                                self.statements_to_reconstruct_before[
-                                    'stmts-follow-label'] = []
+                                self.statements_to_reconstruct_before['count-gotos'] = 0
+                                self.statements_to_reconstruct_before['stmts-follow-label'] = []
                                 self.current_label = stmt.attrib['label']
                         if label_before_within_scope:
                             # del stmt.attrib['goto-remove']
@@ -3525,10 +3524,8 @@ class RectifyOFPXML:
                                 if child.tag == "goto-stmt":
                                     # If current goto-stmt label is equal to the scope label,
                                     # it means that end-of-scope is met and ready to reconstruct
-                                    if self.current_label == child.attrib[
-                                        'target_label']:
-                                        self.statements_to_reconstruct_before[
-                                            'count-gotos'] += 1
+                                    if self.current_label == child.attrib['target_label']:
+                                        self.statements_to_reconstruct_before['count-gotos'] += 1
                                         # Since we are going to handle the first label-before
                                         # case, remove the label lbl from the list
                                         del self.goto_target_lbl_before[0]
@@ -3543,8 +3540,7 @@ class RectifyOFPXML:
                                     # Else, a new goto-stmt was found that is nested current label_before
                                     # case scope, so we need to update the parent for it
                                     else:
-                                        stmt.attrib[
-                                            'parent-goto'] = self.current_label
+                                        stmt.attrib['parent-goto'] = self.current_label
                         else:
                             cur_elem = ET.SubElement(body_elem, stmt.tag,
                                                      stmt.attrib)
@@ -3583,7 +3579,8 @@ class RectifyOFPXML:
             reconstructed_if_elem.append(goto_nest_if_elem)
             parent.remove(goto_nest_if_elem)
 
-        # Unconditional goto sets goto_flag always to false when it enters 2nd if-statement
+        # Unconditional goto sets goto_flag always to false when it enters 2nd
+        # if-statement
         if not need_operation:
             statement = ET.SubElement(body_elem, "statement")
             self.generate_assignment_element(statement, lhs, None, "literal",
@@ -3597,13 +3594,17 @@ class RectifyOFPXML:
 
     def clean_derived_type_ref(self, current):
         """
-            This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
-            Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
+            This function will clean up the derived type referencing syntax,
+            which is stored in a form of "id='x'%y" in the id attribute.
+            Once the id gets cleaned, it will call the
+            reconstruc_derived_type_ref function to reconstruct and replace the
+            messy version
             of id with the cleaned version.
         """
         current_id = current.attrib[
             "id"
-        ]  # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
+        ]  # 1. Get the original form of derived type id, which is in a form of,
+        # for example, id="x"%y in the original XML.
         self.derived_type_var_holder_list.append(
             self.clean_id(current_id)
         )  # 2. Extract the first variable name, for example, x in this case.
@@ -3617,8 +3618,10 @@ class RectifyOFPXML:
 
     def clean_id(self, unrefined_id):
         """
-            This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
-            For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id name will be modified as below:
+            This function refines id (or value) with quotation marks included by
+             removing them and returns only the variable name.
+            For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id
+            name will be modified as below:
                 Unrefined id: id = ""OUTPUT""
                 Refined id: id = "OUTPUT"
         """
@@ -3626,25 +3629,30 @@ class RectifyOFPXML:
 
     def clean_attrib(self, elements):
         """
-            The original XML elements holds 'eos' and 'rule' attributes that are not necessary and being used.
-            Thus, this function will remove them in the rectified version of XML.
+            The original XML elements holds 'eos' and 'rule' attributes that are
+             not necessary and being used.
+            Thus, this function will remove them in the rectified version of
+            XML.
         """
         if "eos" in elements.attrib:
             elements.attrib.pop("eos")
         if "rule" in elements.attrib:
             elements.attrib.pop("rule")
 
-    def boundary_identifier(self, goto_label_with_case):
+    def boundary_identifier (self, goto_label_with_case):
         """
             This function will be called to dientify the boundary for each goto-
-            and-label. The definition of scope here is that whether one goto-label
+            and-label. The definition of scope here is that whether one
+            goto-label
             is nested under another goto-label. For example,
                 <label with lbl = 111>
                     <goto-stmt with lbl = 222>
                     <label with lbl = 222>
                 <goto-stmt with lbl = 111>
-            In this case, "goto-label with lbl = 222" is within the scope of "lbl = 111"
-            Thus, the elements will be assigned with "parent-goto" attribute with 111.
+            In this case, "goto-label with lbl = 222" is within the scope of
+            "lbl = 111"
+            Thus, the elements will be assigned with "parent-goto" attribute
+            with 111.
         """
         boundary = {}
         lbl_counter = {}
@@ -3675,22 +3683,22 @@ class RectifyOFPXML:
                         boundary[lbl] = label
 
         # This will check for the handled goto cases.
-        # If any unhandled case enountered, then it will
-        # aseert and give out an error. Else, return nothing
-        self.case_availability(boundary)
+        # If any unhandled case encountered, then it will
+        # assert and give out an error. Else, return nothing
+        self.case_availability (boundary)
 
         boundary_for_label = boundary.copy()
-        self.parent_goto_assigner(
-            boundary, boundary_for_label,
-            self.statements_to_reconstruct_before['stmts-follow-label']
+        self.parent_goto_assigner (
+                boundary, boundary_for_label, 
+                self.statements_to_reconstruct_before['stmts-follow-label']
         )
-        self.parent_goto_assigner(
-            boundary, boundary_for_label,
-            self.statements_to_reconstruct_after['stmts-follow-goto']
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-goto']
         )
-        self.parent_goto_assigner(
-            boundary, boundary_for_label,
-            self.statements_to_reconstruct_after['stmts-follow-label']
+        self.parent_goto_assigner (
+                boundary, boundary_for_label,
+                self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
     def case_availability(self, boundary):
@@ -3727,7 +3735,8 @@ class RectifyOFPXML:
     def parent_goto_assigner(self, boundary, boundary_for_label,
                              statements_to_reconstruct):
         """
-            This function actually assigns scope(s) to each goto and label statements
+            This function actually assigns scope(s) to each goto and label
+            statements
         """
         for stmt in statements_to_reconstruct:
             if "goto-stmt" in stmt.attrib:
@@ -3788,7 +3797,8 @@ def indent(elem, level=0):
 
 def buildNewAST(filename: str):
     """
-        Using the list of cleaned AST, construct a new XML AST and write to a file
+        Using the list of cleaned AST, construct a new XML AST and write to a
+        file
     """
     # A variable for keep a track of number of traverse time
     traverse = 1

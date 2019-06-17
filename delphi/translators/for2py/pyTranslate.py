@@ -1264,7 +1264,7 @@ class PythonCodeGenerator(object):
                 assert False, f"Unrecognized tag in retrieved_bound: " \
                     f"{bound[0]['tag']}"
             index += 1
-
+        
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
         """This function forms a derived type reference
         and return to the caller"""
