@@ -271,7 +271,7 @@ def setup_evaluate(G=None, input=None, res=200):
     if input is not None:
         if G is not None:
             warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from"
+                "The CAG passed to G will be suppressed by the CAG loaded from "
                 "the pickle file."
             )
         with open(input, "rb") as f:
@@ -342,7 +342,7 @@ def evaluate(
     if input is not None:
         if G is not None:
             warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from"
+                "The CAG passed to G will be suppressed by the CAG loaded from "
                 "the pickle file."
             )
         with open(input, "rb") as f:
