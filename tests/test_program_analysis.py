@@ -50,14 +50,15 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
 
     tree = rectify.buildNewASTfromXMLString(xml_string)
     trees = [tree]
-    comments = get_comments.get_comments(preprocessed_fortran_file)
+    translator = translate.XMLToJSONTranslator()
+    outputDict = translator.xml_to_py(trees, preprocessed_fortran_file)
     os.remove(preprocessed_fortran_file)
-    xml_to_json_translator = translate.XMLToJSONTranslator()
+
     mode_mapper_tree = tree
     generator = mod_index_generator.moduleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
-    outputDict = xml_to_json_translator.analyze(trees, comments)
     pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
+
     return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
 
 
