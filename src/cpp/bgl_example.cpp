@@ -4,17 +4,42 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <typeinfo>
 
 #include "boost/graph/adjacency_list.hpp"
 #include "boost/graph/graph_traits.hpp"
+#include <boost/graph/graphviz.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include <nlohmann/json.hpp>
+#define print(x) cout << x << endl;
 
-#define print(X) cout << X << endl;
 
-using namespace boost;
-using namespace std;
-using json = nlohmann::json;
+namespace delphi {
+  using std::cout,
+        std::endl,
+        std::unordered_map,
+        std::pair,
+        std::string,
+        std::ifstream;
+
+  using boost::adjacency_list,
+        boost::add_edge,
+        boost::vecS,
+        boost::directedS,
+        boost::edges,
+        boost::source,
+        boost::target,
+        boost::get,
+        boost::make_label_writer,
+        boost::write_graphviz,
+        boost::range::for_each
+  ;
+
+  using json = nlohmann::json;
+}
+
+using namespace delphi;
 
 struct Node {
   string name;
@@ -28,74 +53,58 @@ struct Model {
   string name;
 };
 
-// An edge is just a connection between two vertitices. Our verticies above
-// are an enum, and are just used as integers, so our edges just become
-// a pair<int, int>
 typedef pair<int, int> Edge;
 
-// create an directed- graph type, using vectors as the underlying containers
-// and an adjacency_list as the basic representation
-typedef adjacency_list<vecS, vecS, directedS, Node, CAGEdge, Model>
-    AnalysisGraph;
+typedef adjacency_list<vecS, vecS, directedS, Node, CAGEdge, Model> DiGraph;
 
-json get_json_from_file(const char *filename) {
+json load_json(string filename) {
   ifstream i(filename);
   json j;
   i >> j;
   return j;
 }
 
+class AnalysisGraph {
+public:
+  DiGraph graph;
+  AnalysisGraph(DiGraph G) : graph(G) {};
+  static AnalysisGraph from_json_file(string filename) {
+    auto j = load_json(filename);
+    std::unordered_map<string, int> node_int_map = {};
+
+    DiGraph G;
+    int i = 0;
+    for (auto stmt : j) {
+      if (stmt["type"] == "Influence") {
+        auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
+        auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
+        if (!subj.is_null() and !obj.is_null()) {
+
+          auto subj_string = subj.dump();
+          auto obj_string = obj.dump();
+
+          for (auto c : {subj_string, obj_string}) {
+            if (node_int_map.count(c) == 0) {
+              node_int_map[c] = i;
+              i++;
+              auto v = add_vertex(G);
+              G[v].name = c;
+            }
+          }
+          auto edge =
+              add_edge(node_int_map[subj_string], node_int_map[obj_string], G);
+        }
+      }
+    }
+    return AnalysisGraph(G);
+  }
+};
+
+
 int main(int argc, char *argv[]) {
 
-  auto j = get_json_from_file("indra_statements_format.json");
-  for (auto stmt : j) {
-    if (stmt["type"] == "Influence") {
-      print(stmt)
-    }
-  }
+  auto G = AnalysisGraph::from_json_file("indra_statements_format.json");
+  write_graphviz(cout, G.graph, make_label_writer(get(&Node::name, G.graph)));
 
-  // Example uses an array, but we can easily use another container type
-  // to hold our edges.
-  // vector<Edge> edgeVec;
-  // edgeVec.push_back(Edge(1, 2));
-  // edgeVec.push_back(Edge(1, 4));
-  // edgeVec.push_back(Edge(3, 4));
-  // edgeVec.push_back(Edge(4, 3));
-  // edgeVec.push_back(Edge(3, 5));
-  // edgeVec.push_back(Edge(2, 4));
-  // edgeVec.push_back(Edge(4, 5));
-
-  //// Now we can initialize our graph using iterators from our above vector
-  // AnalysisGraph g(edgeVec.begin(), edgeVec.end(), 6);
-
-  // cout << num_edges(g) << "\n";
-
-  //// Ok, we want to see that all our edges are now contained in the graph
-  // typedef graph_traits<AnalysisGraph>::edge_iterator edge_iterator;
-
-  //// Tried to make this section more clear, instead of using tie, keeping all
-  //// the original types so it's more clear what is going on
-  // pair<edge_iterator, edge_iterator> ei = edges(g);
-  // for (edge_iterator edge_iter = ei.first; edge_iter != ei.second;
-  //++edge_iter) {
-  // cout << "(" << source(*edge_iter, g) << ", " << target(*edge_iter, g)
-  //<< ")\n";
-  //}
-
-  // cout << "\n";
-
-  //// Print out the edge list again to see that it has been added
-  // for (edge_iterator edge_iter = ei.first; edge_iter != ei.second;
-  //++edge_iter) {
-  // cout << "(" << source(*edge_iter, g) << ", " << target(*edge_iter, g)
-  //<< ")\n";
-  //}
-
-  ////...and print out our edge set once more to see that it was added
-  // for (edge_iterator edge_iter = ei.first; edge_iter != ei.second;
-  //++edge_iter) {
-  // cout << "(" << source(*edge_iter, g) << ", " << target(*edge_iter, g)
-  //<< ")\n";
-  //}
   return 0;
 }
