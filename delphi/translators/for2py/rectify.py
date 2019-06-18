@@ -3668,30 +3668,20 @@ def indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-def buildNewAST(filename: str):
-    """
-        Using the list of cleaned AST, construct a new XML AST and write to a file
-    """
-    # A variable for keep a track of number of traverse time
+def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
     traverse = 1
 
-    # Read AST from the OFP generated XML file
-    ast = ET.parse(filename)
-    # Get a root of a tree
-    root = ast.getroot()
+    ofpAST = ET.XML(xmlString)
     XMLCreator = RectifyOFPXML()
     # A root of the new AST
-    newRoot = ET.Element(root.tag, root.attrib)
+    newRoot = ET.Element(ofpAST.tag, ofpAST.attrib)
     # First add the root to the new AST list
-    for child in root:
+    for child in ofpAST:
         # Handle only non-empty elementss
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
 
-    tree = ET.ElementTree(newRoot)
-    indent(newRoot)
-    
     # Checks if the rectified AST requires goto elimination,
     # if it does, it does a 2nd traverse to eliminate and
     # reconstruct the AST once more
@@ -3700,52 +3690,32 @@ def buildNewAST(filename: str):
 
         XMLCreator.boundary_identifier(XMLCreator.goto_label_with_case)
 
-        root = tree.getroot()	
-        newRoot = ET.Element(root.tag, root.attrib)
-        for child in root:	
+        # ast = newRoot.getroot()
+        new_root = ET.Element(newRoot.tag, newRoot.attrib)
+        for child in newRoot:	
             if child.text:	
-                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
-                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
-        tree = ET.ElementTree(newRoot)	
-        indent(newRoot)
-        if not XMLCreator.continue_elimination:
-            XMLCreator.need_goto_elimination = False
-
-    rectFilename = filename.split("/")[-1]
-    tree.write(f"tmp/rectified_{rectFilename}")
-
-
-def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
-    traverse = 1
-    ast = ET.XML(xmlString)
-    XMLCreator = RectifyOFPXML()
-    # A root of the new AST
-    newRoot = ET.Element(ast.tag, ast.attrib)
-    # First add the root to the new AST list
-    for child in ast:
-        # Handle only non-empty elementss
-        if child.text:
-            cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
-
-    # Checks if the rectified AST requires goto elimination,
-    # if it does, it does a 2nd traverse to eliminate and
-    # reconstruct the AST once more
-    while (XMLCreator.need_goto_elimination):
-        traverse += 1
-        ast = ET.XML(newRoot)
-        newRoot = ET.Element(ast.tag, ast.attrib)
-        for child in ast:	
-            if child.text:	
-                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
+                cur_elem = ET.SubElement(new_root, child.tag, child.attrib)	
                 XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
         if not XMLCreator.continue_elimination:
             XMLCreator.need_goto_elimination = False
+
+    tree = ET.ElementTree(newRoot)
+    indent(newRoot)
 
     return newRoot
 
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    # Build a new cleaned AST XML
-    buildNewAST(filename)
+
+    ofpXML = ET.parse(filename)
+    ofpXMLRoot = ofpXML.getroot()
+
+    ofpXMLStr = ET.tostring(ofpXMLRoot).decode()
+
+    rectifiedXML = buildNewASTfromXMLString(ofpXMLStr)
+
+    rectifiedTree = ET.ElementTree(rectifiedXML)
+
+    rectFilename = filename.split("/")[-1]
+    rectifiedTree.write(f"rectified_{rectFilename}")
