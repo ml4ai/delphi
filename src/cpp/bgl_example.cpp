@@ -24,6 +24,7 @@ namespace delphi {
         std::ifstream;
 
   using boost::adjacency_list,
+        boost::edge,
         boost::add_edge,
         boost::vecS,
         boost::directedS,
@@ -91,8 +92,10 @@ public:
               G[v].name = c;
             }
           }
-          auto edge =
+          if (!edge(node_int_map[subj_string], node_int_map[obj_string], G).second){
+            auto edge =
               add_edge(node_int_map[subj_string], node_int_map[obj_string], G);
+          }
         }
       }
     }
