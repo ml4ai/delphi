@@ -734,13 +734,14 @@ class PythonCodeGenerator(object):
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
 
-        # Check if true division (/) exists in the rhs_str and convert into
-        # floored division (//) if the target variable is an integer
-        if '/' in rhs_str:
+        # Check if the rhs string contains a multiplication or division
+        # operation and if so check if the target variable is an integer. In
+        # this case, cast the rhs string with int()
+        if '/' in rhs_str or '*' in rhs_str:
             for item in self.var_type[self.current_module]:
-                if item["name"] == self.nameMapper[lhs["name"]] \
-                        and item["type"] == "int":
-                    rhs_str = rhs_str.replace('/', '//')
+                if item["name"] == self.nameMapper[lhs["name"]] and \
+                        item["type"] == "int":
+                    rhs_str = f"int({rhs_str})"
 
         # If the target variable is a saved variable add the
         # subroutine/function name to it's prefix.
