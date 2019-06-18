@@ -21,9 +21,9 @@ namespace delphi {
         std::unordered_map,
         std::pair,
         std::string,
-        std::ifstream;
+        std::ifstream,
 
-  using boost::adjacency_list,
+        boost::adjacency_list,
         boost::edge,
         boost::add_edge,
         boost::vecS,
@@ -69,14 +69,15 @@ class AnalysisGraph {
 public:
   DiGraph graph;
   AnalysisGraph(DiGraph G) : graph(G) {};
+
   static AnalysisGraph from_json_file(string filename) {
     auto j = load_json(filename);
-    std::unordered_map<string, int> node_int_map = {};
 
     DiGraph G;
+    std::unordered_map<string, int> node_int_map = {};
     int i = 0;
     for (auto stmt : j) {
-      if (stmt["type"] == "Influence") {
+      if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
@@ -106,7 +107,7 @@ public:
 
 int main(int argc, char *argv[]) {
 
-  auto G = AnalysisGraph::from_json_file("indra_statements_format.json");
+  auto G = AnalysisGraph::from_json_file("jsonld-merged20190404.json");
   write_graphviz(cout, G.graph, make_label_writer(get(&Node::name, G.graph)));
 
   return 0;
