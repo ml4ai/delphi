@@ -869,7 +869,6 @@ def xml_to_py(args, fortran_file):
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments
 
-
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
     # so I'm commenting out this call for now.  Eventually this code (and all 

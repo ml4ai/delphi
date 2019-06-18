@@ -418,8 +418,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         tree = rectify.buildNewASTfromXMLString(xml_string)
         trees = [tree]
 
-        translator = translate.XMLToJSONTranslator()
-        outputDict = translator.xml_to_py(trees, preprocessed_fortran_file)
+        outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
         os.remove(preprocessed_fortran_file)
 
         mode_mapper_tree = tree
