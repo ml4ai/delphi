@@ -1,3 +1,4 @@
+#include <pybind11/pybind11.h>
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -6,10 +7,11 @@
 #include <vector>
 #include <typeinfo>
 
-#include "boost/graph/adjacency_list.hpp"
-#include "boost/graph/graph_traits.hpp"
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+
 
 #include <nlohmann/json.hpp>
 #define print(x) cout << x << endl;
@@ -41,6 +43,7 @@ namespace delphi {
 }
 
 using namespace delphi;
+namespace py = pybind11;
 
 struct Node {
   string name;
@@ -68,6 +71,7 @@ json load_json(string filename) {
 class AnalysisGraph {
 public:
   DiGraph graph;
+  AnalysisGraph(){};
   AnalysisGraph(DiGraph G) : graph(G) {};
 
   static AnalysisGraph from_json_file(string filename) {
@@ -102,13 +106,18 @@ public:
     }
     return AnalysisGraph(G);
   }
+
+  void print_nodes(){
+    for_each(vertices(graph), [&] (auto v){cout << graph[v].name << endl;});
+  }
+  void to_dot(){
+    write_graphviz(cout, graph, make_label_writer(get(&Node::name, graph)));
+  }
 };
 
-
-int main(int argc, char *argv[]) {
-
-  auto G = AnalysisGraph::from_json_file("jsonld-merged20190404.json");
-  write_graphviz(cout, G.graph, make_label_writer(get(&Node::name, G.graph)));
-
-  return 0;
+PYBIND11_MODULE(AnalysisGraph, m) {
+  py::class_<AnalysisGraph>(m, "AnalysisGraph")
+    .def(py::init(&AnalysisGraph::from_json_file))
+    .def("print_nodes", &AnalysisGraph::print_nodes)
+    .def("to_dot", &AnalysisGraph::to_dot);
 }
