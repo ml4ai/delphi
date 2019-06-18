@@ -49,7 +49,7 @@ class ParseState(object):
         )
 
 
-class XMLToJSONTranslator(object):
+class XML_to_JSON_translator(object):
     def __init__(self):
         self.libRtns = ["read", "open", "close", "format", "print", "write"]
         self.libFns = [
@@ -884,9 +884,7 @@ class XMLToJSONTranslator(object):
             elif element.tag == "subroutine":
                 self.subroutineList.append(element.attrib["name"])
 
-    def analyze(
-        self, trees: List[ET.ElementTree], comments: OrderedDict
-    ) -> Dict:
+    def analyze(self, trees: List[ET.ElementTree]) -> Dict:
         outputDict = {}
         ast = []
 
@@ -924,7 +922,6 @@ class XMLToJSONTranslator(object):
         # usages.
         outputDict["ast"] = ast
         outputDict["functionList"] = self.functionList
-        outputDict["comments"] = comments
         return outputDict
 
     def print_unhandled_tags(self):
@@ -940,7 +937,29 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f).getroot() for f in files]
 
 
-if __name__ == "__main__":
+def xml_to_py(trees, fortran_file):
+    translator = XML_to_JSON_translator()
+    output_dict = translator.analyze(trees)
+    comments = get_comments(fortran_file)
+    output_dict["comments"] = comments
+
+    # print_unhandled_tags() was originally intended to alert us to program
+    # constructs we were not handling.  It isn't clear we actually use this
+    # so I'm commenting out this call for now.  Eventually this code (and all 
+    # the code that keeps track of unhandled tags) should go away.
+    # --SKD 06/2019
+    #translator.print_unhandled_tags()
+
+    return output_dict
+
+
+def parse_args():
+    """ Parse the arguments passed to the script.  Returns a tuple 
+        (fortran_file, pickle_file, args) where fortran_file is the
+        file containing the input Fortran code, and pickle_file is
+        the output pickle file.
+    """
+    
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
@@ -961,14 +980,21 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args(sys.argv[1:])
-    fortranFile = args.input[0]
-    pickleFile = args.gen[0]
+    fortran_file = args.input[0]
+    pickle_file = args.gen[0]
 
-    trees = get_trees(args.files)
-    comments = get_comments(fortranFile)
-    translator = XMLToJSONTranslator()
-    outputDict = translator.analyze(trees, comments)
-    translator.print_unhandled_tags()
+    return (fortran_file, pickle_file, args)
 
-    with open(pickleFile, "wb") as f:
+
+def gen_pickle_file(outputDict, pickle_file):
+    with open(pickle_file, "wb") as f:
         pickle.dump(outputDict, f)
+
+
+if __name__ == "__main__":
+    (fortran_file, pickle_file, args) = parse_args()
+    trees = get_trees(args.files)
+
+    output_dict = xml_to_py(trees, fortran_file)
+    
+    gen_pickle_file(output_dict, pickle_file)
