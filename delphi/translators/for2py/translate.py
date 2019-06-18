@@ -49,7 +49,7 @@ class ParseState(object):
         )
 
 
-class XMLToJSONTranslator(object):
+class XML_to_JSON_translator(object):
     def __init__(self):
         self.libRtns = ["read", "open", "close", "format", "print", "write"]
         self.libFns = [
@@ -863,8 +863,8 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f).getroot() for f in files]
 
 
-def xml_to_py(args, fortran_file):
-    translator = XMLToJSONTranslator()
+def xml_to_py(trees, fortran_file):
+    translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments
