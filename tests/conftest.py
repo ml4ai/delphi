@@ -76,7 +76,6 @@ def G():
     G.sample_from_prior()
     G.map_concepts_to_indicators()
     G.parameterize(year=2014, month=12)
-    G.to_pickle()
     yield G
 
 

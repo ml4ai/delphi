@@ -274,18 +274,18 @@ class AnalysisGraph(nx.DiGraph):
         rs = gaussian_kde(
             flatMap(
                 lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(self.res)[0]
+                .resample(self.res)
                 .tolist(),
                 gb,
             )
-        ).resample(self.res)[0]
+        ).resample(self.res)
 
         for edge in self.edges(data=True):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
             edge[2]["βs"] = np.tan(
-                edge[2]["ConditionalProbability"].resample(self.res)[0]
+                edge[2]["ConditionalProbability"].resample(self.res)
             )
 
     def set_latent_state_sequence(self, A, n_timesteps=10):
