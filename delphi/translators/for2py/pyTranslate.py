@@ -1300,12 +1300,12 @@ class PythonCodeGenerator(object):
         var_name = self.nameMapper[node["name"]]
 
         if variable_type in TYPE_MAP:
-            variable_type = TYPE_MAP[variable_type]
+            mapped_type = TYPE_MAP[variable_type]
             self.var_type.setdefault(self.current_module, []).append({
                 "name": var_name,
-                "type": variable_type
+                "type": mapped_type
             })
-            return TYPE_MAP[variable_type]
+            return mapped_type
         else:
             if node["is_derived_type"] == "true":
                 self.var_type.setdefault(self.current_module, []).append({
