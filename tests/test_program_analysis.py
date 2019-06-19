@@ -50,14 +50,15 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
 
     tree = rectify.buildNewASTfromXMLString(xml_string)
     trees = [tree]
-    comments = get_comments.get_comments(preprocessed_fortran_file)
-    os.remove(preprocessed_fortran_file)
-    xml_to_json_translator = translate.XMLToJSONTranslator()
+
     mode_mapper_tree = tree
     generator = mod_index_generator.moduleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
-    outputDict = xml_to_json_translator.analyze(trees, comments)
+
+    outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
     pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
+    os.remove(preprocessed_fortran_file)
+
     return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
 
 
@@ -100,6 +101,10 @@ def array_python_IR_test():
 def do_while_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/do-while/do_while_04.f"))[0]
 
+@pytest.fixture
+def goto_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0]
+
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     with open(f"{DATA_DIR}/crop_yield.py", "r") as f:
         python_src = f.read()
@@ -124,3 +129,8 @@ def test_do_while_pythonIR_generation(do_while_python_IR_test):
     with open(f"{DATA_DIR}/do-while/do_while_04.py", "r") as f:
         python_src = f.read()
     assert do_while_python_IR_test == python_src
+
+def test_goto_pythonIR_generation(goto_python_IR_test):
+    with open(f"{DATA_DIR}/goto/goto_02.py", "r") as f:
+        python_src = f.read()
+    assert goto_python_IR_test == python_src

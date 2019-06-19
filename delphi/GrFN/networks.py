@@ -417,11 +417,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         ).stdout
         tree = rectify.buildNewASTfromXMLString(xml_string)
         trees = [tree]
-        comments = get_comments.get_comments(preprocessed_fortran_file)
-        os.remove(preprocessed_fortran_file)
-        xml_to_json_translator = translate.XMLToJSONTranslator()
-        outputDict = xml_to_json_translator.analyze(trees, comments)
+
+        outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
         pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
+        os.remove(preprocessed_fortran_file)
 
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
         return G
