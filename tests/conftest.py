@@ -72,7 +72,7 @@ STS = [s1]
 @pytest.fixture(scope="session")
 def G():
     G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(STS))
-    G.assemble_transition_model_from_gradable_adjectives()
+    G.res = 1000
     G.sample_from_prior()
     G.map_concepts_to_indicators()
     G.parameterize(year=2014, month=12)
