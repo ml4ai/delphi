@@ -40,11 +40,6 @@ NEGATED_OP = {
                 ">=" : "<"
               }
 
-# Const variable for setting
-# a maximum range for random
-# number generation
-RANGE = 9999
-
 class RectifyOFPXML:
     def __init__(self):
         # True if derived type declaration exist
