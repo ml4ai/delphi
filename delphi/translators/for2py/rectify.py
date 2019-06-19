@@ -22,6 +22,7 @@ Last Modified: 6/12/2019
 """
 
 import re
+import os
 import sys
 import argparse
 import xml.etree.ElementTree as ET
@@ -3669,6 +3670,11 @@ def indent(elem, level=0):
             elem.tail = i
 
 def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+    """
+        This function process OFP generated XML and generates
+        a rectified version by recursively calling the appropriate
+        functions.
+    """
     traverse = 1
 
     ofpAST = ET.XML(xmlString)
@@ -3681,41 +3687,105 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
+    
+    # Indent and structure the tree properly
+    tree = ET.ElementTree(newRoot)
+    indent(newRoot)
 
     # Checks if the rectified AST requires goto elimination,
     # if it does, it does a 2nd traverse to eliminate and
     # reconstruct the AST once more
     while (XMLCreator.need_goto_elimination):
+        oldRoot = newRoot
         traverse += 1
 
         XMLCreator.boundary_identifier(XMLCreator.goto_label_with_case)
 
-        # ast = newRoot.getroot()
-        new_root = ET.Element(newRoot.tag, newRoot.attrib)
-        for child in newRoot:	
+        newRoot = ET.Element(oldRoot.tag, oldRoot.attrib)
+        for child in oldRoot:	
             if child.text:	
-                cur_elem = ET.SubElement(new_root, child.tag, child.attrib)	
+                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
                 XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
+        tree = ET.ElementTree(newRoot)
+        indent(newRoot)
         if not XMLCreator.continue_elimination:
             XMLCreator.need_goto_elimination = False
 
-    tree = ET.ElementTree(newRoot)
-    indent(newRoot)
-
     return newRoot
 
+def parse_args():
+    """
+        This function parse the arguments passed to the script.
+        It returns a tuple of (input ofp xml, output xml)
+        file names.
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument (
+            "-f",
+            "--file",
+            nargs="+",
+            help="OFP generated XML file needs to be passed.",
+    )
+
+    parser.add_argument (
+            "-g",
+            "--gen",
+            nargs="+",
+            help="A rectified version of XML.",
+    )
+
+    args = parser.parse_args(sys.argv[1:])
+
+    if (
+        args.file != None
+        and args.gen != None
+    ):
+        ofpFile = args.file[0]
+        rectifiedFile = args.gen[0]
+    else:
+        assert (
+                False
+        ), f"[[ Missing either input or output file.\
+             Input: {args.file}, Output: {args.gen} ]]"
+
+    return (ofpFile, rectifiedFile)
+
+def fileChecker(filename, mode):
+    """
+        This function checks for the validity (file existance and
+        mode). If either the file does not exist or the mode is
+        not valid, throws an IO exception and terminates the program
+    """
+    try:
+        with open (filename, mode) as f:
+            pass
+    except IOError:
+        assert (
+                False
+        ), f"File {filename} does not exit or invalid mode {mode}."
 
 if __name__ == "__main__":
-    filename = sys.argv[1]
+    (ofpFile, rectifiedFile) = parse_args()
 
-    ofpXML = ET.parse(filename)
+    # Since we pass the file name to the element
+    # tree parser not opening it with open function, 
+    # we check for the validity before the file name 
+    # is actually passed to the parser
+    fileChecker(ofpFile, "r")
+    ofpXML = ET.parse(ofpFile)
     ofpXMLRoot = ofpXML.getroot()
-
+    
+    # Converts the XML tree into string
     ofpXMLStr = ET.tostring(ofpXMLRoot).decode()
-
+    # Call buildNewASTfromXMLString to rectify the XML
     rectifiedXML = buildNewASTfromXMLString(ofpXMLStr)
-
     rectifiedTree = ET.ElementTree(rectifiedXML)
 
-    rectFilename = filename.split("/")[-1]
-    rectifiedTree.write(f"rectified_{rectFilename}")
+    # The write function is used with the generated
+    # XML tree object not with the file object. Thus,
+    # same as the ofpFile, we do a check for the validity
+    # of a file before pass to the ET tree object's write
+    # function
+    fileChecker(rectifiedFile, "w")
+    rectifiedTree.write(rectifiedFile)
