@@ -3,6 +3,7 @@ C This program has a 3-D array with mixed explicit and implicit lower bounds.
 
       program main
       implicit none
+      save
 
 C     A is a 3-D array (5x5x5) of integers with mixed explicit and implicit
 C     lower-bounds.
