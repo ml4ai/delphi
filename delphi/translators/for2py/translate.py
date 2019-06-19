@@ -160,6 +160,12 @@ class XML_to_JSON_translator(object):
         self.argument_list = {}
         # String that holds the current function under context
         self.current_module = None
+        # Flag that specifies whether a SAVE statement has been encountered
+        # in the subroutine/function or not
+        self.is_save = False
+        # Variable to hold the node of the SAVE statement to process at the
+        # end of the subroutine/funcion
+        self.saved_node = None
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -176,6 +182,13 @@ class XML_to_JSON_translator(object):
                 subroutine["body"] = self.parseTree(node, subState)
             elif node.tag == "members":
                 subroutine["body"] += self.parseTree(node, subState)
+
+        # Check if this subroutine had a save statement and if so, process
+        # the saved node to add it to the ast
+        if self.is_save:
+            subroutine["body"] += self.process_save(self.saved_node, state)
+            self.is_save = False
+
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
@@ -694,6 +707,13 @@ class XML_to_JSON_translator(object):
             elif node.tag == "body":
                 subState = state.copy(subroutine)
                 subroutine["body"] = self.parseTree(node, subState)
+
+        # Check if this subroutine had a save statement and if so, process
+        # the saved node to add it to the ast
+        if self.is_save:
+            subroutine["body"] += self.process_save(self.saved_node, state)
+            self.is_save = False
+
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
 
@@ -828,15 +848,31 @@ class XML_to_JSON_translator(object):
         defined along with the variables that are saved by this statement.
         """
 
-        if root.attrib["hasSavedEntityList"] == "true":
-            var_list = []
-            for node in root:
-                var_list.append(node.attrib["id"])
+        """
+            If is_save is False, the SAVE statement has been encountered for
+            the first time in the particular subroutine/function in context.
+            Here, change the flag value and save the SAVE node.
+        """
+        if not self.is_save:
+            self.is_save = True
+            self.saved_node = root
+            return []
         else:
-            var_list = self.variable_list[self.current_module]
+            """
+                This block will be entered when a SAVE statement is present 
+                and its corresponding ast node has to be added at the end of 
+                the subroutine/function body. Here the saved SAVE node 
+                is processed as root.
+            """
+            if root.attrib["hasSavedEntityList"] == "true":
+                var_list = []
+                for node in root:
+                    var_list.append(node.attrib["id"])
+            else:
+                var_list = self.variable_list[self.current_module]
 
-        return [{"tag": "save", "scope": self.current_module, "var_list":
-                var_list}]
+            return [{"tag": "save", "scope": self.current_module, "var_list":
+                    var_list}]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
