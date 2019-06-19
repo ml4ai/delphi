@@ -99,39 +99,67 @@ def get_true_values(
     target_indicator = list(
         G.nodes(data=True)[target_node]["indicators"].keys()
     )[0]
-    target_df = df[df["Variable"] == target_indicator]
+
+    query_base = " ".join(
+        [
+            f"select * from indicator",
+            f"where `Variable` like '{target_indicator}'",
+        ]
+    )
+
+    query_parts = {"base": query_base}
 
     true_vals = np.zeros(n_timesteps)
     year = start_year
     month = start_month + 1
     date = []
     for j in range(n_timesteps):
-        if target_df[target_df["Year"] == year].empty:
-            true_vals[j] = target_df["Value"].values.astype(float).mean()
-        elif target_df[target_df["Year"] == year][
-            target_df["Month"] == month
-        ].empty:
-            true_vals[j] = (
-                target_df[target_df["Year"] == year]["Value"]
-                .values.astype(float)
-                .mean()
-            )
-        else:
-            true_vals[j] = (
-                target_df[target_df["Year"] == year][
-                    target_df["Month"] == month
-                ]["Value"]
-                .values.astype(float)
-                .mean()
-            )
+        query_parts["year"] = f"and `Year` is '{year}'"
+        query_parts["month"] = f"and `Month` is '{month}'"
 
-        date.append(str(year) + "-" + str(month))
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
 
-        if month == 12:
-            year = year + 1
-            month = 1
-        else:
-            month = month + 1
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(str(year) + "-" + str(month))
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["month"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(str(year) + "-" + str(month))
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["year"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(str(year) + "-" + str(month))
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
 
     return pd.DataFrame(true_vals, date, columns=[target_indicator + "(True)"])
 
