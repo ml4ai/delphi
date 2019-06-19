@@ -49,11 +49,11 @@ class RectifyOFPXML:
     def __init__(self):
         # True if derived type declaration exist
         self.is_derived_type = False
-        # True if derived type var. refecrence exist
+        # True if derived type var. reference exist
         self.is_derived_type_ref = False
         # True if current var. is an array
         self.is_array = False
-        # True if format exist in the code
+        # True if format exists in the code
         self.is_format = False
         # True if current var. is for function argument
         self.is_function_arg = False

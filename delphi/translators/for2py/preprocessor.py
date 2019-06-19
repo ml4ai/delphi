@@ -355,7 +355,6 @@ def process(inputLines: List[str]) -> str:
 
 
 def print_comments(comments):
-
     for fn, comment in comments.items():
         if fn in ("$file_head", "$file_foot"):  # file-level comments
             print(fn + ":")
@@ -377,12 +376,7 @@ def print_comments(comments):
                     print("")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
-        sys.exit(1)
-
-    infile, outfile = sys.argv[1], sys.argv[2]
+def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
         lines, comments = preprocess(inputLines)
@@ -391,6 +385,14 @@ if __name__ == "__main__":
         for _, line in lines:
             if line is not None:
                 f.write(line)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
+        sys.exit(1)
+
+    infile, outfile = sys.argv[1], sys.argv[2]
+    preprocess_file(infile, outfile)
 
     # Temporarily commenting out the printing of comments by the preprocessor.
     # To be reinstated later if it seems useful.  --SKD 06/2019
