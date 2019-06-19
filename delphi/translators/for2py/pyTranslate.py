@@ -213,6 +213,8 @@ class PythonCodeGenerator(object):
         # Dictionary to map all the variables (under each function) to its
         # corresponding types
         self.var_type = {}
+        # String to hold the current call being processed
+        self.current_call = None
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -400,16 +402,18 @@ class PythonCodeGenerator(object):
         if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
 
-        callee = self.nameMapper[f"{node['name']}"]
+        self.current_call = self.nameMapper[f"{node['name']}"]
         args = self.get_arg_list(node)
-        arg_strs = [self.proc_expr(args[i], True) for i in range(len(args))]
+
+        arg_strs = [self.proc_expr(args[i], True) for i in range(len(
+            args))]
 
         # Case where a call is a print method
-        if callee == "print":
+        if self.current_call == "print":
             arguments = self.proc_print(arg_strs)
         else:
             arguments = ", ".join(arg_strs)
-        exp_str = f"{callee}({arguments})"
+        exp_str = f"{self.current_call}({arguments})"
 
         return exp_str
 
@@ -528,7 +532,7 @@ class PythonCodeGenerator(object):
             # If the literal is an argument to a function (when proc_expr has
             # been called from proc_call), the literal needs to be sent using
             # a list wrapper (e.g. f([1]) instead of f(1)
-            if wrapper:
+            if wrapper and self.current_call != "print":
                 return f"[{literal}]"
             else:
                 return literal
