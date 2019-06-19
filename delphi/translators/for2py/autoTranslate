@@ -70,4 +70,5 @@ for file in "$@"; do
     pyFiles+=" $pyFile"
 done
 
-( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList)
+( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o
+$outputFileList)
