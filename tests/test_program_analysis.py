@@ -105,6 +105,11 @@ def do_while_python_IR_test():
 def goto_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0]
 
+@pytest.fixture
+def save_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}"
+                                 f"/save/simple_variables/save-02.f"))[0]
+
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     with open(f"{DATA_DIR}/crop_yield.py", "r") as f:
         python_src = f.read()
@@ -134,3 +139,8 @@ def test_goto_pythonIR_generation(goto_python_IR_test):
     with open(f"{DATA_DIR}/goto/goto_02.py", "r") as f:
         python_src = f.read()
     assert goto_python_IR_test == python_src
+
+def test_save_pythonIR_generation(save_python_IR_test):
+    with open(f"{DATA_DIR}/save/simple_variables/save-02.py", "r") as f:
+        python_src = f.read()
+    assert save_python_IR_test == python_src
