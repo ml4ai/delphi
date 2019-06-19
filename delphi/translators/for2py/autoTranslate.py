@@ -14,6 +14,7 @@
 
 import os
 import sys
+import ast
 import argparse
 import pickle
 import ntpath as np
@@ -32,26 +33,6 @@ from delphi.translators.for2py import (
 
 OUTPUT_DIR = "tmp"
 
-def indent(elem, level=0):
-    """
-        This function indents each level of XML.
-        Source: https://stackoverflow.com/questions/3095434/inserting-newlines
-                -in-xml-file-generated-via-xml-etree-elementstree-in-python
-    """
-    i = "\n" + level * "  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-        for elem in elem:
-            indent(elem, level + 1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
-
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file):
     """
         This function executes Java command to run open
@@ -62,7 +43,7 @@ def generate_ofp_xml(preprocessed_fortran_file, ofp_file):
         returns xml string back to the caller.
     """
 
-    print ("Generating AST XMLvia OFP...")
+    print ("Generating AST XML...")
 
     # Excute Java command to generate XML
     # string from fortran file
@@ -102,7 +83,7 @@ def generate_rectified_xml(ofp_xml: str, rectified_file):
         to the caller.
     """
 
-    print ("Rectifying the OFP generated XML...")
+    print ("Generating rectified XML...")
 
     rectified_xml = rectify.buildNewASTfromXMLString(ofp_xml)
     rectified_tree = ET.ElementTree(rectified_xml)
@@ -123,7 +104,7 @@ def generate_outputDict(rectified_tree, preprocessed_fortran_file, pickle_file):
         generates a pickle file.
     """
 
-    print ("Generating a pickle file...")
+    print ("Generating pickle file...")
 
     outputDict = translate.xml_to_py(
                     [rectified_tree],
@@ -169,6 +150,24 @@ def generate_python_src(outputDict, python_file, output_file):
 
     return pySrc
 
+def generate_grfn(
+                    python_src, python_file,
+                    lambdas_file, json_file,
+                    mode_mapper_dict
+):
+    """
+        This function generates GrFN dictionary object and file.
+    """
+
+    print ("Generating GrFN files...")
+
+    asts = [ast.parse(python_src)]
+    grfn_dict = genPGM.create_pgm_dict(lambdas_file, asts, python_file, mode_mapper_dict, save_file=True)
+    for identifier in grfn_dict['identifiers']:
+        del identifier['gensyms']
+
+    return grfn_dict
+
 def parse_args():
     """
         This function is for a safe command line
@@ -190,7 +189,46 @@ def parse_args():
 
     return fortran
 
+def set_classpath():
+    """
+        This function temporarily sets the CLASSPATH
+        to where OFP .jar files are stored.
+    """
+    output = str(sp.check_output([
+                    'bash', 
+                    '-c', 
+                    'echo ${CLASSPATH}:$(pwd)/$(dirname ${BASH_SOURCE[0]})/bin/*'
+    ]))
+
+    # subprocess returns a fixed size of unnecessary
+    # strings at the head & tail of the returning output,
+    # so slice the string to get only the classpath string
+    classpath = output[1:len(output)-3]
+    os.environ['CLASSPATH'] = classpath
+
+def indent(elem, level=0):
+    """
+        This function indents each level of XML.
+        Source: https://stackoverflow.com/questions/3095434/inserting-newlines
+                -in-xml-file-generated-via-xml-etree-elementstree-in-python
+    """
+    i = "\n" + level * "  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
 def main():
+    set_classpath()
+
     # If "tmp" directory does not exist already,
     # simply create one.
     if not os.path.isdir(OUTPUT_DIR):
@@ -207,13 +245,15 @@ def main():
     pickle_file = OUTPUT_DIR + "/" + base + "_pickle"
     python_file = OUTPUT_DIR + "/" + base + ".py"
     output_file = OUTPUT_DIR + "/" + base + "_outputList.txt"
+    json_file = OUTPUT_DIR + "/" + base + ".json"
+    lambdas_file = OUTPUT_DIR + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
     with open(original_fortran_file_path, "r") as f:
         inputLines = f.readlines()
 
     # Preprocess the read in fortran file
-    print ("Preprocessing fortran file...")
+    print ("\nGenerating preprocessed fortran file...")
     with open(preprocessed_fortran_file, "w") as f:
         f.write(preprocessor.process(inputLines))
 
@@ -229,13 +269,22 @@ def main():
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
     # Creates a pickle file
-    outputDict = generate_outputDict(rectified_tree, preprocessed_fortran_file, pickle_file)
+    outputDict = generate_outputDict(
+                    rectified_tree,
+                    preprocessed_fortran_file,
+                    pickle_file
+    )
 
     # Create a python source file
     python_src = generate_python_src(outputDict, python_file, output_file)
 
-    print (f"Python soruce file <{python_file}> generated")
-
-    # TODO: Generate GrFN file
+    # Generate GrFN file
+    grfn_dict = generate_grfn(
+                    python_src,
+                    python_file,
+                    lambdas_file,
+                    json_file,
+                    mode_mapper_dict
+    )
 
 main()
