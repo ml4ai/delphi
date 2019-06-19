@@ -17,7 +17,6 @@ ast_file: The XML represenatation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 Author: Terrence J. Lim
-Last Modified: 6/12/2019
 
 """
 
@@ -874,6 +873,7 @@ class RectifyOFPXML:
                 if child.tag == "stop":
                     self.is_stop = True
                     current.attrib['has-stop'] = "true"
+                    current.attrib['goto-remove'] = "true"
 
                 cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
@@ -2095,15 +2095,19 @@ class RectifyOFPXML:
                                 if stmt.tag == "operation":
                                     condition = stmt
                         elif child.tag == "body":
-                            if (
-                                condition != None
-                                and "code" in current.attrib
-                            ):
-                                assert (
-                                        "conditional-goto-stmt-lbl" in current.attrib
-                                ), f"If statement must nests conditional goto-stmt"
-                                unique_code = current.attrib['code']
-                                self.conditional_op[unique_code] = condition
+                            if "conditional-goto-stmt-lbl" in current.attrib:
+                                if (
+                                    "type" not in child.attrib
+                                    or child.attrib['type'] != "else"
+                                ):
+                                    if (
+                                        condition != None
+                                        and "code" in current.attrib
+                                    ):
+                                        unique_code = current.attrib['code']
+                                        self.conditional_op[unique_code] = condition
+                                else:
+                                    del child.attrib['conditional-goto-stmt-lbl']
                 else:
                     assert (
                             False
@@ -2854,14 +2858,6 @@ class RectifyOFPXML:
 
         stmts_follow_label = reconstruct_target['stmts-follow-label']
 
-        print ("stmts_follow_goto")
-        for stmt in stmts_follow_goto:
-            print ("stmt: ", stmt.tag, stmt.attrib)
-
-        print ("\nstmts_follow_label")
-        for stmt in stmts_follow_label:
-            print ("stmt: ", stmt.tag, stmt.attrib)
-
         # If [0] <goto-stmt> is an inner scope statement of the [N-1]
         # <goto-stmt> (if it is a <goto-stmt> in the stmts_follow_goto, 
         # then we need to correct the scoping issue by moving
@@ -2937,9 +2933,11 @@ class RectifyOFPXML:
                 )
             if reconstructed_goto_elem:
                 stmts_follow_goto = reconstructed_goto_elem[0]
+
             # Constructor for statements with L_i:stmt_n
             for stmt in stmts_follow_label:
                 if len(stmt) > 0:
+                    print ("stmt: ", stmt.tag, stmt.attrib)
                     if "goto-stmt" in stmt.attrib:
                         goto_stmt = {}
                         goto_stmt['statement'] = stmt
@@ -2955,6 +2953,11 @@ class RectifyOFPXML:
                         next_goto.append(goto_stmt)
                     else:
                         reconstructed_goto_elem.append(stmt)
+                        statement = ET.SubElement(parent, stmt.tag, stmt.attrib)
+                        for child in stmt:
+                            cur_elem = ET.SubElement(statement, child.tag, child.attrib)
+                            if len(child) > 0:
+                                self.parseXMLTree(child, cur_elem, statement, parent, traverse)
 
             # When unconditional goto, it generates 'goto_flag_i = False'
             # statement at the end of reconstrcted goto statement.
@@ -3048,6 +3051,11 @@ class RectifyOFPXML:
         # the label-goto scope in a separate list,
         # which will then be used to recover the syntax
         # after the elimination process is done
+        print ("stmts_follow_label: ")
+        for stmt in stmts_follow_label:
+            print ("stmt: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    child: ", child.tag, child.attrib)
         statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
         for stmt in statements_to_recover:
             if (
@@ -3186,6 +3194,8 @@ class RectifyOFPXML:
                     index += 1
             else:
                 current_goto_num += 1
+
+        print ("statements_to_recover: ", statements_to_recover)
 
         for recover_stmt in statements_to_recover:
             statement = ET.SubElement(
