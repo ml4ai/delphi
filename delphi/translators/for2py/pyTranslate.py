@@ -1426,7 +1426,7 @@ def create_python_source_list(outputDict: Dict):
     return py_sourcelist
 
 
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
@@ -1451,21 +1451,44 @@ if __name__ == "__main__":
         help="Text file containing the list of output python files being generated",
     )
     args = parser.parse_args(sys.argv[1:])
-    with open(args.files[0], "rb") as f:
-        outputDict = pickle.load(f)
+
+    pickleFile = args.files[0]
+    pyFile = args.gen[0]
+    outFile = args.out[0]
+
+    return (pickleFile, pyFile, outFile)
+
+if __name__ == "__main__":
+    (pickleFile, pyFile, outFile) = parse_args()
+
+    try:
+        with open(pickleFile, "rb") as f:
+            outputDict = pickle.load(f)
+    except IOError:
+        raise For2PyError(f"Unable to read file {pickleFile}.")
 
     python_source_list = create_python_source_list(outputDict)
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
-            with open(f"m_{item[1].lower()}.py", "w") as f:
-                outputList.append("m_" + item[1].lower() + ".py")
-                f.write(item[0])
+            try:
+                modFile = f"m_{item[1].lower()}.py"
+                with open(modFile, "w") as f:
+                    outputList.append("m_" + item[1].lower() + ".py")
+                    f.write(item[0])
+            except IOError:
+                raise For2PyError(f"Unable to write to {modFile}")
         else:
-            with open(args.gen[0], "w") as f:
-                outputList.append(args.gen[0])
-                f.write(item[0])
+            try:
+                with open(pyFile, "w") as f:
+                    outputList.append(pyFile)
+                    f.write(item[0])
+            except IOError:
+                raise For2PyError(f"Unable to write to {pyFile}.")
 
-    with open(args.out[0], "w") as f:
-        for fileName in outputList:
-            f.write(fileName + " ")
+    try:
+        with open(outFile, "w") as f:
+            for fileName in outputList:
+                f.write(fileName + " ")
+    except IOError:
+        raise For2PyError(f"Unable to write to {outFile}.")
