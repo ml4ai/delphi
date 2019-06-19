@@ -61,7 +61,8 @@ for file in "$@"; do
     rectifiedAstFile=tmp/rectified_"$base".xml
     ( set -x; $PYTRANSLATE preprocessor.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
-    ( set -x; $PYTRANSLATE rectify.py "$astFile")
+    echo "Filename: $rectifiedAstFile"
+    ( set -x; $PYTRANSLATE rectify.py -f "$astFile" -g "$rectifiedAstFile")
 
     pyFile=tmp/"$base".py
     outputFileList=tmp/"$base"_outputList.txt
