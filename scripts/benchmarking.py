@@ -9,63 +9,58 @@ food_security_string = "UN/entities/human/food/food_security"
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.utils.indra import get_valid_statements_for_modeling
 
-conflict_string = "UN/events/human/conflict"
-human_migration_string = "UN/events/human/human_migration"
-food_security_string = "UN/entities/human/food/food_security"
-
-conflict = Event(
-    Concept(
-        conflict_string,
-        db_refs={
-            "TEXT": "conflict",
-            "UN": [(conflict_string, 0.8), ("UN/events/crisis", 0.4)],
-        },
-    ),
-    delta=QualitativeDelta(1, ["large"]),
-)
-
-food_security = Event(
-    Concept(
-        food_security_string,
-        db_refs={"TEXT": "food security", "UN": [(food_security_string, 0.8)]},
-    ),
-    delta=QualitativeDelta(-1, ["small"]),
-)
-
-precipitation = Event(Concept("precipitation"))
-human_migration = Event(
-    Concept(
-        human_migration_string,
-        db_refs={"TEXT": "migration", "UN": [(human_migration_string, 0.8)]},
-    ),
-    delta=QualitativeDelta(1, ["large"]),
-)
+concepts = {
+    "conflict": {
+        "grounding": "UN/events/human/conflict",
+        "delta": {"polarity": 1, "adjective": ["large"]},
+    },
+    "food security": {
+        "grounding": "UN/entities/human/food/food_security",
+        "delta": {"polarity": -1, "adjective": ["small"]},
+    },
+    "migration": {
+        "grounding": "UN/events/human/human_migration",
+        "delta": {"polarity": 1, "adjective": ['small']},
+    },
+    "product": {
+        "grounding": "UN/entities/natural/crop_technology/product",
+        "delta": {"polarity": 1, "adjective": ['large']},
+    },
+}
 
 
-flooding = Event(Concept("flooding"))
+def make_event(concept, attrs):
+    return Event(
+        Concept(
+            attrs["grounding"],
+            db_refs={"TEXT": concept, "UN": [(attrs["grounding"], 0.8)]},
+        ),
+        delta=QualitativeDelta(
+            attrs["delta"]["polarity"], attrs["delta"]["adjective"]
+        ),
+    )
 
-s1 = Influence(
-    conflict,
-    food_security,
-    evidence=Evidence(
-        annotations={"subj_adjectives": ["large"], "obj_adjectives": ["small"]}
-    ),
-)
 
-default_annotations = {"subj_adjectives": [], "obj_adjectives": []}
+def make_statement(event1, event2):
+    return Influence(
+        event1,
+        event2,
+        evidence=Evidence(
+            annotations={
+                "subj_adjectives": event1.delta.adjectives,
+                "obj_adjectives": event2.delta.adjectives,
+            }
+        ),
+    )
 
-s2 = Influence(
-    precipitation,
-    food_security,
-    evidence=Evidence(annotations=default_annotations),
-)
-s3 = Influence(
-    precipitation, flooding, evidence=Evidence(annotations=default_annotations)
-)
-s4 = Influence(conflict, human_migration, evidence=Evidence(annotations =
-    {"subj_adjectives": ["large"], "obj_adjectives": ["small"]}))
+events = {
+    concept: make_event(concept, attrs) for concept, attrs in concepts.items()
+}
 
-STS = [s1, s2, s3, s4]
+s1 = make_statement(events["conflict"], events["food security"])
+s2 = make_statement(events["migration"], events["product"])
+
+STS = [s1, s2]
 
 G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(STS))
 G.res=1000

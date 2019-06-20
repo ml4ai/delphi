@@ -9,6 +9,7 @@ import seaborn as sns
 conflict_string = concepts['conflict']['grounding']
 food_security_string = concepts['food security']['grounding']
 human_migration_string = concepts['migration']['grounding']
+product_string = concepts['product']['grounding']
 
 # @pytest.mark.skip
 def test_inference_with_synthetic_data(G):
@@ -21,7 +22,7 @@ def test_inference_with_synthetic_data(G):
     # Get the original value of our parameter of interest (the ground truth
     # value that we can use to evaluate our inference.
     original_beta = A[f"∂({conflict_string})/∂t"][food_security_string]
-    original_beta_2 = A[f"∂({conflict_string})/∂t"][human_migration_string]
+    original_beta_2 = A[f"∂({human_migration_string})/∂t"][product_string]
     fig, ax = plt.subplots()
 
     # Initialize the latent state vector at time 0
@@ -49,7 +50,7 @@ def test_inference_with_synthetic_data(G):
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
         betas.append(A[f"∂({conflict_string})/∂t"][food_security_string])
-        betas_2.append(A[f"∂({conflict_string})/∂t"][human_migration_string])
+        betas_2.append(A[f"∂({human_migration_string})/∂t"][product_string])
 
     plt.style.use("ggplot")
     fig, axes = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
