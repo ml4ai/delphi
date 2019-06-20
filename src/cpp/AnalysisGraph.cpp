@@ -82,10 +82,7 @@ public:
     }
     return p;
   }
-  double logpdf(double x) {
-    return log(pdf(x));
-  }
-
+  double logpdf(double x) { return log(pdf(x)); }
 };
 
 map<string, vector<double>> construct_adjective_response_map() {
