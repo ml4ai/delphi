@@ -7,13 +7,8 @@ import ast
 import pytest
 
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    mod_index_generator,
-    rectify,
+    for2py,
 )
 
 from pathlib import Path
@@ -23,44 +18,9 @@ from typing import Dict, Tuple
 DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
-    stem = original_fortran_file.stem
-    preprocessed_fortran_file = stem + "_preprocessed.f"
-    lambdas_filename = stem + "_lambdas.py"
-    json_filename = stem + ".json"
-    python_filename = stem + ".py"
-
-    with open(original_fortran_file, "r") as f:
-        inputLines = f.readlines()
-
-    with open(preprocessed_fortran_file, "w") as f:
-        f.write(preprocessor.process(inputLines))
-
-    xml_string = sp.run(
-        [
-            "java",
-            "fortran.ofp.FrontEnd",
-            "--class",
-            "fortran.ofp.XMLPrinter",
-            "--verbosity",
-            "0",
-            preprocessed_fortran_file,
-        ],
-        stdout=sp.PIPE,
-    ).stdout
-
-    tree = rectify.buildNewASTfromXMLString(xml_string)
-    trees = [tree]
-
-    mode_mapper_tree = tree
-    generator = mod_index_generator.moduleGenerator()
-    mode_mapper_dict = generator.analyze(mode_mapper_tree)
-
-    outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
-    pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-    os.remove(preprocessed_fortran_file)
+    (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict) = for2py.for2py_(original_fortran_file, True)
 
     return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
-
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
