@@ -90,7 +90,7 @@ def test_inference_with_synthetic_data(G):
 
     # Given the initial latent state vector and the sampled transition matrix,
     # sample a sequence of latent states and observed states
-    G.sample_from_likelihood(n_timesteps=10)
+    G.sample_from_likelihood(n_timesteps=5)
     G.latent_state_sequence = G.latent_state_sequences[0]
     G.observed_state_sequence = G.observed_state_sequences[0]
 
