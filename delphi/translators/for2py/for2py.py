@@ -17,6 +17,7 @@ import sys
 import ast
 import argparse
 import pickle
+import delphi.paths
 import ntpath as np
 import subprocess as sp
 import xml.etree.ElementTree as ET
@@ -31,7 +32,16 @@ from delphi.translators.for2py import (
     rectify,
 )
 
+# A directory that will hold all generated IR files.
 OUTPUT_DIR = "tmp"
+
+# OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).
+OFP_JAR_FILES = [
+    "antlr-3.3-complete.jar",
+    "commons-cli-1.4.jar",
+    "OpenFortranParser-0.8.4-3.jar",
+    "OpenFortranParserXML-0.4.1.jar"
+    ]
 
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file):
     """
@@ -189,22 +199,28 @@ def parse_args():
 
     return fortran
 
-def set_classpath():
-    """
-        This function temporarily sets the CLASSPATH
-        to where OFP .jar files are stored.
-    """
-    output = str(sp.check_output([
-                    'bash', 
-                    '-c', 
-                    'echo ${CLASSPATH}:$(pwd)/$(dirname ${BASH_SOURCE[0]})/bin/*'
-    ]))
 
-    # subprocess returns a fixed size of unnecessary
-    # strings at the head & tail of the returning output,
-    # so slice the string to get only the classpath string
-    classpath = output[1:len(output)-3]
-    os.environ['CLASSPATH'] = classpath
+def check_classpath():
+    """check_classpath() checks whether the files in OFP_JAR_FILES can all
+       be found in via the environment variable CLASSPATH.
+    """
+    not_found = []
+    classpath = os.environ["CLASSPATH"].split(':')
+    for jar_file in OFP_JAR_FILES:
+        found = False
+        for path in classpath:
+            dir_path = os.path.dirname(path)
+            if path.endswith(jar_file) or \
+               (path.endswith("*") and jar_file in os.listdir(dir_path)):
+                found = True
+                break
+        if not found:
+            not_found.append(jar_file)
+
+    if not_found != []:
+        sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
+        sys.stderr.write(f"    {','.join(not_found)}\n")
+        sys.exit(1)
 
 def indent(elem, level=0):
     """
@@ -227,12 +243,12 @@ def indent(elem, level=0):
             elem.tail = i
 
 def main():
-    set_classpath()
+    check_classpath()
 
     # If "tmp" directory does not exist already,
     # simply create one.
     if not os.path.isdir(OUTPUT_DIR):
-        os.mkdir(OUTPUT_DIR)
+         os.mkdir(OUTPUT_DIR)
 
     original_fortran_file_path = parse_args()
     original_fortran_file = np.basename(parse_args())
@@ -249,13 +265,19 @@ def main():
     lambdas_file = OUTPUT_DIR + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
-    with open(original_fortran_file_path, "r") as f:
-        inputLines = f.readlines()
+    try:
+        with open(original_fortran_file_path, "r") as f:
+            inputLines = f.readlines()
+    except IOError:
+        assert False, "Fortran file: {original_fortran_file_path} Not Found"
 
     # Preprocess the read in fortran file
     print ("\nGenerating preprocessed fortran file...")
-    with open(preprocessed_fortran_file, "w") as f:
-        f.write(preprocessor.process(inputLines))
+    try:
+        with open(preprocessed_fortran_file, "w") as f:
+            f.write(preprocessor.process(inputLines))
+    except IOError:
+        assert False, "Unable to write tofile: {preprocessed_fortran_file}"
 
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(preprocessed_fortran_file, ofp_file)
