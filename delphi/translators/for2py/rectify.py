@@ -536,10 +536,12 @@ class RectifyOFPXML:
                         # Reconstruction of statements
                         if (
                                 "parent" in current.attrib
-                                and (not self.goto_under_loop
-                                     and current.attrib['parent'] == "program")
+                                and (
+                                (not self.goto_under_loop
+                                    and current.attrib['parent'] == "program")
                                 or (self.goto_under_loop
                                     and current.attrib['parent'] == "loop")
+                                    )
                         ):
                             # Remove statements that is marked to be removed (2nd traverse)
                             if (
@@ -1063,8 +1065,8 @@ class RectifyOFPXML:
                         'stmts-follow-label'].append(current)
 
                     if (
-                            (parent.tag == "body"
-                             and parent.attrib['parent'] == "program"
+                            ((parent.tag == "body"
+                             and parent.attrib['parent'] == "program")
                              and "has-stop" in current.attrib)
                             or self.goto_under_loop
                     ):
