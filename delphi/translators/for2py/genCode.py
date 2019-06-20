@@ -226,6 +226,16 @@ def genCode(node, state):
                           genCode(node.op, state),
                           genCode(node.values[1], state))  
 
+    elif isinstance(node, ast.Attribute):
+        """
+            This is a fix on `feature_save` branch to by the SAVE statement feature
+            where a SAVEd variable is referenced as
+            <function_name>.<variable_name>. So the code below only returns the
+            <variable_name> which is stored under `node.attr`.
+        """
+        codeStr = node.attr
+
+
     elif isinstance(node, ast.AST):
         sys.stderr.write(
             "No handler for AST.{0} in genCode, fields: {1}\n".format(
