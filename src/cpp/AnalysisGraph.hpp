@@ -71,6 +71,7 @@ double sample_from_normal(double mu = 0.0, double sd = 1.0) {
 // One-dimensional KDE
 class KDE {
 public:
+  KDE () {};
   vector<double> dataset;
   double bw; // bandwidth
 
@@ -113,6 +114,7 @@ struct Node {
 
 struct CAGEdge {
   string name;
+  KDE kde;
 };
 
 struct Model {
