@@ -1058,17 +1058,6 @@ class GrFNGenerator(object):
         elif isinstance(node, ast.Attribute):
             lastDef = getLastDef(node.attr, state.lastDefs,
                                  state.lastDefDefault)
-            if (
-                isinstance(node.ctx, ast.Store)
-                and state.nextDefs.get(node.attr)
-                and call_source != "annassign"
-            ):
-                lastDef = getNextDef(
-                    node.attr,
-                    state.lastDefs,
-                    state.nextDefs,
-                    state.lastDefDefault,
-                )
 
             return [{"var": {"variable": node.attr, "index": lastDef}}]
 
