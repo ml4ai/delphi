@@ -484,8 +484,7 @@ class PythonCodeGenerator(object):
                 expr_str = ref_str
             else:
                 if (
-                        "is_arg" in node
-                        and node["is_arg"] == "true"
+                        ("is_arg" in node and node["is_arg"] == "true")
                         or is_derived_type_ref
                 ):
                     expr_str = ref_str
