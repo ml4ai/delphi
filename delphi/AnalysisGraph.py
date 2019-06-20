@@ -334,6 +334,11 @@ class AnalysisGraph(nx.DiGraph):
                 A[f"∂({node})/∂t"][node] = self.Δt
 
             for node_pair in node_pairs:
+                for simple_path_edge_list in simple_path_dict[node_pair]:
+                    for edge in simple_path_edge_list:
+                        pass
+
+            for node_pair in node_pairs:
                 A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
                     np.prod(
                         [
@@ -395,22 +400,18 @@ class AnalysisGraph(nx.DiGraph):
         return A
 
     def calculate_Δ_log_prior(self, A: pd.DataFrame) -> float:
-        priors = self.edges[self.source, self.target]["ConditionalProbability"].evaluate(
-                    (A[f"∂({self.source})/∂t"][self.target] / self.Δt, self.original_value / self.Δt)
-                )
+        Δ_log_prior = self.edges[self.source, self.target][
+            "ConditionalProbability"
+        ].evaluate(
+            A[f"∂({self.source})/∂t"][self.target] / self.Δt
+        ) - self.edges[
+            self.source, self.target
+        ][
+            "ConditionalProbability"
+        ].evaluate(
+            self.original_value / self.Δt
+        )
 
-        Δ_log_prior = log(priors[0]) - log(priors[1])
-        # Δ_log_prior = log(
-                # self.edges[self.source, self.target][
-                    # "ConditionalProbability"
-                # ].evaluate(
-                    # A[f"∂({self.source})/∂t"][self.target] / self.Δt
-                # )
-            # ) - log(
-                # self.edges[self.source, self.target][
-                    # "ConditionalProbability"
-                # ].evaluate(self.original_value / self.Δt)
-            # )
         return Δ_log_prior
 
     def calculate_log_likelihood(self, A):
@@ -598,8 +599,13 @@ class AnalysisGraph(nx.DiGraph):
                         scale=0.01,
                     )
 
-    def update(self, τ: float = 1.0, update_indicators=True, dampen=False,
-            set_delta: float = None):
+    def update(
+        self,
+        τ: float = 1.0,
+        update_indicators=True,
+        dampen=False,
+        set_delta: float = None,
+    ):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -615,10 +621,12 @@ class AnalysisGraph(nx.DiGraph):
                     self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                         f"∂({n[0]})/∂t"
                     ] * exp(-τ * self.t)
-                #Suppresses dampen
+                # Suppresses dampen
                 if set_delta is not None:
                     if dampen:
-                        warnings.warn('When set_delta is not None, the effect of dampen = True is suppressed')
+                        warnings.warn(
+                            "When set_delta is not None, the effect of dampen = True is suppressed"
+                        )
                     self.s0[i][f"∂({n[0]})/∂t"] = set_delta
             if update_indicators:
                 for indicator in n[1]["indicators"].values():

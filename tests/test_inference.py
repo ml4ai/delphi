@@ -3,8 +3,12 @@ from pytest import approx
 from tqdm import trange
 import numpy as np
 from matplotlib import pyplot as plt
-from conftest import G, conflict_string, food_security_string, human_migration_string
+from conftest import G, concepts
 import seaborn as sns
+
+conflict_string = concepts['conflict']['grounding']
+food_security_string = concepts['food security']['grounding']
+human_migration_string = concepts['migration']['grounding']
 
 # @pytest.mark.skip
 def test_inference_with_synthetic_data(G):

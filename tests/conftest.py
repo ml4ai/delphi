@@ -23,7 +23,7 @@ concepts = {
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": None},
+        "delta": {"polarity": 1, "adjective": ['small']},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",
@@ -66,7 +66,7 @@ precipitation = Event(Concept("precipitation"))
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
 
-STS = [s1]
+STS = [s1, s2]
 
 
 @pytest.fixture(scope="session")

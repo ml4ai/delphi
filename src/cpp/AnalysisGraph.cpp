@@ -1,22 +1,26 @@
-#include <pybind11/pybind11.h>
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
+#include <pybind11/pybind11.h>
+#include <random>
+#include <sqlite3.h>
 #include <utility>
 #include <vector>
-#include <typeinfo>
-#include <sqlite3.h>
-#include <numeric>
-#include <cmath>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
-
+#include <boost/lambda/lambda.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/range/irange.hpp>
 
 #include "AnalysisGraph.hpp"
+
+using boost::irange;
 
 json load_json(string filename) {
   ifstream i(filename);
@@ -25,46 +29,85 @@ json load_json(string filename) {
   return j;
 }
 
+double sqr(double x) { return x * x; }
+double sum(vector<double> v) { return accumulate(v, 0.0); }
+double mean(vector<double> v) { return sum(v) / v.size(); }
+
+template <class T> T select_random_element(vector<T> v) {
+  boost::random::mt19937 gen;
+  boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
+  return v[dist(gen)];
+}
+
+double sample_from_normal(double mu = 0.0, double sd = 1.0) {
+  std::random_device rd{};
+  std::mt19937 gen{rd()};
+  std::normal_distribution<> d{mu, sd};
+  return d(gen);
+}
 
 // One-dimensional KDE
-struct KDE {
+class KDE {
+public:
   vector<double> dataset;
+  double bw; // bandwidth
+
+  KDE(vector<double> v) : dataset(v) {
+    // Compute the bandwidth using Silverman's rule
+    auto mu = mean(v);
+    auto X = v | transformed(_1 - mu);
+
+    // Compute standard deviation of the sample.
+    auto N = v.size();
+    auto stdev = sqrt(inner_product(X, X, 0.0) / (N - 1));
+    bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
+  }
+
+  auto resample(int n_samples) {
+    vector<double> samples;
+    for (int i : irange(0, n_samples)) {
+      auto element = select_random_element(dataset);
+      samples.push_back(sample_from_normal(element, bw));
+    }
+    return samples;
+  }
+
+  double evaluate(double x) {
+    auto p = 0.0;
+    auto N = dataset.size();
+    for (auto elem : dataset) {
+      auto x1 = exp(-sqr(x - elem) / (2 * sqr(bw)));
+      x1 /= N * bw * sqrt(2 * M_PI);
+      p += x1;
+    }
+    return p;
+  }
 };
 
-double sum(vector<double> v){
-  return accumulate(v, 0.0);
-}
-
-double sqr(double x) {
-  return x*x;
-}
-
-double mean (vector<double> v) {
-  return accumulate(v, 0.0)/v.size();
-}
-
-auto construct_adjective_response_map() {
+map<string, vector<double>> construct_adjective_response_map() {
   sqlite3 *db;
   int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
-  if (!rc) COUT("Opened db successfully")
-  else COUT("Could not open db")
+  if (!rc)
+    COUT("Opened db successfully")
+  else
+    COUT("Could not open db")
 
   sqlite3_stmt *stmt;
-  const char* query = "select * from gradableAdjectiveData";
+  const char *query = "select * from gradableAdjectiveData";
   rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-  map<string, vector<double> > adjective_response_map;
+  map<string, vector<double>> adjective_response_map;
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-      string adjective = std::string(reinterpret_cast<const char*>(
-        sqlite3_column_text(stmt, 2)
-      ));
-      double response = sqlite3_column_double(stmt, 6);
-      if (adjective_response_map.count(adjective) == 0) {
-        cout << adjective << endl;
-        adjective_response_map[adjective] = {response};
-      }
-      else {adjective_response_map[adjective].push_back(response);}
+    string adjective = std::string(
+        reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+    double response = sqlite3_column_double(stmt, 6);
+    if (adjective_response_map.count(adjective) == 0) {
+      cout << adjective << endl;
+      adjective_response_map[adjective] = {response};
+    } else {
+      adjective_response_map[adjective].push_back(response);
+    }
   }
-  for (auto const& [k, v] : adjective_response_map) {
+  for (auto const &[k, v] : adjective_response_map) {
     cout << k << endl;
     for (auto resp : v) {
       cout << resp << endl;
@@ -77,8 +120,10 @@ auto construct_adjective_response_map() {
 
 class AnalysisGraph {
   DiGraph graph;
+
 private:
-  AnalysisGraph(DiGraph G) : graph(G) {};
+  AnalysisGraph(DiGraph G) : graph(G){};
+
 public:
   static AnalysisGraph from_json_file(string filename) {
     auto j = load_json(filename);
@@ -103,9 +148,10 @@ public:
               G[v].name = c;
             }
           }
-          if (!edge(node_int_map[subj_string], node_int_map[obj_string], G).second){
-            auto edge =
-              add_edge(node_int_map[subj_string], node_int_map[obj_string], G);
+          if (!edge(node_int_map[subj_string], node_int_map[obj_string], G)
+                   .second) {
+            auto edge = add_edge(node_int_map[subj_string],
+                                 node_int_map[obj_string], G);
           }
         }
       }
@@ -113,37 +159,11 @@ public:
     return AnalysisGraph(G);
   }
 
-  auto construct_beta_pdfs(){
-    auto adjective_response_map = construct_adjective_response_map();
-    for (auto item : adjective_response_map) {
-
-      // Compute the bandwidth using Silverman's rule
-
-      auto v = item.second;
-      auto mu = mean(v);
-      auto X = v | transformed(_1 - mu);
-
-      // Compute standard deviation of the sample.
-      auto N = v.size(); 
-      auto stdev = sqrt(inner_product(X, X, 0.0)/(N-1));
-      auto bw = pow(4*pow(stdev, 5)/(3*N), 1/5);
-      // 1-D Gaussian KDE (Bishop eq. 2.250)
-      auto pdf = [&] (auto x) {
-        auto p = 0.0;
-        for (auto elem : v) {
-          auto x1 = exp(-sqr(x-elem)/(2*sqr(bw)));
-          x1 /= N*bw*sqrt(2*M_PI);
-          p+= x1;
-        }
-        return p;
-      };
-      return pdf;
-    }
+  void construct_beta_pdfs() { COUT("Not implemented yet.") }
+  auto print_nodes() {
+    for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });
   }
-  auto print_nodes(){
-    for_each(vertices(graph), [&] (auto v) {cout << graph[v].name << endl;});
-  }
-  auto to_dot(){
+  auto to_dot() {
     write_graphviz(cout, graph, make_label_writer(get(&Node::name, graph)));
   }
 };

@@ -6,6 +6,7 @@ from indra.statements import Influence
 import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
+from .extension import KDE
 from .db import engine
 
 
@@ -76,10 +77,10 @@ def constructConditionalPDF(
             θs = np.arctan2(σ_Y * ys1.flatten(), σ_X * xs1.flatten())
 
     if len(all_θs) == 0:
-        all_θs.append(θs)
-        return gaussian_kde(all_θs)
+        all_θs = θs.tolist()
     else:
-        return gaussian_kde(np.concatenate(all_θs))
+        all_θs = np.concatenate(all_θs).tolist()
+    return KDE(all_θs)
 
 
 def is_simulable(s: Influence) -> bool:

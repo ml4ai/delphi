@@ -4,12 +4,15 @@ CFLAGS:=$(shell pkg-config sqlite3 --cflags)
 LDFLAGS+=$(shell pkg-config libgvc --libs)
 LDFLAGS+=$(shell pkg-config sqlite3 --libs)
 
-all: AnalysisGraph$(SUFFIX)
 
-AnalysisGraph$(SUFFIX): wrapper.cpp AnalysisGraph.cpp Analysisgraph.hpp
+extension=extension$(SUFFIX)
+
+all: $(extension)
+
+$(extension): wrapper.cpp AnalysisGraph.cpp Analysisgraph.hpp
 	c++ -Wall -shared -std=c++17 \
 	  $(LDFLAGS) $(CFLAGS)\
 	  -undefined dynamic_lookup `python3 -m pybind11 --includes`\
-	  $< -o $@
+	  $< -o $(extension)
 clean:
-	rm AnalysisGraph$(SUFFIX)
+	rm $(extension)
