@@ -27,6 +27,8 @@ def test_inference_with_synthetic_data(G):
 
     # Initialize the latent state vector at time 0
     G.s0 = G.construct_default_initial_state()
+    for edge in G.edges(data=True):
+        G.s0[f"∂({edge[0]})/∂t"] = 0.1*np.random.rand()
 
     # Given the initial latent state vector and the sampled transition matrix,
     # sample a sequence of latent states and observed states
@@ -43,10 +45,9 @@ def test_inference_with_synthetic_data(G):
 
 
     for edge in G.edges(data=True):
-        rand = 0.1*np.random.rand()
-        A[f"∂({edge[0]})/∂t"][edge[1]] = rand
+        A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
 
-    n_samples: int = 30000
+    n_samples: int = 10000
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
         betas.append(A[f"∂({conflict_string})/∂t"][food_security_string])
@@ -71,7 +72,7 @@ def test_inference_with_synthetic_data(G):
 
     ax[0].set_title(f"$\\beta_{{c, fs}}={original_beta:.3f}$", fontsize=10)
     sns.distplot(betas_2, ax=ax[1], norm_hist=True)
-    ax[1].set_title(f"$\\beta_{{c, hm}}={original_beta_2:.3f}$", fontsize=10)
+    ax[1].set_title(f"$\\beta_{{hm, p}}={original_beta_2:.3f}$", fontsize=10)
     plt.savefig("betas_combined.pdf")
 
     # This tolerance seems to work for now, so I'm leaving it in.

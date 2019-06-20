@@ -15,19 +15,19 @@ from delphi.utils.shell import cd
 concepts = {
     "conflict": {
         "grounding": "UN/events/human/conflict",
-        "delta": {"polarity": 1, "adjective": ["large"]},
+        "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "food security": {
         "grounding": "UN/entities/human/food/food_security",
-        "delta": {"polarity": -1, "adjective": ["small"]},
+        "delta": {"polarity": -1, "adjective": ["large"]},
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": ['large']},
+        "delta": {"polarity": 1, "adjective": ['small']},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",
-        "delta": {"polarity": 1, "adjective": ['small']},
+        "delta": {"polarity": 1, "adjective": ['large']},
     },
 }
 
