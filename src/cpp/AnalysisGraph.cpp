@@ -15,14 +15,12 @@
 
 #include "AnalysisGraph.hpp"
 
-
 json load_json(string filename) {
   ifstream i(filename);
   json j;
   i >> j;
   return j;
 }
-
 
 map<string, vector<double>> construct_adjective_response_map() {
   sqlite3 *db;
@@ -109,8 +107,11 @@ public:
     return AnalysisGraph(G);
   }
 
-  void construct_beta_pdfs() { 
-    COUT("Not implemented yet.") 
+  void construct_beta_pdfs() {
+    // auto adjective_response_map = construct_adjective_response_map();
+    for_each(edges(graph), [&](auto e) {
+      cout << source(e, graph) << "  " << target(e, graph) << endl;
+    });
   }
   auto print_nodes() {
     for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });
