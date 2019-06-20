@@ -227,12 +227,10 @@ def genCode(node, state):
                           genCode(node.values[1], state))  
 
     elif isinstance(node, ast.Attribute):
-        """
-            This is a fix on `feature_save` branch to by the SAVE statement feature
-            where a SAVEd variable is referenced as
-            <function_name>.<variable_name>. So the code below only returns the
-            <variable_name> which is stored under `node.attr`.
-        """
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`.
         codeStr = node.attr
 
 
