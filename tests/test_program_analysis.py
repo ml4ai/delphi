@@ -101,6 +101,14 @@ def array_python_IR_test():
 def do_while_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/do-while/do_while_04.f"))[0]
 
+@pytest.fixture
+def derived_type_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/derived-types/derived-types-04.f"))[0]
+
+@pytest.fixture
+def goto_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0]
+
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     with open(f"{DATA_DIR}/crop_yield.py", "r") as f:
         python_src = f.read()
@@ -125,3 +133,13 @@ def test_do_while_pythonIR_generation(do_while_python_IR_test):
     with open(f"{DATA_DIR}/do-while/do_while_04.py", "r") as f:
         python_src = f.read()
     assert do_while_python_IR_test == python_src
+
+def test_derived_type_pythonIR_generation(derived_type_python_IR_test):
+    with open(f"{DATA_DIR}/derived-types-04.py", "r") as f:
+        python_src = f.read()
+    assert derived_type_python_IR_test == python_src
+
+def test_goto_pythonIR_generation(goto_python_IR_test):
+    with open(f"{DATA_DIR}/goto/goto_02.py", "r") as f:
+        python_src = f.read()
+    assert goto_python_IR_test == python_src
