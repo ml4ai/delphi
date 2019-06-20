@@ -22,7 +22,7 @@ def test_inference_with_synthetic_data(G):
     # Get the original value of our parameter of interest (the ground truth
     # value that we can use to evaluate our inference.
     original_beta = A[f"∂({conflict_string})/∂t"][food_security_string]
-    original_beta_2 = A[f"∂({human_migration_string})/∂t"][product_string]
+    # original_beta_2 = A[f"∂({human_migration_string})/∂t"][product_string]
     fig, ax = plt.subplots()
 
     # Initialize the latent state vector at time 0
@@ -38,7 +38,7 @@ def test_inference_with_synthetic_data(G):
 
     # Create empty lists to hold the scores
     betas = []
-    betas_2 = []
+    # betas_2 = []
     log_likelihoods = []
     log_priors = []
     map_estimates=[]
@@ -47,11 +47,11 @@ def test_inference_with_synthetic_data(G):
     for edge in G.edges(data=True):
         A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
 
-    n_samples: int = 10000
+    n_samples: int = 30000
     for i, _ in enumerate(trange(n_samples)):
         G.sample_from_posterior(A)
         betas.append(A[f"∂({conflict_string})/∂t"][food_security_string])
-        betas_2.append(A[f"∂({human_migration_string})/∂t"][product_string])
+        # betas_2.append(A[f"∂({human_migration_string})/∂t"][product_string])
 
     plt.style.use("ggplot")
     fig, axes = plt.subplots(2, 1, figsize=(8, 8), sharex=True)
@@ -59,10 +59,10 @@ def test_inference_with_synthetic_data(G):
     axes[0].plot(
         original_beta * np.ones(len(betas)), label="original_beta"
     )
-    axes[1].plot(betas_2, label="beta_2")
-    axes[1].plot(
-        original_beta_2 * np.ones(len(betas)), label="original_beta_2"
-    )
+    # axes[1].plot(betas_2, label="beta_2")
+    # axes[1].plot(
+        # original_beta_2 * np.ones(len(betas)), label="original_beta_2"
+    # )
 
     for ax in axes:
         ax.legend()
@@ -71,8 +71,8 @@ def test_inference_with_synthetic_data(G):
     sns.distplot(betas, ax=ax[0], norm_hist=True)
 
     ax[0].set_title(f"$\\beta_{{c, fs}}={original_beta:.3f}$", fontsize=10)
-    sns.distplot(betas_2, ax=ax[1], norm_hist=True)
-    ax[1].set_title(f"$\\beta_{{hm, p}}={original_beta_2:.3f}$", fontsize=10)
+    # sns.distplot(betas_2, ax=ax[1], norm_hist=True)
+    # ax[1].set_title(f"$\\beta_{{hm, p}}={original_beta_2:.3f}$", fontsize=10)
     plt.savefig("betas_combined.pdf")
 
     # This tolerance seems to work for now, so I'm leaving it in.

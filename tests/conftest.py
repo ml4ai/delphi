@@ -66,7 +66,7 @@ precipitation = Event(Concept("precipitation"))
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
 
-STS = [s1, s2]
+STS = [s1]
 
 
 @pytest.fixture(scope="session")
