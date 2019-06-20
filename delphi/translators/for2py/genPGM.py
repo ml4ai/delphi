@@ -40,6 +40,14 @@ UNNECESSARY_TYPES = (
     ast.LtE,
 )
 
+# Regular expression to match python statements that need to be bypassed in
+# the GrFN and lambda files. Currently contains I/O statements.
+BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
+            r"^write_line$|^format_\d+_obj" \
+            r".*|^Format$|^list_output_formats$|^write_list_stream$"
+
+RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
+
 
 class GrFNGenerator(object):
     def __init__(self, annassigned_list=[], elif_pgm=[], function_defs=[]):
@@ -949,10 +957,6 @@ class GrFNGenerator(object):
                     f"{state.fnName}__assign__{target['var']['variable']}",
                     target,
                 )
-                # If the index is -1, change it to the index in the fnName.
-                # This is a hack right now.
-                # if target["var"]["index"] < 0:
-                #     target["var"]["index"] = name[-1]
 
                 fn = self.make_fn_dict(name, target, sources, node)
                 if len(fn) == 0:
@@ -1046,8 +1050,11 @@ class GrFNGenerator(object):
             return pgms
 
         # Handle Attributes
-        # Currently, this branch works as a bypass for the `feature_save`
-        # branch to work-around the SAVE feature and its implementation.
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`. The `node.id`
+        # stores the <function_name> which is being ignored.
         elif isinstance(node, ast.Attribute):
             lastDef = getLastDef(node.attr, state.lastDefs,
                                  state.lastDefDefault)
@@ -1297,16 +1304,9 @@ class GrFNGenerator(object):
         source = []
         fn = {}
 
-        # Regular expression to check for all targets that need to be bypassed.
-        # This is related to I/O handling
-        bypass_regex = (
-            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj"
-            r".*|^Format$|^list_output_formats$|^write_list_stream$"
-        )
-
         # Preprocessing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
+        bypass_match_target = RE_BYPASS_IO.match(target["var"][ "variable"])
 
         if bypass_match_target:
             self.exclude_list.append(target["var"]["variable"])
@@ -1318,9 +1318,8 @@ class GrFNGenerator(object):
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
-                bypass_match_source = re.match(
-                    bypass_regex, src["call"]["function"]
-                )
+                bypass_match_source = RE_BYPASS_IO.match(src["call"][
+                                                              "function"])
                 if bypass_match_source:
                     if "var" in src:
                         self.exclude_list.append(src["var"]["variable"])
@@ -1523,15 +1522,9 @@ def getFnName(fnNames, basename, target):
 def getLastDef(var, lastDefs, lastDefDefault):
     index = lastDefDefault
 
-    bypass_regex = (
-        r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|"
-        r"^write_line$|^format_\d+_obj"
-        r".*|^Format$|^list_output_formats$|^write_list_stream$"
-    )
-
     # Preprocessing and removing certain Assigns which only pertain to the
     # Python code and do not relate to the FORTRAN code in any way.
-    bypass_match = re.match(bypass_regex, var)
+    bypass_match = RE_BYPASS_IO.match(var)
 
     if not bypass_match:
         if var in lastDefs:
