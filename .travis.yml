@@ -10,6 +10,7 @@ addons:
     - graphviz
 
 install:
+  - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
