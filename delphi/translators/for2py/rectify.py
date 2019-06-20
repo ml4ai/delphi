@@ -1063,9 +1063,11 @@ class RectifyOFPXML:
                         'stmts-follow-label'].append(current)
 
                     if (
-                            (parent.tag == "body"
-                             and parent.attrib['parent'] == "program"
-                             and "has-stop" in current.attrib)
+                            (
+                                parent.tag == "body"
+                                and parent.attrib['parent'] == "program"
+                                and "has-stop" in current.attrib
+                            )
                             or self.goto_under_loop
                     ):
                         self.collect_stmts_after_label = False
