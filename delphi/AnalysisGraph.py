@@ -334,11 +334,6 @@ class AnalysisGraph(nx.DiGraph):
                 A[f"∂({node})/∂t"][node] = self.Δt
 
             for node_pair in node_pairs:
-                for simple_path_edge_list in simple_path_dict[node_pair]:
-                    for edge in simple_path_edge_list:
-                        pass
-
-            for node_pair in node_pairs:
                 A[f"∂({node_pair[0]})/∂t"][node_pair[1]] = sum(
                     np.prod(
                         [
@@ -372,6 +367,7 @@ class AnalysisGraph(nx.DiGraph):
             self.transition_matrix_collection,
         )
 
+
         self.observed_state_sequences = [
             [self.sample_observed_state(s) for s in latent_state_sequence]
             for latent_state_sequence in self.latent_state_sequences
@@ -386,7 +382,7 @@ class AnalysisGraph(nx.DiGraph):
         self.sample_from_proposal(A)
 
         Δ_log_prior = self.calculate_Δ_log_prior(A)
-
+        original_log_likelihood = self.log_likelihood
         candidate_log_likelihood = self.calculate_log_likelihood(A)
         Δ_log_likelihood = candidate_log_likelihood - self.log_likelihood
 
@@ -395,7 +391,7 @@ class AnalysisGraph(nx.DiGraph):
         acceptance_probability = min(1, np.exp(delta_log_joint_probability))
         if acceptance_probability < np.random.rand():
             A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.log_likelihood = candidate_log_likelihood
+            self.log_likelihood = original_log_likelihood
 
         return A
 
@@ -431,7 +427,7 @@ class AnalysisGraph(nx.DiGraph):
                     _list.append(log_likelihood)
 
         log_likelihood_total = sum(_list)
-        return log_likelihood_total
+        return 2*log_likelihood_total
 
     def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
@@ -477,7 +473,7 @@ class AnalysisGraph(nx.DiGraph):
         # Remember the original value of the element, in case we need to revert
         # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.01)
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)

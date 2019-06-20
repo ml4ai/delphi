@@ -119,6 +119,9 @@ map<string, vector<double>> construct_adjective_response_map() {
   return adjective_response_map;
 }
 
+/**
+ * The AnalysisGraph class is the main model/interface for Delphi.
+ */
 class AnalysisGraph {
   DiGraph graph;
 
@@ -126,6 +129,13 @@ private:
   AnalysisGraph(DiGraph G) : graph(G){};
 
 public:
+  /**
+   * A method to construct an AnalysisGraph object given a JSON-serialized list
+   * of INDRA statements.
+   *
+   * @param filename The path to the file containing the JSON-serialized INDRA
+   * statements.
+   */
   static AnalysisGraph from_json_file(string filename) {
     auto j = load_json(filename);
 
