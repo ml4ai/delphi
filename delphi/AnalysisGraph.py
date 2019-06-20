@@ -367,7 +367,6 @@ class AnalysisGraph(nx.DiGraph):
             self.transition_matrix_collection,
         )
 
-
         self.observed_state_sequences = [
             [self.sample_observed_state(s) for s in latent_state_sequence]
             for latent_state_sequence in self.latent_state_sequences
@@ -427,15 +426,11 @@ class AnalysisGraph(nx.DiGraph):
                     _list.append(log_likelihood)
 
         log_likelihood_total = sum(_list)
-        return 2*log_likelihood_total
+        return log_likelihood_total
 
     def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
-            self.n_timesteps,
-            iterate(
-                lambda s: pd.Series(A.values @ s.values, index=s.index),
-                self.s0,
-            ),
+            self.n_timesteps, iterate(lambda s: A.dot(s), self.s0)
         )
 
     def sample_observed_state(self, s: pd.Series) -> Dict:
