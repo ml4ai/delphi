@@ -527,8 +527,10 @@ class RectifyOFPXML:
                         if parent.tag == "loop":
                             if (
                                     child.tag == "if"
-                                    or child.tag == "statement"
-                                    and "conditional-goto-stmt" in child.attrib
+                                    or (
+                                        child.tag == "statement"
+                                        and "conditional-goto-stmt" in child.attrib
+                                    )
                             ):
                                 self.goto_under_loop = True
                     else:
@@ -932,7 +934,10 @@ class RectifyOFPXML:
                             if lbl not in self.label_lbl_for_after:
                                 self.label_lbl_for_after.append(lbl)
 
-                        if self.label_before or lbl in self.label_lbl_for_before:
+                        if (
+                                self.label_before 
+                                or lbl in self.label_lbl_for_before
+                        ):
                             current.attrib['goto-move'] = "true"
                         else:
                             current.attrib['goto-remove'] = "true"
@@ -1202,8 +1207,8 @@ class RectifyOFPXML:
                         if (
                                 current.attrib['id'] in self.declared_array_vars
                                 and self.declared_array_vars[
-                            current.attrib['id']]
-                                == self.current_scope
+                                        current.attrib['id']
+                                    ] == self.current_scope
                         ):
                             # Since the procedure "call" has a same AST syntax
                             # as an array, check its type and set the "is_array" value
@@ -1215,9 +1220,8 @@ class RectifyOFPXML:
                                 current.attrib['id']
                                 in self.declared_non_array_vars
                                 and self.declared_non_array_vars[
-                                    current.attrib['id']
-                                ]
-                                == self.current_scope
+                                        current.attrib['id']
+                                    ] == self.current_scope
                         ):
                             current.attrib['hasSubscripts'] = "false"
                     self.parseXMLTree(
@@ -3491,8 +3495,10 @@ class RectifyOFPXML:
                 else:
                     if (
                         "next-goto" not in stmt.attrib
-                        or "lbl" in stmt.attrib
-                        and stmt.attrib['lbl'] == self.current_label
+                        or (
+                            "lbl" in stmt.attrib
+                            and stmt.attrib['lbl'] == self.current_label
+                        )
                     ):
                         if "goto-move" in stmt.attrib and not label_before_within_scope:
                             if "target-label-statement" in stmt.attrib:
