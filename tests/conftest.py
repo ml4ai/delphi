@@ -23,7 +23,7 @@ concepts = {
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": ['small']},
+        "delta": {"polarity": 1, "adjective": ['large']},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",

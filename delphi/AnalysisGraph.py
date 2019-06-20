@@ -402,13 +402,13 @@ class AnalysisGraph(nx.DiGraph):
     def calculate_Δ_log_prior(self, A: pd.DataFrame) -> float:
         Δ_log_prior = self.edges[self.source, self.target][
             "ConditionalProbability"
-        ].evaluate(
+        ].logpdf(
             A[f"∂({self.source})/∂t"][self.target] / self.Δt
         ) - self.edges[
             self.source, self.target
         ][
             "ConditionalProbability"
-        ].evaluate(
+        ].logpdf(
             self.original_value / self.Δt
         )
 

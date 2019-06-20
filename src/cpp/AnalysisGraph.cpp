@@ -72,7 +72,7 @@ public:
     return samples;
   }
 
-  double evaluate(double x) {
+  double pdf(double x) {
     auto p = 0.0;
     auto N = dataset.size();
     for (auto elem : dataset) {
@@ -82,6 +82,10 @@ public:
     }
     return p;
   }
+  double logpdf(double x) {
+    return log(pdf(x));
+  }
+
 };
 
 map<string, vector<double>> construct_adjective_response_map() {

@@ -15,6 +15,7 @@ PYBIND11_MODULE(extension, m) {
   py::class_<KDE>(m, "KDE")
     .def(py::init<vector<double> >())
     .def("resample", &KDE::resample)
-    .def("evaluate", &KDE::evaluate)
+    .def("pdf", &KDE::pdf)
+    .def("logpdf", &KDE::logpdf)
   ;
 }
