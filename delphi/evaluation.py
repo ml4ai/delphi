@@ -46,7 +46,7 @@ def get_predictions(
     s0.to_csv("bmi_config.txt", index_label="variable")
     G.initialize()
 
-    pred = np.zeros(n_timesteps)
+    pred = np.zeros(n_timesteps + 1)
     target_indicator = list(
         G.nodes(data=True)[target_node]["indicators"].keys()
     )[0]
@@ -61,6 +61,10 @@ def get_predictions(
             ].samples
         )
 
+    pred = np.roll(pred, 1)
+    pred[0] = list(G.nodes(data=True)[target_node]["indicators"].values())[
+        0
+    ].mean
     return pd.DataFrame(pred, columns=[target_indicator + "(Predictions)"])
 
 
@@ -95,43 +99,73 @@ def get_true_values(
         Pandas Dataframe containing true values for target node's indicator
         variable. The values are indexed by date.
     """
-    df = pd.read_sql_table("indicator", con=engine)
     target_indicator = list(
         G.nodes(data=True)[target_node]["indicators"].keys()
     )[0]
-    target_df = df[df["Variable"] == target_indicator]
 
-    true_vals = np.zeros(n_timesteps)
+    query_base = " ".join(
+        [
+            f"select * from indicator",
+            f"where `Variable` like '{target_indicator}'",
+        ]
+    )
+
+    query_parts = {"base": query_base}
+
+    true_vals = np.zeros(n_timesteps + 1)
+    true_vals[0] = list(
+        G.nodes(data=True)[target_node]["indicators"].values()
+    )[0].mean
     year = start_year
     month = start_month + 1
-    date = []
-    for j in range(n_timesteps):
-        if target_df[target_df["Year"] == year].empty:
-            true_vals[j] = target_df["Value"].values.astype(float).mean()
-        elif target_df[target_df["Year"] == year][
-            target_df["Month"] == month
-        ].empty:
-            true_vals[j] = (
-                target_df[target_df["Year"] == year]["Value"]
-                .values.astype(float)
-                .mean()
-            )
-        else:
-            true_vals[j] = (
-                target_df[target_df["Year"] == year][
-                    target_df["Month"] == month
-                ]["Value"]
-                .values.astype(float)
-                .mean()
-            )
+    date = [f"{start_year}-{start_month}"]
+    for j in range(1, n_timesteps + 1):
+        query_parts["year"] = f"and `Year` is '{year}'"
+        query_parts["month"] = f"and `Month` is '{month}'"
 
-        date.append(str(year) + "-" + str(month))
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
 
-        if month == 12:
-            year = year + 1
-            month = 1
-        else:
-            month = month + 1
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(f"{year}-{month}")
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["month"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(f"{year}-{month}")
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["year"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            date.append(f"{year}-{month}")
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
 
     return pd.DataFrame(true_vals, date, columns=[target_indicator + "(True)"])
 
@@ -203,40 +237,69 @@ def estimate_deltas(
         1D numpy array of deltas.
     """
 
-    df = pd.read_sql_table("indicator", con=engine)
     intervener_indicator = list(
         G.nodes(data=True)[intervened_node]["indicators"].keys()
     )[0]
-    intervened_df = df[df["Variable"] == intervener_indicator]
+
+    query_base = " ".join(
+        [
+            f"select * from indicator",
+            f"where `Variable` like '{intervener_indicator}'",
+        ]
+    )
+
+    query_parts = {"base": query_base}
 
     int_vals = np.zeros(n_timesteps + 1)
+    int_vals[0] = list(
+        G.nodes(data=True)[intervened_node]["indicators"].values()
+    )[0].mean
     year = start_year
     month = start_month
-    for j in range(n_timesteps + 1):
-        if intervened_df[intervened_df["Year"] == year].empty:
-            int_vals[j] = intervened_df["Value"].values.astype(float).mean()
-        elif intervened_df[intervened_df["Year"] == year][
-            intervened_df["Month"] == month
-        ].empty:
-            int_vals[j] = (
-                intervened_df[intervened_df["Year"] == year]["Value"]
-                .values.astype(float)
-                .mean()
-            )
-        else:
-            int_vals[j] = (
-                intervened_df[intervened_df["Year"] == year][
-                    intervened_df["Month"] == month
-                ]["Value"]
-                .values.astype(float)
-                .mean()
-            )
+    for j in range(1, n_timesteps + 1):
+        query_parts["year"] = f"and `Year` is '{year}'"
+        query_parts["month"] = f"and `Month` is '{month}'"
 
-        if month == 12:
-            year = year + 1
-            month = 1
-        else:
-            month = month + 1
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["month"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
+
+        query_parts["year"] = ""
+        query = " ".join(query_parts.values())
+        results = list(engine.execute(query))
+
+        if results != []:
+            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+
+            if month == 12:
+                year = year + 1
+                month = 1
+            else:
+                month = month + 1
+            continue
 
     per_ch = np.roll(int_vals, -1) - int_vals
 

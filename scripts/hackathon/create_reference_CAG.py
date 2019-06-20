@@ -29,7 +29,7 @@ def filter_and_process_statements(
 
         # Select statements with UN groundings
 
-        if s.subj.db_refs.get("UN") is None or s.obj.db_refs.get("UN") is None:
+        if s.subj.concept.db_refs.get("UN") is None or s.obj.concept.db_refs.get("UN") is None:
             continue
         update_counter("Statements with UN groundings")
 
@@ -37,7 +37,8 @@ def filter_and_process_statements(
 
         if not all(
             x[1] > grounding_score_cutoff
-            for x in (y.db_refs["UN"][0] for y in (s.subj, s.obj))
+            for x in (y.db_refs["UN"][0] for y in (s.subj.concept,
+                s.obj.concept))
         ):
             continue
         update_counter(
@@ -53,10 +54,10 @@ def filter_and_process_statements(
 
         # Assign default polarities
 
-        if s.subj_delta["polarity"] is None:
-            s.subj_delta["polarity"] = 1
-        if s.obj_delta["polarity"] is None:
-            s.obj_delta["polarity"] = 1
+        if s.subj.delta.polarity is None:
+            s.subj.delta.polarity = 1
+        if s.obj.delta.polarity is None:
+            s.obj.delta.polarity = 1
 
         filtered_sts.append(s)
 
@@ -70,28 +71,20 @@ def create_reference_CAG(inputPickleFile, outputPickleFile):
         all_sts = pickle.load(f)
     #Second and Third Argument control grounding score and belief score cutoff,
     #respectively.
-    filtered_sts = filter_and_process_statements(all_sts,0.79,.85)
+    filtered_sts = filter_and_process_statements(all_sts,.5,0.7)
     G = AnalysisGraph.from_statements(filtered_sts)
-    G.merge_nodes(
-        "UN/events/natural/weather/precipitation",
-        "UN/events/weather/precipitation",
-    )
-    G.delete_node("UN/entities/natural/natural_resources/biotic_resources/biotic_resources")
-    G.delete_node("UN/entities/natural/biology/ecosystem")
+    G.delete_node("UN/events/human/physical_insecurity")
+    G.delete_node("UN/entities/human/government/government_actions/duty")
     G.delete_node("UN/entities/human/livelihood")
-    G.delete_node("UN/entities/human/government/government_entity")
-    G.delete_node("UN/entities/human/fishery")
-    G.delete_node("UN/entities/human/infrastructure")
-    G.delete_node("UN/entities/human/health/nutrient")
-    G.delete_node("UN/events/human/agriculture/planting")
-    G.delete_node("UN/interventions/infrastructure")
-    G.delete_node("UN/entities/human/financial/economic/economy")
-    G.delete_node("UN/entities/human/infrastructure/transportation/road")
-    G.delete_node("UN/events/human/agriculture/farming")
-    G.delete_node("UN/entities/natural/crop")
+    G.delete_node("UN/entities/GPE")
+    G.delete_node("UN/events/crisis")
+    G.delete_node("UN/entities/natural/biology/ecosystem")
+    G.delete_node("UN/entities/natural/crop_technology/management")
+    G.delete_node("UN/events/nature_impact/climate_change_mitigation")
+    G.delete_node("UN/entities/food_availability")
     G.delete_node("UN/entities/human/food/food_insecurity")
     G.delete_node("UN/entities/human/financial/economic/fuel")
-   # G.delete_node("UN/entities/natural/crop_technology/product")
+
     with open(outputPickleFile, "wb") as f:
         pickle.dump(G, f)
 
