@@ -8,7 +8,8 @@ all: $(extension)
 $(extension): wrapper.cpp AnalysisGraph.cpp AnalysisGraph.hpp
 	c++ -O3 -Wall -shared -std=c++17 \
 	  $(LDFLAGS) $(CFLAGS)\
-	  -undefined dynamic_lookup `python3 -m pybind11 --includes`\
+	  -fPIC \
+	  `python3 -m pybind11 --includes`\
 	  $< -o $(extension)
 clean:
 	rm $(extension)
