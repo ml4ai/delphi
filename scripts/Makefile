@@ -1,5 +1,6 @@
 # This Makefile has not been fully tested. Please report any errors to
 # champlin@email.arizona.edu
+# Last edited: 6/20/2019
 #
 # =============================================================================
 # *Please read all comments before running Makefile*
