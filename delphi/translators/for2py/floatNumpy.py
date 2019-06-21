@@ -24,11 +24,12 @@ Authors:
     Pratik Bhandari
 
 """
-
+import math
 from numpy import float32
+import numpy as np
 
 
-class Float32:
+class Float32(float):
     """ This class converts float variables into float32 type for single-precision
     calculation and overloads the default arithmetic and logical operations.
     All methods below follow a similar
@@ -182,3 +183,7 @@ class Float32:
             return other._val
         else:
             return other
+
+print(Float32(math.pi))
+print(np.exp(float32(math.pi)))
+print(np.exp(math.pi))
