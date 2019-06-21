@@ -15,11 +15,14 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
+    - sqlite3 
+    - libsqlite3-dev
     - graphviz
     - libboost-all-dev
     - g++-8
 
 install:
+  - make extensions
   - export CC=gcc-8
   - export CXX=g++-8
   - pip install cython
