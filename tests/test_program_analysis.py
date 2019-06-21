@@ -30,12 +30,8 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
-    asts = [ast.parse(pySrc)]
-    _dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
-    for identifier in _dict["identifiers"]:
-        del identifier["gensyms"]
+    _dict = f2grfn.generate_grfn(pySrc, python_filename, lambdas_filename, json_filename, mode_mapper_dict)
 
-    os.remove(lambdas_filename)
     return _dict
 
 
