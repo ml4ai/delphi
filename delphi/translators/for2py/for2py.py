@@ -220,7 +220,7 @@ def check_classpath():
 
     if not_found != []:
         sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
-        sys.stderr.write(f"    {','.join(not_found)}\n")
+        sys.stderr.write(f" {','.join(not_found)}\n")
         sys.exit(1)
 
 def indent(elem, level=0):
@@ -265,11 +265,14 @@ def for2py_(original_fortran = None, tester_call = False, network_test = False, 
         If for2py.py get excuted manually by the user,
         it will receive a command line arugment. While
         if it gets invoked by the tester programs, it will 
-        be passed with the original fortran file name (path) 
-        and True boolean value for the tester_call arugment.
+        be passed with the original fortran file name (path), 
+        True boolean value for the tester_call arugment, 
+        boolean status for network.py test, and temporary
+        directory path for storing output files.
 
-        It returns a 5-tuple of generated IR files and file
-        names for GrFN generation.
+        It returns a 5-tuple (4-tuple for network.py)
+        of generated IR files and file names for 
+        GrFN generation.
     """
     check_classpath()
 

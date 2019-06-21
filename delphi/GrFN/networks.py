@@ -395,7 +395,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 lambdas_path,
                 json_filename,
                 stem
-        ) = for2py.for2py_(fortran_file, True, True, tmpdir)
+        ) = for2py.for2py_(fortran_file, True, True, str(tmpdir))
         
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
