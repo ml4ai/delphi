@@ -2,7 +2,7 @@ docs:
 	cd docs; make html
 
 test:
-	cd delphi/cpp; make
+	cd delphi/cpp; cmake .; make -j
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
