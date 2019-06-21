@@ -18,9 +18,15 @@ from typing import Dict, Tuple
 DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
-    (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict) = for2py.for2py_(original_fortran_file, True)
+    (
+            pySrc, 
+            lambdas_filename, 
+            json_filename, 
+            python_filename, 
+            mode_mapper_dict
+    ) = for2py.for2py_(original_fortran_file, True, False, ".")
 
-    return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
+    return (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict)
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
