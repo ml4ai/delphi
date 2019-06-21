@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import pickle
 import pandas as pd
 from .db import engine
@@ -69,7 +69,13 @@ def get_predictions(
 
 
 def get_true_values(
-    G, target_node: str, n_timesteps: str, start_year: int, start_month: int
+    G,
+    target_node: str,
+    n_timesteps: str,
+    start_year: int,
+    start_month: int,
+    country: Optional[str] = "South Sudan",
+    state: Optional[str] = None,
 ) -> pd.DataFrame:
     """ Get the true values of the indicator variable attached to the given
     target node.
@@ -79,7 +85,9 @@ def get_true_values(
     then the mean over all data values is used. If there are no data entries
     for a given month (but there are data entries for that year), then the
     overall value for the year is used (the mean for that year is used if there
-    are multiple values for that year).
+    are multiple values for that year). This will use the units that the CAG
+    was parameterized with. WARNING: The state and country should be same as what was
+    passed to G.parameterize() or else you could get mismatched data.
 
     Args:
         G: A completely parameterized and quantified CAG with indicators,
@@ -94,6 +102,10 @@ def get_true_values(
         values.
 
         start_month: The starting month (1-12).
+
+        country: Specified Country to get values for.
+
+        state: Specified State to get values for.
 
     Returns:
         Pandas Dataframe containing true values for target node's indicator
@@ -112,6 +124,29 @@ def get_true_values(
 
     query_parts = {"base": query_base}
 
+    if country is not None:
+        check_q = query_parts["base"] + f"and `Country` is '{country}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                f"Selected Country not found for {target_indicator}! Using default settings (South Sudan)"
+            )
+            query_parts["country"] = f"and `Country` is 'South Sudan'"
+        else:
+            query_parts["country"] = f"and `Country` is '{country}'"
+    if state is not None:
+        check_q = query_parts["base"] + f"and `State` is '{state}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                f"Selected State not found for {target_indicator}! Using default settings (Aggregration over all States)"
+            )
+            query_parts["state"] = ""
+        else:
+            query_parts["state"] = f"and `State` is '{state}'"
+
+    unit = list(G.nodes(data=True)[target_node]["indicators"].values())[0].unit
+
     true_vals = np.zeros(n_timesteps + 1)
     true_vals[0] = list(
         G.nodes(data=True)[target_node]["indicators"].values()
@@ -127,7 +162,7 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -142,7 +177,7 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -157,7 +192,7 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results])
+            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -206,9 +241,13 @@ def estimate_deltas(
     n_timesteps: int,
     start_year: int,
     start_month: int,
+    country: Optional[str] = "South Sudan",
+    state: Optional[str] = None,
 ):
     """ Utility function that estimates Rate of Change (deltas) for the
-    intervened node per timestep.
+    intervened node per timestep. This will use the units that the CAG
+    was parameterized with. WARNING: The state and country should be same as what was
+    passed to G.parameterize() or else you could get mismatched data.
 
     Deltas are estimated by percent change between each time step. (i.e,
     (current - next)/current). Heuristics are in place to handle NAN and INF
@@ -250,6 +289,29 @@ def estimate_deltas(
 
     query_parts = {"base": query_base}
 
+    if country is not None:
+        check_q = query_parts["base"] + f"and `Country` is '{country}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                f"Selected Country not found for {intervener_indicator}! Using default settings (South Sudan)"
+            )
+            query_parts["country"] = f"and `Country` is 'South Sudan'"
+        else:
+            query_parts["country"] = f"and `Country` is '{country}'"
+    if state is not None:
+        check_q = query_parts["base"] + f"and `State` is '{state}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                f"Selected State not found for {intervener_indicator}! Using default settings (Aggregration over all States)"
+            )
+            query_parts["state"] = ""
+        else:
+            query_parts["state"] = f"and `State` is '{state}'"
+
+    unit = list(G.nodes(data=True)[intervened_node]["indicators"].values())[0].unit
+
     int_vals = np.zeros(n_timesteps + 1)
     int_vals[0] = list(
         G.nodes(data=True)[intervened_node]["indicators"].values()
@@ -264,7 +326,7 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
 
             if month == 12:
                 year = year + 1
@@ -278,7 +340,7 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
 
             if month == 12:
                 year = year + 1
@@ -292,7 +354,7 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results])
+            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
 
             if month == 12:
                 year = year + 1
@@ -361,6 +423,7 @@ def evaluate(
     end_month=None,
     plot=False,
     plot_type="Compare",
+    **kwargs
 ):
     """ This is the main function of this module. This parameterizes a given
     CAG (see requirements in Args) and calls other functions within this module
@@ -397,6 +460,9 @@ def evaluate(
         indicator variable on one plot labeled by time steps (Year-Month).
         There is also "Error" type, which plots the errors or residuals, with a
         reference line at 0.
+
+        **kwargs: These are options for parameterize() which specify
+        country, state, units, fallback aggregation
 
     Returns:
         Returns a pandas dataframe.
