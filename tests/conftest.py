@@ -15,19 +15,19 @@ from delphi.utils.shell import cd
 concepts = {
     "conflict": {
         "grounding": "UN/events/human/conflict",
-        "delta": {"polarity": 1, "adjective": ["large"]},
+        "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "food security": {
         "grounding": "UN/entities/human/food/food_security",
-        "delta": {"polarity": -1, "adjective": ["small"]},
+        "delta": {"polarity": -1, "adjective": ["large"]},
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": ['large']},
+        "delta": {"polarity": 1, "adjective": ['small']},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",
-        "delta": {"polarity": 1, "adjective": ['small']},
+        "delta": {"polarity": 1, "adjective": ['large']},
     },
 }
 
@@ -66,7 +66,7 @@ precipitation = Event(Concept("precipitation"))
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
 
-STS = [s1, s2]
+STS = [s1]
 
 
 @pytest.fixture(scope="session")
