@@ -7,13 +7,8 @@ import ast
 import pytest
 
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    mod_index_generator,
-    rectify,
+    f2grfn,
 )
 
 from pathlib import Path
@@ -23,53 +18,20 @@ from typing import Dict, Tuple
 DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
-    stem = original_fortran_file.stem
-    preprocessed_fortran_file = stem + "_preprocessed.f"
-    lambdas_filename = stem + "_lambdas.py"
-    json_filename = stem + ".json"
-    python_filename = stem + ".py"
+    (
+            pySrc, 
+            lambdas_filename, 
+            json_filename, 
+            python_filename, 
+            mode_mapper_dict
+    ) = f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
 
-    with open(original_fortran_file, "r") as f:
-        inputLines = f.readlines()
-
-    with open(preprocessed_fortran_file, "w") as f:
-        f.write(preprocessor.process(inputLines))
-
-    xml_string = sp.run(
-        [
-            "java",
-            "fortran.ofp.FrontEnd",
-            "--class",
-            "fortran.ofp.XMLPrinter",
-            "--verbosity",
-            "0",
-            preprocessed_fortran_file,
-        ],
-        stdout=sp.PIPE,
-    ).stdout
-
-    tree = rectify.buildNewASTfromXMLString(xml_string)
-    trees = [tree]
-
-    mode_mapper_tree = tree
-    generator = mod_index_generator.moduleGenerator()
-    mode_mapper_dict = generator.analyze(mode_mapper_tree)
-
-    outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
-    pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-    os.remove(preprocessed_fortran_file)
-
-    return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
-
+    return (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict)
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
-    asts = [ast.parse(pySrc)]
-    _dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
-    for identifier in _dict["identifiers"]:
-        del identifier["gensyms"]
+    _dict = f2grfn.generate_grfn(pySrc, python_filename, lambdas_filename, json_filename, mode_mapper_dict)
 
-    os.remove(lambdas_filename)
     return _dict
 
 
@@ -109,6 +71,11 @@ def derived_type_python_IR_test():
 def goto_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0]
 
+@pytest.fixture
+def save_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}"
+                                 f"/save/simple_variables/save-02.f"))[0]
+
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     with open(f"{DATA_DIR}/crop_yield.py", "r") as f:
         python_src = f.read()
@@ -143,3 +110,8 @@ def test_goto_pythonIR_generation(goto_python_IR_test):
     with open(f"{DATA_DIR}/goto/goto_02.py", "r") as f:
         python_src = f.read()
     assert goto_python_IR_test == python_src
+
+def test_save_pythonIR_generation(save_python_IR_test):
+    with open(f"{DATA_DIR}/save/simple_variables/save-02.py", "r") as f:
+        python_src = f.read()
+    assert save_python_IR_test == python_src

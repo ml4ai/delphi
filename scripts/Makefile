@@ -1,5 +1,6 @@
 # This Makefile has not been fully tested. Please report any errors to
 # champlin@email.arizona.edu
+# Last edited: 6/20/2019
 #
 # =============================================================================
 # *Please read all comments before running Makefile*
@@ -167,12 +168,12 @@ build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
 build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
-									  build/reference_cag.pkl
+													  build/reference_cag.pkl
 	python $^ $@
 
 build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-							   build/scenario_centered_CAG.pkl\
-							   data/delphi.db
+										 build/scenario_centered_CAG.pkl\
+										 data/delphi.db
 	python $< build/scenario_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\

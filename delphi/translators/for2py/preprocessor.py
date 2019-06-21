@@ -152,6 +152,8 @@ TRANSITIONS = {
         "comment": "in_neck",
         "exec_stmt": "in_body",
         "other": "in_neck",
+        "pgm_unit_sep": "outside",
+        "pgm_unit_end": "outside",
     },
     "in_body": {
         "comment": "in_body",
@@ -237,7 +239,14 @@ def extract_comments(
                 curr_comment = []
 
         elif curr_state == "in_neck":
-            assert line_type in ("comment", "exec_stmt", "other")
+            assert line_type in (
+                "comment",
+                "exec_stmt",
+                "pgm_unit_sep",
+                "pgm_unit_end",
+                "other"
+            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
+	           
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)

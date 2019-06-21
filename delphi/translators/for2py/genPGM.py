@@ -40,6 +40,14 @@ UNNECESSARY_TYPES = (
     ast.LtE,
 )
 
+# Regular expression to match python statements that need to be bypassed in
+# the GrFN and lambda files. Currently contains I/O statements.
+BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
+            r"^write_line$|^format_\d+_obj" \
+            r".*|^Format$|^list_output_formats$|^write_list_stream$"
+
+RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
+
 
 class GrFNGenerator(object):
     def __init__(self, annassigned_list=[], elif_pgm=[], function_defs=[]):
@@ -940,7 +948,8 @@ class GrFNGenerator(object):
                     )
                     target = {"var": {"variable": targets, "index": 1}}
 
-                # Check whether this is an alias assignment i.e. of the form y=x where y is now the alias of variable x
+                # Check whether this is an alias assignment i.e. of the form
+                # y=x where y is now the alias of variable x
                 self.check_alias(target, sources)
 
                 name = getFnName(
@@ -948,9 +957,6 @@ class GrFNGenerator(object):
                     f"{state.fnName}__assign__{target['var']['variable']}",
                     target,
                 )
-                # If the index is -1, change it to the index in the fnName. This is a hack right now.
-                # if target["var"]["index"] < 0:
-                #     target["var"]["index"] = name[-1]
 
                 fn = self.make_fn_dict(name, target, sources, node)
                 if len(fn) == 0:
@@ -1042,6 +1048,18 @@ class GrFNGenerator(object):
                 pgms.append(self.genPgm(item, state, fnNames, "boolop"))
 
             return pgms
+
+        # Handle Attributes
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`. The `node.id`
+        # stores the <function_name> which is being ignored.
+        elif isinstance(node, ast.Attribute):
+            lastDef = getLastDef(node.attr, state.lastDefs,
+                                 state.lastDefDefault)
+
+            return [{"var": {"variable": node.attr, "index": lastDef}}]
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1275,15 +1293,9 @@ class GrFNGenerator(object):
         source = []
         fn = {}
 
-        # Regular expression to check for all targets that need to be bypassed. This is related to I/O handling
-        bypass_regex = (
-            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|^write_line$|^format_\d+_obj"
-            r".*|^Format$|^list_output_formats$|^write_list_steam$"
-        )
-
         # Preprocessing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
+        bypass_match_target = RE_BYPASS_IO.match(target["var"][ "variable"])
 
         if bypass_match_target:
             self.exclude_list.append(target["var"]["variable"])
@@ -1295,9 +1307,8 @@ class GrFNGenerator(object):
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
-                bypass_match_source = re.match(
-                    bypass_regex, src["call"]["function"]
-                )
+                bypass_match_source = RE_BYPASS_IO.match(src["call"][
+                                                              "function"])
                 if bypass_match_source:
                     if "var" in src:
                         self.exclude_list.append(src["var"]["variable"])
@@ -1377,7 +1388,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
     for fields.  This makes the code impossible to evaluate, so if evaluation
-    is wanted *annotate_fields* must be set to False.  Attributes such as line
+    is wanted *annotate_fields* must be set to False. Attributes such as line
     numbers and column offsets are not dumped by default. If this is wanted,
     *include_attributes* can be set to True.
     """
@@ -1499,11 +1510,19 @@ def getFnName(fnNames, basename, target):
 
 def getLastDef(var, lastDefs, lastDefDefault):
     index = lastDefDefault
-    if var in lastDefs:
-        index = lastDefs[var]
+
+    # Preprocessing and removing certain Assigns which only pertain to the
+    # Python code and do not relate to the FORTRAN code in any way.
+    bypass_match = RE_BYPASS_IO.match(var)
+
+    if not bypass_match:
+        if var in lastDefs:
+            index = lastDefs[var]
+        else:
+            lastDefs[var] = index
+        return index
     else:
-        lastDefs[var] = index
-    return index
+        return 0
 
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
