@@ -50,7 +50,10 @@ def constructConditionalPDF(
                         adjective_response_dict[subj_adjective] = get_respdevs(
                             gb.get_group(subj_adjective)
                         )
-                    rs_subj = stmt.subj.delta.polarity * adjective_response_dict.get(subj_adjective, rs)
+                    rs_subj = (
+                        stmt.subj.delta.polarity
+                        * adjective_response_dict.get(subj_adjective, rs)
+                    )
 
                     for obj_adjective in ev.annotations["obj_adjectives"]:
                         if (
@@ -61,7 +64,10 @@ def constructConditionalPDF(
                                 obj_adjective
                             ] = get_respdevs(gb.get_group(obj_adjective))
 
-                        rs_obj = stmt.obj.delta.polarity * adjective_response_dict.get(obj_adjective, rs)
+                        rs_obj = (
+                            stmt.obj.delta.polarity
+                            * adjective_response_dict.get(obj_adjective, rs)
+                        )
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
                         θs = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
@@ -152,7 +158,9 @@ def get_indicator_value(
         check_q = query_parts["base"] + f" and `Unit` is '{unit}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
-            warnings.warn(f'Selected units not found for {indicator.name}! Falling back to default units!')
+            warnings.warn(
+                f"Selected units not found for {indicator.name}! Falling back to default units!"
+            )
             query_parts["unit"] = ""
         else:
             query_parts["unit"] = f"and `Unit` is '{unit}'"
@@ -202,13 +210,9 @@ def get_indicator_value(
                         )
                     )[0]
                 agg = aggfunc(
-                    [
-                        float(r["Value"])
-                        for r in results
-                        if r["Unit"] == unit
-                    ]
+                    [float(r["Value"]) for r in results if r["Unit"] == unit]
                 )
-                return agg,unit
+                return agg, unit
 
             except StopIteration:
                 raise ValueError(
