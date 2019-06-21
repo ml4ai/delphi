@@ -148,6 +148,10 @@ def get_indicator_value(
     if month is not None:
         query_parts["month"] = f"and `Month` is '{month}'"
     if unit is not None:
+        unit_q = f"and `Unit` is '{unit}'"
+        test_q = "  ".join(unit_q)
+        test_q = query_parts["base"].join(test_q)
+        print(test_q)
         query_parts["unit"] = f"and `Unit` is '{unit}'"
 
     indicator.aggaxes = []
@@ -156,6 +160,7 @@ def get_indicator_value(
             indicator.aggaxes.append(constraint)
 
     query = " ".join(query_parts.values())
+    #print(query)
     results = list(engine.execute(query))
     if results != []:
         unit = sorted(list({r["Unit"] for r in results}))[0]
@@ -194,16 +199,14 @@ def get_indicator_value(
                             }
                         )
                     )[0]
-                return (
-                    aggfunc(
+                    agg = aggfunc(
                         [
                             float(r["Value"])
                             for r in results
                             if r["Unit"] == unit
                         ]
-                    ),
-                    unit,
-                )
+                    )
+                    return agg,unit
 
             except StopIteration:
                 raise ValueError(
