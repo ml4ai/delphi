@@ -64,7 +64,6 @@ def test_get_true_values(G_eval):
     )
     G.map_concepts_to_indicators()
     G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.parameterize(year=2013, month=9)
     G.get_timeseries_values_for_indicators()
@@ -124,7 +123,6 @@ def test_estimate_deltas(G_eval):
     )
     G.map_concepts_to_indicators()
     G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.parameterize(year=2013, month=9)
     G.get_timeseries_values_for_indicators()

@@ -95,7 +95,7 @@ public:
     return samples;
   }
 
-  double pdf(double x) {
+  auto pdf(double x) {
     auto p = 0.0;
     auto N = dataset.size();
     for (auto elem : dataset) {
@@ -105,7 +105,16 @@ public:
     }
     return p;
   }
-  double logpdf(double x) { return log(pdf(x)); }
+
+  auto pdf(vector<double> v) {
+    vector<double> values;
+    for (auto elem : v) {
+      values.push_back(pdf(elem));
+    }
+    return values;
+  }
+
+  auto logpdf(double x) { return log(pdf(x)); }
 };
 
 struct Node {

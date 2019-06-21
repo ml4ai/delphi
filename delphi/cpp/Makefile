@@ -1,10 +1,6 @@
 SUFFIX:=$(shell python3-config --extension-suffix)
-CFLAGS:=$(shell pkg-config libgvc --cflags)
 CFLAGS:=$(shell pkg-config sqlite3 --cflags)
-LDFLAGS+=$(shell pkg-config libgvc --libs)
 LDFLAGS+=$(shell pkg-config sqlite3 --libs)
-
-
 extension=extension$(SUFFIX)
 
 all: $(extension)

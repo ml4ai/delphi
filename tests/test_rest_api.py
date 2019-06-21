@@ -50,7 +50,7 @@ def test_getICMByUUID(G, client):
 
 def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
-    assert len(rv.json) == 5
+    assert len(rv.json) == 3
 
 
 def test_createExperiment(G, client):
