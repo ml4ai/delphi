@@ -4,7 +4,7 @@ docs:
 extensions: 
 	cd delphi/cpp; cmake .; make -j
 
-test:
+test: extensions
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
