@@ -21,7 +21,7 @@ from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
     genPGM,
-    for2py,
+    f2grfn,
 )
 import numpy as np
 import torch
@@ -395,7 +395,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 lambdas_path,
                 json_filename,
                 stem
-        ) = for2py.for2py_(fortran_file, True, True, str(tmpdir))
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
         
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 

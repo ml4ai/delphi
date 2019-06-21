@@ -8,7 +8,7 @@ import pytest
 
 from delphi.translators.for2py import (
     genPGM,
-    for2py,
+    f2grfn,
 )
 
 from pathlib import Path
@@ -24,7 +24,7 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
             json_filename, 
             python_filename, 
             mode_mapper_dict
-    ) = for2py.for2py_(original_fortran_file, True, False, ".")
+    ) = f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
 
     return (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict)
 
