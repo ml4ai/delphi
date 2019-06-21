@@ -1,8 +1,15 @@
 dist: xenial
-language: python
+language: 
+ - python
+ - cpp
+
+compiler:
+  - gcc
+  - clang
 
 python:
   - "3.6"
+  - "3.7"
 
 addons:
   apt:
