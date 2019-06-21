@@ -16,7 +16,6 @@ addons:
     packages:
     - graphviz
     - libboost-all-dev
-    - pybind11-dev
 
 install:
   - pip install cython
