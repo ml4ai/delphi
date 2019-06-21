@@ -32,9 +32,6 @@ from delphi.translators.for2py import (
     rectify,
 )
 
-# A directory that will hold all generated IR files.
-OUTPUT_DIR = "tmp"
-
 # OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).
 OFP_JAR_FILES = [
     "antlr-3.3-complete.jar",
@@ -257,7 +254,7 @@ def get_original_file(original_fortran_file_path):
 
     return (original_fortran_file, base)
 
-def for2py_(original_fortran = None, tester_call = False):
+def for2py_(original_fortran = None, tester_call = False, network_test = False, temp_dir = "./tmp"):
     """
         This function invokes other appropriate functions
         to process and generate objects to translate fortran
@@ -278,8 +275,8 @@ def for2py_(original_fortran = None, tester_call = False):
 
     # If "tmp" directory does not exist already,
     # simply create one.
-    if not os.path.isdir(OUTPUT_DIR):
-         os.mkdir(OUTPUT_DIR)
+    if not os.path.isdir(temp_dir):
+         os.mkdir(temp_dir)
 
     # If, for2py runs manually by the user, which receives
     # the path to the file via command line argument
@@ -294,14 +291,14 @@ def for2py_(original_fortran = None, tester_call = False):
     (original_fortran_file, base) = get_original_file(original_fortran_file_path)
 
     # Output files
-    preprocessed_fortran_file = OUTPUT_DIR + "/" + base + "_preprocessed.f"
-    ofp_file = OUTPUT_DIR + "/" + base + ".xml"
-    rectified_xml_file = OUTPUT_DIR + "/" + "rectified_" + base + ".xml"
-    pickle_file = OUTPUT_DIR + "/" + base + "_pickle"
-    python_file = OUTPUT_DIR + "/" + base + ".py"
-    output_file = OUTPUT_DIR + "/" + base + "_outputList.txt"
-    json_file = OUTPUT_DIR + "/" + base + ".json"
-    lambdas_file = OUTPUT_DIR + "/" + base + "_lambdas.py"
+    preprocessed_fortran_file = temp_dir + "/" + base + "_preprocessed.f"
+    ofp_file = temp_dir + "/" + base + ".xml"
+    rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
+    pickle_file = temp_dir + "/" + base + "_pickle"
+    python_file = temp_dir + "/" + base + ".py"
+    output_file = temp_dir + "/" + base + "_outputList.txt"
+    json_file = temp_dir + "/" + base + ".json"
+    lambdas_file = temp_dir + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
     try:
@@ -324,10 +321,11 @@ def for2py_(original_fortran = None, tester_call = False):
     # Rectify and generate a new xml from OFP XML
     rectified_tree = generate_rectified_xml(ofp_xml, rectified_xml_file, tester_call)
 
-    # Generate separate list of modules file
-    mode_mapper_tree = rectified_tree
-    generator = mod_index_generator.moduleGenerator()
-    mode_mapper_dict = generator.analyze(mode_mapper_tree)
+    if network_test == False:
+        # Generate separate list of modules file
+        mode_mapper_tree = rectified_tree
+        generator = mod_index_generator.moduleGenerator()
+        mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
     # Creates a pickle file
     outputDict = generate_outputDict(
@@ -343,7 +341,10 @@ def for2py_(original_fortran = None, tester_call = False):
     if tester_call == True:
         os.remove(preprocessed_fortran_file)
 
-    return (python_src, lambdas_file, json_file, python_file, mode_mapper_dict)
+    if network_test == False:
+        return (python_src, lambdas_file, json_file, python_file, mode_mapper_dict)
+    else:
+        return (python_src, lambdas_file, json_file, base)
 
 if __name__ == "__main__":
     (python_src, lambdas_file, json_file, python_file, mode_mapper_dict) =  for2py_()
