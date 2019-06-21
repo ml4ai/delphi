@@ -417,7 +417,7 @@ def evaluate(
     )
 
     G.parameterize(year=start_year, month=start_month)
-   #G.get_timeseries_values_for_indicators()
+    G.get_timeseries_values_for_indicators()
 
     if start_month is None:
         start_month = 1
