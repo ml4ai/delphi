@@ -716,7 +716,7 @@ class AnalysisGraph(nx.DiGraph):
         state: Optional[str] = None,
         year: Optional[int] = None,
         month: Optional[int] = None,
-        unit: Optional[str] = None,
+        units: Optional[dict] = None,
         fallback_aggaxes: List[str] = ["year", "month"],
         aggfunc: Callable = np.mean,
     ):
@@ -726,6 +726,8 @@ class AnalysisGraph(nx.DiGraph):
             country
             year
             month
+            units: Takes dictionary object with indictor variables as keys the
+            desired units as values
             fallback_aggaxes:
                 An iterable of strings denoting the axes upon which to perform
                 fallback aggregation if the desired constraints cannot be met.
@@ -741,19 +743,39 @@ class AnalysisGraph(nx.DiGraph):
                 f"following: {valid_axes}"
             )
 
-        for n in self.nodes(data=True):
-            for indicator in n[1]["indicators"].values():
-                indicator.mean, indicator.unit = get_indicator_value(
-                    indicator,
-                    country,
-                    state,
-                    year,
-                    month,
-                    unit,
-                    fallback_aggaxes,
-                    aggfunc,
-                )
-                indicator.stdev = 0.1 * abs(indicator.mean)
+        if units is not None:
+            for n in self.nodes(data=True):
+                for indicator in n[1]["indicators"].values():
+                    if indicator.name in units:
+                        unit = units[indicator.name]
+                    else:
+                        unit = None
+                    indicator.mean, indicator.unit = get_indicator_value(
+                        indicator,
+                        country,
+                        state,
+                        year,
+                        month,
+                        unit,
+                        fallback_aggaxes,
+                        aggfunc,
+                    )
+                    indicator.stdev = 0.1 * abs(indicator.mean)
+        else:
+            unit = None
+            for n in self.nodes(data=True):
+                for indicator in n[1]["indicators"].values():
+                    indicator.mean, indicator.unit = get_indicator_value(
+                        indicator,
+                        country,
+                        state,
+                        year,
+                        month,
+                        unit,
+                        fallback_aggaxes,
+                        aggfunc,
+                    )
+                    indicator.stdev = 0.1 * abs(indicator.mean)
 
     # ==========================================================================
     # Manipulation
