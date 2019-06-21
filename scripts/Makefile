@@ -167,12 +167,12 @@ build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
 build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
-									  build/reference_cag.pkl
+													  build/reference_cag.pkl
 	python $^ $@
 
 build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-							   build/scenario_centered_CAG.pkl\
-							   data/delphi.db
+										 build/scenario_centered_CAG.pkl\
+										 data/delphi.db
 	python $< build/scenario_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\
