@@ -12,11 +12,16 @@ python:
 
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
     - graphviz
     - libboost-all-dev
+    - g++-8
 
 install:
+  - export CC=gcc-8
+  - export CXX=g++-8
   - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
