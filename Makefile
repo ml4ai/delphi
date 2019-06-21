@@ -1,8 +1,10 @@
 docs:
 	cd docs; make html
 
-test:
+extensions: 
 	cd delphi/cpp; cmake .; make -j
+
+test:
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
