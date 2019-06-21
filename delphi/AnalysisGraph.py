@@ -45,6 +45,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -110,9 +111,7 @@ class AnalysisGraph(nx.DiGraph):
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
-                if all(
-                    map(exists, (delta.polarity for delta in deltas(s)))
-                ):
+                if all(map(exists, (delta.polarity for delta in deltas(s)))):
                     if concepts in _dict:
                         _dict[concepts].append(s)
                     else:
@@ -129,7 +128,7 @@ class AnalysisGraph(nx.DiGraph):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
         machine reading. """
 
-        eidosProcessor = process_text(text,webservice=webservice)
+        eidosProcessor = process_text(text, webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
@@ -185,12 +184,20 @@ class AnalysisGraph(nx.DiGraph):
                             delta["polarity"] = 1
 
                     influence_stmt = Influence(
-                        Event(Concept(subj_name, db_refs=subj["db_refs"]),
-                            delta=QualitativeDelta(s["subj_delta"]["polarity"],
-                                s["subj_delta"]["adjectives"])),
-                        Event(Concept(obj_name, db_refs=obj["db_refs"]),
-                            delta=QualitativeDelta(s["obj_delta"]["polarity"],
-                                s["obj_delta"]["adjectives"])),
+                        Event(
+                            Concept(subj_name, db_refs=subj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["subj_delta"]["polarity"],
+                                s["subj_delta"]["adjectives"],
+                            ),
+                        ),
+                        Event(
+                            Concept(obj_name, db_refs=obj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["obj_delta"]["polarity"],
+                                s["obj_delta"]["adjectives"],
+                            ),
+                        ),
                         evidence=[
                             INDRAEvidence(
                                 source_api=ev["source_api"],
@@ -541,8 +548,13 @@ class AnalysisGraph(nx.DiGraph):
                         scale=0.01,
                     )
 
-    def update(self, τ: float = 1.0, update_indicators=True, dampen=False,
-            set_delta: float = None):
+    def update(
+        self,
+        τ: float = 1.0,
+        update_indicators=True,
+        dampen=False,
+        set_delta: float = None,
+    ):
         """ Advance the model by one time step. """
 
         for n in self.nodes(data=True):
@@ -558,10 +570,12 @@ class AnalysisGraph(nx.DiGraph):
                     self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                         f"∂({n[0]})/∂t"
                     ] * exp(-τ * self.t)
-                #Suppresses dampen
+                # Suppresses dampen
                 if set_delta is not None:
                     if dampen:
-                        warnings.warn('When set_delta is not None, the effect of dampen = True is suppressed')
+                        warnings.warn(
+                            "When set_delta is not None, the effect of dampen = True is suppressed"
+                        )
                     self.s0[i][f"∂({n[0]})/∂t"] = set_delta
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
@@ -1037,8 +1051,7 @@ class AnalysisGraph(nx.DiGraph):
                     True
                     if np.mean(
                         [
-                            stmt.subj.delta.polarity
-                            * stmt.obj.delta.polarity
+                            stmt.subj.delta.polarity * stmt.obj.delta.polarity
                             for stmt in e[2]["InfluenceStatements"]
                         ]
                     )
@@ -1078,7 +1091,7 @@ class AnalysisGraph(nx.DiGraph):
         self,
         indicators: bool = False,
         indicator_values: bool = False,
-        nodes_to_highlight: Optional[Union[str, List[str]]]=None,
+        nodes_to_highlight: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         """ Exports the CAG as a pygraphviz AGraph for visualization.
