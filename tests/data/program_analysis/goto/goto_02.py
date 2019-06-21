@@ -3,6 +3,7 @@ from typing import List
 import math
 from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
+from delphi.translators.for2py.static_save import *
 from dataclasses import dataclass
 
 
@@ -24,7 +25,7 @@ def factorial():
             label_flag_2[0] = True
             while label_flag_2[0]:
                 i[0] = (i[0] + 1)
-                fact[0] = (fact[0] * i[0])
+                fact[0] = int((fact[0] * i[0]))
                 write_list_stream = [i[0], fact[0]]
                 write_line = format_10_obj.write_line(write_list_stream)
                 sys.stdout.write(write_line)

@@ -20,7 +20,7 @@ C subprograms.
       !    call f(1, a)
       !
       ! will set a to the values 111, 222, and 444 respectively.
-      
+
       if (n .eq. 0) then
           w = 111
       else
@@ -46,7 +46,7 @@ C ********************************************************************
       !    call g(1, a)
       !
       ! will set a to the values 999, 333, and 111 respectively.
-      
+
       if (n .eq. 0) then
           w = 999
       else
@@ -56,9 +56,27 @@ C ********************************************************************
       x = w
       end subroutine g
 C ********************************************************************
+      integer function h(flag)
+
+      implicit none
+      integer a, b, retval
+      logical flag
+
+      if (flag .eqv. .TRUE.) then        ! initialize
+         open (2, file = 'INPUT-FILE.txt')
+         retval = 0
+      else
+         read (2, 20) retval
+ 20      format(I2)
+      end if
+
+      h = retval
+
+      end function h
+C ********************************************************************
       program main
       implicit none
-      integer a, b
+      integer a, b, status, h
 
       call f(0, a)
       call g(0, b)
@@ -73,6 +91,12 @@ C ********************************************************************
       call f(1, a)
       call g(1, b)
       write (*,10) a, b
+
+      status = h(.true.)
+      print *, "First status: ", status
+
+      status = h(.false.)
+      print *, "Second status: ", status
 
       stop
       end program main

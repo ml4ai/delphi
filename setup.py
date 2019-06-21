@@ -60,7 +60,7 @@ setup(
             "pyjnius",
         ],
         "test": [
-            "pytest>=3.6.0",
+            "pytest>=4.4.0",
             "pytest-cov",
             "pytest-sugar",
             "pytest-xdist",
