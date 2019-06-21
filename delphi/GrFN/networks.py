@@ -20,12 +20,8 @@ import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    rectify,
+    for2py,
 )
 import numpy as np
 import torch
