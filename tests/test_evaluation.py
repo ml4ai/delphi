@@ -189,7 +189,7 @@ def test_evaluate(G_eval):
         EN.evaluate(
             target_node=target_node,
             intervened_node=intervened_node,
-            G = G_eval,
+            G=G_eval,
             input="test_CAG.pkl",
             start_year=start_year,
             start_month=start_month,

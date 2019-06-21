@@ -29,6 +29,10 @@ concepts = {
         "grounding": "UN/entities/natural/crop_technology/product",
         "delta": {"polarity": 1, "adjective": None},
     },
+    "economic crisis": {
+        "grounding": "UN/events/human/economic_crisis",
+        "delta": {"polarity": 1, "adjective": ["large"]},
+    },
 }
 
 
@@ -65,6 +69,7 @@ precipitation = Event(Concept("precipitation"))
 
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
+s3 = make_statement(events["migration"], events["economic crisis"])
 
 STS = [s1]
 
@@ -89,4 +94,14 @@ def G_eval():
     G.sample_from_prior()
     G.parameterize(year=2013, month=9)
     G.get_timeseries_values_for_indicators()
+    yield G
+
+
+@pytest.fixture(scope="session")
+def G_unit():
+    G = AnalysisGraph.from_statements([s3])
+    G.map_concepts_to_indicators()
+    G.res = 200
+    G.assemble_transition_model_from_gradable_adjectives()
+    G.sample_from_prior()
     yield G
