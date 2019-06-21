@@ -7,13 +7,8 @@ import ast
 import pytest
 
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    mod_index_generator,
-    rectify,
+    f2grfn,
 )
 
 from pathlib import Path
@@ -23,53 +18,20 @@ from typing import Dict, Tuple
 DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
-    stem = original_fortran_file.stem
-    preprocessed_fortran_file = stem + "_preprocessed.f"
-    lambdas_filename = stem + "_lambdas.py"
-    json_filename = stem + ".json"
-    python_filename = stem + ".py"
+    (
+            pySrc, 
+            lambdas_filename, 
+            json_filename, 
+            python_filename, 
+            mode_mapper_dict
+    ) = f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
 
-    with open(original_fortran_file, "r") as f:
-        inputLines = f.readlines()
-
-    with open(preprocessed_fortran_file, "w") as f:
-        f.write(preprocessor.process(inputLines))
-
-    xml_string = sp.run(
-        [
-            "java",
-            "fortran.ofp.FrontEnd",
-            "--class",
-            "fortran.ofp.XMLPrinter",
-            "--verbosity",
-            "0",
-            preprocessed_fortran_file,
-        ],
-        stdout=sp.PIPE,
-    ).stdout
-
-    tree = rectify.buildNewASTfromXMLString(xml_string)
-    trees = [tree]
-
-    mode_mapper_tree = tree
-    generator = mod_index_generator.moduleGenerator()
-    mode_mapper_dict = generator.analyze(mode_mapper_tree)
-
-    outputDict = translate.xml_to_py(trees, preprocessed_fortran_file)
-    pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-    os.remove(preprocessed_fortran_file)
-
-    return pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict
-
+    return (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict)
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
-    asts = [ast.parse(pySrc)]
-    _dict = genPGM.create_pgm_dict(lambdas_filename, asts, python_filename, mode_mapper_dict, save_file=False)
-    for identifier in _dict["identifiers"]:
-        del identifier["gensyms"]
+    _dict = f2grfn.generate_grfn(pySrc, python_filename, lambdas_filename, json_filename, mode_mapper_dict)
 
-    os.remove(lambdas_filename)
     return _dict
 
 
