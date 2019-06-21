@@ -41,7 +41,7 @@ def test_get_predictions(G_eval):
         deltas,
         n_timesteps,
     )
-    assert len(pred_df) == n_timesteps
+    assert len(pred_df) == n_timesteps + 1
     assert pred_df.columns[0] == "Import Quantity, Infant food(Predictions)"
 
 
@@ -53,9 +53,9 @@ def test_get_true_values(G_eval):
     true_df = EN.get_true_values(
         G_eval, "UN/entities/natural/crop_technology/product", 48, 2011, 9
     )
-    assert len(true_df) == 48
+    assert len(true_df) == 49
     assert true_df.columns[0] == "Import Quantity, Infant food(True)"
-    assert true_df.index[6] == "2012-4"
+    assert true_df.index[6] == "2012-3"
 
     # Checking aggregation heuristics
     G = AG.AnalysisGraph.from_text(
@@ -71,9 +71,9 @@ def test_get_true_values(G_eval):
     true_df = EN.get_true_values(
         G, "UN/entities/human/financial/economic/inflation", 10, 2013, 9
     )
-    assert len(true_df) == 10
+    assert len(true_df) == 11
     assert true_df.columns[0] == "Inflation Rate(True)"
-    assert true_df.index[6] == "2014-4"
+    assert true_df.index[6] == "2014-3"
 
 
 def test_calculate_timestep():
@@ -209,9 +209,9 @@ def test_evaluate(G_eval):
         end_month=end_month,
         plot=True,
     )
-    assert len(df) == 48
-    assert df.index[0] == "2013-2"
-    assert df.index[47] == "2017-1"
+    assert len(df) == 49
+    assert df.index[0] == "2013-1"
+    assert df.index[48] == "2017-1"
 
     # Check plotting Error plot
     EN.evaluate(

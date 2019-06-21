@@ -55,11 +55,10 @@ def get_statements_from_json_list(_list: List[Dict]) -> List[Influence]:
 
 
 def get_statements_from_json_file(json_file: str) -> List[Influence]:
-    # with open(json_file, "r") as f:
-        # _list = json.load(f)
-    # return get_statements_from_json_list(_list)
-    from indra.statements.io import stmts_from_json_file
-    return stmts_from_json_file(json_file)
+    with open(json_file, "r") as f:
+       _list = json.load(f)
+    from indra.statements.io import stmts_from_json
+    return stmts_from_json([stmt for stmt in _list if stmt["type"]=="Influence"])
 
 
 @singledispatch

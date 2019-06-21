@@ -1,5 +1,6 @@
 # This Makefile has not been fully tested. Please report any errors to
 # champlin@email.arizona.edu
+# Last edited: 6/20/2019
 #
 # =============================================================================
 # *Please read all comments before running Makefile*
@@ -52,7 +53,7 @@ data:
 $(RAW)/FAOSTAT: $(RAW)
 $(RAW)/WDI/WDIData.csv: $(RAW)
 $(RAW)/FEWS: $(RAW)
-PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
+PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/jsonld-merged20190404.json
 $(PREASSEMBLED_CORPUS): $(RAW)
 $(DSSAT_DATA): $(RAW)
 $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv: $(RAW)
@@ -160,22 +161,19 @@ build:
 #Set SCENARIO to evaluations for precipitation build and hackathon for human migration build.
 SCENARIO := hackathon
 
-build/pruned_corpus.json: $(RAW) $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
-	python $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
-
-build/all_sts.pkl: $(SCENARIO)/create_all_sts.py build/pruned_corpus.json
+build/all_sts.pkl: $(SCENARIO)/create_all_sts.py $(PREASSEMBLED_CORPUS) 
 	python $^ $@
 
 build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
 build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
-									  build/reference_cag.pkl
+													  build/reference_cag.pkl
 	python $^ $@
 
 build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-							   build/scenario_centered_CAG.pkl\
-							   data/delphi.db
+										 build/scenario_centered_CAG.pkl\
+										 data/delphi.db
 	python $< build/scenario_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\
