@@ -105,8 +105,10 @@ class ComputationalGraph(nx.DiGraph):
         # Set input values
         for i in self.inputs:
             value = inputs[i]
-            if isinstance(value, float):
+            if isinstance(value, float) or isinstance(value, int):
                 value = Float32(value)
+            elif isinstance(value, list):
+                value = np.array(value, dtype=np.float32)
 
             self.nodes[i]["value"] = value
 
@@ -492,7 +494,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
             Y = np.zeros(samples.shape[0])
             for i, sample in enumerate(samples):
                 values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values)
+                res = self.run(values)
+                Y[i] = res
 
         return sobol.analyze(prob_def, Y)
 
