@@ -228,14 +228,11 @@ breathe_default_project = "My Project"
 
 # Setup the exhale extension
 exhale_args = {
-    # These arguments are required
-    "containmentFolder":     "./api",
-    "rootFileName":          "cpp_library_root.rst",
+    "containmentFolder":     "./cpp_api",
+    "rootFileName":          "library_root.rst",
     "rootFileTitle":         "C++ API",
     "doxygenStripFromPath":  "..",
-    # Suggested optional arguments
     "createTreeView":        True,
-    # TIP: if using the sphinx-bootstrap-theme, you need
     "exhaleExecutesDoxygen": True,
     "exhaleDoxygenStdin":    "INPUT = ../delphi/cpp/AnalysisGraph.hpp"
 }
