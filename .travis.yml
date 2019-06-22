@@ -20,6 +20,7 @@ addons:
     - graphviz
     - libboost-all-dev
     - g++-8
+    - doxygen
 
 install:
   - export CC=gcc-8
@@ -43,6 +44,7 @@ deploy:
   github-token: $GITHUB_TOKEN
   on:
     branch: master
+
 
 after_success: bash <(curl -s https://codecov.io/bash)
 

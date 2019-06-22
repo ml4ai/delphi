@@ -11,7 +11,13 @@
 #include <boost/range/irange.hpp>
 
 #include <nlohmann/json.hpp>
+/** \def COUT(x)
+    \brief A macro that prints \a x to standard output (stdout).
+*/
 #define COUT(x) cout << x << endl;
+/** \def CERR(x)
+    \brief A macro that prints \a x to standard error (stderr).
+*/
 #define CERR(x) cerr << x << endl;
 
 namespace delphi {
@@ -51,24 +57,45 @@ namespace delphi {
 
 using namespace delphi;
 
+/**
+ * Returns the square of a number.
+ */
 double sqr(double x) { return x * x; }
+
+/**
+ * Returns the sum of a vector of doubles.
+ */
 double sum(vector<double> v) { return accumulate(v, 0.0); }
+
+
+/**
+ * Returns the arithmetic mean of a vector of doubles.
+ */
 double mean(vector<double> v) { return sum(v) / v.size(); }
 
+/**
+ * Returns a randomly selected element of a vector.
+ */
 template <class T> T select_random_element(vector<T> v) {
   boost::random::mt19937 gen;
   boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
   return v[dist(gen)];
 }
 
-double sample_from_normal(double mu = 0.0, double sd = 1.0) {
+double sample_from_normal(
+    double mu = 0.0, /**< The mean of the distribution.*/
+    double sd = 1.0  /**< The standard deviation of the distribution.*/
+) {
   std::random_device rd{};
   std::mt19937 gen{rd()};
   std::normal_distribution<> d{mu, sd};
   return d(gen);
 }
 
-// One-dimensional KDE
+
+/**
+ * The KDE class implements 1-D Gaussian kernel density estimators.
+ */
 class KDE {
 public:
   KDE () {};

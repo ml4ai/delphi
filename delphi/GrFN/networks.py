@@ -91,7 +91,7 @@ class ComputationalGraph(nx.DiGraph):
 
         Args:
             inputs: Input set where keys are the names of input nodes in the
-              GrFN and each key points to a set of input values (or just one).
+                GrFN and each key points to a set of input values (or just one).
 
         Returns:
             A set of outputs from executing the GrFN, one for every set of
