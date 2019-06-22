@@ -10,6 +10,7 @@ The following are the prerequisites for Delphi:
   for installing graphviz.
 - A C++17-compatible compiler. Delphi has been tested with Clang 8 and G++ 8.
 - [Boost](https://www.boost.org)
+- [CMake](https://cmake.org)
 
 ## Step-by-step instructions
 
@@ -36,7 +37,7 @@ The following are the prerequisites for Delphi:
   - If you are a Delphi _developer_, create a fresh Python virtual environment,
     activate it, and then run the following commands:
     ```
-    git clone https://github.com/ml4ai/delphi
+    git clone --recursive https://github.com/ml4ai/delphi
     cd delphi
     pip install -e .[test,docs]
     ```
