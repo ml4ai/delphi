@@ -37,7 +37,7 @@ Changes since [0.1.m5]
 
 ## grfn_spec Index
 
-Example file structure
+Example whole system GrFN specification file structure
 
 ```
 system.json
