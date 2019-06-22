@@ -129,7 +129,7 @@ def get_true_values(
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected Country not found for {target_indicator}! Using default settings (South Sudan)"
+                f"Selected Country not found for {target_indicator}! Using default settings (South Sudan)!"
             )
             query_parts["country"] = f"and `Country` is 'South Sudan'"
         else:
@@ -162,7 +162,9 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            true_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -177,7 +179,9 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            true_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -192,7 +196,9 @@ def get_true_values(
         results = list(engine.execute(query))
 
         if results != []:
-            true_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            true_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
             date.append(f"{year}-{month}")
 
             if month == 12:
@@ -310,7 +316,9 @@ def estimate_deltas(
         else:
             query_parts["state"] = f"and `State` is '{state}'"
 
-    unit = list(G.nodes(data=True)[intervened_node]["indicators"].values())[0].unit
+    unit = list(G.nodes(data=True)[intervened_node]["indicators"].values())[
+        0
+    ].unit
 
     int_vals = np.zeros(n_timesteps + 1)
     int_vals[0] = list(
@@ -326,7 +334,9 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            int_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
 
             if month == 12:
                 year = year + 1
@@ -340,7 +350,9 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            int_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
 
             if month == 12:
                 year = year + 1
@@ -354,7 +366,9 @@ def estimate_deltas(
         results = list(engine.execute(query))
 
         if results != []:
-            int_vals[j] = np.mean([float(r["Value"]) for r in results if r["Unit"] == unit])
+            int_vals[j] = np.mean(
+                [float(r["Value"]) for r in results if r["Unit"] == unit]
+            )
 
             if month == 12:
                 year = year + 1
@@ -423,7 +437,7 @@ def evaluate(
     end_month=None,
     plot=False,
     plot_type="Compare",
-    **kwargs
+    **kwargs,
 ):
     """ This is the main function of this module. This parameterizes a given
     CAG (see requirements in Args) and calls other functions within this module
@@ -462,7 +476,10 @@ def evaluate(
         reference line at 0.
 
         **kwargs: These are options for parameterize() which specify
-        country, state, units, fallback aggregation
+        country, state, units, fallback aggregation axes, and aggregation
+        function. Country and State also get passed into estimate_deltas()
+        and get_true_values(). The appropriate arguments are country, state,
+        units, fallback_aggaxes, and aggfunc.
 
     Returns:
         Returns a pandas dataframe.
@@ -482,7 +499,36 @@ def evaluate(
         "passed to input."
     )
 
-    G.parameterize(year=start_year, month=start_month)
+    if "country" in kwargs:
+        country = kwargs["country"]
+    else:
+        country = "South Sudan"
+    if "state" in kwargs:
+        state = kwargs["state"]
+    else:
+        state = None
+    if "units" in kwargs:
+        units = kwargs["units"]
+    else:
+        units = None
+    if "fallback_aggaxes" in kwargs:
+        fallback_aggaxes = kwargs["fallback_aggaxes"]
+    else:
+        fallback_aggaxes = ["year", "month"]
+    if "aggfunc" in kwargs:
+        aggfunc = kwargs["aggfunc"]
+    else:
+        aggfunc = np.mean
+
+    G.parameterize(
+        country=country,
+        state=state,
+        year=start_year,
+        month=start_month,
+        units=units,
+        fallback_aggaxes=fallback_aggaxes,
+        aggfunc=aggfunc,
+    )
     G.get_timeseries_values_for_indicators()
 
     if start_month is None:
@@ -495,13 +541,19 @@ def evaluate(
     )
 
     true_vals_df = get_true_values(
-        G, target_node, n_timesteps, start_year, start_month
+        G, target_node, n_timesteps, start_year, start_month, country, state
     )
 
     true_vals = true_vals_df.values
 
     deltas = estimate_deltas(
-        G, intervened_node, n_timesteps, start_year, start_month
+        G,
+        intervened_node,
+        n_timesteps,
+        start_year,
+        start_month,
+        country,
+        state,
     )
 
     preds_df = get_predictions(
