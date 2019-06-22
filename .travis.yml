@@ -22,9 +22,9 @@ addons:
     - g++-8
 
 install:
-  - make extensions
   - export CC=gcc-8
   - export CXX=g++-8
+  - make extensions
   - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
