@@ -421,7 +421,6 @@ def setup_evaluate(G=None, input=None, res=200):
         "passed to input."
     )
     G.res = res
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     return G
 
