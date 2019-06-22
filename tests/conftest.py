@@ -100,6 +100,5 @@ def G_unit():
     G = AnalysisGraph.from_statements([s3])
     G.map_concepts_to_indicators()
     G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     yield G
