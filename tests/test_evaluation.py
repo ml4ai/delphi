@@ -76,6 +76,18 @@ def test_get_true_values(G_eval):
     assert true_df.columns[0] == "Inflation Rate(True)"
     assert true_df.index[6] == "2014-3"
 
+    # Check warnings
+    with pytest.warns(UserWarning):
+        EN.get_true_values(
+            G,
+            "UN/entities/human/financial/economic/inflation",
+            10,
+            2013,
+            9,
+            "China",
+            "Arizona",
+        )
+
 
 def test_calculate_timestep():
     # Check Assertion error when putting end_year < start_year
@@ -134,6 +146,18 @@ def test_estimate_deltas(G_eval):
     )
     assert len(deltas) == 10
 
+    # Check warnings
+    with pytest.warns(UserWarning):
+        EN.estimate_deltas(
+            G,
+            "UN/entities/human/financial/economic/inflation",
+            10,
+            2013,
+            9,
+            "China",
+            "Arizona",
+        )
+
 
 def test_setup_evaluate(G_eval):
 
@@ -189,7 +213,7 @@ def test_evaluate(G_eval):
         EN.evaluate(
             target_node=target_node,
             intervened_node=intervened_node,
-            G = G_eval,
+            G=G_eval,
             input="test_CAG.pkl",
             start_year=start_year,
             start_month=start_month,
@@ -226,4 +250,22 @@ def test_evaluate(G_eval):
         end_month=end_month,
         plot=True,
         plot_type="Error",
+    )
+
+    # Check **kwargs in evaluate
+    EN.evaluate(
+        target_node=target_node,
+        intervened_node=intervened_node,
+        G=G_eval,
+        start_year=start_year,
+        start_month=start_month,
+        end_year=end_year,
+        end_month=end_month,
+        plot=True,
+        plot_type="Error",
+        country="South Sudan",
+        state=None,
+        units=None,
+        fallback_aggaxes=["year", "month"],
+        aggfunc=np.mean,
     )

@@ -8,8 +8,9 @@ import pytest
 # Testing constructors
 
 
-conflict = concepts['conflict']['grounding']
-food_security = concepts['food security']['grounding']
+conflict = concepts["conflict"]["grounding"]
+food_security = concepts["food security"]["grounding"]
+
 
 def test_from_statements():
     G = AnalysisGraph.from_statements(STS, assign_default_polarities=False)
@@ -23,7 +24,9 @@ def test_from_statements_file():
         pickle.dump(STS, f)
     with open(test_statements_file, "rb") as f:
         sts_from_file = pickle.load(f)
-    G = AnalysisGraph.from_statements(sts_from_file, assign_default_polarities=False)
+    G = AnalysisGraph.from_statements(
+        sts_from_file, assign_default_polarities=False
+    )
     assert set(G.nodes()) == set([conflict, food_security])
     assert set(G.edges()) == set([(conflict, food_security)])
     os.remove(test_statements_file)
@@ -51,3 +54,42 @@ def test_map_concepts_to_indicators(G):
         time=None,
     )
     assert indicator.name in G.nodes[food_security]["indicators"]
+
+
+def test_parameterize(G_unit):
+    # Assign correct units case
+    units = {
+        "Claims on other sectors of the domestic economy": "annual growth as % of broad money"
+    }
+    G_unit.parameterize(year=2012, units=units)
+    ec_unit = list(
+        G_unit.nodes(data=True)["UN/events/human/economic_crisis"][
+            "indicators"
+        ].values()
+    )[0].unit
+    assert ec_unit == "annual growth as % of broad money"
+
+    # Checking to see if it falls back on default units when requesting bad units
+    units = {
+        "Claims on other sectors of the domestic economy": "annu growth as % of broad money"
+    }
+    with pytest.warns(
+        UserWarning,
+        match="Selected units not found for Claims on other sectors of the domestic economy! Falling back to default units!",
+    ):
+        G_unit.parameterize(year=2012, units=units)
+    ec_unit = list(
+        G_unit.nodes(data=True)["UN/events/human/economic_crisis"][
+            "indicators"
+        ].values()
+    )[0].unit
+    assert ec_unit == "% of GDP"
+
+    # unit = None case
+    G_unit.parameterize(year=2012)
+    ec_unit = list(
+        G_unit.nodes(data=True)["UN/events/human/economic_crisis"][
+            "indicators"
+        ].values()
+    )[0].unit
+    assert ec_unit == "% of GDP"
