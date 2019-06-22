@@ -65,7 +65,6 @@ setup(
             "pytest-cov",
             "pytest-sugar",
             "pytest-xdist",
-            "mypy",
         ],
         "docs": [
             "sphinx",
