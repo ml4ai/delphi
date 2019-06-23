@@ -25,15 +25,13 @@ C  *****************************************************************************
       x = 0
       u = pyrand(.false.)
       do while (.true.)
-C         write(*, 14) u,  r
- 14      format(">>> u = ", F8.6, "; r = ", F8.6)
          if (u < r) then
             randbn = x
             return
          else
             u = u - r
             x = x + 1
-            r = r * (a/x) - s
+            r = r * ((a/x) - s)
          end if
       end do
       end function randbn
@@ -105,8 +103,7 @@ C  *****************************************************************************
       Y(0) = u0(3)
 
       u = u0
-C      do j = 1, tl
-      do j = 1, 250
+      do j = 1, tl
          call sir(u, params)
          S(j) = u(0)
          I(j) = u(1)
@@ -114,8 +111,7 @@ C      do j = 1, tl
          Y(j) = u(3)
       end do
 
-C      do j = 1, tl
-      do j = 1, 250
+      do j = 1, tl
          write (*, 10) S(j)
       end do
  10   format(F8.2)
@@ -140,7 +136,7 @@ C  *****************************************************************************
 
       if (do_init .eqv. .TRUE.) then        ! initialize
          open (2, file = 'PYTHON-RANDOM_SEQ')
-         do j = 1, 1000
+         do j = 1, N
             read (2, 10) pyrand_array(j)
  10         format(F20.18)
          end do

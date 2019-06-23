@@ -44,22 +44,21 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     return st
 
 
-def get_statements_from_json_list(_dict: Dict) -> List[Influence]:
+def get_statements_from_json_list(_list: List[Dict]) -> List[Influence]:
     return [
-        influence_stmt_from_dict(d)
-        for d in _dict
-        if d["type"] == "Influence"
-        and d["subj"]["name"] is not None
-        and d["obj"]["name"] is not None
+        influence_stmt_from_dict(elem)
+        for elem in _list
+        if elem["type"] == "Influence"
+        and elem["subj"]["name"] is not None
+        and elem["obj"]["name"] is not None
     ]
 
 
 def get_statements_from_json_file(json_file: str) -> List[Influence]:
-    # with open(json_file, "r") as f:
-        # _list = json.load(f)
-    # return get_statements_from_json_list(_list)
-    from indra.statements.io import stmts_from_json_file
-    return stmts_from_json_file(json_file)
+    with open(json_file, "r") as f:
+       _list = json.load(f)
+    from indra.statements.io import stmts_from_json
+    return stmts_from_json([stmt for stmt in _list if stmt["type"]=="Influence"])
 
 
 @singledispatch

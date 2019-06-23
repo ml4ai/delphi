@@ -1,9 +1,50 @@
 """ setuptools-based setup module. """
 
-from os import path
+import os
 from setuptools import setup, find_packages
+import re
+import sys
+import platform
+import subprocess
 
-here = path.abspath(path.dirname(__file__))
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+from distutils.version import LooseVersion
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+
+class CMakeExtension(Extension):
+    def __init__(self, name, sourcedir=""):
+        Extension.__init__(self, name, sources=[])
+        self.sourcedir = os.path.abspath(sourcedir)
+
+
+class CMakeBuild(build_ext):
+    def run(self):
+        # Check if a compatible version of CMake is installed
+        try:
+            out = subprocess.check_output(["cmake", "--version"])
+        except OSError:
+            raise RuntimeError(
+                "CMake must be installed to build the following extensions: "
+                + ", ".join(e.name for e in self.extensions)
+            )
+
+        if platform.system() == "Windows":
+            cmake_version = LooseVersion(
+                re.search(r"version\s*([\d.]+)", out.decode()).group(1)
+            )
+            if cmake_version < "3.1.0":
+                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
+
+        for ext in self.extensions:
+            self.build_extension(ext)
+
+    def build_extension(self, ext):
+        subprocess.check_call(["cmake", "."], cwd=ext.sourcedir)
+        subprocess.check_call(["cmake", "--build", "."], cwd=ext.sourcedir)
+
 
 setup(
     name="delphi",
@@ -21,7 +62,11 @@ setup(
     ],
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
+    ext_modules=[CMakeExtension("extension", "delphi/cpp")],
+    cmdclass=dict(build_ext=CMakeBuild),
+    zip_safe=False,
     install_requires=[
+        "pybind11",
         "indra[eidos_offline]",
         "tqdm",
         "numpy",
@@ -60,11 +105,10 @@ setup(
             "pyjnius",
         ],
         "test": [
-            "pytest>=3.6.0",
+            "pytest>=4.4.0",
             "pytest-cov",
             "pytest-sugar",
             "pytest-xdist",
-            "mypy",
         ],
         "docs": [
             "sphinx",
@@ -73,6 +117,8 @@ setup(
             "sphinxcontrib-trio",
             "sphinx-autodoc-typehints",
             "recommonmark",
+            "breathe",
+            "exhale",
         ],
     },
     entry_points={
