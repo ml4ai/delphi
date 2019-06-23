@@ -4,11 +4,8 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
-#include <pybind11/pybind11.h>
-#include <random>
 #include <sqlite3.h>
 #include <utility>
-#include <vector>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
