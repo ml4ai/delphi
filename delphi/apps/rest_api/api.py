@@ -28,18 +28,17 @@ bp = Blueprint("rest_api", __name__)
 
 
 PLACEHOLDER_UNIT = "No units specified."
+
+
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
-    if (
-        list(
-            engine.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
-                "AND name='icmmetadata'"
-            )
-        )
-        == []
-    ):
+
+    query = (
+        "SELECT name FROM sqlite_master WHERE type='table' "
+        "AND name='icmmetadata'"
+    )
+    if list(engine.execute(query)) == []:
         return jsonify([])
     else:
         return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
@@ -57,22 +56,25 @@ def createNewModel():
     return jsonify({"status": "success"})
 
 
-@bp.route("/delphi/models/<string:model_id>/indicators", methods=["GET"])
+@bp.route("/delphi/search", methods=["POST"])
 def getIndicators(model_id: str):
-    """ Search for indicator candidates pertaining to :model_id.
-
-    The search options include:
-        - start/end: To specify search criteria in years (YYYY)
-        - geolocation: To match indicators with matching geolocation
-        - func: To apply a transform function onto the raw indicator values
-        - concept: To search for specific concept, if omitted search across all concepts within the model
+    """
+    Given a list of concepts, this endpoint returns their respective matching
+    indicators. The search parameters are:
+    - start/end: To specify search criteria in years (YYYY)
+    - geolocation: To match indicators with matching geolocation
+    - func: To apply a transform function onto the raw indicator values
+    - concepts: List of concepts
+    - outputResolution: month/year
 
     The search will return a listing of matching indicators, sorted by
     similarity score. For each concept a maximum of 10 indicator matches will
     be returned. If there are no matches for a given concept an empty array is
     returned.
     """
-    concept = request.args.get("concept")
+
+    args=request.args
+
     func_dict = {
         "mean": np.mean,
         "median": np.median,
@@ -81,47 +83,60 @@ def getIndicators(model_id: str):
         "raw": lambda x: x,
     }
 
-    if concept is not None:
-        concepts = [concept]
-    else:
-        concepts = [
-            v.deserialize()["description"]
-            for v in CausalVariable.query.filter_by(model_id=model_id).all()
-        ]
 
     output_dict = {}
-    for concept in concepts:
+    for concept in args["concepts"]:
         output_dict[concept] = []
-        query_parts = [
-            "select `Concept`, `Source`, `Indicator`, `Score`",
-            "from concept_to_indicator_mapping",
-            f"where `Concept` like '{concept}'",
-        ]
-        for indicator_mapping in engine.execute(" ".join(query_parts)):
-            variable_name = indicator_mapping['Indicator'].replace("'", "''")
-            query = (
-                f"select * from indicator"
-                f" where `Variable` like '{variable_name}'"
+        query = (
+            "select `Concept`, `Source`, `Indicator`, `Score` "
+            "from concept_to_indicator_mapping "
+            f"where `Concept` like '{concept}'"
+        )
+        for indicator_mapping in engine.execute(" ".join(query)):
+            variable_name = indicator_mapping["Indicator"].replace("'", "''")
+            query_parts = (
+                f"select * from indicator",
+                f"where `Variable` like '{variable_name}'",
             )
-            records = list(engine.execute(query))
-            func = request.args.get("func", "raw")
+            outputResolution = args.get("outputResolution")
+            start = args.get("start")
+            func = args.get("func", "raw")
+
+            if outputResolution is not None:
+                query_parts.append(f"and `{outputResolution}` is not null")
+            if start is not None:
+                query_parts.append(f"and `Year` > {start}")
+            if end is not None:
+                query_parts.append(f"and `Year` < {end}")
+
+            records = list(engine.execute(" ".join(query_parts)))
             value_dict = {}
             if func == "raw":
                 for r in records:
-                    unit, value, year, source = r["Unit"], r["Value"], r["Year"], r["Source"]
+                    unit, value, year, month, source = (
+                        r["Unit"],
+                        r["Value"],
+                        r["Year"],
+                        r["Month"],
+                        r["Source"],
+                    )
+
                     # Sort of a hack - some of the variables in the tables we
                     # process don't have units specified, so we put a
                     # placeholder string to get it to work with CauseMos.
                     if unit is None:
                         unit = PLACEHOLDER_UNIT
+                    _dict = {
+                                "year": year,
+                                "month": month,
+                                "value": float(value),
+                                "source": source,
+                            }
+
                     if unit not in value_dict:
-                        value_dict[unit] = [
-                            {"year": year, "value": float(value), "source": source}
-                        ]
+                        value_dict[unit] = [_dict]
                     else:
-                        value_dict[unit].append(
-                            {"year": year, "value": float(value), "source": source}
-                        )
+                        value_dict[unit].append(_dict)
                 value = value_dict
             else:
                 for r in records:
@@ -150,7 +165,7 @@ def getIndicators(model_id: str):
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
                     "value": value,
-                    "source": source
+                    "source": source,
                 }
             )
 
@@ -215,7 +230,6 @@ def listAllICMs():
         ids = [metadata.id for metadata in ICMMetadata.query.all()]
         ids.reverse()
         return jsonify(ids)
-
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
