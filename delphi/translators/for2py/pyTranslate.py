@@ -482,8 +482,13 @@ class PythonCodeGenerator(object):
 
         # If the variable is a saved variable, prefix it by the function name
         # to access the saved value of the variable
-        if ref_str in self.saved_variables[self.current_module]:
-            ref_str = f"{self.current_module}.{ref_str}"
+        if is_derived_type_ref:
+            if ref_str.split('.')[0] in \
+                        self.saved_variables[self.current_module]:
+                ref_str = f"{self.current_module}.{ref_str}"
+        else:
+            if ref_str in self.saved_variables[self.current_module]:
+                ref_str = f"{self.current_module}.{ref_str}"
 
         if "subscripts" in node:
             # array reference or function call
@@ -769,7 +774,8 @@ class PythonCodeGenerator(object):
         # this case, cast the rhs string with int()
         if '/' in rhs_str or '*' in rhs_str:
             for item in self.var_type[self.current_module]:
-                if item["name"] == self.nameMapper[lhs["name"]] and \
+                if (lhs["is_derived_type_ref"] and item["name"] == assg_str) \
+                        or (item["name"] == self.nameMapper[lhs["name"]]) and \
                         item["type"] == "int":
                     rhs_str = f"int({rhs_str})"
 
@@ -1144,10 +1150,6 @@ class PythonCodeGenerator(object):
                 and self.nameMapper[node["name"]] not in printState.globalVars
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
-            printState.definedVars += [node["name"]]
-
-            var_type = self.get_type(node)
-
             var_type = self.get_type(node)
 
             array_range = self.get_array_dimension(node)
@@ -1156,9 +1158,8 @@ class PythonCodeGenerator(object):
             # is_save will be True and the argument to the decorator is
             # returned.
             if self.is_save:
-                save_argument = {"name": node[
-                    "name"], "call": f"Array({var_type}, [{array_range}])",
-                                                            "type": "array"}
+                save_argument = f'{{"name": "{node["name"]}", "call": Array' \
+                    f'({var_type}, [{array_range}]), "type": "array"}}'
                 return save_argument
             else:
                 # If the array variable is not SAVEd, print the
@@ -1189,6 +1190,11 @@ class PythonCodeGenerator(object):
 
             # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
+            self.var_type.setdefault(derived_type_class_info["type"],
+                                     []).append({
+                        "name": derived_type_variables[var]["name"],
+                        "type": var_type
+                    })
             is_derived_type_declaration = False
             # If the type is not one of the default types, but it's
             # a declared derived type, set the is_derived_type_declaration
@@ -1233,7 +1239,7 @@ class PythonCodeGenerator(object):
         parent = node["name"]
         self.saved_variables[parent] = []
         for item in node["body"]:
-            if item["tag"] == "save":
+            if item.get("tag") == "save":
                 to_delete = item
                 self.pyStrings.append("\n@static_vars([")
                 variables = ''
@@ -1246,9 +1252,14 @@ class PythonCodeGenerator(object):
                         save_argument = self.printArray(var, printState)
                         variables += f"{save_argument}, "
                     elif var["tag"] == "variable":
-                        save_argument = {"name": var["name"],
-                                         "call": "[None]",
-                                         "type": "variable"}
+                        if var["is_derived_type"]:
+                            save_argument = f"{{'name': '{var['name']}', " \
+                                f"'call': {var['type']}(), 'type': " \
+                                f"'derived_type'}}"
+                        else:
+                            save_argument = {"name": var["name"],
+                                             "call": [None],
+                                             "type": "variable"}
                         variables += f"{save_argument}, "
                 self.pyStrings.append(f"{variables[:-2]}])")
                 node["body"].remove(to_delete)
@@ -1354,10 +1365,11 @@ class PythonCodeGenerator(object):
 
         if variable_type in TYPE_MAP:
             mapped_type = TYPE_MAP[variable_type]
-            self.var_type.setdefault(self.current_module, []).append({
-                "name": var_name,
-                "type": mapped_type
-            })
+            if not node.get("is_derived_type"):
+                self.var_type.setdefault(self.current_module, []).append({
+                    "name": var_name,
+                    "type": mapped_type
+                })
             return mapped_type
         else:
             if node["is_derived_type"] == "true":
@@ -1365,6 +1377,14 @@ class PythonCodeGenerator(object):
                     "name": var_name,
                     "type": variable_type
                 })
+                # Add each element of the derived type into self.var_type as
+                # well
+                if variable_type in self.var_type:
+                    for var in self.var_type[variable_type]:
+                        self.var_type[self.current_module].append({
+                            "name": f"{var_name}.{var['name']}",
+                            "type": var['type']
+                        })
                 return variable_type
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"

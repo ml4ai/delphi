@@ -23,18 +23,10 @@ from delphi.translators.for2py.arrays import *
 from dataclasses import dataclass
 
 
-
 def static_vars(var_list):
     # This code is part of the runtime system
     def decorate(func):
         for var in var_list:
-            # print(var)
-            setattr(func, var["name"], eval(var["call"]))
+            setattr(func, var["name"], var["call"])
         return func
-
     return decorate
-
-# @dataclass
-# class mytype_123:
-#     def __init__(self):
-#         self.a : int

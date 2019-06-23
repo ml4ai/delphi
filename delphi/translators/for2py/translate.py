@@ -295,8 +295,10 @@ class XML_to_JSON_translator(object):
         # function/subroutine to keep a track of local variables
         if len(declared_variable) > 0:
             for var in declared_variable:
-                if var["tag"] in ["variable", "array"]  and \
-                        var["name"] not in exclusion_list:
+                if (var.get("tag") in ["variable", "array"] and
+                        var.get("name") not in exclusion_list) or \
+                    (var.get("is_derived_type") is True and var.get("type")
+                     not in exclusion_list):
                     self.variable_list.setdefault(self.current_module,
                                           []).append(var)
         return declared_variable
