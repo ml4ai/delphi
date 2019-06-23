@@ -1,4 +1,4 @@
-from delphi import GroundedFunctionNetwork
+from delphi.GrFN.networks import GroundedFunctionNetwork
 
 G = GroundedFunctionNetwork.from_fortran_src("""\
       subroutine relativistic_energy(e, m, c, p)

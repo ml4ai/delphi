@@ -1,36 +1,141 @@
-Grounded Function Network (GrFN) JSON Specification
-===================================================
+# Grounded Function Network (GrFN) JSON Specification
 
-**Version 0.1.m5**
+**Version 0.1.m7**
 
-In progress. Release date: April 1, 2019
+## TODO
 
-Changes from previous version:
+In progress. Release target date: July 1, 2019
 
-- Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
-- Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house [`<variable_spec>`](#variable-specification)s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_string>`s](#identifier-string)).
-- Clarified distinction between [`<source_code_reference>`](#grounding-and-source-code-reference)s (linking identifiers to where they are used in the analyzed source code) and [`<lambda_function_reference>`](#function-assign-body-lambda)s (which denote functions in the Program Analysis-generated lambdas file source code); previously these two concepts were ambiguous.
-- Removed [`<identifier_spec>`](#identifier-specification) "aliases" attribute. To be handled later as part of pointer/reference analysis.
-- Added links to help topic navigation.
+>TODO:
+>
+>- Add namespace (corresonding to Fortran Modules)
+>	- each module is a GrFN file (no matter how many source files)
+>	- each program is a GrFN file (no matter how many source files)
+>- Change loops to open-ended representation
+>	- subsumes for/iteration loops
+>- Structured Types
+>	- Add arrays
+>- Add goto
+>- Add precision info to `<variable_domain_type>`
+>- Add variable domain constraints to `<variable_spec>`
+>	- set of intervals
+
+### `[0.1.m7]` - 2019-07-01
+
+Changes since [0.1.m5]
+
+#### Added
+- GrFN_spec Index with links for quick reference navigation
+- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
+- [`<grounding_metadata_spec>`](#grounding-metadata-spec) in "grounding" field of [`<identifier_spec>`](#identifier-specification). Includes source, type (definition, units, constraints) and value
+
+#### Changed
+- Reorganized and rewrote portions of Introduction
+
+[Change Log](#change-og) (from previous releases)
 
 
-Introduction
-------------
+## grfn_spec Index
 
-GrFN, pronounced "Griffin", is the specification format for the central representation that integrates the extracted Function Network representation of source code (the result of Program Analysis) and associated extracted comments, links to natural language text (the result of natural language processing), and links to equations (the result of equation extraction).
+- [`<grfn_spec>`](#top-level-grfn-specification)[attrval] ::=
+	- "date_created" : `<string>`
+	- "source" : list of [`<source_code_file_path>`](#scope-and-namespace-paths)
+	- "start": list of `<string>`
+	- "identifiers" : list of [`<identifier_spec>`](#identifier-specification)[attrval] ::=
 
-There are four processes that generate and/or consume GrFN:
+		- "base_name" : [`<base_name>`](#base-name)
+		- "scope" : [`<scope_path>`](#scope-and-namespace-paths)
+		- "namespace" : [`<namespace_path>`](#scope-and-namespace-paths)
+		- "source\_references" : list of [`<source_code_reference>`](#grounding-and-source-code-reference)
+		- "gensym" : [`<gensym>`](#identifier-gensym)
+		- "grounding" : list of [`<grounding_metadata_spec>`](#grounding-metadata-spec)[attrval] ::=
+			- "source" : `<string>`
+			- "type" : `"definition"` | `"units"` | `"constraint"`
+			- "value" : `<string>`
+	
+	- "variables" : list of [`<variable_spec>`](#variable-specification)[attrval] ::=
 
-- Program Analysis (PA)
-- Text Reading (TR)
-- Equation Reading (ER)
-- Model Analysis (MA)
+		- "name" : [`<variable_name>`](#variable-naming-convention)
+		- "domain" : [`<variable_domain_type>`](#variable-value-domain)
+		- "mutable" : `TRUE` | `FALSE`
+		
+	- "functions" : list of [`<function_spec>`](#function-specification) ... instances of the following:
+		
+		- [`<function_assign_spec>`](#function-assign-specification)[attrval] ::=
+			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "type" : `"assign"` | `"condition"` | `"decision"`
+			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
+			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
+			- "body" : one of the following:
+				- [`<function_assign_body_literal_spec>`](#function-assign-body-literal)[attrval] ::=
+					- "type" : `"literal"`
+					- "value" : [`<literal_value>`](#function-assign-body-literal)[attrval] ::=
+						- "dtype" : `"real"` | `"integer"` | `"boolean"` | `"string"`
+						- "value" : `<string>`
+				- [`<function_assign_body_lambda_spec>`](#function_assign_body_lambda)[attrval] ::=
+					- "type" : `"lambda"`
+					- "name" : [`<function_name>`](#function-naming-conventions)
+					- "reference" : [`<lambda_function_reference>`](#funciton-assign-body-lambda) ::= a `<string>` denoting the python function in `lambdas.py`
+		
+		- [`<function_container_spec>`](#function-container-specification)[attrval] ::=
+			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "type" : `"assign"` | `"condition"` | `"decision"`
+			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
+			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
+			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
+		
+		- [`<function_loop_plate_spec>`](#function-loop-plate-specification)[attrval] ::=
+			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "type" : `"loop_plate"`
+			- "input" : list of [`<variable_name>`](#variable-naming-convention)
+			- "index\_variable" : [`<variable_name>`](#variable-naming-convention)
+			- "index\_iteration\_range" : `<index_range>` ::=
+				- "start" : `<integer>` | [`<variable_referene>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
+				- "end" : `<integer>` | [`<variable_referene>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
+			- "condition" : `<loop_condition>`
+			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 
-### Specification Conventions
+- [`<function_reference_spec>`](#function-reference-specification)[attrval] ::=
+	- "function" : [`<function_name>`](#function-naming-conventions)
+	- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
+	- "output" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
 
-This document describes the GrFN JSON schema, specifying the JSON format that is to be generated by program analysis and consumed by Delphi.
+- [`<function_source_reference>`](#function-assign-specification)[attrval] ::=
+	- "name" : [ [`<variable_name>`](#variable-naming-convention) | [`<function_name>`](#function-naming-conventions) ]
+	- "type" : `"variable"` | `"function"`
 
-In this document we adopt a simplified [Backus-Naur Form (BNF)](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)-inspired grammar convention combined with a convention for intuitively defining specific JSON attribute-value lists. The schema definitions and instance GrFN examples are shown in `monospaced font`, and interspersed with comments/discussion.
+- [`<variable_referene>`](#variable-reference)[attrval] ::=
+	- "variable" : [`<variable_name>`](#variable-naming-convention)
+	- "index" : `<integer>`
+
+
+## Introduction
+
+### Background: From source code to dynamic system representation
+
+GrFN, pronounced "Griffin", is the central representation generated and manipulated by the [AutoMATES](https://ml4ai.github.io/automates/) system (incorporating [Delphi](https://ml4ai.github.io/delphi)).
+
+The goal of GrFN is to provide the end-point target for a translation from the semantics of program (computation) specification (as asserted in source code) and scientific domain concepts (as expressed in text and equations) to the semantics of a (discretized) dynamic system model (akin to an extended version of a probabilistic graphical model).
+
+A key assumption is that the program source code we are analyzing is intended to model aspects of some target physical domain, and that this target physical domain is a dynamical system that evolves over time. This means that some source code variables are assumed to correspond to dynamical system states of the represented system. 
+
+The system is decomposed into a set of individual states (represented as (random) variables), where the values of the states at any given time are a function of the values of zero or more other states at the current and/or previous time point(s). Because we are considering the evolution of the system over time, in general every variable has an index. The functional relationships may be instantaneous (based on the variables indexed at the same point in time) or a function of states of variables at different time indices.
+
+There are four components in AutoMATES that generate (contribute to) and/or consume (operate on) GrFN:
+
+- Program Analysis (PA) - generates
+- Text Reading (TR) - generates
+- Equation Reading (ER) - generates
+- Model Analysis (MA) - consumes
+
+GrFN integrates the extracted _Function Network_ representation of source code (the result of Program Analysis) along with associated extracted comments, links to natural language text (the result of natural language processing by Text Reading), and links to and representation of equations (the result of equation extraction by Equation Reading).
+
+
+### Spec Notation Conventions
+
+This specification (spec) document describes the GrFN JSON schema, specifying the JSON format that is to be generated by Program Analysis, Text Reading and Equation Reading. Model Analysis is the current main consumer; we also hope that other scientific model analysis systems (e.g., from the ASKE Program) will also be consumers and/or generators.
+
+In this document we adopt a simplified [Backus-Naur Form (BNF)](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)-inspired grammar specification convention combined with a convention for intuitively defining JSON attribute-value lists. The schema definitions and instance GrFN examples are rendered in `monospaced font`, and interspersed with comments/discussion.
 
 Following BNF convention, elements in `<...>` denote nonterminals, with `::=` indicating a definition of how a nonterminal is expanded. We will use some common nonterminals with standard expected interpretations, such as `<string>` for strings, `<integer>` for integers, etc. Many of the definitions below will specify JSON attribute-value lists; when this is the case, we will decorate the nonterminal element definition by adding `[attrval]`, as follows::
 
@@ -38,36 +143,44 @@ Following BNF convention, elements in `<...>` denote nonterminals, with `::=` in
 
 We will then specify the structure of the JSON attribute-value list attributes (quoted strings) and their value types using a mixture of [JSON](https://www.json.org/) and [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form).
 
+For example, the following grfn_spec definition
+
+	<grounding_metadata_spec>[attrval] ::=
+		"source" : <string>
+		"type" : "definition" | "units" | "constraint"
+		"value" : <string> 
+
+specifies the structure of the grfn JSON instance:
+
+	{
+		"source" : "http://epirecip.es/epicookbook/chapters/sir/intro",
+		"type" : "definition",
+		"value" : "susceptible individuals"
+	}
+
 We also use the following conventions in the discussion below:
 
 - 'FUTURE': Tags anticipated extensions that may be needed but not yet 
 supported.
 - 'CHOICE': Captures discussion of a CHOICE that does not yet have a clear 
 resolution
-- 'FOR NOW': Tags approach being currently taken, eiher in response to FUTURE or CHOICE.
-
-### From source code to dynamic system representation
-
-The goal of GrFN is to provide the end-point target for a translation from the semantics of program (computation) specification (as asserted in source code) to the semantics of a (discretized) dynamic system model.
-
-A key assumption is that the program source code we are analyzing is intended to model aspects of some target physical domain, and that this target physical domain is a dynamical system that evolves over time.
-
-The system is decomposed into a set of individual states (represented as random variables), where the values of the states at any given time are a function of the values of zero or more other states at the current and/or previous time point(s). Because we are considering the evolution of the system over time, in general every variable has an index. The functional relationships may be instantaneous (based on the variables indexed at the same point in time) or a function of states of variables at different time indices.
+- 'FOR NOW': Tags the approach being currently taken, eiher in response to FUTURE or CHOICE.
 
 
-Identifiers: grounding, scopes, namespaces and gensyms
-------------------------------------------------------
+## Identifiers: grounding, scopes, namespaces and gensyms
 
 ### Preamble
 
-The current GrFN design strategy is to separate identifiers (any program symbol used to denote a program element) from the program elements themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
+The current GrFN design strategy is to separate _identifiers_ (any program symbol used to denote a program element) from the _program elements_ themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
 
-A critical role of identifiers is in facilitating linking to information extracted by Text and Equation Reading. In particular, identifiers capture two types of information useful for this task:
+A critical role of identifiers is to enable _linking_ (grounding) of program elements to information extracted by Text and Equation Reading. Identifiers bring together two types of information that make this linking possible:
 
-1. Information about the name and context of the indicator as it appears in source context -- to help connect to other textual sources based on string similarity;
-2. Information about where the indicator is used in source code (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- to help connect to other texture sources as docstrings and comments based on locality in the source code.
+1. The identifier name ([`<base_name>`](#base-name)) and namespace context ([scope and namespace paths](#scope-and-namespace-paths)) of the identifier as it appears in program source context -- e.g., the identifier name is used as evidence of connection to other textual sources based on string similarity or name embedding;
+2. Information about the location and neighborhood in source code where the identifier is used (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- this can include proximity to source code comments and docstrings, as well as proximity to uses of other identifiers.
 
-Variables (and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an indicator means a denotation of the variable. So when information is associated with indicators from text and equation sources, this information can then be associated with variables themselves (e.g., the domain concept variable corresponds to (the "definition" of the variable), and eventually type information and possible value constraints).
+An inference method uses string or embedding similarity between base, scope and namespace names and information extracted from Text Reading to form hypotheses of potential links between identifiers and the text-extracted information. Such hypotheses are then explicitly connected to identifiers (by instances of [`<grounding_metadata_spec>`](#grounding-metadata-spec)).
+
+Program elements (variables and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an identifier is a denotation of the variable or function. So when information is linked to terms or phrases ("mentions") from text and equation sources, this information can then be associated with variables themselves. For example, the indicator 'S' may store an integer and be described in documentation as corresponding to (defined as) the "susceptible population".
 
 ### Identifier
 
@@ -75,7 +188,8 @@ An identifier is a symbol used to uniquely identify a program element in code, w
 
 - variable (or constant)
 - function
-- type (class)
+
+> FUTURE: possibly: type, class
 
 More than one identifier can be used to denote the same program element, but an identifier can only be associated with one program element at a time.
 
@@ -212,6 +326,23 @@ One of the outputs of program analysis is a functionally equivalent version of t
 
 Each identifier will be associated one-to-one with a unique `<gensym>`.
 
+### Grounding Metadata spec
+
+Text Reading is currently working on extracting three types of information that can be associated with identifiers:
+
+- Definitions (e.g., 'wind speed', 'susceptible individuals')
+- Units (e.g., 'millimeters', 'per capita')
+- Constraints (e.g., '> 0', '<= 100')
+
+Each of these types can be expressed as an instance of a `<grounding_metadata_spec>`:
+
+	<grounding_metadata_spec>[attrval] ::=
+		"source" : <string>
+		"type" : "definition" | "units" | "constraint"
+		"value" : <string> 
+
+> FUTURE: add confidence/belief score
+
 ### Identifier Specification
 
 Each identifier within a GrFN specification will have a single `<identifier_spec>` declaration. An identifier will be declared in the GrFN spec JSON by the following attribute-value list:
@@ -222,10 +353,9 @@ Each identifier within a GrFN specification will have a single `<identifier_spec
         "namespace" : <namespace_path>
         "source_references" : list of <source_code_reference>
         "gensym" : <gensym>
+        "grounding" : list of <grounding_metadata_spec>
 
-
-Variable and Function Identifiers and References
-------------------------------------------------
+## Variable and Function Identifiers and References
 
 ### Variable Naming Convention
 
@@ -329,8 +459,7 @@ Here are example function names for each function type. In each example, we assu
         (Note that the above string is still unambiguous to parse to recover the components pieces of the name: the first two names separated by '::' are the [`<namespace_path_string>`](#path-strings) followed by the [`<scope_path_string>`](#path-strings), with the rest being the `<function_base_name>` of the function, which itself is an "assign" of a variable that itself is a complete [`<identifier_string>`](#identifier-string))
 
 
-Top-level GrFN Specification
-----------------------------
+## Top-level GrFN Specification
 
 The top-level structure of the GrFN specification is the `<grfn_spec>` and is itself a JSON attribute-value list, with the following schema definition:
 
@@ -388,8 +517,7 @@ A (partial) example instance of the JSON generated for a `<grfn_spec>` of an ana
 }
 ```
 
-Variable Specification
-----------------------
+## Variable Specification
 
     <variable_spec>[attrval] ::=
         "name" : <variable_name>
@@ -473,8 +601,7 @@ Here are three examples of `<variable_spec>` objects:
     }
     ```
 
-Function Specification
-----------------------
+## Function Specification
 
 Next we have the `<function_spec>`. 
 
@@ -670,3 +797,44 @@ The "index\_variable" is the named variable that stores the iteration state of t
         "end" : <integer> | <variable_reference> | <variable_name>
 
 This definition permits loop iteration bounds to be specified either as literal integers, or as the values of variables.
+
+
+# Change Log
+
+
+Inspired by [Keep a Changelog](https://keepachangelog.com)
+
+This project does not (yet) adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+
+
+## `[0.1.m5]` - 2019-05-01:
+
+### Added
+- Added "mutable" attribute to [`<variable_spec>`](#variable-specification).
+- Added "variables" attribute to top-level [`<grfn_spec>`](#top-level-grfn-specification), which contains the list of all `<variable_spec>`s. This change also means that [`<function_spec>`](#function-specification)s no longer house [`<variable_spec>`](#variable-specification)s, but instead just the [`<variable_names>`](#variable-naming-convention) (which themselves are [`<identifier_string>`s](#identifier-string)).
+- Added links to help topic navigation.
+
+### Changed
+- Clarified distinction between [`<source_code_reference>`](#grounding-and-source-code-reference)s (linking identifiers to where they are used in the analyzed source code) and [`<lambda_function_reference>`](#function-assign-body-lambda)s (which denote functions in the Program Analysis-generated lambdas file source code); previously these two concepts were ambiguous.
+
+### Removed
+- Removed [`<identifier_spec>`](#identifier-specification) "aliases" attribute. To be handled later as part of pointer/reference analysis.
+
+
+## `[0.1.m3]` - 2019-03-01:
+
+### Added
+- Addition of identifiers: `<identifier_spec>`, `<identifier_string>`, and `<gensym>` (for identifiers in generated code)
+
+### Changed
+- Revision of Introduction
+- Updates to naming conventions for variables and functions
+- General cleanup of discussion throughout
+
+
+## Releases
+- [unreleased](https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md)
+- [0.1.m5](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m5_final_phase1_report/GrFN_specification_v0.1.m5.md)
+- [0.1.m3](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m3_report_prototype_system/GrFN_specification_v0.1.m3.md)
+- [0.1.m1](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m1_architecture_report/GrFN_specification_v0.1.md)
+

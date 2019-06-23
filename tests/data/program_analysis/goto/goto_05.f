@@ -1,6 +1,6 @@
 C     File: goto_05.f
-C     A simple program with multiple gotos at the top level of the program,
-C     including some gotos to gotos.
+C     A simple program with a single forward conditional goto and
+C     a single backward conditional goto.
 C     The program computes and prints out the values of n! for n in [1,10].
 
       program factorial
@@ -8,26 +8,22 @@ C     The program computes and prints out the values of n! for n in [1,10].
 
       integer i, n, fact
 
-      goto 222
-      
- 333  goto 444
-      
+      i = 0
+      n = 10
+      fact = 0
+
  111  i = i + 1
-      fact = fact * i
+      if (fact .ne. 0) goto 222
+
+      fact = fact + 1    ! this line is executed exactly once
+
+ 222  fact = fact * i
 
       write (*, 10) i, fact
-      if (i .eq. n) then
-         stop
-      endif
 
-      goto 111
+      if (i .lt. n) goto 111
 
- 222  goto 333
-
- 444  i = 0
-      fact = 1
-      n = 10
-      goto 111
-
+      stop
  10   format('i = ', I3, '; fact = ', I8)
+
       end program factorial
