@@ -48,22 +48,21 @@ namespace2_lambdas.py
 ...
 ```
 
-NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#function-naming-convention) are both formatted as [`<identifier_string>`](), but with particular [naming conventions](#variable-and-function-identifiers-and-references).
+NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#function-naming-convention) are both formatted as [`<identifier_string>`](#identifier-string), but with particular [naming conventions](#variable-and-function-identifiers-and-references).
 
 - `<system_def>` ::=  # serves as an index; has to be a DAG
 	- "date_created" : `<string>`
 	- "name" : `<string>` # name of system; optional?
-	- "components" : list of `<grfn_spec_refs>` ::=
+	- "components" : list of `<grfn_spec_refs>`[attrval] ::=
 		- "name" : [`<namespace_path_string>`](#path-strings)
-		- "imports" : list of [`<namespace_path_string>`](#path-strings)
+		- "imports" : list of [`<namespace_path_string>`](#path-strings) # specifies which grfn_spec files to load
 
 - [`<grfn_spec>`](#top-level-grfn-specification)[attrval] ::=
 	- "date_created" : `<string>`
-	- "namespace" : [`<namespace_path_string>`](#path-strings) # 'current' namespace
-	- "imports" : 
-		- >>> Is this really needed? If so, then do we need system_def?
-		- >>> Possibly any import information is simply re
-		- >>> Perhaps just list of `<identifier_string>` ?
+	- "namespace" : [`<namespace_path_string>`](#path-strings) # 'current' namespace; grfn_spec filename will be the same
+	- "imports" : list of `<import_identifier_spec>`[attrval] ::=
+		- "source_identifier" : [`<identifier_string>`](#identifier-string)
+		- "name" : `<string>` # the name as used locally in this grfn_spec
 	- "source" : list of [`<source_code_file_path>`](#scope-and-namespace-paths)
 	- "start": list of `<string>` # 'top-level' function(s)
 	- "identifiers" : list of [`<identifier_spec>`](#identifier-specification)[attrval] ::=
@@ -82,7 +81,12 @@ NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#
 	- "variables" : list of [`<variable_spec>`](#variable-specification)[attrval] ::=
 
 		- "name" : [`<variable_name>`](#variable-naming-convention)
-		- "domain" : [`<variable_domain_type>`](#variable-value-domain)
+		- "domain" : [`<variable_domain_type>`](#variable-value-domain)[attrval] ::=
+			- "type" : `"real"` | `"integer"` | `"boolean"` | `"string"`
+			- "precision" : TODO
+		- "domain_constraints" : `<string>` # a disjunctive normal form, with v := variable value
+			- e.g., `"(or (and (< v infty) (>= v 5) (and (> v -infty) (< v 0)))"`
+			- Could this more generally reference other variables?
 		- "mutable" : `TRUE` | `FALSE`
 		
 	- "functions" : list of [`<function_spec>`](#function-specification) ... instances of the following:
@@ -114,13 +118,14 @@ NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#
 			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"loop_plate"`
 			- "input" : list of [`<variable_name>`](#variable-naming-convention)
-			- "index\_variable" : [`<variable_name>`](#variable-naming-convention) # >>> Not convinced this needs to be identified here. Also, @EricDavis makes good point that _Time_ is important concept; but I don't see time as always part of the exit\_condition computation, so identifying it that way is neither necessary or sufficient.
+			- "index\_variable" : [`<variable_name>`](#variable-naming-convention) # >>> REMOVE? Also, @EricDavis makes good point that _Time_ is important concept; but I don't see time as always part of the exit\_condition computation, so can't rely on exit\_condition variable use as necessary or sufficient condition of identifying time.
 				- >>> Anything that shows up as an input argument to the exit\_condition AND is assigned (updated) within the loop body can be considered as an index\_variable -- but this does not necessarily match to all and only that we might want to consider as an "index"... 
 				- >>> ... because, while _Time_ must be updated by assignment within the loop (to advance), it is not necessarily part of the predicate calculation of the exit\_condition. Which means that time and other things we might consider to be an "index" are not all part of the exit\_condition.
-			- "exit\_condition" : `<loop_condition>` ::= # continue loop until predicate evaluates to output literal
+			- "exit\_condition" : `<loop_condition>` ::= # continue loop until predicate evaluates to "output\_literal"
 				- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
-				- "output" : `TRUE` | `FALSE`
-				- "predicate" : [`<function_name>`](#function-naming-convention)
+				- "output" : [`<variable_name>`](#variable-naming-convention) # the named variable of the exit\_condition result
+				- "output_literal" : `TRUE` | `FALSE`
+				- "predicate" : [`<function_name>`](#function-naming-convention) # reference to lambda fn computing the condition (which must match the output_literal in order to exit)
 			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 
 - [`<function_reference_spec>`](#function-reference-specification)[attrval] ::=
