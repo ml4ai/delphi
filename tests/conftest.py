@@ -15,19 +15,23 @@ from delphi.utils.shell import cd
 concepts = {
     "conflict": {
         "grounding": "UN/events/human/conflict",
-        "delta": {"polarity": 1, "adjective": ["large"]},
+        "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "food security": {
         "grounding": "UN/entities/human/food/food_security",
-        "delta": {"polarity": -1, "adjective": ["small"]},
+        "delta": {"polarity": -1, "adjective": ["large"]},
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": None},
+        "delta": {"polarity": 1, "adjective": ['small']},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",
-        "delta": {"polarity": 1, "adjective": None},
+        "delta": {"polarity": 1, "adjective": ['large']},
+    },
+    "economic crisis": {
+        "grounding": "UN/events/human/economic_crisis",
+        "delta": {"polarity": 1, "adjective": ["large"]},
     },
 }
 
@@ -65,6 +69,7 @@ precipitation = Event(Concept("precipitation"))
 
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
+s3 = make_statement(events["migration"], events["economic crisis"])
 
 STS = [s1]
 
@@ -72,11 +77,10 @@ STS = [s1]
 @pytest.fixture(scope="session")
 def G():
     G = AnalysisGraph.from_statements(get_valid_statements_for_modeling(STS))
-    G.assemble_transition_model_from_gradable_adjectives()
+    G.res = 200
     G.sample_from_prior()
     G.map_concepts_to_indicators()
     G.parameterize(year=2014, month=12)
-    G.to_pickle()
     yield G
 
 
@@ -85,8 +89,16 @@ def G_eval():
     G = AnalysisGraph.from_statements([s2])
     G.map_concepts_to_indicators()
     G.res = 200
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
     G.parameterize(year=2013, month=9)
     G.get_timeseries_values_for_indicators()
+    yield G
+
+
+@pytest.fixture(scope="session")
+def G_unit():
+    G = AnalysisGraph.from_statements([s3])
+    G.map_concepts_to_indicators()
+    G.res = 200
+    G.sample_from_prior()
     yield G

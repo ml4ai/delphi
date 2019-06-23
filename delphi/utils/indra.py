@@ -44,13 +44,13 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     return st
 
 
-def get_statements_from_json_list(_dict: Dict) -> List[Influence]:
+def get_statements_from_json_list(_list: List[Dict]) -> List[Influence]:
     return [
-        influence_stmt_from_dict(d)
-        for d in _dict
-        if d["type"] == "Influence"
-        and d["subj"]["name"] is not None
-        and d["obj"]["name"] is not None
+        influence_stmt_from_dict(elem)
+        for elem in _list
+        if elem["type"] == "Influence"
+        and elem["subj"]["name"] is not None
+        and elem["obj"]["name"] is not None
     ]
 
 
