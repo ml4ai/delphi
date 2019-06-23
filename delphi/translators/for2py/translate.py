@@ -164,7 +164,7 @@ class XML_to_JSON_translator(object):
         # in the subroutine/function or not
         self.is_save = False
         # Variable to hold the node of the SAVE statement to process at the
-        # end of the subroutine/funcion
+        # end of the subroutine/function
         self.saved_node = None
 
     def process_subroutine_or_program_module(self, root, state):
@@ -283,6 +283,22 @@ class XML_to_JSON_translator(object):
             elif node.tag == "save-stmt":
                 declared_variable = self.parseTree(node, state)
 
+        # Create an exclusion list of all variables which are arguments
+        # to the function/subroutine in context and to
+        # function/subroutine names themselves
+        exclusion_list = self.functionList + self.subroutineList
+        if self.argument_list.get(self.current_module):
+            exclusion_list += self.argument_list[self.current_module]
+        exclusion_list = list(set([x.lower() for x in exclusion_list]))
+
+        # Map each variable declaration to this parent
+        # function/subroutine to keep a track of local variables
+        if len(declared_variable) > 0:
+            for var in declared_variable:
+                if var["tag"] in ["variable", "array"]  and \
+                        var["name"] not in exclusion_list:
+                    self.variable_list.setdefault(self.current_module,
+                                          []).append(var)
         return declared_variable
 
     def process_type(self, root, state) -> List[Dict]:
@@ -375,20 +391,6 @@ class XML_to_JSON_translator(object):
         try:
             var_name = root.attrib["name"].lower()
             is_array = root.attrib["is_array"].lower()
-
-            # Create an exclusion list of all variables which are arguments
-            # to the function/subroutine in context and to
-            # function/subroutine names themselves
-            exclusion_list = self.functionList + self.subroutineList
-            if self.argument_list.get(self.current_module):
-                exclusion_list += self.argument_list[self.current_module]
-            exclusion_list = list(set([x.lower() for x in exclusion_list]))
-
-            # Map each variable declaration to this parent
-            # function/subroutine to keep a track of local variables
-            if var_name not in exclusion_list:
-                self.variable_list.setdefault(self.current_module,
-                                              []).append(var_name)
 
             variable = {"name": var_name, "is_array": is_array}
             if is_array == "true":
@@ -848,29 +850,26 @@ class XML_to_JSON_translator(object):
         defined along with the variables that are saved by this statement.
         """
 
-        """
-            If is_save is False, the SAVE statement has been encountered for
-            the first time in the particular subroutine/function in context.
-            Here, change the flag value and save the SAVE node.
-        """
+        # If is_save is False, the SAVE statement has been encountered for
+        # the first time in the particular subroutine/function in context.
+        # Here, change the flag value and save the SAVE node.
         if not self.is_save:
             self.is_save = True
             self.saved_node = root
             return []
         else:
-            """
-                This block will be entered when a SAVE statement is present 
-                and its corresponding ast node has to be added at the end of 
-                the subroutine/function body. Here the saved SAVE node 
-                is processed as root.
-            """
+            # This block will be entered when a SAVE statement is present
+            # and its corresponding ast node has to be added at the end of
+            # the subroutine/function body. Here the saved SAVE node
+            # is processed as root.
             if root.attrib["hasSavedEntityList"] == "true":
                 var_list = []
                 for node in root:
-                    var_list.append(node.attrib["id"])
+                    for var in self.variable_list[self.current_module]:
+                        if node.attrib["id"] == var["name"]:
+                            var_list.append(var)
             else:
                 var_list = self.variable_list[self.current_module]
-
             return [{"tag": "save", "scope": self.current_module, "var_list":
                     var_list}]
 
