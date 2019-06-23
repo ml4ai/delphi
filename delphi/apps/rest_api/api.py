@@ -43,7 +43,7 @@ def listAllModels():
         return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
-@bp.route("/delphi/models", methods=["POST"])
+@bp.route("/delphi/create", methods=["POST"])
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
