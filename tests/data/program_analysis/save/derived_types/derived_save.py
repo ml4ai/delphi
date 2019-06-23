@@ -7,12 +7,13 @@ from delphi.translators.for2py.static_save import *
 from dataclasses import dataclass
 
 
-# @dataclass
-# class mytype_123:
-#     def __init__(self):
-#         self.a : int
+@dataclass
+class mytype_123:
+    def __init__(self):
+        self.a : int
 
-@static_vars([{'name': 'w', 'call': 'mytype_123()', 'type': 'derived'}])
+
+@static_vars([{'name': 'w', 'call': mytype_123(), 'type': 'derived'}])
 def f(n: List[int], x: List[int]):
     if (n[0] == 0):
         f.w.a = 111
@@ -21,7 +22,7 @@ def f(n: List[int], x: List[int]):
     x[0] = f.w.a
 
 
-@static_vars([{'name': 'w', 'call': '[None]', 'type': 'variable'}])
+@static_vars([{'name': 'w', 'call': [None], 'type': 'variable'}])
 def g(n: List[int], x: List[int]):
     if (n[0] == 0):
         g.w[0] = 999

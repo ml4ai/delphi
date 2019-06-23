@@ -11,6 +11,7 @@ C subprograms.
 
       type mytype_123
           integer :: a
+          integer :: b
       end type mytype_123
 
       type (mytype_123) w
@@ -43,6 +44,7 @@ C ********************************************************************
 
       type mytype_123
           integer :: a
+          integer :: b
       end type mytype_123
 
       type (mytype_123) w
