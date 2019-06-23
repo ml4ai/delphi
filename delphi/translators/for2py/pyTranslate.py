@@ -215,6 +215,8 @@ class PythonCodeGenerator(object):
         self.var_type = {}
         # String to hold the current call being processed
         self.current_call = None
+        # This flag is True when the SAVE statement is in context
+        self.is_save = False
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -259,10 +261,18 @@ class PythonCodeGenerator(object):
 
         # Handle the save statement first since the decorator needs to be
         # just above the function definition
-        node = self.printSave(node, printState)
-        self.current_module = node["name"]
-        self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         args = []
+        self.current_module = node["name"]
+        self.printSave(node,
+                       printState.copy(
+                           sep=", ",
+                           add="",
+                           printFirst=False,
+                           definedVars=args,
+                           indexRef=False,
+                       ),
+        )
+        self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         self.printAst(
             node["args"],
             printState.copy(
@@ -290,11 +300,19 @@ class PythonCodeGenerator(object):
 
         # Handle the save statement first since the decorator needs to be
         # just above the function definition
-        node = self.printSave(node, printState)
+        args = []
         self.current_module = node["name"]
+        self.printSave(node,
+                       printState.copy(
+                           sep=", ",
+                           add="",
+                           printFirst=False,
+                           definedVars=args,
+                           indexRef=False,
+                       ),
+        )
         self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
-        args = []
         self.funcArgs[self.nameMapper[node["name"]]] = [
             self.nameMapper[x["name"]] for x in node["args"]
         ]
@@ -644,7 +662,13 @@ class PythonCodeGenerator(object):
         )
 
     def printIndex(self, node, printState: PrintState):
-        self.pyStrings.append(f"{self.nameMapper[node['name']]}[0] in range(")
+        # If the target variable is a saved variable add the
+        # subroutine/function name to it's prefix.
+        name = self.nameMapper[node['name']]
+        if name in self.saved_variables[self.current_module]:
+            name = f"{self.current_module}.{name}"
+        self.pyStrings.append(f"{name}[0] in range(")
+
         self.printAst(
             node["low"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
@@ -1128,9 +1152,26 @@ class PythonCodeGenerator(object):
 
             array_range = self.get_array_dimension(node)
 
-            self.pyStrings.append(
-                f"{node['name']} = Array({var_type}, [{array_range}])"
-            )
+            # If the printArray function is being called from printSave,
+            # is_save will be True and the argument to the decorator is
+            # returned.
+            if self.is_save:
+                save_argument = {"name": node[
+                    "name"], "call": f"Array({var_type}, [{array_range}])",
+                                                            "type": "array"}
+                return save_argument
+            else:
+                # If the array variable is not SAVEd, print the
+                # initialization of the array
+                if node["name"] not in self.saved_variables[
+                            self.current_module]:
+                    self.pyStrings.append(
+                        f"{node['name']} = Array({var_type}, [{array_range}])"
+                    )
+                else:
+                    # If it is SAVEd, don't print the initialization code and
+                    # instead delete the remnant empty line.
+                    del self.pyStrings[-1]
 
     def printDerivedType(self, node, printState: PrintState):
         derived_type_class_info = node[0]
@@ -1188,6 +1229,7 @@ class PythonCodeGenerator(object):
         a call to static_save function with the list of saved variables as
         its argument.
         """
+        self.is_save = True
         parent = node["name"]
         self.saved_variables[parent] = []
         for item in node["body"]:
@@ -1196,12 +1238,21 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("\n@static_vars([")
                 variables = ''
                 for var in item["var_list"]:
-                    self.saved_variables[parent].append(var)
-                    variables += f'"{var}", '
+                    self.saved_variables[parent].append(var["name"])
+                    if var["tag"] == "array":
+                        # Call printArray to get the initialization code for
+                        # Array declaration. This will be on the argument to
+                        # the decorator.
+                        save_argument = self.printArray(var, printState)
+                        variables += f"{save_argument}, "
+                    elif var["tag"] == "variable":
+                        save_argument = {"name": var["name"],
+                                         "call": "[None]",
+                                         "type": "variable"}
+                        variables += f"{save_argument}, "
                 self.pyStrings.append(f"{variables[:-2]}])")
                 node["body"].remove(to_delete)
-
-        return node
+        self.is_save = False
 
 
     ###########################################################################
