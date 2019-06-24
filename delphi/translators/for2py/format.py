@@ -242,7 +242,7 @@ class Format:
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1 :]))
-                xtract_rexp = "(.{" + sz + "})"  # r.e. for extraction
+                xtract_rexp = "(.{," + sz + "})"  # r.e. for extraction
                 leading_sp = " *"
                 optional_sign = "-?"
                 rexp0 = "\d+(\.\d+)?"
