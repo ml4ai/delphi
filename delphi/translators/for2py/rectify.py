@@ -153,7 +153,23 @@ class RectifyOFPXML:
         self.goto_stmt_parents = []
         # Keeps a track of parent statements to label
         self.label_parents = []
-
+        # Keeps a track of the main body that the statement
+        # is nested under, i.e. program, loop, and if, etc
+        self.body_level = {
+            "current": None,
+            "prev": None,
+            "grand-prev": None,
+        }
+        self.body_level_rank = {
+            "program":1,
+            "loop":2,
+            "if":2
+        }
+        self.body_elem_holder = {
+            "program": None,
+            "loop": None,
+            "if": None,
+        }
     #################################################################
     #                                                               #
     #                  TAG LISTS FOR EACH HANDLER                   #
@@ -492,6 +508,21 @@ class RectifyOFPXML:
             </body>
         """
         current.attrib['parent'] = parent.tag
+        self.body_elem_holder[parent.tag] = current
+        # Keeping the track of the body's boundary.
+        if traverse == 1:
+            if self.body_level['prev'] == None:
+                self.body_level['grand-prev'] = parent.tag
+                self.body_level['prev'] = parent.tag
+            else:
+                assert (
+                        self.body_level['current'] != None
+                ), "self.body_level['current'] cannot be None."
+
+                self.body_level['grand-prev'] = self.body_level['prev']
+                self.body_level['prev'] = self.body_level['current']
+            self.body_level['current'] = parent.tag
+
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -525,8 +556,19 @@ class RectifyOFPXML:
                                 parent.attrib['goto-move'] = "true"
                             if "goto-remove" in cur_elem.attrib:
                                 parent.attrib['goto-remove'] = "true"
+
                             cur_elem.attrib['conditional-goto-stmt'] = "true"
                             cur_elem.attrib['code'] = unique_code
+                            # If the <statment> for <goto-stmt> was nested under the
+                            # conditional <if>, then the boundary of <statment> is still
+                            # remain as the current - 1 level.
+                            cur_elem.attrib['body-level'] = self.body_level['prev']
+
+                            self.body_level['current'] = self.body_level['prev']
+                        else:
+                            self.body_level['grand-prev'] = self.body_level['prev']
+                            self.body_level['prev'] = self.body_level['current']
+                            self.body_level['current'] = parent.tag
 
                         if parent.tag == "loop":
                             if (
@@ -538,6 +580,9 @@ class RectifyOFPXML:
                             ):
                                 self.goto_under_loop = True
                     else:
+                        print ("cur_elem: ", cur_elem.tag, cur_elem.attrib)
+                        print ("parent: ", current.attrib['parent'])
+                        print ("self.goto_under_loop: ", self.goto_under_loop)
                         new_parent = current
                         # Reconstruction of statements
                         if (
@@ -581,6 +626,13 @@ class RectifyOFPXML:
                                         and not self.label_lbl_for_after
                                 ):
                                     self.continue_elimination = False
+
+                        print ("traverse: ", traverse)
+                        # REMOVE
+                        for s in self.body_elem_holder['program']:
+                            print ("s: ", s.tag, s.attrib)
+                            for k in s:
+                                print ("    k: ", k.tag, k.attrib)
                 else:
                     assert False, f'In handle_tag_body: "{child.tag}" not handled'
             else:
@@ -602,7 +654,7 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                    ), f'In handle_tag_body: Empty elements  "{child.tag}" not handled'
+                    ), f'In handle_tag_body: Empty elements "{child.tag}" not handled'
 
         if self.is_format:
             self.reconstruct_format(parent, traverse)
@@ -771,10 +823,8 @@ class RectifyOFPXML:
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "derived-type-stmt"
-                    and self.is_derived_type
-            ):
+            elif child.tag == "derived-type-stmt":
+                self.is_derived_type = True
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
                 current.set("name", child.attrib['id'])
@@ -893,6 +943,9 @@ class RectifyOFPXML:
             </satement>
         """
         label_presented = False
+
+        if traverse == 1:
+            current.attrib['body-level'] = self.body_level['current']
 
         for child in root:
             self.clean_attrib(child)
@@ -2148,7 +2201,7 @@ class RectifyOFPXML:
                                         unique_code = current.attrib['code']
                                         self.conditional_op[unique_code] = condition
                                 else:
-                                    del child.attrib['conditional-goto-stmt-lbl']
+                                    del current.attrib['conditional-goto-stmt-lbl']
                 else:
                     assert (
                         False
@@ -2911,6 +2964,9 @@ class RectifyOFPXML:
         number_of_gotos = reconstruct_target['count-gotos']
         stmts_follow_goto = reconstruct_target['stmts-follow-goto']
 
+        # Check for the status whether current <goto-stmt> is
+        # conditional. If yes, only extract the header (condition)
+        # and remove the if statement AST from the tree. 
         conditional_goto = False
         header = None
         uniq_code = None
@@ -2988,6 +3044,56 @@ class RectifyOFPXML:
         # after the constructed if-statement
         next_goto = []
 
+        body_levels = {}
+        goto_outward_move = False
+        goto_inward_move = False
+        for goto_stmt in stmts_follow_goto:
+            if "goto-stmt" in goto_stmt.attrib:
+                lbl = goto_stmt.attrib['lbl']
+                body_levels[lbl] = goto_stmt.attrib['body-level']
+                for label_stmt in stmts_follow_label:
+                    if 'target-label-statement' in label_stmt.attrib:
+                        label = label_stmt.attrib['label']
+                        label_body_level = label_stmt.attrib['body-level']
+                        # A goto-forward case where goto and label are
+                        # located in different levels
+                        if (
+                            label in body_levels
+                            and body_levels[label] != label_body_level
+                        ):
+                            if self.body_level_rank[label_body_level]\
+                                    < self.body_level_rank[body_levels[label]]:
+                                goto_outward_move = True
+                                # Since outward movement is simply adding exit (break) to
+                                # the goto-stmt place, we have to create <exit> statement,
+                                # then append it to the stmts_follo_goto
+                                statement = ET.SubElement(parent, "statement")
+                                exit = ET.SubElement(statement, "exit")
+                                stmts_follow_goto.append(statement)
+                                # We need to remove it from the parent as it was just
+                                # a place holder before append to the list
+                                parent.remove(statement)
+
+
+        print ("self.body_elem_holder: ", self.body_elem_holder)
+        print ("parent: ", parent.tag, parent.attrib)
+
+        # REMOVE
+        print ("\nstmts_follow_goto")
+        for A in stmts_follow_goto:
+            print ("\nStmt: ", A.tag, A.attrib)
+            for B in A:
+                print ("    child: ", B.tag, B.attrib)
+                for C in B:
+                    print ("        gChild: ", C.tag, C.attrib)
+        print ("\nstmts_follow_label")
+        for A in stmts_follow_label:
+            print ("\nStmt: ", A.tag, A.attrib)
+            for B in A:
+                print ("    child: ", B.tag, B.attrib)
+                for C in B:
+                    print ("        gChild: ", C.tag, C.attrib)
+
         reconstructed_goto_elem = []
         for i in range(number_of_gotos):
             # Constructor for statements if and statements nested
@@ -2995,20 +3101,12 @@ class RectifyOFPXML:
                 assert (
                         header != None
                 ), "Header cannot be None in case of conditional goto"
-                self.need_op_negation = True
+                if not goto_outward_move and not goto_inward_move:
+                    self.need_op_negation = True
                 self.generate_if_element(
                         header, parent, stmts_follow_goto, next_goto, True, None,
                         None, None, None, traverse, reconstructed_goto_elem
                 )
-                if reconstructed_goto_elem:
-                    stmts_follow_goto = reconstructed_goto_elem[0]
-                self.need_op_negation = True
-                self.generate_if_element(
-                        header, parent, stmts_follow_label, next_goto, True, None,
-                        None, None, None, traverse, reconstructed_goto_elem
-                )
-                if len(reconstructed_goto_elem) > 1:
-                    stmts_follow_goto = reconstructed_goto_elem[1]
             else:
                 self.generate_if_element(
                     None, parent, stmts_follow_goto, next_goto, True, "unary",
@@ -3016,33 +3114,43 @@ class RectifyOFPXML:
                     reconstructed_goto_elem
                 )
 
-                if reconstructed_goto_elem:
-                    stmts_follow_goto = reconstructed_goto_elem[0]
+            if reconstructed_goto_elem:
+                stmts_follow_goto = reconstructed_goto_elem[0]
 
-                # Constructor for statements with L_i:stmt_n
-                for stmt in stmts_follow_label:
-                    if len(stmt) > 0:
-                        print ("*stmt: ", stmt.tag, stmt.attrib)
-                        if "goto-stmt" in stmt.attrib:
-                            goto_stmt = {}
-                            goto_stmt['statement'] = stmt
-                            for child in stmt:
-                                if child.attrib['target_label'] in self.goto_target_lbl_before:
-                                    goto_stmt['statement'].attrib['goto-move'] = "true"
-                                if (
-                                    child.attrib['target_label'] not in self.goto_target_lbl_after
-                                    and "goto-move" in goto_stmt['statement']
-                                ):
-                                    del goto_stmt['statement'].attrib['goto-move']
-                                goto_stmt['goto-stmt'] = child
-                            next_goto.append(goto_stmt)
-                        else:
+            # Constructor for statements with L_i:stmt_n
+            for stmt in stmts_follow_label:
+                if len(stmt) > 0:
+                    if "goto-stmt" in stmt.attrib:
+                        goto_stmt = {}
+                        goto_stmt['statement'] = stmt
+                        for child in stmt:
+                            if child.attrib['target_label'] in self.goto_target_lbl_before:
+                                goto_stmt['statement'].attrib['goto-move'] = "true"
+                            if (
+                                child.attrib['target_label'] not in self.goto_target_lbl_after
+                                and "goto-move" in goto_stmt['statement']
+                            ):
+                                del goto_stmt['statement'].attrib['goto-move']
+                            goto_stmt['goto-stmt'] = child
+                        next_goto.append(goto_stmt)
+                    else:
+                        if not goto_outward_move and not goto_inward_move:
                             reconstructed_goto_elem.append(stmt)
-                            statement = ET.SubElement(parent, stmt.tag, stmt.attrib)
-                            for child in stmt:
-                                cur_elem = ET.SubElement(statement, child.tag, child.attrib)
-                                if len(child) > 0:
-                                    self.parseXMLTree(child, cur_elem, statement, parent, traverse)
+                            if not self.encapsulate_under_do_while:
+                                statement = ET.SubElement(parent, stmt.tag, stmt.attrib)
+                                for child in stmt:
+                                    cur_elem = ET.SubElement(statement, child.tag, child.attrib)
+                                    if len(child) > 0:
+                                        self.parseXMLTree(child, cur_elem, statement, parent, traverse)
+                        elif goto_outward_move:
+                            label_body_level = self.body_elem_holder[stmt.attrib['body-level']]
+                            self.generate_if_element(
+                                    header, label_body_level, stmts_follow_label, next_goto, True, None,
+                                    None, None, None, traverse, reconstructed_goto_elem
+                            )
+                        else:
+                            pass
+
 
             # When unconditional goto, it generates 'goto_flag_i = False'
             # statement at the end of reconstrcted goto statement.
@@ -3083,6 +3191,13 @@ class RectifyOFPXML:
                         self.statements_to_reconstruct_before['count-gotos'] = 1
                     self.reconstruct_before_case_now = True
                     self.reconstruction_for_before_done = False
+
+        # REMOVE
+        print ("after_goto: ")
+        for s in self.body_elem_holder['program']:
+            print ("s: ", s.tag, s.attrib)
+            for k in s:
+                print ("    k: ", k.tag, k.attrib)
 
         # Set all holders and checkers (markers) to default
         self.label_after = False
@@ -3132,15 +3247,6 @@ class RectifyOFPXML:
                 break
             index += 1
 
-        # Store statements that are outside of
-        # the label-goto scope in a separate list,
-        # which will then be used to recover the syntax
-        # after the elimination process is done
-        print ("stmts_follow_label: ")
-        for stmt in stmts_follow_label:
-            print ("stmt: ", stmt.tag, stmt.attrib)
-            for child in stmt:
-                print ("    child: ", child.tag, child.attrib)
         statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
         for stmt in statements_to_recover:
             if (
@@ -3290,8 +3396,6 @@ class RectifyOFPXML:
                     index += 1
             else:
                 current_goto_num += 1
-
-        print ("statements_to_recover: ", statements_to_recover)
 
         for recover_stmt in statements_to_recover:
             statement = ET.SubElement(
@@ -3779,8 +3883,8 @@ class RectifyOFPXML:
     def parent_goto_assigner(self, boundary, boundary_for_label,
                              statements_to_reconstruct):
         """
-            This function actually assigns scope(s) to each goto and label
-            statements
+            This function actually assigns boundary(s) to each goto
+            and label statements.
         """
         for stmt in statements_to_reconstruct:
             if "goto-stmt" in stmt.attrib:
