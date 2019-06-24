@@ -166,6 +166,9 @@ class XML_to_JSON_translator(object):
         # Variable to hold the node of the SAVE statement to process at the
         # end of the subroutine/function
         self.saved_node = None
+        # This list holds the nodes of the file handles that needs to be
+        # SAVEd in the python translated code.
+        self.saved_filehandle = []
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -188,6 +191,10 @@ class XML_to_JSON_translator(object):
         if self.is_save:
             subroutine["body"] += self.process_save(self.saved_node, state)
             self.is_save = False
+        elif self.saved_filehandle:
+            subroutine["body"] += {"tag": "save", "scope":
+                        self.current_module, "var_list": self.saved_filehandle}
+            self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
@@ -619,7 +626,7 @@ class XML_to_JSON_translator(object):
             return [fn]
         elif (
             root.attrib["id"] in self.functionList
-            and state.subroutine["tag"] != "function"
+            # and state.subroutine["tag"] != "function"
         ):
             fn = {"tag": "call", "name": root.attrib["id"].lower(), "args": []}
             for node in root:
@@ -717,6 +724,10 @@ class XML_to_JSON_translator(object):
         if self.is_save:
             subroutine["body"] += self.process_save(self.saved_node, state)
             self.is_save = False
+        elif self.saved_filehandle:
+            subroutine["body"] += [{"tag": "save", "scope":
+                        self.current_module, "var_list": self.saved_filehandle}]
+            self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
         return [subroutine]
@@ -779,6 +790,17 @@ class XML_to_JSON_translator(object):
         val = {"tag": root.tag, "args": []}
         for node in root:
             val["args"] += self.parseTree(node, state)
+
+        # If the node is a file OPEN node, save it so that it can later be
+        # added to the SAVE node in the ast
+        if root.tag == "open":
+            # for arg in val["args"]:
+            #     if arg.get('value'):
+            #         name = f"file_{arg['value']}"
+            # decorator_argument = f'{{"name": "{name}", "call": None, "type": ' \
+            #     f'"file_handle"}}'
+            # self.saved_filehandle += [decorator_argument]
+            self.saved_filehandle += [val]
         return [val]
 
     def process_terminal(self, root, state) -> List[Dict]:
@@ -872,6 +894,9 @@ class XML_to_JSON_translator(object):
                             var_list.append(var)
             else:
                 var_list = self.variable_list[self.current_module]
+
+            if self.saved_filehandle:
+                var_list += self.saved_filehandle
             return [{"tag": "save", "scope": self.current_module, "var_list":
                     var_list}]
 
