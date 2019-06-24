@@ -817,7 +817,12 @@ class PythonCodeGenerator(object):
         if node.get("value"):
             self.pyStrings.append(f"print({node['value']})")
             self.pyStrings.append(printState.sep)
-        self.pyStrings.append("return")
+        if node['tag'] == "exit":
+            self.pyStrings.append("break")
+        elif node['tag'] == "stop":
+            self.pyStrings.append("return")
+        else:
+            assert False, f"tag: {node['tag']} not being handled yet."
 
     def printReturn(self, node, printState: PrintState):
         self.pyStrings.append("")
