@@ -11,7 +11,7 @@ def clean_UNHCR_data():
     Note: As suggested by being considered newly lodged applications,
     this count attempts to disclude repeat/re-opened applications.
     """
-    #header=2 is required since the raw data as extra unneeded descriptions at
+    #header=2 is required since the raw data has extra unneeded descriptions at
     #the top of the file
     df = pd.read_csv('data/raw/unhcr_popstats_export_asylum_seekers_monthly_2019_06_24_192535.csv',header=2)
 
@@ -61,7 +61,5 @@ def clean_UNHCR_data():
 
     df.to_csv(str(data_dir / "south_sudan_data_UNHCR.tsv"), index=False, sep="\t")
 
-
 if __name__ == "__main__":
-    if sys.argv[1] == '--unhcr':
         clean_UNHCR_data()
