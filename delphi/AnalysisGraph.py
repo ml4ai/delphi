@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 import random
-from math import exp, log
+from math import exp, log, pi
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
@@ -11,7 +11,7 @@ from uuid import uuid4
 import networkx as nx
 import numpy as np
 import warnings
-from scipy.stats import gaussian_kde, norm
+from scipy.stats import gaussian_kde
 import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
@@ -46,6 +46,15 @@ from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
 
+def normpdf(x, mean, sd):
+    """ Calculate pdf of normal distribution with a given mean and standard
+    deviation. Faster than scipy.stats.norm.pdf. From https://stackoverflow.com/a/12413491 """
+    var = float(sd) ** 2
+    denom = (2 * pi * var) ** 0.5
+    num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
+    return num / denom
+
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -63,6 +72,8 @@ class AnalysisGraph(nx.DiGraph):
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
+        self.log_prior = None
+        self.log_likelihood = None
 
     def assign_uuids_to_nodes_and_edges(self):
         """ Assign uuids to nodes and edges. """
@@ -126,29 +137,50 @@ class AnalysisGraph(nx.DiGraph):
     @classmethod
     def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
-        machine reading. """
+        machine reading.
 
+        Args:
+            text: Input text to be processed by Eidos.
+            webservice: URL for Eidos webservice, either the INDRA web service,
+                or the instance of Eidos running locally on your computer (e.g.
+                http://localhost:9000.
+        """
         eidosProcessor = process_text(text, webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
     @classmethod
-    def from_json_serialized_statements_list(cls, json_serialized_list):
+    def from_json_serialized_statements_list(
+        cls, json_serialized_list: List[Dict]
+    ):
         """ Construct an AnalysisGraph object from a list of JSON serialized
-        INDRA statements. """
+        INDRA statements.
+
+        Args:
+            json_serialized_list: A list of JSON-serializable dicts
+                representing INDRA statements.
+        """
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
-    def from_json_serialized_statements_file(cls, file):
+    def from_json_serialized_statements_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing
-        JSON-serialized INDRA statements. """
+        JSON-serialized INDRA statements.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements.
+        """
         return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
-    def from_uncharted_json_file(cls, file):
+    def from_uncharted_json_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing INDRA
         statements serialized exported by Uncharted's CauseMos webapp.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements
+            from Uncharted's CauseMos HMI.
         """
         with open(file, "r") as f:
             _dict = json.load(f)
@@ -159,7 +191,14 @@ class AnalysisGraph(nx.DiGraph):
         cls, _dict, minimum_evidence_pieces_required: int = 1
     ):
         """ Construct an AnalysisGraph object from a dict of INDRA statements
-        exported by Uncharted's CauseMos webapp. """
+        exported by Uncharted's CauseMos webapp.
+
+        Args:
+            _dict: A dict of INDRA statements exported by Uncharted's CauseMos
+                HMI.
+            minimum_evidence_pieces_required: The minimum number of evidence
+                pieces required to consider a statement for assembly.
+        """
         sts = _dict["statements"]
         G = nx.DiGraph()
         for s in sts:
@@ -233,47 +272,17 @@ class AnalysisGraph(nx.DiGraph):
 
     # ==========================================================================
     # Sampling and inference
+    # ----------------------
+    #
+    # This section contains code for sampling and Bayesian inference.
     # ==========================================================================
 
-    def update_log_prior(self, A: pd.DataFrame) -> float:
-        _list = [
-            edge[2]["ConditionalProbability"].evaluate(
-                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-            )
-            for edge in self.edges(data=True)
-        ]
+    def sample_from_prior(self):
+        """ Sample elements of the stochastic transition matrix from the prior
+        distribution, based on gradable adjectives. """
 
-        self.log_prior = sum(map(log, _list))
-
-    def update_log_likelihood(self):
-        _list = []
-        for latent_state, observed_state in zip(
-            self.latent_state_sequence, self.observed_state_sequence
-        ):
-            for n in self.nodes(data=True):
-                for indicator, value in observed_state[n[0]].items():
-                    ind = n[1]["indicators"][indicator]
-                    if ind.timeseries is not None:
-                        log_likelihood = np.log(
-                            norm.pdf(
-                                value, latent_state[n[0]] * ind.mean, ind.stdev
-                            )
-                        )
-                        _list.append(log_likelihood)
-
-        self.log_likelihood = sum(_list)
-
-    def update_log_joint_probability(self):
-        self.log_joint_probability = self.log_prior + self.log_likelihood
-
-    def assemble_transition_model_from_gradable_adjectives(self):
-        """ Add probability distribution functions constructed from gradable
-        adjective data to the edges of the analysis graph data structure.
-
-        Args:
-            adjective_data
-            res
-        """
+        # Add probability distribution functions constructed from gradable
+        # adjective data to the edges of the analysis graph data structure.
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
@@ -281,38 +290,28 @@ class AnalysisGraph(nx.DiGraph):
         rs = gaussian_kde(
             flatMap(
                 lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(self.res)[0]
+                .resample(self.res)
                 .tolist(),
                 gb,
             )
-        ).resample(self.res)[0]
+        ).resample(self.res)
 
         for edge in self.edges(data=True):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
             edge[2]["βs"] = np.tan(
-                edge[2]["ConditionalProbability"].resample(self.res)[0]
+                edge[2]["ConditionalProbability"].resample(self.res)
             )
 
-    def set_latent_state_sequence(self, A, n_timesteps=10):
-        self.latent_state_sequence = ltake(
-            n_timesteps,
-            iterate(
-                lambda s: pd.Series(A.values @ s.values, index=s.index),
-                self.s0,
-            ),
-        )
+        # Sample a collection of transition matrices from the prior.
 
-    def sample_from_prior(self):
-        """ Sample elements of the stochastic transition matrix from the prior
-        distribution, based on gradable adjectives. """
+        node_pairs = list(permutations(self.nodes(), 2))
 
         # simple_path_dict caches the results of the graph traversal that finds
         # simple paths between pairs of nodes, so that it doesn't have to be
         # executed for every sampled transition matrix.
 
-        node_pairs = list(permutations(self.nodes(), 2))
         simple_path_dict = {
             node_pair: [
                 list(pairwise(path))
@@ -346,24 +345,7 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def sample_observed_state(self, s: pd.Series) -> Dict:
-        """ Sample observed state vector. This is the implementation of the
-        emission function.
-
-        Args:
-            s: Latent state vector.
-
-        Returns:
-            Observed state vector.
-        """
-
-        return {
-            n[0]: {
-                i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
-                for i in n[1]["indicators"].values()
-            }
-            for n in self.nodes(data=True)
-        }
+        return self.transition_matrix_collection
 
     def sample_from_likelihood(self, n_timesteps=10):
         """ Sample a collection of observed state sequences from the likelihood
@@ -373,6 +355,7 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
+        self.n_timesteps = n_timesteps
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
@@ -388,27 +371,108 @@ class AnalysisGraph(nx.DiGraph):
             for latent_state_sequence in self.latent_state_sequences
         ]
 
+    def sample_from_posterior(self, A: pd.DataFrame) -> pd.DataFrame:
+        """ Run Bayesian inference - sample from the posterior distribution."""
+        if self.log_likelihood is None:
+            self.log_likelihood = self.calculate_log_likelihood(A)
+
+        # Sample a new transition matrix from the proposal distribution.
+        self.sample_from_proposal(A)
+
+        Δ_log_prior = self.calculate_Δ_log_prior(A)
+        original_log_likelihood = self.log_likelihood
+        candidate_log_likelihood = self.calculate_log_likelihood(A)
+        Δ_log_likelihood = candidate_log_likelihood - self.log_likelihood
+
+        delta_log_joint_probability = Δ_log_prior + Δ_log_likelihood
+
+        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
+        if acceptance_probability < np.random.rand():
+            A[f"∂({self.source})/∂t"][self.target] = self.original_value
+            self.log_likelihood = original_log_likelihood
+
+        return A
+
+    def calculate_Δ_log_prior(self, A: pd.DataFrame) -> float:
+        Δ_log_prior = self.edges[self.source, self.target][
+            "ConditionalProbability"
+        ].logpdf(
+            A[f"∂({self.source})/∂t"][self.target] / self.Δt
+        ) - self.edges[
+            self.source, self.target
+        ][
+            "ConditionalProbability"
+        ].logpdf(
+            self.original_value / self.Δt
+        )
+
+        return Δ_log_prior
+
+    def calculate_log_likelihood(self, A):
+        _list = []
+        self.set_latent_state_sequence(A)
+        for latent_state, observed_state in zip(
+            self.latent_state_sequence, self.observed_state_sequence
+        ):
+            for n in self.nodes(data=True):
+                for indicator, value in observed_state[n[0]].items():
+                    ind = n[1]["indicators"][indicator]
+                    log_likelihood = log(
+                        normpdf(
+                            value, latent_state[n[0]] * ind.mean, ind.stdev
+                        )
+                    )
+                    _list.append(log_likelihood)
+
+        log_likelihood_total = sum(_list)
+        return log_likelihood_total
+
+    def set_latent_state_sequence(self, A):
+        self.latent_state_sequence = ltake(
+            self.n_timesteps, iterate(lambda s: A.dot(s), self.s0)
+        )
+
+    def sample_observed_state(self, s: pd.Series) -> Dict:
+        """ Sample observed state vector. This is the implementation of the
+        emission function.
+
+        Args:
+            s: Latent state vector.
+
+        Returns:
+            Observed state vector.
+        """
+
+        return {
+            n[0]: {
+                indicator.name: np.random.normal(
+                    s[n[0]] * indicator.mean, indicator.stdev
+                )
+                for indicator in n[1]["indicators"].values()
+            }
+            for n in self.nodes(data=True)
+        }
+
     def sample_from_proposal(self, A: pd.DataFrame) -> None:
         """ Sample a new transition matrix from the proposal distribution,
         given a current candidate transition matrix. In practice, this amounts
         to the in-place perturbation of an element of the transition matrix
         currently being used by the sampler.
-
-        Args
         """
 
         # Choose the element of A to perturb
         self.source, self.target, self.edge_dict = random.choice(
             list(self.edges(data=True))
         )
+        # Remember the original value of the element, in case we need to revert
+        # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.01)
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)
     ):
-        """ Attach timeseries to indicators, for performing Bayesian inference.
-         """
+        """Attach timeseries to indicators, for performing Bayesian inference."""
         if resolution == "month":
             funcs = [
                 partial(get_indicator_value, month=month) for month in months
@@ -425,29 +489,6 @@ class AnalysisGraph(nx.DiGraph):
                 ]
                 if len(set(indicator.timeseries)) == 1:
                     indicator.timeseries = None
-
-    def sample_from_posterior(self, A: pd.DataFrame) -> None:
-        """ Run Bayesian inference - sample from the posterior distribution."""
-        self.sample_from_proposal(A)
-        self.set_latent_state_sequence(A)
-        self.update_log_prior(A)
-        self.update_log_likelihood()
-
-        candidate_log_joint_probability = self.log_prior + self.log_likelihood
-
-        delta_log_joint_probability = (
-            candidate_log_joint_probability - self.log_joint_probability
-        )
-
-        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
-        if acceptance_probability > np.random.rand():
-            self.update_log_joint_probability()
-        else:
-            A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.set_latent_state_sequence(A)
-            self.update_log_likelihood()
-            self.update_log_prior(A)
-            self.update_log_joint_probability()
 
     def infer_transition_matrix_coefficient_from_data(
         self,
