@@ -311,7 +311,7 @@ class PythonCodeGenerator(object):
                            indexRef=False,
                        ),
         )
-        self.functions.append(self.nameMapper[node['name']])
+        # self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         self.funcArgs[self.nameMapper[node["name"]]] = [
             self.nameMapper[x["name"]] for x in node["args"]
@@ -861,6 +861,13 @@ class PythonCodeGenerator(object):
             )
         else:
             file_handle = "file_" + str(node["args"][0]["value"])
+
+        # We are making all file handles static i.e. SAVEing them which means
+        # the file handles have to be prefixed with their subroutine/function
+        # names
+        if file_handle in self.saved_variables[self.current_module]:
+            file_handle = f"{self.current_module}.{file_handle}"
+
         self.pyStrings.append(f"{file_handle} = ")
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
@@ -871,6 +878,11 @@ class PythonCodeGenerator(object):
                     open_state = node["args"][index + 1]["value"]
                     open_state = self.stateMap[open_state]
 
+        # If the file_name has quotes at the beginning and end, remove them
+        if (file_name[0] == "'" and file_name[-1] == "'") or \
+                (file_name[0] == '"' and file_name[-1] == '"'):
+            file_name = file_name[1:-1]
+
         self.pyStrings.append(f'open("{file_name}", "{open_state}")')
 
     def printRead(self, node, printState: PrintState):
@@ -879,6 +891,12 @@ class PythonCodeGenerator(object):
             file_handle = "file_" + file_number
         if node["args"][1]["type"] == "int":
             format_label = node["args"][1]["value"]
+
+        # We are making all file handles static i.e. SAVEing them which means
+        # the file handles have to be prefixed with their subroutine/function
+        # names
+        if file_handle in self.saved_variables[self.current_module]:
+            file_handle = f"{self.current_module}.{file_handle}"
 
         isArray = False
         tempInd = 0
@@ -1108,6 +1126,10 @@ class PythonCodeGenerator(object):
 
             varType = self.get_type(node)
 
+            if node.get("value") and node["value"][0]["tag"] == "op" and \
+                    ("/" in initVal or "*" in initVal) and varType == "int":
+                initVal = f"int({initVal})"
+
             if "is_derived_type" in node and node["is_derived_type"] == "true":
                 self.pyStrings.append(
                     f"{self.nameMapper[node['name']]} =  {varType}()"
@@ -1244,7 +1266,8 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("\n@static_vars([")
                 variables = ''
                 for var in item["var_list"]:
-                    self.saved_variables[parent].append(var["name"])
+                    if var.get("name"):
+                        self.saved_variables[parent].append(var["name"])
                     if var["tag"] == "array":
                         # Call printArray to get the initialization code for
                         # Array declaration. This will be on the argument to
@@ -1260,6 +1283,12 @@ class PythonCodeGenerator(object):
                             save_argument = {"name": var["name"],
                                              "call": [None],
                                              "type": "variable"}
+                        variables += f"{save_argument}, "
+                    elif var["tag"] == "open":
+                        name = f"file_{var['args'][0]['value']}"
+                        self.saved_variables[parent].append(name)
+                        save_argument = f"{{'name': '{name}', 'call': None, " \
+                            f"'type': 'file_handle'}}"
                         variables += f"{save_argument}, "
                 self.pyStrings.append(f"{variables[:-2]}])")
                 node["body"].remove(to_delete)
@@ -1365,7 +1394,7 @@ class PythonCodeGenerator(object):
 
         if variable_type in TYPE_MAP:
             mapped_type = TYPE_MAP[variable_type]
-            if not node.get("is_derived_type"):
+            if node.get("is_derived_type") == "false":
                 self.var_type.setdefault(self.current_module, []).append({
                     "name": var_name,
                     "type": mapped_type
@@ -1467,6 +1496,7 @@ def create_python_source_list(outputDict: Dict):
 
     # Writing the main program section
     code_generator = PythonCodeGenerator()
+    code_generator.functions = outputDict["functionList"]
     code_generator.pyStrings.append("\n".join(import_lines))
 
     # Copy the derived type ast from the main_ast into the separate list,
