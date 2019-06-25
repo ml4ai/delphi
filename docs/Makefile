@@ -24,4 +24,4 @@ apidocs:
 	sphinx-apidoc -o . ../delphi -f
 
 grfn:
-	python swagger-yaml-to-html.py < icm_api.yaml > doc.html
+	python swagger-yaml-to-html.py < grfn_openapi.yaml > doc.html
