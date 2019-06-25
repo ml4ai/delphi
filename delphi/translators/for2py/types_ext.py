@@ -24,11 +24,13 @@ Authors:
     Pratik Bhandari
 
 """
+from numbers import Real, Number
+import math
 
 from numpy import float32
 
 
-class Float32:
+class Float32(Real):
     """ This class converts float variables into float32 type for single-precision
     calculation and overloads the default arithmetic and logical operations.
     All methods below follow a similar
@@ -174,11 +176,31 @@ class Float32:
         """
         return Float32(self.__value(other) ** self._val)
 
+    # ==========================================================================
+    # Added by Paul to extend the Real class
+    def __float__(self):
+        return float(self._val)
+
+    def __round__(self, ndigits=None):
+        return round(self._val, ndigits=ndigits)
+
+    def __ceil__(self):
+        return Float32(math.ceil(self._val))
+
+    def __floor__(self):
+        return Float32(math.floor(self._val))
+
+    def __trunc__(self):
+        return int(self._val)
+    # ==========================================================================
+
     def __value(self, other):
         """ This method checks whether the variable is a Float32 type or not and
         returns it's value likewise.
         """
         if isinstance(other, Float32):
             return other._val
-        else:
+        elif isinstance(other, Number):
             return other
+        else:
+            raise TypeError(f"Unusable type ({type(other)}) with Float32")

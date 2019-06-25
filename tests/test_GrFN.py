@@ -6,7 +6,6 @@ import sys
 import numpy as np
 import torch
 
-from delphi.translators.for2py.floatNumpy import Float32
 from delphi.GrFN.networks import GroundedFunctionNetwork
 
 data_dir = "tests/data/GrFN/"
@@ -32,7 +31,7 @@ def test_petpt_creation_and_execution(petpt_grfn):
 
     values = {name: 1.0 for name in petpt_grfn.inputs}
     res = petpt_grfn.run(values)
-    assert res == Float32(0.029983712)
+    assert res == np.float32(0.029983712)
 
 
 def test_petasce_creation(petasce_grfn):
@@ -57,7 +56,7 @@ def test_petasce_creation(petasce_grfn):
     }
 
     res = petasce_grfn.run(values)
-    assert res == Float32(0.00012496980836348878)
+    assert res == np.float32(0.00012496980836348878)
 
 
 def test_crop_yield_creation(crop_yield_grfn):
