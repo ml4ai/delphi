@@ -230,7 +230,7 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
 
 
 def generate_grfn(
-    python_src, python_file, lambdas_file, json_file, mode_mapper_dict
+    python_src, python_file, lambdas_file, json_file, mode_mapper_dict, tester_call
 ):
     """
         This function generates GrFN dictionary object and file.
@@ -493,5 +493,5 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src, python_file, lambdas_file, json_file, mode_mapper_dict
+        python_src, python_file, lambdas_file, json_file, mode_mapper_dict, False
     )
