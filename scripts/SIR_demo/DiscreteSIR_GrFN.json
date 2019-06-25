@@ -778,11 +778,11 @@
         "name": "simulate__loop_cond__0",
         "input": [
           {
-            "name": "i",
+            "variable": "i",
             "index": null
           },
           {
-            "name": "tl",
+            "variable": "tl",
             "index": -1
           }
         ]
@@ -806,7 +806,11 @@
           ]
         },
         {
-          "name": "simulate_lp1__assign__S_0",
+          "name": "simulate_lp0__assign__S_0",
+          "output": {
+            "variable": "S",
+            "index": 0
+          },
           "input": [
             {
               "variable": "i",
@@ -814,6 +818,171 @@
             },
             {
               "variable": "u",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "simulate_lp0__assign__I_0",
+          "output": {
+            "variable": "I",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "i",
+              "index": null
+            },
+            {
+              "variable": "u",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "simulate_lp0__assign__R_0",
+          "output": {
+            "variable": "R",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "i",
+              "index": null
+            },
+            {
+              "variable": "u",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "simulate_lp0__assign__Y_0",
+          "output": {
+            "variable": "Y",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "i",
+              "index": null
+            },
+            {
+              "variable": "u",
+              "index": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "randbn__loop_plate__bool_0",
+      "type": "loop_plate",
+      "input": [
+
+      ],
+      "index_variable": null,
+      "index_iteration_range": null,
+      "cond": {
+        "name": "randbn__loop_cond__0",
+        "input": []
+      },
+      "body": [
+        {
+          "name": "randbn_lp0__condition__IF_1_0",
+          "output": {
+            "variable": "IF_1",
+            "index": 0
+          },
+          "input": [
+            {
+              "variable": "u",
+              "index": -1
+            },
+            {
+              "variable": "r",
+              "index": -1
+            }
+          ]
+        },
+        {
+          "name": "randbn_lp0__return__0",
+          "output": {
+            "variable": "RET_1",
+            "index": 0
+          },
+          "variables": [
+            "x"
+          ]
+        },
+        {
+          "name": "randbn_lp0__decision__RET_1",
+          "output": {
+            "variable": "RET_1",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "RET_1",
+              "index": 0
+            },
+            {
+              "variable": "IF_1",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "randbn_lp0__assign__u_1",
+          "output": {
+            "variable": "u",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "u",
+              "index": 0
+            },
+            {
+              "variable": "r",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "randbn_lp_0__assign__x_1",
+          "output": {
+            "variable": "x",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "x",
+              "index": 0
+            }
+          ]
+        },
+        {
+          "name": "randbn_lp0__assign__r_1",
+          "output": {
+            "variable": "r",
+            "index": 1
+          },
+          "input": [
+            {
+              "variable": "r",
+              "index": 0
+            },
+            {
+              "variable": "a",
+              "index": 0
+            },
+            {
+              "variable": "x",
+              "index": 1
+            },
+            {
+              "variable": "s",
               "index": 0
             }
           ]
