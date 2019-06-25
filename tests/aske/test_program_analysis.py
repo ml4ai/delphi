@@ -31,6 +31,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
         lambdas_filename,
         json_filename,
         mode_mapper_dict,
+        True
     )
 
     return _dict

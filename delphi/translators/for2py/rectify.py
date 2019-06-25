@@ -356,6 +356,12 @@ class RectifyOFPXML:
         "saved-entity-list",
     ]
 
+    output_child_tags = [
+        "name",
+        "literal",
+        "operation",
+    ]
+
     #################################################################
     #                                                               #
     #                       HANDLER FUNCTONS                        #
@@ -1754,7 +1760,7 @@ class RectifyOFPXML:
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
             )
-            if child.tag == "name" or child.tag == "literal":
+            if child.tag in self.output_child_tags:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
