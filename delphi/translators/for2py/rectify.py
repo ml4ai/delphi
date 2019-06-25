@@ -774,7 +774,7 @@ class RectifyOFPXML:
             elif child.tag == "derived-type-stmt":
                 if not self.is_derived_type:
                     type_elem = ET.SubElement(current, current.tag, current.attrib)
-                    self.parent_type = type_elem
+                    self.parent_type = current
                     self.is_derived_type = True
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
@@ -2820,10 +2820,10 @@ class RectifyOFPXML:
             and reconstructed to be nested under (1)
             in this function.
         """
-        root_scope = ET.SubElement(self.current_body_scope, "statement")
-        cur_elem = ET.SubElement(root_scope, "format")
+        statement_elem = ET.SubElement(self.current_body_scope, "statement")
+        cur_elem = ET.SubElement(statement_elem, "format")
         self.parseXMLTree(
-            self.format_holder, cur_elem, root_scope, grandparent, traverse
+            self.format_holder, cur_elem, statement_elem, grandparent, traverse
         )
 
     def reconstruct_derived_type_names(self, current):
