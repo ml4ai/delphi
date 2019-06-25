@@ -47,6 +47,14 @@ UNNECESSARY_TYPES = (
     ast.LtE,
 )
 
+# Regular expression to match python statements that need to be bypassed in
+# the GrFN and lambda files. Currently contains I/O statements.
+BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
+            r"^write_line$|^format_\d+_obj" \
+            r".*|^Format$|^list_output_formats$|^write_list_stream$"
+
+RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
+
 
 class GrFNGenerator(object):
     def __init__(self, annassigned_list=[], elif_pgm=[], function_defs=[]):
@@ -916,7 +924,7 @@ class GrFNGenerator(object):
                     )
                     state.lambdaStrings.append(lambda_string)
 
-                # In the case of assignments of the form:    "ud: List[float]"
+                # In the case of assignments of the form: "ud: List[float]"
                 # an assignment function will be created with an empty input
                 # list. Also, the function dictionary will be empty. We do
                 # not want such assignments in the GrFN so check for an empty
@@ -975,10 +983,6 @@ class GrFNGenerator(object):
                     f"{state.fnName}__assign__{target['var']['variable']}",
                     target,
                 )
-                # If the index is -1, change it to the index in the fnName.
-                # This is a hack right now.
-                # if target["var"]["index"] < 0:
-                #     target["var"]["index"] = name[-1]
 
                 fn = self.make_fn_dict(name, target, sources, node)
                 if len(fn) == 0:
@@ -1075,8 +1079,17 @@ class GrFNGenerator(object):
 
             return pgms
 
+        # Handle Attributes
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`. The `node.id`
+        # stores the <function_name> which is being ignored.
         elif isinstance(node, ast.Attribute):
-            return self.genPgm(node.value, state, fnNames, call_source)
+            lastDef = getLastDef(node.attr, state.lastDefs,
+                                 state.lastDefDefault)
+
+            return [{"var": {"variable": node.attr, "index": lastDef}}]
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1153,11 +1166,11 @@ class GrFNGenerator(object):
         # for all identifiers
 
         # TODO handle multiple file namespaces that handle multiple fortran
-        #  file namespacing
+        # file namespacing
 
         # TODO Is the namespace path for the python intermediates or the
-        #  original FORTRAN code? Currently, it captures the intermediate
-        #  python file's path
+        # original FORTRAN code? Currently, it captures the intermediate
+        # python file's path
         name_space = self.mode_mapper["FileName"][1].split("/")
         name_space = ".".join(name_space)
 
@@ -1170,8 +1183,8 @@ class GrFNGenerator(object):
         scope_path = ".".join(scope_path)
 
         # TODO Source code reference: This is the line number in the Python
-        #  (or FORTRAN?) file. According to meeting on the 21st Feb, 2019,
-        #  this was the same as namespace. Exactly same though? Need clarity.
+        # (or FORTRAN?) file. According to meeting on the 21st Feb, 2019,
+        # this was the same as namespace. Exactly same though? Need clarity.
 
         source_reference = name_space
 
@@ -1318,17 +1331,9 @@ class GrFNGenerator(object):
         source = []
         fn = {}
 
-        # Regular expression to check for all targets that need to be bypassed.
-        # This is related to I/O handling
-        bypass_regex = (
-            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|"
-            r"^write_line$|^format_\d+_obj"
-            r".*|^Format$|^list_output_formats$|^write_list_steam$"
-        )
-
         # Preprocessing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = re.match(bypass_regex, target["var"]["variable"])
+        bypass_match_target = RE_BYPASS_IO.match(target["var"][ "variable"])
 
         if bypass_match_target:
             self.exclude_list.append(target["var"]["variable"])
@@ -1337,14 +1342,13 @@ class GrFNGenerator(object):
         for src in sources:
             if "call" in src:
                 # Bypassing identifiers who have I/O constructs on their source
-                # fields too.
+                # fields too.s
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i'
                 #  in the long run
-                bypass_match_source = re.match(
-                    bypass_regex, src["call"]["function"]
-                )
+                bypass_match_source = RE_BYPASS_IO.match(src["call"][
+                                                              "function"])
                 if bypass_match_source:
                     if "var" in src:
                         self.exclude_list.append(src["var"]["variable"])
@@ -1425,7 +1429,7 @@ def dump(node, annotate_fields=True, include_attributes=False, indent="  "):
     Return a formatted dump of the tree in *node*.  This is mainly useful for
     debugging purposes.  The returned string will show the names and the values
     for fields.  This makes the code impossible to evaluate, so if evaluation
-    is wanted *annotate_fields* must be set to False.  Attributes such as line
+    is wanted *annotate_fields* must be set to False. Attributes such as line
     numbers and column offsets are not dumped by default. If this is wanted,
     *include_attributes* can be set to True.
     """
@@ -1564,11 +1568,19 @@ def getFnName(fnNames, basename, target):
 
 def getLastDef(var, lastDefs, lastDefDefault):
     index = lastDefDefault
-    if var in lastDefs:
-        index = lastDefs[var]
+
+    # Preprocessing and removing certain Assigns which only pertain to the
+    # Python code and do not relate to the FORTRAN code in any way.
+    bypass_match = RE_BYPASS_IO.match(var)
+
+    if not bypass_match:
+        if var in lastDefs:
+            index = lastDefs[var]
+        else:
+            lastDefs[var] = index
+        return index
     else:
-        lastDefs[var] = index
-    return index
+        return 0
 
 
 def getNextDef(var, lastDefs, nextDefs, lastDefDefault):
@@ -1632,6 +1644,7 @@ def generage_gensysm(tag):
     # gensym, we add a tag signifying the data type it represents. 'v' is for
     # variables and 'h' is for holders.
 
+
     return uuid.uuid4().hex[:12] + "_" + tag
 
 
@@ -1655,7 +1668,6 @@ def make_call_body_dict(source):
                 elif item.get("dtype") == "string":
                     # TODO Do repetitions in this like in the above check need
                     #  to be removed?
-                     # Will repetition occur here?
                     source_list.append(
                         {"name": item["value"], "type": "variable"}
                     )
@@ -1671,7 +1683,7 @@ def importAst(filename: str):
 
 # Get the absolute path of the python files whose PGMs are being generated.
 # TODO: For now the path is started from the directory "for2py" but need further
-#  discussion on this
+# discussion on this
 
 
 def get_path(fileName: str, instance: str):
