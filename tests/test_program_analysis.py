@@ -29,8 +29,21 @@ def get_python_source(original_fortran_file) -> Tuple[str, str, str, str, Dict]:
     return (pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict)
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(original_fortran_file)
-    _dict = f2grfn.generate_grfn(pySrc, python_filename, lambdas_filename, json_filename, mode_mapper_dict)
+    (
+            pySrc, 
+            lambdas_filename, 
+            json_filename, 
+            python_filename, 
+            mode_mapper_dict 
+    ) = get_python_source(original_fortran_file)
+
+    _dict = f2grfn.generate_grfn(
+                                    pySrc, 
+                                    python_filename, 
+                                    lambdas_filename, 
+                                    json_filename, 
+                                    mode_mapper_dict
+    )
 
     return _dict
 

@@ -738,6 +738,7 @@ class RectifyOFPXML:
                 ...
             </type>
         """
+        single_var_derive_type = None
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -764,19 +765,20 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
-            elif child.tag == "intrinsic-type-spec":
-                if self.is_derived_type:
-                    self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "derived-type-stmt"
-                    and self.is_derived_type
-            ):
+            elif child.tag == "derived-type-stmt":
+                if not self.is_derived_type:
+                    type_elem = ET.SubElement(current, current.tag, current.attrib)
+                    self.parent_type = type_elem
+                    self.is_derived_type = True
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
                 current.set("name", child.attrib['id'])
                 # And, store the name of the derived type name for
                 # later setting the outer most <type> elements's name attribute
                 self.cur_derived_type_name = child.attrib['id']
+            elif child.tag == "intrinsic-type-spec":
+                if self.is_derived_type:
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
                     self.is_derived_type = True
@@ -2651,6 +2653,7 @@ class RectifyOFPXML:
             # 'component-decl-list__begin' tag is an indication
             # of all the derived type member variable
             # declarations will follow.
+            print ("self.parent_type: ", self.parent_type.tag, self.parent_type.attrib)
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
