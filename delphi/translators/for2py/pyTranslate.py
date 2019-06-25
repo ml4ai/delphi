@@ -920,7 +920,7 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(", ")
             ind = ind + 1
         self.pyStrings.append(
-            f") = format_{format_label}_obj."
+            f",) = format_{format_label}_obj."
             f"read_line({file_handle}.readline())"
         )
         self.pyStrings.append(printState.sep)
