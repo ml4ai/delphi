@@ -21,6 +21,10 @@ using std::cout, std::endl, std::unordered_map, std::pair, std::string,
 
 using json = nlohmann::json;
 
+template <class T, class U> bool hasKey(unordered_map<T, U> umap, T key) {
+  return umap.count(key) == 0;
+}
+
 json load_json(string filename) {
   ifstream i(filename);
   json j;
@@ -28,7 +32,8 @@ json load_json(string filename) {
   return j;
 }
 
-map<string, vector<double>> construct_adjective_response_map() {
+unordered_map<string, vector<double>>
+construct_adjective_response_map(size_t n_kernels = 100) {
   sqlite3 *db;
   int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
   if (!rc)
@@ -39,23 +44,22 @@ map<string, vector<double>> construct_adjective_response_map() {
   sqlite3_stmt *stmt;
   const char *query = "select * from gradableAdjectiveData";
   rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-  map<string, vector<double>> adjective_response_map;
+  unordered_map<string, vector<double>> adjective_response_map;
+
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     string adjective = std::string(
         reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (adjective_response_map.count(adjective) == 0) {
+    if (hasKey(adjective_response_map, adjective)) {
       cout << adjective << endl;
       adjective_response_map[adjective] = {response};
     } else {
       adjective_response_map[adjective].push_back(response);
     }
   }
-  for (auto const &[k, v] : adjective_response_map) {
-    cout << k << endl;
-    for (auto resp : v) {
-      cout << resp << endl;
-    }
+
+  for (auto &[k, v] : adjective_response_map) {
+    v = KDE(v).resample(n_kernels);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
@@ -80,12 +84,12 @@ public:
    * statements.
    */
   static AnalysisGraph from_json_file(string filename) {
-    auto j = load_json(filename);
+    auto json_data = load_json(filename);
 
     DiGraph G;
     std::unordered_map<string, int> nameMap = {};
     int i = 0;
-    for (auto stmt : j) {
+    for (auto stmt : json_data) {
       if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
@@ -105,9 +109,21 @@ public:
           }
 
           // Add the edge to the graph if it is not in it already
-          if (!edge(nameMap[subj_str], nameMap[obj_str], G).second) {
-            auto [e, exists] = add_edge(nameMap[subj_str], nameMap[obj_str], G);
-            G[e].causalFragments.push_back(CausalFragment{"sa", "oa"});
+          auto [e, exists] = add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          for (auto evidence : stmt["evidence"]) {
+            auto annotations = evidence["annotations"];
+            auto subj_adjectives = annotations["subj_adjectives"];
+            auto obj_adjectives = annotations["obj_adjectives"];
+            auto subj_adjective =
+                (subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                    ? subj_adjectives[0]
+                    : "";
+            auto obj_adjective =
+                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "";
+            auto subj_polarity = annotations["subj_polarity"];
+            auto obj_polarity = annotations["obj_polarity"];
+            G[e].causalFragments.push_back(CausalFragment{
+                subj_adjective, obj_adjective, subj_polarity, obj_polarity});
           }
         }
       }
@@ -116,9 +132,12 @@ public:
   }
 
   void construct_beta_pdfs() {
-    // auto adjective_response_map = construct_adjective_response_map();
+    auto adjective_response_map = construct_adjective_response_map();
     for_each(edges(graph), [&](auto e) {
-      cout << graph[e].causalFragments[0].subj_adjective << endl;
+      for (auto causalFragment : graph[e].causalFragments) {
+        auto subj_adjective = causalFragment.subj_adjective;
+        auto obj_adjective = causalFragment.obj_adjective;
+      }
     });
   }
   auto print_nodes() {
