@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 import re
 import sys
 import platform
-import subprocess
+from subprocess import check_call, check_output
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -24,7 +24,7 @@ class CMakeBuild(build_ext):
     def run(self):
         # Check if a compatible version of CMake is installed
         try:
-            out = subprocess.check_output(["cmake", "--version"])
+            out = check_output(["cmake", "--version"])
         except OSError:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: "
@@ -42,8 +42,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        subprocess.check_call(["cmake", "."], cwd=ext.sourcedir)
-        subprocess.check_call(["cmake", "--build", "."], cwd=ext.sourcedir)
+        check_call(["cmake", "."], cwd=ext.sourcedir)
+        check_call(["cmake", "--build", "."], cwd=ext.sourcedir)
 
 
 setup(
