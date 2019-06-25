@@ -2963,6 +2963,7 @@ class RectifyOFPXML:
         """
         number_of_gotos = reconstruct_target['count-gotos']
         stmts_follow_goto = reconstruct_target['stmts-follow-goto']
+        stmts_follow_label = reconstruct_target['stmts-follow-label']
 
         # Check for the status whether current <goto-stmt> is
         # conditional. If yes, only extract the header (condition)
@@ -2985,8 +2986,6 @@ class RectifyOFPXML:
             ):
                 header = stmt[0]
                 stmts_follow_goto.remove(stmt)
-
-        stmts_follow_label = reconstruct_target['stmts-follow-label']
 
         # If [0] <goto-stmt> is an inner scope statement of the [N-1]
         # <goto-stmt> (if it is a <goto-stmt> in the stmts_follow_goto,
@@ -3036,44 +3035,24 @@ class RectifyOFPXML:
         if not conditional_goto:
             declared_goto_flag_num = []
             self.generate_declaration_element(
-                parent, "goto_flag", number_of_gotos, declared_goto_flag_num,
-                traverse
+                parent, "goto_flag", number_of_gotos,
+                declared_goto_flag_num, traverse
             )
-        # This variable is for storing goto that may appear at the end of if
-        # because we want to extract one scope out and place it right
-        # after the constructed if-statement
+
+        # This variable is for storing goto that may appear
+        # at the end of if because we want to extract one 
+        # scope out and place it right after
+        # the constructed if-statement
         next_goto = []
 
-        body_levels = {}
-        goto_outward_move = False
-        goto_inward_move = False
-        for goto_stmt in stmts_follow_goto:
-            if "goto-stmt" in goto_stmt.attrib:
-                lbl = goto_stmt.attrib['lbl']
-                body_levels[lbl] = goto_stmt.attrib['body-level']
-                for label_stmt in stmts_follow_label:
-                    if 'target-label-statement' in label_stmt.attrib:
-                        label = label_stmt.attrib['label']
-                        label_body_level = label_stmt.attrib['body-level']
-                        # A goto-forward case where goto and label are
-                        # located in different levels
-                        if (
-                            label in body_levels
-                            and body_levels[label] != label_body_level
-                        ):
-                            if self.body_level_rank[label_body_level]\
-                                    < self.body_level_rank[body_levels[label]]:
-                                goto_outward_move = True
-                                # Since outward movement is simply adding exit (break) to
-                                # the goto-stmt place, we have to create <exit> statement,
-                                # then append it to the stmts_follo_goto
-                                statement = ET.SubElement(parent, "statement")
-                                exit = ET.SubElement(statement, "exit")
-                                stmts_follow_goto.append(statement)
-                                # We need to remove it from the parent as it was just
-                                # a place holder before append to the list
-                                parent.remove(statement)
-
+        outward_move = [False]
+        inward_move = [False]
+        # Check for the case where goto and label are
+        # at different lexical levels
+        self.handle_inoutward_movement(
+                    stmts_follow_goto, stmts_follow_label, 
+                    outward_move, inward_move, parent
+        )
 
         print ("self.body_elem_holder: ", self.body_elem_holder)
         print ("parent: ", parent.tag, parent.attrib)
@@ -3101,7 +3080,7 @@ class RectifyOFPXML:
                 assert (
                         header != None
                 ), "Header cannot be None in case of conditional goto"
-                if not goto_outward_move and not goto_inward_move:
+                if not outward_move[0] and not inward_move[0]:
                     self.need_op_negation = True
                 self.generate_if_element(
                         header, parent, stmts_follow_goto, next_goto, True, None,
@@ -3134,7 +3113,7 @@ class RectifyOFPXML:
                             goto_stmt['goto-stmt'] = child
                         next_goto.append(goto_stmt)
                     else:
-                        if not goto_outward_move and not goto_inward_move:
+                        if not outward_move[0] and not inward_move[0]:
                             reconstructed_goto_elem.append(stmt)
                             if not self.encapsulate_under_do_while:
                                 statement = ET.SubElement(parent, stmt.tag, stmt.attrib)
@@ -3142,7 +3121,7 @@ class RectifyOFPXML:
                                     cur_elem = ET.SubElement(statement, child.tag, child.attrib)
                                     if len(child) > 0:
                                         self.parseXMLTree(child, cur_elem, statement, parent, traverse)
-                        elif goto_outward_move:
+                        elif outward_move[0]:
                             label_body_level = self.body_elem_holder[stmt.attrib['body-level']]
                             self.generate_if_element(
                                     header, label_body_level, stmts_follow_label, next_goto, True, None,
@@ -3450,6 +3429,42 @@ class RectifyOFPXML:
                 )
             parent.remove(elem)
 
+    def handle_inoutward_movement(
+            self, stmts_follow_goto, stmts_follow_label, 
+            outward_move, inward_move, parent
+    ):
+        """
+            This function checks the lexical level of goto and label.
+            Then, generate and add (remove) statements to the statement
+            holders, so they can be handled appropriately.
+        """
+        body_levels = {}
+        for goto_stmt in stmts_follow_goto:
+            if "goto-stmt" in goto_stmt.attrib:
+                lbl = goto_stmt.attrib['lbl']
+                body_levels[lbl] = goto_stmt.attrib['body-level']
+                for label_stmt in stmts_follow_label:
+                    if 'target-label-statement' in label_stmt.attrib:
+                        label = label_stmt.attrib['label']
+                        label_body_level = label_stmt.attrib['body-level']
+                        # A goto-forward case where goto and label are
+                        # located in different levels
+                        if (
+                            label in body_levels
+                            and body_levels[label] != label_body_level
+                        ):
+                            if self.body_level_rank[label_body_level]\
+                                    < self.body_level_rank[body_levels[label]]:
+                                outward_move[0] = True
+                                # Since outward movement is simply adding exit (break) to
+                                # the goto-stmt place, we have to create <exit> statement,
+                                # then append it to the stmts_follo_goto
+                                statement = ET.SubElement(parent, "statement")
+                                exit = ET.SubElement(statement, "exit")
+                                stmts_follow_goto.append(statement)
+                                # We need to remove it from the parent as it was just
+                                # a place holder before append to the list
+                                parent.remove(statement)
 
     #################################################################
     #                                                               #
