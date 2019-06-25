@@ -744,7 +744,6 @@ class RectifyOFPXML:
                 ...
             </type>
         """
-        single_var_derive_type = None
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -772,10 +771,18 @@ class RectifyOFPXML:
                     child, cur_elem, current, parent, traverse
                 )
             elif child.tag == "derived-type-stmt":
+                # If child.tag is derived-type-stmt while self.is_derived_type
+                # is not true, it's an indication of only a sinlge variable
+                # was declared under the derived type declaration, so the syntax
+                # has no nested type case like above. Thus, in order to make
+                # the syntax same, I'm adding another type and nest everything
+                # under it.
                 if not self.is_derived_type:
-                    type_elem = ET.SubElement(current, current.tag, current.attrib)
-                    self.parent_type = current
                     self.is_derived_type = True
+                    type_elem = ET.SubElement(current, current.tag, current.attrib)
+                    type_elem.set("is_derived_type", str(self.is_derived_type))
+                    type_elem.set("name", child.attrib['id'])
+                    self.parent_type = current
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
                 current.set("name", child.attrib['id'])
@@ -2659,7 +2666,6 @@ class RectifyOFPXML:
             # 'component-decl-list__begin' tag is an indication
             # of all the derived type member variable
             # declarations will follow.
-            print ("self.parent_type: ", self.parent_type.tag, self.parent_type.attrib)
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
