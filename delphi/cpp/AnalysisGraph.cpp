@@ -12,6 +12,15 @@
 
 #include "AnalysisGraph.hpp"
 
+using std::cout, std::endl, std::unordered_map, std::pair, std::string,
+    std::ifstream, std::stringstream, std::vector, std::map,
+    boost::inner_product, boost::edge, boost::add_edge, boost::edge,
+    boost::edges, boost::source, boost::target, boost::get, boost::graph_bundle,
+    boost::make_label_writer, boost::write_graphviz, boost::range::for_each,
+    boost::lambda::make_const;
+
+using json = nlohmann::json;
+
 json load_json(string filename) {
   ifstream i(filename);
   json j;
@@ -74,7 +83,7 @@ public:
     auto j = load_json(filename);
 
     DiGraph G;
-    std::unordered_map<string, int> node_int_map = {};
+    std::unordered_map<string, int> nameMap = {};
     int i = 0;
     for (auto stmt : j) {
       if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
@@ -82,21 +91,23 @@ public:
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
 
-          auto subj_string = subj.dump();
-          auto obj_string = obj.dump();
+          auto subj_str = subj.dump();
+          auto obj_str = obj.dump();
 
-          for (auto c : {subj_string, obj_string}) {
-            if (node_int_map.count(c) == 0) {
-              node_int_map[c] = i;
-              i++;
+          // Add the nodes to the graph if they are not in it already
+          for (auto c : {subj_str, obj_str}) {
+            if (nameMap.count(c) == 0) {
+              nameMap[c] = i;
               auto v = add_vertex(G);
               G[v].name = c;
+              i++;
             }
           }
-          if (!edge(node_int_map[subj_string], node_int_map[obj_string], G)
-                   .second) {
-            auto edge = add_edge(node_int_map[subj_string],
-                                 node_int_map[obj_string], G);
+
+          // Add the edge to the graph if it is not in it already
+          if (!edge(nameMap[subj_str], nameMap[obj_str], G).second) {
+            auto [e, exists] = add_edge(nameMap[subj_str], nameMap[obj_str], G);
+            G[e].causalFragments.push_back(CausalFragment{"sa", "oa"});
           }
         }
       }
@@ -107,7 +118,7 @@ public:
   void construct_beta_pdfs() {
     // auto adjective_response_map = construct_adjective_response_map();
     for_each(edges(graph), [&](auto e) {
-      cout << source(e, graph) << "  " << target(e, graph) << endl;
+      cout << graph[e].causalFragments[0].subj_adjective << endl;
     });
   }
   auto print_nodes() {

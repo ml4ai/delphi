@@ -3,6 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include <kde.hpp>
+#include <optional>
 
 /** \def COUT(x)
     \brief A macro that prints \a x to standard output (stdout).
@@ -13,51 +14,41 @@
 */
 #define CERR(x) cerr << x << endl;
 
-namespace delphi {
-  using std::cout,
-        std::endl,
-        std::unordered_map,
-        std::pair,
-        std::string,
-        std::ifstream,
-        std::stringstream,
-        std::vector,
-        std::map,
-        boost::inner_product,
-        boost::adjacency_list,
-        boost::edge,
-        boost::add_edge,
-        boost::vecS,
-        boost::directedS,
-        boost::edges,
-        boost::source,
-        boost::target,
-        boost::get,
-        boost::make_label_writer,
-        boost::write_graphviz,
-        boost::range::for_each,
-        boost::lambda::make_const
-  ;
+using std::pair 
+    , std::string
+    , std::optional
+    , std::vector
+    , std::unordered_map
+    , boost::adjacency_list
+    , boost::vecS
+    , boost::directedS
+;
 
-  using json = nlohmann::json;
-}
 
-using namespace delphi;
+struct CausalFragment {
+  string subj_adjective;
+  string obj_adjective;
+  // Here we assume that unknown polarities are set to 1.
+  int subj_polarity = 1;
+  int obj_polarity = 1;
+};
+
+
+struct Edge {
+  string name;
+  optional<KDE> kde;
+  vector<CausalFragment> causalFragments= {};
+};
 
 struct Node {
   string name;
 };
 
-struct CAGEdge {
-  string name;
-  KDE kde;
-};
-
-struct Model {
+struct GraphData {
   string name;
 };
 
-typedef pair<int, int> Edge;
-typedef adjacency_list<vecS, vecS, directedS, Node, CAGEdge, Model> DiGraph;
+
+typedef adjacency_list<vecS, vecS, directedS, Node, Edge, GraphData> DiGraph;
 
 #endif
