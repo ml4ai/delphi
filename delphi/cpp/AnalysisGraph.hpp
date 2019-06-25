@@ -5,15 +5,6 @@
 #include <kde.hpp>
 #include <optional>
 
-/** \def COUT(x)
-    \brief A macro that prints \a x to standard output (stdout).
-*/
-#define COUT(x) cout << x << endl;
-/** \def CERR(x)
-    \brief A macro that prints \a x to standard error (stderr).
-*/
-#define CERR(x) cerr << x << endl;
-
 using std::pair 
     , std::string
     , std::optional
@@ -26,6 +17,10 @@ using std::pair
     , boost::directedS
 ;
 
+template <class T>
+void print(T x) {
+  std::cout << x << std::endl;
+}
 
 struct CausalFragment {
   string subj_adjective;

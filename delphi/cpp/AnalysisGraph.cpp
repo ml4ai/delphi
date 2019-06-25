@@ -32,14 +32,16 @@ json load_json(string filename) {
   return j;
 }
 
+size_t default_n_samples = 100;
+
 unordered_map<string, vector<double>>
-construct_adjective_response_map(size_t n_kernels = 100) {
+construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   sqlite3 *db;
   int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
   if (!rc)
-    COUT("Opened db successfully")
+    print("Opened db successfully");
   else
-    COUT("Could not open db")
+    print("Could not open db");
 
   sqlite3_stmt *stmt;
   const char *query = "select * from gradableAdjectiveData";
@@ -51,7 +53,6 @@ construct_adjective_response_map(size_t n_kernels = 100) {
         reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
     if (hasKey(adjective_response_map, adjective)) {
-      cout << adjective << endl;
       adjective_response_map[adjective] = {response};
     } else {
       adjective_response_map[adjective].push_back(response);
@@ -133,10 +134,22 @@ public:
 
   void construct_beta_pdfs() {
     auto adjective_response_map = construct_adjective_response_map();
+    vector<double> marginalized_responses;
+    for (auto [adjective, responses] : adjective_response_map) {
+      for (auto response:responses) {
+        marginalized_responses.push_back(response);
+      }
+    }
+    marginalized_responses = KDE(marginalized_responses).resample(default_n_samples);
+
     for_each(edges(graph), [&](auto e) {
       for (auto causalFragment : graph[e].causalFragments) {
         auto subj_adjective = causalFragment.subj_adjective;
+        auto subj_polarity = causalFragment.subj_polarity;
         auto obj_adjective = causalFragment.obj_adjective;
+        auto obj_polarity = causalFragment.obj_polarity;
+        auto subject_responses = adjective_response_map[subj_adjective] | transformed(_1*subj_polarity);
+        auto object_responses = adjective_response_map[obj_adjective] | transformed(_1*obj_polarity);
       }
     });
   }
