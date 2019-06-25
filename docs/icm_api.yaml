@@ -1,0 +1,767 @@
+openapi: 3.0.0
+servers:
+  - url: 'https://icm.causeex.twosixlabs.com/icm'
+info:
+  description: Causal Exploration ICM API
+  version: 4.2.0
+  title: Causal Exploration ICM API
+  contact:
+    email: causeex-help@twosixlabs.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: icm
+    description: CRUD operations for ICMs
+  - name: icmOp
+    description: 'ICM Operations such as branch, fuse, query, diff, etc.'
+  - name: misc
+    description: Miscellaneous operations
+paths: {}
+components:
+  securitySchemes:
+    causeex_auth:
+      type: http
+      scheme: basic
+  parameters:
+    uuid:
+      name: uuid
+      in: path
+      description: UUID of ICM
+      required: true
+      schema:
+        type: string
+        format: uuid
+    prim_id:
+      name: prim_id
+      in: path
+      description: ID of causal primitive
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      required: false
+      description: The number of items to skip before starting to collect the result set.
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      required: false
+      description: The number of items to return.
+  schemas:
+    ICMProvider:
+      type: string
+      enum:
+        - BAE
+        - BBN
+        - STR
+        - DUMMY
+    LifecycleState:
+      type: string
+      enum:
+        - PROPOSED
+        - APPROVED
+        - EXPERIMENTAL
+        - OPERATIONAL
+        - SUSPENDED
+        - ARCHIVED
+        - CREATED
+    ICMMetadata:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        icmProvider:
+          $ref: '#/components/schemas/ICMProvider'
+        title:
+          type: string
+        version:
+          type: integer
+        created:
+          type: string
+          format: date-time
+        createdByUser:
+          $ref: '#/components/schemas/User'
+        lastAccessed:
+          type: string
+          format: date-time
+        lastAccessedByUser:
+          $ref: '#/components/schemas/User'
+        lastUpdated:
+          type: string
+          format: date-time
+        lastUpdatedByUser:
+          $ref: '#/components/schemas/User'
+        estimatedNumberOfPrimitives:
+          type: integer
+          format: int64
+          minimum: 0
+          description: estimated number of causal primitives
+        lifecycleState:
+          $ref: '#/components/schemas/LifecycleState'
+        derivation:
+          description: >-
+            if this ICM was derived from one or more ICMs, include lineage as
+            necessary
+          type: array
+          items:
+            type: string
+            format: uuid
+    User:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        userStatus:
+          type: integer
+          format: int32
+          description: User Status
+    ServerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: some server generated UUID that can be used to reference a request
+        message:
+          type: string
+    Range:
+      type: object
+      description: Top level range object used in a CausalVariable
+      required:
+        - baseType
+        - range
+      discriminator:
+        propertyName: baseType
+      properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
+    IntegerRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: The range for an integer value
+          properties:
+            range:
+              type: object
+              properties:
+                min:
+                  description: >-
+                    the lower limit for a value - range has no lower bound if
+                    left unspecified
+                  type: integer
+                  format: int64
+                max:
+                  description: >-
+                    the upper limit for a value - range has no upper bound if
+                    left unspecified
+                  type: integer
+                  format: int64
+                step:
+                  description: the step size for possible values
+                  type: integer
+                  format: int64
+    FloatRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: The range for a floating point value
+          properties:
+            range:
+              type: object
+              properties:
+                min:
+                  description: >-
+                    the lower limit for a value - range has no lower bound if
+                    left unspecified
+                  type: number
+                  format: double
+                max:
+                  description: >-
+                    the upper limit for a value - range has no upper bound if
+                    left unspecified
+                  type: number
+                  format: double
+                step:
+                  description: the step size for possible values
+                  type: number
+                  format: double
+    BooleanRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: Denotes a boolean range
+          properties:
+            range:
+              description: 'A dummy range, because a boolean can only be true or false'
+              type: object
+    StringRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: Denotes a string range
+          properties:
+            range:
+              description: 'A dummy range, because a string has no discernible range'
+              type: object
+    EnumRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: The values of an enumeration
+          properties:
+            range:
+              description: The possible enumeration values
+              type: array
+              items:
+                type: string
+              example:
+                - RED
+                - YELLOW
+                - GREEN
+    DistributionEnumRange:
+      allOf:
+        - $ref: '#/components/schemas/Range'
+        - type: object
+          description: The range of classifications that can be reported in a DistributionEnumValue
+          properties:
+            range:
+              description: The possible classifications
+              type: array
+              items:
+                type: string
+              example:
+                - LOW
+                - MEDIUM
+                - HIGH
+    Value:
+      type: object
+      description: Top level value object used in a TimeSeriesValue
+      required:
+        - baseType
+        - value
+      discriminator:
+        propertyName: baseType
+      properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
+    IntegerValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: An integer value
+          properties:
+            value:
+              type: integer
+              format: int64
+    FloatValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: A floating point value
+          properties:
+            value:
+              type: number
+              format: double
+    BooleanValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: A boolean value
+          properties:
+            value:
+              type: boolean
+    StringValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: A string value
+          properties:
+            value:
+              type: string
+    EnumValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: An enumeration value defined in the EnumRange for the CausalVariable
+          properties:
+            value:
+              type: string
+    DistributionEnumValue:
+      allOf:
+        - $ref: '#/components/schemas/Value'
+        - type: object
+          description: >-
+            A distribution of classifications with non-zero probabilities. The classifications
+            must be defined in the DistributionEnumRange of the CausalVariable and the
+            probabilities must add to 1.0.
+          properties:
+            value:
+              type: object
+              additionalProperties:
+                type: number
+                format: double
+              example:
+                "HIGH": 0.1
+                "MED": 0.2
+                "LOW": 0.7
+    TimeSeriesState:
+      type: string
+      description: Indication of the state of a variable at a given time
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - UNKNOWN
+    TimeSeriesTrend:
+      type: string
+      description: Describes the trend of a variable at a given time
+      enum:
+        - LARGE_INCREASE
+        - SMALL_INCREASE
+        - NO_CHANGE
+        - SMALL_DECREASE
+        - LARGE_DECREASE
+    TimeSeriesValue:
+      type: object
+      description: Time series value at a particular time
+      required:
+        - time
+        - value
+      properties:
+        active:
+          $ref: '#/components/schemas/TimeSeriesState'
+        trend:
+          $ref: '#/components/schemas/TimeSeriesTrend'
+        time:
+          type: string
+          format: date-time
+          description: the time that corresponds to the reported value
+        value:
+          $ref: '#/components/schemas/Value'
+    CausalPrimitive:
+      type: object
+      description: >-
+        Top level object that contains common properties that would apply to any
+        causal primitive (variable, relationship, etc.)
+      required:
+        - baseType
+      discriminator:
+        propertyName: baseType
+      properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
+        namespaces:
+          type: object
+          additionalProperties:
+            type: string
+          description: (JSON-LD @context) key/value pairs
+          example:
+            "actor": "http://example.com/actor#"
+        types:
+          type: array
+          description: (JSON-LD @text) classification of the ODP individual
+          items:
+            type: string
+        editable:
+          type: boolean
+          default: true
+          description: flag to indicate allowed/supported operation
+        disableable:
+          type: boolean
+          default: true
+          description: flag to indicate allowed/supported operation
+        disabled:
+          type: boolean
+          default: false
+          description: >-
+            safer alternative to DELETE-ing a causal primitive to avoid
+            difficult management of side-effects and rollback
+        id:
+          type: string
+          format: uuid
+          description: used to uniquely identify the causal primitive within in the ICM
+        label:
+          type: string
+          description: user friendly label for this primitive (e.g. Weakens)
+        description:
+          type: string
+          description: longer text description for this primitive
+        lastUpdated:
+          type: string
+          format: date-time
+          description: timestamp of the last update to this primitive
+        auxiliaryProperties:
+          description: an editable list of additional properties for this primitive
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                description: a user friendly description of this property
+              value:
+                $ref: '#/components/schemas/Value'
+    Entity:
+      allOf:
+        - $ref: '#/components/schemas/CausalPrimitive'
+        - type: object
+          description: 'API definition of an entity. '
+          properties:
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: ICM defined confidence measure for this variable
+    CausalVariable:
+      allOf:
+        - $ref: '#/components/schemas/CausalPrimitive'
+        - type: object
+          description: 'API definition of a causal variable. '
+          required:
+            - range
+          properties:
+            units:
+              type: string
+              description: user friendly unit label for this variable (e.g. barrels/day)
+            backingEntities:
+              type: array
+              description: >-
+                Context to resolve the causal variable - should be the ID of an
+                Entity in the ICM graph
+              items:
+                type: string
+            lastKnownValue:
+              $ref: '#/components/schemas/TimeSeriesValue'
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: ICM defined confidence measure for this variable
+            range:
+              $ref: '#/components/schemas/Range'
+    ConfigurationVariable:
+      allOf:
+        - $ref: '#/components/schemas/CausalPrimitive'
+        - type: object
+          description: >-
+            Account for pieces of the causal graph that may help interpretation
+            or expose "knobs" that might be editable by the user.
+          properties:
+            units:
+              type: string
+              description: user friendly unit label for this variable (e.g. barrels/day)
+            lastKnownValue:
+              $ref: '#/components/schemas/TimeSeriesValue'
+            range:
+              $ref: '#/components/schemas/Range'
+    CausalRelationship:
+      allOf:
+        - $ref: '#/components/schemas/CausalPrimitive'
+        - type: object
+          description: >-
+            API defintion of a causal relationship. Indicates causality between
+            two causal variables.
+          required:
+            - source
+            - target
+          properties:
+            source:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of source variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the source variable
+            target:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of target variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the target variable
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: ICM defined confidence measure for this relationship
+            strength:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: >-
+                ICM defined strength of this relationship (expressed visually as
+                line width)
+            reinforcement:
+              type: boolean
+              description: >-
+                reinforcement of the effect (e.g. "dampening (false) vs
+                reinforcing (true)").
+    Relationship:
+      allOf:
+        - $ref: '#/components/schemas/CausalPrimitive'
+        - type: object
+          description: API definition of a generic relationship between two primitives
+          required:
+            - source
+            - target
+          properties:
+            source:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of source variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the source variable
+            target:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: ID of target variable in the relationship
+                baseType:
+                  type: string
+                  description: denotes the object type of the target variable
+            confidence:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 1
+              description: ICM defined confidence measure for this relationship
+    Evidence:
+      type: object
+      description: >-
+        Object that holds a reference to evidence (either KO from TA1 or human
+        provided).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: used to uniquely identify the evidence within in the ICM
+        link:
+          type: string
+          description: >-
+            Optional IRI link to evidence in the KO. This should NOT be a prefixed IRI
+            since there is no namespaces property.
+        description:
+          type: string
+          description: >-
+            some human readable sentence or paragraph that was used to derive
+            the data
+        category:
+          type: string
+          description: >-
+            where was the data sourced from
+            (TODO - Enum to distinguish user input, or backing entity, time series or event?)
+        rank:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10
+          description: some TA2 ranking on the significance of this evidence
+    Projection:
+      type: object
+      required:
+        - numSteps
+        - stepSize
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          description: specifies the beginning of the projection time window
+        numSteps:
+          type: integer
+          format: int32
+        stepSize:
+          type: string
+          description: some TBD format that needs to be flushed out.
+    Experiment:
+      type: object
+      description: structure used for experimentation
+      required:
+        - baseType
+      discriminator:
+        propertyName: baseType
+      properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
+        id:
+          type: string
+          format: uuid
+          description: UUID of this experiment (provided by server)
+        label:
+          type: string
+          description: user friendly description/label for this experiment
+        options:
+          type: object
+          properties:
+            timeout:
+              type: integer
+              format: int32
+              description: experimentation timeout (in seconds)
+    ForwardProjection:
+      allOf:
+        - $ref: '#/components/schemas/Experiment'
+        - type: object
+          description: a foward projection experiment
+          properties:
+            interventions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM primitive under experiment
+                  values:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+            projection:
+              $ref: '#/components/schemas/Projection'
+    SensitivityAnalysis:
+      allOf:
+        - $ref: '#/components/schemas/Experiment'
+        - type: object
+          description: a sensitivity analysis experiment
+          properties:
+            nodeOfInterest:
+              type: string
+              format: uuid
+              description: ID of the ICM causal variable being examined for sensitivity to one or more sensitivityVariables
+            numSteps:
+              type: integer
+              format: int32
+              description: how many relative time steps to run each sensitivity simulation
+            sensitivityVariables:
+              type: array
+              items:
+                type: string
+                format: uuid
+                description: ID of an ICM causal variable sensitivity candidate
+    ExperimentResult:
+      type: object
+      description: Notional model of experiment results
+      required:
+        - baseType
+      discriminator:
+        propertyName: baseType
+      properties:
+        baseType:
+          type: string
+          description: >-
+            object type - used for inheritance. See
+            https://swagger.io/specification/#discriminatorObject
+        id:
+          type: string
+          format: uuid
+          description: UUID of this intervention
+    ForwardProjectionResult:
+      allOf:
+        - $ref: '#/components/schemas/ExperimentResult'
+        - type: object
+          description: The result of a forward projection experiment
+          properties:
+            projection:
+              $ref: '#/components/schemas/Projection'
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM primitive under experiment
+                  baseline:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+                  intervened:
+                    $ref: '#/components/schemas/TimeSeriesValue'
+    SensitivityAnalysisResult:
+      allOf:
+        - $ref: '#/components/schemas/ExperimentResult'
+        - type: object
+          description: The result of a sensitivity analysis experiment
+          properties:
+            results:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: ID of the ICM causal variable under experiment
+                  value:
+                    type: number
+                    format: double
+    Traversal:
+      type: object
+      properties:
+        maxDepth:
+          type: integer
+          format: int32
+    Version:
+      type: object
+      properties:
+        icmVersion:
+          type: string
+          description: >-
+            the version of the ICM API supported, as defined by this Swagger
+            file
+        icmProviderVersion:
+          type: string
+          description: the version of the provider's implementation
