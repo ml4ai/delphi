@@ -33,6 +33,15 @@ concepts = {
         "grounding": "UN/events/human/economic_crisis",
         "delta": {"polarity": 1, "adjective": ["large"]},
     },
+    "precipitation": {
+        "grounding": "UN/events/weather/precipitation",
+        "delta": {"polarity": 1, "adjective": []},
+    },
+    "inflation": {
+        "grounding": "UN/entities/human/financial/economic/inflation",
+        "delta": {"polarity": -1, "adjective": []},
+    },
+
 }
 
 
@@ -70,6 +79,7 @@ precipitation = Event(Concept("precipitation"))
 s1 = make_statement(events["conflict"], events["food security"])
 s2 = make_statement(events["migration"], events["product"])
 s3 = make_statement(events["migration"], events["economic crisis"])
+s4 = make_statement(events["precipitation"], events["inflation"])
 
 STS = [s1]
 
