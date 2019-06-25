@@ -479,7 +479,7 @@ def fortran_to_grfn(
             mode_mapper_dict,
         )
     else:
-        return (python_src, lambdas_file, json_file, base, tester_call)
+        return (python_src, lambdas_file, json_file, base)
 
 
 if __name__ == "__main__":
