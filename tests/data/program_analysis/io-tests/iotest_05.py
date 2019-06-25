@@ -24,7 +24,7 @@ def main():
     file_20 = open("outfile3", "w")
     
     (i[0], x[0], j[0], y[0]) = format_10_obj.read_line(file_10.readline())
-    
+
     write_list_20 = [x[0], j[0]]
     write_line = format_30_obj.write_line(write_list_20)
     file_20.write(write_line)
