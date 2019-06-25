@@ -1,64 +1,15 @@
 openapi: 3.0.0
-servers:
-  - url: 'https://icm.causeex.twosixlabs.com/icm'
 info:
-  description: Causal Exploration ICM API
-  version: 4.2.0
-  title: Causal Exploration ICM API
+  description: GrFN Spec
+  version: 1.0
+  title: Grounded Function Network Spec
   contact:
-    email: causeex-help@twosixlabs.com
+    email: claytonm@email.arizona.edu
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-tags:
-  - name: icm
-    description: CRUD operations for ICMs
-  - name: icmOp
-    description: 'ICM Operations such as branch, fuse, query, diff, etc.'
-  - name: misc
-    description: Miscellaneous operations
 paths: {}
 components:
-  securitySchemes:
-    causeex_auth:
-      type: http
-      scheme: basic
-  parameters:
-    uuid:
-      name: uuid
-      in: path
-      description: UUID of ICM
-      required: true
-      schema:
-        type: string
-        format: uuid
-    prim_id:
-      name: prim_id
-      in: path
-      description: ID of causal primitive
-      required: true
-      schema:
-        type: string
-        format: uuid
-    offset:
-      name: offset
-      in: query
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-      required: false
-      description: The number of items to skip before starting to collect the result set.
-    limit:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
-      required: false
-      description: The number of items to return.
   schemas:
     ICMProvider:
       type: string
