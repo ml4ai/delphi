@@ -21,6 +21,8 @@ using std::pair
     , std::unordered_map
     , boost::adjacency_list
     , boost::vecS
+    , boost::setS
+    , boost::listS
     , boost::directedS
 ;
 
@@ -49,6 +51,6 @@ struct GraphData {
 };
 
 
-typedef adjacency_list<vecS, vecS, directedS, Node, Edge, GraphData> DiGraph;
+typedef adjacency_list<setS, vecS, directedS, Node, Edge, GraphData> DiGraph;
 
 #endif
