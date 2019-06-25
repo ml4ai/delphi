@@ -143,9 +143,9 @@ def clean_WDI_data():
 
 
 def combine_data():
-    fao_df = pd.read_table("data/south_sudan_data_fao.tsv")
+    fao_df = pd.read_csv("data/south_sudan_data_fao.tsv", sep="\t")
     fao_df["Source"] = "FAO"
-    wdi_df = pd.read_table("data/south_sudan_data_wdi.tsv")
+    wdi_df = pd.read_csv("data/south_sudan_data_wdi.tsv", sep="\t")
     wdi_df["Source"] = "WDI"
 
     wdi_df["Unit"] = (
@@ -153,7 +153,7 @@ def combine_data():
     )
     wdi_df["Variable"] = wdi_df["Variable"].str.partition("(")[0]
     wdi_df = wdi_df.set_index(["Variable", "Unit", "Source", "Country"])
-    fao_df = fao_df[fao_df.Value != 0.]
+    fao_df = fao_df[fao_df.Value != 0.0]
     fao_df = (
         fao_df.pivot_table(
             values="Value",
@@ -183,16 +183,27 @@ def combine_data():
         .dropna(subset=["Value"])
     )
     fao_wdi_df["State"] = None
-    conflict_data_df = pd.read_table(
-        "data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv", index_col=False
+    conflict_data_df = pd.read_csv(
+        "data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv",
+        index_col=False,
+        sep="\t",
     )
-    fewsnet_df = pd.read_table(
-        "data/south_sudan_data_fewsnet.tsv", index_col=False)
-    fewsnet_df = fewsnet_df[(fewsnet_df.Value <= 5) & (fewsnet_df.Value >=1)]
-    climis_unicef_ieconomics_df = pd.read_table(
-        "data/south_sudan_data_climis_unicef_ieconomics.tsv", index_col=False
+    fewsnet_df = pd.read_csv(
+        "data/south_sudan_data_fewsnet.tsv", index_col=False, sep="\t"
     )
-    dssat_df = pd.read_table("data/south_sudan_data_dssat.tsv", index_col=False)
+    fewsnet_df = fewsnet_df[(fewsnet_df.Value <= 5) & (fewsnet_df.Value >= 1)]
+    climis_unicef_ieconomics_df = pd.read_csv(
+        "data/south_sudan_data_climis_unicef_ieconomics.tsv",
+        index_col=False,
+        sep="\t",
+    )
+    dssat_df = pd.read_csv(
+        "data/south_sudan_data_dssat.tsv", index_col=False, sep="\t"
+    )
+
+    unhcr_df = pd.read_csv(
+        "data/south_sudan_data_UNHCR.tsv", index_col=False, sep="\t"
+    )
 
     combined_df = pd.concat(
         [
@@ -200,7 +211,8 @@ def combine_data():
             conflict_data_df,
             fewsnet_df,
             climis_unicef_ieconomics_df,
-            dssat_df
+            dssat_df,
+            unhcr_df,
         ],
         sort=True,
     ).dropna(subset=["Value"])
