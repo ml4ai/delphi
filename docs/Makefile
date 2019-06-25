@@ -22,3 +22,6 @@ help:
 apidocs:
 	rm -rf generated/
 	sphinx-apidoc -o . ../delphi -f
+
+grfn:
+	python swagger-yaml-to-html.py < icm_api.yaml > doc.html
