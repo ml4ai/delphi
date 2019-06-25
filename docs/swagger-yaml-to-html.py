@@ -17,13 +17,8 @@ Usage:
 import yaml, json, sys
 
 TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Swagger UI</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="swagger-ui/swagger-ui.css" >
+  <link rel="stylesheet" type="text/css" href="_static/swagger-ui/swagger-ui.css" >
   <style>
     html
     {
@@ -43,39 +38,33 @@ TEMPLATE = """
       background: #fafafa;
     }
   </style>
-</head>
-<body>
 
 <div id="swagger-ui"></div>
-
-<script src="swagger-ui/swagger-ui-bundle.js"> </script>
-<script src="swagger-ui/swagger-ui-standalone-preset.js"> </script>
+<script src="_static/swagger-ui/swagger-ui-bundle.js"> </script>
+<script src="_static/swagger-ui/swagger-ui-standalone-preset.js"> </script>
 <script>
-window.onload = function() {
+    window.onload = function() {
 
-  var spec = %s;
+    var spec = %s;
 
-  // Build a system
-  const ui = SwaggerUIBundle({
-    spec: spec,
-    dom_id: '#swagger-ui',
-    deepLinking: true,
-    presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
-    ],
-    plugins: [
-      SwaggerUIBundle.plugins.DownloadUrl
-    ],
-    layout: "StandaloneLayout"
-  })
+    // Build a system
+    const ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+        ],
+        plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+    })
 
-  window.ui = ui
-}
+    window.ui = ui
+    }
 </script>
-</body>
-
-</html>
 """
 
 spec = yaml.load(sys.stdin)
