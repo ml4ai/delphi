@@ -1752,7 +1752,7 @@ class RectifyOFPXML:
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
             )
-            if child.tag == "name" or child.tag == "literal":
+            if child.tag == "name" or child.tag == "literal" or child.tag == "operation":
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
