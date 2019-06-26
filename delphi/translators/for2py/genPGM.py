@@ -36,6 +36,15 @@ ANNOTATE_MAP = {
     "bool": "bool",
 }
 
+REVERSE_ANNOTATE_MAP = {
+	"float": "real",
+	"Real": "real",
+	"int": "integer",
+	"list": "array",
+	"str": "string",
+	"bool": "bool",
+}
+
 UNNECESSARY_TYPES = (
     ast.Mult,
     ast.Add,
@@ -108,6 +117,20 @@ class GrFNGenerator(object):
             if len(scope_path) == 0:
                 scope_path.append("_TOP")
             scope_path.append(node.name)
+
+            if node.decorator_list:
+                # This is still a work-in-progress function has a complete
+                # representation of SAVEd variables has not been decided on.
+                # Currently, if the decorator function is static_vars (for
+                # SAVEd variables), their types are loaded in the varTypes
+                # dictionary.
+                fnState = state.copy(
+                    lastDefs=localDefs,
+                    nextDefs=localNext,
+                    fnName=node.name,
+                    varTypes=localTypes,
+                )
+                self.process_decorators(node.decorator_list, fnState)
 
             # Check if the function contains arguments or not
             # This determines whether the function is the outermost scope
@@ -978,6 +1001,9 @@ class GrFNGenerator(object):
                 # y=x where y is now the alias of variable x
                 self.check_alias(target, sources)
 
+                # state.varTypes[target["var"]["variable"]] = getVarType(
+                #     node.annotation)
+
                 name = getFnName(
                     fnNames,
                     f"{state.fnName}__assign__{target['var']['variable']}",
@@ -1384,6 +1410,21 @@ class GrFNGenerator(object):
 
         return fn
 
+    def process_decorators(self, node, state):
+        """
+            Go through each decorator and extract relevant information.
+            Currently this function only checks for the static_vars decorator
+            for the SAVEd variables and updates varTypes with the data types
+            of each variable.
+        """
+        for decorator in node:
+            function_name = decorator.func.id
+            if function_name == "static_vars":
+                for arg in decorator.args[0].elts:
+                    variable = arg.values[0].s
+                    type = arg.values[2].s
+                    state.varTypes[variable] = REVERSE_ANNOTATE_MAP[type]
+
 
 class PGMState:
     def __init__(
@@ -1602,16 +1643,8 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType in ("float", "Real"):
-            return "real"
-        if dType == "int":
-            return "integer"
-        if dType == "list":
-            return "array"
-        if dType == "str":
-            return "string"
-        if dType == "bool":
-            return "bool"
+        if REVERSE_ANNOTATE_MAP.get(dType):
+            return REVERSE_ANNOTATE_MAP[dType]
         else:
             sys.stderr.write(
                 "Unsupported type (only float, int, list, and str "

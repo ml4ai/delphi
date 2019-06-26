@@ -1231,7 +1231,8 @@ class PythonCodeGenerator(object):
             # returned.
             if self.is_save:
                 save_argument = f'{{"name": "{node["name"]}", "call": Array' \
-                    f'({var_type}, [{array_range}]), "type": "array"}}'
+                    f'({var_type}, [{array_range}]), "type": ' \
+                    f'"{TYPE_MAP[node["type"].lower()]}"}}'
                 return save_argument
             else:
                 # If the array variable is not SAVEd, print the
@@ -1316,6 +1317,10 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("\n@static_vars([")
                 variables = ''
                 for var in item["var_list"]:
+                    if var["tag"] == "open":
+                        variable_type = "file_handle"
+                    else:
+                        variable_type = TYPE_MAP[var["type"].lower()]
                     if var.get("name"):
                         self.saved_variables[parent].append(var["name"])
                     if var["tag"] == "array":
@@ -1328,11 +1333,11 @@ class PythonCodeGenerator(object):
                         if var["is_derived_type"] == "true":
                             save_argument = f"{{'name': '{var['name']}', " \
                                 f"'call': {var['type']}(), 'type': " \
-                                f"'derived_type'}}"
+                                f"'{variable_type}'}}"
                         else:
                             save_argument = {"name": var["name"],
                                              "call": [None],
-                                             "type": "variable"}
+                                             "type": variable_type}
                         variables += f"{save_argument}, "
                     elif var["tag"] == "open":
                         name = f"file_{var['args'][0]['value']}"
