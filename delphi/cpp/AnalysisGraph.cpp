@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <utility>
 
+#include "cppitertools/itertools.hpp"
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
 
@@ -15,14 +16,26 @@
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::vector, std::map,
     boost::inner_product, boost::edge, boost::add_edge, boost::edge,
-    boost::edges, boost::source, boost::target, boost::get, boost::graph_bundle,
-    boost::make_label_writer, boost::write_graphviz, boost::range::for_each,
-    boost::lambda::make_const;
+    boost::edges, boost::source, boost::target, boost::graph_bundle,
+    boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const;
 
 using json = nlohmann::json;
 
+template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
+  vector<V> transformed_vector;
+  for (V x : vec) {
+    transformed_vector.push_back(f(x));
+  }
+  return transformed_vector;
+}
+
 template <class T, class U> bool hasKey(unordered_map<T, U> umap, T key) {
-  return umap.count(key) == 0;
+  return umap.count(key) != 0;
+}
+
+template <class T, class U>
+U get(unordered_map<T, U> umap, T key, U default_value) {
+  return hasKey(umap, key) ? umap[key] : default_value;
 }
 
 json load_json(string filename) {
@@ -32,7 +45,7 @@ json load_json(string filename) {
   return j;
 }
 
-size_t default_n_samples = 100;
+const size_t default_n_samples = 100;
 
 unordered_map<string, vector<double>>
 construct_adjective_response_map(size_t n_kernels = default_n_samples) {
@@ -116,11 +129,11 @@ public:
             auto subj_adjectives = annotations["subj_adjectives"];
             auto obj_adjectives = annotations["obj_adjectives"];
             auto subj_adjective =
-                (subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
                     ? subj_adjectives[0]
-                    : "";
+                    : "None";
             auto obj_adjective =
-                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "";
+                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
             auto subj_polarity = annotations["subj_polarity"];
             auto obj_polarity = annotations["obj_polarity"];
             G[e].causalFragments.push_back(CausalFragment{
@@ -133,30 +146,42 @@ public:
   }
 
   void construct_beta_pdfs() {
+    double sigma_X = 1.0;
+    double sigma_Y = 1.0;
     auto adjective_response_map = construct_adjective_response_map();
     vector<double> marginalized_responses;
     for (auto [adjective, responses] : adjective_response_map) {
-      for (auto response:responses) {
+      for (auto response : responses) {
         marginalized_responses.push_back(response);
       }
     }
-    marginalized_responses = KDE(marginalized_responses).resample(default_n_samples);
+    marginalized_responses =
+        KDE(marginalized_responses).resample(default_n_samples);
 
     for_each(edges(graph), [&](auto e) {
+      vector<double> all_thetas = {};
       for (auto causalFragment : graph[e].causalFragments) {
         auto subj_adjective = causalFragment.subj_adjective;
-        auto subj_polarity = causalFragment.subj_polarity;
         auto obj_adjective = causalFragment.obj_adjective;
-        auto obj_polarity = causalFragment.obj_polarity;
-        auto subject_responses = adjective_response_map[subj_adjective] | transformed(_1*subj_polarity);
-        auto object_responses = adjective_response_map[obj_adjective] | transformed(_1*obj_polarity);
+        auto subj_responses =
+            lmap([&](auto x) { return x * causalFragment.subj_polarity; },
+                 get(adjective_response_map, subj_adjective,
+                     marginalized_responses));
+        auto obj_responses = lmap(
+            [&](auto x) { return x * causalFragment.obj_polarity; },
+            get(adjective_response_map, obj_adjective, marginalized_responses));
+        for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
+          all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
+        }
       }
+      graph[e].kde = KDE(all_thetas);
     });
   }
   auto print_nodes() {
     for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });
   }
   auto to_dot() {
-    write_graphviz(cout, graph, make_label_writer(get(&Node::name, graph)));
+    write_graphviz(cout, graph,
+                   make_label_writer(boost::get(&Node::name, graph)));
   }
 };
