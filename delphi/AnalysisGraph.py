@@ -596,7 +596,9 @@ class AnalysisGraph(nx.DiGraph):
         dampen=False,
         set_delta: float = None,
     ):
-        """ Advance the model by one time step. """
+        """ Advance the model by one time step.
+            *set_delta is currently just a placeholder for a future feature
+        """
 
         for n in self.nodes(data=True):
             n[1]["next_state"] = n[1]["update_function"](n)
@@ -611,13 +613,6 @@ class AnalysisGraph(nx.DiGraph):
                     self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                         f"∂({n[0]})/∂t"
                     ] * exp(-τ * self.t)
-                # Suppresses dampen
-                if set_delta is not None:
-                    if dampen:
-                        warnings.warn(
-                            "When set_delta is not None, the effect of dampen = True is suppressed"
-                        )
-                    self.s0[i][f"∂({n[0]})/∂t"] = set_delta
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(
