@@ -1,7 +1,7 @@
         PROGRAM MAIN
 
         IMPLICIT NONE
-        REAL*8 EPS
+        REAL EPS
         EPS=1.0
         DO WHILE (1.0+EPS.GT.1.0)
             EPS=EPS/2.0
