@@ -161,6 +161,13 @@ public:
     return boost::make_iterator_range(vertices(graph));
   }
 
+  auto predecessors(int i) {
+    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
+  }
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
+  }
+
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
@@ -195,11 +202,23 @@ public:
     }
   }
   auto sample_from_prior() {
-    for (auto [x, y] : iter::product(nodes(), nodes())) {
-      print(x);
-      print(y);
+    vector<std::pair<int, int>> node_pairs;
+
+    // Get all length-2 permutations of nodes in the graph
+    for (auto [i, j] : iter::product(nodes(), nodes())) {
+      if (i!=j) {
+        node_pairs.push_back(std::make_pair(i, j));
+      }
+    }
+
+    unordered_map<int, unordered_map<int, vector<std::pair<int, int>>>> simple_path_dict;
+    for (auto [i, j] : node_pairs) {
+      for (auto succ : successors(i)) {
+        print(succ);
+      }
     }
   }
+
   auto print_nodes() {
     for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });
   }
