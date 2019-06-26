@@ -14,7 +14,7 @@ using std::pair
     , boost::vecS
     , boost::setS
     , boost::listS
-    , boost::directedS
+    , boost::bidirectionalS
     , boost::range::for_each
 ;
 
@@ -53,6 +53,6 @@ struct GraphData {
 };
 
 
-typedef adjacency_list<setS, vecS, directedS, Node, Edge, GraphData> DiGraph;
+typedef adjacency_list<setS, vecS, bidirectionalS, Node, Edge, GraphData> DiGraph;
 
 #endif
