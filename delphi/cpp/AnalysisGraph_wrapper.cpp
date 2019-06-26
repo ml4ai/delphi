@@ -10,8 +10,12 @@ PYBIND11_MODULE(AnalysisGraph, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def("from_json_file", &AnalysisGraph::from_json_file)
       .def("print_nodes", &AnalysisGraph::print_nodes)
+      .def("print_edges", &AnalysisGraph::print_edges)
       .def("to_dot", &AnalysisGraph::to_dot)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("sample_from_prior", &AnalysisGraph::sample_from_prior)
+      .def("add_node", &AnalysisGraph::add_node)
+      .def("add_edge", &AnalysisGraph::add_edge)
+      .def("simple_paths", &AnalysisGraph::simple_paths)
     ;
 }

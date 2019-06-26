@@ -16,8 +16,8 @@
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::vector, std::map,
     boost::inner_product, boost::edge, boost::add_edge, boost::edge,
-    boost::source, boost::target, boost::graph_bundle,
-    boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const;
+    boost::source, boost::target, boost::graph_bundle, boost::make_label_writer,
+    boost::write_graphviz, boost::lambda::make_const;
 
 using json = nlohmann::json;
 
@@ -124,14 +124,15 @@ public:
           for (auto c : {subj_str, obj_str}) {
             if (nameMap.count(c) == 0) {
               nameMap[c] = i;
-              auto v = add_vertex(G);
+              auto v = boost::add_vertex(G);
               G[v].name = c;
               i++;
             }
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] = add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          auto [e, exists] =
+              boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
@@ -153,13 +154,13 @@ public:
     return AnalysisGraph(G);
   }
 
+  auto add_node() { return boost::add_vertex(graph); }
+  auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
   auto edges() {
     return boost::make_iterator_range(boost::edges(graph));
   }
 
-  auto nodes() {
-    return boost::make_iterator_range(vertices(graph));
-  }
+  auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
 
   auto predecessors(int i) {
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
@@ -171,6 +172,16 @@ public:
     return boost::make_iterator_range(boost::out_edges(i, graph));
   }
 
+  vector<std::pair<int, int>> simple_paths(int i, int j) {
+    vector<std::pair<int, int>> paths = {};
+    for (auto s : successors(i)) {
+        paths.push_back(std::make_pair(i, s));
+        for (auto e : simple_paths(s, j)) {
+          paths.push_back(e);
+      }
+    }
+    return paths;
+  }
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
@@ -183,7 +194,6 @@ public:
     }
     marginalized_responses =
         KDE(marginalized_responses).resample(default_n_samples);
-
 
     for (auto e : edges()) {
       vector<double> all_thetas = {};
@@ -208,24 +218,30 @@ public:
     vector<std::pair<int, int>> node_pairs;
 
     // Get all length-2 permutations of nodes in the graph
-    for (auto [i, j] : iter::product(nodes(), nodes())) {
-      if (i!=j) {
+    for (auto [i, j] : iter::product(vertices(), vertices())) {
+      if (i != j) {
         node_pairs.push_back(std::make_pair(i, j));
       }
     }
 
-    unordered_map<int, unordered_map<int, vector<std::pair<int, int>>>> simple_path_dict;
+    unordered_map<int, unordered_map<int, vector<std::pair<int, int>>>>
+        simple_path_dict;
     for (auto [i, j] : node_pairs) {
       int cutoff = 4;
       int depth = 0;
       vector<std::pair<int, int>> paths;
-      for (auto e : out_edges(i)) {print(i);}
     }
   }
 
   auto print_nodes() {
-    for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });
+    for_each(vertices(), [&](auto v) { cout << v << endl; });
   }
+  auto print_edges() {
+    for_each(edges(), [&](auto e) {
+       cout << "(" << source(e, graph) << ", " << target(e, graph) << ")" <<  endl;
+    });
+  }
+
   auto to_dot() {
     write_graphviz(cout, graph,
                    make_label_writer(boost::get(&Node::name, graph)));
