@@ -15,11 +15,18 @@ using std::pair
     , boost::setS
     , boost::listS
     , boost::directedS
+    , boost::range::for_each
 ;
+
 
 template <class T>
 void print(T x) {
   std::cout << x << std::endl;
+}
+
+template <class T>
+void printVec(vector<T> xs) {
+  for (auto x : xs) {print(x);}
 }
 
 struct CausalFragment {
