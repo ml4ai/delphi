@@ -43,13 +43,13 @@ def listAllModels():
         return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
-@bp.route("/delphi/create", methods=["POST"])
+@bp.route("/delphi/create-model", methods=["POST"])
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
     G.sample_from_prior()
-    G.id = data["model_id"]
+    G.id = data["id"]
     G.to_sql(app=current_app)
     return jsonify({"status": "success"})
 
@@ -140,9 +140,6 @@ def getIndicators(model_id: str):
                 for r in records:
                     unit, value, source = r["Unit"], r["Value"], r["Source"]
 
-                    # Sort of a hack - some of the variables in the tables we
-                    # process don't have units specified, so we put a
-                    # placeholder string to get it to work with CauseMos.
                     if unit is None:
                         unit = PLACEHOLDER_UNIT
 
