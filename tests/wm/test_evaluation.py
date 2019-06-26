@@ -3,7 +3,7 @@ import delphi.AnalysisGraph as AG
 import pytest
 import numpy as np
 import random
-from conftest import G_eval
+from conftest import G_eval, s4
 import pickle
 import os
 
@@ -58,10 +58,8 @@ def test_get_true_values(G_eval):
     assert true_df.index[6] == "2012-3"
 
     # Checking aggregation heuristics
-    G = AG.AnalysisGraph.from_text(
-        "Improved Rainfall causes decreased inflation rates",
-        webservice="http://54.84.114.146:9000",
-    )
+
+    G = AG.AnalysisGraph.from_statements([s4])
     G.map_concepts_to_indicators()
     G.res = 200
     G.sample_from_prior()
@@ -129,10 +127,7 @@ def test_estimate_deltas(G_eval):
     assert len(deltas) == 48
 
     # Checking aggregation heuristics
-    G = AG.AnalysisGraph.from_text(
-        "Improved Rainfall causes decreased inflation rates",
-        webservice="http://54.84.114.146:9000",
-    )
+    G = AG.AnalysisGraph.from_statements([s4])
     G.map_concepts_to_indicators()
     G.res = 200
     G.sample_from_prior()
