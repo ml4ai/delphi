@@ -10,7 +10,7 @@ import delphi.translators.for2py.math_ext as math
 from numbers import Real
 
 
-@static_vars([{'name': 'w', 'call': [None], 'type': 'variable'}])
+@static_vars([{'name': 'w', 'call': [None], 'type': 'int'}])
 def f(n: List[int], x: List[int]):
     if (n[0] == 0):
         f.w[0] = 111
@@ -18,7 +18,7 @@ def f(n: List[int], x: List[int]):
         f.w[0] = int((2 * f.w[0]))
     x[0] = f.w[0]
 
-@static_vars([{'name': 'w', 'call': [None], 'type': 'variable'}])
+@static_vars([{'name': 'w', 'call': [None], 'type': 'int'}])
 def g(n: List[int], x: List[int]):
     if (n[0] == 0):
         g.w[0] = 999
