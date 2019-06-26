@@ -167,6 +167,9 @@ public:
   auto successors(int i) {
     return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
   }
+  auto out_edges(int i) {
+    return boost::make_iterator_range(boost::out_edges(i, graph));
+  }
 
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
@@ -213,9 +216,10 @@ public:
 
     unordered_map<int, unordered_map<int, vector<std::pair<int, int>>>> simple_path_dict;
     for (auto [i, j] : node_pairs) {
-      for (auto succ : successors(i)) {
-        print(succ);
-      }
+      int cutoff = 4;
+      int depth = 0;
+      vector<std::pair<int, int>> paths;
+      for (auto e : out_edges(i)) {print(i);}
     }
   }
 
