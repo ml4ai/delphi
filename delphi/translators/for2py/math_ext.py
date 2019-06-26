@@ -1,5 +1,5 @@
 import math
-from floatNumpy import Float32
+from delphi.translators.for2py.types_ext import Float32
 
 
 def apply_op(num, op):
