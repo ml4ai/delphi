@@ -519,8 +519,13 @@ class PythonCodeGenerator(object):
             else:
                 if (
                         (
+<<<<<<< HEAD
                                 "is_arg" in node
                                 and node["is_arg"] == "true"
+=======
+                            "is_arg" in node
+                            and node["is_arg"] == "true"
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
                         )
                         or is_derived_type_ref
                 ):
@@ -629,8 +634,11 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unrecognized type {node['type']}")
 
         arg_name = self.nameMapper[node["name"]]
+<<<<<<< HEAD
         self.variableMap[arg_name] = node["type"]
 
+=======
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
         self.var_type.setdefault(self.current_module, []).append({
             "name": arg_name,
             "type": var_type
@@ -792,12 +800,15 @@ class PythonCodeGenerator(object):
         if lhs['name'] in self.saved_variables[self.current_module]:
             assg_str = f"{self.current_module}.{assg_str}"
 
+<<<<<<< HEAD
         # Check if the lhs is a real and convert the variable to a numpy float
         # object if it is
         if (self.variableMap.get(lhs["name"]) == "REAL"
                 and rhs["tag"] == "literal"):
             rhs_str = f"Float32({rhs_str})"
 
+=======
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
         if "set_" in assg_str:
             assg_str += f"{rhs_str})"
         else:
@@ -1247,6 +1258,10 @@ class PythonCodeGenerator(object):
 
         return node
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
     ###########################################################################
     #                                                                         #
     #                              MISCELLANEOUS                              #
@@ -1314,7 +1329,11 @@ class PythonCodeGenerator(object):
                 assert False, f"Unrecognized tag in retrieved_bound: " \
                     f"{bound[0]['tag']}"
             index += 1
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
         """This function forms a derived type reference
         and return to the caller"""
@@ -1334,9 +1353,13 @@ class PythonCodeGenerator(object):
             ref += node["name"]
         numPartRef -= 1
         if "ref" in node:
+<<<<<<< HEAD
             derived_type_ref = self.get_derived_type_ref(
                 node['ref'][0], numPartRef, is_assignment)
             ref += f".{derived_type_ref}"
+=======
+            ref += f".{self.get_derived_type_ref( node['ref'][0], numPartRef, is_assignment)}"
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
         return ref
 
     def get_type(self, node):
@@ -1416,10 +1439,14 @@ def create_python_source_list(outputDict: Dict):
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
         "from delphi.translators.for2py.static_save import *",
+<<<<<<< HEAD
         "from dataclasses import dataclass",
         "from delphi.translators.for2py.types_ext import Float32",
         "import delphi.translators.for2py.math_ext as math",
         "from numbers import Real\n",
+=======
+        "from dataclasses import dataclass\n",
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
     ]
 
     for module in module_index_dict:
@@ -1508,7 +1535,10 @@ def parse_args():
 
     return (pickleFile, pyFile, outFile)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b090c6a63f1fd2019f238344ec96e411c59ba8a
 if __name__ == "__main__":
     (pickleFile, pyFile, outFile) = parse_args()
 

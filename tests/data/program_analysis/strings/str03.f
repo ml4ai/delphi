@@ -1,12 +1,12 @@
-C     Strings and string concatenation.  This program looks at what happens
-C     when the string assigned has length different from the declared length
-C     of the string variable.
-      
+C     File: str03.f
+C     This program tests declaration and assignment of strings.
 
-      program str03
-      character(len = 5), parameter :: str1 = "abcdefghijklm"
-      character(len = 5) :: str2 = "abcdefghijklm"
-      character(len = 5) :: str3 = "ab"
+      program main
+      character(len = 10) str1, str2*5, str3*15
+
+      str1 = "abcdefgh"
+      str2 = str1
+      str3 = str1
 
       write (*, 10) "str1", len(str1), str1
       write (*, 10) "str2", len(str2), str2
@@ -15,5 +15,5 @@ C     of the string variable.
  10   format(A, ': len = ', I2, '; value = "', A, '"')
 
       stop
-      end program str03
+      end program main
       

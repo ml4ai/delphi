@@ -50,16 +50,16 @@ def _get_dtype(n: str) -> str:
 
 def _construct_CPT(e, res=100):
     kde = e[2]["ConditionalProbability"]
-    arr = np.squeeze(kde.dataset)
+    arr = kde.dataset
     X = np.linspace(min(arr), max(arr), res)
-    Y = kde.evaluate(X) * (X[1] - X[0])
-    return {"theta": X.tolist(), "P(theta)": Y.tolist()}
+    Y = np.array(kde.pdf(X)) * (X[1] - X[0])
+    return {"theta": X, "P(theta)": Y.tolist()}
 
 
 def _get_polynomial_fit(e, deg=7, res=100):
     kde = e[2]["ConditionalProbability"]
-    arr = np.squeeze(kde.dataset)
+    arr = kde.dataset
     X = np.linspace(min(arr), max(arr), res)
-    Y = kde.evaluate(X) * (X[1] - X[0])
+    Y = np.array(kde.pdf(X)) * (X[1] - X[0])
     coefs = np.polynomial.polynomial.polyfit(X, Y, deg=deg)
     return {"degree": deg, "coefficients": list(coefs)}

@@ -1,30 +1,19 @@
-.PHONY: docs
-
 docs:
 	cd docs; make html
 
-test:
-	pytest \
-	  --cov-report term-missing:skip-covered --cov=delphi\
-	  --doctest-module\
-	  --ignore=delphi/analysis/sensitivity/tests\
-	  --ignore=delphi/translators/for2py/data\
-	  --ignore=tests/data\
-	  delphi tests
-	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
+extensions: 
+	cd delphi/cpp; cmake .; make -j
 
-test_local:
-	pytest \
-	  -s\
+test: extensions
+	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-module\
 	  --ignore=delphi/analysis/sensitivity/tests\
+	  --ignore=delphi/cpp/pybind11\
+	  --ignore=delphi/cpp/nlohmann\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
-	  --ignore=delphi/jupyter_tools.py\
-	  --ignore=delphi/inspection.py\
 	  delphi tests
-	rm dbn_sampled_sequences.csv bmi_config.txt delphi_model.pkl
 
 pypi_upload:
 	rm -rf dist
@@ -34,6 +23,3 @@ pypi_upload:
 clean:
 	rm -rf build dist
 	rm *.json *.pkl *.csv
-
-push_test_data:
-	scp delphi.db vision:public_html

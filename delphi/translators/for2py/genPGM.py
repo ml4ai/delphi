@@ -1090,11 +1090,11 @@ class GrFNGenerator(object):
             # class's _val method, an ast.Attribute will be present, just
             if node.attr == "_val":
                 return self.genPgm(node.value, state, fnNames, call_source)
+            else:
+                lastDef = getLastDef(node.attr, state.lastDefs,
+                                     state.lastDefDefault)
 
-            lastDef = getLastDef(node.attr, state.lastDefs,
-                                 state.lastDefDefault)
-
-            return [{"var": {"variable": node.attr, "index": lastDef}}]
+                return [{"var": {"variable": node.attr, "index": lastDef}}]
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(

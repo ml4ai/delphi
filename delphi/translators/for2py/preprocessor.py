@@ -26,6 +26,9 @@ from delphi.translators.for2py.syntax import (
 )
 
 
+# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
+IGNORE_INTERNAL_COMMENTS = True
+
 # INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
 # with comments internal to subprogram bodies.
 INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
@@ -149,6 +152,8 @@ TRANSITIONS = {
         "comment": "in_neck",
         "exec_stmt": "in_body",
         "other": "in_neck",
+        "pgm_unit_sep": "outside",
+        "pgm_unit_end": "outside",
     },
     "in_body": {
         "comment": "in_body",
@@ -234,7 +239,14 @@ def extract_comments(
                 curr_comment = []
 
         elif curr_state == "in_neck":
-            assert line_type in ("comment", "exec_stmt", "other")
+            assert line_type in (
+                "comment",
+                "exec_stmt",
+                "pgm_unit_sep",
+                "pgm_unit_end",
+                "other"
+            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
+	           
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)
@@ -253,10 +265,13 @@ def extract_comments(
             ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
 
             if line_type == "comment":
-                marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                marker_stmt = f"        {marker_var} = .True.\n"
-                comments[curr_fn]["internal"][marker_var] = line
-                lines[i] = (linenum, marker_stmt)
+                if IGNORE_INTERNAL_COMMENTS:
+                    lines[i] = (linenum, None)
+                else:
+                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
+                    marker_stmt = f"        {marker_var} = .True.\n"
+                    comments[curr_fn]["internal"][marker_var] = line
+                    lines[i] = (linenum, marker_stmt)
             else:
                 pass  # nothing to do -- continue
 
@@ -386,4 +401,6 @@ if __name__ == "__main__":
             if line is not None:
                 f.write(line)
 
-    print_comments(comments)
+    # Temporarily commenting out the printing of comments by the preprocessor.
+    # To be reinstated later if it seems useful.  --SKD 06/2019
+    #print_comments(comments)

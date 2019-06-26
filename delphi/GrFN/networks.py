@@ -21,12 +21,8 @@ import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    rectify,
+    f2grfn,
 )
 import numpy as np
 import torch
@@ -96,7 +92,7 @@ class ComputationalGraph(nx.DiGraph):
 
         Args:
             inputs: Input set where keys are the names of input nodes in the
-              GrFN and each key points to a set of input values (or just one).
+                GrFN and each key points to a set of input values (or just one).
 
         Returns:
             A set of outputs from executing the GrFN, one for every set of
@@ -397,40 +393,19 @@ class GroundedFunctionNetwork(ComputationalGraph):
     @classmethod
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
         """Builds GrFN object from a Fortran program."""
-        stem = Path(fortran_file).stem
+
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
-        preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
-        lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
-        json_filename = stem + ".json"
 
-        with open(fortran_file, "r") as f:
-            inputLines = f.readlines()
-
-        with open(preprocessed_fortran_file, "w") as f:
-            f.write(preprocessor.process(inputLines))
-
-        xml_string = sp.run(
-            [
-                "java",
-                "fortran.ofp.FrontEnd",
-                "--class",
-                "fortran.ofp.XMLPrinter",
-                "--verbosity",
-                "0",
-                preprocessed_fortran_file,
-            ],
-            stdout=sp.PIPE,
-        ).stdout
-        tree = rectify.buildNewASTfromXMLString(xml_string)
-        trees = [tree]
-        comments = get_comments.get_comments(preprocessed_fortran_file)
-        os.remove(preprocessed_fortran_file)
-        xml_to_json_translator = translate.XMLToJSONTranslator()
-        outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-
+        (
+                pySrc,
+                lambdas_path,
+                json_filename,
+                stem
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
+        
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+
         return G
 
     @classmethod

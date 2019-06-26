@@ -18,7 +18,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+scripts/data/
 build/
+bin/
 develop-eggs/
 dist/
 downloads/
@@ -138,5 +140,16 @@ bmi_config.txt
 *.pdf
 
 # VSCode
-
 .vscode/
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps

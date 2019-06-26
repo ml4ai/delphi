@@ -95,7 +95,6 @@ Sampling and Inference
 .. autosummary::
     :toctree: generated/
 
-    AnalysisGraph.assemble_transition_model_from_gradable_adjectives
     AnalysisGraph.sample_from_prior
     AnalysisGraph.infer_transition_matrix_coefficient_from_data
 

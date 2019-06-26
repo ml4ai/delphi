@@ -1,6 +1,6 @@
 import sys
 import pickle
-from delphi.export import to_agraph
+
 
 def create_parameterized_CAG(input, output, filename="CAG_with_indicators_and_values.pdf"):
     """ Create a CAG with mapped and parameterized indicators """

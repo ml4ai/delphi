@@ -227,9 +227,14 @@ def genCode(node, state):
                           genCode(node.values[1], state))  
 
     elif isinstance(node, ast.Attribute):
-        codeStr = genCode(node.value, state)
-        if node.attr == "_val":
-            codeStr = f"{codeStr}.{node.attr}"
+        # Code below will be kept until all tests pass and removed if they do
+        # codeStr = genCode(node.value, state)
+
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`.
+        codeStr = node.attr
 
     elif isinstance(node, ast.AST):
         sys.stderr.write(

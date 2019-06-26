@@ -53,6 +53,6 @@ def create_dssat_data_table(dssat_aggregated_data_dir):
 
 if __name__ == "__main__":
     create_indicator_table(sys.argv[1])
-    create_adjectiveData_table(sys.argv[3])
     create_concept_to_indicator_mapping_table(sys.argv[2])
+    create_adjectiveData_table(sys.argv[3])
     create_dssat_data_table(sys.argv[4])
