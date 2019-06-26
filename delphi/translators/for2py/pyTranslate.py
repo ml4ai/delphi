@@ -77,14 +77,8 @@ OPERATOR_MAP = {
 # Python target, specified as a tuple (py_fn, fn_type, py_mod), where:
 #            -- py_fn is a Python function or operator;
 #            -- fn_type is one of: 'FUNC', 'INFIXOP'; and
-#            -- py_mod is the module the Pf        if py_fn_type == "FUNC":
-ython
-function
-should
-be
-imported
-#               from,
-#               None if no explicit import is necessary.
+#            -- py_mod is the module the Python function should be imported
+#            from, None if no explicit import is necessary.
 
 INTRINSICS_MAP = {
     "abs": ("abs", "FUNC", None),
@@ -373,18 +367,20 @@ class PythonCodeGenerator(object):
         else:
             handler = py_fn
 
-        for index, arg in enumerate(arg_list):
-            status = self.check_ref(index, arg, arg_strs)
+        # for index, arg in enumerate(arg_list):
+        #     status = self.check_ref(index, arg, arg_strs)
 
         if py_fn_type == "FUNC":
-            # If the handler is 'max' or 'min', Float32 casting is not required.
-            if handler in ("max", "min"):
-                arg_strs = [x.replace("._val", "") for x in arg_strs]
-                arguments = ", ".join(arg_strs)
-                return f"{handler}({arguments})"
-            else:
-                arguments = ", ".join(arg_strs)
-                return f"Float32({handler}({arguments}))"
+            arguments = ", ".join(arg_strs)
+            return f"{handler}({arguments})"
+            # # If the handler is 'max' or 'min', Float32 casting is not required.
+            # if handler in ("max", "min"):
+            #     arg_strs = [x.replace("._val", "") for x in arg_strs]
+            #     arguments = ", ".join(arg_strs)
+            #     return f"{handler}({arguments})"
+            # else:
+            #     arguments = ", ".join(arg_strs)
+            #     return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
             assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
@@ -643,7 +639,7 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(f"{arg_name}")
         else:
             if node["type"].lower() == "real":
-                var_type = "Float32"
+                var_type = "Real"
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
 
@@ -1338,8 +1334,9 @@ class PythonCodeGenerator(object):
             ref += node["name"]
         numPartRef -= 1
         if "ref" in node:
-            ref += f".{self.get_derived_type_ref(node['ref'][0], numPartRef,
-                                                 is_assignment)}"
+            derived_type_ref = self.get_derived_type_ref(
+                node['ref'][0], numPartRef, is_assignment)
+            ref += f".{derived_type_ref}"
         return ref
 
     def get_type(self, node):
@@ -1420,7 +1417,9 @@ def create_python_source_list(outputDict: Dict):
         "from delphi.translators.for2py.arrays import *",
         "from delphi.translators.for2py.static_save import *",
         "from dataclasses import dataclass",
-        "from delphi.translators.for2py.types_ext import Float32\n",
+        "from delphi.translators.for2py.types_ext import Float32",
+        "import delphi.translators.for2py.math_ext as math",
+        "from numbers import Real\n",
     ]
 
     for module in module_index_dict:
