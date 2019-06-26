@@ -16,10 +16,18 @@
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::vector, std::map,
     boost::inner_product, boost::edge, boost::add_edge, boost::edge,
-    boost::edges, boost::source, boost::target, boost::graph_bundle,
+    boost::source, boost::target, boost::graph_bundle,
     boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const;
 
 using json = nlohmann::json;
+
+template <class V, class Iterable> vector<V> list(Iterable xs) {
+  vector<V> xs_copy;
+  for (auto x : xs) {
+    xs_copy.push_back(x);
+  }
+  return xs_copy;
+}
 
 template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
   vector<V> transformed_vector;
@@ -145,6 +153,14 @@ public:
     return AnalysisGraph(G);
   }
 
+  auto edges() {
+    return boost::make_iterator_range(boost::edges(graph));
+  }
+
+  auto nodes() {
+    return boost::make_iterator_range(vertices(graph));
+  }
+
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
@@ -158,7 +174,8 @@ public:
     marginalized_responses =
         KDE(marginalized_responses).resample(default_n_samples);
 
-    for_each(edges(graph), [&](auto e) {
+
+    for (auto e : edges()) {
       vector<double> all_thetas = {};
       for (auto causalFragment : graph[e].causalFragments) {
         auto subj_adjective = causalFragment.subj_adjective;
@@ -175,7 +192,13 @@ public:
         }
       }
       graph[e].kde = KDE(all_thetas);
-    });
+    }
+  }
+  auto sample_from_prior() {
+    for (auto [x, y] : iter::product(nodes(), nodes())) {
+      print(x);
+      print(y);
+    }
   }
   auto print_nodes() {
     for_each(vertices(graph), [&](auto v) { cout << graph[v].name << endl; });

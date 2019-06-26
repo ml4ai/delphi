@@ -11,5 +11,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("from_json_file", &AnalysisGraph::from_json_file)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("to_dot", &AnalysisGraph::to_dot)
-      .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs);
+      .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
+      .def("sample_from_prior", &AnalysisGraph::sample_from_prior)
+    ;
 }
