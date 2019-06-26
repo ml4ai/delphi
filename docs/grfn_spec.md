@@ -37,10 +37,34 @@ Changes since [0.1.m5]
 
 ## grfn_spec Index
 
+Example whole system GrFN specification file structure
+
+```
+system.json
+namespace1.json
+namespace1_lambdas.py
+namespace2.json
+namespace2_lambdas.py
+...
+```
+
+NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#function-naming-convention) are both formatted as [`<identifier_string>`](#identifier-string), but with particular [naming conventions](#variable-and-function-identifiers-and-references).
+
+- `<system_def>` ::=  # serves as an index; has to be a DAG
+	- "date_created" : `<string>`
+	- "name" : `<string>` # name of system; optional?
+	- "components" : list of `<grfn_spec_refs>`[attrval] ::=
+		- "name" : [`<namespace_path_string>`](#path-strings)
+		- "imports" : list of [`<namespace_path_string>`](#path-strings) # specifies which grfn_spec files to load
+
 - [`<grfn_spec>`](#top-level-grfn-specification)[attrval] ::=
 	- "date_created" : `<string>`
+	- "namespace" : [`<namespace_path_string>`](#path-strings) # 'current' namespace; grfn_spec filename will be the same
+	- "imports" : list of `<import_identifier_spec>`[attrval] ::=
+		- "source_identifier" : [`<identifier_string>`](#identifier-string)
+		- "name" : `<string>` # the name as used locally in this grfn_spec
 	- "source" : list of [`<source_code_file_path>`](#scope-and-namespace-paths)
-	- "start": list of `<string>`
+	- "start": list of `<string>` # 'top-level' function(s)
 	- "identifiers" : list of [`<identifier_spec>`](#identifier-specification)[attrval] ::=
 
 		- "base_name" : [`<base_name>`](#base-name)
@@ -49,20 +73,26 @@ Changes since [0.1.m5]
 		- "source\_references" : list of [`<source_code_reference>`](#grounding-and-source-code-reference)
 		- "gensym" : [`<gensym>`](#identifier-gensym)
 		- "grounding" : list of [`<grounding_metadata_spec>`](#grounding-metadata-spec)[attrval] ::=
-			- "source" : `<string>`
+			- "source" : `<string>` # URI to source document
 			- "type" : `"definition"` | `"units"` | `"constraint"`
 			- "value" : `<string>`
+			- "score" : `<real>` # confidence score of grounding
 	
 	- "variables" : list of [`<variable_spec>`](#variable-specification)[attrval] ::=
 
 		- "name" : [`<variable_name>`](#variable-naming-convention)
-		- "domain" : [`<variable_domain_type>`](#variable-value-domain)
+		- "domain" : [`<variable_domain_type>`](#variable-value-domain)[attrval] ::=
+			- "type" : `"real"` | `"integer"` | `"boolean"` | `"string"`
+			- "precision" : TODO
+		- "domain_constraints" : `<string>` # a disjunctive normal form, with v := variable value
+			- e.g., `"(or (and (< v infty) (>= v 5) (and (> v -infty) (< v 0)))"`
+			- Could this more generally reference other variables?
 		- "mutable" : `TRUE` | `FALSE`
 		
 	- "functions" : list of [`<function_spec>`](#function-specification) ... instances of the following:
 		
 		- [`<function_assign_spec>`](#function-assign-specification)[attrval] ::=
-			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"assign"` | `"condition"` | `"decision"`
 			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
 			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
@@ -74,37 +104,40 @@ Changes since [0.1.m5]
 						- "value" : `<string>`
 				- [`<function_assign_body_lambda_spec>`](#function_assign_body_lambda)[attrval] ::=
 					- "type" : `"lambda"`
-					- "name" : [`<function_name>`](#function-naming-conventions)
+					- "name" : [`<function_name>`](#function-naming-convention)
 					- "reference" : [`<lambda_function_reference>`](#funciton-assign-body-lambda) ::= a `<string>` denoting the python function in `lambdas.py`
 		
 		- [`<function_container_spec>`](#function-container-specification)[attrval] ::=
-			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"assign"` | `"condition"` | `"decision"`
 			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
 			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
 			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 		
 		- [`<function_loop_plate_spec>`](#function-loop-plate-specification)[attrval] ::=
-			- "name" : [`<function_name>`](#function-naming-conventions)
+			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"loop_plate"`
 			- "input" : list of [`<variable_name>`](#variable-naming-convention)
-			- "index\_variable" : [`<variable_name>`](#variable-naming-convention)
-			- "index\_iteration\_range" : `<index_range>` ::=
-				- "start" : `<integer>` | [`<variable_referene>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
-				- "end" : `<integer>` | [`<variable_referene>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
-			- "condition" : `<loop_condition>`
+			- "index\_variable" : [`<variable_name>`](#variable-naming-convention) # >>> REMOVE? Also, @EricDavis makes good point that _Time_ is important concept; but I don't see time as always part of the exit\_condition computation, so can't rely on exit\_condition variable use as necessary or sufficient condition of identifying time.
+				- >>> Anything that shows up as an input argument to the exit\_condition AND is assigned (updated) within the loop body can be considered as an index\_variable -- but this does not necessarily match to all and only that we might want to consider as an "index"... 
+				- >>> ... because, while _Time_ must be updated by assignment within the loop (to advance), it is not necessarily part of the predicate calculation of the exit\_condition. Which means that time and other things we might consider to be an "index" are not all part of the exit\_condition.
+			- "exit\_condition" : `<loop_condition>` ::= # continue loop until predicate evaluates to "output\_literal"
+				- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
+				- "output" : [`<variable_name>`](#variable-naming-convention) # the named variable of the exit\_condition result
+				- "output_literal" : `TRUE` | `FALSE`
+				- "predicate" : [`<function_name>`](#function-naming-convention) # reference to lambda fn computing the condition (which must match the output_literal in order to exit)
 			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 
 - [`<function_reference_spec>`](#function-reference-specification)[attrval] ::=
-	- "function" : [`<function_name>`](#function-naming-conventions)
+	- "function" : [`<function_name>`](#function-naming-convention)
 	- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
-	- "output" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
+	- "output" : [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
 
 - [`<function_source_reference>`](#function-assign-specification)[attrval] ::=
-	- "name" : [ [`<variable_name>`](#variable-naming-convention) | [`<function_name>`](#function-naming-conventions) ]
+	- "name" : [ [`<variable_name>`](#variable-naming-convention) | [`<function_name>`](#function-naming-convention) ]
 	- "type" : `"variable"` | `"function"`
 
-- [`<variable_referene>`](#variable-reference)[attrval] ::=
+- [`<variable_reference>`](#variable-reference)[attrval] ::=
 	- "variable" : [`<variable_name>`](#variable-naming-convention)
 	- "index" : `<integer>`
 
@@ -171,22 +204,23 @@ resolution
 
 ### Preamble
 
-The current GrFN design strategy is to separate _identifiers_ (any program symbol used to denote a program element) from the _program elements_ themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
+The current GrFN design strategy is to separate _identifiers_ (any program symbol used to denote a program element) from the _program elements_ themselves (namely, variables and functions), as each program element will be denoted by one or more identifiers, and the different types of program elements themselves have intended scientific modeling "functions": variables (may) represent aspects of the modeled domain, and functions represent processes that change variable states.
 
-A critical role of identifiers is to enable _linking_ (grounding) of program elements to information extracted by Text and Equation Reading. Identifiers bring together two types of information that make this linking possible:
+A key role of identifiers in the GrFN representation is to enable _linking_ (grounding) of program elements to information extracted by Text and Equation Reading. Identifiers bring together two types of information that make this linking possible:
 
-1. The identifier name ([`<base_name>`](#base-name)) and namespace context ([scope and namespace paths](#scope-and-namespace-paths)) of the identifier as it appears in program source context -- e.g., the identifier name is used as evidence of connection to other textual sources based on string similarity or name embedding;
-2. Information about the location and neighborhood in source code where the identifier is used (a [`<source_code_reference>`](#grounding-and-source-code-reference)) -- this can include proximity to source code comments and docstrings, as well as proximity to uses of other identifiers.
+1. The identifier name ([`<base_name>`](#base-name)) and namespace context ([scope and namespace paths](#scope-and-namespace-paths)) of the identifier as it appears in program source context are used as evidence of potential semantic relations to other textual sources based on string similarity or name embedding;
+2. Information about the location and neighborhood in source code where the identifier is used (a [`<source_code_reference>`](#grounding-and-source-code-reference)) provides additional sources of evidence, based on proximity to source code comments and docstrings, as well as proximity to uses of other identifiers.
 
-An inference method uses string or embedding similarity between base, scope and namespace names and information extracted from Text Reading to form hypotheses of potential links between identifiers and the text-extracted information. Such hypotheses are then explicitly connected to identifiers (by instances of [`<grounding_metadata_spec>`](#grounding-metadata-spec)).
+An linking/grounding inference algorithm uses string or embedding similarity between base, scope and namespace names and information extracted from documents by Text Reading to form hypotheses of potential links between identifiers and the text-extracted information. Such link hypotheses are explicitly connected to identifiers in GrFN (by instances of [`<grounding_metadata_spec>`](#grounding-metadata-spec)).
 
-Program elements (variables and functions) are associated with identifiers based on declarations in source code, and thereafter, the use in source code of an identifier is a denotation of the variable or function. So when information is linked to terms or phrases ("mentions") from text and equation sources, this information can then be associated with variables themselves. For example, the indicator 'S' may store an integer and be described in documentation as corresponding to (defined as) the "susceptible population".
+Program elements (variables and functions) are associated with identifiers based on declarations in source code, and thereafter, the use of the same identifiers elsewher in source code is a denotation of the variable or function. Information from Text Reading (e.g., "mentions" of domain concept terms or phrases in text) associated with identifiers is then linked to program elements by association of the idenifier. For example, the indicator 'S' may store an integer and be described in documentation as associated with (defined as representing) the "susceptible population".
 
 ### Identifier
 
-An identifier is a symbol used to uniquely identify a program element in code, where a *program element* is a 
+An [identifier](#identifier-specification) is a symbol used to uniquely identify a program element in code, where a *program element* is a 
 
-- variable (or constant)
+- constant value
+- variable
 - function
 
 > FUTURE: possibly: type, class
@@ -195,7 +229,7 @@ More than one identifier can be used to denote the same program element, but an 
 
 ### Grounding and source code reference
 
-[Identifiers](#identifier-specification) play a key role in connecting the model as implemented in source code to the target domain that it models. *Grounding* is the task of inferring what aspect of the target domain a program element may correspond to. Identifiers, by their [(base) name(s)](#base-name) and the context of their declaration and use (i.e., where they occur in code, through their [scope and namespace](#scope-and-namespace-paths)), and the doc and comment strings that occur around them, provide clues to what program elements are intended to represent in the target domain. For this reason, we need to associate with identifiers several pieces of information. This information will be collected during program analysis and associated with the identifier declaration:
+Identifiers play a key role in connecting the model as implemented in source code to the target domain that it models. *Grounding* is the task of inferring what aspect of the target scientific domain a program element may correspond to. Identifiers, by their [(base) name(s)](#base-name) and the context of their declaration and use (i.e., where they occur in code, through their [scope and namespace](#scope-and-namespace-paths)), and the linline comment and doc strings that occur around them, provide clues to what program elements are intended to represent in the target domain. For this reason, we need to associate with identifiers several pieces of information. This information will be collected during program analysis and associated with the identifier declaration:
     
 >FUTURE: General handling of pointers/references (related to the concept of having an "alias") will require care, as this introduces the possiblity of multiple identifiers being used to refer to the same program element, and also a single identifier being used to refer to different program elements in different contexts. In the general case it is not possible to determine all pointer references *statically*. (DSSAT does include some pointers.)
 	
@@ -221,7 +255,7 @@ Below, we specify the conventions for `<base_name>`s of identifiers that do not 
 
 - [Variable Naming Convention](#variable-naming-convention)
 
-- [Function Naming Conventions](#function-naming-conventions)
+- [Function Naming Convention](#function-naming-convention)
 
 ### Scope and Namespace Paths
 
@@ -231,7 +265,7 @@ Each source language has its own rules for specifying scope and namespace, and i
 
 Examples:
 
-- `<scope_path>`: As will be described below, program analysis will assign unique names for scopes (see [discussion below under conditional, container and loop\_plate functions naming conventions](#function-naming-conventions)). Given these names, the scopes of the two inner loops within the outer loop of function `foo` in this example,
+- `<scope_path>`: As will be described below, program analysis will assign unique names for scopes (see [discussion below under conditional, container and loop\_plate function naming convention](#function-naming-convention)). Given these names, the scopes of the two inner loops within the outer loop of function `foo` in this example,
     
     ```
     def foo():
@@ -383,7 +417,7 @@ Finally, in some cases (described below), program analysis will introduce variab
 
 In addition to capturing source code variable environment context in variable declarations, we also need a mechanism to disambiguate specific instances of *use* of the same variable within the same context to accurately capture the logical order of variable value updates. In this case, we consider this as a repeated reference to the same variable. The semantics of repeated reference is captured by the variable "index" attribute of a `<variable_reference>`. The index integer serves to disambiguate the execution order of the variable state references, as determined during program analysis.
 
-### Function Naming Conventions
+### Function Naming Convention
 
 Function names, like variable names, are also ultimately [identifiers](#identifier-specification) that will commonly be referenced within GrFN by their [`<identifier_string>`](#identifier-string) (and therefore include their [`<namespace_path_string>`](#path-strings) and [`<scope_path_string>`](#path-strings))
 
@@ -605,7 +639,7 @@ Here are three examples of `<variable_spec>` objects:
 
 Next we have the `<function_spec>`. 
 
-All `<function_spec>`s include a [`<function_name>`](#function-naming-conventions), following the [function naming conventions described above](#function-naming-conventions).
+All `<function_spec>`s include a [`<function_name>`](#function-naming-convention), following the [function naming convention described above](#function-naming-convention).
 
 There are five types of functions; three types can be expressed using the same attributes in their JSON attribute-value list ([`<function_assign_spec>`](#function-assign-specification)), while the others ([`<function_container_spec>`](#function-container-specification), [`<function_loop_plate_spec>`](#function-loop-plate-specification)) require different attributes. So this means there are three specializations of the \<function\_spec\>, one of which ([`<function_assign_spec>`](#function-assign-specification)) will be used for three function types.
 
@@ -623,7 +657,7 @@ All three specs will have a "type" attribute with a string value that will unamb
 - "[loop\_plate](#function-loop-plate-specification)"
 
 All `<function_spec>`s will also have a "name" attribute with a unique
-[`<identifier_string>`](#identifier-string) (across `<function_spec>`s), as described above under the [Function Naming Conventions](#function-naming-conventions) section; as described in that section, the function [`<base\_name>`](#base-name) will include the function type name, but having the explicit type attribute makes JSON parsing easier.
+[`<identifier_string>`](#identifier-string) (across `<function_spec>`s), as described above under the [Function Naming Convention](#function-naming-convention) section; as described in that section, the function [`<base\_name>`](#base-name) will include the function type name, but having the explicit type attribute makes JSON parsing easier.
 
 ### Function Assign Specification
 
@@ -649,7 +683,7 @@ There are three types of assign functions, distinguished by the value of the att
 
 - **"decision"**: Also as part of analyzing a conditional, any variables whose values are updated as a result of the condition outcome must have their values updated. These will be updated by "decision" assignment functions, whose target is the variable being updated, and the computations will involve the state of the conditional variable, the previous state of the variable being updated, and possibly other variable values. Again, semantically this is nothing more than an assignment, but is useful to distinguish from other assignments.
 
-The identifier conventions for assign, condition and decision functions is described above in the section on [Function Naming Conventions](#function-naming-conventions).
+The identifier conventions for assign, condition and decision functions is described above in the section on [Function Naming Convention](#function-naming-convention).
 
 For "sources" and "target": When there is no need to refer to the variable by its relative index, then [`<variable_name>`](#variable-naming-convention) (itself an [`<identifier_string>`](#identifier-string)) is sufficient, and index will be assumed to be 0 (if at all relevant). 
 
@@ -767,7 +801,7 @@ def foo(): #fortran function
         "input" : list of [ <variable_reference> | <variable_name> ]
         "output" : <variable_reference> | <variable_name>
 
-The `<function_reference_spec>` defines the "wiring" between functions and their input and output variable(s).
+The `<function_reference_spec>` defines the "wiring" of functions, specifying associations of variables to function inputs (arguments) and the function output variable (FOR NOW: assuming all functions set zero or one variable state).
 
 ### Function Loop Plate Specification
 

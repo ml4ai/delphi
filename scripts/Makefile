@@ -77,6 +77,9 @@ dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
 data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
+	
+data/south_sudan_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
+	python $<
 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
@@ -88,7 +91,8 @@ data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
-						   data/south_sudan_data_dssat.tsv
+						   data/south_sudan_data_dssat.tsv\
+						   data/south_sudan_data_UNHCR.tsv
 	python $< --combine
 
 data/indicator_flat_list.txt: data/south_sudan_data.tsv
