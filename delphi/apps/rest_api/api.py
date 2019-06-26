@@ -167,27 +167,91 @@ def getIndicators(model_id: str):
     return jsonify(output_dict)
 
 
-@bp.route("/delphi/models/<string:model_id>/export", methods=["POST"])
-def exportModel(model_id: str):
-    """ Sends quantification information to be attached to an existing model.
-    Sends concept-to-indicator mappings.
-
-    Input: A map object of concepts and their associated
-           indicator/indicator-values
-    Output: Request status
-    """
+@bp.route("/delphi/models/:modelID/projection", methods=["POST"])
+def createProjection():
     data = json.loads(request.data)
-    G = DelphiModel.query.filter_by(id=model_id).first().model
-    # Tag this model for display in the CauseWorks interface
-    G.tag_for_CX = True
-    for concept, indicator in data["concept_indicator_map"].items():
-        G.nodes[concept]["indicators"] = {
-            concept: Indicator(
-                concept, indicator["source"], value=indicator["value"]
-            )
-        }
+    G = DelphiModel.query.filter_by(id=uuid).first().model
+    if os.environ.get("TRAVIS") is not None:
+        config_file = "bmi_config.txt"
+    else:
+        if not os.path.exists("/tmp/delphi"):
+            os.makedirs("/tmp/delphi", exist_ok=True)
+        config_file = "/tmp/delphi/bmi_config.txt"
 
-    return jsonify({"status": "success"})
+    G.create_bmi_config_file(config_file)
+    G.initialize(initialize_indicators=False, config_file=config_file)
+    for n in G.nodes(data=True):
+        rv = n[1]["rv"]
+        rv.partial_t = 0.0
+        for perturbation in data["perturbations"]:
+            if n[0] == perturbation["concept"]:
+                rv.partial_t = perturbation["value"]
+                for s0 in G.s0:
+                    s0[f"∂({n[0]})/∂t"] = rv.partial_t
+                break
+
+    id = str(uuid4())
+    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
+    db.session.add(experiment)
+    db.session.commit()
+
+    result = ForwardProjectionResult(id=id, baseType="ForwardProjectionResult")
+    db.session.add(result)
+    db.session.commit()
+
+    startTime = data["startTime"]
+    d = dateutil.parser.parse(f"{startTime['year'] startTime['month']}")
+
+    n_timesteps = data["projection"]["numSteps"]
+
+    for i in range(data["timeStepsInMonths"]):
+        d = d + relativedelta(months=1)
+
+        for n in G.nodes(data=True):
+            CausalVariable.query.filter_by(
+                id=n[1]["id"]
+            ).first().lastUpdated = d.isoformat()
+            result.results.append(
+                {
+                    "id": n[1]["id"],
+                    "baseline": {
+                        "active": "ACTIVE",
+                        "time": d.isoformat(),
+                        "value": {"baseType": "FloatValue", "value": 1.0},
+                    },
+                    "intervened": {
+                        "active": "ACTIVE",
+                        "time": d.isoformat(),
+                        "value": {
+                            "baseType": "FloatValue",
+                            "value": np.median([s[n[0]] for s in G.s0]),
+                        },
+                    },
+                }
+            )
+
+        G.update(update_indicators=False)
+
+        # Hack for 12-month evaluation - have the partial derivative decay over
+        # time to restore equilibrium
+
+        tau = 1.0  # Time constant to control the rate of the decay
+        for n in G.nodes(data=True):
+            for variable in data["interventions"]:
+                if n[1]["id"] == variable["id"]:
+                    rv = n[1]["rv"]
+                    for s0 in G.s0:
+                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
+
+    db.session.add(result)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "id": experiment.id,
+            "message": "Forward projection sent successfully",
+        }
+    )
 
 
 # ============
