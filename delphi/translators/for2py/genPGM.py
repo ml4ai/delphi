@@ -29,7 +29,7 @@ BINOPS = {
 }
 
 ANNOTATE_MAP = {
-    "real": "Float32",
+    "real": "Real",
     "integer": "int",
     "string": "str",
     "array": "[]",
@@ -1086,6 +1086,11 @@ class GrFNGenerator(object):
         # <variable_name> which is stored under `node.attr`. The `node.id`
         # stores the <function_name> which is being ignored.
         elif isinstance(node, ast.Attribute):
+            # When a computations float value is extracted using the Float32
+            # class's _val method, an ast.Attribute will be present, just
+            if node.attr == "_val":
+                return self.genPgm(node.value, state, fnNames, call_source)
+
             lastDef = getLastDef(node.attr, state.lastDefs,
                                  state.lastDefDefault)
 
@@ -1597,7 +1602,7 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType in ("float", "Float32"):
+        if dType in ("float", "Real"):
             return "real"
         if dType == "int":
             return "integer"
@@ -1712,9 +1717,10 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n"]
-    lambdaStrings.append("from delphi.translators.for2py.floatNumpy import "
-                         "Float32\n\n")
+    lambdaStrings = [
+                    "from numbers import Real\n",
+                    "import delphi.translators.for2py.math_ext as math\n\n"
+    ]
 
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
