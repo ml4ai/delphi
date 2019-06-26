@@ -192,8 +192,8 @@ class XML_to_JSON_translator(object):
             subroutine["body"] += self.process_save(self.saved_node, state)
             self.is_save = False
         elif self.saved_filehandle:
-            subroutine["body"] += {"tag": "save", "scope":
-                        self.current_module, "var_list": self.saved_filehandle}
+            subroutine["body"] += [{"tag": "save", "scope":
+                        self.current_module, "var_list": self.saved_filehandle}]
             self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
@@ -794,12 +794,6 @@ class XML_to_JSON_translator(object):
         # If the node is a file OPEN node, save it so that it can later be
         # added to the SAVE node in the ast
         if root.tag == "open":
-            # for arg in val["args"]:
-            #     if arg.get('value'):
-            #         name = f"file_{arg['value']}"
-            # decorator_argument = f'{{"name": "{name}", "call": None, "type": ' \
-            #     f'"file_handle"}}'
-            # self.saved_filehandle += [decorator_argument]
             self.saved_filehandle += [val]
         return [val]
 

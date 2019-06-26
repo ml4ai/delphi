@@ -959,6 +959,12 @@ class PythonCodeGenerator(object):
                 file_id = str(self.nameMapper[node["args"][0].get("name")])
             file_handle = "file_" + file_id
 
+            # We are making all file handles static i.e. SAVEing them which
+            # means the file handles have to be prefixed with their
+            # subroutine/function names
+            if file_handle in self.saved_variables[self.current_module]:
+                file_handle = f"{self.current_module}.{file_handle}"
+
         # Check whether format has been specified
         if str(node["args"][1]["value"]) == "*":
             format_type = "runtime"
@@ -1275,7 +1281,7 @@ class PythonCodeGenerator(object):
                         save_argument = self.printArray(var, printState)
                         variables += f"{save_argument}, "
                     elif var["tag"] == "variable":
-                        if var["is_derived_type"]:
+                        if var["is_derived_type"] == "true":
                             save_argument = f"{{'name': '{var['name']}', " \
                                 f"'call': {var['type']}(), 'type': " \
                                 f"'derived_type'}}"
