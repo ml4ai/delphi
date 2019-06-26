@@ -15,7 +15,7 @@ from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
-from delphi.translators.for2py.floatNumpy import Float32
+from delphi.translators.for2py.types_ext import Float32
 from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
