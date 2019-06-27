@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-from math import exp
+from math import exp, sqrt
 from uuid import uuid4
 import pickle
 from datetime import date, timedelta, datetime
@@ -9,6 +9,7 @@ import dateutil
 from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
+from statistics import median, mean
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten, lmap
@@ -19,6 +20,7 @@ from delphi.apps.rest_api.models import *
 from delphi.random_variables import Indicator
 import numpy as np
 from flask import current_app
+import scipy.stats
 
 bp = Blueprint("rest_api", __name__)
 
@@ -75,8 +77,8 @@ def getIndicators(model_id: str):
     args = request.args
 
     func_dict = {
-        "mean": np.mean,
-        "median": np.median,
+        "mean": mean,
+        "median": median,
         "max": max,
         "min": min,
         "raw": lambda x: x,
@@ -195,39 +197,45 @@ def createProjection(modelID):
     db.session.add(experiment)
     db.session.commit()
 
-    result = ForwardProjectionResult(id=id, baseType="ForwardProjectionResult")
+    result = CauseMosForwardProjectionResult(
+        id=id, baseType="CauseMosForwardProjectionResult"
+    )
+    result.results = {
+        concept: {
+            "values": [],
+            "confidenceInterval": {"upper": [], "lower": []},
+        }
+        for concept in G
+    }
     db.session.add(result)
-    db.session.commit()
 
     startTime = data["startTime"]
     d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
     τ = 1.0  # Time constant to control the rate of the decay
+    # From https://www.ucl.ac.uk/child-health/short-courses-events/
+    #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+    n = len(G.s0)
+    lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+    upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
+    print(n, lower_rank, upper_rank)
+
     for i in range(data["timeStepsInMonths"]):
         d = d + relativedelta(months=1)
 
         for n in G.nodes(data=True):
-            CausalVariable.query.filter_by(
-                id=n[1]["id"]
-            ).first().lastUpdated = d.isoformat()
-            result.results.append(
-                {
-                    "id": n[1]["id"],
-                    "baseline": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": {"baseType": "FloatValue", "value": 1.0},
-                    },
-                    "intervened": {
-                        "active": "ACTIVE",
-                        "time": d.isoformat(),
-                        "value": {
-                            "baseType": "FloatValue",
-                            "value": np.median([s[n[0]] for s in G.s0]),
-                        },
-                    },
-                }
-            )
+            values = [s[n[0]] for s in G.s0]
+            median_value = median(values)
+            value_dict = {
+                "year": d.year,
+                "month": d.month,
+                "value": median_value,
+            }
+            result.results[n[0]]["values"].append(value_dict)
+            value_dict["value"]= values[lower_rank]
+            result.results[n[0]]["confidenceInterval"]["upper"].append(value_dict)
+            value_dict["value"]= values[upper_rank]
+            result.results[n[0]]["confidenceInterval"]["lower"].append(value_dict)
 
         G.update(update_indicators=False, dampen=True, τ=τ)
 
@@ -235,6 +243,18 @@ def createProjection(modelID):
     db.session.commit()
 
     return jsonify({"experimentId": experiment.id})
+
+
+@bp.route(
+    "/delphi/models/<string:modelID>/experiment/<string:experimentID>",
+    methods=["GET"],
+)
+def getExperimentResults(modelID: str, experimentID: str):
+    """ Fetch experiment results"""
+    experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+        id=experimentID
+    ).first()
+    return jsonify(experimentResult.deserialize())
 
 
 # ============
@@ -478,7 +498,7 @@ def createExperiment(uuid: str):
                         "time": d.isoformat(),
                         "value": {
                             "baseType": "FloatValue",
-                            "value": np.median([s[n[0]] for s in G.s0]),
+                            "value": median([s[n[0]] for s in G.s0]),
                         },
                     },
                 }

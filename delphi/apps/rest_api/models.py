@@ -319,6 +319,20 @@ class ExperimentResult(db.Model, Serializable):
     }
 
 
+class CauseMosForwardProjectionResult(ExperimentResult):
+    """ Placeholder docstring for class CauseMosForwardProjectionResult. """
+
+    __tablename__ = "causemosforwardprojectionresult"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experimentresult.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    results = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CauseMosForwardProjectionResult"}
+
+
 class ForwardProjectionResult(ExperimentResult):
     """ Placeholder docstring for class ForwardProjectionResult. """
 

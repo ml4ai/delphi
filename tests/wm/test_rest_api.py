@@ -115,7 +115,6 @@ def test_getIndicators(client):
     assert True
 
 def test_createProjection(G, client):
-    timestamp = "2018-11-01"
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
@@ -132,7 +131,9 @@ def test_createProjection(G, client):
     }
 
     rv = client.post(f"/delphi/models/{G.id}/projection", json=post_data)
-
+    experimentId = rv.json["experimentId"]
+    url = f"delphi/models/{G.id}/experiment/{experimentId}"
+    rv = client.get(url)
     # TODO This is a smokescreen test - probably should replace with something
     # better later.
     assert True
