@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
 from math import exp, sqrt
 from uuid import uuid4
@@ -58,7 +59,8 @@ def createNewModel():
 
 
 @bp.route("/delphi/search", methods=["POST"])
-def getIndicators(model_id: str):
+def getIndicators():
+    #def getIndicators(model_id: str):
     """
     Given a list of concepts, this endpoint returns their respective matching
     indicators. The search parameters are:
@@ -74,7 +76,8 @@ def getIndicators(model_id: str):
     returned.
     """
 
-    args = request.args
+    # args = request.args
+    args = request.get_json()
 
     func_dict = {
         "mean": mean,
@@ -85,7 +88,7 @@ def getIndicators(model_id: str):
     }
 
     output_dict = {}
-    for concept in args["concepts"]:
+    for concept in args.get("concepts"):
         output_dict[concept] = []
         query = (
             "select `Concept`, `Source`, `Indicator`, `Score` "
@@ -100,6 +103,7 @@ def getIndicators(model_id: str):
             )
             outputResolution = args.get("outputResolution")
             start = args.get("start")
+            end = args.get("end")
             func = args.get("func", "raw")
 
             if outputResolution is not None:
@@ -120,6 +124,8 @@ def getIndicators(model_id: str):
                         r["Month"],
                         r["Source"],
                     )
+
+                    value = float(re.findall(r'-?\d+\.?\d*', value)[0])
 
                     # Sort of a hack - some of the variables in the tables we
                     # process don't have units specified, so we put a
@@ -144,6 +150,8 @@ def getIndicators(model_id: str):
 
                     if unit is None:
                         unit = PLACEHOLDER_UNIT
+
+                    value = float(re.findall(r'-?\d+\.?\d*', value)[0])
 
                     # HACK! if the variables have the same names but different
                     # sources, this will only give the most recent source
