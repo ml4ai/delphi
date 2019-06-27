@@ -389,47 +389,16 @@ class PythonCodeGenerator(object):
         else:
             handler = py_fn
 
-        # for index, arg in enumerate(arg_list):
-        #     status = self.check_ref(index, arg, arg_strs)
 
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
             return f"{handler}({arguments})"
-            # # If the handler is 'max' or 'min', Float32 casting is not required.
-            # if handler in ("max", "min"):
-            #     arg_strs = [x.replace("._val", "") for x in arg_strs]
-            #     arguments = ", ".join(arg_strs)
-            #     return f"{handler}({arguments})"
-            # else:
-            #     arguments = ", ".join(arg_strs)
-            #     return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
             assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
 
-    def check_ref(self, index, arg, arg_strs):
-        st = False
-        if arg["tag"] == "ref":
-            if self.variableMap[arg["name"]].lower() == "real":
-                arg_strs[index] = arg_strs[index] + "._val"
-                return True
-            else:
-                return False
-        elif arg["tag"] == "op":
-            for item_name in arg["left"]:
-                st = self.check_ref(index, item_name, arg_strs)
-            if not st:
-                for item_name in arg["right"]:
-                    st = self.check_ref(index, item_name, arg_strs)
-            return st
-        elif arg["tag"] == "call":
-            for item_name in arg["args"]:
-                st = self.check_ref(index, item_name, arg_strs)
-            return st
-        else:
-            return False
 
     def get_arg_list(self, node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
