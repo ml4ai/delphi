@@ -29,6 +29,7 @@ bp = Blueprint("rest_api", __name__)
 
 PLACEHOLDER_UNIT = "No units specified."
 
+
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
@@ -71,7 +72,7 @@ def getIndicators(model_id: str):
     returned.
     """
 
-    args=request.args
+    args = request.args
 
     func_dict = {
         "mean": np.mean,
@@ -80,7 +81,6 @@ def getIndicators(model_id: str):
         "min": min,
         "raw": lambda x: x,
     }
-
 
     output_dict = {}
     for concept in args["concepts"]:
@@ -125,11 +125,11 @@ def getIndicators(model_id: str):
                     if unit is None:
                         unit = PLACEHOLDER_UNIT
                     _dict = {
-                                "year": year,
-                                "month": month,
-                                "value": float(value),
-                                "source": source,
-                            }
+                        "year": year,
+                        "month": month,
+                        "value": float(value),
+                        "source": source,
+                    }
 
                     if unit not in value_dict:
                         value_dict[unit] = [_dict]
@@ -202,7 +202,6 @@ def createProjection(modelID):
     startTime = data["startTime"]
     d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
-
     τ = 1.0  # Time constant to control the rate of the decay
     for i in range(data["timeStepsInMonths"]):
         d = d + relativedelta(months=1)
@@ -230,17 +229,12 @@ def createProjection(modelID):
                 }
             )
 
-        G.update(update_indicators=False, dampen=True, τ = τ)
-
+        G.update(update_indicators=False, dampen=True, τ=τ)
 
     db.session.add(result)
     db.session.commit()
 
-    return jsonify(
-        {
-            "experimentId": experiment.id,
-        }
-    )
+    return jsonify({"experimentId": experiment.id})
 
 
 # ============
@@ -490,7 +484,7 @@ def createExperiment(uuid: str):
                 }
             )
 
-        G.update(update_indicators=False, dampen=True, τ = τ)
+        G.update(update_indicators=False, dampen=True, τ=τ)
 
     db.session.add(result)
     db.session.commit()
