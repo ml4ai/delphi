@@ -355,6 +355,7 @@ class RectifyOFPXML:
         "equiv-operand",
         "saved-entity-list__begin",
         "saved-entity-list",
+        "access-id",
     ]
 
     output_child_tags = [
