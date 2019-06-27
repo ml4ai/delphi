@@ -11,7 +11,7 @@ food_security_string = concepts['food security']['grounding']
 human_migration_string = concepts['migration']['grounding']
 product_string = concepts['product']['grounding']
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_inference_with_synthetic_data(G):
     """ Smokescreen test for sampler. """
     # Generate synthetic data

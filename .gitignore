@@ -139,6 +139,9 @@ bmi_config.txt
 *.png
 *.pdf
 
+# VSCode
+.vscode/
+
 # CMake
 CMakeLists.txt.user
 CMakeCache.txt
