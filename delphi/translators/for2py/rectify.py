@@ -143,7 +143,8 @@ class RectifyOFPXML:
         # Keeps track of subscripts of arrays
         self.subscripts_holder = []
         # Holds format XML for later reconstruction
-        self.format_holder = ET.Element('')
+        # self.format_holder = ET.Element('')
+        self.format_holder = []
         # Holds a type of parent element's type element
         self.parent_type = ET.Element('')
         # Holds XML of derived type reference for later reconstruction
@@ -659,7 +660,8 @@ class RectifyOFPXML:
                 if child.tag in self.declaration_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        # self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -1437,7 +1439,8 @@ class RectifyOFPXML:
                 if child.tag in self.loop_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        # self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -2826,11 +2829,12 @@ class RectifyOFPXML:
             and reconstructed to be nested under (1)
             in this function.
         """
-        statement_elem = ET.SubElement(self.current_body_scope, "statement")
-        cur_elem = ET.SubElement(statement_elem, "format")
-        self.parseXMLTree(
-            self.format_holder, cur_elem, statement_elem, grandparent, traverse
-        )
+        for format in self.format_holder:
+            statement_elem = ET.SubElement(self.current_body_scope, "statement")
+            cur_elem = ET.SubElement(statement_elem, "format")
+            self.parseXMLTree(
+                format, cur_elem, statement_elem, grandparent, traverse
+            )
 
     def reconstruct_derived_type_names(self, current):
         """
