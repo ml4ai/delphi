@@ -167,10 +167,10 @@ def getIndicators(model_id: str):
     return jsonify(output_dict)
 
 
-@bp.route("/delphi/models/:modelID/projection", methods=["POST"])
-def createProjection():
+@bp.route("/delphi/models/<string:modelID>/projection", methods=["POST"])
+def createProjection(modelID):
     data = json.loads(request.data)
-    G = DelphiModel.query.filter_by(id=uuid).first().model
+    G = DelphiModel.query.filter_by(id=modelID).first().model
     if os.environ.get("TRAVIS") is not None:
         config_file = "bmi_config.txt"
     else:
@@ -200,10 +200,10 @@ def createProjection():
     db.session.commit()
 
     startTime = data["startTime"]
-    d = dateutil.parser.parse(f"{startTime['year'] startTime['month']}")
+    d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
-    n_timesteps = data["projection"]["numSteps"]
 
+    τ = 1.0  # Time constant to control the rate of the decay
     for i in range(data["timeStepsInMonths"]):
         d = d + relativedelta(months=1)
 
@@ -230,26 +230,15 @@ def createProjection():
                 }
             )
 
-        G.update(update_indicators=False)
+        G.update(update_indicators=False, dampen=True, τ = τ)
 
-        # Hack for 12-month evaluation - have the partial derivative decay over
-        # time to restore equilibrium
-
-        tau = 1.0  # Time constant to control the rate of the decay
-        for n in G.nodes(data=True):
-            for variable in data["interventions"]:
-                if n[1]["id"] == variable["id"]:
-                    rv = n[1]["rv"]
-                    for s0 in G.s0:
-                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
 
     db.session.add(result)
     db.session.commit()
 
     return jsonify(
         {
-            "id": experiment.id,
-            "message": "Forward projection sent successfully",
+            "experimentId": experiment.id,
         }
     )
 
@@ -471,6 +460,7 @@ def createExperiment(uuid: str):
 
     n_timesteps = data["projection"]["numSteps"]
 
+    τ = 1.0  # Time constant to control the rate of the decay
     for i in range(n_timesteps):
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
@@ -500,18 +490,7 @@ def createExperiment(uuid: str):
                 }
             )
 
-        G.update(update_indicators=False)
-
-        # Hack for 12-month evaluation - have the partial derivative decay over
-        # time to restore equilibrium
-
-        tau = 1.0  # Time constant to control the rate of the decay
-        for n in G.nodes(data=True):
-            for variable in data["interventions"]:
-                if n[1]["id"] == variable["id"]:
-                    rv = n[1]["rv"]
-                    for s0 in G.s0:
-                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
+        G.update(update_indicators=False, dampen=True, τ = τ)
 
     db.session.add(result)
     db.session.commit()

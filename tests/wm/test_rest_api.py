@@ -54,8 +54,6 @@ def test_getICMPrimitives(G, client):
 
 
 def test_createExperiment(G, client):
-    post_url = "/".join(["icm", G.id, "experiment"])
-
     timestamp = "2018-11-01"
     post_data = {
         "interventions": [
@@ -83,7 +81,7 @@ def test_createExperiment(G, client):
         },
         "options": {"timeout": 3600},
     }
-    rv = client.post(post_url, json=post_data)
+    rv = client.post(f"icm/{G.id}/experiment", json=post_data)
     assert b"Forward projection sent successfully" in rv.data
 
 
@@ -114,4 +112,27 @@ def test_getIndicators(client):
     rv = client.get(
         f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
     )
+    assert True
+
+def test_createProjection(G, client):
+    timestamp = "2018-11-01"
+    post_data = {
+        "startTime": {"year": 2017, "month": 4},
+        "perturbations": [
+            {
+                "concept": concepts['conflict']['grounding'],
+                "value": 0.8
+            },
+            {
+                "concept": concepts['food security']['grounding'],
+                "value": 0.01
+            },
+        ],
+        "timeStepsInMonths": 4
+    }
+
+    rv = client.post(f"/delphi/models/{G.id}/projection", json=post_data)
+
+    # TODO This is a smokescreen test - probably should replace with something
+    # better later.
     assert True
