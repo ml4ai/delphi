@@ -116,6 +116,8 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+                if len(input_values) == 0:
+                    res = Float32(res)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -403,7 +405,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 json_filename,
                 stem
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
-        
+
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
         return G

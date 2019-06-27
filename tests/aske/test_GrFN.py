@@ -56,8 +56,7 @@ def test_petasce_creation(petasce_grfn):
     }
 
     res = petasce_grfn.run(values)
-    # assert res == np.float32(0.00012496980836348878)
-    assert res == 0.00012496980836348878
+    assert res == np.float32(0.00012496980836348878)
 
 
 def test_crop_yield_creation(crop_yield_grfn):
