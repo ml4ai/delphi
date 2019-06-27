@@ -2080,11 +2080,11 @@ class RectifyOFPXML:
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
+                    if child.tag == "body":
+                        self.current_body_scope = cur_elem
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
-                    if child.tag == "body":
-                        self.current_body_scope = cur_elem
                 else:
                     assert (
                         False
