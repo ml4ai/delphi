@@ -273,8 +273,8 @@ class AnalysisGraph(nx.DiGraph):
                 indicator_name: Indicator(indicator_name, indicator_source)
             }
             values = [x["value"] for x in indicator["values"]]
-            indicator.mean = indicator["func"](values)
-            indicator.source = indicator["source"]
+            indicator["mean"] = func_dict[indicator["func"]](values)
+            # indicator.source = indicator["source"]
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
