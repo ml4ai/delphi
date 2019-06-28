@@ -55,6 +55,13 @@ def normpdf(x, mean, sd):
     return num / denom
 
 
+def log_normpdf(x, mean, sd):
+    var = float(sd) ** 2
+    log_denom = -0.5 * log(2 * pi) - log(sd)
+    log_num = ((float(x) - float(mean)) ** 2) / (2 * var)
+    return log_denom - log_num
+
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -417,10 +424,8 @@ class AnalysisGraph(nx.DiGraph):
             for n in self.nodes(data=True):
                 for indicator, value in observed_state[n[0]].items():
                     ind = n[1]["indicators"][indicator]
-                    log_likelihood = log(
-                        normpdf(
-                            value, latent_state[n[0]] * ind.mean, ind.stdev
-                        )
+                    log_likelihood = log_normpdf(
+                        value, latent_state[n[0]] * ind.mean, ind.stdev
                     )
                     _list.append(log_likelihood)
 
