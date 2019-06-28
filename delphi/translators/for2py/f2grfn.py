@@ -293,6 +293,9 @@ def parse_args():
         "-d",
         "--directory",
         nargs="*",
+        default="tmp",  # User may or may not provide the output path. If
+                        # provided, return the directory path name. Else,
+                        # the default "tmp" name.
         help="A temporary directory for generated files to be stored"
     )
 
@@ -300,15 +303,7 @@ def parse_args():
 
     fortran_file = args.file[0]
 
-    # User may or may not provide the output path.
-    # If provided, return the directory path name.
-    # Else, the default "tmp" name.
-    if args.directory != None:
-        out_directory = args.directory[0]
-    else:
-        out_directory = "tmp"
-
-    return (fortran_file, out_directory)
+    return (fortran_file, args.directory[0])
 
 
 def check_classpath():
