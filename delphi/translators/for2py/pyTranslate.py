@@ -1582,21 +1582,33 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "-t",
+        "--target",
+        nargs="+",
+        required=True,
+        help=(
+            "Target directory to store the output files in"
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--out",
         nargs="+",
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files being "
+             "generated",
     )
     args = parser.parse_args(sys.argv[1:])
 
     pickleFile = args.files[0]
     pyFile = args.gen[0]
     outFile = args.out[0]
+    targetDir = args.target[0]
 
-    return (pickleFile, pyFile, outFile)
+    return (pickleFile, pyFile, targetDir, outFile)
+
 
 if __name__ == "__main__":
-    (pickleFile, pyFile, outFile) = parse_args()
+    (pickleFile, pyFile, targetDir, outFile) = parse_args()
 
     try:
         with open(pickleFile, "rb") as f:
@@ -1608,8 +1620,8 @@ if __name__ == "__main__":
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
+            modFile = f"{targetDir}m_{item[1].lower()}.py"
             try:
-                modFile = f"tmp/m_{item[1].lower()}.py"
                 with open(modFile, "w") as f:
                     outputList.append("m_" + item[1].lower() + ".py")
                     f.write(item[0])
