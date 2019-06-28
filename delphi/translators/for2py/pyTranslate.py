@@ -18,6 +18,7 @@ python_file: The Python file on which to write the resulting Python script.
 """
 
 import sys
+import os
 import pickle
 import argparse
 import re
@@ -1584,8 +1585,8 @@ def parse_args():
     parser.add_argument(
         "-t",
         "--target",
-        nargs="+",
-        required=True,
+        nargs="*",
+        default="tmp/",
         help=(
             "Target directory to store the output files in"
         ),
@@ -1618,6 +1619,16 @@ if __name__ == "__main__":
 
     python_source_list = create_python_source_list(outputDict)
     outputList = []
+
+    # If "tmp" directory does not exist already, simply create one.
+    if not os.path.isdir(targetDir):
+        os.mkdir(targetDir)
+    else:
+        assert (
+            os.access(targetDir, os.W_OK)
+        ), f"Directory {targetDir} is not writable.\n\
+                Please, provide the directory name to hold files."
+
     for item in python_source_list:
         if item[2] == "module":
             modFile = f"{targetDir}m_{item[1].lower()}.py"
