@@ -180,7 +180,8 @@ def generate_outputDict(
     return outputDict
 
 
-def generate_python_src(outputDict, python_file, output_file, tester_call):
+def generate_python_src(outputDict, python_file, output_file, temp_dir,
+                        tester_call):
     """
         This function generates python source file from
         generated python source list. This function will
@@ -199,7 +200,6 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
             str: A string of generated python code.
     """
 
-
     pySrc = pyTranslate.create_python_source_list(outputDict)
 
     if not tester_call:
@@ -209,24 +209,32 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
                 Script: <pyTranslate.py>"
         )
 
-        try:
-            f = open(python_file, "w")
-        except IOError:
-            assert False, f"Unable to write to {python_file}."
-
-        outputList = []
+        output_list = []
         for item in pySrc:
-            outputList.append(python_file)
-            f.write(item[0])
+            if item[2] == "module":
+                module_file = f"{temp_dir}/m_{item[1].lower()}.py"
+                try:
+                    with open(module_file, "w") as f:
+                        output_list.append("m_" + item[1].lower() + ".py")
+                        f.write(item[0])
+                except IOError:
+                    assert False, f"Unable to write to {module_file}."
+            else:
+                try:
+                    with open(python_file, "w") as f:
+                        output_list.append(python_file)
+                        f.write(item[0])
+                except IOError:
+                    assert False, f"Unable to write to {python_file}."
 
         try:
             with open(output_file, "w") as f:
-                for fileName in outputList:
+                for fileName in output_list:
                     f.write(fileName + " ")
         except IOError:
-            assert False, f"Unable to write to {outFile}."
+            assert False, f"Unable to write to {output_file}."
 
-    return pySrc[0][0]
+    return pySrc
 
 
 def generate_grfn(
@@ -385,7 +393,7 @@ def fortran_to_grfn(
                 'python_src': A string of python code,
                 'python_file': A file name of generated python script,
                 'lambdas_file': A file name where lambdas will be,
-                'json_file': A file name where JSON will be wrriten to,
+                'json_file': A file name where JSON will be written to,
 
             }
             dict: mode_mapper_dict, mapper of file info (i.e. filename,
@@ -464,22 +472,25 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_src = generate_python_src(
-        outputDict, python_file, output_file, tester_call
+        outputDict, python_file, output_file, temp_dir, tester_call
     )
 
-    if tester_call == True:
+    if tester_call:
         os.remove(preprocessed_fortran_file)
 
-    if network_test == False:
+    if not network_test:
         return (
-            python_src,
+            [src[0] for src in python_src],
             lambdas_file,
             json_file,
             python_file,
             mode_mapper_dict,
         )
     else:
-        return (python_src, lambdas_file, json_file, base)
+        # TODO: This is related to networks.py and subsequent GrFN
+        #  generation. Change the python_src index from [0][0] to incorporate
+        #  all modules after all GrFN features have been added
+        return (python_src[0][0], lambdas_file, json_file, base)
 
 
 if __name__ == "__main__":
