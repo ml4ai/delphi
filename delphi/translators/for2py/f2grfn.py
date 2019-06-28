@@ -180,7 +180,9 @@ def generate_outputDict(
     return outputDict
 
 
-def generate_python_src(outputDict, python_file, output_file, tester_call):
+def generate_python_src(
+    outputDict, python_file, output_file, tester_call, temp_dir
+):
     """
         This function generates python source file from
         generated python source list. This function will
@@ -216,8 +218,21 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
 
         outputList = []
         for item in pySrc:
-            outputList.append(python_file)
-            f.write(item[0])
+            if item[2] == "module":
+                try:
+                    modFile = f"{temp_dir}/m_{item[1].lower()}.py"
+                    with open(modFile, "w") as f:
+                        outputList.append("m_" + item[1].lower() + ".py")
+                        f.write(item[0])
+                except IOError:
+                    raise For2PyError(f"Unable to write to {modFile}")
+            else:
+                try:
+                    with open(output_file, "w") as f:
+                        outputList.append(output_file)
+                        f.write(item[0])
+                except IOError:
+                    raise For2PyError(f"Unable to write to {pyFile}.")
 
         try:
             with open(output_file, "w") as f:
@@ -275,14 +290,32 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-f", "--file", nargs="+", help="An input fortran file"
+        "-f", 
+        "--file",
+        nargs="+",
+        help="An input fortran file"
+    )
+
+    parser.add_argument(
+        "-d",
+        "--directory",
+        nargs="*",
+        help="A temporary directory for generated files to be stored"
     )
 
     args = parser.parse_args(sys.argv[1:])
 
     fortran_file = args.file[0]
 
-    return fortran_file
+    # User may or may not provide the output path.
+    # If provided, return the directory path name.
+    # Else, the default "tmp" name.
+    if args.directory != None:
+        out_directory = args.directory[0]
+    else:
+        out_directory = "tmp"
+
+    return (fortran_file, out_directory)
 
 
 def check_classpath():
@@ -361,7 +394,7 @@ def fortran_to_grfn(
     original_fortran=None,
     tester_call=False,
     network_test=False,
-    temp_dir="./tmp",
+    temp_dir=None,
 ):
     """
         This function invokes other appropriate functions
@@ -391,17 +424,16 @@ def fortran_to_grfn(
             dict: mode_mapper_dict, mapper of file info (i.e. filename,
             module, and exports, etc).
     """
+    current_dir = "."
     check_classpath()
-
-    # If "tmp" directory does not exist already,
-    # simply create one.
-    if not os.path.isdir(temp_dir):
-        os.mkdir(temp_dir)
 
     # If, for2py runs manually by the user, which receives
     # the path to the file via command line argument
     if tester_call == False:
-        original_fortran_file_path = parse_args()
+        (
+            original_fortran_file_path,
+            temp_out_dir
+        ) = parse_args()
     # Else, for2py function gets invoked by the test
     # programs, it will be passed with an argument
     # of original fortran file path
@@ -411,6 +443,27 @@ def fortran_to_grfn(
     (original_fortran_file, base) = get_original_file(
         original_fortran_file_path
     )
+
+    # temp_dir is None means that the output file was
+    # not set by the program that calls this function.
+    # Thus, generate the output temporary file based
+    # on the user input or the default path "tmp".
+    if temp_dir is None:
+        temp_dir = current_dir + "/" + temp_out_dir
+    else:
+        temp_dir = current_dir + "/" + temp_dir
+
+    # If "tmp" directory does not exist already,
+    # simply create one.
+    if not os.path.isdir(temp_dir):
+        os.mkdir(temp_dir)
+    else:
+        assert (
+            os.access(temp_dir, os.W_OK)
+        ), f"Directory {temp_dir} is not writable.\n\
+            Please, provide the directory name to hold files."
+
+    print (f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
     # Output files
     preprocessed_fortran_file = temp_dir + "/" + base + "_preprocessed.f"
@@ -464,7 +517,7 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_src = generate_python_src(
-        outputDict, python_file, output_file, tester_call
+        outputDict, python_file, output_file, tester_call, temp_dir
     )
 
     if tester_call == True:
