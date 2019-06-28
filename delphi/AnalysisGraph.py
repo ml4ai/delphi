@@ -572,9 +572,7 @@ class AnalysisGraph(nx.DiGraph):
             for i in range(self.res)
         ]
 
-    def initialize(
-        self, config_file: str = "bmi_config.txt", initialize_indicators=True
-    ):
+    def initialize(self, initialize_indicators=True):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
@@ -584,17 +582,8 @@ class AnalysisGraph(nx.DiGraph):
             AnalysisGraph
         """
         self.t = 0.0
-        if not os.path.isfile(config_file):
-            self.create_bmi_config_file(config_file)
-
-        self.s0 = [
-            pd.read_csv(
-                config_file, index_col=0, header=None, error_bad_lines=False
-            )[1]
-            for _ in range(self.res)
-        ]
+        self.s0 = [self.construct_default_initial_state() for _ in range(self.res)]
         self.s0_original = self.s0[0].copy(deep=True)
-
         self.latent_state_vector = self.construct_default_initial_state()
 
         for n in self.nodes(data=True):

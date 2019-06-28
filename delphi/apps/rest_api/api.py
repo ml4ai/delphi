@@ -181,23 +181,16 @@ def getIndicators():
 def createProjection(modelID):
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=modelID).first().model
-    if os.environ.get("TRAVIS") is not None:
-        config_file = "bmi_config.txt"
-    else:
-        if not os.path.exists("/tmp/delphi"):
-            os.makedirs("/tmp/delphi", exist_ok=True)
-        config_file = "/tmp/delphi/bmi_config.txt"
-
-    G.create_bmi_config_file(config_file)
-    G.initialize(initialize_indicators=False, config_file=config_file)
+    G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
         for perturbation in data["perturbations"]:
             if n[0] == perturbation["concept"]:
                 rv.partial_t = perturbation["value"]
-                for s0 in G.s0:
-                    s0[f"∂({n[0]})/∂t"] = rv.partial_t
+                G.s0_original[f"∂({n[0]})/∂t"] = rv.partial_t
+                for s in G.s0:
+                    s[f"∂({n[0]})/∂t"] = rv.partial_t
                 break
 
     id = str(uuid4())
@@ -220,7 +213,7 @@ def createProjection(modelID):
     startTime = data["startTime"]
     d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
-    τ = 1.0  # Time constant to control the rate of the decay
+    τ = 0.1  # Time constant to control the rate of the decay
     # From https://www.ucl.ac.uk/child-health/short-courses-events/
     #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
     n = len(G.s0)
@@ -228,22 +221,22 @@ def createProjection(modelID):
     upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
     print(n, lower_rank, upper_rank)
 
-    for i in range(data["timeStepsInMonths"]):
+    for i in range(int(data["timeStepsInMonths"])):
         d = d + relativedelta(months=1)
 
-        for n in G.nodes(data=True):
-            values = [s[n[0]] for s in G.s0]
+        for n in G.nodes():
+            values = [s[n] for s in G.s0]
             median_value = median(values)
             value_dict = {
                 "year": d.year,
                 "month": d.month,
                 "value": median_value,
             }
-            result.results[n[0]]["values"].append(value_dict)
-            value_dict["value"]= values[lower_rank]
-            result.results[n[0]]["confidenceInterval"]["upper"].append(value_dict)
-            value_dict["value"]= values[upper_rank]
-            result.results[n[0]]["confidenceInterval"]["lower"].append(value_dict)
+            result.results[n]["values"].append(value_dict)
+            value_dict["value"] = values[lower_rank]
+            result.results[n]["confidenceInterval"]["upper"].append(value_dict)
+            value_dict["value"] = values[upper_rank]
+            result.results[n]["confidenceInterval"]["lower"].append(value_dict)
 
         G.update(update_indicators=False, dampen=True, τ=τ)
 
@@ -443,15 +436,8 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    if os.environ.get("TRAVIS") is not None:
-        config_file = "bmi_config.txt"
-    else:
-        if not os.path.exists("/tmp/delphi"):
-            os.makedirs("/tmp/delphi", exist_ok=True)
-        config_file = "/tmp/delphi/bmi_config.txt"
-
     G.create_bmi_config_file(config_file)
-    G.initialize(initialize_indicators=False, config_file=config_file)
+    G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
