@@ -227,12 +227,8 @@ def generate_python_src(
                 except IOError:
                     raise For2PyError(f"Unable to write to {modFile}")
             else:
-                try:
-                    with open(output_file, "w") as f:
-                        outputList.append(output_file)
-                        f.write(item[0])
-                except IOError:
-                    raise For2PyError(f"Unable to write to {pyFile}.")
+                outputList.append(output_file)
+                f.write(item[0])
 
         try:
             with open(output_file, "w") as f:
