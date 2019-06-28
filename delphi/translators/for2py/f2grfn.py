@@ -221,13 +221,13 @@ def generate_python_src(
             if item[2] == "module":
                 try:
                     modFile = f"{temp_dir}/m_{item[1].lower()}.py"
-                    with open(modFile, "w") as f:
+                    with open(modFile, "w") as fl:
                         outputList.append("m_" + item[1].lower() + ".py")
-                        f.write(item[0])
+                        fl.write(item[0])
                 except IOError:
                     raise For2PyError(f"Unable to write to {modFile}")
             else:
-                outputList.append(output_file)
+                outputList.append(python_file)
                 f.write(item[0])
 
         try:
