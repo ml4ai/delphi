@@ -15,7 +15,7 @@
 
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::vector, std::map,
-    boost::inner_product, boost::edge, boost::add_edge, boost::edge,
+    boost::inner_product, boost::edge,
     boost::source, boost::target, boost::graph_bundle,
     boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const;
 
@@ -97,6 +97,65 @@ class AnalysisGraph {
 private:
   AnalysisGraph(DiGraph G) : graph(G){};
 
+  /**
+   * Finds all the simple paths starting at the start vertex and 
+   * ending at the end vertex.
+   * Paths found are appended to the influences data structure in the Node
+   * Uses all_paths_between_uitl() as a helper to recursively find the paths
+   */
+  void all_paths_between( int start, int end )
+  {
+    // Mark all the vertices are not visited
+    for_each( vertices(graph), [&](int v) { graph[v].visited = false; });
+
+    // Create a vector to store paths
+    // A path is stored as a sequrence of edges
+    // An edge is a pair: (start, end)
+    vector< pair< int, int >> path;
+
+    all_paths_between_util(start, end, path);
+  }
+
+  /**
+   * Used by all_paths_between()
+   * Recursively finds all the simple paths starting at the start vertex and 
+   * ending at the end vertex.
+   * Paths found are appended to the influences data structure in the Node
+   */
+  void all_paths_between_util( int start, int end, vector<pair<int, int>> & path ) 
+  {
+    // Mark the current node visited
+    graph[start].visited = true;
+
+    // If current vertex is the destinatin verted, then
+    //   we have found one path. Append that to the end node 
+    if ( start == end ) 
+    {
+      graph[end].influences.push_back( path );
+    }
+    else 
+    { // Current node is not the destination
+      // Process all the vertices adjacent to the current node
+      typename boost::graph_traits< DiGraph >::out_edge_iterator ei, e_end;
+
+      for( tie(ei, e_end) = boost::out_edges( start, graph ); ei != e_end; ++ei )
+      {
+        int v = boost::target(*ei, graph);
+
+        if( !graph[v].visited )
+        {
+          path.push_back( pair<int, int>( start, v ));
+
+          all_paths_between_util( v, end, path );
+	}
+      }
+    }
+
+    // Remove current vertex from the path and make it unvisited
+    path.pop_back();
+    graph[start].visited = false;
+  };
+
 public:
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
@@ -131,7 +190,7 @@ public:
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] = add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          auto [e, exists] = boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
@@ -204,6 +263,58 @@ public:
       graph[e].kde = KDE(all_thetas);
     }
   }
+  auto add_node() {
+    return boost::add_vertex(graph);
+  }
+
+  auto add_edge(int i, int j) {
+    boost::add_edge(i, j, graph);
+  }
+
+  /*
+   * Find all the simple paths between all the paris of nodes of the graph
+   */
+  void all_paths()
+  {
+    auto verts = vertices( graph );
+
+    for_each( verts, [&]( auto start ) 
+    {
+      for_each( verts, [&](auto end )
+      {
+        if ( start != end ) 
+	{
+          all_paths_between( start, end );
+        }
+      });
+    });
+  }
+
+  /*
+   * Prints the simple paths found between all pairs of nodes of the graph
+   * Groupd according to the ending vertex.
+   * all_paths() should be called before this to populate the paths
+   */
+  void print_all_paths()
+  {
+    auto verts = vertices( graph );
+
+    cout << "All the simple paths of:" << endl;
+
+    for_each( verts, [&]( auto v ) 
+    {
+      cout << endl << "Paths ending at verex: " << v << endl;
+      for( auto path : graph[v].influences )
+      {
+        for( auto edge : path )
+        {
+          cout << "(" << edge.first << ", " << edge.second  << ") ";
+        }
+        cout << endl;
+      }
+    });
+  }
+
   auto sample_from_prior() {
     vector<std::pair<int, int>> node_pairs;
 

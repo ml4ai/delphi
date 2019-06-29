@@ -4,3 +4,17 @@ def test_cpp_extensions():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
     G.construct_beta_pdfs()
     G.sample_from_prior()
+
+def test_simple_path_construction():
+    G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+    G.add_node()
+    G.add_node()
+    G.add_node()
+    G.add_node()
+    G.add_edge(0,1)
+    G.add_edge(1,2)
+    G.add_edge(2,3)
+    G.add_edge(0,2)
+    G.add_edge(3,1) # Creates a loop 1 -> 2 -> 3 -> 1
+    G.all_paths()
+    G.print_all_paths()
