@@ -2,7 +2,8 @@ docs:
 	cd docs; make html
 
 extensions: 
-	cd delphi/cpp; cmake .; make -j
+	mkdir -p build
+	cd build; cmake ..; make -j
 
 test: extensions
 	time pytest \

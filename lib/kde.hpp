@@ -9,6 +9,7 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/range/numeric.hpp>
+#include "utils.hpp"
 
 using std::vector 
     , boost::accumulate
@@ -103,4 +104,3 @@ public:
 
   auto logpdf(double x) { return log(pdf(x)); }
 };
-

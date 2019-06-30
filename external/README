@@ -1,0 +1,2 @@
+This directory contains external C++ library dependencies (usually tracked as
+Git submodules).

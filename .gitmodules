@@ -1,6 +1,6 @@
-[submodule "delphi/cpp/pybind11"]
-	path = delphi/cpp/pybind11
+[submodule "external/pybind11"]
+	path = external/pybind11
 	url = https://github.com/pybind/pybind11
-[submodule "delphi/cpp/cppitertools"]
-	path = delphi/cpp/cppitertools
+[submodule "external/cppitertools"]
+	path = external/cppitertools
 	url = https://github.com/ryanhaining/cppitertools
