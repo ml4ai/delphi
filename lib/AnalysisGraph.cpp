@@ -16,23 +16,8 @@ using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::map, boost::inner_product,
     boost::edge, boost::source, boost::target, boost::graph_bundle,
     boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const,
-    utils::load_json, utils::hasKey, utils::get;
+    utils::load_json, utils::hasKey, utils::get, utils::lmap;
 
-template <class V, class Iterable> vector<V> list(Iterable xs) {
-  vector<V> xs_copy;
-  for (auto x : xs) {
-    xs_copy.push_back(x);
-  }
-  return xs_copy;
-}
-
-template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
-  vector<V> transformed_vector;
-  for (V x : vec) {
-    transformed_vector.push_back(f(x));
-  }
-  return transformed_vector;
-}
 
 const size_t default_n_samples = 100;
 
