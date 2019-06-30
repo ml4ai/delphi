@@ -1,5 +1,4 @@
-#ifndef ANALYSISGRAPH_H
-#define ANALYSISGRAPH_H
+#pragma once
 
 #include <nlohmann/json.hpp>
 #include <kde.hpp>
@@ -56,5 +55,3 @@ struct GraphData {
 
 
 typedef adjacency_list<setS, vecS, bidirectionalS, Node, Edge, GraphData> DiGraph;
-
-#endif

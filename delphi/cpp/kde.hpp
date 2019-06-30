@@ -1,3 +1,5 @@
+#pragma once
+
 #include <random>
 #include <boost/range/irange.hpp>
 #include <boost/random/mersenne_twister.hpp>
