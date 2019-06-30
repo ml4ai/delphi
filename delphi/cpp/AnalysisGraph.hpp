@@ -46,7 +46,13 @@ struct Edge {
 struct Node {
   string name;
   bool visited;
-  vector< vector< pair< int, int >>> influenced_by;
+
+  // Stores all the simple directed paths ending at this node
+  // according to the starting vertex of each path
+  // used as the key of the map. 
+  // start --> [ path1, path2, path3 ]
+  // path = [ (start, v2), (v2, v3), (v3, this_node) ]
+  unordered_map< int, vector< vector< pair< int, int >>>> influenced_by;
 };
 
 struct GraphData {

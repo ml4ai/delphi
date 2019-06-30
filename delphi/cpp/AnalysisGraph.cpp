@@ -117,7 +117,7 @@ private:
     // Mark all the vertices are not visited
     for_each( vertices( ), [&](int v) { graph[v].visited = false; });
 
-    // Create a vector to store paths
+    // Create a vector of pairs to store paths.
     // A path is stored as a sequrence of edges
     // An edge is a pair: (start, end)
     vector< pair< int, int >> path;
@@ -133,22 +133,26 @@ private:
    */
   void all_paths_between_util( int start, int end, vector<pair<int, int>> & path ) 
   {
-    // Mark the current node visited
+    // Mark the current vertex visited
     graph[start].visited = true;
 
-    // If current vertex is the destinatin verted, then
+    // If current vertex is the destination vertex, then
     //   we have found one path. Append that to the end node 
     if ( start == end ) 
     {
-      graph[end].influenced_by.push_back( path );
+      // Append this part to the vertex end's influenced_by map
+      // with the first vertex of this path (path[0].first) as the key.
+      // The value is a vector of vector of pairs.
+      graph[ end ].influenced_by[ path[0].first ].push_back( path );
     }
     else 
-    { // Current node is not the destination
+    { // Current vertex is not the destination
       // Process all the vertices adjacent to the current node
       for_each( successors( start ), [&]( int v )
       {
         if( !graph[v].visited )
         {
+	  // Appedn the edge start---v to the path
           path.push_back( pair<int, int>( start, v ));
 
           all_paths_between_util( v, end, path );
@@ -295,7 +299,7 @@ public:
 
   /*
    * Prints the simple paths found between all pairs of nodes of the graph
-   * Groupd according to the ending vertex.
+   * Groupd according to the starting and ending vertex.
    * all_paths() should be called before this to populate the paths
    */
   void print_all_paths()
@@ -307,13 +311,18 @@ public:
     for_each( verts, [&]( int v ) 
     {
       cout << endl << "Paths ending at verex: " << v << endl;
-      for( vector< pair< int, int >> path : graph[v].influenced_by )
+
+      for( auto influencer : graph[v].influenced_by )
       {
-        for( pair< int, int > edge : path )
-        {
-          cout << "(" << edge.first << ", " << edge.second  << ") ";
-        }
-        cout << endl;
+	for( auto path : influencer.second )
+	{
+	  for( auto edge : path )
+	  {
+	    cout << "(" << edge.first << ", " << edge.second  << ") ";
+	  }
+	  cout << endl;
+	 }
+	 cout << "----" << endl;
       }
     });
   }
