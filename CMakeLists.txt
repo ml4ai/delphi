@@ -13,7 +13,7 @@ pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 
 # Finding and linking SQLite3
 include(FindPackageHandleStandardArgs)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "lib/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}"/cmake")
 find_package(SQLite3)
 if (SQLITE3_FOUND)
   include_directories(${SQLITE3_INCLUDE_DIRS})

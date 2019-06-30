@@ -1,31 +1,17 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <kde.hpp>
+#include <nlohmann/json.hpp>
 #include <optional>
 
-using std::pair 
-    , std::string
-    , std::optional
-    , std::vector
-    , std::unordered_map
-    , boost::adjacency_list
-    , boost::vecS
-    , boost::setS
-    , boost::listS
-    , boost::bidirectionalS
-    , boost::range::for_each
-;
+using std::pair, std::string, std::optional, std::vector, std::unordered_map;
 
+template <class T> void print(T x) { std::cout << x << std::endl; }
 
-template <class T>
-void print(T x) {
-  std::cout << x << std::endl;
-}
-
-template <class T>
-void printVec(vector<T> xs) {
-  for (auto x : xs) {print(x);}
+template <class T> void printVec(vector<T> xs) {
+  for (auto x : xs) {
+    print(x);
+  }
 }
 
 struct CausalFragment {
@@ -36,11 +22,10 @@ struct CausalFragment {
   int obj_polarity = 1;
 };
 
-
 struct Edge {
   string name;
   optional<KDE> kde;
-  vector<CausalFragment> causalFragments= {};
+  vector<CausalFragment> causalFragments = {};
 };
 
 struct Node {
@@ -49,15 +34,16 @@ struct Node {
 
   // Stores all the simple directed paths ending at this node
   // according to the starting vertex of each path
-  // used as the key of the map. 
+  // used as the key of the map.
   // start --> [ path1, path2, path3 ]
   // path = [ (start, v2), (v2, v3), (v3, this_node) ]
-  unordered_map< int, vector< vector< pair< int, int >>>> influenced_by;
+  unordered_map<int, vector<vector<pair<int, int>>>> influenced_by;
 };
 
 struct GraphData {
   string name;
 };
 
-
-typedef adjacency_list<setS, vecS, bidirectionalS, Node, Edge, GraphData> DiGraph;
+typedef boost::adjacency_list<boost::setS, boost::vecS, boost::bidirectionalS,
+                              Node, Edge, GraphData>
+    DiGraph;
