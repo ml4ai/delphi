@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <cmath>
-#include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <numeric>
 #include <sqlite3.h>
 #include <utility>
@@ -12,14 +10,13 @@
 #include <boost/graph/graphviz.hpp>
 
 #include "AnalysisGraph.hpp"
+#include "utils.hpp"
 
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
-    std::ifstream, std::stringstream, std::vector, std::map,
-    boost::inner_product, boost::edge,
-    boost::source, boost::target, boost::graph_bundle,
-    boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const;
-
-using json = nlohmann::json;
+    std::ifstream, std::stringstream, std::map, boost::inner_product,
+    boost::edge, boost::source, boost::target, boost::graph_bundle,
+    boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const,
+    utils::load_json, utils::hasKey, utils::get;
 
 template <class V, class Iterable> vector<V> list(Iterable xs) {
   vector<V> xs_copy;
@@ -35,22 +32,6 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
     transformed_vector.push_back(f(x));
   }
   return transformed_vector;
-}
-
-template <class T, class U> bool hasKey(unordered_map<T, U> umap, T key) {
-  return umap.count(key) != 0;
-}
-
-template <class T, class U>
-U get(unordered_map<T, U> umap, T key, U default_value) {
-  return hasKey(umap, key) ? umap[key] : default_value;
-}
-
-json load_json(string filename) {
-  ifstream i(filename);
-  json j;
-  i >> j;
-  return j;
 }
 
 const size_t default_n_samples = 100;
@@ -95,10 +76,10 @@ class AnalysisGraph {
   DiGraph graph;
 
 public:
-  // Manujinda: I had to move this up since I am usign this within the private: block
-  // This is ugly. We need to re-factor the code to make it pretty again
+  // Manujinda: I had to move this up since I am usign this within the private:
+  // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
- 
+
   auto successors(int i) {
     return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
   }
@@ -107,56 +88,50 @@ private:
   AnalysisGraph(DiGraph G) : graph(G){};
 
   /**
-   * Finds all the simple paths starting at the start vertex and 
+   * Finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
    * Paths found are appended to the influenced_by data structure in the Node
    * Uses all_paths_between_uitl() as a helper to recursively find the paths
    */
-  void all_paths_between( int start, int end )
-  {
+  void all_paths_between(int start, int end) {
     // Mark all the vertices are not visited
-    for_each( vertices( ), [&](int v) { graph[v].visited = false; });
+    for_each(vertices(), [&](int v) { graph[v].visited = false; });
 
     // Create a vector of pairs to store paths.
     // A path is stored as a sequrence of edges
     // An edge is a pair: (start, end)
-    vector< pair< int, int >> path;
+    vector<pair<int, int>> path;
 
     all_paths_between_util(start, end, path);
   }
 
   /**
    * Used by all_paths_between()
-   * Recursively finds all the simple paths starting at the start vertex and 
+   * Recursively finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
    * Paths found are appended to the influenced_by data structure in the Node
    */
-  void all_paths_between_util( int start, int end, vector<pair<int, int>> & path ) 
-  {
+  void
+  all_paths_between_util(int start, int end, vector<pair<int, int>> &path) {
     // Mark the current vertex visited
     graph[start].visited = true;
 
     // If current vertex is the destination vertex, then
-    //   we have found one path. Append that to the end node 
-    if ( start == end ) 
-    {
+    //   we have found one path. Append that to the end node
+    if (start == end) {
       // Append this part to the vertex end's influenced_by map
       // with the first vertex of this path (path[0].first) as the key.
       // The value is a vector of vector of pairs.
-      graph[ end ].influenced_by[ path[0].first ].push_back( path );
-    }
-    else 
-    { // Current vertex is not the destination
+      graph[end].influenced_by[path[0].first].push_back(path);
+    } else { // Current vertex is not the destination
       // Process all the vertices adjacent to the current node
-      for_each( successors( start ), [&]( int v )
-      {
-        if( !graph[v].visited )
-        {
-	  // Appedn the edge start---v to the path
-          path.push_back( pair<int, int>( start, v ));
+      for_each(successors(start), [&](int v) {
+        if (!graph[v].visited) {
+          // Appedn the edge start---v to the path
+          path.push_back(pair<int, int>(start, v));
 
-          all_paths_between_util( v, end, path );
-	}
+          all_paths_between_util(v, end, path);
+        }
       });
     }
 
@@ -199,7 +174,8 @@ public:
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] = boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          auto [e, exists] =
+              boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
@@ -223,9 +199,7 @@ public:
 
   auto add_node() { return boost::add_vertex(graph); }
   auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
-  auto edges() {
-    return boost::make_iterator_range(boost::edges(graph));
-  }
+  auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
 
   auto predecessors(int i) {
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
@@ -238,9 +212,9 @@ public:
   vector<std::pair<int, int>> simple_paths(int i, int j) {
     vector<std::pair<int, int>> paths = {};
     for (auto s : successors(i)) {
-        paths.push_back(std::make_pair(i, s));
-        for (auto e : simple_paths(s, j)) {
-          paths.push_back(e);
+      paths.push_back(std::make_pair(i, s));
+      for (auto e : simple_paths(s, j)) {
+        paths.push_back(e);
       }
     }
     return paths;
@@ -265,7 +239,8 @@ public:
         auto obj_adjective = causalFragment.obj_adjective;
         auto subj_responses =
             lmap([&](auto x) { return x * causalFragment.subj_polarity; },
-                 get(adjective_response_map, subj_adjective,
+                 get(adjective_response_map,
+                     subj_adjective,
                      marginalized_responses));
         auto obj_responses = lmap(
             [&](auto x) { return x * causalFragment.obj_polarity; },
@@ -281,17 +256,13 @@ public:
   /*
    * Find all the simple paths between all the paris of nodes of the graph
    */
-  void all_paths()
-  {
-    auto verts = vertices( );
+  void all_paths() {
+    auto verts = vertices();
 
-    for_each( verts, [&]( int start ) 
-    {
-      for_each( verts, [&]( int end )
-      {
-        if ( start != end ) 
-	{
-          all_paths_between( start, end );
+    for_each(verts, [&](int start) {
+      for_each(verts, [&](int end) {
+        if (start != end) {
+          all_paths_between(start, end);
         }
       });
     });
@@ -302,27 +273,22 @@ public:
    * Groupd according to the starting and ending vertex.
    * all_paths() should be called before this to populate the paths
    */
-  void print_all_paths()
-  {
-    auto verts = vertices( );
+  void print_all_paths() {
+    auto verts = vertices();
 
     cout << "All the simple paths of:" << endl;
 
-    for_each( verts, [&]( int v ) 
-    {
+    for_each(verts, [&](int v) {
       cout << endl << "Paths ending at verex: " << v << endl;
 
-      for( auto influencer : graph[v].influenced_by )
-      {
-	for( auto path : influencer.second )
-	{
-	  for( auto edge : path )
-	  {
-	    cout << "(" << edge.first << ", " << edge.second  << ") ";
-	  }
-	  cout << endl;
-	 }
-	 cout << "----" << endl;
+      for (auto influencer : graph[v].influenced_by) {
+        for (auto path : influencer.second) {
+          for (auto edge : path) {
+            cout << "(" << edge.first << ", " << edge.second << ") ";
+          }
+          cout << endl;
+        }
+        cout << "----" << endl;
       }
     });
   }
@@ -351,12 +317,13 @@ public:
   }
   auto print_edges() {
     for_each(edges(), [&](auto e) {
-       cout << "(" << source(e, graph) << ", " << target(e, graph) << ")" <<  endl;
+      cout << "(" << source(e, graph) << ", " << target(e, graph) << ")"
+           << endl;
     });
   }
 
   auto to_dot() {
-    write_graphviz(cout, graph,
-                   make_label_writer(boost::get(&Node::name, graph)));
+    write_graphviz(
+        cout, graph, make_label_writer(boost::get(&Node::name, graph)));
   }
 };
