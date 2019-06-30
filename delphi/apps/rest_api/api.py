@@ -60,7 +60,6 @@ def createNewModel():
 
 @bp.route("/delphi/search", methods=["POST"])
 def getIndicators():
-    #def getIndicators(model_id: str):
     """
     Given a list of concepts, this endpoint returns their respective matching
     indicators. The search parameters are:
@@ -125,7 +124,7 @@ def getIndicators():
                         r["Source"],
                     )
 
-                    value = float(re.findall(r'-?\d+\.?\d*', value)[0])
+                    value = float(re.findall(r"-?\d+\.?\d*", value)[0])
 
                     # Sort of a hack - some of the variables in the tables we
                     # process don't have units specified, so we put a
@@ -151,7 +150,7 @@ def getIndicators():
                     if unit is None:
                         unit = PLACEHOLDER_UNIT
 
-                    value = float(re.findall(r'-?\d+\.?\d*', value)[0])
+                    value = float(re.findall(r"-?\d+\.?\d*", value)[0])
 
                     # HACK! if the variables have the same names but different
                     # sources, this will only give the most recent source
@@ -181,6 +180,7 @@ def getIndicators():
 def createProjection(modelID):
     data = json.loads(request.data)
     G = DelphiModel.query.filter_by(id=modelID).first().model
+    A = G.to_agraph()
     G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
@@ -191,7 +191,6 @@ def createProjection(modelID):
                 G.s0_original[f"∂({n[0]})/∂t"] = rv.partial_t
                 for s in G.s0:
                     s[f"∂({n[0]})/∂t"] = rv.partial_t
-                break
 
     id = str(uuid4())
     experiment = ForwardProjection(baseType="ForwardProjection", id=id)
@@ -213,30 +212,37 @@ def createProjection(modelID):
     startTime = data["startTime"]
     d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
-    τ = 0.1  # Time constant to control the rate of the decay
+    τ = 1.0  # Time constant to control the rate of the decay
+
     # From https://www.ucl.ac.uk/child-health/short-courses-events/
     #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
     n = len(G.s0)
     lower_rank = int((n - 1.96 * sqrt(n)) / 2)
     upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
-    print(n, lower_rank, upper_rank)
 
     for i in range(int(data["timeStepsInMonths"])):
         d = d + relativedelta(months=1)
 
         for n in G.nodes():
-            values = [s[n] for s in G.s0]
+            values = sorted([s[n] for s in G.s0])
             median_value = median(values)
+            lower_limit = values[lower_rank]
+            upper_limit = values[upper_rank]
             value_dict = {
                 "year": d.year,
                 "month": d.month,
                 "value": median_value,
             }
+
             result.results[n]["values"].append(value_dict)
-            value_dict["value"] = values[lower_rank]
-            result.results[n]["confidenceInterval"]["upper"].append(value_dict)
-            value_dict["value"] = values[upper_rank]
-            result.results[n]["confidenceInterval"]["lower"].append(value_dict)
+            value_dict.update({"value": lower_limit})
+            result.results[n]["confidenceInterval"]["lower"].append(
+                value_dict.copy()
+            )
+            value_dict.update({"value": upper_limit})
+            result.results[n]["confidenceInterval"]["upper"].append(
+                value_dict.copy()
+            )
 
         G.update(update_indicators=False, dampen=True, τ=τ)
 

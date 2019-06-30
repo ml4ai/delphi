@@ -58,7 +58,7 @@ def test_createExperiment(G, client):
     post_data = {
         "interventions": [
             {
-                "id": G.nodes[concepts['conflict']['grounding']]["id"],
+                "id": G.nodes[concepts["conflict"]["grounding"]]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -66,7 +66,7 @@ def test_createExperiment(G, client):
                 },
             },
             {
-                "id": G.nodes[concepts['food security']['grounding']]["id"],
+                "id": G.nodes[concepts["food security"]["grounding"]]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -97,6 +97,25 @@ def test_getAllModels(G, client):
     assert G.id in rv.json
 
 
+def test_createModel(client):
+    with open("tests/data/delphi_create_model_payload.json") as f:
+        data = json.load(f)
+    rv = client.post(f"/delphi/create-model", json=data)
+    post_data = {
+        "startTime": {"year": 2017, "month": 4},
+        "perturbations": [
+            {"concept": "UN/entities/human/food/food_price", "value": 0.2}
+        ],
+        "timeStepsInMonths": 3,
+    }
+
+    rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
+    experimentId = rv.json["experimentId"]
+    url = f"delphi/models/{data['id']}/experiment/{experimentId}"
+    rv = client.get(url)
+    print(json.dumps(rv.json["results"]["UN/events/human/famine"], indent=2))
+
+
 def test_getIndicators(client):
     with open("tests/data/causemos_cag.json", "r") as f:
         data = json.load(f)
@@ -112,28 +131,4 @@ def test_getIndicators(client):
     rv = client.get(
         f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
     )
-    assert True
-
-def test_createProjection(G, client):
-    post_data = {
-        "startTime": {"year": 2017, "month": 4},
-        "perturbations": [
-            {
-                "concept": concepts['conflict']['grounding'],
-                "value": 0.8
-            },
-            {
-                "concept": concepts['food security']['grounding'],
-                "value": 0.01
-            },
-        ],
-        "timeStepsInMonths": 4
-    }
-
-    rv = client.post(f"/delphi/models/{G.id}/projection", json=post_data)
-    experimentId = rv.json["experimentId"]
-    url = f"delphi/models/{G.id}/experiment/{experimentId}"
-    rv = client.get(url)
-    # TODO This is a smokescreen test - probably should replace with something
-    # better later.
     assert True

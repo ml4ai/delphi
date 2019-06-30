@@ -48,7 +48,8 @@ from delphi.utils.misc import _insert_line_breaks
 
 def normpdf(x, mean, sd):
     """ Calculate pdf of normal distribution with a given mean and standard
-    deviation. Faster than scipy.stats.norm.pdf. From https://stackoverflow.com/a/12413491 """
+    deviation. Faster than scipy.stats.norm.pdf. From
+    https://stackoverflow.com/a/12413491 """
     var = float(sd) ** 2
     denom = (2 * pi * var) ** 0.5
     num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
@@ -566,25 +567,33 @@ class AnalysisGraph(nx.DiGraph):
             A list of values corresponding to the distribution of the value of
             the real-valued variable representing the node.
         """
-        return [
+
+        xs = [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
             for i in range(self.res)
         ]
+        return xs
 
     def initialize(self, initialize_indicators=True):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
-            config_file
+            initialize_indicators: Boolean flag that sets whether indicators
+            are initialized as well.
 
         Returns:
-            AnalysisGraph
+            None
         """
         self.t = 0.0
-        self.s0 = [self.construct_default_initial_state() for _ in range(self.res)]
+
+        # Create self.res copies of the initial latent state vector
+        self.s0 = [
+            self.construct_default_initial_state() for _ in range(self.res)
+        ]
+
+        # Create a 'reference copy' of the initial latent state vector
         self.s0_original = self.s0[0].copy(deep=True)
-        self.latent_state_vector = self.construct_default_initial_state()
 
         for n in self.nodes(data=True):
             rv = LatentVar(n[0])
@@ -621,7 +630,7 @@ class AnalysisGraph(nx.DiGraph):
                     self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                         f"∂({n[0]})/∂t"
                     ] * exp(-τ * self.t)
-                # Suppresses dampen
+                # Suppresses dampening
                 if set_delta is not None:
                     if dampen:
                         warnings.warn(
