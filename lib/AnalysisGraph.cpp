@@ -76,7 +76,7 @@ private:
    * Finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
    * Paths found are appended to the influenced_by data structure in the Node
-   * Uses all_paths_between_uitl() as a helper to recursively find the paths
+   * Uses all_paths_between_util() as a helper to recursively find the paths
    */
   void all_paths_between(int start, int end) {
     // Mark all the vertices are not visited
