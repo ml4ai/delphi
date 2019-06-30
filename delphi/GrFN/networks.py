@@ -15,6 +15,7 @@ from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
+from delphi.translators.for2py.types_ext import Float32
 from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
@@ -99,7 +100,13 @@ class ComputationalGraph(nx.DiGraph):
         """
         # Set input values
         for i in self.inputs:
-            self.nodes[i]["value"] = inputs[i]
+            value = inputs[i]
+            if isinstance(value, float) or isinstance(value, int):
+                value = Float32(value)
+            elif isinstance(value, list):
+                value = np.array(value, dtype=np.float32)
+
+            self.nodes[i]["value"] = value
 
         for func_set in self.function_sets:
             for func_name in func_set:
@@ -109,6 +116,8 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+                if len(input_values) == 0:
+                    res = Float32(res)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -396,7 +405,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 json_filename,
                 stem
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
-        
+
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
         return G
@@ -441,6 +450,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
             else:
                 return torch.tensor(samples)
 
+        def get_input(name, sample):
+            type_info = var_types[name]
+            if type_info[0] == str:
+                (val1, val2) = type_info[1]
+                return val1 if sample >= 0.5 else val2
+            else:
+                return sample
+
         samples = saltelli.sample(
             prob_def, num_samples, calc_second_order=True
         )
@@ -461,8 +478,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
         else:
             Y = np.zeros(samples.shape[0])
             for i, sample in enumerate(samples):
-                values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values)
+                if var_types is None:
+                    values = {n: v for n, v in zip(prob_def["names"], sample)}
+                else:
+                    values = {n: get_input(n, val)
+                              for n, val in zip(prob_def["names"], sample)}
+
+                res = self.run(values)
+                Y[i] = res
 
         return sobol.analyze(prob_def, Y)
 

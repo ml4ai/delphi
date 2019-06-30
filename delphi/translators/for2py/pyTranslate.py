@@ -9,7 +9,8 @@ Example:
     of the steps in converted a Fortran source file to Python
     file. For standalone execution:
 
-        python pyTranslate.py -f <pickle_file> -g <python_file> -o <outputFileList>
+        python pyTranslate.py -f <pickle_file> -g <python_file> -o
+        <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
              file along with other non-source code information.
@@ -76,8 +77,8 @@ OPERATOR_MAP = {
 # Python target, specified as a tuple (py_fn, fn_type, py_mod), where:
 #            -- py_fn is a Python function or operator;
 #            -- fn_type is one of: 'FUNC', 'INFIXOP'; and
-#            -- py_mod is the module the Python function should be imported from,
-#               None if no explicit import is necessary.
+#            -- py_mod is the module the Python function should be imported
+#            from, None if no explicit import is necessary.
 
 INTRINSICS_MAP = {
     "abs": ("abs", "FUNC", None),
@@ -341,8 +342,12 @@ class PythonCodeGenerator(object):
         )
 
     def printModule(self, node, printState: PrintState):
-        """prints module syntax"""
+        """
+            prints the module syntax
+        """
         self.pyStrings.append("\n")
+        self.current_module = node["name"]
+        self.saved_variables[self.current_module] = []
         args = []
         self.printAst(
             node["body"],
@@ -384,6 +389,7 @@ class PythonCodeGenerator(object):
         else:
             handler = py_fn
 
+
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
             return f"{handler}({arguments})"
@@ -392,6 +398,7 @@ class PythonCodeGenerator(object):
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
+
 
     def get_arg_list(self, node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
@@ -618,6 +625,8 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unrecognized type {node['type']}")
 
         arg_name = self.nameMapper[node["name"]]
+        self.variableMap[arg_name] = node["type"]
+
         self.var_type.setdefault(self.current_module, []).append({
             "name": arg_name,
             "type": var_type
@@ -625,6 +634,8 @@ class PythonCodeGenerator(object):
         if "is_array" in node and node["is_array"] == "true":
             self.pyStrings.append(f"{arg_name}")
         else:
+            if node["type"].lower() == "real":
+                var_type = "Real"
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
         printState.definedVars += [arg_name]
 
@@ -784,6 +795,12 @@ class PythonCodeGenerator(object):
         if lhs['name'] in self.saved_variables[self.current_module]:
             assg_str = f"{self.current_module}.{assg_str}"
 
+        # Check if the lhs is a real and convert the variable to a numpy float
+        # object if it is
+        if (self.variableMap.get(lhs["name"]) == "REAL"
+                and rhs["tag"] == "literal"):
+            rhs_str = f"Float32({rhs_str})"
+
         if "set_" in assg_str:
             assg_str += f"{rhs_str})"
         else:
@@ -795,12 +812,12 @@ class PythonCodeGenerator(object):
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
+                f"from delphi.translators.for2py.tmp.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.m_"
+                f"from delphi.translators.for2py.tmp.m_"
                 f"{node['arg'].lower()} import *\n"
             )
 
@@ -823,12 +840,12 @@ class PythonCodeGenerator(object):
                     ), f"Something is missing. Detail of node content: {node}"
 
                     if node["left"][0]["tag"] == "ref":
-                        left = node["left"][0]["name"]
+                        left = self.proc_ref(node["left"][0], False)
                     else:
                         left = node["left"][0]["value"]
                     operator = node["operator"]
                     if node["right"][0]["tag"] == "ref":
-                        right = node["right"][0]["name"]
+                        right = self.proc_ref(node["right"][0], False)
                     else:
                         right = node["right"][0]["value"]
 
@@ -978,7 +995,7 @@ class PythonCodeGenerator(object):
         elif write_target == "outStream":
             self.pyStrings.append(f"write_list_stream = ")
 
-        # Collect the expressions to be written out.  The first two arguments to
+        # Collect the expressions to be written out. The first two arguments to
         # a WRITE statement are the output stream and the format, so these are
         # skipped.
         args = node["args"][2:]
@@ -1114,7 +1131,7 @@ class PythonCodeGenerator(object):
         if (
                 var_name not in printState.definedVars + printState.globalVars
                 and var_name not in self.functions and var_name not in
-                self.saved_variables[self.current_module]
+                self.saved_variables.get(self.current_module)
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
@@ -1187,7 +1204,8 @@ class PythonCodeGenerator(object):
             # returned.
             if self.is_save:
                 save_argument = f'{{"name": "{node["name"]}", "call": Array' \
-                    f'({var_type}, [{array_range}]), "type": "array"}}'
+                    f'({var_type}, [{array_range}]), "type": ' \
+                    f'"{TYPE_MAP[node["type"].lower()]}"}}'
                 return save_argument
             else:
                 # If the array variable is not SAVEd, print the
@@ -1272,6 +1290,10 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append("\n@static_vars([")
                 variables = ''
                 for var in item["var_list"]:
+                    if var["tag"] == "open":
+                        variable_type = "file_handle"
+                    else:
+                        variable_type = TYPE_MAP[var["type"].lower()]
                     if var.get("name"):
                         self.saved_variables[parent].append(var["name"])
                     if var["tag"] == "array":
@@ -1284,11 +1306,11 @@ class PythonCodeGenerator(object):
                         if var["is_derived_type"] == "true":
                             save_argument = f"{{'name': '{var['name']}', " \
                                 f"'call': {var['type']}(), 'type': " \
-                                f"'derived_type'}}"
+                                f"'{variable_type}'}}"
                         else:
                             save_argument = {"name": var["name"],
                                              "call": [None],
-                                             "type": "variable"}
+                                             "type": variable_type}
                         variables += f"{save_argument}, "
                     elif var["tag"] == "open":
                         name = f"file_{var['args'][0]['value']}"
@@ -1299,7 +1321,6 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(f"{variables[:-2]}])")
                 node["body"].remove(to_delete)
         self.is_save = False
-
 
     ###########################################################################
     #                                                                         #
@@ -1368,7 +1389,7 @@ class PythonCodeGenerator(object):
                 assert False, f"Unrecognized tag in retrieved_bound: " \
                     f"{bound[0]['tag']}"
             index += 1
-        
+
     def get_derived_type_ref(self, node, numPartRef, is_assignment):
         """This function forms a derived type reference
         and return to the caller"""
@@ -1388,7 +1409,9 @@ class PythonCodeGenerator(object):
             ref += node["name"]
         numPartRef -= 1
         if "ref" in node:
-            ref += f".{self.get_derived_type_ref( node['ref'][0], numPartRef, is_assignment)}"
+            derived_type_ref = self.get_derived_type_ref(
+                node['ref'][0], numPartRef, is_assignment)
+            ref += f".{derived_type_ref}"
         return ref
 
     def get_type(self, node):
@@ -1454,8 +1477,10 @@ class PythonCodeGenerator(object):
 
 
 def index_modules(root) -> Dict:
-    """ Counts the number of modules in the Fortran file including the program
-        file. Each module is written out into a separate Python file.  """
+    """
+        Counts the number of modules in the Fortran file including the program
+        file. Each module is written out into a separate Python file.
+    """
 
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
@@ -1477,7 +1502,10 @@ def create_python_source_list(outputDict: Dict):
         "from delphi.translators.for2py.format import *",
         "from delphi.translators.for2py.arrays import *",
         "from delphi.translators.for2py.static_save import *",
-        "from dataclasses import dataclass\n",
+        "from dataclasses import dataclass",
+        "from delphi.translators.for2py.types_ext import Float32",
+        "import delphi.translators.for2py.math_ext as math",
+        "from numbers import Real\n",
     ]
 
     for module in module_index_dict:
@@ -1554,21 +1582,33 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "-t",
+        "--target",
+        nargs="+",
+        required=True,
+        help=(
+            "Target directory to store the output files in"
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--out",
         nargs="+",
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files being "
+             "generated",
     )
     args = parser.parse_args(sys.argv[1:])
 
     pickleFile = args.files[0]
     pyFile = args.gen[0]
     outFile = args.out[0]
+    targetDir = args.target[0]
 
-    return (pickleFile, pyFile, outFile)
+    return (pickleFile, pyFile, targetDir, outFile)
+
 
 if __name__ == "__main__":
-    (pickleFile, pyFile, outFile) = parse_args()
+    (pickleFile, pyFile, targetDir, outFile) = parse_args()
 
     try:
         with open(pickleFile, "rb") as f:
@@ -1580,8 +1620,8 @@ if __name__ == "__main__":
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
+            modFile = f"{targetDir}m_{item[1].lower()}.py"
             try:
-                modFile = f"m_{item[1].lower()}.py"
                 with open(modFile, "w") as f:
                     outputList.append("m_" + item[1].lower() + ".py")
                     f.write(item[0])
