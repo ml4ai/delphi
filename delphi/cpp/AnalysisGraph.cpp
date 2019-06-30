@@ -96,15 +96,20 @@ class AnalysisGraph {
 
 public:
   // Manujinda: I had to move this up since I am usign this within the private: block
+  // This is ugly. We need to re-factor the code to make it pretty again
   auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
  
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
+  }
+
 private:
   AnalysisGraph(DiGraph G) : graph(G){};
 
   /**
    * Finds all the simple paths starting at the start vertex and 
    * ending at the end vertex.
-   * Paths found are appended to the influences data structure in the Node
+   * Paths found are appended to the influenced_by data structure in the Node
    * Uses all_paths_between_uitl() as a helper to recursively find the paths
    */
   void all_paths_between( int start, int end )
@@ -124,7 +129,7 @@ private:
    * Used by all_paths_between()
    * Recursively finds all the simple paths starting at the start vertex and 
    * ending at the end vertex.
-   * Paths found are appended to the influences data structure in the Node
+   * Paths found are appended to the influenced_by data structure in the Node
    */
   void all_paths_between_util( int start, int end, vector<pair<int, int>> & path ) 
   {
@@ -135,24 +140,20 @@ private:
     //   we have found one path. Append that to the end node 
     if ( start == end ) 
     {
-      graph[end].influences.push_back( path );
+      graph[end].influenced_by.push_back( path );
     }
     else 
     { // Current node is not the destination
       // Process all the vertices adjacent to the current node
-      typename boost::graph_traits< DiGraph >::out_edge_iterator ei, e_end;
-
-      for( tie(ei, e_end) = boost::out_edges( start, graph ); ei != e_end; ++ei )
+      for_each( successors( start ), [&]( int v )
       {
-        int v = boost::target(*ei, graph);
-
         if( !graph[v].visited )
         {
           path.push_back( pair<int, int>( start, v ));
 
           all_paths_between_util( v, end, path );
 	}
-      }
+      });
     }
 
     // Remove current vertex from the path and make it unvisited
@@ -222,15 +223,10 @@ public:
     return boost::make_iterator_range(boost::edges(graph));
   }
 
-  // Manujidna: Move this above private: block since I am using this within the private: block
-  //auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
-
   auto predecessors(int i) {
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
-  auto successors(int i) {
-    return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
-  }
+
   auto out_edges(int i) {
     return boost::make_iterator_range(boost::out_edges(i, graph));
   }
@@ -285,9 +281,9 @@ public:
   {
     auto verts = vertices( );
 
-    for_each( verts, [&]( auto start ) 
+    for_each( verts, [&]( int start ) 
     {
-      for_each( verts, [&](auto end )
+      for_each( verts, [&]( int end )
       {
         if ( start != end ) 
 	{
@@ -308,12 +304,12 @@ public:
 
     cout << "All the simple paths of:" << endl;
 
-    for_each( verts, [&]( auto v ) 
+    for_each( verts, [&]( int v ) 
     {
       cout << endl << "Paths ending at verex: " << v << endl;
-      for( auto path : graph[v].influences )
+      for( vector< pair< int, int >> path : graph[v].influenced_by )
       {
-        for( auto edge : path )
+        for( pair< int, int > edge : path )
         {
           cout << "(" << edge.first << ", " << edge.second  << ") ";
         }

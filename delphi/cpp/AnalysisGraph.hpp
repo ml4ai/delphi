@@ -46,7 +46,7 @@ struct Edge {
 struct Node {
   string name;
   bool visited;
-  vector< vector< pair< int, int >>> influences;
+  vector< vector< pair< int, int >>> influenced_by;
 };
 
 struct GraphData {
