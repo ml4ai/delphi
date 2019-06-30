@@ -442,7 +442,6 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    G.create_bmi_config_file(config_file)
     G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
