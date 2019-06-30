@@ -15,9 +15,10 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 class CMakeExtension(Extension):
-    def __init__(self, name, sourcedir=""):
+    def __init__(self, name, sourcedir="", builddir=""):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+        self.builddir=builddir
 
 
 class CMakeBuild(build_ext):
@@ -42,8 +43,9 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        check_call(["cmake", "."], cwd=ext.sourcedir)
-        check_call(["cmake", "--build", "."], cwd=ext.sourcedir)
+        os.makedirs(ext.builddir, exist_ok=True)
+        check_call(["cmake", "../../"], cwd=ext.builddir)
+        check_call(["cmake", "--build", "."], cwd=ext.builddir)
 
 
 setup(
@@ -62,7 +64,7 @@ setup(
     ],
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    ext_modules=[CMakeExtension("extension", "delphi/cpp")],
+    ext_modules=[CMakeExtension("extension", "lib/", "delphi/cpp")],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     install_requires=[
