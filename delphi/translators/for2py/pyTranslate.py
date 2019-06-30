@@ -342,8 +342,12 @@ class PythonCodeGenerator(object):
         )
 
     def printModule(self, node, printState: PrintState):
-        """prints module syntax"""
+        """
+            prints the module syntax
+        """
         self.pyStrings.append("\n")
+        self.current_module = node["name"]
+        self.saved_variables[self.current_module] = []
         args = []
         self.printAst(
             node["body"],
@@ -385,47 +389,16 @@ class PythonCodeGenerator(object):
         else:
             handler = py_fn
 
-        # for index, arg in enumerate(arg_list):
-        #     status = self.check_ref(index, arg, arg_strs)
 
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
             return f"{handler}({arguments})"
-            # # If the handler is 'max' or 'min', Float32 casting is not required.
-            # if handler in ("max", "min"):
-            #     arg_strs = [x.replace("._val", "") for x in arg_strs]
-            #     arguments = ", ".join(arg_strs)
-            #     return f"{handler}({arguments})"
-            # else:
-            #     arguments = ", ".join(arg_strs)
-            #     return f"Float32({handler}({arguments}))"
         elif py_fn_type == "INFIXOP":
             assert len(arg_list) == 2, f"INFIXOP with {len(arglist)} arguments"
             return f"({arg_strs[0]} {py_fn} {arg_strs[1]})"
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
 
-    def check_ref(self, index, arg, arg_strs):
-        st = False
-        if arg["tag"] == "ref":
-            if self.variableMap[arg["name"]].lower() == "real":
-                arg_strs[index] = arg_strs[index] + "._val"
-                return True
-            else:
-                return False
-        elif arg["tag"] == "op":
-            for item_name in arg["left"]:
-                st = self.check_ref(index, item_name, arg_strs)
-            if not st:
-                for item_name in arg["right"]:
-                    st = self.check_ref(index, item_name, arg_strs)
-            return st
-        elif arg["tag"] == "call":
-            for item_name in arg["args"]:
-                st = self.check_ref(index, item_name, arg_strs)
-            return st
-        else:
-            return False
 
     def get_arg_list(self, node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
@@ -839,12 +812,12 @@ class PythonCodeGenerator(object):
     def printUse(self, node, printState: PrintState):
         if node.get("include"):
             self.imports.append(
-                f"from delphi.translators.for2py.m_{node['arg'].lower()} "
+                f"from delphi.translators.for2py.tmp.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.m_"
+                f"from delphi.translators.for2py.tmp.m_"
                 f"{node['arg'].lower()} import *\n"
             )
 
@@ -867,12 +840,12 @@ class PythonCodeGenerator(object):
                     ), f"Something is missing. Detail of node content: {node}"
 
                     if node["left"][0]["tag"] == "ref":
-                        left = node["left"][0]["name"]
+                        left = self.proc_ref(node["left"][0], False)
                     else:
                         left = node["left"][0]["value"]
                     operator = node["operator"]
                     if node["right"][0]["tag"] == "ref":
-                        right = node["right"][0]["name"]
+                        right = self.proc_ref(node["right"][0], False)
                     else:
                         right = node["right"][0]["value"]
 
@@ -1158,7 +1131,7 @@ class PythonCodeGenerator(object):
         if (
                 var_name not in printState.definedVars + printState.globalVars
                 and var_name not in self.functions and var_name not in
-                self.saved_variables[self.current_module]
+                self.saved_variables.get(self.current_module)
         ):
             printState.definedVars += [var_name]
             if node.get("value"):
@@ -1504,8 +1477,10 @@ class PythonCodeGenerator(object):
 
 
 def index_modules(root) -> Dict:
-    """ Counts the number of modules in the Fortran file including the program
-        file. Each module is written out into a separate Python file.  """
+    """
+        Counts the number of modules in the Fortran file including the program
+        file. Each module is written out into a separate Python file.
+    """
 
     module_index_dict = {
         node["name"]: (node.get("tag"), index)
@@ -1607,21 +1582,33 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "-t",
+        "--target",
+        nargs="+",
+        required=True,
+        help=(
+            "Target directory to store the output files in"
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--out",
         nargs="+",
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files being "
+             "generated",
     )
     args = parser.parse_args(sys.argv[1:])
 
     pickleFile = args.files[0]
     pyFile = args.gen[0]
     outFile = args.out[0]
+    targetDir = args.target[0]
 
-    return (pickleFile, pyFile, outFile)
+    return (pickleFile, pyFile, targetDir, outFile)
+
 
 if __name__ == "__main__":
-    (pickleFile, pyFile, outFile) = parse_args()
+    (pickleFile, pyFile, targetDir, outFile) = parse_args()
 
     try:
         with open(pickleFile, "rb") as f:
@@ -1633,8 +1620,8 @@ if __name__ == "__main__":
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
+            modFile = f"{targetDir}m_{item[1].lower()}.py"
             try:
-                modFile = f"m_{item[1].lower()}.py"
                 with open(modFile, "w") as f:
                     outputList.append("m_" + item[1].lower() + ".py")
                     f.write(item[0])

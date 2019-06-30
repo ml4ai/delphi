@@ -138,7 +138,7 @@ def genCode(node, state):
     # Gt: ()
     elif isinstance(node, ast.Gt):
         codeStr = ">"
-    
+
     # GtE: ()
     elif isinstance(node, ast.GtE):
         codeStr = ">="
@@ -222,9 +222,9 @@ def genCode(node, state):
     # BoolOp: body
     elif isinstance(node, ast.BoolOp):
         codeStr = "({0} {1} {2})".format(
-                          genCode(node.values[0], state),
-                          genCode(node.op, state),
-                          genCode(node.values[1], state))  
+            genCode(node.values[0], state),
+            genCode(node.op, state),
+            genCode(node.values[1], state))
 
     elif isinstance(node, ast.Attribute):
         # Code below will be kept until all tests pass and removed if they do

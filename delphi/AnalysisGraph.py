@@ -48,7 +48,8 @@ from delphi.utils.misc import _insert_line_breaks
 
 def normpdf(x, mean, sd):
     """ Calculate pdf of normal distribution with a given mean and standard
-    deviation. Faster than scipy.stats.norm.pdf. From https://stackoverflow.com/a/12413491 """
+    deviation. Faster than scipy.stats.norm.pdf. From
+    https://stackoverflow.com/a/12413491 """
     var = float(sd) ** 2
     denom = (2 * pi * var) ** 0.5
     num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
@@ -261,6 +262,27 @@ class AnalysisGraph(nx.DiGraph):
                     G.edges[subj_name, obj_name][
                         "InfluenceStatements"
                     ] = influence_sts
+
+        func_dict = {
+            "mean": np.mean,
+            "median": np.median,
+            "max": max,
+            "min": min,
+            "raw": lambda x: x,
+        }
+
+        for concept, indicator in _dict["conceptIndicators"].items():
+            indicator_source, indicator_name = (
+                indicator["name"].split("/")[0],
+                "/".join(indicator["name"].split("/")[1:]),
+            )
+
+            G.nodes[concept]["indicators"] = {
+                indicator_name: Indicator(indicator_name, indicator_source)
+            }
+            values = [x["value"] for x in indicator["values"]]
+            indicator["mean"] = func_dict[indicator["func"]](values)
+            # indicator.source = indicator["source"]
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
@@ -550,36 +572,33 @@ class AnalysisGraph(nx.DiGraph):
             A list of values corresponding to the distribution of the value of
             the real-valued variable representing the node.
         """
-        return [
+
+        xs = [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
             for i in range(self.res)
         ]
+        return xs
 
-    def initialize(
-        self, config_file: str = "bmi_config.txt", initialize_indicators=True
-    ):
+    def initialize(self, initialize_indicators=True):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
-            config_file
+            initialize_indicators: Boolean flag that sets whether indicators
+            are initialized as well.
 
         Returns:
-            AnalysisGraph
+            None
         """
         self.t = 0.0
-        if not os.path.isfile(config_file):
-            self.create_bmi_config_file(config_file)
 
+        # Create self.res copies of the initial latent state vector
         self.s0 = [
-            pd.read_csv(
-                config_file, index_col=0, header=None, error_bad_lines=False
-            )[1]
-            for _ in range(self.res)
+            self.construct_default_initial_state() for _ in range(self.res)
         ]
-        self.s0_original = self.s0[0].copy(deep=True)
 
-        self.latent_state_vector = self.construct_default_initial_state()
+        # Create a 'reference copy' of the initial latent state vector
+        self.s0_original = self.s0[0].copy(deep=True)
 
         for n in self.nodes(data=True):
             rv = LatentVar(n[0])

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import warnings
 from scipy.stats import gaussian_kde
-from .cpp.extension import KDE
+from .cpp.kde import KDE
 from .db import engine
 
 
