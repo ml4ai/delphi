@@ -1623,7 +1623,7 @@ if __name__ == "__main__":
             modFile = f"{targetDir}m_{item[1].lower()}.py"
             try:
                 with open(modFile, "w") as f:
-                    outputList.append("m_" + item[1].lower() + ".py")
+                    outputList.append(modFile)
                     f.write(item[0])
             except IOError:
                 raise For2PyError(f"Unable to write to {modFile}")
