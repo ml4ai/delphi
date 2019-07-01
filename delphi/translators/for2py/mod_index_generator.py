@@ -1,7 +1,7 @@
 """
-Generates a module index file. This file describes each module used in a program run.
-The information about each module is represented as a json dictionary and has the
-following fields:
+This script generates a module index file. The file describes each module used
+in a program run. The information about each module is represented as a JSON
+dictionary and has the following fields:
 
     name:              <module_name>
     file:              <file_containing_the_module>
@@ -9,12 +9,13 @@ following fields:
     symbol_export:     <list_of_symbols_exported_by_module>
     subprogram_list:   <procedure_mapping_for_module>
 
-The procedure mapping for each subprogram p defined in module M is a mapping from
-each possible tuple of argument types for p to the function to invoke for that argument
-type tuple.
+The procedure mapping for each subprogram `p` defined in module `M` is a
+mapping from each possible tuple of argument types for p to the function to
+invoke for that argument type tuple.
 
 Author: Pratik Bhandari
 Date:   02/19/2019
+Last Updated: 07/01/2019
 """
 
 import sys
