@@ -1,4 +1,5 @@
 from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
+from tqdm import trange
 import pickle
 import pandas as pd
 from .db import engine
@@ -9,6 +10,8 @@ import warnings
 # ==========================================================================
 # Utility functions
 # ==========================================================================
+
+
 def calculate_timestep(
     start_year: int, start_month: int, end_year: int, end_month: int
 ) -> int:
@@ -161,7 +164,7 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
 
         month: An integer, designates the month (1-12).
 
-        **kwargs: These are options for which specify
+        **kwargs: These are options for which you can specify
         country, state.
 
     Returns:
@@ -211,7 +214,7 @@ def set_observed_state_sequence_from_data(
 
         end_month: An integer, ending month.
 
-        **kwargs: These are options for which specify
+        **kwargs: These are options for which you can specify
         country, state.
 
     Returns:
@@ -307,7 +310,7 @@ def data_to_df(
 
         end_month: An integer, ending month.
 
-        **kwargs: These are options for which specify
+        **kwargs: These are options for which you can specify
         country, state, units.
 
     Returns:
@@ -348,43 +351,36 @@ def data_to_df(
 
 
 def train_model(
-    G=None,
-    input=None,
+    G,
     start_year: int = 2012,
     start_month: Optional[int] = None,
     end_year: int = 2017,
     end_month: int = 12,
-    res: int = 200 ** kwargs,
-):
-    """ Optional Utility function that takes a CAG and assembles the transition
-    model.
+    res: int = 200,
+    **kwargs,
+) -> None:
+    """ Trains a prediction model given a CAG with indicators.
 
     Args:
         G: A CAG. It Must have indicators variables mapped to nodes.
 
-        input: This allows you to upload a CAG from a pickle file, instead of
-        passing it directly as an argument. The CAG must have mapped
-        indicators.
+        start_year: An integer, designates the starting year (ex: 2012).
+
+        start_month: An integer, starting month (1-12).
+
+        end_year: An integer, ending year.
+
+        end_month: An integer, ending month.
 
         res: Sampling resolution. Default is 200 samples.
 
+        **kwargs: These are options for which you can specify
+        country, state, units, fallback aggregation axes (fallback_aggaxes),
+        aggregation function (aggfunc).
+
     Returns:
-        Returns CAG.
+        None, sets training variables for CAG.
     """
-
-    if input is not None:
-        if G is not None:
-            warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from "
-                "the pickle file."
-            )
-        with open(input, "rb") as f:
-            G = pickle.load(f)
-
-    assert G is not None, (
-        "A CAG must be passed to G or a pickle file containing a CAG must be "
-        "passed to input."
-    )
 
     if "country" in kwargs:
         country = kwargs["country"]
@@ -427,7 +423,19 @@ def train_model(
     )
 
     set_latent_state_sequence(G, start_year, start_month, end_year, end_month)
-    return G
+
+    A = G.transition_matrix_collection[0]
+    for edge in G.edges(data=True):
+        A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
+
+    n_samples: int = 10000
+    for i, _ in enumerate(trange(n_samples)):
+        if i >= (n_samples - G.res):
+            G.transition_matrix_collection[
+                i - (n_samples - G.res)
+            ] = G.sample_from_posterior(A).copy()
+        else:
+            G.sample_from_posterior(A)
 
 
 def evaluate(
