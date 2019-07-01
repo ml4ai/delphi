@@ -4,6 +4,3 @@
 [submodule "external/cppitertools"]
 	path = external/cppitertools
 	url = https://github.com/ryanhaining/cppitertools
-[submodule "external/Catch2"]
-	path = external/Catch2
-	url = https://github.com/catchorg/Catch2
