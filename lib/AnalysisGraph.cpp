@@ -112,9 +112,8 @@ private:
       // Process all the vertices adjacent to the current node
       for_each(successors(start), [&](int v) {
         if (!graph[v].visited) {
-          // Appedn the edge start---v to the path
+          // Append the edge start---v to the path
           path.push_back(pair<int, int>(start, v));
-
           all_paths_between_util(v, end, path);
         }
       });
