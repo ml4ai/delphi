@@ -1810,14 +1810,27 @@ def process_files(python_list: List[str], pgm_filename: str, lambda_filename:
 
     ast_list = get_asts_from_files(python_list, print_ast_flag)
 
-    for index, inAst in enumerate(ast_list):
-        # Read the mode_gen file containing all the identifier mappings
-        mode_mapperDict = get_index(python_list[index][:-3] + ".xml")
+    # Regular expression to identify the path and name of all python files
+    filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+
+    # Read the mode_gen file containing all the identifier mappings
+    for index, ast_string in enumerate(ast_list):
+        filename_match = re.match(filename_regex, python_list[index])
+        if filename_match:
+            path = filename_match.group("path")
+            filename = filename_match.group("filename")
+            xml_file = f"{path}rectified_{filename}.xml"
+
+            # Calling the `get_index` function in `mod_index_generator.py` to
+            # map all variables and objects in the various files
+            module_mapper = get_index(xml_file)
+        else:
+            module_mapper = {}
 
         lambdaFile = python_list[index][:-3] + "_" + lambda_filename
         pgmFile = python_list[index][:-3] + "_" + pgm_filename
         pgm_dict = create_pgm_dict(
-            lambdaFile, [inAst], python_list[index], mode_mapperDict
+            lambdaFile, [ast_string], python_list[index], module_mapper
         )
 
         with open(pgmFile, "w") as f:
@@ -1875,6 +1888,6 @@ if __name__ == "__main__":
 
     pgm_file = arguments.pgm_file[0]
     lambda_file = arguments.lambda_file[0]
-    print_ast = arguments.print_ast[0]
+    print_ast = arguments.print_ast
 
     process_files(python_file_list, pgm_file, lambda_file, print_ast)
