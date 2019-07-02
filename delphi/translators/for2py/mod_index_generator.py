@@ -33,6 +33,7 @@ class ModuleGenerator(object):
         self.entryPoint = []
         self.current_context = None
         self.fileName = None
+        # This string holds the name of the main PROGRAM module
         self.main = None
         self.path = None
 
@@ -46,7 +47,11 @@ class ModuleGenerator(object):
         self.subpgms = {}
         self.syms = {}
 
-    def parseTree(self, root) -> bool:
+    def parse_tree(self, root) -> bool:
+        """
+            This function parses the XML tree of a Fortran file and tracks
+            and maps relevant object relationships
+        """
 
         # Find function name
         for item in root.iter():
@@ -162,7 +167,7 @@ class ModuleGenerator(object):
             Parse the XML file from the root and keep track of all important
             data structures and object relationships between files
         """
-        status = self.parseTree(tree)
+        status = self.parse_tree(tree)
         output_dictionary = {}
         if status:
             output_dictionary['FileName'] = [self.fileName, self.path]

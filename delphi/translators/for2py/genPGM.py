@@ -1816,24 +1816,26 @@ def process_files(python_list: List[str], pgm_filename: str, lambda_filename:
     # Read the mode_gen file containing all the identifier mappings
     for index, ast_string in enumerate(ast_list):
         filename_match = re.match(filename_regex, python_list[index])
-        if filename_match:
-            path = filename_match.group("path")
-            filename = filename_match.group("filename")
-            xml_file = f"{path}rectified_{filename}.xml"
+        assert filename_match, "Invalid filename."
 
+        path = filename_match.group("path")
+        filename = filename_match.group("filename")
+
+        # Ignore all python files of modules created by `pyTranslate.py`
+        # since these module files do not contain a corresponding XML file.
+        if not filename_match.startswith("m_"):
+            xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
             module_mapper = get_index(xml_file)
-        else:
-            module_mapper = {}
 
-        lambdaFile = python_list[index][:-3] + "_" + lambda_filename
-        pgmFile = python_list[index][:-3] + "_" + pgm_filename
+        lambda_file = python_list[index][:-3] + "_" + lambda_filename
+        pgm_file = python_list[index][:-3] + "_" + pgm_filename
         pgm_dict = create_pgm_dict(
-            lambdaFile, [ast_string], python_list[index], module_mapper
+            lambda_file, [ast_string], python_list[index], module_mapper
         )
 
-        with open(pgmFile, "w") as f:
+        with open(pgm_file, "w") as f:
             printPgm(f, pgm_dict)
 
 
