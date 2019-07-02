@@ -81,12 +81,12 @@ def derived_type_python_IR_test():
 
 @pytest.fixture
 def cond_goto_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0][0]
 
 
 @pytest.fixture
 def uncond_goto_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_08.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_08.f"))[0][0]
 
 
 @pytest.fixture
