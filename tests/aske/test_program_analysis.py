@@ -48,34 +48,35 @@ def postprocess_test_data_grfn_dict(_dict):
 
 @pytest.fixture
 def crop_yield_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/crop_yield.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/crop_yield.f"))[0][0]
 
 
 @pytest.fixture
 def PETPT_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/PETPT.for"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/PETPT.for"))[0][0]
 
 
 @pytest.fixture
 def io_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/io-tests/iotest_05.for"))[0][0]
 
 
 @pytest.fixture
 def array_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0][
+        0]
 
 
 @pytest.fixture
 def do_while_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/do-while/do_while_04.f"))[0]
+    yield get_python_source(Path(f"{DATA_DIR}/do-while/do_while_04.f"))[0][0]
 
 
 @pytest.fixture
 def derived_type_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}/derived-types/derived-types-04.f")
-    )[0]
+    )[0][0]
 
 
 @pytest.fixture
@@ -92,7 +93,13 @@ def uncond_goto_python_IR_test():
 def save_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f")
-    )[0]
+    )[0][0]
+
+
+@pytest.fixture
+def module_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/modules/test_module_08.f"))[0]
 
 
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
@@ -146,3 +153,14 @@ def test_save_pythonIR_generation(save_python_IR_test):
     with open(f"{DATA_DIR}/save/simple_variables/save-02.py", "r") as f:
         python_src = f.read()
     assert save_python_IR_test == python_src
+
+
+def test_module_pythonIR_generation(module_python_IR_test):
+    src = module_python_IR_test
+    with open(f"{DATA_DIR}/modules/test_module_08.py", "r") as f:
+        python_src = f.read()
+    assert src[1] == python_src
+
+    with open(f"{DATA_DIR}/modules/m_mymod8.py", "r") as f:
+        python_src = f.read()
+    assert src[0] == python_src
