@@ -170,14 +170,22 @@ class RectifyOFPXML:
             "loop": None,
             "if": None,
         }
-
         # Check for the status whether current <goto-stmt> is
         # conditional or not.
         self.conditional_goto = False
+        # True if goto handling needs outward or
+        # inward movement.
         self.outward_move = False
         self.inward_move = False
+        # True if another <if> appears before
+        # goto. This <if> has nothing to do
+        # conditional status of goto.
         self.if_appear_before_goto = True
+        # True if goto is under <if> that is
+        # a conditional goto statement.
         self.goto_under_if = False
+        # If goto is conditional and under else
+        # that is a case of conditional without operator
         self.goto_under_else = False
 
     #################################################################
@@ -509,6 +517,9 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
+
+        # equivalent operator has a weird ast syntax,
+        # so it requires refactoring.
         if need_refactoring:
             self.reconstruct_header(temp_elem_holder, current)
             need_refactoring = False
@@ -550,8 +561,8 @@ class RectifyOFPXML:
                         child, cur_elem, current, parent, traverse
                     )
 
-                    # Handling conditional <goto-stmt>
                     if traverse == 1:
+                        # Handling conditional <goto-stmt>
                         if (
                                 parent.tag == "if"
                                 and "goto-stmt" in cur_elem.attrib
@@ -586,6 +597,7 @@ class RectifyOFPXML:
                             self.body_level['prev'] = self.body_level['current']
                             self.body_level['current'] = parent.tag
 
+                        # Check if conditional goto-stmt is under loop statement
                         if parent.tag == "loop":
                             if (
                                     child.tag == "if"
@@ -595,6 +607,10 @@ class RectifyOFPXML:
                                     )
                             ):
                                 self.goto_under_loop = True
+
+                        # Check a case where <if> under another <if>.
+                        # <if>
+                        #   <if>
                         if (
                             grandparent.tag == "body"
                             and "parent" in grandparent.attrib
@@ -750,18 +766,14 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                     if child.tag == "saved-entity":
-                        """
-                            If you find saved-entity, add the element to a list 
-                            and remove it from the XML since you want to shift 
-                            it below save-stmt
-                        """
+                        # If you find saved-entity, add the element to a list 
+                        # and remove it from the XML since you want to shift 
+                        # it below save-stmt
                         self.saved_entities.append(cur_elem)
                         current.remove(cur_elem)
                     elif child.tag == "save-stmt":
-                        """
-                            If you find save-stmt, check if it contains 
-                            saved-entities and add it below this XML element
-                        """
+                        # If you find save-stmt, check if it contains 
+                        # saved-entities and add it below this XML element
                         if len(self.saved_entities) > 0:
                             for item in self.saved_entities:
                                 sub_elem = ET.SubElement(cur_elem, item.tag,
@@ -3581,8 +3593,32 @@ class RectifyOFPXML:
                 reconstructed_goto_elem, header, traverse,
                 parent, index
     ):
+        """
+            This function generates a new statements to
+            nest statements that follow label based on
+            condition or non-condition status to eliminate
+            goto.
+
+            Args:
+                next_goto (list): A list to hold next goto-stmt that may exist
+                within the boundary of current goto.
+                reconstructed_goto_elem (list): A list that will hold
+                reconstructed if statements.
+                header (list): A header tht holds conditional header.
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                stmts_follow_label (list): A list that holds statements
+                follow label statement for currently handling goto.
+                traverse (int): A current traverse counter.
+                index (int): An index of goto.
+
+            Return:
+                None.
+        """
+
         for stmt in stmts_follow_label:
             if len(stmt) > 0:
+                # A case where another goto-stmt appears after the current label
                 if "goto-stmt" in stmt.attrib:
                     goto_stmt = {}
                     goto_stmt['statement'] = stmt
@@ -3597,6 +3633,7 @@ class RectifyOFPXML:
                         goto_stmt['goto-stmt'] = child
                     next_goto.append(goto_stmt)
                 else:
+                    # A case where both goto and label are under the same level
                     if not self.outward_move and not self.inward_move:
                         reconstructed_goto_elem.append(stmt)
                         if not self.encapsulate_under_do_while:
@@ -3605,14 +3642,14 @@ class RectifyOFPXML:
                                 cur_elem = ET.SubElement(statement, child.tag, child.attrib)
                                 if len(child) > 0:
                                     self.parseXMLTree(child, cur_elem, statement, parent, traverse)
+                    # A case where outward movement goto handling is need
                     elif self.outward_move:
                         label_body_level = self.body_elem_holder[stmt.attrib['body-level']]
-                        if not self.goto_under_else:
-                            self.generate_if_element(
-                                    header[0], label_body_level, stmts_follow_label, next_goto, True, None,
-                                    None, None, None, traverse, reconstructed_goto_elem
-                            )
-                        else:
+                        # If goto is a conditional, but under else then
+                        # there is no header operation. Thus, we simply declare new boolean
+                        # variable like a non-conditional goto, then use that variable to
+                        # construct new if statement and nest statement under label.
+                        if self.goto_under_else:
                             number_of_gotos = int(self.statements_to_reconstruct_after['count-gotos'])
                             declared_goto_flag_num = []
                             self.generate_declaration_element(
@@ -3624,6 +3661,12 @@ class RectifyOFPXML:
                                 f"goto_flag_{index + 1}", None, None, traverse,
                                 reconstructed_goto_elem
                             )
+                        else:
+                            self.generate_if_element(
+                                    header[0], label_body_level, stmts_follow_label, next_goto, True, None,
+                                    None, None, None, traverse, reconstructed_goto_elem
+                            )
+                    # A case where inward movement goto handling is need
                     else:
                         pass
 
