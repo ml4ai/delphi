@@ -1524,10 +1524,6 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
-def print_grfn(grfnsuffix, grfn):
-    grfnsuffix.write(json.dumps(grfn, indent=2))
-
-
 def genFn(node, fnName: str, returnVal: bool, inputs, state):
     lambda_strings = []
     argument_strings = []
@@ -1676,15 +1672,14 @@ def get_body_and_functions(pgm):
 
 
 def generage_gensysm(tag):
-
-    # The gensym is used to uniquely identify any identifier in the program.
-    # Python's uuid library is used to generate a unique 12 digit HEX string.
-    # The uuid4() function of 'uuid' focuses on randomness. Each and every bit
-    # of a UUID v4 is generated randomly and with no inherent logic. To every
-    # gensym, we add a tag signifying the data type it represents. 'v' is for
-    # variables and 'h' is for holders.
-
-
+    """
+        The gensym is used to uniquely identify any identifier in the
+        program. Python's uuid library is used to generate a unique 12 digit
+        HEX string. The uuid4() function of 'uuid' focuses on randomness.
+        Each and every bit of a UUID v4 is generated randomly and with no
+        inherent logic. To every gensym, we add a tag signifying the data
+        type it represents. 'v' is for variables and 'h' is for holders.
+    """
     return uuid.uuid4().hex[:12] + "_" + tag
 
 
@@ -1738,7 +1733,7 @@ def get_path(fileName: str, instance: str):
             return fileName
 
 
-def create_pgm_dict(
+def create_grfn_dict(
     lambdaFile: str,
     asts: List,
     file_name: str,
@@ -1833,7 +1828,7 @@ def process_files(python_list: List[str], grfn_suffix: str, lambda_suffix:
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_suffix
         grfn_file = python_list[index][:-3] + "_" + grfn_suffix
-        grfn_dict = create_pgm_dict(
+        grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper
         )
 
