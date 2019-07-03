@@ -1823,7 +1823,7 @@ def process_files(python_list: List[str], pgm_filename: str, lambda_filename:
 
         # Ignore all python files of modules created by `pyTranslate.py`
         # since these module files do not contain a corresponding XML file.
-        if not filename_match.startswith("m_"):
+        if not filename.startswith("m_"):
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
