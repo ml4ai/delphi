@@ -2576,6 +2576,11 @@ class RectifyOFPXML:
             self, root, current, parent, grandparent, traverse
     ):
         """
+            Recursively traverse through the nested XML AST tree and
+            calls appropriate tag handler, which will generate
+            a cleaned version of XML tree for translate.py.
+            Any new tags handlers must be added under this this function.
+
             parseXMLTree
 
             Arguments:
@@ -2587,11 +2592,6 @@ class RectifyOFPXML:
 
             Returns:
                 None
-
-            Recursively traverse through the nested XML AST tree and
-            calls appropriate tag handler, which will generate
-            a cleaned version of XML tree for translate.py.
-            Any new tags handlers must be added under this this function.
         """
         if root.tag == "file":
             self.handle_tag_file(root, current, parent, grandparent, traverse)
@@ -2745,6 +2745,12 @@ class RectifyOFPXML:
             with the collected derived type declaration
             elements in the handle_tag_declaration and
             handle_tag_type.
+
+            Args:
+                None.
+
+            Returns:
+                None.
         """
         if self.derived_type_var_holder_list:
             literal = ET.Element("")
@@ -2864,6 +2870,12 @@ class RectifyOFPXML:
             that this new form was generated in the python syntax,
             so it is a pre-process for translate.py and
             even pyTranslate.py that
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         assert (
                 current.tag == "name"
@@ -2922,6 +2934,13 @@ class RectifyOFPXML:
             declared under (2) and (3) will be extracted
             and reconstructed to be nested under (1)
             in this function.
+
+            Args:
+                grandparent (:obj: 'ET'): Grand parent element object.
+                traverse (int): Current traverse number.
+
+            Returns:
+                None.
         """
         root_scope = ET.SubElement(self.current_body_scope, "statement")
         for form in self.format_holder:
@@ -2935,6 +2954,12 @@ class RectifyOFPXML:
             This function reconstructs derived type
             reference syntax tree. However, this functions is
             actually a preprocessor for the real final reconstruction.
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         # Update reconstruced derived type references
         assert (
@@ -2957,6 +2982,14 @@ class RectifyOFPXML:
             (including sub-elements) and split & store <name> and
             <subscripts> into separate lists. Then, it comibines
             and reconstructs two lists appropriately.
+
+            Args:
+                cur_elem (:obj: 'ET'): Newly generated element
+                for current element object.
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         name_elements = [cur_elem]
         # Remove the original <name> elements.
@@ -3104,6 +3137,16 @@ class RectifyOFPXML:
             This function gets called when goto appears
             before the corresponding label and all necessary
             statements are collected for the reconstruction.
+
+            Args:
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                traverse (int): A traverse counter.
+                reconstruct_target (dict): A dictionary that holds statements
+                for goto and label as well as the number of goto counter.
+
+            Return:
+                None.
         """
         stmts_follow_label = reconstruct_target['stmts-follow-label']
         number_of_gotos = reconstruct_target['count-gotos']
@@ -3687,6 +3730,19 @@ class RectifyOFPXML:
             This will generate N number of label_flag_i or goto_i,
             where N is the number of gotos in the Fortran code
             and i is the number assigned to the flag
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                default_name (str): A default name given for
+                new variable.
+                number_of_gotos (int): A number of gotos. Amount
+                of variables will be generated based on this number.
+                declared_flag_num (list): A list to hold the number
+                of delcared varaibles (flags).
+                traverse (int): A current traverse counter.
+
+            Return:
+                None.
         """
 
         # Declaration
@@ -3757,6 +3813,15 @@ class RectifyOFPXML:
         """
             This is a function for generating new assignment element xml
             for goto reconstruction.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                name_id (str): Name of a target variable.
+                value_type (str): Type of value that will be assigned.
+                traverse (int): A current traverse counter.
+
+            Returns:
+                None.
         """
         assignment_elem = ET.SubElement(parent, "assignment")
         target_elem = ET.SubElement(assignment_elem, "target")
@@ -3799,6 +3864,15 @@ class RectifyOFPXML:
 
             Currently, it generates only a unary operation syntax only.
             It may require update in the future.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                op_type (str): Operation type.
+                operator (str): Operator.
+                name (str): Name of a variable for new element.
+
+            Returns:
+                None.
         """
         operation_elem = ET.SubElement(parent, "operation", {"type": op_type})
         operator_elem = ET.SubElement(operation_elem, "operator",
@@ -3813,6 +3887,17 @@ class RectifyOFPXML:
         """
             This is a function for generating new name element based on
             the provided arguments.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                hasSubscripts (str): "true" or "false" status in string.
+                name_id (str): Name of a variable.
+                numPartRef (str): Number of references.
+                type (str): Type of a variable.
+
+            Returns:
+                None.
+
         """
         name_attribs = {
             "hasSubscripts": hasSubscripts,
@@ -3832,6 +3917,25 @@ class RectifyOFPXML:
             This is a function generating new if element.
             Since header can hold unary, multiary, or name, some arguments
             may be passed with None. Check them to generate an appropriate XML.
+
+            Args:
+                header (:obj: 'ET'): Header element from if.
+                parent (:obj: 'ET'): Parent element object.
+                stored_stmts (list): List of statements.
+                next_goto (list): Another gotos appear while
+                handling current goto stmt.
+                need_operation (bool): Boolean to state whether
+                new if needs operation header.
+                op_type (str): Operation type.
+                lhs (str): Left hand side variabel name.
+                rhs (str): Right hand side variabel name.
+                operator (str): Operator.
+                traverse (int): Current traverse counter.
+                reconstructed_goto_elem (list): A list to
+                hold reconstructed AST after goto elimination.
+
+            Returns:
+                None.
         """
         goto_nest_if_elem = ET.SubElement(parent, "if")
 
@@ -3969,8 +4073,13 @@ class RectifyOFPXML:
             which is stored in a form of "id='x'%y" in the id attribute.
             Once the id gets cleaned, it will call the
             reconstruc_derived_type_ref function to reconstruct and replace the
-            messy version
-            of id with the cleaned version.
+            messy version of id with the cleaned version.
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         current_id = current.attrib[
             "id"
@@ -3989,30 +4098,45 @@ class RectifyOFPXML:
 
     def clean_id(self, unrefined_id):
         """
-            This function refines id (or value) with quotation marks included by
-             removing them and returns only the variable name.
-            For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id
-            name will be modified as below:
+            This function refines id (or value) with quotation
+            marks included by removing them and returns only
+            the variable name. For example, from "OUTPUT"
+            to OUTPUT and "x" to x. Thus, the id name will
+            be modified as below:
                 Unrefined id: id = ""OUTPUT""
                 Refined id: id = "OUTPUT"
+
+            Args:
+                unrefined_id (str): Id of name element that holds
+                unnecessary strings.
+
+            Returns:
+                None
         """
         return re.findall(r"\"([^\']+)\"", unrefined_id)[0]
 
-    def clean_attrib(self, elements):
+    def clean_attrib(self, current):
         """
-            The original XML elements holds 'eos' and 'rule' attributes that are
-             not necessary and being used.
-            Thus, this function will remove them in the rectified version of
+            The original XML elements holds 'eos' and
+            'rule' attributes that are not necessary
+            and being used. Thus, this function will 
+            remove them in the rectified version of
             XML.
-        """
-        if "eos" in elements.attrib:
-            elements.attrib.pop("eos")
-        if "rule" in elements.attrib:
-            elements.attrib.pop("rule")
 
-    def boundary_identifier (self, goto_label_with_case):
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
-            This function will be called to dientify the boundary for each goto-
+        if "eos" in current.attrib:
+            current.attrib.pop("eos")
+        if "rule" in current.attrib:
+            current.attrib.pop("rule")
+
+    def boundary_identifier (self):
+        """
+            This function will be called to identify the boundary for each goto-
             and-label. The definition of scope here is that whether one
             goto-label
             is nested under another goto-label. For example,
@@ -4024,6 +4148,12 @@ class RectifyOFPXML:
             "lbl = 111"
             Thus, the elements will be assigned with "parent-goto" attribute
             with 111.
+
+            Args:
+                None.
+
+            Returns:
+                None.
         """
         boundary = {}
         lbl_counter = {}
@@ -4075,39 +4205,57 @@ class RectifyOFPXML:
     def case_availability(self, boundary):
         """
             This function checks for the goto cases in the code based
-            on the scope. If any unhandled case encountered, then it
+            on the boundary. If any unhandled case encountered, then it
             will assert and halt the program.
+
+            Args:
+                boundary (dict): A dictonary of goto label
+                and boundary label.
+
+            Returns:
+                None.
         """
 
         # Case check for more than double nested goto case
         nested_gotos = {}
-        root_scope = None
-        current_scope = None
+        root_boundary = None
+        current_boundary = None
 
-        for goto, scope in boundary.items():
-            if current_scope == None:
-                current_scope = goto
-                root_scope = goto
-                nested_gotos[root_scope] = 1
+        for goto, boundary in boundary.items():
+            if current_boundary == None:
+                current_boundary = goto
+                root_boundary = goto
+                nested_gotos[root_boundary] = 1
             else:
-                if scope == current_scope:
-                    nested_gotos[root_scope] += 1
+                if boundary == current_boundary:
+                    nested_gotos[root_boundary] += 1
                     assert (
-                            nested_gotos[root_scope] <= 2
+                            nested_gotos[root_boundary] <= 2
                     ), f"Do do not handle > 2 nested goto case at this moment."
                 else:
-                    root_scope = goto
-                    nested_gotos[root_scope] = 1
-                current_scope = goto
+                    root_boundary = goto
+                    nested_gotos[root_boundary] = 1
+                current_boundary = goto
 
         # All cases are currently handled
         return
 
     def parent_goto_assigner(self, boundary, boundary_for_label,
-                             statements_to_reconstruct):
+                             statements_to_reconstruct
+    ):
         """
             This function actually assigns boundary(s) to each goto
             and label statements.
+
+            Args:
+                boundary (list): A list of boundaries.
+                boundary_for_label (dict): A dictionary of
+                label as a key and its parent boundary label.
+                statements_to_reconstruct (list): A list of
+                statements that require reconstruction.
+
+            Returns:
+                None.
         """
         for stmt in statements_to_reconstruct:
             if "goto-stmt" in stmt.attrib:
@@ -4138,6 +4286,12 @@ def is_empty(elem):
         This function is just a helper function for
         check whether the passed elements (i.e. list)
         is empty or not
+
+        Args:
+            elem (:obj:): Any structured data object (i.e. list).
+
+        Returns:
+            bool: True if element is empty or false if not.
     """
     if not elem:
         return True
@@ -4150,6 +4304,13 @@ def indent(elem, level=0):
         This function indents each level of XML.
         Source: https://stackoverflow.com/questions/3095434/inserting-newlines
                 -in-xml-file-generated-via-xml-etree-elementstree-in-python
+
+        Args:
+            elem (:obj: 'ET'): An XML root.
+            level (int): A root level in integer.
+
+        Returns:
+            None.
     """
     i = "\n" + level * "  "
     if len(elem):
@@ -4171,6 +4332,12 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         This function process OFP generated XML and generates
         a rectified version by recursively calling the appropriate
         functions.
+
+        Args:
+            xmlString (str): XML in string type.
+
+        Returns:
+            ET object: A reconstructed element object.
     """
     traverse = 1
 
@@ -4196,7 +4363,7 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         oldRoot = newRoot
         traverse += 1
 
-        XMLCreator.boundary_identifier(XMLCreator.goto_label_with_case)
+        XMLCreator.boundary_identifier()
 
         newRoot = ET.Element(oldRoot.tag, oldRoot.attrib)
         for child in oldRoot:
@@ -4217,6 +4384,12 @@ def parse_args():
         This function parse the arguments passed to the script.
         It returns a tuple of (input ofp xml, output xml)
         file names.
+
+        Args:
+            None.
+
+        Returns:
+            None.
     """
     parser = argparse.ArgumentParser()
 
@@ -4256,6 +4429,14 @@ def fileChecker(filename, mode):
         This function checks for the validity (file existance and
         mode). If either the file does not exist or the mode is
         not valid, throws an IO exception and terminates the program
+
+        Args:
+            filename (str): A file name that reconstructed XMl
+            will be written to.
+            mode (str): Open more for a file.
+
+        Returns:
+            None.
     """
     try:
         with open(filename, mode) as f:
