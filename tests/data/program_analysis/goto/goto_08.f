@@ -1,5 +1,6 @@
 C     File: goto_08.f
-C     A simple program with a single forward conditional goto.
+C     A simple program with a single forward conditional goto with 1-level
+C     difference in goto and label.
 C     The program computes and prints out the values of n! for n in [1,10].
       
       program factorial
