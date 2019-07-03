@@ -40,12 +40,18 @@ class ModuleGenerator(object):
         # Initialize all the dictionaries which we will be writing to our file
         # This is a list of all modules inside a single Fortran file
         self.modules = []
+        # This dictionary holds the set of symbols exported by each module.
         self.exports = {}
         # This dictionary holds the modules used by each module/program.
         # Additionally, variables from each module can be selectively USEd (
         # imported). This is stored in the object below. If all variables of
         # a module are USEd, an `*` symbol is used to denote this.
         self.uses = {}
+        # This dictionary holds the set of symbols imported by each module.
+        # This is given by: IMPORTS(m) = U { EXPORTS(p) | p ∈ USES(m) }
+        # Since a module can use the ONLY keyword to import only some of the
+        # symbols exported by another module, in such cases, the set of
+        # imported symbols is be limited to those explicitly mentioned.
         self.imports = {}
         # This dictionary holds all the private variables defined in each
         # module
@@ -56,9 +62,46 @@ class ModuleGenerator(object):
         # each module
         self.subprograms = {}
         # This dictionary stores the set of symbols declared in each module.
-        # This is the union of all public variables, private variables and
-        # subprograms
         self.symbols = {}
+
+    def populate_symbols(self):
+        """
+            This function populates the dictionary `self.symbols` which stores
+            the set of symbols declared in each module. This is the union of all
+            public variables, private variables and subprograms for each module.
+        """
+        for item in self.modules:
+            self.symbols[item] = self.public.get(item, []) + \
+                                 self.private.get(item, []) + \
+                                 self.subprograms.get(item, [])
+
+    def populate_exports(self):
+        """
+            This function populates the `self.exports` dictionary which holds
+            the set of symbols exported by each module. The set of exported
+            symbols is given by: (imports U symbols) - private
+        """
+        for item in self.modules:
+            interim = self.imports.get(item, []) + self.symbols.get(item, [])
+            self.exports[item] = [x for x in interim if x not in
+                                  self.private.get(item, [])]
+
+    def populate_imports(self):
+        """
+            This function populates the `self.imports` dictionary which holds
+            all the private variables defined in each module.
+        """
+        for module in self.uses:
+            for use_item in self.uses[module]:
+                for key in use_item:
+                    if len(use_item[key]) == 1 and use_item[key][0] == '*':
+                        self.imports.setdefault(module, []).append(
+                            {key: self.exports[key]}
+                        )
+                    else:
+                        self.imports.setdefault(module, []).append(
+                            {key: use_item[key]}
+                        )
 
     def parse_tree(self, root) -> bool:
         """
@@ -145,33 +188,6 @@ class ModuleGenerator(object):
 
         return True
 
-    def populate_symbols(self):
-        for item in self.modules:
-            self.symbols[item] = self.public.get(item, []) + self.private.get(
-                item,
-                                                                        []) +\
-                                 self.subprograms.get(item, [])
-
-    def populate_exports(self):
-        for item in self.modules:
-            interim = self.imports.get(item, []) + self.symbols.get(item, [])
-            self.exports[item] = [x for x in interim if x not in self.private.get(item, [])]
-
-    def populate_imports(self):
-        for module in self.uses:
-            for use_item in self.uses[module]:
-                for key in use_item:
-                    if len(use_item[key]) == 1 and use_item[key][0] == '*':
-                        if self.imports.get(module):
-                            self.imports[module].append({key: self.exports[key]})
-                        else:
-                            self.imports[module] = [{key: self.exports[key]}]
-                    elif len(use_item[key]) > 1:
-                        if self.imports.get(module):
-                            self.imports[module].append({key: use_item[key]})
-                        else:
-                            self.imports[module] = [{key: use_item[key]}]
-
     def analyze(self, tree: ET.ElementTree) -> List:
         """
             Parse the XML file from the root and keep track of all important
@@ -190,7 +206,7 @@ class ModuleGenerator(object):
             output_dictionary['subprograms'] = self.subprograms
             output_dictionary['symbols'] = self.symbols
 
-        return output_dictionary
+        return [output_dictionary]
 
 
 def get_index(xml_file: str):
