@@ -264,7 +264,7 @@ class GrFNGenerator(object):
                 lastDefDefault=state.lastDefDefault,
                 fnName=state.fnName,
                 varTypes=state.varTypes.copy(),
-                lambdaStrings=state.lambdaStrings,
+                lambda_strings=state.lambda_strings,
                 start=state.start.copy(),
                 scope_path=scope_path,
             )
@@ -489,7 +489,7 @@ class GrFNGenerator(object):
                 [src["var"]["variable"] for src in condSrcs if "var" in src],
                 state,
             )
-            state.lambdaStrings.append(lambda_string)
+            state.lambda_strings.append(lambda_string)
             startDefs = state.lastDefs.copy()
             ifDefs = startDefs.copy()
             elseDefs = startDefs.copy()
@@ -602,7 +602,7 @@ class GrFNGenerator(object):
                     [f"{src['variable']}_{src['index']}" for src in inputs],
                     state,
                 )
-                state.lambdaStrings.append(lambda_string)
+                state.lambda_strings.append(lambda_string)
 
                 pgm["functions"].append(fn)
                 pgm["body"].append(body)
@@ -674,7 +674,7 @@ class GrFNGenerator(object):
                     ],
                     state,
                 )
-                state.lambdaStrings.append(lambda_string)
+                state.lambda_strings.append(lambda_string)
 
                 startDefs = state.lastDefs.copy()
                 ifDefs = self.elif_pgm[6]
@@ -783,7 +783,7 @@ class GrFNGenerator(object):
                         ],
                         state,
                     )
-                    state.lambdaStrings.append(lambda_string)
+                    state.lambda_strings.append(lambda_string)
 
                     pgm["functions"].append(fn)
                     pgm["body"].append(body)
@@ -947,7 +947,7 @@ class GrFNGenerator(object):
                         ],
                         state,
                     )
-                    state.lambdaStrings.append(lambda_string)
+                    state.lambda_strings.append(lambda_string)
 
                 # In the case of assignments of the form: "ud: List[float]"
                 # an assignment function will be created with an empty input
@@ -1022,7 +1022,7 @@ class GrFNGenerator(object):
                 lambda_string = genFn(
                     node, name, target["var"]["variable"], source_list, state
                 )
-                state.lambdaStrings.append(lambda_string)
+                state.lambda_strings.append(lambda_string)
                 if not fn["sources"] and len(sources) == 1:
                     if sources[0].get("list"):
                         dtypes = set()
@@ -1428,58 +1428,61 @@ class GrFNGenerator(object):
                     state.varTypes[variable] = REVERSE_ANNOTATE_MAP[type]
 
 
-class PGMState:
+class GrFNState:
     def __init__(
         self,
-        lambdaStrings: Optional[List[str]],
-        lastDefs: Optional[Dict] = {},
-        nextDefs: Optional[Dict] = {},
-        lastDefDefault=0,
-        fnName=None,
-        varTypes: Optional[Dict] = {},
+        lambda_strings: Optional[List[str]],
+        last_definition_index: Optional[Dict] = {},
+        next_definition_index: Optional[Dict] = {},
+        last_definition_default=0,
+        function_name=None,
+        variable_types: Optional[Dict] = {},
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
     ):
-        self.lastDefs = lastDefs
-        self.nextDefs = nextDefs
-        self.lastDefDefault = lastDefDefault
-        self.fnName = fnName
-        self.varTypes = varTypes
+        self.last_definition_index = last_definition_index
+        self.next_definition_index = next_definition_index
+        self.last_definition_default = last_definition_default
+        self.function_name = function_name
+        self.variable_types = variable_types
         self.start = start
         self.scope_path = scope_path
-        self.lambdaStrings = lambdaStrings
+        self.lambda_strings = lambda_strings
 
     def copy(
         self,
-        lastDefs: Optional[Dict] = None,
-        nextDefs: Optional[Dict] = None,
-        lastDefDefault=None,
-        fnName=None,
-        varTypes: Optional[Dict] = None,
+        last_definition_index: Optional[Dict] = None,
+        next_definition_index: Optional[Dict] = None,
+        last_definition_default=None,
+        function_name=None,
+        variable_types: Optional[Dict] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
-        lambdaStrings: Optional[List[str]] = None,
+        lambda_strings: Optional[List[str]] = None,
     ):
-        return PGMState(
-            self.lambdaStrings if lambdaStrings is None else lambdaStrings,
-            self.lastDefs if lastDefs == None else lastDefs,
-            self.nextDefs if nextDefs == None else nextDefs,
-            self.lastDefDefault if lastDefDefault == None else lastDefDefault,
-            self.fnName if fnName == None else fnName,
-            self.varTypes if varTypes == None else varTypes,
-            self.start if start == None else start,
-            self.scope_path if scope_path == None else scope_path,
+        return GrFNState(
+            self.lambda_strings if lambda_strings is None else lambda_strings,
+            self.last_definition_index if last_definition_index is None else
+            last_definition_index,
+            self.next_definition_index if next_definition_index is None else
+            next_definition_index,
+            self.last_definition_default if last_definition_default is None
+            else last_definition_default,
+            self.function_name if function_name is None else function_name,
+            self.variable_types if variable_types is None else variable_types,
+            self.start if start is None else start,
+            self.scope_path if scope_path is None else scope_path,
         )
 
 
 def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
-    Return a formatted dump of the tree in *node*. This is mainly useful for
-    debugging purposes. The returned string will show the names and the values
-    for fields. This makes the code impossible to evaluate, so if evaluation
-    is wanted *annotate_fields* must be set to False. Attributes such as line
-    numbers and column offsets are not dumped by default. If this is wanted,
-    *include_attributes* can be set to True.
+        Return a formatted dump of the tree in *node*. This is mainly useful for
+        debugging purposes. The returned string will show the names and the
+        values for fields. This makes the code impossible to evaluate,
+        so if evaluation is wanted *annotate_fields* must be set to False.
+        Attributes such as line numbers and column offsets are not dumped by
+        default. If this is wanted, *include_attributes* can be set to True.
     """
 
     def _format(node, level=0):
@@ -1734,21 +1737,23 @@ def get_path(fileName: str, instance: str):
 
 
 def create_grfn_dict(
-    lambdaFile: str,
+    lambda_file: str,
     asts: List,
     file_name: str,
     mode_mapper_dict: dict,
     save_file=False,
 ) -> Dict:
-    """ Create a Python dict representing the PGM, with additional metadata for
-    JSON output. """
+    """
+        Create a Python dict representing the GrFN, with additional metadata for
+        JSON output.
+    """
 
-    lambdaStrings = [
+    lambda_string_list = [
                     "from numbers import Real\n",
                     "import delphi.translators.for2py.math_ext as math\n\n"
     ]
 
-    state = PGMState(lambdaStrings)
+    state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
     pgm = generator.genPgm(asts, state, {}, "")[0]
@@ -1763,8 +1768,8 @@ def create_grfn_dict(
     # was created. It is stored in YYYMMDD format
     pgm["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
-    with open(lambdaFile, "w") as f:
-        f.write("".join(lambdaStrings))
+    with open(lambda_file, "w") as f:
+        f.write("".join(lambda_string_list))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
@@ -1781,7 +1786,7 @@ def generate_ast(filename: str):
     return ast.parse(tokenize.open(filename).read())
 
 
-def get_asts_from_files(file_list: List[str], printast=False):
+def get_asts_from_files(file_list: List[str], printast=False) -> List:
     """
         This function returns the AST of each python file in the
         python_file_list.
