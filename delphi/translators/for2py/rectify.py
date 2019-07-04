@@ -620,6 +620,8 @@ class RectifyOFPXML:
                             self.goto_under_if = True
 
                     else:
+                        # DEBUG
+                        print ("++CUR_ELEM: ", cur_elem.tag, cur_elem.attrib)
                         new_parent = current
                         # Reconstruction of statements
                         if (
@@ -640,6 +642,8 @@ class RectifyOFPXML:
                                     or "goto-move" in child.attrib
                             ):
                                 current.remove(cur_elem)
+                                # DEBUG
+                                print ("    --CUR_ELEM: ", cur_elem.tag, cur_elem.attrib)
 
                                 if (
                                         self.reconstruct_after_case_now
@@ -921,13 +925,16 @@ class RectifyOFPXML:
                     child, cur_elem, current, parent, traverse
                 )
             else:
-                if child.tag == "variable":
+                if (
+                    child.tag == "variable"
+                    and child.attrib
+                ):
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
                 else:
                     assert (
-                        False
+                        child.tag == "variable" 
                     ), f'In handle_tag_variables: "{child.tag}" not handled'
 
     def handle_tag_variable(
@@ -1012,6 +1019,8 @@ class RectifyOFPXML:
                                 not self.goto_target_lbl_after
                                 or lbl not in self.goto_target_lbl_after
                         ):
+                            # DEBUG
+                            print ("self.goto_label_with_case: ", self.goto_label_with_case)
 
                             self.goto_label_with_case[lbl] = "before"
                             # Since we want to handle label_after case before
@@ -3070,9 +3079,41 @@ class RectifyOFPXML:
                 stmts_follow_label
         )
 
+        # DEBUG
+        print ("\nRECONSTRUCT_GOTO_AFTER_LABEL========")
+        print ("self.reconstruct_after_case_now:", self.reconstruct_after_case_now)
+        print ("self.reconstruct_before_case_now: ", self.reconstruct_before_case_now)
+
+        # DEBUG
+        print ("\nRECONSTRUCT_GOTO_AFTER_LABEL========BEFORE")
+        print ("STMTS_FOLLOW_GOTO")
+        for stmt in stmts_follow_goto:
+            print ("STMT: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    CHILD: ", child.tag, child.attrib)
+        print ("STMTS_FOLLOW_LABEL")
+        for stmt in stmts_follow_label:
+            print ("STMT: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    CHILD: ", child.tag, child.attrib)
+
+
         # Check for the case where goto and label are
         # at different lexical levels
         self.handle_in_outward_movement(stmts_follow_goto, stmts_follow_label, parent)
+
+        # DEBUG
+        print ("\nRECONSTRUCT_GOTO_AFTER_LABEL========AFTER")
+        print ("STMTS_FOLLOW_GOTO")
+        for stmt in stmts_follow_goto:
+            print ("STMT: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    CHILD: ", child.tag, child.attrib)
+        print ("STMTS_FOLLOW_LABEL")
+        for stmt in stmts_follow_label:
+            print ("STMT: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    CHILD: ", child.tag, child.attrib)
 
         if not self.conditional_goto:
             declared_goto_flag_num = []
@@ -3098,7 +3139,6 @@ class RectifyOFPXML:
                         stmts_follow_label, next_goto, reconstructed_goto_elem, 
                         header, traverse, parent, i
             )
-
             # When unconditional goto, it generates 'goto_flag_i = False'
             # statement at the end of reconstrcted goto statement.
             # Else, nothing gets printed, but set self.conditional_goto to False
@@ -3112,6 +3152,23 @@ class RectifyOFPXML:
 
             if len(reconstructed_goto_elem) > 1:
                 stmts_follow_label = reconstructed_goto_elem[1]
+
+            # DEBUG
+            if len(reconstructed_goto_elem) > 2:
+                print ("\nRECONSTRUCTED_GOTO_ELEM[0]")
+                for stmt in reconstructed_goto_elem[0]:
+                    print ("STMT: ", stmt.tag, stmt.attrib)
+                    for child in stmt:
+                        print ("    CHILD: ", child.tag, child.attrib)
+                        for gchild in child:
+                            print ("        gCHILD: ", gchild.tag, gchild.attrib)
+                print ("\nRECONSTRUCTED_GOTO_ELEM[1]")
+                for stmt in reconstructed_goto_elem[1]:
+                    print ("STMT: ", stmt.tag, stmt.attrib)
+                    for child in stmt:
+                        print ("    CHILD: ", child.tag, child.attrib)
+                        for gchild in child:
+                            print ("        gCHILD: ", gchild.tag, gchild.attrib)
 
             self.encapsulate_under_do_while = False
 
@@ -3150,6 +3207,14 @@ class RectifyOFPXML:
         """
         stmts_follow_label = reconstruct_target['stmts-follow-label']
         number_of_gotos = reconstruct_target['count-gotos']
+
+        # DEBUG
+        print ("\nRECONSTRUCT_GOTO_BEFORE_LABEL")
+        print ("STMTS_FOLLOW_LABEL")
+        for stmt in stmts_follow_label:
+            print ("STMT: ", stmt.tag, stmt.attrib)
+            for child in stmt:
+                print ("    CHILD: ", child.tag, child.attrib)
 
         declared_label_flag_num = []
         self.generate_declaration_element(
@@ -3523,6 +3588,9 @@ class RectifyOFPXML:
             Returns:
                 None.
         """
+        # DEBUG
+        print ("\n")
+        print ("SELF.GOTO_LABEL_WITH_CASE: ", self.goto_label_with_case)
         body_levels = {}
         for goto_stmt in stmts_follow_goto:
             # If the statements are in different level,
@@ -3530,8 +3598,11 @@ class RectifyOFPXML:
             # so check such case and remove anything follow goto-stmt.
             if (
                 self.outward_move
-                and "generated-exit-stmt" not in goto_stmt.attrib
+                and ("generated-exit-stmt" not in goto_stmt.attrib
+                     and "goto-stmt" not in goto_stmt.attrib)
             ):
+                # DEBUG
+                print ("GOTO_STMT: ", goto_stmt.tag, goto_stmt.attrib)
                 stmts_follow_goto.remove(goto_stmt)
 
             if "goto-stmt" in goto_stmt.attrib:
@@ -3690,7 +3761,9 @@ class RectifyOFPXML:
                     # A case where outward movement goto handling is need
                     elif self.outward_move:
                         label_body_level = self.body_elem_holder[stmt.attrib['body-level']]
-                        # If goto is a conditional, but under else then
+                        # DEBUG
+                        print ("\nLABEL_BODY_LEVEL: ", label_body_level.attrib)
+                        # If goto is a conditional case, but under else then
                         # there is no header operation. Thus, we simply declare new boolean
                         # variable like a non-conditional goto, then use that variable to
                         # construct new if statement and nest statement under label.
@@ -3707,6 +3780,13 @@ class RectifyOFPXML:
                                 reconstructed_goto_elem
                             )
                         else:
+                            # DEBUG
+                            print ("RECONSTRUCT_STMTS_FOLLOW_LABEL_AFTER_CASE")
+                            for stmt in stmts_follow_label:
+                                print ("STMT: ", stmt.tag, stmt.attrib)
+                                for child in stmt:
+                                    print ("    CHILD: ", child.tag, child.attrib)
+
                             self.generate_if_element(
                                     header[0], label_body_level, stmts_follow_label, next_goto, True, None,
                                     None, None, None, traverse, reconstructed_goto_elem
@@ -3937,7 +4017,10 @@ class RectifyOFPXML:
             Returns:
                 None.
         """
-        goto_nest_if_elem = ET.SubElement(parent, "if")
+        # DEBUG
+        print ("\nPARENT: ", parent.tag, parent.attrib)
+
+        goto_nest_if_elem = ET.SubElement(parent, "if", {"parent":parent.attrib['parent']})
 
         header_elem = ET.SubElement(goto_nest_if_elem, "header")
 
@@ -3992,7 +4075,6 @@ class RectifyOFPXML:
                                 self.statements_to_reconstruct_before['stmts-follow-label'] = []
                                 self.current_label = stmt.attrib['label']
                         if label_before_within_scope:
-                            # del stmt.attrib['goto-remove']
                             self.statements_to_reconstruct_before[
                                 'stmts-follow-label'].append(stmt)
                             for child in stmt:
@@ -4056,7 +4138,22 @@ class RectifyOFPXML:
                             next_goto.append(goto_stmt)
                     statement_num += 1
 
-        if self.encapsulate_under_do_while:
+        if (
+            self.encapsulate_under_do_while
+            and (
+                    (
+                        goto_nest_if_elem.attrib['parent'] != "program"
+                        and self.outward_move
+                    )
+                    or (
+                        goto_nest_if_elem.attrib['parent'] == "program"
+                        and not self.outward_move
+                    )
+            )
+        ):
+            # DEBUG
+            print ("###### GOTO_NEST_IF_ELEM: ", goto_nest_if_elem.tag, goto_nest_if_elem.attrib)
+            print ("###### SELF.OUTWARD_MOVE: ", self.outward_move)
             goto_nest_if_elem.attrib['goto-move'] = "true"
             reconstructed_goto_elem.append(goto_nest_if_elem)
             parent.remove(goto_nest_if_elem)
