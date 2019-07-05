@@ -175,10 +175,7 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
         country = kwargs["country"]
     else:
         country = "South Sudan"
-    if "state" in kwargs:
-        state = kwargs["state"]
-    else:
-        state = None
+    state = kwargs.get("state")
 
     return {
         n[0]: {
