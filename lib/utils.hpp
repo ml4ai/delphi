@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <nlohmann/json.hpp>
+#include "../external/nlohmann/json.hpp"
 
 namespace utils {
 template <class T> void print(T x) { std::cout << x << std::endl; }
