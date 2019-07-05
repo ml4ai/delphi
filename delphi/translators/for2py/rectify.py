@@ -642,6 +642,14 @@ class RectifyOFPXML:
                             self.goto_under_if = True
 
                     else:
+                        # A Checker for whethter current statement is
+                        # nested under the loop.
+                        if "body-level" in cur_elem.attrib:
+                            if cur_elem.attrib['body-level'] == "loop":
+                                self.goto_under_loop = True
+                            else:
+                                self.goto_under_loop = False
+
                         new_parent = current
                         # Reconstruction of statements
                         if (
@@ -3173,9 +3181,14 @@ class RectifyOFPXML:
         stmts_follow_label = reconstruct_target['stmts-follow-label']
         number_of_gotos = reconstruct_target['count-gotos']
 
+        # This removes the statement that's a child statement of
+        # if body being seprately re-added to the list.
         prev_stmt = None
         for stmt in stmts_follow_label:
             if prev_stmt != None:
+                # This statement always appears right before
+                # the if-statement, so check this condition
+                # and remove it from the list.
                 if (
                     stmt.tag == "if"
                     and (prev_stmt.tag == "statement"
@@ -3597,6 +3610,8 @@ class RectifyOFPXML:
 
                                 if label_body_level != "loop":
                                     self.goto_under_loop = False
+                                else:
+                                    self.goto_under_loop = True
 
     def reconstruct_next_goto(self, next_goto, reconstructed_goto_elem, parent):
         """
