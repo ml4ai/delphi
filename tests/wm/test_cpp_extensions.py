@@ -17,8 +17,8 @@ def test_simple_path_construction():
 
     G.add_edge(0,1)
     G.add_edge(1,2)
-    G.add_edge(1,3)
-    G.add_edge(2,3)
+    #G.add_edge(1,3)
+    #G.add_edge(2,3)
     G.add_edge(0,2)
     G.add_edge(3,1) # Creates a loop 1 -> 2 -> 3 -> 1
 
@@ -27,3 +27,6 @@ def test_simple_path_construction():
 
     G.all_paths()
     G.print_all_paths()
+
+    G.print_cells_affected_by_beta( 0, 1 )
+    G.print_cells_affected_by_beta( 1, 2 )

@@ -19,5 +19,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("all_paths", &AnalysisGraph::all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       .def("simple_paths", &AnalysisGraph::simple_paths)
+      .def("print_cells_affected_by_beta", &AnalysisGraph::print_cells_affected_by_beta)
     ;
 }
