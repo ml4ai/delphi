@@ -3183,57 +3183,24 @@ class RectifyOFPXML:
 
         # This removes the statement that's a child statement of
         # if body being seprately re-added to the list.
-        prev_stmt = None
-        for stmt in stmts_follow_label:
-            if prev_stmt != None:
-                # This statement always appears right before
-                # the if-statement, so check this condition
-                # and remove it from the list.
-                if (
-                    stmt.tag == "if"
-                    and (prev_stmt.tag == "statement"
-                         and prev_stmt.attrib['body-level'] == "if")
-                ):
-                    stmts_follow_label.remove(prev_stmt)
-            prev_stmt = stmt
+        self.remove_dup_stmt(stmts_follow_label)
 
+        # Declare label flag for loop condition
         declared_label_flag_num = []
         self.generate_declaration_element(
             parent, "label_flag", number_of_gotos,
             declared_label_flag_num, traverse
         )
 
-        # Find the scope from label to goto.
-        # Remove any statements that are not within the scope.
-        index = 0
-        goto_counter = 0
+        # Find the boundary from label to goto.
+        # Remove any statements that are not within the boundary.
         goto_index_holder = []
-        target_label_lbl = None
-        for stmt in stmts_follow_label:
-            if (
-                    index == 0
-                    and "label" in stmt.attrib
-            ):
-                target_label_lbl = stmt.attrib['label']
-            for child in stmt:
-                if (
-                        child.tag == "goto-stmt"
-                        and child.attrib['target_label'] == target_label_lbl
-                ):
-                    goto_counter += 1
-                    goto_index_holder.append(index)
-            if goto_counter == number_of_gotos:
-                break
-            index += 1
-
-        statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
-        for stmt in statements_to_recover:
-            if (
-                    stmt.tag == "if"
-                    and "conditional-goto-stmt-lbl" in stmt.attrib
-            ):
-                statements_to_recover.remove(stmt)
-        del stmts_follow_label[index + 1:len(stmts_follow_label)]
+        target_label_lbl = [None]
+        statements_to_recover =\
+            self.boundary_identifier_for_backward_goto(
+                    stmts_follow_label, goto_index_holder,
+                    number_of_gotos, target_label_lbl
+            )
 
         # In case of multiple goto statements appears,
         # slice them into N number of list objects
@@ -3241,152 +3208,26 @@ class RectifyOFPXML:
         # is represented by the increament of index
         # i.e. [0]: innermost, [N]: Outermost
         multiple_goto_stmts = []
-        for i in range(len(goto_index_holder)):
-            if i == 0:
-                multiple_goto_stmts.append(
-                    stmts_follow_label[0:goto_index_holder[i] + 1]
-                )
-            else:
-                if i + 1 < len(goto_index_holder):
-                    multiple_goto_stmts.append(
-                        stmts_follow_label[
-                        goto_index_holder[i - 1] + 1:goto_index_holder[
-                                                         i + 1] + 1]
-                    )
-                else:
-                    multiple_goto_stmts.append(
-                        stmts_follow_label[
-                        goto_index_holder[i - 1] + 1:goto_index_holder[-1] + 1]
-                    )
+        self.multiple_goto_identifier(
+                goto_index_holder, multiple_goto_stmts,
+                stmts_follow_label
+        )
 
-        # Check whether there is inner label_after
+        # Check whether there is nested label_after
         # case goto statements. Handles one case
-        # at a time
-        inner_gotos_exist = False
-        labels = []
-        index_scope = []
-        for goto in multiple_goto_stmts:
-            index = 0
-            main_loop_lbl = goto[0].attrib['label']
-            label_after_lbl = None
-            for stmt in goto:
-                if "label" in stmt.attrib:
-                    labels.append(stmt.attrib["label"])
-                    if stmt.attrib["label"] == label_after_lbl:
-                        index_scope.append(index)
-                if "goto-stmt" in stmt.attrib:
-                    if (
-                            main_loop_lbl != stmt.attrib['lbl']
-                            and stmt.attrib['lbl'] not in labels
-                    ):
-                        inner_gotos_exist = True
-                        label_after_lbl = stmt.attrib['lbl']
-                        index_scope.append(index)
-                index += 1
+        # at a time.
+        nested_gotos_exist =\
+                self.nested_forward_goto_identifier(multiple_goto_stmts)
 
         # Generate loop ast
-        cur_elem_parent = parent
-        current_goto_num = 1
-        end_of_current_goto_loop = False
-        for i in range(number_of_gotos):
-            loop_elem = ET.SubElement(cur_elem_parent, "loop",
-                                      {"type": "do-while"})
+        self.construct_goto_loop(
+                parent, reconstruct_target, 
+                nested_gotos_exist, multiple_goto_stmts, 
+                number_of_gotos, declared_label_flag_num, 
+                traverse, target_label_lbl)
 
-            header_elem = ET.SubElement(loop_elem, "header")
-            # The outermost flag == N and the innermost flag == 1
-            flag_num = declared_label_flag_num[i]
-            name = f"label_flag_{str(flag_num)}"
-            name_attrib = {
-                "hasSubscripts": "false",
-                "id": name,
-                "type": "ambiguous",
-            }
-            name_elem = ET.SubElement(header_elem, "name", name_attrib)
-            flag_name = name
-            body_elem = ET.SubElement(loop_elem, "body")
-            # Keep a track of the parent and grandparent elements
-            grand_parent_elem = cur_elem_parent
-            cur_elem_parent = body_elem
-            # Since reconstruction of multiple goto is done from outermost
-            # to the inner, we are not constructing any subelements until
-            # all encapsulating loops are created first
-            if current_goto_num == number_of_gotos:
-                for statements in multiple_goto_stmts:
-                    index = 0
-                    for stmt in statements:
-                        if len(stmt) > 0:
-                            if inner_gotos_exist:
-                                reconstruct_target['stmts-follow-goto'] \
-                                    = statements[index_scope[0]:index_scope[1]]
-                                reconstruct_target['stmts-follow-label'] \
-                                    = statements[index_scope[1]]
-                                reconstruct_target['count-gotos'] \
-                                    = 1
-
-                                self.reconstruct_goto_after_label(
-                                    body_elem, traverse, reconstruct_target
-                                )
-
-                                self.statements_to_reconstruct_after[
-                                    'stmts-follow-goto'] = []
-                                inner_gotos_exist = False
-                            else:
-                                elems = ET.SubElement(
-                                    body_elem, stmt.tag, stmt.attrib
-                                )
-                                for child in stmt:
-                                    if (
-                                            child.tag == "goto-stmt"
-                                            and target_label_lbl ==
-                                            child.attrib['target_label']
-                                    ):
-                                        # Conditional
-                                        if "conditional-goto-stmt" in stmt.attrib:
-                                            self.generate_assignment_element(
-                                                elems, flag_name,
-                                                self.conditional_op, None, None,
-                                                traverse
-                                            )
-                                        # Unconditional
-                                        else:
-                                            self.generate_assignment_element(
-                                                elems, flag_name, None,
-                                                "literal", "true", traverse
-                                            )
-                                        end_of_current_goto_loop = True
-                                    else:
-                                        child_elem = ET.SubElement(
-                                            elems, child.tag, child.attrib
-                                        )
-                                        if len(child) > 0:
-                                            self.parseXMLTree(
-                                                child, child_elem, elems,
-                                                parent, traverse
-                                            )
-                        # If end_of_current_goto_loop is True,
-                        # escape one loop out to continue
-                        # construct statements
-                        if end_of_current_goto_loop:
-                            body_elem = grand_parent_elem
-                            end_of_current_goto_loop = False
-                            flag_name = f"label_flag_" \
-                                f"{str(number_of_gotos + i - 1)}"
-                    index += 1
-            else:
-                current_goto_num += 1
-
-        for recover_stmt in statements_to_recover:
-            statement = ET.SubElement(
-                parent, recover_stmt.tag, recover_stmt.attrib
-            )
-            for child in recover_stmt:
-                child_elem = ET.SubElement(
-                    statement, child.tag, child.attrib
-                )
-                if len(child) > 0:
-                    self.parseXMLTree(
-                        child, child_elem, statement, parent, traverse
-                    )
+        # Recover rest of the statements
+        self.statement_recovery(statements_to_recover, parent, traverse)
 
         # Set all holders and checkers (markers) to default
         self.label_before = False
@@ -3395,7 +3236,7 @@ class RectifyOFPXML:
         self.label_lbl_for_before.clear()
         self.statements_to_reconstruct_before['stmts-follow-label'] = []
         self.statements_to_reconstruct_before['count-gotos'] = 0
-
+        
     def reconstruct_header(
             self, temp_elem_holder, parent
     ):
@@ -3763,6 +3604,7 @@ class RectifyOFPXML:
                     # A case where inward movement goto handling is need
                     else:
                         pass
+
 
     #################################################################
     #                                                               #
@@ -4333,6 +4175,308 @@ class RectifyOFPXML:
                     del boundary_for_label[label]
                 else:
                     stmt.attrib['parent-goto'] = "none"
+
+    def remove_dup_stmt(self, stmts_follow_label):
+        """
+            This removes the statement that's a child statement of
+            if body being seprately re-added to the list.
+
+            Args:
+               stmts_follow_label (:obj: 'ET'): A list that holds
+               statements appeard under the label-statement for
+               reconstruction.
+
+            Returns:
+                None.
+        """
+        prev_stmt = None
+        for stmt in stmts_follow_label:
+            if prev_stmt != None:
+                # This statement always appears right before
+                # the if-statement, so check this condition
+                # and remove it from the list.
+                if (
+                    stmt.tag == "if"
+                    and (prev_stmt.tag == "statement"
+                         and prev_stmt.attrib['body-level'] == "if")
+                ):
+                    stmts_follow_label.remove(prev_stmt)
+            prev_stmt = stmt
+
+    def boundary_identifier_for_backward_goto(
+            self, stmts_follow_label, goto_index_holder,
+            number_of_gotos, target_label_lbl
+    ):
+        """
+            This function identifies the boundary from label to goto.
+            Remove any statements that are not within the boundary.
+            Then, store those removed statements seprately for later
+            restoration.
+
+            Args:
+                stmts_follow_label (list): A list holding the
+                statements that appear after the label-statement
+                for reconstruction.
+                goto_index_holder (list): A list of index of goto
+                in the stmts_follow_label.
+                number_of_gotos (int): Number of gotos in the
+                stmts_follow_label.
+                target_label_lbl (list): A list that should
+                only hold one value of label-stmt's label value.
+
+            Returns:
+                (list): A list of statements that requires
+                restoration after loop generation.
+        """
+        index = 0
+        goto_counter = 0
+        for stmt in stmts_follow_label:
+            if (
+                    index == 0
+                    and "label" in stmt.attrib
+            ):
+                target_label_lbl[0] = stmt.attrib['label']
+            for child in stmt:
+                if (
+                        child.tag == "goto-stmt"
+                        and child.attrib['target_label'] == target_label_lbl[0]
+                ):
+                    goto_counter += 1
+                    goto_index_holder.append(index)
+            if goto_counter == number_of_gotos:
+                break
+            index += 1
+
+        statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
+        for stmt in statements_to_recover:
+            if (
+                    stmt.tag == "if"
+                    and "conditional-goto-stmt-lbl" in stmt.attrib
+            ):
+                statements_to_recover.remove(stmt)
+        del stmts_follow_label[index + 1:len(stmts_follow_label)]
+
+        return statements_to_recover
+
+    def multiple_goto_identifier ( 
+            self, goto_index_holder,
+            multiple_goto_stmts, stmts_follow_label
+    ):
+        """
+            This function identifies any additional goto
+            statements may appear within the boundary of
+            currently handling backward goto case.
+
+            Args:
+                stmts_follow_label (list): A list holding the
+                statements that appear after the label-statement
+                for reconstruction.
+                goto_index_holder (list): A list of index of goto
+                in the stmts_follow_label.
+                multiple_goto_stmts (list): A list that will hold
+                additional gotos within the boundary of current
+                goto.
+
+            Returns:
+                None.
+        """
+        for i in range(len(goto_index_holder)):
+            if i == 0:
+                multiple_goto_stmts.append(
+                    stmts_follow_label[0:goto_index_holder[i] + 1]
+                )
+            else:
+                if i + 1 < len(goto_index_holder):
+                    multiple_goto_stmts.append(
+                        stmts_follow_label[
+                        goto_index_holder[i - 1] + 1:goto_index_holder[
+                                                         i + 1] + 1]
+                    )
+                else:
+                    multiple_goto_stmts.append(
+                        stmts_follow_label[
+                        goto_index_holder[i - 1] + 1:goto_index_holder[-1] + 1]
+                    )
+
+    def nested_forward_goto_identifier(self, multiple_goto_stmts):
+        """
+            This function identifies any existing forward
+            goto case nested under the backward goto case.
+
+            Args:
+                multiple_goto_stmts (list): A list that will hold
+                additional gotos within the boundary of current
+                goto.
+                index_boundary (list): A list that will hold
+                the indices of label of <label> and <goto-stmt>.
+
+            Returns:
+                (bool): A boolean status indicating whether the
+                nested forward goto exists within the boundary.
+        """
+        labels = []
+        index_boundary = []
+        nested_gotos_exist = False
+        for goto in multiple_goto_stmts:
+            index = 0
+            main_loop_lbl = goto[0].attrib['label']
+            label_after_lbl = None
+            for stmt in goto:
+                if "label" in stmt.attrib:
+                    labels.append(stmt.attrib["label"])
+                    if stmt.attrib["label"] == label_after_lbl:
+                        index_boundary.append(index)
+                if "goto-stmt" in stmt.attrib:
+                    if (
+                            main_loop_lbl != stmt.attrib['lbl']
+                            and stmt.attrib['lbl'] not in labels
+                    ):
+                        nested_gotos_exist = True
+                        label_after_lbl = stmt.attrib['lbl']
+                        index_boundary.append(index)
+                index += 1
+
+        return nested_gotos_exist
+
+    def construct_goto_loop(
+            self, parent, reconstruct_target, nested_gotos_exist, 
+            multiple_goto_stmts, number_of_gotos, declared_label_flag_num, 
+            traverse, target_label_lbl
+    ):
+        """
+            This function constructs loop syntax tree for goto
+            backward case.
+
+            Args:
+                parent (:obj: 'ET'): Parent element of loop.
+                reconstruct_target (dict): A dictionary that
+                will hold nested goto statement.
+                nested_gotos_exist (bool): Boolean to indicating
+                whether nested goto exists or not.
+                multiple_goto_stmts (list): A list of goto and other
+                statements.
+                number_of_gotos (int): Number of gotos to reconstruct.
+                declared_label_flag_num (list): List of flag numbers.
+                traverse (int): Current traverse counter.
+                target_label_lbl (list): A single value list that
+                holds the label value of <label>.
+
+            Returns:
+                None.
+        """
+        cur_elem_parent = parent
+        current_goto_num = 1
+        end_of_current_goto_loop = False
+        for i in range(number_of_gotos):
+            loop_elem = ET.SubElement(cur_elem_parent, "loop",
+                                      {"type": "do-while"})
+
+            header_elem = ET.SubElement(loop_elem, "header")
+            # The outermost flag == N and the innermost flag == 1
+            flag_num = declared_label_flag_num[i]
+            name = f"label_flag_{str(flag_num)}"
+            name_attrib = {
+                "hasSubscripts": "false",
+                "id": name,
+                "type": "ambiguous",
+            }
+            name_elem = ET.SubElement(header_elem, "name", name_attrib)
+            flag_name = name
+            body_elem = ET.SubElement(loop_elem, "body")
+            # Keep a track of the parent and grandparent elements
+            grand_parent_elem = cur_elem_parent
+            cur_elem_parent = body_elem
+            # Since reconstruction of multiple goto is done from outermost
+            # to the inner, we are not constructing any subelements until
+            # all encapsulating loops are created first
+            if current_goto_num == number_of_gotos:
+                for statements in multiple_goto_stmts:
+                    index = 0
+                    for stmt in statements:
+                        if len(stmt) > 0:
+                            if nested_gotos_exist:
+                                reconstruct_target['stmts-follow-goto'] \
+                                    = statements[index_scope[0]:index_scope[1]]
+                                reconstruct_target['stmts-follow-label'] \
+                                    = statements[index_scope[1]]
+                                reconstruct_target['count-gotos'] \
+                                    = 1
+
+                                self.reconstruct_goto_after_label(
+                                    body_elem, traverse, reconstruct_target
+                                )
+
+                                self.statements_to_reconstruct_after[
+                                    'stmts-follow-goto'] = []
+                                nested_gotos_exist = False
+                            else:
+                                elems = ET.SubElement(
+                                    body_elem, stmt.tag, stmt.attrib
+                                )
+                                for child in stmt:
+                                    if (
+                                            child.tag == "goto-stmt"
+                                            and target_label_lbl[0] ==
+                                            child.attrib['target_label']
+                                    ):
+                                        # Conditional
+                                        if "conditional-goto-stmt" in stmt.attrib:
+                                            self.generate_assignment_element(
+                                                elems, flag_name,
+                                                self.conditional_op, None, None,
+                                                traverse
+                                            )
+                                        # Unconditional
+                                        else:
+                                            self.generate_assignment_element(
+                                                elems, flag_name, None,
+                                                "literal", "true", traverse
+                                            )
+                                        end_of_current_goto_loop = True
+                                    else:
+                                        child_elem = ET.SubElement(
+                                            elems, child.tag, child.attrib
+                                        )
+                                        if len(child) > 0:
+                                            self.parseXMLTree(
+                                                child, child_elem, elems,
+                                                parent, traverse
+                                            )
+                        # If end_of_current_goto_loop is True,
+                        # escape one loop out to continue
+                        # construct statements
+                        if end_of_current_goto_loop:
+                            body_elem = grand_parent_elem
+                            end_of_current_goto_loop = False
+                            flag_name = f"label_flag_" \
+                                f"{str(number_of_gotos + i - 1)}"
+                    index += 1
+
+            else:
+                    current_goto_num += 1
+
+    def statement_recovery(self, statements_to_recover, parent, traverse):
+        """
+            This function is for recovering any existing statements
+            that follow reconstructed loop.
+
+            Args:
+                statements_to_recover (list): A list of statements.
+                parent (:obj: 'ET'): A prent element.
+                traverse (int): Current traverse counter.
+        """
+        for recover_stmt in statements_to_recover:
+            statement = ET.SubElement(
+                parent, recover_stmt.tag, recover_stmt.attrib
+            )
+            for child in recover_stmt:
+                child_elem = ET.SubElement(
+                    statement, child.tag, child.attrib
+                )
+                if len(child) > 0:
+                    self.parseXMLTree(
+                        child, child_elem, statement, parent, traverse
+                        )
 
 
 #################################################################
