@@ -3159,7 +3159,6 @@ class RectifyOFPXML:
         self.label_lbl_for_after.clear()
         self.statements_to_reconstruct_after.clear()
 
-
     def reconstruct_goto_before_label(
             self, parent, traverse, reconstruct_target
     ):
@@ -4104,6 +4103,12 @@ class RectifyOFPXML:
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
+    #################################################################
+    #                                                               #
+    #               GOTO ELIMINATION HELPER FUNCTIONS               #
+    #                                                               #
+    #################################################################
+
     def case_availability(self, boundary):
         """
             This function checks for the goto cases in the code based
@@ -4395,19 +4400,10 @@ class RectifyOFPXML:
                     for stmt in statements:
                         if len(stmt) > 0:
                             if nested_gotos_exist:
-                                reconstruct_target['stmts-follow-goto'] \
-                                    = statements[index_scope[0]:index_scope[1]]
-                                reconstruct_target['stmts-follow-label'] \
-                                    = statements[index_scope[1]]
-                                reconstruct_target['count-gotos'] \
-                                    = 1
-
-                                self.reconstruct_goto_after_label(
-                                    body_elem, traverse, reconstruct_target
+                                self.nested_goto_handler(
+                                        reconstruct_target, statements,
+                                        body_elem, traverse
                                 )
-
-                                self.statements_to_reconstruct_after[
-                                    'stmts-follow-goto'] = []
                                 nested_gotos_exist = False
                             else:
                                 elems = ET.SubElement(
@@ -4455,7 +4451,40 @@ class RectifyOFPXML:
             else:
                     current_goto_num += 1
 
-    def statement_recovery(self, statements_to_recover, parent, traverse):
+    def nested_goto_handler (
+                self, reconstruct_target, statements, 
+                body_elem, traverse
+    ):
+        """
+            This function collects forward goto case
+            related statements under the backward goto
+            boundary. Then, it calls goto_after function
+            to reconstruct goto.
+
+            Args:
+                reconstruct_target (list): A list that holds
+                statements for reconstruction.
+                statements (:obj: 'ET'): Statements for
+                reconstructions.
+                body_elem (:obj: 'ET'): Body element of
+                the loop.
+                traverse (int): Current traverse counter. 
+        """
+        reconstruct_target['stmts-follow-goto'] \
+            = statements[index_scope[0]:index_scope[1]]
+        reconstruct_target['stmts-follow-label'] \
+            = statements[index_scope[1]]
+        reconstruct_target['count-gotos'] \
+            = 1
+
+        self.reconstruct_goto_after_label(
+            body_elem, traverse, reconstruct_target
+        )
+
+        self.statements_to_reconstruct_after[
+            'stmts-follow-goto'] = []
+
+    def statement_recovery (self, statements_to_recover, parent, traverse):
         """
             This function is for recovering any existing statements
             that follow reconstructed loop.
