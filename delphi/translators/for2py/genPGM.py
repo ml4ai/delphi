@@ -17,6 +17,12 @@ import operator
 import os
 import uuid
 
+###########################################################################
+#                                                                         #
+#                            GLOBAL VARIABLES                             #
+#                                                                         #
+###########################################################################
+
 # The BINOPS dictionary holds operators for all the arithmetic and
 # comparative functions
 BINOPS = {
@@ -29,6 +35,8 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
+# The ANNOTATE_MAP dictionary is used to map Python ast data types into data
+# types for the lambdas
 ANNOTATE_MAP = {
     "real": "Real",
     "integer": "int",
@@ -37,6 +45,8 @@ ANNOTATE_MAP = {
     "bool": "bool",
 }
 
+# This dictionary helps in reverse mapping the data types for internal
+# computations
 REVERSE_ANNOTATE_MAP = {
     "float": "real",
     "Real": "real",
@@ -63,8 +73,54 @@ UNNECESSARY_TYPES = (
 BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
             r"^write_line$|^format_\d+_obj" \
             r".*|^Format$|^list_output_formats$|^write_list_stream$"
-
 RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
+
+
+class GrFNState:
+    def __init__(
+        self,
+        lambda_strings: Optional[List[str]],
+        last_definition_index: Optional[Dict] = {},
+        next_definition_index: Optional[Dict] = {},
+        last_definition_default=0,
+        function_name=None,
+        variable_types: Optional[Dict] = {},
+        start: Optional[Dict] = {},
+        scope_path: Optional[List] = [],
+    ):
+        self.lambda_strings = lambda_strings
+        self.last_definition_index = last_definition_index
+        self.next_definition_index = next_definition_index
+        self.last_definition_default = last_definition_default
+        self.function_name = function_name
+        self.variable_types = variable_types
+        self.start = start
+        self.scope_path = scope_path
+
+    def copy(
+        self,
+        lambda_strings: Optional[List[str]] = None,
+        last_definition_index: Optional[Dict] = None,
+        next_definition_index: Optional[Dict] = None,
+        last_definition_default=None,
+        function_name=None,
+        variable_types: Optional[Dict] = None,
+        start: Optional[Dict] = None,
+        scope_path: Optional[List] = None,
+    ):
+        return GrFNState(
+            self.lambda_strings if lambda_strings is None else lambda_strings,
+            self.last_definition_index if last_definition_index is None else
+            last_definition_index,
+            self.next_definition_index if next_definition_index is None else
+            next_definition_index,
+            self.last_definition_default if last_definition_default is None
+            else last_definition_default,
+            self.function_name if function_name is None else function_name,
+            self.variable_types if variable_types is None else variable_types,
+            self.start if start is None else start,
+            self.scope_path if scope_path is None else scope_path,
+        )
 
 
 class GrFNGenerator(object):
@@ -1428,52 +1484,6 @@ class GrFNGenerator(object):
                     state.varTypes[variable] = REVERSE_ANNOTATE_MAP[type]
 
 
-class GrFNState:
-    def __init__(
-        self,
-        lambda_strings: Optional[List[str]],
-        last_definition_index: Optional[Dict] = {},
-        next_definition_index: Optional[Dict] = {},
-        last_definition_default=0,
-        function_name=None,
-        variable_types: Optional[Dict] = {},
-        start: Optional[Dict] = {},
-        scope_path: Optional[List] = [],
-    ):
-        self.last_definition_index = last_definition_index
-        self.next_definition_index = next_definition_index
-        self.last_definition_default = last_definition_default
-        self.function_name = function_name
-        self.variable_types = variable_types
-        self.start = start
-        self.scope_path = scope_path
-        self.lambda_strings = lambda_strings
-
-    def copy(
-        self,
-        last_definition_index: Optional[Dict] = None,
-        next_definition_index: Optional[Dict] = None,
-        last_definition_default=None,
-        function_name=None,
-        variable_types: Optional[Dict] = None,
-        start: Optional[Dict] = None,
-        scope_path: Optional[List] = None,
-        lambda_strings: Optional[List[str]] = None,
-    ):
-        return GrFNState(
-            self.lambda_strings if lambda_strings is None else lambda_strings,
-            self.last_definition_index if last_definition_index is None else
-            last_definition_index,
-            self.next_definition_index if next_definition_index is None else
-            next_definition_index,
-            self.last_definition_default if last_definition_default is None
-            else last_definition_default,
-            self.function_name if function_name is None else function_name,
-            self.variable_types if variable_types is None else variable_types,
-            self.start if start is None else start,
-            self.scope_path if scope_path is None else scope_path,
-        )
-
 
 def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
@@ -1717,23 +1727,21 @@ def make_call_body_dict(source):
 
 # Get the absolute path of the python files whose PGMs are being generated.
 # TODO: For now the path is started from the directory "for2py" but need further
-# discussion on this
+#  discussion on this
+def get_path(file_name: str, instance: str):
+    absolute_path = os.path.abspath(file_name)
 
-
-def get_path(fileName: str, instance: str):
-    absPath = os.path.abspath(fileName)
     if instance == "namespace":
-        if re.match(r".*\/(for2py\/.*).py$", absPath):
-            return (
-                re.match(r".*\/(for2py\/.*).py$", absPath).group(1).split("/")
-            )
-        else:
-            return fileName
+        path_match = re.match(r".*/(for2py/.*).py$", absolute_path)
     elif instance == "source":
-        if re.match(r".*\/(for2py\/.*$)", absPath):
-            return re.match(r".*\/(for2py\/.*$)", absPath).group(1).split("/")
-        else:
-            return fileName
+        path_match = re.match(r".*/(for2py/.*$)", absolute_path)
+    else:
+        path_match = None
+
+    if path_match:
+        return path_match.group(1).split("/")
+    else:
+        return file_name
 
 
 def create_grfn_dict(
@@ -1756,26 +1764,31 @@ def create_grfn_dict(
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
-    pgm = generator.genPgm(asts, state, {}, "")[0]
-    if pgm.get("start"):
-        pgm["start"] = pgm["start"][0]
+    grfn = generator.genPgm(asts, state, {}, "")[0]
+
+    # If the GrFN has a `start` node, it will refer to the name of the
+    # PROGRAM module which will be the entry point of the GrFN.
+    if grfn.get("start"):
+        grfn["start"] = grfn["start"][0]
     else:
-        pgm["start"] = generator.function_defs[-1]
+        # TODO: If the PROGRAM module is not detected, the entry point will be
+        #  the last function in the `funtction_defs` list of functions
+        grfn["start"] = generator.function_defs[-1]
 
-    pgm["source"] = [[get_path(file_name, "source")]]
+    grfn["source"] = [[get_path(file_name, "source")]]
 
-    # dateCreated stores the date and time on which the lambda and PGM file
-    # was created. It is stored in YYYMMDD format
-    pgm["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
+    # dateCreated stores the date and time on which the lambda and GrFN files
+    # were created. It is stored in the YYYMMDD format
+    grfn["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
     with open(lambda_file, "w") as f:
         f.write("".join(lambda_string_list))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(pgm, open(file_name[:file_name.rfind(".")] + ".json", "w"))
+        json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
-    return pgm
+    return grfn
 
 
 def generate_ast(filename: str):
