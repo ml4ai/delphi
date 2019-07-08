@@ -3,7 +3,8 @@ docs:
 
 extensions: 
 	mkdir -p build
-	cd build; cmake ..; make -j
+	cd build; conan install .. --build missing
+	cd build; cmake ..; cmake --build . -- -j8
 
 test: extensions
 	time pytest \
