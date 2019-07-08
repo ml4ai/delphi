@@ -25,7 +25,7 @@ def test_simple_path_construction():
     print( 'Edges of the graph:' )
     G.print_edges()
 
-    G.all_paths()
+    G.find_all_paths()
     G.print_all_paths()
 
     G.print_cells_affected_by_beta( 0, 1 )

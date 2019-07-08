@@ -4,6 +4,7 @@
 #include <numeric>
 #include <sqlite3.h>
 #include <utility>
+#include <Eigen/Dense>
 
 #include "cppitertools/itertools.hpp"
 #include <boost/graph/graph_traits.hpp>
@@ -116,9 +117,58 @@ class Tran_Mat_Cell {
         for( int v = 0; v < this->paths[p].size() - 1; v++ )
         {
           this->products[p] += 1;
-          
-          // Each β along this path is a factor of the product of this path.
-          this->beta2product.insert( make_pair( make_pair( paths[p][v], paths[p][v+1] ), &products[p]));
+        }
+      }
+
+      return accumulate( products.begin(), products.end(), 0 );
+    }
+
+
+   double sample_from_prior( const DiGraph &  CAG, int samp_num )
+    {
+      for( int p = 0; p < this->paths.size(); p++ )
+      {
+        this->products[p] = 1;
+
+        // Assume that none of the edges along this path has KDEs assigned.
+        // At the end of traversing this path, if that is the case, leaving
+        // the product for this path as 1 does not seem correct. In this case
+        // I feel that that best option is to make the product for this path 0.
+        bool hasKDE = false;
+
+        for( int v = 0; v < this->paths[p].size() - 1; v++ )
+        {
+          // Check wheather this edge has a KDE assigned to it
+          // TODO: Why does KDE of an edge is optional?
+          // I guess, there could be edges that do not have a KDE assigned.
+          // What should we do when one of more edges along a path does not have
+          // a KDE assigned?
+          // At the moment, the code silently skips that edge as if that edge
+          // does not exist in the path. Is this the correct thing to do?
+          // What happens when all the edges of a path do not have KDEs assigned?
+          if( CAG[boost::edge( v, v+1, CAG ).first].kde.has_value()) 
+          {
+            // Vector of all the samples for this edge
+            const vector<double> & samples = CAG[boost::edge( v, v+1, CAG ).first].kde.value().dataset;
+            
+            // Check whether we have enough samples to fulfil this request
+            if( samples.size() > samp_num )
+            {
+              this->products[p] *= CAG[boost::edge( v, v+1, CAG ).first].kde.value().dataset[ samp_num ];
+              hasKDE = true;
+            }
+            else
+            {
+              // What should we do if there is not enough samples generated for this path?
+            }
+          }
+        }
+
+        // If none of the edges along this path had a KDE assigned,
+        // make the contribution of this path to the value of the cell 0.
+        if( ! hasKDE )
+        {
+          this->products[p] = 0;
         }
       }
 
@@ -304,26 +354,26 @@ private:
    * Finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
    * Paths found are appended to the influenced_by data structure in the Node
-   * Uses all_paths_between_util() as a helper to recursively find the paths
+   * Uses find_all_paths_between_util() as a helper to recursively find the paths
    */
-  void all_paths_between(int start, int end) {
+  void find_all_paths_between(int start, int end) {
     // Mark all the vertices are not visited
     for_each(vertices(), [&](int v) { graph[v].visited = false; });
 
     // Create a vector of ints to store paths.
     vector< int > path;
 
-    all_paths_between_util(start, end, path);
+    find_all_paths_between_util(start, end, path);
   }
 
   /**
-   * Used by all_paths_between()
+   * Used by find_all_paths_between()
    * Recursively finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
    * Paths found are appended to the influenced_by data structure in the Node
    */
   void
-  all_paths_between_util(int start, int end, vector< int > &path) {
+  find_all_paths_between_util(int start, int end, vector< int > &path) {
     // Mark the current vertex visited
     graph[start].visited = true;
 
@@ -355,7 +405,7 @@ private:
           {
             if (!graph[v].visited) 
             {
-              all_paths_between_util(v, end, path);
+              find_all_paths_between_util(v, end, path);
             }
       });
     }
@@ -430,10 +480,13 @@ public:
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
 
+
   auto out_edges(int i) {
     return boost::make_iterator_range(boost::out_edges(i, graph));
   }
 
+
+  /*
   vector<std::pair<int, int>> simple_paths(int i, int j) {
     vector<std::pair<int, int>> paths = {};
     for (auto s : successors(i)) {
@@ -444,6 +497,9 @@ public:
     }
     return paths;
   }
+  */
+
+
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
@@ -478,10 +534,11 @@ public:
     }
   }
 
+
   /*
    * Find all the simple paths between all the paris of nodes of the graph
    */
-  void all_paths() {
+  void find_all_paths() {
     auto verts = vertices();
 
     // Allocate the 2D array that keeps track of the cells of the transitin matrix
@@ -496,7 +553,7 @@ public:
     for_each(verts, [&](int start) {
       for_each(verts, [&](int end) {
         if (start != end) {
-          all_paths_between(start, end);
+          find_all_paths_between(start, end);
         }
       });
     });
@@ -519,7 +576,7 @@ public:
   /*
    * Prints the simple paths found between all pairs of nodes of the graph
    * Groupd according to the starting and ending vertex.
-   * all_paths() should be called before this to populate the paths
+   * find_all_paths() should be called before this to populate the paths
    */
   void print_all_paths() {
     int num_verts = boost::num_vertices( graph );
