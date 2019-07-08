@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(delphi)
 
+set(CMAKE_CXX_STANDARD 17)
 set(Boost_INCLUDE_DIR /usr/local/Cellar/boost/1.70.0/include)
 set(Boost_LIBRARY_DIR /usr/local/Cellar/boost/1.70.0/lib)
 find_package(Boost)
