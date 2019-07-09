@@ -8,6 +8,7 @@ conan_basic_setup()
 # Add and link pybind11 modules
 include_directories(lib)
 include_directories(external)
+set(PYBIND11_PYTHON_VERSION 3.6 3.7)
 set(PYBIND11_CPP_STANDARD -std=c++17)
 add_subdirectory(external/pybind11)
 pybind11_add_module(kde lib/kde_wrapper.cpp)
