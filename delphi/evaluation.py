@@ -171,14 +171,8 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
         Returns dictionary object representing observed state.
     """
 
-    if "country" in kwargs:
-        country = kwargs["country"]
-    else:
-        country = "South Sudan"
-    if "state" in kwargs:
-        state = kwargs["state"]
-    else:
-        state = None
+    country = kwargs.get("country", "South Sudan")
+    state = kwargs.get("state")
 
     return {
         n[0]: {
@@ -317,18 +311,9 @@ def data_to_df(
         Pandas Dataframe containing true values for target node's indicator
         variable. The values are indexed by date.
     """
-    if "country" in kwargs:
-        country = kwargs["country"]
-    else:
-        country = "South Sudan"
-    if "state" in kwargs:
-        state = kwargs["state"]
-    else:
-        state = None
-    if "unit" in kwargs:
-        unit = kwargs["unit"]
-    else:
-        unit = None
+    country = kwargs.get("country", "South Sudan")
+    state = kwargs.get("state")
+    unit = kwargs.get("unit")
 
     n_timesteps = calculate_timestep(
         start_year, start_month, end_year, end_month
@@ -382,38 +367,33 @@ def train_model(
         None, sets training variables for CAG.
     """
 
-    if "country" in kwargs:
-        country = kwargs["country"]
-    else:
-        country = "South Sudan"
-    if "state" in kwargs:
-        state = kwargs["state"]
-    else:
-        state = None
-    if "units" in kwargs:
-        units = kwargs["units"]
-    else:
-        units = None
-    if "fallback_aggaxes" in kwargs:
-        fallback_aggaxes = kwargs["fallback_aggaxes"]
-    else:
-        fallback_aggaxes = ["year", "month"]
-    if "aggfunc" in kwargs:
-        aggfunc = kwargs["aggfunc"]
-    else:
-        aggfunc = np.mean
+    country = kwargs.get("country", "South Sudan")
+    state = kwargs.get("state")
+    units = kwargs.get("units")
+    fallback_aggaxes = kwargs.get("fallback_aggaxes", ["year", "month"])
+    aggfunc = kwargs.get("aggfunc", np.mean)
 
     G.res = res
     G.sample_from_prior()
-    G.parameterize(
-        country=country,
-        state=state,
-        year=start_year,
-        month=start_month,
-        units=units,
-        fallback_aggaxes=fallback_aggaxes,
-        aggfunc=aggfunc,
-    )
+    try:
+        G.parameterize(
+            country=country,
+            state=state,
+            year=start_year,
+            month=start_month,
+            units=units,
+            fallback_aggaxes=fallback_aggaxes,
+            aggfunc=aggfunc,
+        )
+    except KeyError:
+        print(
+            "Key Error most likely caused from passing incomplete",
+            "Causal Analysis Graph (CAG). Ensure that the passed CAG",
+            "has indicator variables mapped to nodes by calling",
+            "<CAG>.map_concepts_to_indicators().",
+        )
+        raise
+
 
     if start_month is None:
         start_month = 1

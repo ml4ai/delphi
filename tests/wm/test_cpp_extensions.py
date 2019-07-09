@@ -1,4 +1,5 @@
 from delphi.cpp.AnalysisGraph import AnalysisGraph
+import pytest
 
 def test_cpp_extensions():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")

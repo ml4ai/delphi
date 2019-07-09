@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 #include <pybind11/eigen.h>
 
-#include "cppitertools/itertools.hpp"
+#include "../external/cppitertools/itertools.hpp"
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
 
@@ -287,6 +287,7 @@ class AnalysisGraph {
   DiGraph graph;
 
 public:
+  AnalysisGraph() {}
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
