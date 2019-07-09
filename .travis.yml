@@ -16,6 +16,7 @@ addons:
     packages:
     - g++-9
     - graphviz
+    - doxygen
 
 install:
   - export CC=gcc-9
