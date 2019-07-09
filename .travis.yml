@@ -20,6 +20,7 @@ addons:
 install:
   - export CC=gcc-9
   - export CXX=g++-9
+  - export PYBIND11_PYTHON_VERSION=3.6
   - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
