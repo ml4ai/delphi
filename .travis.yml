@@ -42,7 +42,4 @@ deploy:
 
 after_success: bash <(curl -s https://codecov.io/bash)
 
-cache: 
-  - pip
-  directories:
-    - $HOME/.conan/data
+cache: pip
