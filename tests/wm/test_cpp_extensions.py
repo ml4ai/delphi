@@ -25,8 +25,15 @@ def test_simple_path_construction():
     print( 'Edges of the graph:' )
     G.print_edges()
 
-    G.all_paths()
+    G.find_all_paths()
     G.print_all_paths()
 
     G.print_cells_affected_by_beta( 0, 1 )
     G.print_cells_affected_by_beta( 1, 2 )
+    
+    G2 = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+    samples = G2.sample_from_prior()
+    
+    print( 'Nunber of samples from prior: ', len(samples) )
+    for i in range(5):
+        print( samples[i] )
