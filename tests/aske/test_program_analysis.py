@@ -90,6 +90,11 @@ def uncond_goto_python_IR_test():
 
 
 @pytest.fixture
+def diff_level_goto_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_09.f"))[0][0]
+
+
+@pytest.fixture
 def save_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f")
@@ -148,6 +153,13 @@ def test_unconditional_goto_pythonIR_generation(uncond_goto_python_IR_test):
     with open(f"{DATA_DIR}/goto/goto_08.py", "r") as f:
         python_src = f.read()
     assert uncond_goto_python_IR_test == python_src
+
+
+def test_unconditional_goto_pythonIR_generation(diff_level_goto_python_IR_test):
+    with open(f"{DATA_DIR}/goto/goto_09.py", "r") as f:
+        python_src = f.read()
+    assert diff_level_goto_python_IR_test == python_src
+
 
 def test_save_pythonIR_generation(save_python_IR_test):
     with open(f"{DATA_DIR}/save/simple_variables/save-02.py", "r") as f:
