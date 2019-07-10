@@ -3380,6 +3380,10 @@ class RectifyOFPXML:
                     if "skip-collect" not in stmt.attrib:
                         cur_elem = ET.SubElement (parent, stmt.tag, stmt.attrib)
                         self.parseXMLTree(stmt, cur_elem, stmt, parent, traverse)
+            else:
+                assert (
+                        False
+                ), "Currently inward movement for goto is not being handled."
         else:
             self.generate_if_element(
                 None, parent, stmts_follow_goto, next_goto, True, "unary",
