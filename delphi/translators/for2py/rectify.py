@@ -2009,7 +2009,7 @@ class RectifyOFPXML:
                     current.attrib.update(child.attrib)
                 else:
                     assert (
-                        False,
+                        False
                     ), f'In handle_tag_open: Empty elements "{child.tag}" not handled'
 
     def handle_tag_keyword_arguments(
