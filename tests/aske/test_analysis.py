@@ -9,6 +9,8 @@ from delphi.GrFN.sensitivity import FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
 from test_GrFN import petpt_grfn, petasce_grfn
 
+import numpy as np
+
 
 sys.path.insert(0, "tests/data/program_analysis")
 
@@ -217,7 +219,8 @@ def test_FIB_execution(petpt_grfn, petasce_grfn):
     }
 
     res = petpt_fib.run(pt_inputs, {})
-    assert res == 0.02998371219618677
+    assert res == np.float32(0.029983712)
 
     res = petasce_fib.run(asce_inputs, asce_covers)
-    assert res == 0.00012496980836348878
+    print(res)
+    assert res == np.float32(0.00012496980836348878)

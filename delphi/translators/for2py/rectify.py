@@ -143,7 +143,7 @@ class RectifyOFPXML:
         # Keeps track of subscripts of arrays
         self.subscripts_holder = []
         # Holds format XML for later reconstruction
-        self.format_holder = ET.Element('')
+        self.format_holder = []
         # Holds a type of parent element's type element
         self.parent_type = ET.Element('')
         # Holds XML of derived type reference for later reconstruction
@@ -354,6 +354,13 @@ class RectifyOFPXML:
         "equiv-operand",
         "saved-entity-list__begin",
         "saved-entity-list",
+        "access-id",
+    ]
+
+    output_child_tags = [
+        "name",
+        "literal",
+        "operation",
     ]
 
     #################################################################
@@ -653,7 +660,7 @@ class RectifyOFPXML:
                 if child.tag in self.declaration_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -764,19 +771,28 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
-            elif child.tag == "intrinsic-type-spec":
-                if self.is_derived_type:
-                    self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "derived-type-stmt"
-                    and self.is_derived_type
-            ):
+            elif child.tag == "derived-type-stmt":
+                # If child.tag is derived-type-stmt while self.is_derived_type
+                # is not true, it's an indication of only a sinlge variable
+                # was declared under the derived type declaration, so the syntax
+                # has no nested type case like above. Thus, in order to make
+                # the syntax same, I'm adding another type and nest everything
+                # under it.
+                if not self.is_derived_type:
+                    self.is_derived_type = True
+                    type_elem = ET.SubElement(current, current.tag, current.attrib)
+                    type_elem.set("is_derived_type", str(self.is_derived_type))
+                    type_elem.set("name", child.attrib['id'])
+                    self.parent_type = current
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
                 current.set("name", child.attrib['id'])
                 # And, store the name of the derived type name for
                 # later setting the outer most <type> elements's name attribute
                 self.cur_derived_type_name = child.attrib['id']
+            elif child.tag == "intrinsic-type-spec":
+                if self.is_derived_type:
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
                     self.is_derived_type = True
@@ -1422,7 +1438,7 @@ class RectifyOFPXML:
                 if child.tag in self.loop_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -1752,7 +1768,7 @@ class RectifyOFPXML:
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
             )
-            if child.tag == "name" or child.tag == "literal":
+            if child.tag in self.output_child_tags:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
@@ -2065,11 +2081,11 @@ class RectifyOFPXML:
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
+                    if child.tag == "body":
+                        self.current_body_scope = cur_elem
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
-                    if child.tag == "body":
-                        self.current_body_scope = cur_elem
                 else:
                     assert (
                         False
@@ -2812,10 +2828,11 @@ class RectifyOFPXML:
             in this function.
         """
         root_scope = ET.SubElement(self.current_body_scope, "statement")
-        cur_elem = ET.SubElement(root_scope, "format")
-        self.parseXMLTree(
-            self.format_holder, cur_elem, root_scope, grandparent, traverse
-        )
+        for form in self.format_holder:
+            cur_elem = ET.SubElement(root_scope, form.tag, form.attrib)
+            self.parseXMLTree(
+                form, cur_elem, root_scope, grandparent, traverse
+            )
 
     def reconstruct_derived_type_names(self, current):
         """

@@ -234,5 +234,5 @@ exhale_args = {
     "doxygenStripFromPath":  "..",
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../delphi/cpp/AnalysisGraph.hpp"
+    "exhaleDoxygenStdin":    "INPUT = ../lib"
 }

@@ -2,12 +2,13 @@ docs:
 	cd docs; make html
 
 extensions: 
-	cd delphi/cpp; cmake .; make -j
+	mkdir -p build
+	cd build; cmake ..; make -j
 
 test: extensions
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
-	  --doctest-module\
+	  --doctest-modules\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/cpp/pybind11\
 	  --ignore=delphi/cpp/nlohmann\
