@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iomanip>
 #include <numeric>
+#include <chrono>
 #include <sqlite3.h>
 #include <utility>
 #include <Eigen/Dense>
@@ -307,8 +308,8 @@ public:
       this->A_beta_factors.push_back( vector< Tran_Mat_Cell * >( num_verts ));
     }
 
-    cout << A_beta_factors.size() << endl;
-    cout << A_beta_factors[0].size() << endl;
+    //cout << A_beta_factors.size() << endl;
+    //cout << A_beta_factors[0].size() << endl;
   }
 
 
@@ -348,6 +349,7 @@ private:
   // the row index of the matrix.
   // 
   // Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.
+  // TODO: Need to free these pointers in the destructor.
   vector< vector< Tran_Mat_Cell * >> A_beta_factors;
 
   // A set of (row, column) numbers of the 2D matrix A_beta_factors where
@@ -357,7 +359,19 @@ private:
   // Maps each β to all the transition matrix cells that are dependent on it.
   multimap< pair< int, int >, pair< int, int >> beta2cell;
 
+  double t = 0.0;
   double delta_t = 1.0;
+  vector< Eigen::VectorXd > s0;
+  Eigen::VectorXd s0_original;
+  int n_timesteps;
+
+  // Access this as
+  // latent_state_sequences[ sample ][ time step ]
+  vector< vector< Eigen::VectorXd >> latent_state_sequences; 
+
+  // Access this as 
+  // observed_state_sequences[ sample ][ time step ][ vertex ][ indicator ]
+  vector< vector< vector< vector< double >>>> observed_state_sequences; 
 
   vector< Eigen::MatrixXd > transition_matrix_collection;
 
@@ -438,6 +452,32 @@ private:
     path.pop_back();
     graph[start].visited = false;
   };
+
+
+  /*
+   ==========================================================================
+   Utilities
+   ==========================================================================
+  */
+  Eigen::VectorXd construct_default_initial_state( )
+  { 
+    // Let vertices of the CAG be v = 0, 1, 2, 3, ...
+    // Then,
+    //    indexes 2*v keeps track of the state of each variable v
+    //    indexes 2*v+1 keeps track of the state of ∂v/∂t
+    int num_verts = boost::num_vertices( graph );
+    int num_els = num_verts * 2;
+
+    Eigen::VectorXd init_st( num_els );
+    init_st.setZero();
+
+    for( int i = 0; i < num_els; i += 2 )
+    {
+      init_st( i ) = 1.0;
+    }
+
+    return init_st;
+  }
 
 
 public:
@@ -660,6 +700,7 @@ public:
    ==========================================================================
   */
 
+  // TODO: Need testing
   // Sample elements of the stochastic transition matrix from the 
   // prior distribution, based on gradable adjectives.
   const vector< Eigen::MatrixXd > & sample_from_prior() 
@@ -673,7 +714,7 @@ public:
 
     this->transition_matrix_collection.clear();
 
-    int num_verts = boost::num_vertices( graph );
+    int num_verts = boost::num_vertices( this->graph );
     cout << "Number of vertices: " << num_verts << endl;
 
     // A base transition matrix with the entries that does not change across samples.
@@ -706,7 +747,7 @@ public:
       Eigen::MatrixXd tran_mat( base_mat );
 
       // Update the β factor dependent cells of this matrix
-      for( auto & [row, col] : beta_dependent_cells )
+      for( auto & [row, col] : this->beta_dependent_cells )
       {
         tran_mat( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->sample_from_prior( this->graph, samp_num );
       }
@@ -715,25 +756,157 @@ public:
     } 
 
     return this->transition_matrix_collection;
+  }
 
-    /*
-    vector<std::pair<int, int>> node_pairs;
 
-    // Get all length-2 permutations of nodes in the graph
-    for (auto [i, j] : iter::product(vertices(), vertices())) {
-      if (i != j) {
-        node_pairs.push_back(std::make_pair(i, j));
+  // TODO: Need testing
+  /**
+   * Sample a collection of observed state sequences from the likelihood
+   * model given a collection of transition matrices.
+   *
+   * @param n_timesteps: The number of timesteps for the sequences.
+   */
+  void sample_from_likelihood( int n_timesteps=10 )
+  {
+    this->n_timesteps = n_timesteps;
+
+    int num_verts = boost::num_vertices( this->graph );
+
+    // Allocate memory for latent_state_sequences
+    this->latent_state_sequences = vector< vector< Eigen::VectorXd >>( default_n_samples, 
+                                           vector< Eigen::VectorXd > ( n_timesteps, 
+                                                   Eigen::VectorXd   ( num_verts * 2 )));
+
+    for( int samp = 0; samp < default_n_samples; samp++ )
+    {
+      this->latent_state_sequences[ samp ][ 0 ] = this->s0_original;
+
+      for( int ts = 1; ts < n_timesteps; ts++ )
+      {
+        this->latent_state_sequences[ samp ][ ts ] = this->transition_matrix_collection[ samp ] * this->latent_state_sequences[ samp ][ ts-1 ];
       }
     }
 
-    unordered_map<int, unordered_map<int, vector<std::pair<int, int>>>>
-        simple_path_dict;
-    for (auto [i, j] : node_pairs) {
-      int cutoff = 4;
-      int depth = 0;
-      vector<std::pair<int, int>> paths;
+    // Allocate memory for observed_state_sequences
+    this->observed_state_sequences = vector< vector< vector< vector< double >>>>( default_n_samples, 
+                                             vector< vector< vector< double >>> ( n_timesteps,
+                                                     vector< vector< double >>  ( )));
+    
+    for( int samp = 0; samp < default_n_samples; samp++ )
+    {
+      vector< Eigen::VectorXd > & sample = this->latent_state_sequences[ samp ];
+
+      std::transform( sample.begin(), sample.end(), this->observed_state_sequences[ samp ].begin(), [this]( Eigen::VectorXd latent_state ){ return this->sample_observed_state( latent_state ); });
     }
-    */
+  }
+
+
+  // TODO: Need testing
+  /**
+   * Sample observed state vector.
+   * This is the implementation of the emission function.
+   * 
+   * @param latent_state: Latent state vector.
+   *                      This has 2 * number of vertices in the CAG.
+   *                      Even indices track the state of each vertex.
+   *                      Odd indices track the state of the derivative.
+   *
+   * @return Observed state vector. Observed state for each indicator for each vertex.
+   *         Indexed by: [ vertex id ][ indicator id ]
+   */
+  vector< vector< double >> sample_observed_state( Eigen::VectorXd latent_state )
+  {
+    int num_verts = boost::num_vertices( this->graph );
+    
+    assert( num_verts == latent_state.size() / 2 );
+
+    vector< vector< double >> observed_state( num_verts );
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator( seed );
+
+    for( int v = 0; v < num_verts; v++ )
+    {
+      vector< Indicator > & indicators = this->graph[ v ].indicators;
+
+      observed_state[ v ] = vector< double >( indicators.size() );
+
+      // Sample observed value of each indicator around the mean of the indicator
+      // scaled by the value of the latent state that caused this observation.
+      // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
+      //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
+      std::transform( indicators.begin(), indicators.end(), observed_state[ v ].begin(), 
+          [&]( Indicator ind )
+          {
+            std::normal_distribution< double > gaussian( ind.mean * latent_state[ 2*v ], ind.stdev );
+
+            return gaussian( generator ); 
+          });
+    }
+
+    return observed_state;
+  }
+
+
+  /*
+    ==========================================================================
+    Basic Modeling Interface (BMI)
+    ==========================================================================
+  */
+
+  /**
+   * Initialize the executable AnalysisGraph with a config file.
+   * 
+   * @param initialize_indicators: Boolean flag that sets whether indicators
+   * are initialized as well.
+   */
+  void initialize( bool initialize_indicators=true )
+  {
+    this->t = 0.0;
+
+    // Create a 'reference copy' of the initial latent state vector
+    //    indexes 2*v keeps track of the state of each variable v
+    //    indexes 2*v+1 keeps track of the state of ∂v/∂t
+    this->s0_original = this->construct_default_initial_state();
+
+    // Create default_n_samples copies of the initial latent state vector
+    this->s0 = vector( default_n_samples, this->s0_original );
+
+    for( int v : this->vertices() )
+    {
+      this->graph[ v ].rv.name = this->graph[ v ].name;
+      this->graph[ v ].rv.dataset = vector< double >( default_n_samples, 1.0 );
+      this->graph[ v ].rv.partial_t = this->s0_original[ 2 * v + 1 ];
+      // TODO: Need to add the update_function variable to the node
+      // n[1]["update_function"] = self.default_update_function
+      //graph[ v ].update_function = ????;
+      
+      if( initialize_indicators )
+      {
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::default_random_engine generator( seed );
+
+        for( Indicator ind : graph[ v ].indicators )
+        {
+          vector< double > & dataset = this->graph[ v ].rv.dataset;
+
+          ind.samples.clear();
+          ind.samples = vector< double >( dataset.size() );
+
+          // Sample observed value of each indicator around the mean of the indicator
+          // scaled by the value of the latent state that caused this observation.
+          // TODO: Question - Is ind.mean * rv_datun correct?
+          //                  Shouldn't it be ind.mean + rv_datum?
+          std::transform( dataset.begin(), dataset.end(), ind.samples.begin(), 
+              [&](int rv_datum)
+              {
+                std::normal_distribution< double > gaussian( ind.mean * rv_datum, 0.01 );
+
+                return gaussian( generator ); 
+              });
+        }
+      }
+    }
   }
 
 

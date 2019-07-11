@@ -37,3 +37,4 @@ def test_simple_path_construction():
     print( 'Nunber of samples from prior: ', len(samples) )
     for i in range(5):
         print( samples[i] )
+
