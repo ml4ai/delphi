@@ -207,6 +207,9 @@ def line_is_continuation(line: str) -> bool:
         True iff line is a continuation line, else False.
     """
 
+    if line_is_comment(line):
+        return False
+
     llstr = line.lstrip()
     return len(llstr) > 0 and llstr[0] == "&"
 
@@ -219,6 +222,9 @@ def line_is_continued(line: str) -> bool:
         True iff line is continued on the next line.  This is a Fortran-90
         feature and indicated by a '&' at the end of the line.
     """
+
+    if line_is_comment(line):
+        return False
 
     llstr = line.rstrip()
     return len(llstr) > 0 and llstr[-1] == "&"
