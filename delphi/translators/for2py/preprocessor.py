@@ -18,6 +18,7 @@ from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
     line_is_continuation,
+    line_is_continued,
     line_is_executable,
     line_is_pgm_unit_end,
     line_is_pgm_unit_separator,
@@ -74,10 +75,12 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
-            if line_is_comment(ln0[1]) and line_is_continuation(ln1[1]):
+            if (line_is_comment(ln0[1]) and line_is_continuation(ln1[1])) \
+               or (line_is_continued(ln0[1]) and line_is_comment(ln1[1])):
                 # swap the code portions of lines[i] and lines[i+1]
                 lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
                 chg = True
+
             i += 1
 
     # Merge continuation lines
@@ -98,6 +101,17 @@ def merge_continued_lines(lines):
                 lines[i - 1] = (prev_linenum, merged_code)
                 lines.pop(i)
                 chg = True
+            elif line_is_continued(line[1]):
+                assert i < len(lines)-1  # there must be a next line
+                (next_linenum, next_line_code) = lines[i + 1]
+                curr_line_code = line[1].rstrip()[
+                    :-1
+                ].rstrip()  # remove continuation  char
+                merged_code = curr_line_code + next_line_code.lstrip()
+                lines[i] = (i, merged_code)
+                lines.pop(i+1)
+                chg = True
+
             i += 1
 
     return lines
