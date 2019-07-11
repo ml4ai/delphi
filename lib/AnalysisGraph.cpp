@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
-#include <numeric>
 #include <chrono>
 #include <sqlite3.h>
 #include <utility>
@@ -14,6 +13,7 @@
 
 #include "AnalysisGraph.hpp"
 #include "utils.hpp"
+#include "tran_mat_cell.hpp"
 
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::map, std::multimap, std::make_pair, std::set,
@@ -23,227 +23,6 @@ using std::cout, std::endl, std::unordered_map, std::pair, std::string,
 
 
 const size_t default_n_samples = 100;
-
-
-/**
- * This class represents a single cell of the transition matrix which is computed
- * by a sum of products of βs.
- * Accordign to our current model, which uses variables and their partial
- * derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ), only half of the
- * transition matrix cells are affected by βs. 
- * According to the way we organize the transition matrix, the cells A[row][col]
- * where row is an odd index and col is an even index are such cells.
- */
-class Tran_Mat_Cell {
-  private:
-    typedef multimap< pair< int, int >, double * >::iterator MMAPIterator;
-
-    // All the directed paths in the CAG that starts at source vertex and ends
-    // at target vertex decides the value of the transition matrix cell
-    // A[ 2 * source ][ 2 * target + 1 ]
-    int source;
-    int target;
-
-    // Records all the directed paths in the CAG that starts at source vertex
-    // and ends at target vertex.
-    // Each path informs how to calculate one product in the calculation of the
-    // value of this transition matrix cell, which is a sum of products.
-    // We multiply all the βs along a path to compute a product. Then we add all
-    // the products to compute the value of the cell.
-    vector< vector< int >> paths;
-
-    // Keeps the value of each product. There is an entry for each path here.
-    // So, there is a 1-1 mapping between the two vectors paths and products.
-    vector< double > products;
-
-    // Maps each β to all the products where that β is a factor. This mapping
-    // is needed to quickly update the products and the cell value upon
-    // purturbing one β.
-    multimap< pair< int, int >, double * > beta2product;
-
-    
-  public:
-    Tran_Mat_Cell( int source, int target )
-    {
-      this->source = source;
-      this->target = target;
-    }
-
-
-    // Add a path that starts with the start vertex and ends with the end vertex.
-    bool add_path( vector< int > & path )
-    {
-      if( path[0] == this->source && path.back() == this->target )
-      {
-        this->paths.push_back( path );
-        return true;
-      }
-
-      return false;
-    }
-
-
-    // Allocates the prodcut vector with the same length as the paths vector
-    // Populates the beat2prodcut multimap linking each β (edge - A pair) to
-    // all the products that depend on it.
-    // This **MUST** be called after adding all the paths usign add_path.
-    // After populating the beta2product multimap, the length of the products
-    // vector **MUST NOT** be changed.
-    // If it is changes, we run into the dange or OS moving the products vector
-    // into a different location in memory and pointers kept in beta2product
-    // multimap becoming dangling pointer.
-    void allocate_datastructures()
-    {
-      // TODO: Decide the correct initial value
-      this->products = vector< double >( paths.size(), 0 );
-      this->beta2product.clear();
-
-      for( int p = 0; p < this->paths.size(); p++ )
-      {
-        for( int v = 0; v < this->paths[p].size() - 1; v++ )
-        {
-          // Each β along this path is a factor of the product of this path.
-          this->beta2product.insert( make_pair( make_pair( paths[p][v], paths[p][v+1] ), &products[p]));
-        }
-      }
-    }
-    
-
-    // Computes the value of this cell from scratch.
-    // Should be called after adding all the paths using add_path()
-    // and calling allocate_datastructures()
-    double compute_cell()
-    {
-      for( int p = 0; p < this->paths.size(); p++ )
-      {
-        for( int v = 0; v < this->paths[p].size() - 1; v++ )
-        {
-          this->products[p] += 1;
-        }
-      }
-
-      return accumulate( products.begin(), products.end(), 0 );
-    }
-
-
-   double sample_from_prior( const DiGraph &  CAG, int samp_num )
-    {
-      for( int p = 0; p < this->paths.size(); p++ )
-      {
-        this->products[p] = 1;
-
-        // Assume that none of the edges along this path has KDEs assigned.
-        // At the end of traversing this path, if that is the case, leaving
-        // the product for this path as 1 does not seem correct. In this case
-        // I feel that that best option is to make the product for this path 0.
-        bool hasKDE = false;
-
-        for( int v = 0; v < this->paths[p].size() - 1; v++ )
-        {
-          // Check wheather this edge has a KDE assigned to it
-          // TODO: Why does KDE of an edge is optional?
-          // I guess, there could be edges that do not have a KDE assigned.
-          // What should we do when one of more edges along a path does not have
-          // a KDE assigned?
-          // At the moment, the code silently skips that edge as if that edge
-          // does not exist in the path. Is this the correct thing to do?
-          // What happens when all the edges of a path do not have KDEs assigned?
-          if( CAG[boost::edge( v, v+1, CAG ).first].kde.has_value()) 
-          {
-            // Vector of all the samples for this edge
-            const vector<double> & samples = CAG[boost::edge( v, v+1, CAG ).first].kde.value().dataset;
-            
-            // Check whether we have enough samples to fulfil this request
-            if( samples.size() > samp_num )
-            {
-              this->products[p] *= CAG[boost::edge( v, v+1, CAG ).first].kde.value().dataset[ samp_num ];
-              hasKDE = true;
-            }
-            else
-            {
-              // What should we do if there is not enough samples generated for this path?
-            }
-          }
-        }
-
-        // If none of the edges along this path had a KDE assigned,
-        // make the contribution of this path to the value of the cell 0.
-        if( ! hasKDE )
-        {
-          this->products[p] = 0;
-        }
-      }
-
-      return accumulate( products.begin(), products.end(), 0 );
-    }
-
-
-    // Given a β and an update amount, update all the products where β is a factor.
-    // compute_cell() must be called once at the beginning befor calling this.
-    double update_cell( pair< int, int > beta, double amount )
-    {
-      pair<MMAPIterator, MMAPIterator> res = this->beta2product.equal_range( beta );
-
-      for( MMAPIterator it = res.first; it != res.second; it++ )
-      {
-        *(it->second) *= amount;
-      }
-
-      return accumulate( products.begin(), products.end(), 0 );
-    }
-
-
-    void print_products()
-    {
-      for( double f : this->products )
-      {
-        cout << f << " ";
-      }
-      cout << endl;
-    }
-
-
-    void print_beta2product()
-    {
-      for(auto it = this->beta2product.begin(); it != this->beta2product.end(); it++ )
-      {
-        cout << "(" << it->first.first << ", " << it->first.second << ") -> " << *(it->second) << endl;
-      }
-
-    }
-
-
-    // Given an edge (source, target vertex ids - a β=∂target/∂source), 
-    // print all the products that are dependent on it.
-    void print( int source, int target )
-    {
-      pair< int, int > beta = make_pair( source, target );
-
-      pair<MMAPIterator, MMAPIterator> res = this->beta2product.equal_range( beta );
-
-      cout << "(" << beta.first << ", " << beta.second << ") -> ";
-      for( MMAPIterator it = res.first; it != res.second; it++ )
-      {
-        cout << *(it->second) << " ";
-      }
-      cout << endl;
-    }
-
-
-    void print_paths()
-    {
-      cout << endl << "Paths between vectices: " << this->source << " and " << this->target << endl;
-      for( vector< int > path : this->paths )
-      {
-        for( int vert : path )
-        {
-          cout << vert << " -> ";
-        }
-        cout << endl;
-      }
-    }
-};
-
 
 
 unordered_map<string, vector<double>>
@@ -557,20 +336,6 @@ public:
   }
 
 
-  /*
-  vector<std::pair<int, int>> simple_paths(int i, int j) {
-    vector<std::pair<int, int>> paths = {};
-    for (auto s : successors(i)) {
-      paths.push_back(std::make_pair(i, s));
-      for (auto e : simple_paths(s, j)) {
-        paths.push_back(e);
-      }
-    }
-    return paths;
-  }
-  */
-
-
   void construct_beta_pdfs() {
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
@@ -783,6 +548,8 @@ public:
 
       for( int ts = 1; ts < n_timesteps; ts++ )
       {
+        //cout << this->transition_matrix_collection[ samp ] << endl; 
+        //cout << this->latent_state_sequences[ samp ][ ts-1 ] << endl; 
         this->latent_state_sequences[ samp ][ ts ] = this->transition_matrix_collection[ samp ] * this->latent_state_sequences[ samp ][ ts-1 ];
       }
     }
