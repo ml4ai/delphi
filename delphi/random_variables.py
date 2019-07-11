@@ -90,3 +90,4 @@ class Indicator(RV):
         self.aggaxes = aggaxes
         self.aggregation_method = aggregation_method
         self.timeseries = timeseries
+        self.samples=samples
