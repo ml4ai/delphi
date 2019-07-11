@@ -80,7 +80,7 @@ RE_ASSG_STMT = re.compile(ASSG_STMT, re.I)
 CALL_STMT = r"\s*(\d+|&)?\s*call\s*"
 RE_CALL_STMT = re.compile(CALL_STMT, re.I)
 
-IO_STMT = r"\s*(\d+|&)?\s*(open|close|read|write|print|format)\W*"
+IO_STMT = r"\s*(\d+|&)?\s*(open|close|read|write|print|format|rewind)\W*"
 RE_IO_STMT = re.compile(IO_STMT, re.I)
 
 DO_STMT = r"\s*(\d+|&)?\s*do\s*"
@@ -104,8 +104,23 @@ RE_PAUSE_STMT = re.compile(PAUSE_STMT, re.I)
 RETURN_STMT = r"\s*(\d+|&)?\s*return\s*"
 RE_RETURN_STMT = re.compile(RETURN_STMT, re.I)
 
+CYCLE_STMT = r"\s*(\d+|&)?\s*cycle\s*"
+RE_CYCLE_STMT = re.compile(CYCLE_STMT, re.I)
+
+EXIT_STMT = r"\s*(\d+|&)?\s*exit\s*"
+RE_EXIT_STMT = re.compile(EXIT_STMT, re.I)
+
 SAVE_STMT = r"\s*(\d+|&)?\s*save\s*"
 RE_SAVE_STMT = re.compile(SAVE_STMT, re.I)
+
+SELECT_STMT = r"\s*(\d+|&)?\s*select\s*case\s*"
+RE_SELECT_STMT = re.compile(SELECT_STMT, re.I)
+
+ENDSELECT_STMT = r"\s*(\d+|&)?\s*end\s*select\s*"
+RE_ENDSELECT_STMT = re.compile(ENDSELECT_STMT, re.I)
+
+CASE_STMT = r"\s*(\d+|&)?\s*case\s*"
+RE_CASE_STMT = re.compile(CASE_STMT, re.I)
 
 STOP_STMT = r"\s*(\d+|&)?\s*stop\s*"
 RE_STOP_STMT = re.compile(STOP_STMT, re.I)
@@ -119,14 +134,19 @@ RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
 EXECUTABLE_CODE_START = [
     RE_ASSG_STMT,
     RE_CALL_STMT,
+    RE_CASE_STMT,
+    RE_CYCLE_STMT,
     RE_DO_STMT,
     RE_ENDDO_STMT,
     RE_ENDIF_STMT,
+    RE_ENDSELECT_STMT,
+    RE_EXIT_STMT,
     RE_GOTO_STMT,
     RE_IF_STMT,
     RE_IO_STMT,
     RE_PAUSE_STMT,
     RE_RETURN_STMT,
+    RE_SELECT_STMT,
     RE_STOP_STMT
 ]
 
@@ -189,6 +209,19 @@ def line_is_continuation(line: str) -> bool:
 
     llstr = line.lstrip()
     return len(llstr) > 0 and llstr[0] == "&"
+
+
+def line_is_continued(line: str) -> bool:
+    """
+    Args:
+        line
+    Returns:
+        True iff line is continued on the next line.  This is a Fortran-90
+        feature and indicated by a '&' at the end of the line.
+    """
+
+    llstr = line.rstrip()
+    return len(llstr) > 0 and llstr[-1] == "&"
 
 
 def line_ends_subpgm(line: str) -> bool:
