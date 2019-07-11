@@ -6,8 +6,6 @@
 #include <map>
 #include <numeric>
 
-//using namespace std;
-
 /**
  * This class represents a single cell of the transition matrix which is computed
  * by a sum of products of βs.
