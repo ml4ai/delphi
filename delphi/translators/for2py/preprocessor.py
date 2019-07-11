@@ -332,14 +332,14 @@ def split_trailing_comment(line: str) -> str:
             j = line.find("'", i + 1)
             if j == -1:
                 sys.stderr.write("WEIRD: unbalanced quote ': line = " + line)
-                return line
+                return (line, None)
             else:
                 i = j + 1
         elif line[i] == '"':
             j = line.find('"', i + 1)
             if j == -1:
                 sys.stderr.write('WEIRD: unbalanced quote ": line = ' + line)
-                return line
+                return (line, None)
             else:
                 i = j + 1
         elif line[i] == "!":  # partial-line comment
