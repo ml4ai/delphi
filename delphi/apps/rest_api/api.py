@@ -19,6 +19,7 @@ from delphi.db import engine
 from delphi.apps.rest_api import db
 from delphi.apps.rest_api.models import *
 from delphi.random_variables import Indicator
+from sqlalchemy import exists
 import numpy as np
 from flask import current_app
 import scipy.stats
@@ -51,6 +52,14 @@ def listAllModels():
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
+    id = data["id"]
+    if db.session.query(ICMMetadata.id).filter_by(id=id).scalar() is not None:
+        ICMMetadata.query.filter_by(id=id).delete()
+        CausalVariable.query.filter_by(model_id=id).delete()
+        CausalRelationship.query.filter_by(model_id=id).delete()
+        DelphiModel.query.filter_by(id=id).delete()
+        db.session.commit()
+
     G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
     G.sample_from_prior()
     G.id = data["id"]
