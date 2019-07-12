@@ -188,7 +188,7 @@ class GrFNGenerator(object):
             return self.process_list_ast(node, state)
         elif isinstance(node, ast.Str):
             # Str: ('s',)
-            return self.process_str(node, state, call_source)
+            return self.process_str(node)
         elif isinstance(node, ast.For):
             # For: ('target', 'iter', 'body', 'orelse')
             return self.process_for(node, state, call_source)
@@ -418,11 +418,13 @@ class GrFNGenerator(object):
         """
             This function handles the ast.Num of the ast tree. This node only
             contains a numeric value in its body. For example: Num(n=0),
-            Num(n=17.27), etc. So, we return the value in a dictionary which
+            Num(n=17.27), etc. So, we return the numeric value in a
+            <function_assign_body_literal_spec> form.
+
         """
         # TODO: According to new specification, the following structure
         #  should be used: {"type": "literal, "value": {"dtype": <type>,
-        #  "value": <value>}}. Confirm with Paul.
+        #  "value": <value>}}. Confirm with Clay.
         return [
             {"type": "literal", "dtype": getDType(node.n), "value": node.n}
         ]
@@ -445,8 +447,21 @@ class GrFNGenerator(object):
         ]
         return elements if len(elements) == 1 else [{"list": elements}]
 
-    def process_str(self, node, state, call_source):
-        return [{"type": "literal", "dtype": "string", "value": node.s}]
+    @staticmethod
+    def process_str(node):
+        """
+            This function handles the ast.Str of the ast tree. This node only
+            contains a string value in its body. For example: Str(s='lorem'),
+            Str(s='Estimate: '), etc. So, we return the string value in a
+            <function_assign_body_literal_spec> form where the dtype is a
+            string.
+        """
+        # TODO: According to new specification, the following structure
+        #  should be used: {"type": "literal, "value": {"dtype": <type>,
+        #  "value": <value>}}. Confirm with Clay.
+        return [
+            {"type": "literal", "dtype": "string", "value": node.s}
+        ]
 
     def process_for(self, node, state, call_source):
         scope_path = state.scope_path.copy()
