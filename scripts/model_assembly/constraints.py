@@ -50,6 +50,19 @@ class AddOpScalar(ConstraintScalar):
     def __init__(self, amt) -> None:
         super().__init__(None, amt)
 
+
+class ExponentialConstraint(ConstraintSetter):
+    def __init__(self) -> None:
+        d = Interval(-math.inf, math.inf, False, False)
+        r = Interval(0, math.inf, False, True)
+        super().__init__(d, r)
+
+
+class LogarithmConstraint(ConstraintSetter):
+    def __init__(self) -> None:
+        d = Interval(0, math.inf, False, False)
+        r = Interval(-math.inf, math.inf, False, True)
+        super().__init__(d, r)
 # ==============================================================================
 
 
