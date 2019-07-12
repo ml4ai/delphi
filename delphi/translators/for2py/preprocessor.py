@@ -76,10 +76,6 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
-            if ln0[1] == "" or ln1[1] == "":
-                continue
-            #print(f"@@@ ln0 = {ln0}")
-            #print(f"@@@ ln1 = {ln1}")
             if (line_is_comment(ln0[1]) and line_is_continuation(ln1[1])) \
                or (line_is_continued(ln0[1]) and line_is_comment(ln1[1])):
                 if (i, i+1) not in swaps:
@@ -175,12 +171,14 @@ def merge_adjacent_comment_lines(lines):
 
 TRANSITIONS = {
     "outside": {
-        "comment": "outside", 
+        "comment": "outside",
+	"empty" : "outside",
         "pgm_unit_start": "in_neck",
         "pgm_unit_end": "outside",
     },
     "in_neck": {
         "comment": "in_neck",
+	"empty" : "in_neck",
         "exec_stmt": "in_body",
         "other": "in_neck",
         "pgm_unit_sep": "outside",
@@ -188,6 +186,7 @@ TRANSITIONS = {
     },
     "in_body": {
         "comment": "in_body",
+	"empty" : "in_body",
         "exec_stmt": "in_body",
         "pgm_unit_sep": "outside",
         "pgm_unit_end": "outside",
@@ -198,6 +197,9 @@ TRANSITIONS = {
 def type_of_line(line):
     """Given a line of code, type_of_line() returns a string indicating
        what kind of code it is."""
+
+    if line.strip() == "":
+        return "empty"
 
     if line_is_comment(line):
         return "comment"
@@ -244,7 +246,8 @@ def extract_comments(
         # process the line appropriately
         if curr_state == "outside":
             assert line_type in (
-                "comment", 
+                "comment",
+                "empty",
                 "pgm_unit_start", 
                 "pgm_unit_end"
             ), (line_type, line)
@@ -272,6 +275,7 @@ def extract_comments(
         elif curr_state == "in_neck":
             assert line_type in (
                 "comment",
+                "empty",
                 "exec_stmt",
                 "pgm_unit_sep",
                 "pgm_unit_end",
@@ -290,6 +294,7 @@ def extract_comments(
         elif curr_state == "in_body":
             assert line_type in (
                 "comment",
+                "empty",
                 "exec_stmt",
                 "pgm_unit_sep",
                 "pgm_unit_end",
