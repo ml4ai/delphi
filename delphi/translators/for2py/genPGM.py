@@ -361,22 +361,44 @@ class GrFNGenerator(object):
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
+        """
+            This function returns a list of arguments defined in a function
+            definition. `node.args` is a list of `arg` nodes which are
+            iteratively processed to get the argument name.
+        """
         return [
             self.gen_grfn(arg, state, call_source)
             for arg in node.args
         ]
 
     def process_arg(self, node, state, call_source):
-        if node.annotation != None:
-            state.variable_types[node.arg] = get_variable_type(
-                node.annotation)
-        if state.last_definitions.get(node.arg):
-            state.last_definitions[node.arg] += 1
-        else:
+        """
+            This function processes a function argument.
+        """
+        # Variables are declared as List() objects in the intermediate Python
+        # representation in order to mimic the pass-by-reference property of
+        # Fortran. So, arguments have `annotations` which hold the type() of
+        # the variable i.e. x[Int], y[Float], etc.
+        assert (
+            node.annotation
+        ), "Found argument without annotation. This should not happen."
+        state.variable_types[node.arg] = get_variable_type(node.annotation)
+
+        if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
                 state.last_definitions[node.arg] = -1
             else:
-                state.last_definitions[node.arg] = 0
+                assert False, ("Call source is not ast.FunctionDef. "
+                               "Handle this by setting state.last_definitions["
+                               "node.arg] = 0 in place of the assert False. "
+                               "But this case should not occur in general.")
+        else:
+            assert False, ("The argument variable was already defined "
+                           "resulting in state.last_definitions containing an "
+                           "entry to this argument. Resolve this by setting "
+                           "state.last_definitions[node.arg] += 1. But this "
+                           "case should not occur in general.")
+
         return node.arg
 
     def process_load(self, node, state, call_source):
