@@ -70,15 +70,31 @@ def merge_continued_lines(lines):
     # presumably the one L1 is continuing), ensure that L0 is not a comment.
     # If L0 is a comment, swap L0 and L1.
     chg = True
+    swaps = set()
     while chg:
         chg = False
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
+            if ln0[1] == "" or ln1[1] == "":
+                continue
+            #print(f"@@@ ln0 = {ln0}")
+            #print(f"@@@ ln1 = {ln1}")
             if (line_is_comment(ln0[1]) and line_is_continuation(ln1[1])) \
                or (line_is_continued(ln0[1]) and line_is_comment(ln1[1])):
-                # swap the code portions of lines[i] and lines[i+1]
-                lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                if (i, i+1) not in swaps:
+                    # swap the code portions of lines[i] and lines[i+1]
+                    lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                    swaps.add((i,i+1))  # to prevent infinite loops
+                else:
+                   # If we get here, there is a pair of adjacent lines that
+                   # are about to go into an infinite swap sequence; one of them
+                   # must be a comment.  We delete the comment.
+                   if line_is_comment(ln0[1]):
+                       lines.pop(i)
+                   else:
+                       assert line_is_comment(ln1[1])
+                       lines.pop(i+1)
                 chg = True
 
             i += 1
@@ -96,8 +112,9 @@ def merge_continued_lines(lines):
                 curr_line_code = line[1].lstrip()[
                     1:
                 ]  # remove continuation  char
-                merged_code = prev_line_code.rstrip() + curr_line_code.lstrip()
-
+                merged_code = prev_line_code.rstrip() + \
+                              curr_line_code.lstrip() + \
+                              "\n"
                 lines[i - 1] = (prev_linenum, merged_code)
                 lines.pop(i)
                 chg = True
