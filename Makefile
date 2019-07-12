@@ -3,7 +3,9 @@ docs:
 
 extensions: 
 	mkdir -p build
-	cd build; cmake ..; make -j
+	cd build; conan install .. --build missing
+	cd build; cmake ..; cmake --build . -- -j
+	cp build/lib/* delphi/cpp
 
 test: extensions
 	time pytest \
