@@ -1998,8 +1998,8 @@ class gil_scoped_release { };
 
 error_already_set::~error_already_set() {
     if (m_type) {
-        gil_scoped_acquire gil;
         error_scope scope;
+        gil_scoped_acquire gil;
         m_type.release().dec_ref();
         m_value.release().dec_ref();
         m_trace.release().dec_ref();
