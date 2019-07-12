@@ -27,10 +27,8 @@ C     URL: https://ieeexplore.ieee.org/abstract/document/288377
               stop
           endif
 
-          if (i .le. n) then
-              fact = fact * i
-              write (*, 10) i, fact
-           endif
+          fact = fact * i
+          write (*, 10) i, fact
 
           label_flag_1 = .true.
       enddo

@@ -33,12 +33,10 @@ C     URL: https://ieeexplore.ieee.org/abstract/document/288377
               enddo
           endif
 
-          if (goto_222) then
-              n = 10
-              fact = 1
-              i = 0
-              goto_222 = .false.
-          endif
+          n = 10
+          fact = 1
+          i = 0
+          goto_222 = .false.
 
           label_flag_2 = .true.
       enddo      

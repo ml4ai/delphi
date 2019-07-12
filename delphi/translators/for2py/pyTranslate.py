@@ -248,6 +248,7 @@ class PythonCodeGenerator(object):
             "private": self.printPrivate,
             "array": self.printArray,
             "derived-type": self.printDerivedType,
+            "cycle": self.printContinue,
         }
         self.readFormat = []
 
@@ -864,7 +865,12 @@ class PythonCodeGenerator(object):
         if node.get("value"):
             self.pyStrings.append(f"print({node['value']})")
             self.pyStrings.append(printState.sep)
-        self.pyStrings.append("return")
+        if node['tag'] == "exit":
+            self.pyStrings.append("break")
+        elif node['tag'] == "stop":
+            self.pyStrings.append("return")
+        else:
+            assert False, f"tag: {node['tag']} not being handled yet."
 
     def printReturn(self, node, printState: PrintState):
         self.pyStrings.append("")
@@ -1321,6 +1327,17 @@ class PythonCodeGenerator(object):
                 self.pyStrings.append(f"{variables[:-2]}])")
                 node["body"].remove(to_delete)
         self.is_save = False
+
+    def printContinue(self, node, printState: PrintState):
+        """
+        This function simply adds python statement "continue"
+        that is equivalent to "cycle" in Fortran.
+        """
+        assert (
+                node['tag'] == "cycle"
+        ), f"Tag must be <cycle> for <continue> statement.\
+            current: {node['tag']}"
+        self.pyStrings.append("continue")
 
     ###########################################################################
     #                                                                         #
