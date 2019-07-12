@@ -179,10 +179,10 @@ class GrFNGenerator(object):
             return self.process_store(node, state, call_source)
         elif isinstance(node, ast.Index):
             # Index: ('value',)
-            return self.process_index(node, state, call_source)
+            return self.process_index(node, state)
         elif isinstance(node, ast.Num):
             # Num: ('n',)
-            return self.process_num(node, state, call_source)
+            return self.process_num(node)
         elif isinstance(node, ast.List):
             # List: ('elts', 'ctx')
             return self.process_list_ast(node, state, call_source)
@@ -371,7 +371,8 @@ class GrFNGenerator(object):
             for arg in node.args
         ]
 
-    def process_arg(self, node, state, call_source):
+    @staticmethod
+    def process_arg(node, state, call_source):
         """
             This function processes a function argument.
         """
@@ -401,16 +402,27 @@ class GrFNGenerator(object):
 
         return node.arg
 
-    def process_load(self, node, state, call_source):
-        raise For2PyError("Found ast.Load, which should not happen.")
-
-    def process_store(self, node, state, call_source):
-        raise For2PyError("Found ast.Store, which should not happen.")
-
-    def process_index(self, node, state, call_source):
+    def process_index(self, node, state):
+        """
+            This function handles the Index node of the ast. The Index node
+            is a `slice` value which appears when a `[]` indexing occurs.
+            For example: x[Real], a[0], etc. So, the `value` of the index can
+            either be an ast.Name (x[Real]) or an ast.Num (a[0]), or any
+            other ast type. So, we forward the `value` to its respective ast
+            handler.
+        """
         self.gen_grfn(node.value, state, "index")
 
-    def process_num(self, node, state, call_source):
+    @staticmethod
+    def process_num(node):
+        """
+            This function handles the ast.Num of the ast tree. This node only
+            contains a numeric value in its body. For example: Num(n=0),
+            Num(n=17.27), etc. So, we return the value in a dictionary which
+        """
+        # TODO: According to new specification, the following structure
+        #  should be used: {"type": "literal, "value": {"dtype": <type>,
+        #  "value": <value>}}. Confirm with Paul.
         return [
             {"type": "literal", "dtype": getDType(node.n), "value": node.n}
         ]
@@ -1596,6 +1608,14 @@ class GrFNGenerator(object):
             }
 
         return fn
+
+    def process_load(self, node, state, call_source):
+        raise For2PyError(f"Found ast.Load, which should not happen. "
+                          f"From source: {call_source}")
+
+    def process_store(self, node, state, call_source):
+        raise For2PyError(f"Found ast.Store, which should not happen. "
+                          f"From source: {call_source}")
 
 
 def process_decorators(node, state):
