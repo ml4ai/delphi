@@ -146,6 +146,7 @@ class XML_to_JSON_translator(object):
             "derived-types": self.process_derived_types,
             "length": self.process_length,
             "save-stmt": self.process_save,
+            "cycle": self.process_continue,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -893,6 +894,11 @@ class XML_to_JSON_translator(object):
                 var_list += self.saved_filehandle
             return [{"tag": "save", "scope": self.current_module, "var_list":
                     var_list}]
+
+    def process_continue(self, root, state) -> List[Dict]:
+        """This function handles cycle (continue in Python)
+           tag."""
+        return [{"tag":root.tag}]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """

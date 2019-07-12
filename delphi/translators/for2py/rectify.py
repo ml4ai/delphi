@@ -233,6 +233,7 @@ class RectifyOFPXML:
         "internal-subprogram-part",
         "prefix",
         "exit",
+        "cycle",
     ]
 
     loop_child_tags = [
