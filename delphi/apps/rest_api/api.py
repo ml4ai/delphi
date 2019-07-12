@@ -238,7 +238,7 @@ def createProjection(modelID):
             if indicator.samples is not None:
                 values = sorted(indicator.samples)
             else:
-                values = sorted([s[n] for s in G.s0])
+                values = sorted([s[n]*indicator.mean for s in G.s0])
             median_value = median(values)
             lower_limit = values[lower_rank]
             upper_limit = values[upper_rank]
