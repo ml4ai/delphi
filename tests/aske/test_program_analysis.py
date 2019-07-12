@@ -63,8 +63,7 @@ def io_python_IR_test():
 
 @pytest.fixture
 def array_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0][
-        0]
+    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0][0]
 
 
 @pytest.fixture
@@ -97,8 +96,12 @@ def diff_level_goto_python_IR_test():
 @pytest.fixture
 def save_python_IR_test():
     yield get_python_source(
-        Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f")
-    )[0][0]
+        Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f"))[0][0]
+
+
+@pytest.fixture
+def cycle_exit_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/cycle/cycle_03.f"))[0][0]
 
 
 @pytest.fixture
@@ -176,3 +179,8 @@ def test_module_pythonIR_generation(module_python_IR_test):
     with open(f"{DATA_DIR}/modules/m_mymod8.py", "r") as f:
         python_src = f.read()
     assert src[0] == python_src
+
+def test_cycle_exit_pythonIR_generation(cycle_exit_python_IR_test):
+    with open(f"{DATA_DIR}/cycle/cycle_03.py", "r") as f:
+        python_src = f.read()
+    assert cycle_exit_python_IR_test == python_src
