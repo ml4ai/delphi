@@ -197,10 +197,10 @@ class GrFNGenerator(object):
             return self.process_if(node, state, call_source)
         elif isinstance(node, ast.UnaryOp):
             # UnaryOp: ('op', 'operand')
-            return self.process_unary_operation(node, state, call_source)
+            return self.process_unary_operation(node, state)
         elif isinstance(node, ast.BinOp):
             # BinOp: ('left', 'op', 'right')
-            return self.process_binary_operation(node, state, call_source)
+            return self.process_binary_operation(node, state)
         elif any(isinstance(node, node_type) for node_type in
                  UNNECESSARY_TYPES):
             # Mult: ()
@@ -438,6 +438,10 @@ class GrFNGenerator(object):
             None]). This is handled by calling `gen_grfn` on every element of
             the list i.e. every element of `elts`.
         """
+        # TODO: Will using element[0] work every time? Test on cases like
+        #  [x+y, 4,5]. Here `x+y` should result in a [{spec_for_a},
+        #  {spec_for_b}] format. So, element[0] will only take {spec_for_a}.
+        #  Such cases not encountered yet but can occur.
         elements = [
             element[0]
             for element in [
@@ -1013,31 +1017,50 @@ class GrFNGenerator(object):
 
         return [pgm]
 
-    def process_unary_operation(self, node, state, call_source):
+    def process_unary_operation(self, node, state):
+        """
+            This function processes unary operations in Python represented by
+            ast.UnaryOp. This node has an `op` key which contains the
+            operation (e.g. USub for -, UAdd for +, Not, Invert) and an
+            `operand` key which contains the operand of the operation. This
+            operand can in itself be any Python object (Number, Function
+            call, Binary Operation, Unary Operation, etc. So, iteratively
+            call the respective ast handler for the operand.
+        """
         return self.gen_grfn(node.operand, state, "unaryop")
 
-    def process_binary_operation(self, node, state,
-                                 call_source):
-        if isinstance(node.left, ast.Num) and isinstance(
-                node.right, ast.Num
-        ):
+    def process_binary_operation(self, node, state):
+        """
+            This function handles binary operations i.e. ast.BinOp
+        """
+        # If both the left and right operands are numbers (ast.Num), we can
+        # simply perform the respective operation on these two numbers and
+        # represent this computation in a GrFN spec.
+        if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
             for op in BINOPS:
                 if isinstance(node.op, op):
                     val = BINOPS[type(node.op)](node.left.n, node.right.n)
                     return [
                         {
-                            "value": val,
-                            "dtype": getDType(val),
                             "type": "literal",
+                            "dtype": getDType(val),
+                            "value": val,
                         }
                     ]
+            assert False, ("Both operands are numbers but no operator "
+                           "available to handle their computation. Either add "
+                           "a handler if possible or remove this assert and "
+                           "allow the code below to handle such cases.")
 
-        opPgm = self.gen_grfn(
-            node.left, state, "binop"
-        ) + self.gen_grfn(node.right, state, "binop")
-        return opPgm
+        # If the operands are anything other than numbers (ast.Str,
+        # ast.BinOp, etc), call `gen_grfn` on each side so their respective
+        # ast handlers will process them and return a [{grfn_spec}, ..] form
+        # for each side. Add these two sides together to give a single [{
+        # grfn_spec}, ...] form.
+        operation_grfn = self.gen_grfn(node.left, state, "binop") \
+            + self.gen_grfn(node.right, state, "binop")
 
-        return opPgm
+        return operation_grfn
 
     def process_unnecessary_types(self, node, state,
                                   call_source):
