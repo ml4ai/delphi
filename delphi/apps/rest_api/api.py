@@ -235,7 +235,7 @@ def createProjection(modelID):
                 "value": median_value,
             }
 
-            result.results[n]["values"].append(value_dict)
+            result.results[n]["values"].append(value_dict.copy())
             value_dict.update({"value": lower_limit})
             result.results[n]["confidenceInterval"]["lower"].append(
                 value_dict.copy()
