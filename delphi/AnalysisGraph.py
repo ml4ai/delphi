@@ -384,7 +384,6 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
-        self.n_timesteps = n_timesteps
         self.latent_state_sequences = lmap(
             lambda A: ltake(
                 n_timesteps,
