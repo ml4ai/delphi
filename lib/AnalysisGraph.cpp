@@ -15,6 +15,8 @@
 #include "utils.hpp"
 #include "tran_mat_cell.hpp"
 
+#include <typeinfo>
+
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::ifstream, std::stringstream, std::map, std::multimap, std::make_pair, std::set,
     boost::inner_product, boost::edge, boost::source, boost::target, boost::graph_bundle,
@@ -153,6 +155,16 @@ private:
   vector< vector< vector< vector< double >>>> observed_state_sequences; 
 
   vector< Eigen::MatrixXd > transition_matrix_collection;
+  
+  // Remember the ratio: β_old / β_new and the edge where we perturbed the β.
+  // We need this to revert the system to the previous state if the proposal
+  // got rejected. To revert, we have to:
+  // graph[ beta_revert_ratio.first ] *= beta_revert_ratio.second;
+  // and update the cells of A that are dependent on this β with
+  // update_cell( make_pair( source(brr.first, graph), target(brr.first, graph) ), brr.second )
+  // In the python implementation the variable original_value
+  // was used for the same purpose.
+  pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_revert_ratio;
 
   AnalysisGraph(DiGraph G) : graph(G){};
 
@@ -366,7 +378,13 @@ public:
           all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
         }
       }
+      // TODO: Why kde is optional in struct Edge?
+      // It seems all the edges get assigned with a kde
       graph[e].kde = KDE(all_thetas);
+
+      // Initialize the initial β for this edge
+      // TODO: Decide the correct way to initialize this
+      graph[ e ].beta = graph[ e ].kde.value().mu;
     }
   }
 
@@ -480,7 +498,7 @@ public:
     this->transition_matrix_collection.clear();
 
     int num_verts = boost::num_vertices( this->graph );
-    cout << "Number of vertices: " << num_verts << endl;
+    //cout << "Number of vertices: " << num_verts << endl;
 
     // A base transition matrix with the entries that does not change across samples.
     /*
@@ -612,6 +630,81 @@ public:
     }
 
     return observed_state;
+  }
+
+
+  // A method just to test sample_from_proposal( Eigen::MatrixXd A )
+  void sample_from_proposal_debug()
+  {
+    // Just for debugging purposese
+    int num_verts = boost::num_vertices( this->graph );
+
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero( 2 * num_verts, 2 * num_verts );
+    // Update the β factor dependent cells of this matrix
+    for( auto & [row, col] : this->beta_dependent_cells )
+    {
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( );
+    }
+    cout << endl << "Before Update: " << endl << A << endl;
+
+    this->sample_from_proposal( A );
+
+    cout << endl << "After Update: " << endl << A << endl;
+  }
+  
+
+  /**
+   * Sample a new transition matrix from the proposal distribution,
+   * given a current candidate transition matrix.
+   * In practice, this amounts to:
+   *    Selecting a random β.
+   *    Perturbing it a bit.
+   *    Updating all the transition matrix cells that are dependent on it.
+   * 
+   * @parm A: Transition matrix
+   */
+  // TODO: Before calling sample_from_proposal() we must call 
+  // AnalysisGraph::find_all_paths()
+  // TODO: Before calling sample_from_proposal(), we mush assign initial βs and
+  // run Tran_Mat_Cell::compute_cell() to initialize the first transistion matrix.
+  // TODO: Update Tran_Mat_Cell::compute_cell() to calculate the proper value.
+  // At the moment it just computes sum of length of all the paths realted to this cell
+  void sample_from_proposal( Eigen::MatrixXd & A )
+  {
+    // Randomly pick an edge ≡ β 
+    boost::iterator_range edge_it = this->edges();
+
+    vector< boost::graph_traits< DiGraph >::edge_descriptor > e(1); 
+    std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, std::mt19937{ std::random_device{}() }); 
+
+    //cout << source( e[0], graph ) << ", " << target( e[0], graph ) << endl;
+
+    // Remember the previous β
+    double prev_beta = graph[ e[0] ].beta;
+
+    // Perturb the β
+    // TODO: Check whether this perturbation is accurate
+    graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
+
+    double beta_ratio = graph[ e[0] ].beta / prev_beta;
+
+    this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
+
+    // Find all the transition matrix (A) cells that are dependent on this β 
+    // and update them.
+    pair< int, int > beta = make_pair( source( e[0], graph ), target( e[0], graph ) ); 
+
+    typedef multimap< pair< int, int >,  pair< int, int > >::iterator MMAPIterator;
+
+    pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range( beta );
+
+    for( MMAPIterator it = res.first; it != res.second; it++ )
+    {
+      int row = it->second.first;
+      int col = it->second.second;;
+
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio  );
+    }
   }
 
 

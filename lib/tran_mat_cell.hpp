@@ -93,6 +93,11 @@ class Tran_Mat_Cell {
     // Computes the value of this cell from scratch.
     // Should be called after adding all the paths using add_path()
     // and calling allocate_datastructures()
+    // TODO: This is just a dummy implementation. Update the logic to
+    // calculate the value using βs assigned to each path.
+    // To access βs, the graph needs to be passed in as an argument.
+    // Logic is similar to Tran_Mat_Cell::sample_from_prior()
+    // At the moment just compute the sum of lengths of all the paths
     double compute_cell()
     {
       for( int p = 0; p < this->paths.size(); p++ )
@@ -103,7 +108,7 @@ class Tran_Mat_Cell {
         }
       }
 
-      return accumulate( products.begin(), products.end(), 0 );
+      return accumulate( products.begin(), products.end(), 0.0 );
     }
 
 
@@ -155,7 +160,7 @@ class Tran_Mat_Cell {
         }
       }
 
-      return accumulate( products.begin(), products.end(), 0 );
+      return accumulate( products.begin(), products.end(), 0.0 );
     }
 
 
@@ -170,7 +175,7 @@ class Tran_Mat_Cell {
         *(it->second) *= amount;
       }
 
-      return accumulate( products.begin(), products.end(), 0 );
+      return accumulate( products.begin(), products.end(), 0.0 );
     }
 
 

@@ -24,6 +24,11 @@ struct Edge {
   std::string name;
   std::optional<KDE> kde;
   std::vector<CausalFragment> causalFragments = {};
+
+  // The current β for this edge
+  // TODO: Need to decide how to initialize this or
+  // decide whethr this is the correct way to do this.
+  double beta = 1.0;
 };
 
 struct Node {
