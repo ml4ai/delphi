@@ -7,6 +7,26 @@ import numpy as np
 import seaborn as sns
 import warnings
 
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+
+    pass
+
+
+class InputError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
+
 # ==========================================================================
 # Utility functions
 # ==========================================================================
@@ -153,7 +173,7 @@ def get_data_value(
 
 
 def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
-    """ Set the observed state for a given time point from data. See
+    """ Set t he observed state for a given time point from data. See
     get_data_value() for missing data rules. Note: units are automatically set
     according to the parameterization of the given CAG.
 
@@ -174,9 +194,16 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
 
+    init_date = False
+    if month == G.init_training_month:
+        if year == G.init_training_year:
+            init_date = True
+
     return {
         n[0]: {
-            indicator.name: get_data_value(
+            indicator.name: indicator.mean
+            if init_date
+            else get_data_value(
                 indicator.name, country, state, year, month, indicator.unit
             )
             for indicator in n[1]["indicators"].values()
@@ -215,13 +242,13 @@ def set_observed_state_sequence_from_data(
         None, just sets the CAGs observed_state_sequence variable.
     """
 
-    n_timesteps = calculate_timestep(
+    G.n_timesteps = calculate_timestep(
         start_year, start_month, end_year, end_month
     )
     G.observed_state_sequence = []
     year = start_year
     month = start_month
-    for i in range(n_timesteps + 1):
+    for i in range(G.n_timesteps + 1):
         G.observed_state_sequence.append(
             set_observed_state_from_data(G, year, month, **kwargs)
         )
@@ -233,13 +260,42 @@ def set_observed_state_sequence_from_data(
             month = month + 1
 
 
-def set_latent_state_sequence(
-    G, start_year: int, start_month: int, end_year: int, end_month: int
-) -> None:
+def set_latent_state_from_observed(G, timestep) -> pd.Series:
+    state = G.s0.copy(deep=True)
+    for node in G.nodes(data=True):
+        ind_init = list(G.observed_state_sequence[0][f"{node[0]}"].values())[0]
+        while ind_init == 0:
+            ind_init = np.random.normal()
+        if timestep == -1:
+            state[f"{node[0]}"] = 0
+        else:
+            ind_value = list(
+                G.observed_state_sequence[timestep][f"{node[0]}"].values()
+            )[0]
+            state[f"{node[0]}"] = ind_value / ind_init
+        if timestep == (G.n_timesteps):
+            prev_ind_value = list(
+                G.observed_state_sequence[timestep - 1][f"{node[0]}"].values()
+            )[0]
+            prev_state_value = prev_ind_value / ind_init
+            diff = state[f"{node[0]}"] - prev_state_value
+            state[f"∂({node[0]})/∂t"] = np.random.normal(diff)
+        else:
+            next_ind_value = list(
+                G.observed_state_sequence[timestep + 1][f"{node[0]}"].values()
+            )[0]
+            next_state_value = next_ind_value / ind_init
+            diff = next_state_value - state[f"{node[0]}"]
+            state[f"∂({node[0]})/∂t"] = diff
+
+    return state
+
+
+def set_latent_state_sequence_from_observed(G) -> None:
     """ Set the latent state sequence for a given time range. WARNING: This
     definition is still under construction and currently runs an alternative
     proxy procedure to set the latent state sequence. The proxy procedure
-    requires that G.sample_from_prior() has been ran.
+    requires that G.set_observed_state_sequence_from_data() be ran first.
 
     Args:
         G: A CAG, must have indicator variables mapped and be parameterized. As
@@ -256,17 +312,10 @@ def set_latent_state_sequence(
     Returns:
         None, just sets the CAGs latent_state_sequence variable.
     """
+    G.latent_state_sequence = []
     G.s0 = G.construct_default_initial_state()
-    for edge in G.edges(data=True):
-        G.s0[f"∂({edge[0]})/∂t"] = 0.1 * np.random.rand()
-
-    G.n_timesteps = calculate_timestep(
-        start_year, start_month, end_year, end_month
-    )
-
-    A = G.transition_matrix_collection[0]
-
-    G.set_latent_state_sequence(A)
+    for i in range(G.n_timesteps + 1):
+        G.latent_state_sequence.append(set_latent_state_from_observed(G, i))
 
 
 # ==========================================================================
@@ -385,28 +434,30 @@ def train_model(
             fallback_aggaxes=fallback_aggaxes,
             aggfunc=aggfunc,
         )
-    except KeyError:
-        print(
-            "Key Error most likely caused from passing incomplete",
-            "Causal Analysis Graph (CAG). Ensure that the passed CAG",
-            "has indicator variables mapped to nodes by calling",
-            "<CAG>.map_concepts_to_indicators().",
+    except KeyError as e:
+        message = (
+            "Passed incomplete Causal Analysis Graph (CAG). "
+            "Ensure that CAG has indicator variables mapped to nodes by "
+            "calling <CAG>.map_concepts_to_indicators() before passing."
         )
-        raise
-
+        raise InputError(G, message) from e
 
     if start_month is None:
         start_month = 1
 
+    G.init_training_year = start_year
+    G.init_training_month = start_month
     set_observed_state_sequence_from_data(
         G, start_year, start_month, end_year, end_month, **kwargs
     )
 
-    set_latent_state_sequence(G, start_year, start_month, end_year, end_month)
+    set_latent_state_sequence_from_observed(G)
 
     A = G.transition_matrix_collection[0]
     for edge in G.edges(data=True):
         A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
+
+    G.log_likelihood = None
 
     n_samples: int = 10000
     for i, _ in enumerate(trange(n_samples)):
@@ -416,6 +467,93 @@ def train_model(
             ] = G.sample_from_posterior(A).copy()
         else:
             G.sample_from_posterior(A)
+
+    G.trained = True
+
+
+def generate_predictions(
+    G,
+    start_year: int = 2012,
+    start_month: int = 1,
+    end_year: int = 2018,
+    end_month: int = 12,
+) -> None:
+
+    try:
+        G.trained
+    except AttributeError as e:
+        message = (
+            "Passed untrained Causal Analysis Graph (CAG) Model. "
+            "Try calling evaluation.train_model(<CAG>,...) first!"
+        )
+        raise InputError(G, message) from e
+
+    if start_year < G.init_training_year:
+        warnings.warn(
+            "The initial prediction date can't be before the "
+            "inital training date. Defaulting initial prediction date "
+            "to initial training date."
+        )
+        start_year = G.init_training_year
+        start_month = G.init_training_month
+    elif (start_year == G.init_training_year) and (
+        start_month < G.init_training_month
+    ):
+        warnings.warn(
+            "The initial prediction date can't be before the "
+            "inital training date. Defaulting initial prediction date "
+            "to initial training date."
+        )
+        start_month = G.init_training_month
+
+    total_timesteps = calculate_timestep(
+        G.init_training_year, G.init_training_month, end_year, end_month
+    )
+    pred_timesteps = calculate_timestep(
+        start_year, start_month, end_year, end_month
+    )
+
+    year = start_year
+    month = start_month
+    G.pred_range = []
+    for j in range(pred_timesteps + 1):
+        G.pred_range.append(f"{year}-{month}")
+
+        if month == 12:
+            year = year + 1
+            month = 1
+        else:
+            month = month + 1
+
+    diff_timesteps = total_timesteps - pred_timesteps
+    truncate = 0
+    if diff_timesteps > G.n_timesteps:
+        G.s0 = set_latent_state_from_observed(G, G.n_timesteps)
+        truncate = diff_timesteps - G.n_timesteps
+        pred_timesteps = truncate + pred_timesteps
+    else:
+        G.s0 = set_latent_state_from_observed(G, diff_timesteps)
+    G.sample_from_likelihood(pred_timesteps + 1)
+    for latent_state_s in G.latent_state_sequences:
+        del latent_state_s[0:truncate]
+    for observed_state_s in G.observed_state_sequences:
+        del observed_state_s[0:truncate]
+
+
+def pred_to_df(G, indicator: str, show: List[str] = [], agg=np.median):
+    time_range = len(G.pred_range)
+    pred = np.zeros((time_range, G.res))
+    for i in range(G.res):
+        for j in range(time_range):
+            for _, inds in G.observed_state_sequences[i][j].items():
+                if indicator in inds.keys():
+                    pred[j][i] = float(inds[indicator])
+    start_date = G.pred_range[0]
+    start_year = int(start_date[0:4])
+    start_month = int(start_date[5:6])
+    end_date = G.pred_range[-1]
+    end_year = int(end_date[0:4])
+    end_month = int(end_date[5:6])
 
 
 def evaluate(
@@ -587,67 +725,6 @@ def evaluate(
 # ==========================================================================
 # Interventions: This section is under construction
 # ==========================================================================
-
-
-def get_predictions(
-    G,
-    target_node: str,
-    intervened_node: str,
-    deltas: List[float],
-    n_timesteps: int,
-) -> pd.DataFrame:
-    """ Get predicted values for each timestep for a target node's indicator
-    variable given a intervened node and a set of deltas.
-
-    Args:
-        G: A completely parameterized and quantified CAG with indicators,
-        estimated transition matrx, and indicator values.
-
-        target_node: The full name of the node in which we
-        wish to predict values for its attached indicator variable.
-
-        intervened_node: The full name of the node in which we
-        are intervening on.
-
-        deltas: 1D array-like, contains rate of change (deltas) for each
-        time step. Its length must match equal n_timesteps.
-
-        n_timesteps: Number of time steps.
-
-    Returns:
-        Pandas Dataframe containing predictions.
-    """
-    assert (
-        len(deltas) == n_timesteps
-    ), "The length of deltas must be equal to n_timesteps."
-    G.create_bmi_config_file()
-    s0 = pd.read_csv(
-        "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
-    )[1]
-    s0.loc[f"∂({intervened_node})/∂t"] = deltas[0]
-    s0.to_csv("bmi_config.txt", index_label="variable")
-    G.initialize()
-
-    pred = np.zeros(n_timesteps + 1)
-    target_indicator = list(
-        G.nodes(data=True)[target_node]["indicators"].keys()
-    )[0]
-    for t in range(n_timesteps):
-        if t == 0:
-            G.update(dampen=False)
-        else:
-            G.update(dampen=False, set_delta=deltas[t])
-        pred[t] = np.median(
-            list(G.nodes(data=True)[target_node]["indicators"].values())[
-                0
-            ].samples
-        )
-
-    pred = np.roll(pred, 1)
-    pred[0] = list(G.nodes(data=True)[target_node]["indicators"].values())[
-        0
-    ].mean
-    return pd.DataFrame(pred, columns=[target_indicator + "(Predictions)"])
 
 
 def estimate_deltas(
