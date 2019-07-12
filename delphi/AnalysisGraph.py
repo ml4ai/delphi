@@ -271,12 +271,14 @@ class AnalysisGraph(nx.DiGraph):
             "raw": lambda x: x,
         }
 
-        for concept, indicator in _dict["conceptIndicators"].items():
-            G.nodes[concept]["indicators"] = {
-                indicator["name"]: Indicator(indicator["name"], indicator["source"])
-            }
+        for node, attrs in G.nodes(data=True):
+            indicator = _dict["conceptIndicators"][node]
+            indicator_name = indicator["name"]
+            indicator_source = indicator["source"]
             values = [x["value"] for x in indicator["values"]]
-            indicator["mean"] = func_dict[indicator["func"]](values)
+            mean = func_dict[indicator["func"]](values)
+            attrs["indicators"] = {indicator_name: Indicator(indicator_name,
+                indicator_source, mean=mean)}
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
