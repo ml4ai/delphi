@@ -109,6 +109,7 @@ def merge_continued_lines(lines):
                     1:
                 ]  # remove continuation  char
                 merged_code = prev_line_code.rstrip() + \
+                              " " + \
                               curr_line_code.lstrip() + \
                               "\n"
                 lines[i - 1] = (prev_linenum, merged_code)
@@ -120,7 +121,7 @@ def merge_continued_lines(lines):
                 curr_line_code = line[1].rstrip()[
                     :-1
                 ].rstrip()  # remove continuation  char
-                merged_code = curr_line_code + next_line_code.lstrip()
+                merged_code = curr_line_code + " " + next_line_code.lstrip()
                 lines[i] = (i, merged_code)
                 lines.pop(i+1)
                 chg = True
