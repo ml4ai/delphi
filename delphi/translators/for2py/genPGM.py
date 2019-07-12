@@ -185,7 +185,7 @@ class GrFNGenerator(object):
             return self.process_num(node)
         elif isinstance(node, ast.List):
             # List: ('elts', 'ctx')
-            return self.process_list_ast(node, state, call_source)
+            return self.process_list_ast(node, state)
         elif isinstance(node, ast.Str):
             # Str: ('s',)
             return self.process_str(node, state, call_source)
@@ -427,12 +427,20 @@ class GrFNGenerator(object):
             {"type": "literal", "dtype": getDType(node.n), "value": node.n}
         ]
 
-    def process_list_ast(self, node, state, call_source):
+    def process_list_ast(self, node, state):
+        """
+            This function handles ast.List which represents Python lists. The
+            ast.List has an `elts` element which is a list of all the elements
+            of the list. This is most notably encountered in annotated
+            assignment of variables to [None] (Example: day: List[int] = [
+            None]). This is handled by calling `gen_grfn` on every element of
+            the list i.e. every element of `elts`.
+        """
         elements = [
             element[0]
             for element in [
-                self.gen_grfn(elmt, state, "List")
-                for elmt in node.elts
+                self.gen_grfn(list_element, state, "List")
+                for list_element in node.elts
             ]
         ]
         return elements if len(elements) == 1 else [{"list": elements}]
