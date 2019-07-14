@@ -62,6 +62,10 @@ public:
   KDE () {};
   vector<double> dataset;
   double bw; // bandwidth
+  
+  // TODO: Made this public just to initialize β.
+  // Not sure this is the correct way to do it.
+  double mu;
 
   KDE(vector<double> v) : dataset(v) {
     // Compute the bandwidth using Silverman's rule

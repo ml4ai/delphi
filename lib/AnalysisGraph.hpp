@@ -1,7 +1,8 @@
 #pragma once
 
-#include "kde.hpp"
 #include <optional>
+#include "kde.hpp"
+#include "random_variables.hpp"
 
 template <class T> void print(T x) { std::cout << x << std::endl; }
 
@@ -23,19 +24,21 @@ struct Edge {
   std::string name;
   std::optional<KDE> kde;
   std::vector<CausalFragment> causalFragments = {};
+
+  // The current β for this edge
+  // TODO: Need to decide how to initialize this or
+  // decide whethr this is the correct way to do this.
+  double beta = 1.0;
 };
 
 struct Node {
-  std::string name;
+  std::string name = "";
   bool visited;
+  LatentVar rv;
 
-  // Stores all the simple directed paths ending at this node
-  // according to the starting vertex of each path
-  // used as the key of the map.
-  // start --> [ path1, path2, path3 ]
-  // path = [ (start, v2), (v2, v3), (v3, this_node) ]
-  std::unordered_map<int, std::vector<vector<std::pair<int, int>>>>
-      influenced_by;
+  std::vector< Indicator > indicators;
+  // Maps each indicator name to its index in the indicators vector
+  std::map< std::string, int > indicator_names;
 };
 
 struct GraphData {

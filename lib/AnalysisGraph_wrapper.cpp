@@ -20,6 +20,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)
       .def("print_cells_affected_by_beta", &AnalysisGraph::print_cells_affected_by_beta)
+      .def("initialize", &AnalysisGraph::initialize, py::return_value_policy::reference_internal)
       .def("sample_from_prior", &AnalysisGraph::sample_from_prior, py::return_value_policy::reference_internal)
+      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood, py::return_value_policy::reference_internal)
+      .def("sample_from_proposal_debug", &AnalysisGraph::sample_from_proposal_debug, py::return_value_policy::reference_internal)
     ;
 }
