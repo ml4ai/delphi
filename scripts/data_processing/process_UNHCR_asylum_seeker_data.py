@@ -66,13 +66,13 @@ def clean_UNHCR_data():
     # Rename Origin to just Country
     df.columns = ["Country", "Year", "Month", "Value"]
 
-    # Add all needed axes. I choose to call the variable 'New ayslum
+    # Add all needed axes. I choose to call the variable 'New asylum
     # seeking applicants' and the units 'applicants'.
     df["State"] = None
     df["County"] = None
     df["Source"] = "UNHCR"
     df["Unit"] = "applicants"
-    df["Variable"] = "New ayslum seeking applicants"
+    df["Variable"] = "New asylum seeking applicants"
 
     # Reordered to fit south_sudan_data.tsv
     df = df.reindex(
