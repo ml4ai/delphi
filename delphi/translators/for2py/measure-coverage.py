@@ -18,7 +18,7 @@
     2) Add the regular expression to the list for the variable HANDLED.
 """
 
-from syntax import *
+from .syntax import *
 import preprocessor
 import os
 import sys
