@@ -151,9 +151,25 @@ private:
   // latent_state_sequences[ sample ][ time step ]
   vector< vector< Eigen::VectorXd >> latent_state_sequences; 
 
+  // Access this as
+  // latent_state_sequence[ time step ]
+  vector< Eigen::VectorXd > latent_state_sequence; 
+
   // Access this as 
   // observed_state_sequences[ sample ][ time step ][ vertex ][ indicator ]
   vector< vector< vector< vector< double >>>> observed_state_sequences; 
+
+  // TODO: In the python file I cannot find the place where 
+  // self.observed_state_sequence gets populated.
+  // It only appears within the calculate_log_likelihood and
+  // there it is beign accessed!!!
+  // I am defining this here so taht I can complete the implementation of 
+  // calculate_log_likelihood().
+  // This needs to be populated somtime before calling that function!!!
+  // Access this as 
+  // observed_state_sequence[ time step ][ vertex ][ indicator ]
+  vector< vector< vector< double >>> observed_state_sequence; 
+
 
   vector< Eigen::MatrixXd > transition_matrix_collection;
   
@@ -664,6 +680,7 @@ public:
    * 
    * @parm A: Transition matrix
    */
+  // TODO: Need testng
   // TODO: Before calling sample_from_proposal() we must call 
   // AnalysisGraph::find_all_paths()
   // TODO: Before calling sample_from_proposal(), we mush assign initial βs and
@@ -706,6 +723,83 @@ public:
 
       A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio  );
     }
+  }
+
+
+  void set_latent_state_sequence( Eigen::MatrixXd A )
+  {
+    int num_verts = boost::num_vertices( this->graph );
+
+    // Allocate memory for latent_state_sequence
+    this->latent_state_sequence = vector< Eigen::VectorXd > ( this->n_timesteps, 
+                                          Eigen::VectorXd   ( num_verts * 2 ));
+
+    // TODO: Disambiguate the type of s0 in the python implementation of this method.
+    // in the AnalysisGraph::initialize method, the python implementation sets
+    // s0 to a list of pandas Series.
+    // I'm not sure whether that is what we need here. I'm using s0_original, 
+    // one element of s0 here for the moment.
+    this->latent_state_sequence[ 0 ] = this->s0_original;
+
+    for( int ts = 1; ts < this->n_timesteps; ts++ )
+    {
+      this->latent_state_sequence[ ts ] = A * this->latent_state_sequence[ ts-1 ];
+    }
+  }
+
+
+  double log_normpdf( double x, double mean, double sd )
+  {
+    double var = pow( sd, 2 );
+    double log_denom = -0.5 * log( 2 * M_PI ) - log( sd );
+    double log_nume = pow( x - mean, 2 ) / ( 2 * var );
+
+    return log_denom - log_nume;
+  }
+
+
+  double calculate_log_likelihood( Eigen::MatrixXd A )
+  {
+    double log_likelihood_total = 0.0;
+
+    this->set_latent_state_sequence( A );
+    
+    int num_ltsts = this->latent_state_sequence.size();
+    int num_obsts = this->observed_state_sequence.size();
+
+    // TODO: Is it always the case that
+    // num_timesteps = num_ltsts = num_obsts = this->n_timesteps?
+    int num_timesteps = num_ltsts < num_obsts ? num_ltsts : num_obsts;
+
+    for( int ts = 0; ts < num_timesteps; ts++ )
+    {
+      Eigen::VectorXd latent_state = this->latent_state_sequence[ ts ];
+
+      // TODO: In the python file I cannot find the place where 
+      // self.observed_state_sequence gets populated.
+      // It only appears within the calculate_log_likelihood and
+      // there it is beign accessed!!!
+      // Access
+      // observed_state[ vertex ][ indicator ]
+      vector< vector< double >> observed_state = this->observed_state_sequence[ ts ];
+
+      for( int v : vertices() )
+      {
+        int num_inds_for_v = observed_state[ v ].size();
+
+        for( int indicator = 0; indicator < num_inds_for_v; indicator++ )
+        {
+          double value = observed_state[ v ]           [ indicator ];
+          Indicator ind =         graph[ v ].indicators[ indicator ];
+
+          // Even indices of latent_state keeps track of the state of each vertex
+          double log_likelihood = this->log_normpdf( value, latent_state[ 2 * v ] * ind.mean, ind.stdev );
+          log_likelihood_total += log_likelihood; 
+        }
+      }
+    }
+
+    return log_likelihood_total;
   }
 
 
