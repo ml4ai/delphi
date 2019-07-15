@@ -17,11 +17,11 @@
 
 #include <typeinfo>
 
-using std::cout, std::endl, std::unordered_map, std::pair, std::string,
-    std::ifstream, std::stringstream, std::map, std::multimap, std::make_pair, std::set,
-    boost::inner_product, boost::edge, boost::source, boost::target, boost::graph_bundle,
-    boost::make_label_writer, boost::write_graphviz, boost::lambda::make_const,
-    utils::load_json, utils::hasKey, utils::get, utils::lmap;
+using std::cout, std::endl, std::unordered_map, std::pair, std::string, std::ifstream,
+    std::stringstream, std::map, std::multimap, std::make_pair, std::tuple, std::make_tuple,
+    std::set, boost::inner_product, boost::edge, boost::source, boost::target,
+    boost::graph_bundle, boost::make_label_writer, boost::write_graphviz,
+    boost::lambda::make_const, utils::load_json, utils::hasKey, utils::get, utils::lmap;
 
 
 const size_t default_n_samples = 100;
@@ -182,6 +182,15 @@ private:
   // In the python implementation the variable original_value
   // was used for the same purpose.
   pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_revert_ratio;
+
+  // TODO: I am introducing this variable as a sustitute for self.original_value
+  // found in the python implementation to implement calculate_Δ_log_prior()
+  //
+  // Cells of the transition matrix that got chagned after perturbing a β
+  // and their previous values.
+  // A vector of triples - (row, column, previous value)
+  //vector< tuple< int, int, double >> A_cells_changed;
+
 
   AnalysisGraph(DiGraph G) : graph(G){};
 
@@ -698,28 +707,37 @@ public:
     //cout << source( e[0], graph ) << ", " << target( e[0], graph ) << endl;
 
     // Remember the previous β
-    double prev_beta = graph[ e[0] ].beta;
+    double prev_beta = this->graph[ e[0] ].beta;
 
     // Perturb the β
     // TODO: Check whether this perturbation is accurate
     graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
 
-    double beta_ratio = graph[ e[0] ].beta / prev_beta;
+    double beta_ratio = this->graph[ e[0] ].beta / prev_beta;
 
     this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
 
     // Find all the transition matrix (A) cells that are dependent on this β 
     // and update them.
-    pair< int, int > beta = make_pair( source( e[0], graph ), target( e[0], graph ) ); 
+    pair< int, int > beta = make_pair( boost::source( e[0], this->graph ), boost::target( e[0], this->graph ) ); 
 
     typedef multimap< pair< int, int >,  pair< int, int > >::iterator MMAPIterator;
 
     pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range( beta );
 
+    // TODO: I am introducing this to implement calculate_Δ_log_prior
+    // Remember the cells of A that got changed and their previous values
+    //this->A_cells_changed.clear();
+
     for( MMAPIterator it = res.first; it != res.second; it++ )
     {
       int row = it->second.first;
       int col = it->second.second;;
+
+      // Note that I am remembering row and col instead of 2*row and 2*col+1
+      // row and col resembles an edge in the CAG: row -> col
+      // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
+      //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
       A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio  );
     }
@@ -800,6 +818,60 @@ public:
     }
 
     return log_likelihood_total;
+  }
+
+
+  // TODO: This implementation is WRONG!!!
+  // Now we are perturbing multiple cell of the transition matrix (A) that are
+  // dependent on the randomly selected β (edge in the CAG).
+  // In the python implementation, which is wrong, it randomly selects a single
+  // cell in the transition matrix (A) and perturb it. So, it defines the
+  // current value and previous value of that cell.
+  // TODO: We need to go back to Math and workout the Math before implementing
+  // this method.
+  // I have implemented a stub as a placeholder so taht I can move forward with
+  // the AnalysisGraph::sample_from_posterior() method.
+  double calculate_delta_log_prior( Eigen::MatrixXd A )
+  {
+    //this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
+    // If kde of an edge is truely optional ≡ there are some
+    // edges without a kde assigned, we should not access it
+    // using .value() (In the case of kde being missing, this 
+    // with throw and exception). We should follow a process
+    // similar to Tran_Mat_Cell::sample_from_prior
+    KDE & kde = this->graph[ this->beta_revert_ratio.first ].kde.value();
+
+    const int & source = boost::source( this->beta_revert_ratio.first, this->graph );
+    const int & target = boost::target( this->beta_revert_ratio.first, this->graph ); 
+
+    // TODO: Now since we are changing multiple cells of A defining the previous
+    // value is not stratight forward.
+    return kde.logpdf( A( 2 * source, 2 * target + 1 ) / this->delta_t ); // - kde.logpdf( prev_val / this->delta_t );
+
+    /*
+    vector< double > log_diffs( this->A_cells_changed.size() );
+
+    std::transform( this->A_cells_changed.begin(), this->A_cells_changed.end(),
+                    log_diffs.begin(),
+                    [&]( tuple< int, int, double > cell )
+                    {
+                      int & source = std::get< 0 >( cell );
+                      int & target = std::get< 1 >( cell );
+                      double & prev_val = std::get< 2 >( cell );
+
+                      const pair< boost::graph_traits< DiGraph >::edge_descriptor, bool > & e = boost::edge( source, target, this->graph); 
+                      
+                      // If kde of an edge is truely optional ≡ there are some
+                      // edges without a kde assigned, we should not access it
+                      // using .value() (In the case of kde being missing, this 
+                      // with throw and exception). We should follow a process
+                      // similar to Tran_Mat_Cell::sample_from_prior
+                      KDE & kde = this->graph[ e.first ].kde.value();
+
+                      return kde.logpdf( A( 2 * source, 2 * target + 1 ) / this->delta_t ) - kde.logpdf( prev_val / this->delta_t );
+                    });
+    return std::accumulate( log_diffs.begin(), log_diffs.end(), 0.0 );
+    */
   }
 
 

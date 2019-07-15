@@ -22,6 +22,9 @@ struct CausalFragment {
 
 struct Edge {
   std::string name;
+  // TODO: Why kde is optional?
+  // According to AnalysisGraph::construct_beta_pdfs()
+  // it seems all the edges have a kde
   std::optional<KDE> kde;
   std::vector<CausalFragment> causalFragments = {};
 
