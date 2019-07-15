@@ -139,6 +139,34 @@ class GrFNGenerator(object):
         self.function_names = {}
         self.types = (list, ast.Module, ast.FunctionDef)
 
+        self.process_grfn = {
+            "ast.FunctionDef": self.process_function_definition,
+            "ast.arguments": self.process_arguments,
+            "ast.arg": self.process_arg,
+            "ast.Load": self.process_load,
+            "ast.Store": self.process_store,
+            "ast.Index": self.process_index,
+            "ast.Num": self.process_num,
+            "ast.List": self.process_list_ast,
+            "ast.Str": self.process_str,
+            "ast.For": self.process_for,
+            "ast.If": self.process_if,
+            "ast.UnaryOp": self.process_unary_operation,
+            "ast.BinOp": self.process_binary_operation,
+            "ast.Expr": self.process_expression,
+            "ast.Compare": self.process_compare,
+            "ast.Subscript": self.process_subscript,
+            "ast.Name": self.process_name,
+            "ast.AnnAssign": self.process_annotated_assign,
+            "ast.Assign": self.process_assign,
+            "ast.Tuple": self.process_tuple,
+            "ast.Call": self.process_call,
+            "ast.Module": self.process_module,
+            "ast.BoolOp": self.process_boolean_operation,
+            "ast.Attribute": self.process_attribute,
+            "ast.AST": self.process_ast,
+        }
+
     def gen_grfn(self, node, state, call_source):
         """
             This function generates the GrFN structure by parsing through the
@@ -158,89 +186,17 @@ class GrFNGenerator(object):
                 return self.gen_grfn(node.body, state, "start")
             else:
                 return []
-
-        if isinstance(node, list):
+        elif isinstance(node, list):
             return self.process_list(node, state, call_source)
-        elif isinstance(node, ast.FunctionDef):
-            # Function: name, args, body, decorator_list, returns
-            return self.process_function_definition(node, state)
-        elif isinstance(node, ast.arguments):
-            # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults',
-            # 'kwarg', 'defaults')
-            return self.process_arguments(node, state, call_source)
-        elif isinstance(node, ast.arg):
-            # arg: ('arg', 'annotation')
-            return self.process_arg(node, state, call_source)
-        elif isinstance(node, ast.Load):
-            # Load: ()
-            return self.process_load(node, state, call_source)
-        elif isinstance(node, ast.Store):
-            # Store: ()
-            return self.process_store(node, state, call_source)
-        elif isinstance(node, ast.Index):
-            # Index: ('value',)
-            return self.process_index(node, state)
-        elif isinstance(node, ast.Num):
-            # Num: ('n',)
-            return self.process_num(node)
-        elif isinstance(node, ast.List):
-            # List: ('elts', 'ctx')
-            return self.process_list_ast(node, state)
-        elif isinstance(node, ast.Str):
-            # Str: ('s',)
-            return self.process_str(node)
-        elif isinstance(node, ast.For):
-            # For: ('target', 'iter', 'body', 'orelse')
-            return self.process_for(node, state, call_source)
-        elif isinstance(node, ast.If):
-            # If: ('test', 'body', 'orelse')
-            return self.process_if(node, state, call_source)
-        elif isinstance(node, ast.UnaryOp):
-            # UnaryOp: ('op', 'operand')
-            return self.process_unary_operation(node, state)
-        elif isinstance(node, ast.BinOp):
-            # BinOp: ('left', 'op', 'right')
-            return self.process_binary_operation(node, state)
         elif any(isinstance(node, node_type) for node_type in
                  UNNECESSARY_TYPES):
-            # Mult: ()
             return self.process_unnecessary_types(node, state, call_source)
-        elif isinstance(node, ast.Expr):
-            # Expr: ('value',)
-            return self.process_expression(node, state, call_source)
-        elif isinstance(node, ast.Compare):
-            # Compare: ('left', 'ops', 'comparators')
-            return self.process_compare(node, state, call_source)
-        elif isinstance(node, ast.Subscript):
-            # Subscript: ('value', 'slice', 'ctx')
-            return self.process_subscript(node, state, call_source)
-        elif isinstance(node, ast.Name):
-            # Name: ('id', 'ctx')
-            return self.process_name(node, state, call_source)
-        elif isinstance(node, ast.AnnAssign):
-            # AnnAssign: ('target', 'annotation', 'value', 'simple')
-            return self.process_annotated_assign(node, state, call_source)
-        elif isinstance(node, ast.Assign):
-            # Assign: ('targets', 'value')
-            return self.process_assign(node, state, call_source)
-        elif isinstance(node, ast.Tuple):
-            # Tuple: ('elts', 'ctx')
-            return self.process_tuple(node, state, call_source)
-        elif isinstance(node, ast.Call):
-            # Call: ('func', 'args', 'keywords')
-            return self.process_call(node, state, call_source)
-        elif isinstance(node, ast.Module):
-            # Module: body
-            return self.process_module(node, state, call_source)
-        elif isinstance(node, ast.BoolOp):
-            # BoolOp: body
-            return self.process_boolean_operation(node, state, call_source)
-        elif isinstance(node, ast.Attribute):
-            return self.process_attribute(node, state, call_source)
-        elif isinstance(node, ast.AST):
-            return self.process_ast(node, state, call_source)
         else:
-            return self.process_nomatch(node, state, call_source)
+            node_name = node.__repr__().split()[0][2:]
+            if self.process_grfn.get(node_name):
+                return self.process_grfn[node_name](node, state, call_source)
+            else:
+                return self.process_nomatch(node, state, call_source)
 
     def process_list(self, node, state, call_source):
         """
@@ -257,7 +213,7 @@ class GrFNGenerator(object):
             )
         )
 
-    def process_function_definition(self, node, state):
+    def process_function_definition(self, node, state, *_):
         """
             This function processes the function definition i.e. functionDef
             instance. It appends GrFN dictionaries to the `functions` key in
@@ -402,7 +358,7 @@ class GrFNGenerator(object):
 
         return node.arg
 
-    def process_index(self, node, state):
+    def process_index(self, node, state, *_):
         """
             This function handles the Index node of the ast. The Index node
             is a `slice` value which appears when a `[]` indexing occurs.
@@ -414,7 +370,7 @@ class GrFNGenerator(object):
         self.gen_grfn(node.value, state, "index")
 
     @staticmethod
-    def process_num(node):
+    def process_num(node, *_):
         """
             This function handles the ast.Num of the ast tree. This node only
             contains a numeric value in its body. For example: Num(n=0),
@@ -429,7 +385,7 @@ class GrFNGenerator(object):
             {"type": "literal", "dtype": getDType(node.n), "value": node.n}
         ]
 
-    def process_list_ast(self, node, state):
+    def process_list_ast(self, node, state, *_):
         """
             This function handles ast.List which represents Python lists. The
             ast.List has an `elts` element which is a list of all the elements
@@ -452,7 +408,7 @@ class GrFNGenerator(object):
         return elements if len(elements) == 1 else [{"list": elements}]
 
     @staticmethod
-    def process_str(node):
+    def process_str(node, *_):
         """
             This function handles the ast.Str of the ast tree. This node only
             contains a string value in its body. For example: Str(s='lorem'),
@@ -467,7 +423,7 @@ class GrFNGenerator(object):
             {"type": "literal", "dtype": "string", "value": node.s}
         ]
 
-    def process_for(self, node, state, call_source):
+    def process_for(self, node, state, *_):
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
             scope_path.append("_TOP")
@@ -1017,7 +973,7 @@ class GrFNGenerator(object):
 
         return [pgm]
 
-    def process_unary_operation(self, node, state):
+    def process_unary_operation(self, node, state, *_):
         """
             This function processes unary operations in Python represented by
             ast.UnaryOp. This node has an `op` key which contains the
@@ -1029,7 +985,7 @@ class GrFNGenerator(object):
         """
         return self.gen_grfn(node.operand, state, "unaryop")
 
-    def process_binary_operation(self, node, state):
+    def process_binary_operation(self, node, state, *_):
         """
             This function handles binary operations i.e. ast.BinOp
         """
@@ -1062,15 +1018,24 @@ class GrFNGenerator(object):
 
         return operation_grfn
 
-    def process_unnecessary_types(self, node, state,
-                                  call_source):
-        t = node.__repr__().split()[0][2:]
-        sys.stdout.write(f"Found {t}, which should be unnecessary\n")
+    @staticmethod
+    def process_unnecessary_types(node, *_):
+        """
+            This function handles various ast tags which are unnecessary and
+            need not be handled since we do not require to parse them
+        """
+        node_name = node.__repr__().split()[0][2:]
+        assert False, f"Found {node_name}, which should be unnecessary"
 
-    def process_expression(self, node, state, call_source):
-        exprs = self.gen_grfn(node.value, state, "expr")
-        pgm = {"functions": [], "body": [], "identifiers": []}
-        for expr in exprs:
+    def process_expression(self, node, state, *_):
+        """
+            This function handles the ast.Expr node i.e. the expression node.
+            This node appears on function calls such as when calling a
+            function, calling print(), etc.
+        """
+        expressions = self.gen_grfn(node.value, state, "expr")
+        grfn = {"functions": [], "body": [], "identifiers": []}
+        for expr in expressions:
             if "call" in expr:
                 call = expr["call"]
                 body = {
@@ -1078,27 +1043,47 @@ class GrFNGenerator(object):
                     "output": {},
                     "input": [],
                 }
+                # If the call is to the write() function of a file handle,
+                # bypass this expression as I/O is not handled currently
+                # TODO: Will need to be handled once I/O is handled
                 if re.match(r"file_\d+\.write", body["function"]):
                     return []
                 for arg in call["inputs"]:
                     if len(arg) == 1:
+                        # TODO: Only variables are represented in function
+                        #  arguments. But a function can have strings as
+                        #  arguments as well. Do we add that?
                         if "var" in arg[0]:
                             body["input"].append(arg[0]["var"])
                     else:
                         raise For2PyError(
                             "Only 1 input per argument supported right now."
                         )
-                pgm["body"].append(body)
+                grfn["body"].append(body)
             else:
                 raise For2PyError(f"Unsupported expr: {expr}.")
-        return [pgm]
+        return [grfn]
 
-    def process_compare(self, node, state, call_source):
-        return self.gen_grfn(
-            node.left, state, "compare"
-        ) + self.gen_grfn(node.comparators, state, "compare")
+    def process_compare(self, node, state, *_):
+        """
+            This function handles ast.Compare i.e. the comparator tag which
+            appears on logical comparison i.e. ==, <, >, <=, etc. This
+            generally occurs within an `if` statement but can occur elsewhere
+            as well.
+        """
+        return self.gen_grfn(node.left, state, "compare") \
+            + self.gen_grfn(node.comparators, state, "compare")
 
-    def process_subscript(self, node, state, call_source):
+    def process_subscript(self, node, state, *_):
+        """
+            This function handles the ast.Subscript i.e. subscript tag of the
+            ast. This tag appears on variable names that are indexed i.e.
+            x[0], y[5], var[float], etc. Subscript nodes will have a `slice`
+            tag which gives a information inside the [] of the call.
+        """
+        # The value inside the [] should be a number for now.
+        # TODO: Remove this and handle further for implementations of arrays,
+        #  reference of dictionary item, etc
         if not isinstance(node.slice.value, ast.Num):
             raise For2PyError("can't handle arrays right now.")
 
@@ -1123,26 +1108,40 @@ class GrFNGenerator(object):
                     self.annotated_assigned.append(val[0]["var"]["variable"])
             else:
                 self.annotated_assigned.append(val[0]["var"]["variable"])
+        else:
+            assert False, "No variable name found for subscript node."
 
         return val
 
-    def process_name(self, node, state, call_source):
+    @staticmethod
+    def process_name(node, state, call_source):
+        """
+            This function handles the ast.Name node of the AST. This node
+            represents any variable in the code.
+        """
+        # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
+        # used for comment extraction.
         if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-            lastDef = getLastDef(node.id, state.last_definitions,
-                                 state.last_definition_default)
+            last_definition = getLastDef(node.id, state.last_definitions,
+                                         state.last_definition_default)
+
+            # Only increment the index of the variable if it is on the RHS of
+            # the assignment/operation i.e. Store(). Also, we don't increment
+            # it when the operation is an annotated assignment (of the form
+            # max_rain: List[float] = [None])
             if (
                     isinstance(node.ctx, ast.Store)
                     and state.next_definitions.get(node.id)
                     and call_source != "annassign"
             ):
-                lastDef = getNextDef(
+                last_definition = getNextDef(
                     node.id,
                     state.last_definitions,
                     state.next_definitions,
                     state.last_definition_default,
                 )
 
-            return [{"var": {"variable": node.id, "index": lastDef}}]
+            return [{"var": {"variable": node.id, "index": last_definition}}]
 
     def process_annotated_assign(self, node, state,
                                  call_source):
@@ -1296,36 +1295,48 @@ class GrFNGenerator(object):
 
         return [pgm]
 
-    def process_tuple(self, node, state, call_source):
-        elements = []
-        for element in [
-            self.gen_grfn(elmt, state, "ctx") for elmt in
-            node.elts
-        ]:
-            elements.append(element[0])
+    def process_tuple(self, node, state, *_):
+        """
+            This function handles the ast.Tuple node of the AST. This handled
+            in the same way `process_list_ast` is handled.
+        """
+        elements = [
+            element[0]
+            for element in [
+                self.gen_grfn(list_element, state, "ctx")
+                for list_element in node.elts
+            ]
+        ]
 
         return elements if len(elements) == 1 else [{"list": elements}]
 
-    def process_call(self, node, state, call_source):
+    def process_call(self, node, state, *_):
+        """
+            This function handles the ast.Call node of the AST. This node
+            denotes the call to a function. The body contains of the function
+            name and its arguments.
+        """
+        # Check if the call is in the form of <module>.<function> (E.g.
+        # math.exp, math.cos, etc). The `module` part here is captured by the
+        # attribute tag.
         if isinstance(node.func, ast.Attribute):
             # Check if there is a <sys> call. Bypass it if exists.
-            if isinstance(node.func.value, ast.Attribute):
-                if node.func.value.value.id == "sys":
-                    return []
-            fnNode = node.func
-            module = fnNode.value.id
-            function_name = fnNode.attr
+            if isinstance(node.func.value, ast.Attribute) and \
+                    node.func.value.value.id == "sys":
+                return []
+            function_node = node.func
+            module = function_node.value.id
+            function_name = function_node.attr
             function_name = module + "." + function_name
         else:
             function_name = node.func.id
-        inputs = []
 
+        inputs = []
         for arg in node.args:
-            arg = self.gen_grfn(arg, state, "call")
-            inputs.append(arg)
+            argument = self.gen_grfn(arg, state, "call")
+            inputs.append(argument)
 
         call = {"call": {"function": function_name, "inputs": inputs}}
-
         return [call]
 
     def process_module(self, node, state, call_source):
