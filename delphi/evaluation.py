@@ -2,6 +2,7 @@ from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from tqdm import trange
 import pickle
 import pandas as pd
+from scipy import stats
 from .db import engine
 import numpy as np
 import seaborn as sns
@@ -62,8 +63,37 @@ def calculate_timestep(
     return year_to_month - (start_month - 1) + (end_month - 1)
 
 
+def set_mean_for_data(
+    G,
+    start_year: int,
+    start_month: int,
+    end_year: int,
+    end_month: int,
+    **kwargs,
+) -> None:
+    k = kwargs.get("k", 1)
+    for node in G.nodes(data=True):
+        for ind in node[1]["indicators"].values():
+            ind_data = data_to_df(
+                ind.name,
+                start_year,
+                start_month,
+                end_year,
+                end_month,
+                **kwargs,
+            )
+            ind.mean = ind_data[f"{ind.name}(True)"].median()
+            ind_data["disp"] = abs(
+                ind_data[f"{ind.name}(True)"]
+                - ind_data[f"{ind.name}(True)"].median()
+            )
+            ind.stdev = k * ind_data["disp"].median()
+            while ind.stdev == 0:
+                ind.stdev = np.random.exponential()
+
+
 def get_data_value(
-    variable: str,
+    indicator: str,
     country: Optional[str] = "South Sudan",
     state: Optional[str] = None,
     year: Optional[int] = None,
@@ -82,7 +112,7 @@ def get_data_value(
     same as what was passed to G.parameterize() or else you could get mismatched data.
 
     Args:
-        variable: Name of the target indicator variable.
+        indicator: Name of the target indicator variable.
 
         country: Specified Country to get a value for.
 
@@ -99,7 +129,7 @@ def get_data_value(
     """
 
     query_base = " ".join(
-        [f"select * from indicator", f"where `Variable` like '{variable}'"]
+        [f"select * from indicator", f"where `Variable` like '{indicator}'"]
     )
 
     query_parts = {"base": query_base}
@@ -109,7 +139,7 @@ def get_data_value(
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected Country not found for {variable}! Using default settings (South Sudan)!"
+                f"Selected Country not found for {indicator}! Using default settings (South Sudan)!"
             )
             query_parts["country"] = f"and `Country` is 'South Sudan'"
         else:
@@ -119,7 +149,7 @@ def get_data_value(
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected State not found for {variable}! Using default settings (Aggregration over all States)"
+                f"Selected State not found for {indicator}! Using default settings (Aggregration over all States)"
             )
             query_parts["state"] = ""
         else:
@@ -130,7 +160,7 @@ def get_data_value(
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected units not found for {variable}! Falling back to default units!"
+                f"Selected units not found for {indicator}! Falling back to default units!"
             )
             query_parts["unit"] = ""
         else:
@@ -173,7 +203,7 @@ def get_data_value(
 
 
 def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
-    """ Set t he observed state for a given time point from data. See
+    """ Set the observed state for a given time point from data. See
     get_data_value() for missing data rules. Note: units are automatically set
     according to the parameterization of the given CAG.
 
@@ -194,16 +224,9 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
 
-    init_date = False
-    if month == G.init_training_month:
-        if year == G.init_training_year:
-            init_date = True
-
     return {
         n[0]: {
-            indicator.name: indicator.mean
-            if init_date
-            else get_data_value(
+            indicator.name: get_data_value(
                 indicator.name, country, state, year, month, indicator.unit
             )
             for indicator in n[1]["indicators"].values()
@@ -260,62 +283,31 @@ def set_observed_state_sequence_from_data(
             month = month + 1
 
 
-def set_latent_state_from_observed(G, timestep) -> pd.Series:
-    state = G.s0.copy(deep=True)
-    for node in G.nodes(data=True):
-        ind_init = list(G.observed_state_sequence[0][f"{node[0]}"].values())[0]
-        while ind_init == 0:
-            ind_init = np.random.normal()
-        if timestep == -1:
-            state[f"{node[0]}"] = 0
-        else:
-            ind_value = list(
-                G.observed_state_sequence[timestep][f"{node[0]}"].values()
-            )[0]
-            state[f"{node[0]}"] = ind_value / ind_init
-        if timestep == (G.n_timesteps):
-            prev_ind_value = list(
-                G.observed_state_sequence[timestep - 1][f"{node[0]}"].values()
-            )[0]
-            prev_state_value = prev_ind_value / ind_init
-            diff = state[f"{node[0]}"] - prev_state_value
-            state[f"∂({node[0]})/∂t"] = np.random.normal(diff)
-        else:
-            next_ind_value = list(
-                G.observed_state_sequence[timestep + 1][f"{node[0]}"].values()
-            )[0]
-            next_state_value = next_ind_value / ind_init
-            diff = next_state_value - state[f"{node[0]}"]
-            state[f"∂({node[0]})/∂t"] = diff
-
-    return state
-
-
-def set_latent_state_sequence_from_observed(G) -> None:
-    """ Set the latent state sequence for a given time range. WARNING: This
-    definition is still under construction and currently runs an alternative
-    proxy procedure to set the latent state sequence. The proxy procedure
-    requires that G.set_observed_state_sequence_from_data() be ran first.
-
-    Args:
-        G: A CAG, must have indicator variables mapped and be parameterized. As
-        noted G.sample_from_prior() must of been called as well.
-
-        start_year: An integer, designates the starting year (ex: 2012).
-
-        start_month: An integer, starting month (1-12).
-
-        end_year: An integer, ending year.
-
-        end_month: An integer, ending month.
-
-    Returns:
-        None, just sets the CAGs latent_state_sequence variable.
-    """
-    G.latent_state_sequence = []
+def set_initial_latent_state_from_observed(G, timestep: int = 0) -> None:
     G.s0 = G.construct_default_initial_state()
-    for i in range(G.n_timesteps + 1):
-        G.latent_state_sequence.append(set_latent_state_from_observed(G, i))
+    for node in G.nodes(data=True):
+        for inds in node[1]["indicators"].values():
+            ind_mean = inds.mean
+            while ind_mean == 0:
+                ind_mean = np.random.normal()
+            ind_value = G.observed_state_sequence[timestep][f"{node[0]}"][
+                f"{inds.name}"
+            ]
+            G.s0[f"{node[0]}"] = ind_value / ind_mean
+            if timestep == (G.n_timesteps):
+                prev_ind_value = G.observed_state_sequence[timestep - 1][
+                    f"{node[0]}"
+                ][f"{inds.name}"]
+                prev_state_value = prev_ind_value / ind_mean
+                diff = G.s0[f"{node[0]}"] - prev_state_value
+                G.s0[f"∂({node[0]})/∂t"] = np.random.normal(diff)
+            else:
+                next_ind_value = G.observed_state_sequence[timestep + 1][
+                    f"{node[0]}"
+                ][f"{inds.name}"]
+                next_state_value = next_ind_value / ind_mean
+                diff = next_state_value - G.s0[f"{node[0]}"]
+                G.s0[f"∂({node[0]})/∂t"] = diff
 
 
 # ==========================================================================
@@ -324,7 +316,7 @@ def set_latent_state_sequence_from_observed(G) -> None:
 
 
 def data_to_df(
-    variable: str,
+    indicator: str,
     start_year: int,
     start_month: int,
     end_year: int,
@@ -372,7 +364,7 @@ def data_to_df(
     month = start_month
     date = []
     for j in range(n_timesteps + 1):
-        vals[j] = get_data_value(variable, country, state, year, month, unit)
+        vals[j] = get_data_value(indicator, country, state, year, month, unit)
         date.append(f"{year}-{month}")
 
         if month == 12:
@@ -381,13 +373,13 @@ def data_to_df(
         else:
             month = month + 1
 
-    return pd.DataFrame(vals, date, columns=[variable + "(True)"])
+    return pd.DataFrame(vals, date, columns=[f"{indicator}(True)"])
 
 
 def train_model(
     G,
     start_year: int = 2012,
-    start_month: Optional[int] = None,
+    start_month: int = 1,
     end_year: int = 2017,
     end_month: int = 12,
     res: int = 200,
@@ -418,6 +410,8 @@ def train_model(
 
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
+    year = kwargs.get("year")
+    month = kwargs.get("month")
     units = kwargs.get("units")
     fallback_aggaxes = kwargs.get("fallback_aggaxes", ["year", "month"])
     aggfunc = kwargs.get("aggfunc", np.mean)
@@ -428,8 +422,8 @@ def train_model(
         G.parameterize(
             country=country,
             state=state,
-            year=start_year,
-            month=start_month,
+            year=year,
+            month=month,
             units=units,
             fallback_aggaxes=fallback_aggaxes,
             aggfunc=aggfunc,
@@ -445,13 +439,17 @@ def train_model(
     if start_month is None:
         start_month = 1
 
+    set_mean_for_data(
+        G, start_year, start_month, end_year, end_month, **kwargs
+    )
+
     G.init_training_year = start_year
     G.init_training_month = start_month
     set_observed_state_sequence_from_data(
         G, start_year, start_month, end_year, end_month, **kwargs
     )
 
-    set_latent_state_sequence_from_observed(G)
+    set_initial_latent_state_from_observed(G)
 
     A = G.transition_matrix_collection[0]
     for edge in G.edges(data=True):
@@ -528,11 +526,11 @@ def generate_predictions(
     diff_timesteps = total_timesteps - pred_timesteps
     truncate = 0
     if diff_timesteps > G.n_timesteps:
-        G.s0 = set_latent_state_from_observed(G, G.n_timesteps)
+        set_initial_latent_state_from_observed(G, G.n_timesteps)
         truncate = diff_timesteps - G.n_timesteps
         pred_timesteps = truncate + pred_timesteps
     else:
-        G.s0 = set_latent_state_from_observed(G, diff_timesteps)
+        set_initial_latent_state_from_observed(G, diff_timesteps)
     G.sample_from_likelihood(pred_timesteps + 1)
     for latent_state_s in G.latent_state_sequences:
         del latent_state_s[0:truncate]
@@ -540,7 +538,7 @@ def generate_predictions(
         del observed_state_s[0:truncate]
 
 
-def pred_to_df(G, indicator: str, show: List[str] = [], agg=np.median):
+def pred_to_array(G, indicator: str) -> np.ndarray:
     time_range = len(G.pred_range)
     pred = np.zeros((time_range, G.res))
     for i in range(G.res):
@@ -548,12 +546,111 @@ def pred_to_df(G, indicator: str, show: List[str] = [], agg=np.median):
             for _, inds in G.observed_state_sequences[i][j].items():
                 if indicator in inds.keys():
                     pred[j][i] = float(inds[indicator])
-    start_date = G.pred_range[0]
-    start_year = int(start_date[0:4])
-    start_month = int(start_date[5:6])
-    end_date = G.pred_range[-1]
-    end_year = int(end_date[0:4])
-    end_month = int(end_date[5:6])
+    return pred
+
+
+def mean_pred_to_df(
+    G, indicator: str, ci: float = 0.95, true_vals: bool = False, **kwargs
+) -> pd.DataFrame:
+    pred = pred_to_array(G, indicator)
+    pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred, ci)[:, 0]
+    pred_mean = np.zeros((len(G.pred_range), 3))
+    for i, (mean, interval) in enumerate(pred_stats):
+        pred_mean[i, 0] = mean
+        pred_mean[i, 1] = interval[0]
+        pred_mean[i, 2] = interval[1]
+
+    mean_df = pd.DataFrame(
+        pred_mean,
+        columns=[
+            f"{indicator}(Mean Prediction)",
+            f"{indicator}(Lower Confidence Bound)",
+            f"{indicator}(Upper Confidence Bound)",
+        ],
+    )
+    if true_vals == True:
+        warnings.warn(
+            "The selected output settings assume that real data exists "
+            "for the given prediction time range. Any missing data values are "
+            "filled with a heuristic estimate based on existing data."
+        )
+        start_date = G.pred_range[0]
+        start_year = int(start_date[0:4])
+        start_month = int(start_date[5:7])
+        end_date = G.pred_range[-1]
+        end_year = int(end_date[0:4])
+        end_month = int(end_date[5:7])
+        true_data_df = data_to_df(
+            indicator, start_year, start_month, end_year, end_month, **kwargs
+        )
+        mean_df = mean_df.set_index(true_data_df.index)
+
+        error = mean_df.values - true_data_df.values.reshape(-1, 1)
+        error_df = pd.DataFrame(
+            error, columns=["Error", "Lower Error Bound", "Upper Error Bound"]
+        )
+        error_df = error_df.set_index(true_data_df.index)
+
+        return pd.concat(
+            [mean_df, true_data_df, error_df],
+            axis=1,
+            join_axes=[true_data_df.index],
+        )
+    else:
+        mean_df = mean_df.set_index(pd.Index(G.pred_range))
+        return mean_df
+
+
+def pred_plot(
+    G,
+    indicator: str,
+    ci: float = 0.95,
+    plot_type: str = "Prediction",
+    **kwargs,
+):
+    if plot_type == "Comparison":
+        df = mean_pred_to_df(G, indicator, ci, True, **kwargs)
+        df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
+        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+        ax = sns.lineplot(data=df_compare, sort=False, **kwargs)
+        ax.fill_between(
+            x=df_compare.index,
+            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+            alpha=0.5,
+            **kwargs,
+        )
+        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+        ax.set_title(f"Predictions vs. True values for {indicator}")
+    elif plot_type == "Error":
+        df = mean_pred_to_df(G, indicator, ci, True, **kwargs)
+        df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
+        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+        ax = sns.lineplot(data=df_error, sort=False, **kwargs)
+        ax.fill_between(
+            x=df_error.index,
+            y1=df["Upper Error Bound"].values,
+            y2=df["Lower Error Bound"].values,
+            alpha=0.5,
+            **kwargs,
+        )
+        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+        ax.axhline(color="r")
+        ax.set_title(f"Prediction Error for {indicator}")
+    else:
+        df = mean_pred_to_df(G, indicator, ci, False, **kwargs)
+        df_pred = df.drop(df.columns[[1, 2]], axis=1)
+        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+        ax = sns.lineplot(data=df_pred, sort=False, **kwargs)
+        ax.fill_between(
+            x=df_pred.index,
+            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+            alpha=0.5,
+            **kwargs,
+        )
+        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+        ax.set_title(f"Predictions for {indicator}")
 
 
 def evaluate(
