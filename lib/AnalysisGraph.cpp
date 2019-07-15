@@ -191,6 +191,10 @@ private:
   // A vector of triples - (row, column, previous value)
   //vector< tuple< int, int, double >> A_cells_changed;
 
+  // To keep track whetehr the log_likelihood is initialized for the 1st time
+  bool log_likelihood_initialized = false;
+
+  double log_likelihood;
 
   AnalysisGraph(DiGraph G) : graph(G){};
 
@@ -677,6 +681,37 @@ public:
 
     cout << endl << "After Update: " << endl << A << endl;
   }
+
+
+  /**
+   * Find all the transition matrix (A) cells that are dependent on this β 
+   * and update them.
+   */
+  void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e, double beta_ratio  )
+  {
+    pair< int, int > beta = make_pair( boost::source( e, this->graph ), boost::target( e, this->graph ) ); 
+
+    typedef multimap< pair< int, int >,  pair< int, int > >::iterator MMAPIterator;
+
+    pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range( beta );
+
+    // TODO: I am introducing this to implement calculate_Δ_log_prior
+    // Remember the cells of A that got changed and their previous values
+    //this->A_cells_changed.clear();
+
+    for( MMAPIterator it = res.first; it != res.second; it++ )
+    {
+      int & row = it->second.first;
+      int & col = it->second.second;;
+
+      // Note that I am remembering row and col instead of 2*row and 2*col+1
+      // row and col resembles an edge in the CAG: row -> col
+      // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
+      //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
+
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio );
+    }
+  }
   
 
   /**
@@ -717,6 +752,9 @@ public:
 
     this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
 
+    this->update_transition_matrix_cells( A, e[0], beta_ratio );
+
+    /*
     // Find all the transition matrix (A) cells that are dependent on this β 
     // and update them.
     pair< int, int > beta = make_pair( boost::source( e[0], this->graph ), boost::target( e[0], this->graph ) ); 
@@ -731,16 +769,17 @@ public:
 
     for( MMAPIterator it = res.first; it != res.second; it++ )
     {
-      int row = it->second.first;
-      int col = it->second.second;;
+      int & row = it->second.first;
+      int & col = it->second.second;;
 
       // Note that I am remembering row and col instead of 2*row and 2*col+1
       // row and col resembles an edge in the CAG: row -> col
       // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
       //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio  );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio );
     }
+    */
   }
 
 
@@ -872,6 +911,60 @@ public:
                     });
     return std::accumulate( log_diffs.begin(), log_diffs.end(), 0.0 );
     */
+  }
+
+
+  /**
+   * Run Bayesian inference - sample from the posterior distribution.
+   */
+  Eigen::MatrixXd sample_from_posterior( Eigen::MatrixXd A )
+  {
+    // TODO: This check will be called for each sample and will be false
+    // except for the 1st time. It is better to remove this and initialize
+    // log_likelihood just after sampling the initial transition matrix A
+    // , make sure log_likelihood is initialize before calling this method
+    // and get rid of this check from here.
+    if( ! this->log_likelihood_initialized )
+    {
+      this->log_likelihood = this->calculate_log_likelihood( A );
+      this->log_likelihood_initialized = true;
+    }
+
+    // Sample a new transition matrix from the proposal distribution
+    this->sample_from_proposal( A );
+
+    // TODO: AnalysisGraph::calculate_delat_log_prior() method is not properly
+    // implemented. Only a stub is implemented. 
+    double delta_log_prior = this->calculate_delta_log_prior( A );
+
+    double original_log_likelihood = this->log_likelihood;
+    double candidate_log_likelihood = this->calculate_log_likelihood( A );
+    double delta_log_likelihood = candidate_log_likelihood - original_log_likelihood;
+
+    double delta_log_joint_probability = delta_log_prior + delta_log_likelihood;
+
+    double acceptance_probability = std::min( 1.0, exp( delta_log_joint_probability ));
+
+    // Define the random number generator
+    // TODO: We have to do this once before calling sample_from_posterior()
+    // We have to move this out of sample_from_posterior()
+    // Maybe we can define this in the class constructor and use it in
+    // all the places we need random numbers.
+    std::random_device rd;
+    std::mt19937 mt( rd() );
+    std::uniform_real_distribution< double > dist( 0.0, 1.0 );
+
+    if( acceptance_probability < dist( mt ))
+    {
+      // Reject the sample
+      this->log_likelihood = original_log_likelihood;
+    
+      // Reset the transition matrix cells that were changed
+      // TODO: Can we change the transition matrix only when the sample is accpeted?
+      this->update_transition_matrix_cells( A, this->beta_revert_ratio.first, this->beta_revert_ratio.second );
+    }
+
+    return A;
   }
 
 
