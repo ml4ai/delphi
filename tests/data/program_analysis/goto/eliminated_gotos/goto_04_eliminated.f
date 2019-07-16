@@ -20,11 +20,8 @@ C     URL: https://ieeexplore.ieee.org/abstract/document/288377
          if (fact .eq. 0) then
              fact = fact + 1    ! this line is executed exactly once
          endif
-
-         if (fact .ne. 0) then
-             fact = fact * i
-             write (*, 10) i, fact
-         endif
+         fact = fact * i
+         write (*, 10) i, fact
       end do
 
       stop

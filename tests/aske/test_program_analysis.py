@@ -45,6 +45,11 @@ def postprocess_test_data_grfn_dict(_dict):
         if "gensyms" in identifier:
             del identifier["gensyms"]
 
+#########################################################
+#                                                       #
+#               TARGET FORTRAN TEST FILE                #
+#                                                       #
+#########################################################
 
 @pytest.fixture
 def crop_yield_python_IR_test():
@@ -63,8 +68,7 @@ def io_python_IR_test():
 
 @pytest.fixture
 def array_python_IR_test():
-    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0][
-        0]
+    yield get_python_source(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))[0][0]
 
 
 @pytest.fixture
@@ -80,21 +84,54 @@ def derived_type_python_IR_test():
 
 
 @pytest.fixture
-def goto_python_IR_test():
+def cond_goto_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/goto/goto_02.f"))[0][0]
+
+
+@pytest.fixture
+def uncond_goto_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_08.f"))[0][0]
+
+
+@pytest.fixture
+def diff_level_goto_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/goto/goto_09.f"))[0][0]
 
 
 @pytest.fixture
 def save_python_IR_test():
     yield get_python_source(
-        Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f")
-    )[0][0]
+        Path(f"{DATA_DIR}" f"/save/simple_variables/save-02.f"))[0][0]
+
+
+@pytest.fixture
+def cycle_exit_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/cycle/cycle_03.f"))[0][0]
 
 
 @pytest.fixture
 def module_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/modules/test_module_08.f"))[0]
+
+
+@pytest.fixture
+def continuation_lines_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/continuation_line/continuation-lines-01.for"))[0][0]
+
+
+@pytest.fixture
+def continuation_lines_f90_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/continuation_line/continuation-lines-02.f90"))[0][0]
+
+    
+#########################################################
+#                                                       #
+#               TARGET PYTHON TEST FILE                 #
+#                                                       #
+#########################################################
 
 
 def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
@@ -133,10 +170,22 @@ def test_derived_type_pythonIR_generation(derived_type_python_IR_test):
     assert derived_type_python_IR_test == python_src
 
 
-def test_goto_pythonIR_generation(goto_python_IR_test):
+def test_conditional_goto_pythonIR_generation(cond_goto_python_IR_test):
     with open(f"{DATA_DIR}/goto/goto_02.py", "r") as f:
         python_src = f.read()
-    assert goto_python_IR_test == python_src
+    assert cond_goto_python_IR_test == python_src
+
+
+def test_unconditional_goto_pythonIR_generation(uncond_goto_python_IR_test):
+    with open(f"{DATA_DIR}/goto/goto_08.py", "r") as f:
+        python_src = f.read()
+    assert uncond_goto_python_IR_test == python_src
+
+
+def test_unconditional_goto_pythonIR_generation(diff_level_goto_python_IR_test):
+    with open(f"{DATA_DIR}/goto/goto_09.py", "r") as f:
+        python_src = f.read()
+    assert diff_level_goto_python_IR_test == python_src
 
 
 def test_save_pythonIR_generation(save_python_IR_test):
@@ -154,3 +203,23 @@ def test_module_pythonIR_generation(module_python_IR_test):
     with open(f"{DATA_DIR}/modules/m_mymod8.py", "r") as f:
         python_src = f.read()
     assert src[0] == python_src
+
+
+def test_cycle_exit_pythonIR_generation(cycle_exit_python_IR_test):
+    with open(f"{DATA_DIR}/cycle/cycle_03.py", "r") as f:
+        python_src = f.read()
+    assert cycle_exit_python_IR_test == python_src
+
+
+def test_continue_line_pythonIR_generation(continuation_lines_python_IR_test):
+    with open(f"{DATA_DIR}/continuation_line/continuation-lines-01.py", "r") as f:
+        python_src = f.read()
+    assert continuation_lines_python_IR_test == python_src
+
+
+def test_continue_line_f90_pythonIR_generation(
+        continuation_lines_f90_python_IR_test
+):
+    with open(f"{DATA_DIR}/continuation_line/continuation-lines-02.py", "r") as f:
+        python_src = f.read()
+    assert continuation_lines_f90_python_IR_test == python_src

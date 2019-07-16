@@ -96,10 +96,10 @@ def getIndicators():
         )
         for indicator_mapping in engine.execute(query):
             variable_name = indicator_mapping["Indicator"].replace("'", "''")
-            query_parts = (
+            query_parts = [
                 f"select * from indicator",
                 f"where `Variable` like '{variable_name}'",
-            )
+            ]
             outputResolution = args.get("outputResolution")
             start = args.get("start")
             end = args.get("end")
@@ -114,6 +114,7 @@ def getIndicators():
 
             records = list(engine.execute(" ".join(query_parts)))
             value_dict = {}
+            source = "Unknown"
             if func == "raw":
                 for r in records:
                     unit, value, year, month, source = (
@@ -234,7 +235,7 @@ def createProjection(modelID):
                 "value": median_value,
             }
 
-            result.results[n]["values"].append(value_dict)
+            result.results[n]["values"].append(value_dict.copy())
             value_dict.update({"value": lower_limit})
             result.results[n]["confidenceInterval"]["lower"].append(
                 value_dict.copy()

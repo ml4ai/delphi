@@ -94,8 +94,8 @@ NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#
 		- [`<function_assign_spec>`](#function-assign-specification)[attrval] ::=
 			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"assign"` | `"condition"` | `"decision"`
-			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
-			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
+			- "arguments" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
+			- "return_value" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
 			- "body" : one of the following:
 				- [`<function_assign_body_literal_spec>`](#function-assign-body-literal)[attrval] ::=
 					- "type" : `"literal"`
@@ -109,29 +109,29 @@ NOTE: [`<variable_name>`](#variable-naming-convention) and [`<function_name>`](#
 		
 		- [`<function_container_spec>`](#function-container-specification)[attrval] ::=
 			- "name" : [`<function_name>`](#function-naming-convention)
-			- "type" : `"assign"` | `"condition"` | `"decision"`
-			- "sources" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
-			- "target" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
+			- "type" : `"container"`
+			- "arguments" : list of [ [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention) ]
+			- "updated" : list of [`<variable_name>`](#variable-naming-convention) # variables side-effected during execution
+			- "return_value" : [`<function_source_reference>`](#function-assign-specification) | [`<variable_name>`](#variable-naming-convention)
 			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 		
 		- [`<function_loop_plate_spec>`](#function-loop-plate-specification)[attrval] ::=
 			- "name" : [`<function_name>`](#function-naming-convention)
 			- "type" : `"loop_plate"`
-			- "input" : list of [`<variable_name>`](#variable-naming-convention)
-			- "index\_variable" : [`<variable_name>`](#variable-naming-convention) # >>> REMOVE? Also, @EricDavis makes good point that _Time_ is important concept; but I don't see time as always part of the exit\_condition computation, so can't rely on exit\_condition variable use as necessary or sufficient condition of identifying time.
-				- >>> Anything that shows up as an input argument to the exit\_condition AND is assigned (updated) within the loop body can be considered as an index\_variable -- but this does not necessarily match to all and only that we might want to consider as an "index"... 
-				- >>> ... because, while _Time_ must be updated by assignment within the loop (to advance), it is not necessarily part of the predicate calculation of the exit\_condition. Which means that time and other things we might consider to be an "index" are not all part of the exit\_condition.
-			- "exit\_condition" : `<loop_condition>` ::= # continue loop until predicate evaluates to "output\_literal"
-				- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
-				- "output" : [`<variable_name>`](#variable-naming-convention) # the named variable of the exit\_condition result
+			- "arguments" : list of [`<variable_name>`](#variable-naming-convention)
+			- "updated" : list of [`<variable_name>`](#variable-naming-convention) # variables side-effected during execution
+			- "test\_at\_end" : `TRUE` | `FALSE`
+			- "exit\_condition" : `<loop_condition>` ::= # continue loop WHILE predicate evaluates to "output\_literal"
+				- "arguments" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
+				- "return_value" : [`<variable_name>`](#variable-naming-convention) # the named variable of the exit\_condition result
 				- "output_literal" : `TRUE` | `FALSE`
 				- "predicate" : [`<function_name>`](#function-naming-convention) # reference to lambda fn computing the condition (which must match the output_literal in order to exit)
 			- "body" : list of [`<function_reference_spec>`](#function-reference-specification)
 
 - [`<function_reference_spec>`](#function-reference-specification)[attrval] ::=
 	- "function" : [`<function_name>`](#function-naming-convention)
-	- "input" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
-	- "output" : [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
+	- "arguments" : list of [ [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention) ]
+	- "return_value" : [`<variable_reference>`](#variable-reference) | [`<variable_name>`](#variable-naming-convention)
 
 - [`<function_source_reference>`](#function-assign-specification)[attrval] ::=
 	- "name" : [ [`<variable_name>`](#variable-naming-convention) | [`<function_name>`](#function-naming-convention) ]
