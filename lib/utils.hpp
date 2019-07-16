@@ -3,27 +3,48 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include "../external/nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
+#include <vector>
 
 namespace utils {
-template <class T> void print(T x) { std::cout << x << std::endl; }
 
-template <class T> void printVec(std::vector<T> xs) {
+using std::cout, std::endl, std::vector, std::string, std::ifstream,
+    std::unordered_map;
+
+template <class T> void print(T x) { cout << x << endl; }
+
+template <class T> void printVec(vector<T> xs) {
   for (auto x : xs) {
     print(x);
   }
 }
-template <class T, class U> bool hasKey(std::unordered_map<T, U> umap, T key) {
+template <class Key, class Value> bool hasKey(unordered_map<Key, Value> umap, Key key) {
   return umap.count(key) != 0;
 }
 
-template <class T, class U>
-U get(std::unordered_map<T, U> umap, T key, U default_value) {
+template <class Key, class Value>
+Value get(unordered_map<Key, Value> umap, Key key, Value default_value) {
   return hasKey(umap, key) ? umap[key] : default_value;
 }
 
-nlohmann::json load_json(std::string filename) {
-  std::ifstream i(filename);
+template <class V, class Iterable> vector<V> list(Iterable xs) {
+  vector<V> xs_copy;
+  for (auto x : xs) {
+    xs_copy.push_back(x);
+  }
+  return xs_copy;
+}
+
+template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
+  vector<V> transformed_vector;
+  for (V x : vec) {
+    transformed_vector.push_back(f(x));
+  }
+  return transformed_vector;
+}
+
+nlohmann::json load_json(string filename) {
+  ifstream i(filename);
   nlohmann::json j;
   i >> j;
   return j;

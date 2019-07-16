@@ -1,26 +1,23 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
-set(Boost_DEBUG ON)
-set(CMAKE_CXX_STANDARD 17)
-find_package(Boost)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/delphi/cpp)
-set(PYBIND11_CPP_STANDARD -std=c++17)
-set(PYBIND11_PYTHON_VERSION 3.7)
-add_subdirectory(external/pybind11)
+# Conan setup
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+# Add and link pybind11 modules
 include_directories(lib)
 include_directories(external)
+set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+set(PYBIND11_CPP_STANDARD -std=c++17)
+add_subdirectory(external/pybind11)
 pybind11_add_module(kde lib/kde_wrapper.cpp)
 pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
+target_link_libraries(AnalysisGraph PUBLIC ${CONAN_LIBS})
+target_link_libraries(kde PUBLIC ${CONAN_LIBS})
 
-# Finding and linking SQLite3
-include(FindPackageHandleStandardArgs)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(SQLite3)
-if (SQLITE3_FOUND)
-  include_directories(${SQLITE3_INCLUDE_DIRS})
-  target_link_libraries(AnalysisGraph PUBLIC ${SQLITE3_LIBRARIES})
-endif (SQLITE3_FOUND)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
-endif(Boost_FOUND)
+
+
+# Tests
+add_executable(cpptests tests/cpptests.cpp)
+target_link_libraries(cpptests PUBLIC ${CONAN_LIBS})
