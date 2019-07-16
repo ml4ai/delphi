@@ -39,20 +39,14 @@ BINOPS = {
 # types for the lambdas
 ANNOTATE_MAP = {
     "real": "Real",
-    "integer": "int",
-    "string": "str",
-    "array": "[]",
-    "bool": "bool",
-}
-
-# This dictionary helps in reverse mapping the data types for internal
-# computations
-REVERSE_ANNOTATE_MAP = {
     "float": "real",
     "Real": "real",
+    "integer": "int",
     "int": "integer",
-    "list": "array",
+    "string": "str",
     "str": "string",
+    "array": "[]",
+    "list": "array",
     "bool": "bool",
 }
 
@@ -153,6 +147,7 @@ class GrFNGenerator(object):
             "ast.If": self.process_if,
             "ast.UnaryOp": self.process_unary_operation,
             "ast.BinOp": self.process_binary_operation,
+            "ast.BoolOp": self.process_boolean_operation,
             "ast.Expr": self.process_expression,
             "ast.Compare": self.process_compare,
             "ast.Subscript": self.process_subscript,
@@ -162,7 +157,6 @@ class GrFNGenerator(object):
             "ast.Tuple": self.process_tuple,
             "ast.Call": self.process_call,
             "ast.Module": self.process_module,
-            "ast.BoolOp": self.process_boolean_operation,
             "ast.Attribute": self.process_attribute,
             "ast.AST": self.process_ast,
         }
@@ -381,9 +375,13 @@ class GrFNGenerator(object):
         # TODO: According to new specification, the following structure
         #  should be used: {"type": "literal, "value": {"dtype": <type>,
         #  "value": <value>}}. Confirm with Clay.
-        return [
-            {"type": "literal", "dtype": getDType(node.n), "value": node.n}
-        ]
+        data_type = ANNOTATE_MAP.get(type(node.n).__name__)
+        if data_type:
+            return [
+                {"type": "literal", "dtype": data_type, "value": node.n}
+            ]
+        else:
+            assert False, f"Unidentified data type of variable: {node.n}"
 
     def process_list_ast(self, node, state, *_):
         """
@@ -721,7 +719,7 @@ class GrFNGenerator(object):
 
             output = {
                 "variable": updatedDef,
-                "index": getNextDef(
+                "index": get_next_definition(
                     updatedDef,
                     state.last_definitions,
                     state.next_definitions,
@@ -899,7 +897,7 @@ class GrFNGenerator(object):
 
                 output = {
                     "variable": updatedDef,
-                    "index": getNextDef(
+                    "index": get_next_definition(
                         updatedDef,
                         state.last_definitions,
                         state.next_definitions,
@@ -996,13 +994,17 @@ class GrFNGenerator(object):
             for op in BINOPS:
                 if isinstance(node.op, op):
                     val = BINOPS[type(node.op)](node.left.n, node.right.n)
-                    return [
-                        {
-                            "type": "literal",
-                            "dtype": getDType(val),
-                            "value": val,
-                        }
-                    ]
+                    data_type = ANNOTATE_MAP.get(type(val).__name__)
+                    if data_type:
+                        return [
+                            {
+                                "type": "literal",
+                                "dtype": data_type,
+                                "value": val,
+                            }
+                        ]
+                    else:
+                        assert False, f"Unidentified data type of: {val}"
             assert False, ("Both operands are numbers but no operator "
                            "available to handle their computation. Either add "
                            "a handler if possible or remove this assert and "
@@ -1017,6 +1019,25 @@ class GrFNGenerator(object):
             + self.gen_grfn(node.right, state, "binop")
 
         return operation_grfn
+
+    def process_boolean_operation(self, node, state, *_):
+        """
+            This function will process the ast.BoolOp node that handles
+            boolean operations i.e. AND, OR, etc.
+        """
+        # TODO: No example of this to test on. This looks like deprecated
+        #  format. Will need to be rechecked.
+        grfn_list = []
+        operation = {ast.And: "and", ast.Or: "or"}
+
+        for key in operation:
+            if isinstance(node.op, key):
+                grfn_list.append([{"boolean_operation": operation[key]}])
+
+        for item in node.values:
+            grfn_list.append(self.gen_grfn(item, state, "boolop"))
+
+        return grfn_list
 
     @staticmethod
     def process_unnecessary_types(node, *_):
@@ -1091,7 +1112,7 @@ class GrFNGenerator(object):
         if val:
             if val[0]["var"]["variable"] in self.annotated_assigned:
                 if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
+                    val[0]["var"]["index"] = get_next_definition(
                         val[0]["var"]["variable"],
                         state.last_definitions,
                         state.next_definitions,
@@ -1099,7 +1120,7 @@ class GrFNGenerator(object):
                     )
             elif val[0]["var"]["index"] == -1:
                 if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
+                    val[0]["var"]["index"] = get_next_definition(
                         val[0]["var"]["variable"],
                         state.last_definitions,
                         state.next_definitions,
@@ -1122,8 +1143,9 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-            last_definition = getLastDef(node.id, state.last_definitions,
-                                         state.last_definition_default)
+            last_definition = get_last_definition(node.id,
+                                                  state.last_definitions,
+                                                  state.last_definition_default)
 
             # Only increment the index of the variable if it is on the RHS of
             # the assignment/operation i.e. Store(). Also, we don't increment
@@ -1134,7 +1156,7 @@ class GrFNGenerator(object):
                     and state.next_definitions.get(node.id)
                     and call_source != "annassign"
             ):
-                last_definition = getNextDef(
+                last_definition = get_next_definition(
                     node.id,
                     state.last_definitions,
                     state.next_definitions,
@@ -1339,59 +1361,53 @@ class GrFNGenerator(object):
         call = {"call": {"function": function_name, "inputs": inputs}}
         return [call]
 
-    def process_module(self, node, state, call_source):
-        pgms = []
+    def process_module(self, node, state, *_):
+        """
+            This function handles the ast.Module node in the AST. The module
+            node is the starting point of the AST and its body consists of
+            the entire ast of the python code.
+        """
+        grfn_list = []
         for cur in node.body:
-            pgm = self.gen_grfn(cur, state, "module")
-            pgms += pgm
-        return [mergeDicts(pgms)]
-
-    def process_boolean_operation(self, node, state,
-                                  call_source):
-        pgms = []
-        boolOp = {ast.And: "and", ast.Or: "or"}
-
-        for key in boolOp:
-            if isinstance(node.op, key):
-                pgms.append([{"boolOp": boolOp[key]}])
-
-        for item in node.values:
-            pgms.append(self.gen_grfn(item, state, "boolop"))
-
-        return pgms
+            grfn = self.gen_grfn(cur, state, "module")
+            grfn_list += grfn
+        return [merge_dictionary(grfn_list)]
 
     def process_attribute(self, node, state, call_source):
-        # Handle Attributes
-        # This is a fix on `feature_save` branch to bypass the SAVE statement
-        # feature where a SAVEd variable is referenced as
-        # <function_name>.<variable_name>. So the code below only returns the
-        # <variable_name> which is stored under `node.attr`. The `node.id`
-        # stores the <function_name> which is being ignored.
-
+        """
+            Handle Attributes: This is a fix on `feature_save` branch to
+            bypass the SAVE statement feature where a SAVEd variable is
+            referenced as <function_name>.<variable_name>. So the code below
+            only returns the <variable_name> which is stored under
+            `node.attr`. The `node.id` stores the <function_name> which is
+            being ignored.
+        """
         # When a computations float value is extracted using the Float32
-        # class's _val method, an ast.Attribute will be present, just
+        # class's _val method, an ast.Attribute will be present
         if node.attr == "_val":
-            return self.gen_grfn(node.value, state,
-                               call_source)
+            return self.gen_grfn(node.value, state, call_source)
         else:
-            lastDef = getLastDef(node.attr, state.last_definitions,
-                                 state.last_definition_default)
+            # TODO: This section of the code should be the same as
+            #  `process_name`. Verify this.
+            last_definition = get_last_definition(node.attr,
+                                                  state.last_definitions,
+                                                  state.last_definition_default)
 
-            return [{"var": {"variable": node.attr, "index": lastDef}}]
+            return [{"var": {"variable": node.attr, "index": last_definition}}]
 
-    def process_ast(self, node, state, call_source):
+    @staticmethod
+    def process_ast(node, *_):
         sys.stderr.write(
             f"No handler for AST.{node.__class__.__name__} in gen_grfn, "
             f"fields: {node._fields}\n"
         )
 
-    def process_nomatch(self, node, state, call_source):
+    @staticmethod
+    def process_nomatch(node, *_):
         sys.stderr.write(
             f"No handler for {node.__class__.__name__} in gen_grfn, "
             f"value: {str(node)}\n"
         )
-
-
 
     # This function checks whether an assignment is an alias created. An alias
     # is created when an assignment of the form y=x happens such that y is now
@@ -1688,7 +1704,7 @@ def process_decorators(node, state):
             for arg in decorator.args[0].elts:
                 variable = arg.values[0].s
                 variable_type = arg.values[2].s
-                state.variable_types[variable] = REVERSE_ANNOTATE_MAP[variable_type]
+                state.variable_types[variable] = ANNOTATE_MAP[variable_type]
 
 
 def genFn(node, function_name: str, returnVal: bool, inputs, state):
@@ -1732,10 +1748,22 @@ def genFn(node, function_name: str, returnVal: bool, inputs, state):
     return "".join(lambda_strings)
 
 
-def mergeDicts(dicts: Iterable[Dict]) -> Dict:
+def merge_dictionary(dicts: Iterable[Dict]) -> Dict:
+    """
+        This function merges the entire dictionary created by `gen_grfn` into
+        another dictionary in a managed manner. The `dicts` argument is a
+        list of form [{}, {}, {}] where each {} dictionary is the grfn
+        specification of a function. It contains `functions` and
+        `identifiers` as its keys. Additionally, if the python code has a
+        starting point, that is also present in the last {} of `dicts`. The
+        function merges the values from the `functions` key of each {} in
+        `dicts` into a single key of the same name. Similarly, it does this
+        for every unique key in the `dicts` dictionaries.
+    """
     fields = set(chain.from_iterable(d.keys() for d in dicts))
-
     merged_dict = {field: [] for field in fields}
+
+    # Create a cross-product between each unique key and each grfn dictionary
     for field, d in product(fields, dicts):
         if field in d:
             if isinstance(d[field], list):
@@ -1779,10 +1807,14 @@ def get_function_name(function_names, basename, target):
     return function_name
 
 
-def getLastDef(var, last_definitions, last_definition_default):
+def get_last_definition(var, last_definitions, last_definition_default):
+    """
+        This function returns the last (current) definition (index) of a
+        variable.
+    """
     index = last_definition_default
 
-    # Preprocessing and removing certain Assigns which only pertain to the
+    # Pre-processing and removing certain Assigns which only pertain to the
     # Python code and do not relate to the FORTRAN code in any way.
     bypass_match = RE_BYPASS_IO.match(var)
 
@@ -1796,41 +1828,44 @@ def getLastDef(var, last_definitions, last_definition_default):
         return 0
 
 
-def getNextDef(var, last_definitions, next_definitions, last_definition_default):
+def get_next_definition(var, last_definitions, next_definitions,
+                        last_definition_default):
+    """
+        This function returns the next definition i.e. index of a variable.
+    """
+    # The dictionary `next_definitions` holds the next index of all current
+    # variables in scope. If the variable is not found (happens when it is
+    # assigned for the first time in a scope), its index will be one greater
+    # than the last definition default.
     index = next_definitions.get(var, last_definition_default + 1)
+    # Update the next definition index of this variable by incrementing it by
+    # 1. This will be used the next time when this variable is referenced on
+    # the LHS side of an assignment.
     next_definitions[var] = index + 1
+    # Also update the `last_definitions` dictionary which holds the current
+    # index of all variables in scope.
     last_definitions[var] = index
     return index
 
 
-def get_variable_type(annNode):
-    # wrapped in list
-    if isinstance(annNode, ast.Subscript):
-        dType = annNode.slice.value.id
+def get_variable_type(annotation_node):
+    """
+        This function returns the data type of a variable using the
+        annotation information used to define that variable
+    """
+    # If the variable has been wrapped in a list like x: List[int],
+    # `annotation_node` will be a Subscript node
+    if isinstance(annotation_node, ast.Subscript):
+        data_type = annotation_node.slice.value.id
     else:
-        dType = annNode.id
-    try:
-        if REVERSE_ANNOTATE_MAP.get(dType):
-            return REVERSE_ANNOTATE_MAP[dType]
-        else:
-            sys.stderr.write(
-                "Unsupported type (only float, int, list, and str "
-                "supported as of now).\n"
-            )
-    except AttributeError:
-        raise For2PyError("Unsupported type (annNode is None).")
-
-
-def getDType(val):
-    if isinstance(val, int):
-        dtype = "integer"
-    elif isinstance(val, float):
-        dtype = "real"
-    elif isinstance(val, str):
-        dtype = "string"
+        data_type = annotation_node.id
+    if ANNOTATE_MAP.get(data_type):
+        return ANNOTATE_MAP[data_type]
     else:
-        raise For2PyError(f"num: {type(val)}.")
-    return dtype
+        sys.stderr.write(
+            "Unsupported type (only float, int, list, real, bool and str "
+            "supported as of now).\n"
+        )
 
 
 def get_body_and_functions(pgm):
