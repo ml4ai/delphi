@@ -974,6 +974,7 @@ public:
     ==========================================================================
   */
 
+
   /**
    * Create a BMI config file to initialize the model.
    *
@@ -989,6 +990,36 @@ public:
 
     file.close();
   }
+
+
+  /**
+   * The default update function for a CAG node.
+   *
+   * @param vert_id: vertex id of the CAG node
+   *
+   * @return A vector of values corresponding to the distribution of the value of
+   *         the real-valued variable representing the node.
+   */ 
+  vector< double > default_update_function( int vert_id )
+  {
+    vector< double > xs( default_n_samples );
+
+    // Note: Both transition_matrix_collection and s0 should have
+    //       default_n_samples elements.
+    std::transform( this->transition_matrix_collection.begin(),
+                    this->transition_matrix_collection.end(),
+                    this->s0.begin(),
+                    xs.begin(),
+                    [&]( Eigen::MatrixXd A, Eigen::VectorXd s )
+                    {
+                      // The row of the transition matrix (A) that is associated
+                      // with vertex vert_id = 2 * vert_id
+                      return A.row( 2 * vert_id ) * s;
+                    });
+
+    return xs;
+  }
+
 
   /**
    * Initialize the executable AnalysisGraph with a config file.
