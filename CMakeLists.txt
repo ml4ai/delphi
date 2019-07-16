@@ -8,6 +8,7 @@ conan_basic_setup()
 # Add and link pybind11 modules
 include_directories(lib)
 include_directories(external)
+find_package(PythonInterp)
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 add_subdirectory(external/pybind11)
