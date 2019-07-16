@@ -310,6 +310,12 @@ def set_initial_latent_state_from_observed(G, timestep: int = 0) -> None:
                 G.s0[f"∂({node[0]})/∂t"] = diff
 
 
+def set_initial_latent_states_for_prediction(G, timestep: int = 0) -> None:
+    G.initial_latent_states_for_prediction = []
+    for ls in G.training_latent_state_sequences:
+        G.initial_latent_states_for_prediction.append(ls[timestep])
+
+
 # ==========================================================================
 # Evaluation and inference functions
 # ==========================================================================
@@ -456,13 +462,14 @@ def train_model(
         A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
 
     G.log_likelihood = None
-
+    G.training_latent_state_sequences = []
     n_samples: int = 10000
     for i, _ in enumerate(trange(n_samples)):
         if i >= (n_samples - G.res):
             G.transition_matrix_collection[
                 i - (n_samples - G.res)
             ] = G.sample_from_posterior(A).copy()
+            G.training_latent_state_sequences.append(G.latent_state_sequence)
         else:
             G.sample_from_posterior(A)
 
@@ -526,11 +533,11 @@ def generate_predictions(
     diff_timesteps = total_timesteps - pred_timesteps
     truncate = 0
     if diff_timesteps > G.n_timesteps:
-        set_initial_latent_state_from_observed(G, G.n_timesteps)
+        set_initial_latent_states_for_prediction(G, G.n_timesteps)
         truncate = diff_timesteps - G.n_timesteps
         pred_timesteps = truncate + pred_timesteps
     else:
-        set_initial_latent_state_from_observed(G, diff_timesteps)
+        set_initial_latent_states_for_prediction(G, diff_timesteps)
     G.sample_from_likelihood(pred_timesteps + 1)
     for latent_state_s in G.latent_state_sequences:
         del latent_state_s[0:truncate]
@@ -651,172 +658,6 @@ def pred_plot(
         )
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.set_title(f"Predictions for {indicator}")
-
-
-def evaluate(
-    G=None,
-    input=None,
-    start_year=2012,
-    start_month=None,
-    end_year=2017,
-    end_month=None,
-    plot=False,
-    plot_type="Compare",
-    **kwargs,
-):
-    """ This is the main function of this module. This parameterizes a given
-    CAG (see requirements in Args) and calls other functions within this module
-    to predict values for a specified target node's indicator variable given a
-    start date and end date. Returns pandas dataframe containing predicted
-    values, true values, and error.
-
-    Args:
-        target_node: A string of the full name of the node in which we
-        wish to predict values for its attached indicator variable.
-
-        intervened_node: A string of the full name of the node upon which we
-        are intervening.
-
-        G: A CAG. It must have mapped indicator values and estimated transition
-        matrix.
-
-        input: This allows you to upload a CAG from a pickle file, instead of
-        passing it directly as an argument. The CAG must have mapped
-        indicators and an estimated transition matrix.
-
-        start_year: An integer, designates the starting year (ex: 2012).
-
-        start_month: An integer, starting month (1-12).
-
-        end_year: An integer, ending year.
-
-        end_month: An integer, ending month.
-
-        plot: Set to true to display a plot according to the plot type.
-
-        plot_type: By default setting plot to true displays the "Compare" type
-        plot which plots the predictions and true values of the target node's
-        indicator variable on one plot labeled by time steps (Year-Month).
-        There is also "Error" type, which plots the errors or residuals, with a
-        reference line at 0.
-
-        **kwargs: These are options for parameterize() which specify
-        country, state, units, fallback aggregation axes, and aggregation
-        function. Country and State also get passed into estimate_deltas()
-        and get_true_values(). The appropriate arguments are country, state,
-        units, fallback_aggaxes, and aggfunc.
-
-    Returns:
-        Returns a pandas dataframe.
-    """
-
-    if input is not None:
-        if G is not None:
-            warnings.warn(
-                "The CAG passed to G will be suppressed by the CAG loaded from "
-                "the pickle file."
-            )
-        with open(input, "rb") as f:
-            G = pickle.load(f)
-
-    assert G is not None, (
-        "A CAG must be passed to G or a pickle file containing a CAG must be "
-        "passed to input."
-    )
-
-    if "country" in kwargs:
-        country = kwargs["country"]
-    else:
-        country = "South Sudan"
-    if "state" in kwargs:
-        state = kwargs["state"]
-    else:
-        state = None
-    if "units" in kwargs:
-        units = kwargs["units"]
-    else:
-        units = None
-    if "fallback_aggaxes" in kwargs:
-        fallback_aggaxes = kwargs["fallback_aggaxes"]
-    else:
-        fallback_aggaxes = ["year", "month"]
-    if "aggfunc" in kwargs:
-        aggfunc = kwargs["aggfunc"]
-    else:
-        aggfunc = np.mean
-
-    G.parameterize(
-        country=country,
-        state=state,
-        year=start_year,
-        month=start_month,
-        units=units,
-        fallback_aggaxes=fallback_aggaxes,
-        aggfunc=aggfunc,
-    )
-    G.get_timeseries_values_for_indicators()
-
-    if start_month is None:
-        start_month = 1
-    if end_month is None:
-        end_month = 1
-
-    n_timesteps = calculate_timestep(
-        start_year, start_month, end_year, end_month
-    )
-
-    true_vals_df = get_true_values(
-        G, target_node, n_timesteps, start_year, start_month, country, state
-    )
-
-    true_vals = true_vals_df.values
-
-    deltas = estimate_deltas(
-        G,
-        intervened_node,
-        n_timesteps,
-        start_year,
-        start_month,
-        country,
-        state,
-    )
-
-    preds_df = get_predictions(
-        G, target_node, intervened_node, deltas, n_timesteps
-    )
-
-    preds_df = preds_df.set_index(true_vals_df.index)
-
-    preds = preds_df.values
-
-    error = preds - true_vals
-
-    error_df = pd.DataFrame(error, columns=["Errors"])
-
-    error_df = error_df.set_index(true_vals_df.index)
-
-    compare_df = pd.concat(
-        [true_vals_df, preds_df], axis=1, join_axes=[true_vals_df.index]
-    )
-
-    if plot:
-        if plot_type == "Error":
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=error_df)
-            ax.set_xticklabels(
-                error_df.index, rotation=45, ha="right", fontsize=8
-            )
-            ax.axhline(c="red")
-        else:
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=compare_df)
-            ax.set_xticklabels(
-                compare_df.index, rotation=45, ha="right", fontsize=8
-            )
-
-    return pd.concat(
-        [compare_df, error_df], axis=1, join_axes=[true_vals_df.index]
-    )
 
 
 # ==========================================================================
