@@ -975,6 +975,22 @@ public:
   */
 
   /**
+   * Create a BMI config file to initialize the model.
+   *
+   * @param filename: The filename with which the config file should be saved.
+   */
+  void create_bmi_config_file( string filename = "bmi_config.txt" )
+  {
+    Eigen::VectorXd s0 = this->construct_default_initial_state();
+
+    std::ofstream file( filename.c_str() );
+
+    file << s0;
+
+    file.close();
+  }
+
+  /**
    * Initialize the executable AnalysisGraph with a config file.
    * 
    * @param initialize_indicators: Boolean flag that sets whether indicators
