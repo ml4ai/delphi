@@ -1165,32 +1165,36 @@ class GrFNGenerator(object):
 
             return [{"var": {"variable": node.id, "index": last_definition}}]
 
-    def process_annotated_assign(self, node, state,
-                                 call_source):
+    def process_annotated_assign(self, node, state, *_):
+        """
+            This function handles annotated assignment operations i.e.
+            ast.AnnAssign. This tag appears when a variable has been assigned
+            with an annotation e.g. x: int = 5, y: List[float] = None, etc.
+        """
+        # If the assignment value of a variable is of type List, retrieve the
+        # targets. As of now, the RHS will be a list only during initial
+        # variable definition i.e. day: List[int] = [None]. So, we only
+        # update our data structures that hold the variable type mapping
+        # and annotated variable mappings. Nothing will be added to the
+        # GrFN.
+        # TODO: Will this change once arrays/lists are implemented?
         if isinstance(node.value, ast.List):
-            targets = self.gen_grfn(node.target, state,
-                                  "annassign")
+            targets = self.gen_grfn(node.target, state, "annassign")
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
-                    get_variable_type(
-                        node.annotation
-                    )
+                    get_variable_type(node.annotation)
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
             return []
 
-        sources = self.gen_grfn(node.value, state,
-                              "annassign")
-        targets = self.gen_grfn(node.target, state,
-                              "annassign")
+        sources = self.gen_grfn(node.value, state, "annassign")
+        targets = self.gen_grfn(node.target, state, "annassign")
 
-        pgm = {"functions": [], "body": [], "identifiers": []}
+        grfn = {"functions": [], "body": [], "identifiers": []}
 
         for target in targets:
             state.variable_types[target["var"]["variable"]] = \
-                get_variable_type(
-                    node.annotation
-                )
+                get_variable_type(node.annotation)
             name = get_function_name(
                 self.function_names,
                 f"{state.function_name}__assign__"
@@ -1229,21 +1233,31 @@ class GrFNGenerator(object):
                 }
 
             for id_spec in body[1]:
-                pgm["identifiers"].append(id_spec)
+                grfn["identifiers"].append(id_spec)
 
-            pgm["functions"].append(fn)
-            pgm["body"].append(body[0])
+            grfn["functions"].append(fn)
+            grfn["body"].append(body[0])
 
-        return [pgm]
+        return [grfn]
 
-    def process_assign(self, node, state, call_source):
-        scope_path = state.scope_path.copy()
-        if len(scope_path) == 0:
-            scope_path.append("_TOP")
-        state.scope_path = scope_path
+    def process_assign(self, node, state, *_):
+        """
+            This function handles an assignment operation (ast.Assign).
+        """
+        # If the scope path is empty, this has to be the top of the program
+        # scope, so start the scope with a `_TOP` string to denote that the
+        # operation lies at the top of the scope.
+        if len(state.scope_path) == 0:
+            state.scope_path.append("_TOP")
 
+        # Get the GrFN element of the RHS side of the assignment which are
+        # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
 
+        # This reduce function is useful when a single assignment operation
+        # has multiple targets (E.g: a = b = 5). Currently, the translated
+        # python code does not appear in this way and only a single target
+        # will be present.
         targets = reduce(
             (lambda x, y: x.append(y)),
             [
@@ -1252,10 +1266,16 @@ class GrFNGenerator(object):
             ],
         )
 
-        pgm = {"functions": [], "body": [], "identifiers": []}
+        grfn = {"functions": [], "body": [], "identifiers": []}
 
+        # Again as above, only a single target appears in current version.
+        # The for loop seems unnecessary but will be required when multiple
+        # targets start appearing.
         for target in targets:
-            source_list = []
+            # If the target is a list of variables, the grfn notation for the
+            # target will be a list of variable names i.e. "[a, b, c]"
+            # TODO: This does not seem right. Discuss with Clay and Paul
+            #  about what a proper notation for this would be
             if target.get("list"):
                 targets = ",".join(
                     [x["var"]["variable"] for x in target["list"]]
@@ -1265,10 +1285,6 @@ class GrFNGenerator(object):
             # Check whether this is an alias assignment i.e. of the form
             # y=x where y is now the alias of variable x
             self.check_alias(target, sources)
-
-            # state.variable_types[target["var"]["variable"]] =
-            # get_variable_type(
-            #     node.annotation)
 
             name = get_function_name(
                 self.function_names,
@@ -1310,12 +1326,12 @@ class GrFNGenerator(object):
                 }
 
             for id_spec in body[1]:
-                pgm["identifiers"].append(id_spec)
+                grfn["identifiers"].append(id_spec)
 
-            pgm["functions"].append(fn)
-            pgm["body"].append(body[0])
+            grfn["functions"].append(fn)
+            grfn["body"].append(body[0])
 
-        return [pgm]
+        return [grfn]
 
     def process_tuple(self, node, state, *_):
         """
@@ -1402,6 +1418,14 @@ class GrFNGenerator(object):
             f"fields: {node._fields}\n"
         )
 
+    def process_load(self, node, state, call_source):
+        raise For2PyError(f"Found ast.Load, which should not happen. "
+                          f"From source: {call_source}")
+
+    def process_store(self, node, state, call_source):
+        raise For2PyError(f"Found ast.Store, which should not happen. "
+                          f"From source: {call_source}")
+
     @staticmethod
     def process_nomatch(node, *_):
         sys.stderr.write(
@@ -1417,7 +1441,7 @@ class GrFNGenerator(object):
         target_index = (
             target["var"]["variable"] + "_" + str(target["var"]["index"])
         )
-        if len(sources) == 1 and sources[0].get("var") != None:
+        if len(sources) == 1 and sources[0].get("var") is not None:
             if self.alias_mapper.get(target_index):
                 self.alias_mapper[target_index].append(
                     sources[0]["var"]["variable"]
@@ -1497,7 +1521,7 @@ class GrFNGenerator(object):
             "namespace": name_space,
             "aliases": aliases,
             "source_references": source_reference,
-            "gensyms": generage_gensysm(gensyms_tag),
+            "gensyms": generate_gensym(gensyms_tag),
         }
 
         return iden_dict
@@ -1681,14 +1705,6 @@ class GrFNGenerator(object):
             }
 
         return fn
-
-    def process_load(self, node, state, call_source):
-        raise For2PyError(f"Found ast.Load, which should not happen. "
-                          f"From source: {call_source}")
-
-    def process_store(self, node, state, call_source):
-        raise For2PyError(f"Found ast.Store, which should not happen. "
-                          f"From source: {call_source}")
 
 
 def process_decorators(node, state):
@@ -1875,7 +1891,7 @@ def get_body_and_functions(pgm):
     return body, fns, iden_spec
 
 
-def generage_gensysm(tag):
+def generate_gensym(tag):
     """
         The gensym is used to uniquely identify any identifier in the
         program. Python's uuid library is used to generate a unique 12 digit
@@ -1942,19 +1958,20 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
         default. If this is wanted, *include_attributes* can be set to True.
     """
 
-    def _format(node, level=0):
-        if isinstance(node, ast.AST):
-            fields = [(a, _format(b, level)) for a, b in ast.iter_fields(node)]
-            if include_attributes and node._attributes:
+    def _format(ast_node, level=0):
+        if isinstance(ast_node, ast.AST):
+            fields = [(a, _format(b, level)) for a, b in
+                      ast.iter_fields(ast_node)]
+            if include_attributes and ast_node._attributes:
                 fields.extend(
                     [
-                        (a, _format(getattr(node, a), level))
-                        for a in node._attributes
+                        (a, _format(getattr(ast_node, a), level))
+                        for a in ast_node._attributes
                     ]
                 )
             return "".join(
                 [
-                    node.__class__.__name__,
+                    ast_node.__class__.__name__,
                     "(",
                     ", ".join(
                         ("%s=%s" % field for field in fields)
@@ -1964,12 +1981,12 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
                     ")",
                 ]
             )
-        elif isinstance(node, list):
+        elif isinstance(ast_node, list):
             lines = ["["]
             lines.extend(
                 (
                     indent * (level + 2) + _format(x, level + 2) + ","
-                    for x in node
+                    for x in ast_node
                 )
             )
             if len(lines) > 1:
@@ -1977,7 +1994,7 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
             else:
                 lines[-1] += "]"
             return "\n".join(lines)
-        return repr(node)
+        return repr(ast_node)
 
     if not isinstance(node, ast.AST):
         raise TypeError("expected AST, got %r" % node.__class__.__name__)
@@ -2031,7 +2048,7 @@ def create_grfn_dict(
         grfn["start"] = grfn["start"][0]
     else:
         # TODO: If the PROGRAM module is not detected, the entry point will be
-        #  the last function in the `funtction_defs` list of functions
+        #  the last function in the `function_defs` list of functions
         grfn["start"] = generator.function_definitions[-1]
 
     grfn["source"] = [[get_path(file_name, "source")]]
@@ -2040,8 +2057,8 @@ def create_grfn_dict(
     # were created. It is stored in the YYYMMDD format
     grfn["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
-    with open(lambda_file, "w") as f:
-        f.write("".join(lambda_string_list))
+    with open(lambda_file, "w") as lambda_fh:
+        lambda_fh.write("".join(lambda_string_list))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
@@ -2072,7 +2089,7 @@ def get_asts_from_files(file_list: List[str], printast=False) -> List:
     return ast_list
 
 
-def process_files(python_list: List[str], grfn_suffix: str, lambda_suffix:
+def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
                   str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN 
@@ -2103,8 +2120,8 @@ def process_files(python_list: List[str], grfn_suffix: str, lambda_suffix:
             module_mapper = get_index(xml_file)[0]
 
     for index, ast_string in enumerate(ast_list):
-        lambda_file = python_list[index][:-3] + "_" + lambda_suffix
-        grfn_file = python_list[index][:-3] + "_" + grfn_suffix
+        lambda_file = python_list[index][:-3] + "_" + lambda_tail
+        grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper
         )

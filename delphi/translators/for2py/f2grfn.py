@@ -473,7 +473,7 @@ def fortran_to_grfn(
         with open(original_fortran_file_path, "r") as f:
             inputLines = f.readlines()
     except IOError:
-        assert False, "Fortran file: {original_fortran_file_path} Not Found"
+        assert False, f"Fortran file: {original_fortran_file_path} Not Found"
 
     # Preprocess the read in fortran file
     if not tester_call:
@@ -500,7 +500,7 @@ def fortran_to_grfn(
     if not network_test:
         # Generate separate list of modules file
         mode_mapper_tree = rectified_tree
-        generator = mod_index_generator.moduleGenerator()
+        generator = mod_index_generator.ModuleGenerator()
         mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
     # Creates a pickle file
