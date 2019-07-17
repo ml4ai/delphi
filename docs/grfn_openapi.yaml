@@ -470,7 +470,7 @@ components:
         body:
           oneOf:
             - $ref: '#components/schemas/function_assign_body_literal_spec'
-            - $ref: '#components/schemas/function_assign_body_literal_lambda_spec'
+            - $ref: '#components/schemas/function_assign_body_lambda_spec'
 
     function_assign_body_literal_spec:
       title: <function_assign_body_literal_spec>
@@ -509,8 +509,8 @@ components:
         value:
           type: string
 
-    function_assign_body_literal_lambda_spec:
-      title: <function_assign_body_literal_lambda_spec>
+    function_assign_body_lambda_spec:
+      title: <function_assign_body_lambda_spec>
       description: >
         Any variables that are required as arguments to the lambda
         function must correspond to the "source" to the original
