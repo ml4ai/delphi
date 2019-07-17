@@ -36,14 +36,14 @@ components:
         components:
           type: array
           items:
-            $ref: '#/components/schemas/grfn_spec_refs'
+            $ref: '#/components/schemas/grfn_spec_ref'
 
-    grfn_spec_refs:
-      title: <grfn_spec_refs>
+    grfn_spec_ref:
+      title: <grfn_spec_ref>
       description: >
         Specifies a GrFN_spec file that is part of a GrFN system.
         imports (optional) specifies list of any GrFN_spec files
-        that need to also be loaded
+        that need to also be loaded.
       required:
         - name
       properties:
