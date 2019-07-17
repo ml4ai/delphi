@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: GrFN Spec
-  description: Grounded Function Network Specification
+  description: Grounded Function Network (GrFN) Specification
   contact:
     name: Clayton T. Morrison
     email: claytonm@email.arizona.edu
@@ -610,4 +610,4 @@ components:
 
 externalDocs:
   description: Find more information here
-  url: 'http://TODO'
+  url: 'https://ml4ai.github.io/delphi/grfn_spec.html'
