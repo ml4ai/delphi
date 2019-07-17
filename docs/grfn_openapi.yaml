@@ -18,6 +18,7 @@ components:
   schemas:
 
     system_def:
+      title: <system_def>
       description: >
         Specification of a GrFN system consisting of one or
         more GrFN_spec files.
@@ -38,6 +39,7 @@ components:
             $ref: '#/components/schemas/grfn_spec_refs'
 
     grfn_spec_refs:
+      title: <grfn_spec_refs>
       description: >
         Specifies a GrFN_spec file that is part of a GrFN system.
         imports (optional) specifies list of any GrFN_spec files
@@ -52,7 +54,101 @@ components:
           items:
             $ref: '#/components/schemas/namespace_path_string'
 
+    grfn_spec:
+      title: <grfn_spec>
+      description: >
+        The top-level structure of the GrFN specification.
+
+
+        The `date_created` attribute is a string representing the
+        date and time that the current GrFN was generated (this
+        helps resolve what versionn of Program Analysis was used.)
+        There may be a single GrFN spec file for multiple source
+        code files.
+
+
+        The `source` attribute is a list of one or more
+        source_code_file_paths.
+
+
+        The `start` attribute is a list of function names (as function
+        identifier strings) that represent entry points into the
+        program.
+      required:
+        - date_created
+        - source
+        - identifiers
+        - variables
+        - functions
+      properties:
+        date_created:
+          type: string
+          format: date-time
+        source:
+          type: array
+          items:
+            $ref: '#components/schemas/source_code_file_path'
+        start:
+          type: array
+          items:
+            type: string
+        identifiers:
+          type: array
+          items:
+            $ref: '#components/schemas/identifier_spec'
+        variables:
+          type: array
+          items:
+            $ref: '#components/schemas/variable_spec'
+        functions:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#components/schemas/function_assign_spec'
+              - $ref: '#components/schemas/function_container_spec'
+
+    identifier_spec:
+      title: <identifier_spec>
+      description: >
+        Each identifier within a GrFN specification will have a single
+        <identifier_spec> declaration. An identifier is decalred in the
+        GrFN spec.
+      required:
+        - base_name
+        - scope
+        - namespace
+        - source_references
+        - gensym
+      properties:
+        base_name:
+          $ref: '#/components/schemas/base_name'
+        scope:
+          $ref: '#/components/schemas/scope_path'
+        namespace:
+          $ref: '#/components/schemas/namespace_path'
+        source_references:
+          type: array
+          items:
+            $ref: '#components/schemas/source_code_reference'
+        gensym:
+          $ref: '#components/schemas/gensym'
+        grounding:
+          type: array
+          items:
+            $ref: '#components/schemas/grounding_metadata_spec'
+
+    base_name:
+      title: <base_name>
+      description:
+        The name corresponding (when available) to the identifier
+        token name as it appears in the source language (e.g., Fortran).
+        The base_name follows the conventions of
+        [python identifier specifiation rules](https://docs.python.org/3/reference/lexical_analysis.html#identifiers)
+        (which includes Fortran naming syntax).
+      type: string
+
     scope_path:
+      title: <scope_path>
       description: >
         Program analysis will assign a unique name to each scope.
         For example, given these unique names, the scopes of two
@@ -88,8 +184,9 @@ components:
         type: string
 
     scope_path_string:
+      title: <scope_path_string>
       description: >
-        A single string representation of a `scope_path`.
+        A single string representation of a `<scope_path>`.
         String names that make up components of the path are
         expressed in order, separated by periods.
       example:
@@ -97,6 +194,7 @@ components:
       type: string
 
     namespace_path:
+      title: <namespace_path>
       description: >
         Different languages have different conventions for defining
         namespaces, but in general they are either
@@ -153,12 +251,361 @@ components:
         type: string
 
     namespace_path_string:
+      title: <namespace_path_string>
       description: >
-        A single string representation of a `namespace_path`.
+        A single string representation of a `<namespace_path>`.
         String names that make up components of the path are
         expressed in order, separated by periods.
       example:
         '"foo.bar.baz"'
+      type: string
+
+    gensym:
+      title: <gensym>
+      description: >
+        One of the outputs of program analysis is a functionally
+        equivalent version of the origianl source code and lambda
+        functions, both expressed in Python (as the intermediate
+        target language).
+
+
+        All identifiers in the output Python must match identifiers
+        in GrFN.
+
+
+        Since capturing the semantics (particularly the namespace
+        and scope context) results in a representation that is not
+        guaranteed to be consistently expressible in legal Ptyhon
+        symbol names, we will use `gensym`s that can be  represented
+        (generally more compactly) as legal Python names and
+        associated uniquely with identifiers.
+
+
+        In the GrFN_spec, gensyms are represented as strings.
+      type: string
+
+    grounding_metadata_spec:
+      title: <grounding_metadata_spec>
+      description: >
+        Text Reading currently extracts three types of information
+        that can be associated with identifiers:
+
+        1. Definitions (e.g., 'wind speed', 'susceptible individuals')
+
+        2. Units (e.g., 'millimeters', 'per capita')
+
+        3. Constraints (e.g., '> 0', '<= 100')
+
+
+        The `type` of a grounding_metadata_spec indicates whether
+        it is a 'definition', 'units', or 'constraint'.
+        The `source` is a string representing the source of the
+        grounding/linking information.
+        The `value` is a string representing the value of the
+        grounding type.
+      required:
+        - source
+        - types
+        - value
+      properties:
+        source:
+          type: string
+        type:
+          type: string
+          enum:
+            - definition
+            - units
+            - constraint
+        value:
+          type: string
+
+    identifier_string:
+      title: <identifer_string>
+      description: >
+        `<identifier_string>`:
+        Identifiers are uniquely defined by their `<base_name>`,
+        `<scope_path>` and `<namespace_path>`. It will be convenient
+        to refer unambiguously to any identifier using a single
+        string, outside of the `<identifier_spec>` delcaration.
+
+
+        An `<identifer_string>` is a string that combines the
+        the `<type>` (either "")
+        `<namespace_string>`, `<scope_path_string>` and `<base_name>`
+        by double-colons.
+
+
+        ```
+        "<type>::<namespace_path_string>::<scope_path_string>::<base_name>[::<index>]"
+        ```
+
+
+        The fourth element, `<index>`, is only used by variables
+        (representing the variable SSA (single static assignment)
+        index); functions never have an `<index>`. Therefore, we
+        always know, unambiguously, whether we're referring to
+        a variable or a function.
+      type: string
+
+    variable_name:
+      title: <variable_name>
+      description: >
+        ```
+        "<namespace_path_string>::<scope_path_string>::<base_name>::<index>"
+        ```
+
+
+        TODO: url for details and examples
+      type: string
+
+    function_name:
+      title: <function_name>
+      description: >
+        ```
+        "<namespace_path_string>::<scope_path_string>::<base_name>"
+        ```
+
+
+        where:
+
+
+        ```
+        <base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]
+        ```
+
+
+        TODO: url for details and examples
+      type: string
+
+    variable_spec:
+      title: <variable_spec>
+      description: >
+        `domain_constraints` is a string representing a disjunctive
+        normal form representation with v = variable value
+
+
+        ```
+        "(or (and (< v infty) (>= v 5)) (and (> v -infty) (< v 0)))"
+        ```
+      required:
+        - name
+        - index
+        - domain
+        - mutable
+      properties:
+        name:
+          $ref: '#components/schemas/variable_name'
+        index:
+          type: integer
+        domain:
+           $ref: '#components/schemas/variable_domain_type'
+        domain_constraints:
+          type: string
+        mutable:
+          type: string
+          enum:
+            - true
+            - false
+          default: true
+
+    variable_domain_type:
+      title: <variable_domain_type>
+      description: >
+        The variable domain `type` a `primitive_data_type` or
+        user-defined type reference.
+
+
+        `primitive_data_types` include
+        "real", "integer", "boolean", "string"
+
+
+        Precision is an optional string representing the precision
+        of a primitive data type.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        precision:
+          type: string
+
+    function_assign_spec:
+      title: <function_assign_spec>
+      description: >
+        A `<function_assign_spec>` denotes the setting of the
+        value of a varaible. The values are assigned to the
+        "return_value" variable (denoted by a `<variable_name>`) and
+        the value is determined by the "body" of the assignment
+        function, which itself may either be a literal value
+        (specified by a `<function_assign_body_literal_spec>`)
+        or a lambda function (specified by a
+        `<function_assign_body_literal_lambda_spec>`).
+
+
+        The identifier conventions for assign, condition and decision
+        are described in TODO.
+      required:
+        - name
+        - type
+        - arguments
+        - return_value
+        - body
+      properties:
+        name:
+          $ref: '#components/schemas/function_name'
+        type:
+          type: string
+          enum:
+            - assign
+            - condition
+            - decision
+        arguments:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#components/schemas/variable_name'
+              - $ref: '#components/schemas/function_name'
+        return_value:
+          $ref: '#components/schemas/variable_name'
+        body:
+          oneOf:
+            - $ref: '#components/schemas/function_assign_body_literal_spec'
+            - $ref: '#components/schemas/function_assign_body_literal_lambda_spec'
+
+    function_assign_body_literal_spec:
+      title: <function_assign_body_literal_spec>
+      description: >
+        Asserts the assignment of a `<literal_value>` to the target
+        variable.
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - literal
+        value:
+          $ref: '#components/schemas/literal_value'
+
+    literal_value:
+      title: <literal_value>
+      description: >
+        A `<literal_value>` has a data type (corresponding to one of
+        our four domain types), and the value itself will be represented
+        generically in a string (the string will be parsed to extract
+        the actual value according to its data type).
+      required:
+        - dtype
+        - value
+      properties:
+        dtype:
+          type: string
+          enum:
+            - real
+            - integer
+            - boolean
+            - string
+        value:
+          type: string
+
+    function_assign_body_literal_lambda_spec:
+      title: <function_assign_body_literal_lambda_spec>
+      description: >
+        Any variables that are required as arguments to the lambda
+        function must correspond to the "source" to the original
+        source code that was analyzed (i.e., the origianl Fortran
+        source code).
+      required:
+        - type
+        - name
+        - reference
+      properties:
+        type:
+          type: string
+          enum:
+            - lambda
+        name:
+          $ref: '#components/schemas/function_name'
+        reference:
+          $ref: '#components/schemas/lambda_function_reference'
+
+    lambda_function_reference:
+      title: <lambda_function_reference>
+      description:
+        A string representation of a path/reference to a function
+        in `lambda.py` that performs the computation (implemented
+        in Python and generated by Program Analysis).
+
+    function_container_spec:
+      title: <function_container_spec>
+      description: >
+        "updated" represents varaibles that have been assigned (updated)
+        during the execution of the container body.
+        "return_value" represents an explicit assignment to a variable
+        on exit of the coontainer body.
+      required:
+        - name
+        - type
+        - arguments
+        - updated
+        - return_value
+        - body
+      properties:
+        name:
+          $ref: '#components/schemas/function_name'
+        type:
+          type: string
+          enum:
+            - container
+            - loop
+        arguments:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#components/schemas/variable_name'
+              - $ref: '#components/schemas/function_name'
+        updated:
+          type: array
+          items:
+            $ref: '#components/schemas/variable_name'
+        return_value:
+          $ref: '#components/schemas/variable_name'
+        body:
+          $ref: '#components/schemas/function_reference_spec'
+
+    function_reference_spec:
+      title: <function_reference_spec>
+      description: >
+        Defines the "wiring" of functions, specifying associations
+        of variables to function arguments ("input") and the
+        function return_value ("output").
+      required:
+        - function
+        - input
+        - output
+      properties:
+        function:
+          $ref: '#components/schemas/function_name'
+        input:
+          type: array
+          items:
+            $ref: '#components/schemas/variable_name'
+        output:
+          $ref: '#components/schemas/variable_name'
+
+    source_code_reference:
+      title: <source_code_reference>
+      description: >
+        String containing information to indicate the location
+        within the source code where an identifier was used.
+      type: string
+
+    source_code_file_path:
+      title: <source_code_file_path>
+      description: >
+        String path to source file, using system root as the
+        root, and including the file extension.
       type: string
 
 externalDocs:
