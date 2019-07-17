@@ -85,7 +85,7 @@ def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
         stdout=sp.PIPE,
     ).stdout
 
-    if tester_call == False:
+    if not tester_call:
         # Indent and construct XML for file output
         ast = ET.XML(ofp_xml)
         indent(ast)
@@ -129,7 +129,7 @@ def generate_rectified_xml(ofp_xml: str, rectified_file, tester_call):
 
     rectified_xml = rectify.buildNewASTfromXMLString(ofp_xml)
 
-    if tester_call == False:
+    if not tester_call:
         rectified_tree = ET.ElementTree(rectified_xml)
         try:
             with open(rectified_file, "w") as f:
@@ -169,7 +169,7 @@ def generate_outputDict(
         [rectified_tree], preprocessed_fortran_file
     )
 
-    if tester_call == False:
+    if not tester_call:
         print("+Generating pickle file: Func: <xml_to_py>, Script: <translate.py>")
         try:
             with open(pickle_file, "wb") as f:
@@ -180,7 +180,8 @@ def generate_outputDict(
     return outputDict
 
 
-def generate_python_src(outputDict, python_file, output_file, tester_call):
+def generate_python_src(outputDict, python_file, output_file, temp_dir,
+                        tester_call):
     """
         This function generates python source file from
         generated python source list. This function will
@@ -199,7 +200,6 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
             str: A string of generated python code.
     """
 
-
     pySrc = pyTranslate.create_python_source_list(outputDict)
 
     if not tester_call:
@@ -209,28 +209,36 @@ def generate_python_src(outputDict, python_file, output_file, tester_call):
                 Script: <pyTranslate.py>"
         )
 
-        try:
-            f = open(python_file, "w")
-        except IOError:
-            assert False, f"Unable to write to {python_file}."
-
-        outputList = []
+        output_list = []
         for item in pySrc:
-            outputList.append(python_file)
-            f.write(item[0])
+            if item[2] == "module":
+                module_file = f"{temp_dir}/m_{item[1].lower()}.py"
+                try:
+                    with open(module_file, "w") as f:
+                        output_list.append("m_" + item[1].lower() + ".py")
+                        f.write(item[0])
+                except IOError:
+                    assert False, f"Unable to write to {module_file}."
+            else:
+                try:
+                    with open(python_file, "w") as f:
+                        output_list.append(python_file)
+                        f.write(item[0])
+                except IOError:
+                    assert False, f"Unable to write to {python_file}."
 
         try:
             with open(output_file, "w") as f:
-                for fileName in outputList:
+                for fileName in output_list:
                     f.write(fileName + " ")
         except IOError:
-            assert False, f"Unable to write to {outFile}."
+            assert False, f"Unable to write to {output_file}."
 
-    return pySrc[0][0]
+    return pySrc
 
 
 def generate_grfn(
-    python_src, python_file, lambdas_file, json_file, mode_mapper_dict
+    python_src, python_file, lambdas_file, json_file, mode_mapper_dict, tester_call
 ):
     """
         This function generates GrFN dictionary object and file.
@@ -275,14 +283,32 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-f", "--file", nargs="+", help="An input fortran file"
+        "-f", 
+        "--file",
+        nargs="+",
+        help="An input fortran file"
+    )
+
+    parser.add_argument(
+        "-d",
+        "--directory",
+        nargs="*",
+        help="A temporary directory for generated files to be stored"
     )
 
     args = parser.parse_args(sys.argv[1:])
 
     fortran_file = args.file[0]
 
-    return fortran_file
+    # User may or may not provide the output path.
+    # If provided, return the directory path name.
+    # Else, the default "tmp" name.
+    if args.directory is not None:
+        out_directory = args.directory[0]
+    else:
+        out_directory = "tmp"
+
+    return (fortran_file, out_directory)
 
 
 def check_classpath():
@@ -361,7 +387,7 @@ def fortran_to_grfn(
     original_fortran=None,
     tester_call=False,
     network_test=False,
-    temp_dir="./tmp",
+    temp_dir=None,
 ):
     """
         This function invokes other appropriate functions
@@ -385,23 +411,22 @@ def fortran_to_grfn(
                 'python_src': A string of python code,
                 'python_file': A file name of generated python script,
                 'lambdas_file': A file name where lambdas will be,
-                'json_file': A file name where JSON will be wrriten to,
+                'json_file': A file name where JSON will be written to,
 
             }
             dict: mode_mapper_dict, mapper of file info (i.e. filename,
             module, and exports, etc).
     """
+    current_dir = "."
     check_classpath()
-
-    # If "tmp" directory does not exist already,
-    # simply create one.
-    if not os.path.isdir(temp_dir):
-        os.mkdir(temp_dir)
 
     # If, for2py runs manually by the user, which receives
     # the path to the file via command line argument
-    if tester_call == False:
-        original_fortran_file_path = parse_args()
+    if not tester_call:
+        (
+            original_fortran_file_path,
+            temp_out_dir
+        ) = parse_args()
     # Else, for2py function gets invoked by the test
     # programs, it will be passed with an argument
     # of original fortran file path
@@ -411,6 +436,27 @@ def fortran_to_grfn(
     (original_fortran_file, base) = get_original_file(
         original_fortran_file_path
     )
+
+    # temp_dir is None means that the output file was
+    # not set by the program that calls this function.
+    # Thus, generate the output temporary file based
+    # on the user input or the default path "tmp".
+    if temp_dir is None:
+        temp_dir = current_dir + "/" + temp_out_dir
+    else:
+        temp_dir = current_dir + "/" + temp_dir
+
+    # If "tmp" directory does not exist already,
+    # simply create one.
+    if not os.path.isdir(temp_dir):
+        os.mkdir(temp_dir)
+    else:
+        assert (
+            os.access(temp_dir, os.W_OK)
+        ), f"Directory {temp_dir} is not writable.\n\
+            Please, provide the directory name to hold files."
+
+    print (f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
     # Output files
     preprocessed_fortran_file = temp_dir + "/" + base + "_preprocessed.f"
@@ -451,7 +497,7 @@ def fortran_to_grfn(
         ofp_xml, rectified_xml_file, tester_call
     )
 
-    if network_test == False:
+    if not network_test:
         # Generate separate list of modules file
         mode_mapper_tree = rectified_tree
         generator = mod_index_generator.moduleGenerator()
@@ -464,22 +510,25 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_src = generate_python_src(
-        outputDict, python_file, output_file, tester_call
+        outputDict, python_file, output_file, temp_dir, tester_call
     )
 
-    if tester_call == True:
+    if tester_call:
         os.remove(preprocessed_fortran_file)
 
-    if network_test == False:
+    if not network_test:
         return (
-            python_src,
+            [src[0] for src in python_src],
             lambdas_file,
             json_file,
             python_file,
             mode_mapper_dict,
         )
     else:
-        return (python_src, lambdas_file, json_file, base)
+        # TODO: This is related to networks.py and subsequent GrFN
+        #  generation. Change the python_src index from [0][0] to incorporate
+        #  all modules after all GrFN features have been added
+        return (python_src[0][0], lambdas_file, json_file, base)
 
 
 if __name__ == "__main__":
@@ -493,5 +542,5 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src, python_file, lambdas_file, json_file, mode_mapper_dict
+        python_src, python_file, lambdas_file, json_file, mode_mapper_dict, False
     )

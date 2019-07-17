@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import warnings
 from scipy.stats import gaussian_kde
-from .cpp.extension import KDE
+from .cpp.kde import KDE
 from .db import engine
 
 
@@ -71,7 +71,9 @@ def constructConditionalPDF(
                         )
 
                         xs1, ys1 = np.meshgrid(rs_subj, rs_obj, indexing="xy")
-                        θs = np.arctan2(σ_Y * ys1.flatten(), xs1.flatten())
+                        θs = np.arctan2(
+                            σ_Y * ys1.flatten(), σ_X * xs1.flatten()
+                        )
                         all_θs.append(θs)
 
             # Prior

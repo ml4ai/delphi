@@ -235,5 +235,5 @@ exhale_args = {
     "doxygenStripFromPath":  "..",
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../delphi/cpp/kde.cpp"
+    "exhaleDoxygenStdin":    "INPUT = ../lib"
 }
