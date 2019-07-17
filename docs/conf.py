@@ -50,7 +50,6 @@ extensions = [
     "sphinx.ext.githubpages",
     "breathe",
     "exhale",
-    "sphinxjsondomain",
 ]
 
 
