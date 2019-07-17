@@ -63,31 +63,31 @@ C       int: n_R - current number of Recovered
 
 C       Main Gillespie Loop
         sample_idx = 1
-C        do while ((time < T) .AND. (n_I > 0.0))
+        do while ((time < T) .AND. (n_I > 0.0))
 C         float: Current state dependent rate of infection
-C          rateInfect = beta * n_S * n_I / (n_S + n_I + n_R)
+          rateInfect = beta * n_S * n_I / (n_S + n_I + n_R)
 C         float: Current state dependent rate of recovery
-C          rateRecover = gamma * n_I
+          rateRecover = gamma * n_I
 C         Sum of total rates;
 C         taking advantage of Markovian identities to improve performance.
-C          totalRates = rateInfect + rateRecover
-
+          totalRates = rateInfect + rateRecover
+C
 C         float: next inter-event time
-C          dt = -log(1.0 - rand()) / totalRates
+          dt = -log(1.0 - rand()) / totalRates
 
 C         Advance the system clock
-C          time = time + dt
-C          do while (sample_idx < T .AND. time > samples(sample_idx))
-C            sample = samples(sample_idx)
+          time = time + dt
+          do while (sample_idx < T .AND. time > samples(sample_idx))
+            sample = samples(sample_idx)
 C           Welford's one pass algorithm for mean and variance
-C            MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample)) / (runs + 1)
-C            MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample)) / (runs + 1)
-C            MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample)) / (runs + 1)
-C            VarS(sample) = VarS(sample) + runs / (runs + 1) * (n_S - MeanS(sample)) * (n_S - MeanS(sample))
-C            VarI(sample) = VarI(sample) + runs / (runs + 1) * (n_I - MeanI(sample)) * (n_I - MeanI(sample))
-C            VarR(sample) = VarR(sample) + runs / (runs + 1) * (n_R - MeanR(sample)) * (n_R - MeanR(sample))
-C            sample_idx = sample_idx + 1
-C          end do
+            MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample)) / (runs + 1)
+            MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample)) / (runs + 1)
+            MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample)) / (runs + 1)
+            VarS(sample) = VarS(sample) + runs / (runs + 1) * (n_S - MeanS(sample)) * (n_S - MeanS(sample))
+            VarI(sample) = VarI(sample) + runs / (runs + 1) * (n_I - MeanI(sample)) * (n_I - MeanI(sample))
+            VarR(sample) = VarR(sample) + runs / (runs + 1) * (n_R - MeanR(sample)) * (n_R - MeanR(sample))
+            sample_idx = sample_idx + 1
+          end do
 
 C        Determine which event fired.  With probability rateInfect/totalRates
 C        the next event is infection.
@@ -104,20 +104,20 @@ C          Delta for recovery
           end if
         end do
 
-C        do while (sample_idx < T)
-C          sample = samples(sample_idx)
+        do while (sample_idx < T)
+          sample = samples(sample_idx)
 C         Welford's one pass algorithm for mean and variance
-C          MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample)) / &
-C          (runs + 1)
-C          MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample)) / &
-C          (runs + 1)
-C          MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample)) / &
-C          (runs + 1)
-C          VarS(sample) = VarS(sample) + runs / (runs + 1) * (n_S - MeanS(sample)) * (n_S - MeanS(sample))
-C          VarI(sample) = VarI(sample) + runs / (runs + 1) * (n_I - MeanI(sample)) * (n_I - MeanI(sample))
-C          VarR(sample) = VarR(sample) + runs / (runs + 1) * (n_R - MeanR(sample)) * (n_R - MeanR(sample))
-C          sample_idx = sample_idx + 1
-C        end do
+          MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample)) / &
+          (runs + 1)
+          MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample)) / &
+          (runs + 1)
+          MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample)) / &
+          (runs + 1)
+          VarS(sample) = VarS(sample) + runs / (runs + 1) * (n_S - MeanS(sample)) * (n_S - MeanS(sample))
+          VarI(sample) = VarI(sample) + runs / (runs + 1) * (n_I - MeanI(sample)) * (n_I - MeanI(sample))
+          VarR(sample) = VarR(sample) + runs / (runs + 1) * (n_R - MeanR(sample)) * (n_R - MeanR(sample))
+          sample_idx = sample_idx + 1
+        end do
       end do
 
       do i = 1, T
