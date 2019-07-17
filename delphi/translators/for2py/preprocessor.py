@@ -18,6 +18,7 @@ from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
     line_is_continuation,
+    line_is_continued,
     line_is_executable,
     line_is_pgm_unit_end,
     line_is_pgm_unit_separator,
@@ -69,15 +70,29 @@ def merge_continued_lines(lines):
     # presumably the one L1 is continuing), ensure that L0 is not a comment.
     # If L0 is a comment, swap L0 and L1.
     chg = True
+    swaps = set()
     while chg:
         chg = False
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
-            if line_is_comment(ln0[1]) and line_is_continuation(ln1[1]):
-                # swap the code portions of lines[i] and lines[i+1]
-                lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+            if (line_is_comment(ln0[1]) and line_is_continuation(ln1[1])) \
+               or (line_is_continued(ln0[1]) and line_is_comment(ln1[1])):
+                if (i, i+1) not in swaps:
+                    # swap the code portions of lines[i] and lines[i+1]
+                    lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                    swaps.add((i,i+1))  # to prevent infinite loops
+                else:
+                   # If we get here, there is a pair of adjacent lines that
+                   # are about to go into an infinite swap sequence; one of them
+                   # must be a comment.  We delete the comment.
+                   if line_is_comment(ln0[1]):
+                       lines.pop(i)
+                   else:
+                       assert line_is_comment(ln1[1])
+                       lines.pop(i+1)
                 chg = True
+
             i += 1
 
     # Merge continuation lines
@@ -93,11 +108,24 @@ def merge_continued_lines(lines):
                 curr_line_code = line[1].lstrip()[
                     1:
                 ]  # remove continuation  char
-                merged_code = prev_line_code.rstrip() + curr_line_code.lstrip()
-
+                merged_code = prev_line_code.rstrip() + \
+                              " " + \
+                              curr_line_code.lstrip() + \
+                              "\n"
                 lines[i - 1] = (prev_linenum, merged_code)
                 lines.pop(i)
                 chg = True
+            elif line_is_continued(line[1]):
+                assert i < len(lines)-1  # there must be a next line
+                (next_linenum, next_line_code) = lines[i + 1]
+                curr_line_code = line[1].rstrip()[
+                    :-1
+                ].rstrip()  # remove continuation  char
+                merged_code = curr_line_code + " " + next_line_code.lstrip()
+                lines[i] = (i, merged_code)
+                lines.pop(i+1)
+                chg = True
+
             i += 1
 
     return lines
@@ -144,12 +172,14 @@ def merge_adjacent_comment_lines(lines):
 
 TRANSITIONS = {
     "outside": {
-        "comment": "outside", 
+        "comment": "outside",
+	"empty" : "outside",
         "pgm_unit_start": "in_neck",
         "pgm_unit_end": "outside",
     },
     "in_neck": {
         "comment": "in_neck",
+	"empty" : "in_neck",
         "exec_stmt": "in_body",
         "other": "in_neck",
         "pgm_unit_sep": "outside",
@@ -157,6 +187,7 @@ TRANSITIONS = {
     },
     "in_body": {
         "comment": "in_body",
+	"empty" : "in_body",
         "exec_stmt": "in_body",
         "pgm_unit_sep": "outside",
         "pgm_unit_end": "outside",
@@ -167,6 +198,9 @@ TRANSITIONS = {
 def type_of_line(line):
     """Given a line of code, type_of_line() returns a string indicating
        what kind of code it is."""
+
+    if line.strip() == "":
+        return "empty"
 
     if line_is_comment(line):
         return "comment"
@@ -213,7 +247,8 @@ def extract_comments(
         # process the line appropriately
         if curr_state == "outside":
             assert line_type in (
-                "comment", 
+                "comment",
+                "empty",
                 "pgm_unit_start", 
                 "pgm_unit_end"
             ), (line_type, line)
@@ -241,6 +276,7 @@ def extract_comments(
         elif curr_state == "in_neck":
             assert line_type in (
                 "comment",
+                "empty",
                 "exec_stmt",
                 "pgm_unit_sep",
                 "pgm_unit_end",
@@ -259,6 +295,7 @@ def extract_comments(
         elif curr_state == "in_body":
             assert line_type in (
                 "comment",
+                "empty",
                 "exec_stmt",
                 "pgm_unit_sep",
                 "pgm_unit_end",
@@ -318,14 +355,14 @@ def split_trailing_comment(line: str) -> str:
             j = line.find("'", i + 1)
             if j == -1:
                 sys.stderr.write("WEIRD: unbalanced quote ': line = " + line)
-                return line
+                return (line, None)
             else:
                 i = j + 1
         elif line[i] == '"':
             j = line.find('"', i + 1)
             if j == -1:
                 sys.stderr.write('WEIRD: unbalanced quote ": line = ' + line)
-                return line
+                return (line, None)
             else:
                 i = j + 1
         elif line[i] == "!":  # partial-line comment
@@ -364,7 +401,6 @@ def process(inputLines: List[str]) -> str:
 
 
 def print_comments(comments):
-
     for fn, comment in comments.items():
         if fn in ("$file_head", "$file_foot"):  # file-level comments
             print(fn + ":")
@@ -386,12 +422,7 @@ def print_comments(comments):
                     print("")
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
-        sys.exit(1)
-
-    infile, outfile = sys.argv[1], sys.argv[2]
+def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
         lines, comments = preprocess(inputLines)
@@ -400,6 +431,14 @@ if __name__ == "__main__":
         for _, line in lines:
             if line is not None:
                 f.write(line)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
+        sys.exit(1)
+
+    infile, outfile = sys.argv[1], sys.argv[2]
+    preprocess_file(infile, outfile)
 
     # Temporarily commenting out the printing of comments by the preprocessor.
     # To be reinstated later if it seems useful.  --SKD 06/2019
