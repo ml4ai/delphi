@@ -96,6 +96,10 @@ components:
           type: array
           items:
             $ref: '#components/schemas/identifier_spec'
+        types:
+          type: array
+          items:
+            $ref: '#components/schemas/type_spec'
         variables:
           type: array
           items:
@@ -377,6 +381,80 @@ components:
         TODO: url for details and examples
       type: string
 
+    type_name:
+      title: <type_name>
+      description: >
+        *User-defined types* (the only type names that show up in
+        `<type_spec>`) are named with this format:
+
+
+        ```
+        "<namespace_path_string>::<scope_path_string>::<base_name>::TYPE"
+        ```
+
+
+        *Primitive data types* have no namespace or scope, so are just
+        simple strings with the format: "<primitive_type_name>", which
+        consist of one of the following:
+
+
+        Built-in primitive scalar types: "real", "integer", "boolean", "string"
+
+
+        Build-in primitive structured types: "array", "list", "map"
+      type: string
+
+    type_spec:
+      title: <type_spec>
+      description: >
+        User-defined type
+      required:
+        - name
+      properties:
+        name:
+          $ref: '#components/schemas/type_name'
+
+    type_array:
+      title: <type_array>
+      description:
+        Array primitive type.
+      required:
+        - name
+        - dimensions
+      properties:
+        name:
+          type: string
+          enum:
+            - "array"
+        dimensions:
+          type: array
+          items:
+            type: integer
+
+    type_list:
+      title: <type_list>
+      description:
+        List primitive type.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          enum:
+            - "list"
+
+    type_map:
+      title: <type_map>
+      description:
+        Map primitive type.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          enum:
+            - "map"
+
     variable_spec:
       title: <variable_spec>
       description: >
@@ -411,12 +489,8 @@ components:
     variable_domain_type:
       title: <variable_domain_type>
       description: >
-        The variable domain `type` a `primitive_data_type` or
-        user-defined type reference.
-
-
-        `primitive_data_types` include
-        "real", "integer", "boolean", "string"
+        The variable domain `type` has a `<type_name>`, which itself
+        could be a primitive data type or user-defined type.
 
 
         Precision is an optional string representing the precision
@@ -425,7 +499,7 @@ components:
         - type
       properties:
         type:
-          type: string
+          $ref: '#components/schemas/type_name'
         precision:
           type: string
 
