@@ -105,7 +105,7 @@ Delphi is also part of the
   grfn_spec
   CONTRIBUTING
   cpp_api/library_root
-  grfn_json
+  grfn_openapi
 
 License and Funding
 -------------------

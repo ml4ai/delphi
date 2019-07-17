@@ -49,19 +49,18 @@ TEMPLATE = """
 <script>
     window.onload = function() {
 
-    var spec = %s;
-
     // Build a system
+    var spec = %s;
     const ui = SwaggerUIBundle({
         spec: spec,
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
         ],
         plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
+            SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: "StandaloneLayout"
     })
@@ -75,7 +74,6 @@ yaml = YAML()
 
 with open(sys.argv[1], "r") as f:
     data = yaml.load(f)
-    spec = TEMPLATE % format(json.dumps(data))
 
 with open(sys.argv[2], "w") as f:
-    f.write(spec)
+    f.write(TEMPLATE % format(json.dumps(data)))
