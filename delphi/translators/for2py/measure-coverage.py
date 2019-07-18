@@ -18,11 +18,10 @@
     2) Add the regular expression to the list for the variable HANDLED.
 """
 
-from syntax import *
-import preprocessor
 import os
 import sys
-
+import delphi.translators.for2py.preprocessor
+from .syntax import *
 
 FORTRAN_EXTENSIONS = ['.f', '.f90', '.for']
 
@@ -247,7 +246,7 @@ def usage():
 def errmsg(msg):
     sys.stderr.write(msg + "\n")
     sys.exit(1)
-    
+
 
 def print_results(results):
     nfiles, ntot, nhandled, u_keywds, u_lines = results
@@ -277,4 +276,5 @@ def main():
     print_results(results)
 
 
-main()
+if __name__ == "__main__":
+    main()
