@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.1
+  version: 0.2.2
 
 paths: {}
 
@@ -407,6 +407,23 @@ components:
           type: string
           enum:
             - "type"
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/attribute_spec'
+
+    attribute_spec:
+      title: <attribute_spec>
+      description: >
+        An object attribute.
+        "type" specifies the `<type>` of the attribute.
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/type'
 
     variable_spec:
       title: <variable_spec>
