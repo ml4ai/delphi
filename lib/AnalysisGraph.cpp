@@ -308,7 +308,47 @@ private:
   }
 
 
+  // Random number generator shared by all 
+  // the random number generation tasks of AnalysisGraph
+  // Note: If we are usign multiple threads, they should not share
+  // one generator. We need to have a generator per thread
+  std::mt19937 rand_num_generator;
+
+
+  // Uniform distribution used by the MCMC sampler
+  std::uniform_real_distribution< double > uni_dist;
+
+  // Normal distrubution used to perturb β
+  std::normal_distribution< double > norm_dist;
+
+  void initialize_random_number_generator()
+  {
+    // Define the random number generator
+    // All the places we need random numbers, share this generator
+    std::random_device rd;
+    this->rand_num_generator = std::mt19937( rd() );
+
+    // Uniform distribution used by the MCMC sampler
+    this->uni_dist = std::uniform_real_distribution< double >( 0.0, 1.0 );
+
+    // Normal distrubution used to perturb β
+    this->norm_dist = std::normal_distribution< double >( 0.0, 1.0);
+  }
+
+
 public:
+
+  ~AnalysisGraph()
+  {
+      // Free memeroy allocated for Tran_Mat_Cell objects
+      // that were used track β dependent cells in the transition matrix
+      for( auto & [row, col] : this->beta_dependent_cells )
+      {
+        delete this->A_beta_factors[ row ][ col ];
+      }
+  }
+
+
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
    * of INDRA statements.
@@ -371,7 +411,10 @@ public:
         }
       }
     }
-    return AnalysisGraph( G, nameMap );
+    AnalysisGraph ag =  AnalysisGraph( G, nameMap );
+    ag.initialize_random_number_generator();
+    return ag;
+    //return AnalysisGraph( G, nameMap );
   }
 
 
@@ -417,7 +460,10 @@ public:
 
       G[e].evidence.push_back( stmt );
     }
-    return AnalysisGraph( G, nameMap );
+    AnalysisGraph ag =  AnalysisGraph( G, nameMap );
+    ag.initialize_random_number_generator();
+    return ag;
+    //return AnalysisGraph( G, nameMap );
   }
 
 
@@ -724,8 +770,8 @@ public:
 
     vector< vector< double >> observed_state( num_verts );
 
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator( seed );
+    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    //std::default_random_engine generator( seed );
 
     for( int v = 0; v < num_verts; v++ )
     {
@@ -742,7 +788,8 @@ public:
           {
             std::normal_distribution< double > gaussian( ind.mean * latent_state[ 2*v ], ind.stdev );
 
-            return gaussian( generator ); 
+            return gaussian( this->rand_num_generator ); 
+            //return gaussian( generator ); 
           });
     }
 
@@ -828,7 +875,8 @@ public:
     boost::iterator_range edge_it = this->edges();
 
     vector< boost::graph_traits< DiGraph >::edge_descriptor > e(1); 
-    std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, std::mt19937{ std::random_device{}() }); 
+    //std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, std::mt19937{ std::random_device{}() }); 
+    std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator ); 
 
     //cout << source( e[0], graph ) << ", " << target( e[0], graph ) << endl;
 
@@ -837,7 +885,8 @@ public:
 
     // Perturb the β
     // TODO: Check whether this perturbation is accurate
-    graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
+    //graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
+    graph[ e[0] ].beta += this->norm_dist( this->rand_num_generator );
 
     // Remeber the ratio: β_new / β_old
     this->beta_ratio = make_pair( e[0], this->graph[ e[0] ].beta / prev_beta );
@@ -1052,11 +1101,12 @@ public:
     // We have to move this out of sample_from_posterior()
     // Maybe we can define this in the class constructor and use it in
     // all the places we need random numbers.
-    std::random_device rd;
-    std::mt19937 mt( rd() );
-    std::uniform_real_distribution< double > dist( 0.0, 1.0 );
+    //std::random_device rd;
+    //std::mt19937 mt( rd() );
+    //std::uniform_real_distribution< double > dist( 0.0, 1.0 );
 
-    if( acceptance_probability < dist( mt ))
+    //if( acceptance_probability < dist( mt ))
+    if( acceptance_probability < uni_dist( this->rand_num_generator ))
     {
       // Reject the sample
       this->log_likelihood = original_log_likelihood;
@@ -1152,8 +1202,8 @@ public:
       
       if( initialize_indicators )
       {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        std::default_random_engine generator( seed );
+        //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        //std::default_random_engine generator( seed );
 
         for( Indicator ind : graph[ v ].indicators )
         {
@@ -1171,7 +1221,8 @@ public:
               {
                 std::normal_distribution< double > gaussian( ind.mean * rv_datum, 0.01 );
 
-                return gaussian( generator ); 
+                return gaussian( this->rand_num_generator ); 
+                //return gaussian( generator ); 
               });
         }
       }
