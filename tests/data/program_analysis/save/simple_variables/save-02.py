@@ -5,9 +5,12 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from dataclasses import dataclass
+from delphi.translators.for2py.types_ext import Float32
+import delphi.translators.for2py.math_ext as math
+from numbers import Real
 
 
-@static_vars(["w"])
+@static_vars([{'name': 'w', 'call': [None], 'type': 'int'}])
 def f(n: List[int], x: List[int]):
     if (n[0] == 0):
         f.w[0] = 111
@@ -15,7 +18,7 @@ def f(n: List[int], x: List[int]):
         f.w[0] = int((2 * f.w[0]))
     x[0] = f.w[0]
 
-@static_vars(["w"])
+@static_vars([{'name': 'w', 'call': [None], 'type': 'int'}])
 def g(n: List[int], x: List[int]):
     if (n[0] == 0):
         g.w[0] = 999

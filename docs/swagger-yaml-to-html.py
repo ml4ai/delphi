@@ -14,7 +14,11 @@ Usage:
     python swagger-yaml-to-html.py < /path/to/api.yaml > doc.html
 
 """
-import yaml, json, sys
+
+import io
+import sys
+import json
+from ruamel.yaml import YAML
 
 TEMPLATE = """
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
@@ -45,19 +49,18 @@ TEMPLATE = """
 <script>
     window.onload = function() {
 
-    var spec = %s;
-
     // Build a system
+    var spec = %s;
     const ui = SwaggerUIBundle({
         spec: spec,
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
         ],
         plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
+            SwaggerUIBundle.plugins.DownloadUrl
         ],
         layout: "StandaloneLayout"
     })
@@ -67,5 +70,10 @@ TEMPLATE = """
 </script>
 """
 
-spec = yaml.load(sys.stdin)
-sys.stdout.write(TEMPLATE % json.dumps(spec))
+yaml = YAML()
+
+with open(sys.argv[1], "r") as f:
+    data = yaml.load(f)
+
+with open(sys.argv[2], "w") as f:
+    f.write(TEMPLATE % format(json.dumps(data)))

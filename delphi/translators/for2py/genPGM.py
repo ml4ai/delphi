@@ -28,6 +28,22 @@ BINOPS = {
     ast.LtE: operator.le,
 }
 
+ANNOTATE_MAP = {
+    "real": "Real",
+    "integer": "int",
+    "string": "str",
+    "array": "[]",
+    "bool": "bool",
+}
+
+REVERSE_ANNOTATE_MAP = {
+	"float": "real",
+	"Real": "real",
+	"int": "integer",
+	"list": "array",
+	"str": "string",
+	"bool": "bool",
+}
 
 UNNECESSARY_TYPES = (
     ast.Mult,
@@ -57,6 +73,8 @@ class GrFNGenerator(object):
         self.exclude_list = []
         self.mode_mapper = {}
         self.alias_dict = {}
+        self.name_mapper = {}
+        self.current_function = None
 
     def genPgm(self, node, state, fnNames, call_source):
         types = (list, ast.Module, ast.FunctionDef)
@@ -88,6 +106,7 @@ class GrFNGenerator(object):
 
             # List out all the function definitions in the ast
             self.function_defs.append(node.name)
+            self.current_function = node.name
 
             localDefs = state.lastDefs.copy()
             localNext = state.nextDefs.copy()
@@ -98,6 +117,20 @@ class GrFNGenerator(object):
             if len(scope_path) == 0:
                 scope_path.append("_TOP")
             scope_path.append(node.name)
+
+            if node.decorator_list:
+                # This is still a work-in-progress function has a complete
+                # representation of SAVEd variables has not been decided on.
+                # Currently, if the decorator function is static_vars (for
+                # SAVEd variables), their types are loaded in the varTypes
+                # dictionary.
+                fnState = state.copy(
+                    lastDefs=localDefs,
+                    nextDefs=localNext,
+                    fnName=node.name,
+                    varTypes=localTypes,
+                )
+                self.process_decorators(node.decorator_list, fnState)
 
             # Check if the function contains arguments or not
             # This determines whether the function is the outermost scope
@@ -133,7 +166,8 @@ class GrFNGenerator(object):
 
             for item in variables:
                 match = re.match(
-                    r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|(write_line)",
+                    r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|"
+                    r"(write_line)",
                     item,
                 )
                 if not match:
@@ -287,12 +321,15 @@ class GrFNGenerator(object):
 
             loopBody, loopFns, iden_spec = get_body_and_functions(loop)
 
-            # If loopLastDef[x] == 0, this means that the variable was not declared before the loop and is being
-            # declared/defined within the loop. So we need to remove that from the variable_list
-            variable_list = [x for x in loopLastDef if (x != indexName and state.lastDefs[x] != 0)]
+            # If loopLastDef[x] == 0, this means that the variable was not
+            # declared before the loop and is being declared/defined within
+            # the loop. So we need to remove that from the variable_list
+            variable_list = [x for x in loopLastDef if (x != indexName and
+                                                        state.lastDefs[x] != 0)]
 
             variables = [
-                    {"name": variable, "domain": state.varTypes[variable]} for variable in variable_list
+                    {"name": variable, "domain": state.varTypes[variable]}
+                for variable in variable_list
                 ]
 
             # Removing the indexing of the loop index variable from the loopName
@@ -399,15 +436,16 @@ class GrFNGenerator(object):
             state.nextDefs["#cond"] = condNum + 1
 
             condName = f"IF_{condNum}"
-            state.varTypes[condName] = "boolean"
+            state.varTypes[condName] = "bool"
             state.lastDefs[condName] = 0
             fnName = getFnName(
                 fnNames, f"{state.fnName}__condition__{condName}", {}
             )
 
-            # The condName is of the form 'IF_1' and the index holds the ordering of the condName
-            # This means that index should increment of every new 'IF' statement
-            # Previously, it was set to set to 0. But, 'fnName' holds the current index of 'condName'
+            # The condName is of the form 'IF_1' and the index holds the
+            # ordering of the condName. This means that index should increment
+            # of every new 'IF' statement. Previously, it was set to set to 0.
+            # But, 'fnName' holds the current index of 'condName'
             # So, extract the index from 'fnName'.
             # condOutput = {"variable": condName, "index": 0}
             condOutput = {"variable": condName, "index": int(fnName[-1])}
@@ -447,6 +485,7 @@ class GrFNGenerator(object):
                 fnName,
                 None,
                 [src["var"]["variable"] for src in condSrcs if "var" in src],
+                state,
             )
             state.lambdaStrings.append(lambda_string)
             startDefs = state.lastDefs.copy()
@@ -559,6 +598,7 @@ class GrFNGenerator(object):
                     fnName,
                     updatedDef,
                     [f"{src['variable']}_{src['index']}" for src in inputs],
+                    state,
                 )
                 state.lambdaStrings.append(lambda_string)
 
@@ -579,7 +619,7 @@ class GrFNGenerator(object):
                 state.nextDefs["#cond"] = condNum + 1
 
                 condName = f"IF_{condNum}"
-                state.varTypes[condName] = "boolean"
+                state.varTypes[condName] = "bool"
                 state.lastDefs[condName] = 0
                 fnName = getFnName(
                     fnNames, f"{state.fnName}__condition__{condName}", {}
@@ -630,6 +670,7 @@ class GrFNGenerator(object):
                         for src in condSrcs
                         if "var" in src
                     ],
+                    state,
                 )
                 state.lambdaStrings.append(lambda_string)
 
@@ -701,11 +742,13 @@ class GrFNGenerator(object):
                         ],
                     }
 
-                    # Check for buggy __decision__ tag containing of only IF_ blocks
-                    # More information required on how __decision__ tags are made
+                    # Check for buggy __decision__ tag containing of only
+                    # IF_ blocks. More information required on how
+                    # __decision__ tags are made.
                     # This seems to be in development phase and documentation is
-                    # missing from the GrFN spec as well. Actual removal (or not)
-                    # of this tag depends on further information about this
+                    # missing from the GrFN spec as well. Actual removal
+                    # (or not) of this tag depends on further information
+                    # about this
 
                     if "IF_" in updatedDef:
                         count = 0
@@ -736,6 +779,7 @@ class GrFNGenerator(object):
                             f"{src['variable']}_{src['index']}"
                             for src in inputs
                         ],
+                        state,
                     )
                     state.lambdaStrings.append(lambda_string)
 
@@ -818,44 +862,47 @@ class GrFNGenerator(object):
                 raise For2PyError("can't handle arrays right now.")
 
             val = self.genPgm(node.value, state, fnNames, "subscript")
-            if val[0]["var"]["variable"] in self.annassigned_list:
-                if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
-                        val[0]["var"]["variable"],
-                        state.lastDefs,
-                        state.nextDefs,
-                        state.lastDefDefault,
-                    )
-            elif val[0]["var"]["index"] == -1:
-                if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = getNextDef(
-                        val[0]["var"]["variable"],
-                        state.lastDefs,
-                        state.nextDefs,
-                        state.lastDefDefault,
-                    )
+            if val:
+                if val[0]["var"]["variable"] in self.annassigned_list:
+                    if isinstance(node.ctx, ast.Store):
+                        val[0]["var"]["index"] = getNextDef(
+                            val[0]["var"]["variable"],
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        )
+                elif val[0]["var"]["index"] == -1:
+                    if isinstance(node.ctx, ast.Store):
+                        val[0]["var"]["index"] = getNextDef(
+                            val[0]["var"]["variable"],
+                            state.lastDefs,
+                            state.nextDefs,
+                            state.lastDefDefault,
+                        )
+                        self.annassigned_list.append(val[0]["var"]["variable"])
+                else:
                     self.annassigned_list.append(val[0]["var"]["variable"])
-            else:
-                self.annassigned_list.append(val[0]["var"]["variable"])
 
             return val
 
         # Name: ('id', 'ctx')
         elif isinstance(node, ast.Name):
-            lastDef = getLastDef(node.id, state.lastDefs, state.lastDefDefault)
-            if (
-                isinstance(node.ctx, ast.Store)
-                and state.nextDefs.get(node.id)
-                and call_source != "annassign"
-            ):
-                lastDef = getNextDef(
-                    node.id,
-                    state.lastDefs,
-                    state.nextDefs,
-                    state.lastDefDefault,
-                )
+            if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
+                lastDef = getLastDef(node.id, state.lastDefs,
+                                     state.lastDefDefault)
+                if (
+                    isinstance(node.ctx, ast.Store)
+                    and state.nextDefs.get(node.id)
+                    and call_source != "annassign"
+                ):
+                    lastDef = getNextDef(
+                        node.id,
+                        state.lastDefs,
+                        state.nextDefs,
+                        state.lastDefDefault,
+                    )
 
-            return [{"var": {"variable": node.id, "index": lastDef}}]
+                return [{"var": {"variable": node.id, "index": lastDef}}]
 
         # AnnAssign: ('target', 'annotation', 'value', 'simple')
         elif isinstance(node, ast.AnnAssign):
@@ -896,14 +943,15 @@ class GrFNGenerator(object):
                             for src in sources
                             if "var" in src
                         ],
+                        state,
                     )
                     state.lambdaStrings.append(lambda_string)
 
-                # In the case of assignments of the form:    "ud: List[float]"
-                # an assignment function will be created with an empty input list.
-                # Also, the function dictionary will be empty. We do not want such
-                # assignments in the GrFN so check for an empty <fn> dictionary and
-                # return [] if found
+                # In the case of assignments of the form: "ud: List[float]"
+                # an assignment function will be created with an empty input
+                # list. Also, the function dictionary will be empty. We do
+                # not want such assignments in the GrFN so check for an empty
+                # <fn> dictionary and return [] if found
                 if len(fn) == 0:
                     return []
                 if not fn["sources"] and len(sources) == 1:
@@ -930,6 +978,7 @@ class GrFNGenerator(object):
             state.scope_path = scope_path
 
             sources = self.genPgm(node.value, state, fnNames, "assign")
+
             targets = reduce(
                 (lambda x, y: x.append(y)),
                 [
@@ -952,6 +1001,9 @@ class GrFNGenerator(object):
                 # y=x where y is now the alias of variable x
                 self.check_alias(target, sources)
 
+                # state.varTypes[target["var"]["variable"]] = getVarType(
+                #     node.annotation)
+
                 name = getFnName(
                     fnNames,
                     f"{state.fnName}__assign__{target['var']['variable']}",
@@ -966,7 +1018,7 @@ class GrFNGenerator(object):
                 source_list = self.make_source_list_dict(sources)
 
                 lambda_string = genFn(
-                    node, name, target["var"]["variable"], source_list
+                    node, name, target["var"]["variable"], source_list, state
                 )
                 state.lambdaStrings.append(lambda_string)
                 if not fn["sources"] and len(sources) == 1:
@@ -977,6 +1029,10 @@ class GrFNGenerator(object):
                             dtypes.add(item["dtype"])
                             value.append(item["value"])
                         dtype = list(dtypes)
+                    elif sources[0].get("call") and \
+                            sources[0]["call"]["function"] == "Float32":
+                        dtype = sources[0]["call"]["inputs"][0][0]["dtype"]
+                        value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                     else:
                         dtype = sources[0]["dtype"]
                         value = f"{sources[0]['value']}"
@@ -1056,10 +1112,15 @@ class GrFNGenerator(object):
         # <variable_name> which is stored under `node.attr`. The `node.id`
         # stores the <function_name> which is being ignored.
         elif isinstance(node, ast.Attribute):
-            lastDef = getLastDef(node.attr, state.lastDefs,
-                                 state.lastDefDefault)
+            # When a computations float value is extracted using the Float32
+            # class's _val method, an ast.Attribute will be present, just
+            if node.attr == "_val":
+                return self.genPgm(node.value, state, fnNames, call_source)
+            else:
+                lastDef = getLastDef(node.attr, state.lastDefs,
+                                     state.lastDefDefault)
 
-            return [{"var": {"variable": node.attr, "index": lastDef}}]
+                return [{"var": {"variable": node.attr, "index": lastDef}}]
 
         elif isinstance(node, ast.AST):
             sys.stderr.write(
@@ -1107,11 +1168,12 @@ class GrFNGenerator(object):
         elif isinstance(targets, str):
             aliases = self.alias_dict.get(targets, "None")
 
-        # First, check whether the information is from a variable or a holder(assign, loop, if, etc)
-        # Assign the base_name accordingly
+        # First, check whether the information is from a variable or a
+        # holder(assign, loop, if, etc). Assign the base_name accordingly
 
         if holder == "body":
-            # If we are making the identifier specification of a body holder, the base_name will be the holder
+            # If we are making the identifier specification of a body holder,
+            # the base_name will be the holder
             if isinstance(targets, dict):
                 base_name = (
                     name
@@ -1129,26 +1191,31 @@ class GrFNGenerator(object):
             base_name = targets
             gensyms_tag = "v"
 
-        # The name space should get the entire directory scope of the fortran file under which it is defined.
-        # For PETASCE.for, all modules are defined in the same fortran file so the namespace will be the same
+        # The name space should get the entire directory scope of the fortran
+        # file under which it is defined. For PETASCE.for, all modules are
+        # defined in the same fortran file so the namespace will be the same
         # for all identifiers
 
-        # TODO handle multiple file namespaces that handle multiple fortran file namespacing
+        # TODO handle multiple file namespaces that handle multiple fortran
+        # file namespacing
 
-        # TODO Is the namespace path for the python intermediates or the original FORTRAN code? Currently, it captures
-        #  the intermediate python file's path
+        # TODO Is the namespace path for the python intermediates or the
+        # original FORTRAN code? Currently, it captures the intermediate
+        # python file's path
         name_space = self.mode_mapper["FileName"][1].split("/")
         name_space = ".".join(name_space)
 
-        # The scope captures the scope within the file where it exists. The context of modules can be implemented here.
+        # The scope captures the scope within the file where it exists. The
+        # context of modules can be implemented here.
         if len(scope_path) == 0:
             scope_path.append("_TOP")
         elif scope_path[0] == "_TOP" and len(scope_path) > 1:
             scope_path.remove("_TOP")
         scope_path = ".".join(scope_path)
 
-        # TODO Source code reference: This is the line number in the Python (or FORTRAN?) file. According to meeting on
-        #  the 21st Feb, 2019, this was the same as namespace. Exactly same though? Need clarity.
+        # TODO Source code reference: This is the line number in the Python
+        # (or FORTRAN?) file. According to meeting on the 21st Feb, 2019,
+        # this was the same as namespace. Exactly same though? Need clarity.
 
         source_reference = name_space
 
@@ -1251,7 +1318,8 @@ class GrFNGenerator(object):
 
         # Removing duplicates
         unique_source = []
-        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        [unique_source.append(obj) for obj in source_list if obj not in
+         unique_source]
         source_list = unique_source
 
         id_spec = self.make_identifier_spec(
@@ -1283,7 +1351,8 @@ class GrFNGenerator(object):
 
         # Removing duplicates
         unique_source = []
-        [unique_source.append(obj) for obj in source_list if obj not in unique_source]
+        [unique_source.append(obj) for obj in source_list if obj not in
+         unique_source]
         source_list = unique_source
 
         return source_list
@@ -1303,10 +1372,12 @@ class GrFNGenerator(object):
 
         for src in sources:
             if "call" in src:
-                # Bypassing identifiers who have I/O constructs on their source fields too.
+                # Bypassing identifiers who have I/O constructs on their source
+                # fields too.s
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
-                # TODO this is only for PETASCE02.for. Will need to include 'i' in the long run
+                # TODO this is only for PETASCE02.for. Will need to include 'i'
+                #  in the long run
                 bypass_match_source = RE_BYPASS_IO.match(src["call"][
                                                               "function"])
                 if bypass_match_source:
@@ -1322,7 +1393,8 @@ class GrFNGenerator(object):
 
             # Removing duplicates
             unique_source = []
-            [unique_source.append(obj) for obj in source if obj not in unique_source]
+            [unique_source.append(obj) for obj in source if obj not in
+             unique_source]
             source = unique_source
 
             if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
@@ -1337,6 +1409,21 @@ class GrFNGenerator(object):
             }
 
         return fn
+
+    def process_decorators(self, node, state):
+        """
+            Go through each decorator and extract relevant information.
+            Currently this function only checks for the static_vars decorator
+            for the SAVEd variables and updates varTypes with the data types
+            of each variable.
+        """
+        for decorator in node:
+            function_name = decorator.func.id
+            if function_name == "static_vars":
+                for arg in decorator.args[0].elts:
+                    variable = arg.values[0].s
+                    type = arg.values[2].s
+                    state.varTypes[variable] = REVERSE_ANNOTATE_MAP[type]
 
 
 class PGMState:
@@ -1439,10 +1526,27 @@ def printPgm(pgmFile, pgm):
     pgmFile.write(json.dumps(pgm, indent=2))
 
 
-def genFn(node, fnName: str, returnVal: bool, inputs):
+def genFn(node, fnName: str, returnVal: bool, inputs, state):
     lambda_strings = []
+    argument_strings = []
+
+    # Sort the arguments in the function call as it is used in the operation
+    input_list = sorted(set(inputs), key=inputs.index)
+
+    # Add type annotations to the function arguments
+    for ip in input_list:
+        annotation = state.varTypes.get(ip)
+        if not annotation:
+            # varTypes does not contain annotations for variables for indexing
+            # such as 'abc_1', etc. Check if the such variables exist and
+            # assign appropriate annotations
+            key_match = lambda var, dicn: ([i for i in dicn if i in var])
+            annotation = state.varTypes[key_match(ip, state.varTypes)[0]]
+        annotation = ANNOTATE_MAP[annotation]
+        argument_strings.append(f"{ip}: {annotation}")
+
     lambda_strings.append(
-        f"def {fnName}({', '.join(sorted(set(inputs), key=inputs.index))}):\n    "
+        f"def {fnName}({', '.join(argument_strings)}):\n    "
     )
     # If a `decision` tag comes up, override the call to genCode to manually
     # enter the python script for the lambda file.
@@ -1539,16 +1643,8 @@ def getVarType(annNode):
     else:
         dType = annNode.id
     try:
-        if dType == "float":
-            return "real"
-        if dType == "int":
-            return "integer"
-        if dType == "list":
-            return "array"
-        if dType == "str":
-            return "string"
-        if dType == "bool":
-            return "bool"
+        if REVERSE_ANNOTATE_MAP.get(dType):
+            return REVERSE_ANNOTATE_MAP[dType]
         else:
             sys.stderr.write(
                 "Unsupported type (only float, int, list, and str "
@@ -1579,20 +1675,25 @@ def get_body_and_functions(pgm):
 
 def generage_gensysm(tag):
 
-    # The gensym is used to uniquely identify any identifier in the program. Python's uuid library is used to
-    # generate a unique 12 digit HEX string. The uuid4() function of 'uuid' focuses on randomness. Each and every bit
-    # of a UUID v4 is generated randomly and with no inherent logic. To every gensym, we add a tag signifying the
-    # data type it represents. 'v' is for variables and 'h' is for holders.
+    # The gensym is used to uniquely identify any identifier in the program.
+    # Python's uuid library is used to generate a unique 12 digit HEX string.
+    # The uuid4() function of 'uuid' focuses on randomness. Each and every bit
+    # of a UUID v4 is generated randomly and with no inherent logic. To every
+    # gensym, we add a tag signifying the data type it represents. 'v' is for
+    # variables and 'h' is for holders.
+
 
     return uuid.uuid4().hex[:12] + "_" + tag
 
 
 def make_call_body_dict(source):
     source_list = []
-    # We are going to remove addition of functions such as "max", "exp", "sin", etc to
-    # the source list. The following two lines when commented helps us do that.
-    # If user-defined functions come up as sources, some other approaches might be required
-    # TODO Try with user defined functions and see if the below two lines need to be reworked
+    # We are going to remove addition of functions such as "max", "exp",
+    # "sin", \etc to the source list. The following two lines when commented
+    # helps us do that. If user-defined functions come up as sources,
+    # some other approaches might be required
+    # TODO Try with user defined functions and see if the below two lines need
+    #  to be reworked
     # name = source["call"]["function"]
     # source_list.append({"name": name, "type": "function"})
 
@@ -1603,8 +1704,8 @@ def make_call_body_dict(source):
                     variable = item["var"]["variable"]
                     source_list.append({"name": variable, "type": "variable"})
                 elif item.get("dtype") == "string":
-                    # TODO Do repetitions in this like in the above check need to be removed?
-                     # Will repetition occur here?
+                    # TODO Do repetitions in this like in the above check need
+                    #  to be removed?
                     source_list.append(
                         {"name": item["value"], "type": "variable"}
                     )
@@ -1619,7 +1720,8 @@ def importAst(filename: str):
 
 
 # Get the absolute path of the python files whose PGMs are being generated.
-# TODO: For now the path is started from the directory "for2py" but need further discussion on this
+# TODO: For now the path is started from the directory "for2py" but need further
+# discussion on this
 
 
 def get_path(fileName: str, instance: str):
@@ -1648,7 +1750,11 @@ def create_pgm_dict(
     """ Create a Python dict representing the PGM, with additional metadata for
     JSON output. """
 
-    lambdaStrings = ["import math\n\n"]
+    lambdaStrings = [
+                    "from numbers import Real\n",
+                    "import delphi.translators.for2py.math_ext as math\n\n"
+    ]
+
     state = PGMState(lambdaStrings)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
@@ -1660,8 +1766,8 @@ def create_pgm_dict(
 
     pgm["source"] = [[get_path(file_name, "source")]]
 
-    # dateCreated stores the date and time on which the lambda and PGM file was created.
-    # It is stored in YYYMMDD format
+    # dateCreated stores the date and time on which the lambda and PGM file
+    # was created. It is stored in YYYMMDD format
     pgm["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
 
     with open(lambdaFile, "w") as f:
@@ -1712,7 +1818,8 @@ if __name__ == "__main__":
         "--out",
         nargs=1,
         required=True,
-        help="Text file containing the list of output python files being generated",
+        help="Text file containing the list of output python files being "
+             "generated",
     )
     parser.add_argument(
         "-a",

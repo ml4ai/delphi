@@ -14,11 +14,8 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - sqlite3 
-    - libsqlite3-dev
-    - graphviz
-    - libboost-all-dev
     - g++-8
+    - graphviz
     - doxygen
 
 install:

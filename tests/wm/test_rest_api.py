@@ -54,13 +54,11 @@ def test_getICMPrimitives(G, client):
 
 
 def test_createExperiment(G, client):
-    post_url = "/".join(["icm", G.id, "experiment"])
-
     timestamp = "2018-11-01"
     post_data = {
         "interventions": [
             {
-                "id": G.nodes[concepts['conflict']['grounding']]["id"],
+                "id": G.nodes[concepts["conflict"]["grounding"]]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -68,7 +66,7 @@ def test_createExperiment(G, client):
                 },
             },
             {
-                "id": G.nodes[concepts['food security']['grounding']]["id"],
+                "id": G.nodes[concepts["food security"]["grounding"]]["id"],
                 "values": {
                     "active": "ACTIVE",
                     "time": timestamp,
@@ -83,7 +81,7 @@ def test_createExperiment(G, client):
         },
         "options": {"timeout": 3600},
     }
-    rv = client.post(post_url, json=post_data)
+    rv = client.post(f"icm/{G.id}/experiment", json=post_data)
     assert b"Forward projection sent successfully" in rv.data
 
 
@@ -97,6 +95,25 @@ def test_getExperiment(G, client):
 def test_getAllModels(G, client):
     rv = client.get("/delphi/models")
     assert G.id in rv.json
+
+
+def test_createModel(client):
+    with open("tests/data/delphi_create_model_payload.json") as f:
+        data = json.load(f)
+    rv = client.post(f"/delphi/create-model", json=data)
+    post_data = {
+        "startTime": {"year": 2017, "month": 4},
+        "perturbations": [
+            {"concept": "UN/entities/human/food/food_price", "value": 0.2}
+        ],
+        "timeStepsInMonths": 3,
+    }
+
+    rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
+    experimentId = rv.json["experimentId"]
+    url = f"delphi/models/{data['id']}/experiment/{experimentId}"
+    rv = client.get(url)
+    print(json.dumps(rv.json["results"]["UN/events/human/famine"], indent=2))
 
 
 def test_getIndicators(client):
