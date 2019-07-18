@@ -384,24 +384,13 @@ components:
     type_name:
       title: <type_name>
       description: >
-        *User-defined types* (the only type names that show up in
-        `<type_spec>`) are named with this format:
+        Denotes a user-defined type; will have a corresponding unique
+        `<type_spec>`:
 
 
         ```
         "<namespace_path_string>::<scope_path_string>::<base_name>::TYPE"
         ```
-
-
-        *Primitive data types* have no namespace or scope, so are just
-        simple strings with the format: "<primitive_type_name>", which
-        consist of one of the following:
-
-
-        Built-in primitive scalar types: "real", "integer", "boolean", "string"
-
-
-        Build-in primitive structured types: "array", "list", "map"
       type: string
 
     type_spec:
@@ -410,58 +399,14 @@ components:
         User-defined type
       required:
         - name
+        - type
       properties:
         name:
           $ref: '#components/schemas/type_name'
-
-    type_array:
-      title: <type_array>
-      description: >
-        Array primitive type.
-        TODO: the dimensions integers can only be positive;
-            need to add consntraint
-        The "domain" specifies the type of the elements in the array.
-        And "domain_constraints" are the domain constraints on the elements.
-      required:
-        - name
-        - dimensions
-      properties:
-        name:
+        type:
           type: string
           enum:
-            - "array"
-        dimensions:
-          type: array
-          items:
-            type: integer
-        domain:
-           $ref: '#components/schemas/variable_domain_type'
-        domain_constraints:
-          type: string
-
-    type_list:
-      title: <type_list>
-      description:
-        List primitive type.
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          enum:
-            - "list"
-
-    type_map:
-      title: <type_map>
-      description:
-        Map primitive type.
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          enum:
-            - "map"
+            - "type"
 
     variable_spec:
       title: <variable_spec>
@@ -484,7 +429,7 @@ components:
         index:
           type: integer
         domain:
-           $ref: '#components/schemas/variable_domain_type'
+           $ref: '#components/schemas/type'
         domain_constraints:
           type: string
         mutable:
@@ -517,11 +462,8 @@ components:
         A `<function_assign_spec>` denotes the setting of the
         value of a varaible. The values are assigned to the
         "return_value" variable (denoted by a `<variable_name>`) and
-        the value is determined by the "body" of the assignment
-        function, which itself may either be a literal value
-        (specified by a `<function_assign_body_literal_spec>`)
-        or a lambda function (specified by a
-        `<function_assign_body_literal_lambda_spec>`).
+        the value is determined by the lambda function denoted by
+        the "lambda_source".
 
 
         The identifier conventions for assign, condition and decision
@@ -531,16 +473,15 @@ components:
         - type
         - arguments
         - return_value
-        - body
       properties:
-        name:
-          $ref: '#components/schemas/function_name'
         type:
           type: string
           enum:
             - assign
             - condition
             - decision
+        lambda_source:
+          $ref: '#components/schemas/lambda_function_source_reference'
         arguments:
           type: array
           items:
@@ -549,79 +490,6 @@ components:
               - $ref: '#components/schemas/function_name'
         return_value:
           $ref: '#components/schemas/variable_name'
-        body:
-          oneOf:
-            - $ref: '#components/schemas/function_assign_body_literal_spec'
-            - $ref: '#components/schemas/function_assign_body_lambda_spec'
-
-    function_assign_body_literal_spec:
-      title: <function_assign_body_literal_spec>
-      description: >
-        Asserts the assignment of a `<literal_value>` to the target
-        variable.
-      required:
-        - type
-        - value
-      properties:
-        type:
-          type: string
-          enum:
-            - literal
-        value:
-          $ref: '#components/schemas/literal_value'
-
-    literal_value:
-      title: <literal_value>
-      description: >
-        A `<literal_value>` has a data type (corresponding to one of
-        our four domain types), and the value itself will be represented
-        generically in a string (the string will be parsed to extract
-        the actual value according to its data type).
-      required:
-        - dtype
-        - value
-      properties:
-        dtype:
-          type: string
-          enum:
-            - real
-            - integer
-            - boolean
-            - string
-        value:
-          type: string
-
-    function_assign_body_lambda_spec:
-      title: <function_assign_body_lambda_spec>
-      description: >
-        Any variables that are required as arguments to the lambda
-        function must correspond to the "source" to the original
-        source code that was analyzed (i.e., the origianl Fortran
-        source code).
-
-        The "input" and "output" are already specified by the
-        `<function_assign_spec>` this is in the body of.
-      required:
-        - type
-        - name
-        - lambda_source
-      properties:
-        type:
-          type: string
-          enum:
-            - lambda
-        name:
-          $ref: '#components/schemas/function_name'
-        lambda_source:
-          $ref: '#components/schemas/lambda_function_source_reference'
-
-    lambda_function_source_reference:
-      title: <lambda_function_source_reference>
-      description:
-        A string representation of a path/reference to a function
-        in `lambda.py` that performs the computation (implemented
-        in Python and generated by Program Analysis).
-      type: string
 
     function_container_spec:
       title: <function_container_spec>
@@ -658,24 +526,24 @@ components:
         return_value:
           $ref: '#components/schemas/variable_name'
         body:
-          $ref: '#components/schemas/function_reference_spec'
+          type: array
+          items:
+            $ref: '#components/schemas/function_wiring_spec'
 
-    function_reference_spec:
-      title: <function_reference_spec>
+    function_wiring_spec:
+      title: <function_wiring_spec>
       description: >
-        Defines the "wiring" of functions, specifying associations
+        Defines the "wiring" of container or assignment functions,
+        specifying associations
         of variables to function arguments ("input") and the
         function return_value ("output").
       required:
         - function
-        - lambda_source
         - input
         - output
       properties:
         function:
-          $ref: '#components/schemas/function_name'
-        lambda_source:
-          $ref: '#components/schemas/lambda_function_source_reference'
+          $ref: '#components/schemas/function_reference'
         input:
           type: array
           items:
@@ -684,6 +552,43 @@ components:
               - $ref: '#components/schemas/function_name'
         output:
           $ref: '#components/schemas/variable_name'
+
+    function_reference:
+      title: <function_reference>
+      description:
+        A `<function_reference>` is either a
+
+        1. `<function_name>` denoting a function specification (generally
+        an another container function).
+
+        2. `<lambda_function_source_reference>` denoting an executable
+        lambda function.
+
+
+        "type" is a convenience indicating whether the "function" is a
+        `<function_name>` or `<lambda_function_source_reference>` without
+        having to parse the string.
+      required:
+        - function
+        - type
+      properties:
+        function:
+          oneOf:
+            - $ref: '#components/schemas/function_name'
+            - $ref: '#components/schemas/lambda_function_source_reference'
+        type:
+          type: string
+          enum:
+            - function_name
+            - lambda_source
+
+    lambda_function_source_reference:
+      title: <lambda_function_source_reference>
+      description:
+        A string representation of a path/reference to a function
+        in `lambda.py` that performs the computation (implemented
+        in Python and generated by Program Analysis).
+      type: string
 
     source_code_reference:
       title: <source_code_reference>
@@ -698,6 +603,191 @@ components:
         String path to source file, using system root as the
         root, and including the file extension.
       type: string
+
+    type:
+      title: <type>
+      oneOf:
+        - $ref: '#components/schemas/type_type_spec'
+        - $ref: '#components/schemas/type_integer'
+        - $ref: '#components/schemas/type_float'
+        - $ref: '#components/schemas/type_boolean'
+        - $ref: '#components/schemas/type_string'
+        - $ref: '#components/schemas/type_array'
+        - $ref: '#components/schemas/type_list'
+        - $ref: '#components/schemas/type_map'
+        - $ref: '#components/schemas/type_tuple'
+
+    type_type_spec:
+      title: <type_type_spec>
+      description:
+        Indicator of a user-defined type_spec.
+        "name" is a `<type_name>` that identifies the `<type_spec>`.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          $ref: '#components/schemas/type_name'
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_integer:
+      title: <type_integer>
+      description: >
+        Primitive scalar integer
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "integer"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_float:
+      title: <type_float>
+      description: >
+        Primitive scalar float
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "float"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_boolean:
+      title: <type_boolean>
+      description: >
+        Primitive scalar boolean
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "boolean"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_string:
+      title: <type_string>
+      description: >
+        Primitive scalar string
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "string"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_array:
+      title: <type_array>
+      description: >
+        Array primitive type.
+        TODO: the dimensions integers can only be positive;
+            need to add constraint
+        The "element_type" specifies the `<type>` of the elements
+        in the array.
+      required:
+        - name
+        - type
+        - dimensions
+        - element_type
+      properties:
+        name:
+          type: string
+          enum:
+            - "array"
+        type:
+          type: string
+          enum:
+            - "type"
+        dimensions:
+          type: array
+          items:
+            type: integer
+        element_type:
+           $ref: '#components/schemas/type'
+
+    type_list:
+      title: <type_list>
+      description:
+        List primitive type.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "list"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_map:
+      title: <type_map>
+      description:
+        Map primitive type.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "map"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_tuple:
+      title: <type_tuple>
+      description:
+        Tuple primitive type.
+        "element_types" is an array of the `<types>` of each element of the tuple.
+        The order of `<types>` corresponds to the order of elements in the
+        tuple.
+      required:
+        - name
+        - type
+        - element_types
+      properties:
+        name:
+          type: string
+          enum:
+            - "tuple"
+        type:
+          type: string
+          enum:
+            - "type"
+        element_types:
+          type: array
+          items:
+            $ref: '#components/schemas/type'
 
 externalDocs:
   description: Find more information here
