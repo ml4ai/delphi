@@ -1,5 +1,6 @@
 #pragma once
 
+#include "kde.hpp"
 #include <optional>
 #include "kde.hpp"
 #include "random_variables.hpp"

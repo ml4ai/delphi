@@ -107,7 +107,7 @@ RE_CASE_STMT = re.compile(CASE_STMT, re.I)
 STOP_STMT = r"\s*(\d+|&)?\s*stop\s*"
 RE_STOP_STMT = re.compile(STOP_STMT, re.I)
 
-TYPE_NAMES = r"^\s*(integer|real|double\s+precision|dimension|type)\W*"
+TYPE_NAMES = r"^\s*(integer|real|double\s+precision|logical|dimension|type)\W*"
 RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
 
 HANDLED = [
@@ -119,6 +119,7 @@ HANDLED = [
     RE_ASSG_STMT,
     RE_CALL_STMT,
     RE_CYCLE_STMT,
+    RE_EXIT_STMT,
     RE_IMPLICIT_STMT,
     RE_IO_STMT,
     RE_DO_STMT,
