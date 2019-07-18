@@ -337,6 +337,18 @@ private:
 
 
 public:
+
+  ~AnalysisGraph()
+  {
+      // Free memeroy allocated for Tran_Mat_Cell objects
+      // that were used track β dependent cells in the transition matrix
+      for( auto & [row, col] : this->beta_dependent_cells )
+      {
+        delete this->A_beta_factors[ row ][ col ];
+      }
+  }
+
+
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
    * of INDRA statements.
