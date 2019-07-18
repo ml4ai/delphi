@@ -71,6 +71,30 @@ def set_mean_for_data(
     end_month: int,
     **kwargs,
 ) -> None:
+    """ Utility function that sets the indicator mean and standard deviation
+    base off observed data within a given time range.
+
+    Args:
+        G: Casual Analysis Graph. Must be fully built with G.parameterized()
+        called to set up indicator attributes.
+
+        start_year: The starting year (ex: 2012)
+
+        start_month: Starting month (1-12)
+
+        end_year: Ending year
+
+        end_month: Ending month
+
+        **kwargs: Can pass country, state, and units to ensure that data
+        statistics are computed from data with properly aligned axes. A
+        parameter k can also be passed which sets the median absolutie
+        deviation scale factor.
+
+    Returns:
+        None
+    """
+
     k = kwargs.get("k", 1)
     for node in G.nodes(data=True):
         for ind in node[1]["indicators"].values():
@@ -214,7 +238,7 @@ def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
 
         month: An integer, designates the month (1-12).
 
-        **kwargs: These are options for which you can specify
+        **kwargs: These are options for which you can specify data axes such as
         country, state.
 
     Returns:
@@ -258,11 +282,11 @@ def set_observed_state_sequence_from_data(
 
         end_month: An integer, ending month.
 
-        **kwargs: These are options for which you can specify
+        **kwargs: These are options for which you can specify data axes such as
         country, state.
 
     Returns:
-        None, just sets the CAGs observed_state_sequence variable.
+        None.
     """
 
     G.n_timesteps = calculate_timestep(
@@ -284,6 +308,21 @@ def set_observed_state_sequence_from_data(
 
 
 def set_initial_latent_state_from_observed(G, timestep: int = 0) -> None:
+    """ Utility function that sets an initial latent state from observed data.
+    This is used for the inference of the transition matrix as well as the
+    training latent state sequences.
+
+    Args:
+        G: Casual Analysis Graph. Must be fully built with G.parameterized()
+        called to set up indicator attributes.
+
+        timestep: Optional setting for setting the initial state to be other
+        than the first time step. Not currently used.
+
+    Returns:
+        None
+    """
+
     G.s0 = G.construct_default_initial_state()
     for node in G.nodes(data=True):
         for inds in node[1]["indicators"].values():
@@ -311,6 +350,23 @@ def set_initial_latent_state_from_observed(G, timestep: int = 0) -> None:
 
 
 def set_initial_latent_states_for_prediction(G, timestep: int = 0) -> None:
+    """ Utility function that sets an initial latent states for predictions.
+    During model training a latent state sequence is inferred for each sampled
+    transition matrix, these are then used as the initial states for
+    predictions.
+
+    Args:
+        G: Casual Analysis Graph. Must be fully built with G.parameterized()
+        called to set up indicator attributes.
+
+        timestep: Optional setting for setting the initial state to be other
+        than the first time step. Ensures that the correct
+        initial state is used.
+
+    Returns:
+        None
+    """
+
     G.initial_latent_states_for_prediction = []
     for ls in G.training_latent_state_sequences:
         G.initial_latent_states_for_prediction.append(ls[timestep])
@@ -389,6 +445,7 @@ def train_model(
     end_year: int = 2017,
     end_month: int = 12,
     res: int = 200,
+    burn: int = 10000,
     **kwargs,
 ) -> None:
     """ Trains a prediction model given a CAG with indicators.
@@ -406,9 +463,17 @@ def train_model(
 
         res: Sampling resolution. Default is 200 samples.
 
+        burn: This specifies how many samples from the mcmc process to burn.
+        Example: If set to 10000 and res is set to 200, the mcmc process
+        generates 10200 samples in which it tosses out (burns) 10000 samples
+        and keeps 200 samples. The burn should be set high enough to allow
+        convergence to the approximated posterior distribution.
+
         **kwargs: These are options for which you can specify
         country, state, units, fallback aggregation axes (fallback_aggaxes),
-        aggregation function (aggfunc).
+        aggregation function (aggfunc). This includes the scale factor k, in
+        which the median absolute deviation for each indicator variable is
+        multiplied by.
 
     Returns:
         None, sets training variables for CAG.
@@ -463,7 +528,7 @@ def train_model(
 
     G.log_likelihood = None
     G.training_latent_state_sequences = []
-    n_samples: int = 10000
+    n_samples: int = burn + G.res
     for i, _ in enumerate(trange(n_samples)):
         if i >= (n_samples - G.res):
             G.transition_matrix_collection[
@@ -483,6 +548,23 @@ def generate_predictions(
     end_year: int = 2018,
     end_month: int = 12,
 ) -> None:
+    """ Generates predictions given a CAG with a trained model.
+
+    Args:
+        G: A CAG. It Must have indicators variables mapped to nodes and the
+        inference model must have been trained (i.e G.trained = True).
+
+        start_year: An integer, designates the starting year (ex: 2012).
+
+        start_month: An integer, starting month (1-12).
+
+        end_year: An integer, ending year.
+
+        end_month: An integer, ending month.
+
+    Returns:
+        None.
+    """
 
     try:
         G.trained
@@ -546,6 +628,20 @@ def generate_predictions(
 
 
 def pred_to_array(G, indicator: str) -> np.ndarray:
+    """ Outputs raw predictions for a given indicator that were generated by
+    generate_predictions. Each column is a time series.
+
+    Args:
+        G: A CAG. It must have indicators variables mapped to nodes and the
+        inference model must have been trained and predictions generated.
+
+        indicator: A string representing the indicator variable for which we
+        want predictions printed.
+
+    Returns:
+        np.ndarray
+    """
+
     time_range = len(G.pred_range)
     pred = np.zeros((time_range, G.res))
     for i in range(G.res):
@@ -559,6 +655,35 @@ def pred_to_array(G, indicator: str) -> np.ndarray:
 def mean_pred_to_df(
     G, indicator: str, ci: float = 0.95, true_vals: bool = False, **kwargs
 ) -> pd.DataFrame:
+    """ Outputs mean predictions for a given indicator that were generated by
+    generate_predictions. The rows are indexed by date. Other output includes
+    the confidence intervals for the mean predictions and with true_vals =
+    True, the true data values, residual error, and error bounds. Setting
+    true_vals = True, assumes that real data exists for the given prediction
+    range. A heuristic estimate is calculated for each missing data value in
+    the true dateset.
+
+    Args:
+        G: A CAG. It must have indicators variables mapped to nodes and the
+        inference model must have been trained and predictions generated.
+
+        indicator: A string representing the indicator variable for which we
+        want mean predictions,etc printed.
+
+        ci: Confidence Level (as decimal). Default is 0.95 or 95%.
+
+        true_vals: A boolean, if set to True then the true data values,
+        residual errors, and error bounds are return in the dataframe. If set
+        to False (default), then only the mean predictions and confidence
+        intervals (for the mean predictions) are returned.
+
+        **kwargs: Here country, state, and units can be specified. The same
+        kwargs (excluding k), should have been passed to train_model.
+
+    Returns:
+        np.ndarray
+    """
+
     pred = pred_to_array(G, indicator)
     pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred, ci)[:, 0]
     pred_mean = np.zeros((len(G.pred_range), 3))
@@ -613,8 +738,46 @@ def pred_plot(
     indicator: str,
     ci: float = 0.95,
     plot_type: str = "Prediction",
+    save_as: Optional[str] = None,
     **kwargs,
-):
+) -> None:
+    """ Creates a line plot of the mean predictions for a given indicator that were generated by
+    generate_predictions. The y-axis are the indicator values(or errors) and the x-axis
+    are the prediction dates. Certain settings assume that true data exists for
+    the given prediction range.
+
+    There are 3 plots types:
+
+        -Prediction(Default): Plots just the mean prediction with confidence bounds
+
+        -Comparison: Plots the same as Prediction, but includes a line
+        representing the true data values for the given prediction range.
+
+        -Error: Plots the residual errors between the mean prediction and true
+        values along with error bounds. A reference line is included at 0.
+
+    Args:
+        G: A CAG. It must have indicators variables mapped to nodes and the
+        inference model must have been trained and predictions generated.
+
+        indicator: A string representing the indicator variable for which we
+        want mean predictions,etc printed.
+
+        ci: Confidence Level (as decimal). Default is 0.95 or 95%.
+
+        plot_type: A string that specifies plot type. Set as 'Prediction'(default),
+        'Comparison', or 'Error'.
+
+        save_as: A string representing the path and file name in which to save
+        the plot, must include extensions. If None, no figure is saved to file.
+
+        **kwargs: Here country, state, and units can be specified. The same
+        kwargs (excluding k), should have been passed to train_model.
+
+    Returns:
+        None
+    """
+
     if plot_type == "Comparison":
         df = mean_pred_to_df(G, indicator, ci, True, **kwargs)
         df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
@@ -658,6 +821,10 @@ def pred_plot(
         )
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.set_title(f"Predictions for {indicator}")
+
+    if save_as is not None:
+        fig = ax.get_figure()
+        fig.savefig(save_as)
 
 
 # ==========================================================================
