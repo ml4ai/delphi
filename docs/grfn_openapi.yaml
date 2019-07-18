@@ -87,7 +87,7 @@ components:
         source:
           type: array
           items:
-            $ref: '#components/schemas/source_code_file_path'
+            $ref: '#/components/schemas/source_code_file_path'
         start:
           type: array
           items:
@@ -95,21 +95,21 @@ components:
         identifiers:
           type: array
           items:
-            $ref: '#components/schemas/identifier_spec'
+            $ref: '#/components/schemas/identifier_spec'
         types:
           type: array
           items:
-            $ref: '#components/schemas/type_spec'
+            $ref: '#/components/schemas/type_spec'
         variables:
           type: array
           items:
-            $ref: '#components/schemas/variable_spec'
+            $ref: '#/components/schemas/variable_spec'
         functions:
           type: array
           items:
             oneOf:
-              - $ref: '#components/schemas/function_assign_spec'
-              - $ref: '#components/schemas/function_container_spec'
+              - $ref: '#/components/schemas/function_assign_spec'
+              - $ref: '#/components/schemas/function_container_spec'
 
     identifier_spec:
       title: <identifier_spec>
@@ -133,13 +133,13 @@ components:
         source_references:
           type: array
           items:
-            $ref: '#components/schemas/source_code_reference'
+            $ref: '#/components/schemas/source_code_reference'
         gensym:
-          $ref: '#components/schemas/gensym'
+          $ref: '#/components/schemas/gensym'
         grounding:
           type: array
           items:
-            $ref: '#components/schemas/grounding_metadata_spec'
+            $ref: '#/components/schemas/grounding_metadata_spec'
 
     base_name:
       title: <base_name>
@@ -402,7 +402,7 @@ components:
         - type
       properties:
         name:
-          $ref: '#components/schemas/type_name'
+          $ref: '#/components/schemas/type_name'
         type:
           type: string
           enum:
@@ -425,11 +425,11 @@ components:
         - mutable
       properties:
         name:
-          $ref: '#components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_name'
         index:
           type: integer
         domain:
-           $ref: '#components/schemas/type'
+           $ref: '#/components/schemas/type'
         domain_constraints:
           type: string
         mutable:
@@ -452,7 +452,7 @@ components:
         - type
       properties:
         type:
-          $ref: '#components/schemas/type_name'
+          $ref: '#/components/schemas/type_name'
         precision:
           type: string
 
@@ -481,15 +481,15 @@ components:
             - condition
             - decision
         lambda_source:
-          $ref: '#components/schemas/lambda_function_source_reference'
+          $ref: '#/components/schemas/lambda_function_source_reference'
         arguments:
           type: array
           items:
             oneOf:
-              - $ref: '#components/schemas/variable_name'
-              - $ref: '#components/schemas/function_name'
+              - $ref: '#/components/schemas/variable_name'
+              - $ref: '#/components/schemas/function_name'
         return_value:
-          $ref: '#components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_name'
 
     function_container_spec:
       title: <function_container_spec>
@@ -507,7 +507,7 @@ components:
         - body
       properties:
         name:
-          $ref: '#components/schemas/function_name'
+          $ref: '#/components/schemas/function_name'
         type:
           type: string
           enum:
@@ -517,18 +517,18 @@ components:
           type: array
           items:
             oneOf:
-              - $ref: '#components/schemas/variable_name'
-              - $ref: '#components/schemas/function_name'
+              - $ref: '#/components/schemas/variable_name'
+              - $ref: '#/components/schemas/function_name'
         updated:
           type: array
           items:
-            $ref: '#components/schemas/variable_name'
+            $ref: '#/components/schemas/variable_name'
         return_value:
-          $ref: '#components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_name'
         body:
           type: array
           items:
-            $ref: '#components/schemas/function_wiring_spec'
+            $ref: '#/components/schemas/function_wiring_spec'
 
     function_wiring_spec:
       title: <function_wiring_spec>
@@ -543,15 +543,15 @@ components:
         - output
       properties:
         function:
-          $ref: '#components/schemas/function_reference'
+          $ref: '#/components/schemas/function_reference'
         input:
           type: array
           items:
             oneOf:
-              - $ref: '#components/schemas/variable_name'
-              - $ref: '#components/schemas/function_name'
+              - $ref: '#/components/schemas/variable_name'
+              - $ref: '#/components/schemas/function_name'
         output:
-          $ref: '#components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_name'
 
     function_reference:
       title: <function_reference>
@@ -574,8 +574,8 @@ components:
       properties:
         function:
           oneOf:
-            - $ref: '#components/schemas/function_name'
-            - $ref: '#components/schemas/lambda_function_source_reference'
+            - $ref: '#/components/schemas/function_name'
+            - $ref: '#/components/schemas/lambda_function_source_reference'
         type:
           type: string
           enum:
@@ -607,15 +607,15 @@ components:
     type:
       title: <type>
       oneOf:
-        - $ref: '#components/schemas/type_type_spec'
-        - $ref: '#components/schemas/type_integer'
-        - $ref: '#components/schemas/type_float'
-        - $ref: '#components/schemas/type_boolean'
-        - $ref: '#components/schemas/type_string'
-        - $ref: '#components/schemas/type_array'
-        - $ref: '#components/schemas/type_list'
-        - $ref: '#components/schemas/type_map'
-        - $ref: '#components/schemas/type_tuple'
+        - $ref: '#/components/schemas/type_type_spec'
+        - $ref: '#/components/schemas/type_integer'
+        - $ref: '#/components/schemas/type_float'
+        - $ref: '#/components/schemas/type_boolean'
+        - $ref: '#/components/schemas/type_string'
+        - $ref: '#/components/schemas/type_array'
+        - $ref: '#/components/schemas/type_list'
+        - $ref: '#/components/schemas/type_map'
+        - $ref: '#/components/schemas/type_tuple'
 
     type_type_spec:
       title: <type_type_spec>
@@ -627,7 +627,7 @@ components:
         - type
       properties:
         name:
-          $ref: '#components/schemas/type_name'
+          $ref: '#/components/schemas/type_name'
         type:
           type: string
           enum:
@@ -728,7 +728,7 @@ components:
           items:
             type: integer
         element_type:
-           $ref: '#components/schemas/type'
+           $ref: '#/components/schemas/type'
 
     type_list:
       title: <type_list>
@@ -787,7 +787,7 @@ components:
         element_types:
           type: array
           items:
-            $ref: '#components/schemas/type'
+            $ref: '#/components/schemas/type'
 
 externalDocs:
   description: Find more information here
