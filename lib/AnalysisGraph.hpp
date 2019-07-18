@@ -12,6 +12,21 @@ template <class T> void printVec(std::vector<T> xs) {
   }
 }
 
+
+struct Event {
+  std::string adjective;
+  int polarity;
+  std::string concept_name;
+};
+
+
+struct Statement {
+  Event subject;
+  Event object;
+};
+
+
+/*
 struct CausalFragment {
   std::string subj_adjective;
   std::string obj_adjective;
@@ -19,6 +34,8 @@ struct CausalFragment {
   int subj_polarity{1};
   int obj_polarity{1};
 };
+*/
+
 
 struct Edge {
   std::string name;
@@ -26,7 +43,9 @@ struct Edge {
   // According to AnalysisGraph::construct_beta_pdfs()
   // it seems all the edges have a kde
   std::optional<KDE> kde;
-  std::vector<CausalFragment> causalFragments = {};
+  //std::vector<CausalFragment> causalFragments = {};
+
+  std::vector< Statement > evidence;
 
   // The current β for this edge
   // TODO: Need to decide how to initialize this or
