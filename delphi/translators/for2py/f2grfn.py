@@ -262,7 +262,7 @@ def generate_grfn(
         )
 
     asts = [ast.parse(python_src)]
-    grfn_dict = genPGM.create_pgm_dict(
+    grfn_dict = genPGM.create_grfn_dict(
         lambdas_file, asts, python_file, mode_mapper_dict, save_file=True
     )
     for identifier in grfn_dict["identifiers"]:

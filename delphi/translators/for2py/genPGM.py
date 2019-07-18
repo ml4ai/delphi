@@ -167,6 +167,9 @@ class GrFNGenerator(object):
             python AST
         """
 
+        #DEBUG
+        print(dump_ast(node[-1]))
+
         # Look for code that is not inside any function. This will generally
         # involve
         if state.function_name is None and not any(
@@ -1498,6 +1501,8 @@ class GrFNGenerator(object):
         # TODO Is the namespace path for the python intermediates or the
         #  original FORTRAN code? Currently, it captures the intermediate
         #  python file's path
+        # DEBUG
+        print ("\nself.mode_mapper: ", self.mode_mapper)
         name_space = self.mode_mapper["file_name"][1].split("/")
         name_space = ".".join(name_space)
 
