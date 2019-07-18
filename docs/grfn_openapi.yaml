@@ -384,7 +384,7 @@ components:
     type_name:
       title: <type_name>
       description: >
-        Denotes a user-defined type; will have a corresponding unique
+        Denotes a non-primitive type; will have a corresponding unique
         `<type_spec>`:
 
 
@@ -396,7 +396,7 @@ components:
     type_spec:
       title: <type_spec>
       description: >
-        User-defined type
+        Non-primitive type.
       required:
         - name
         - type
@@ -455,23 +455,6 @@ components:
             - true
             - false
           default: true
-
-    variable_domain_type:
-      title: <variable_domain_type>
-      description: >
-        The variable domain `type` has a `<type_name>`, which itself
-        could be a primitive data type or user-defined type.
-
-
-        Precision is an optional string representing the precision
-        of a primitive data type.
-      required:
-        - type
-      properties:
-        type:
-          $ref: '#/components/schemas/type_name'
-        precision:
-          type: string
 
     function_assign_spec:
       title: <function_assign_spec>
