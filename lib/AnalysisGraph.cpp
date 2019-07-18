@@ -7,9 +7,10 @@
 #include <Eigen/Dense>
 #include <pybind11/eigen.h>
 
-#include "../external/cppitertools/itertools.hpp"
+#include "itertools.hpp"
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "AnalysisGraph.hpp"
 #include "utils.hpp"
@@ -115,6 +116,10 @@ public:
 
 private:
 
+  // Maps each concept name to the vertex id of the vertex that concept is
+  // represented in the CAG
+  std::unordered_map<string, int> name_to_vertex = {};
+  
   // A_beta_factors is a 2D array (vector of vectors)
   // that keeps track of the beta factors involved with
   // each cell of the transition matrix A.
@@ -173,15 +178,15 @@ private:
 
   vector< Eigen::MatrixXd > transition_matrix_collection;
   
-  // Remember the ratio: β_old / β_new and the edge where we perturbed the β.
+  // Remember the ratio: β_new / β_old and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
   // got rejected. To revert, we have to:
-  // graph[ beta_revert_ratio.first ] *= beta_revert_ratio.second;
+  // graph[ beta_ratio.first ].beta *= 1.0 / beta_ratio.second;
   // and update the cells of A that are dependent on this β with
   // update_cell( make_pair( source(brr.first, graph), target(brr.first, graph) ), brr.second )
   // In the python implementation the variable original_value
   // was used for the same purpose.
-  pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_revert_ratio;
+  pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_ratio;
 
   // TODO: I am introducing this variable as a sustitute for self.original_value
   // found in the python implementation to implement calculate_Δ_log_prior()
@@ -196,7 +201,9 @@ private:
 
   double log_likelihood;
 
-  AnalysisGraph(DiGraph G) : graph(G){};
+  AnalysisGraph( DiGraph G, std::unordered_map< string, int > name_to_vertex ) 
+                : graph( G ),
+                  name_to_vertex( name_to_vertex ) {};
 
 
   /**
@@ -313,8 +320,10 @@ public:
     auto json_data = load_json(filename);
 
     DiGraph G;
+
     std::unordered_map<string, int> nameMap = {};
-    int i = 0;
+
+    //int i = 0;
     for (auto stmt : json_data) {
       if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
@@ -325,12 +334,14 @@ public:
           auto obj_str = obj.dump();
 
           // Add the nodes to the graph if they are not in it already
-          for (auto c : {subj_str, obj_str}) {
-            if (nameMap.count(c) == 0) {
-              nameMap[c] = i;
-              auto v = boost::add_vertex(G);
-              G[v].name = c;
-              i++;
+          for ( string name : {subj_str, obj_str}) {
+            //if (nameMap.count(c) == 0) {
+            if ( nameMap.find( name ) == nameMap.end()) {
+              //nameMap[ name ] = i;
+              int v = boost::add_vertex( G );
+              nameMap[ name ] = v;
+              G[v].name = name;
+              //i++;
             }
           }
 
@@ -349,13 +360,64 @@ public:
                 (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
             auto subj_polarity = annotations["subj_polarity"];
             auto obj_polarity = annotations["obj_polarity"];
-            G[e].causalFragments.push_back(CausalFragment{
-                subj_adjective, obj_adjective, subj_polarity, obj_polarity});
+            
+            //G[e].causalFragments.push_back(CausalFragment{
+            //    subj_adjective, obj_adjective, subj_polarity, obj_polarity});
+
+            Event subject{ subj_adjective, subj_polarity, "" };
+            Event object{ obj_adjective, obj_polarity, "" };
+            G[e].evidence.push_back( Statement{ subject, object });
           }
         }
       }
     }
-    return AnalysisGraph(G);
+    return AnalysisGraph( G, nameMap );
+  }
+
+
+  /**
+   * A method to construct an AnalysisGraph object given from a vector of  
+   * Statement objects
+   *
+   * @param statements: A vector of Statement objects
+   */
+  static AnalysisGraph from_statements( vector< Statement > statements )
+  {
+    DiGraph G;
+
+    std::unordered_map<string, int> nameMap = {};
+
+    for ( Statement stmt : statements )
+    {
+      Event subject = stmt.subject;
+      Event object = stmt.object;
+
+      vector< string > concept;
+      boost::split( concept, subject.concept_name, boost::is_any_of( "/" ));
+      string subj_name = concept.back();
+
+      concept.clear();
+      boost::split( concept, object.concept_name, boost::is_any_of( "/" ));
+      string obj_name = concept.back();
+
+      // Add the nodes to the graph if they are not in it already
+      for ( string name : {subj_name, obj_name} ) 
+      {
+        if ( nameMap.find( name ) == nameMap.end() )
+        {
+          int v = boost::add_vertex( G );
+          nameMap[ name ] = v;
+          G[v].name = name;
+        }
+      }
+
+      // Add the edge to the graph if it is not in it already
+      auto [e, exists] =
+          boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
+
+      G[e].evidence.push_back( stmt );
+    }
+    return AnalysisGraph( G, nameMap );
   }
 
 
@@ -393,6 +455,30 @@ public:
 
     for (auto e : edges()) {
       vector<double> all_thetas = {};
+      
+      for ( Statement stmt : graph[e].evidence ) 
+      {
+        Event subject = stmt.subject;
+        Event object = stmt.object;
+
+        string subj_adjective = subject.adjective;
+        string obj_adjective = object.adjective;
+        
+        auto subj_responses =
+            lmap([&](auto x) { return x * subject.polarity; },
+                 get(adjective_response_map,
+                     subj_adjective,
+                     marginalized_responses));
+
+        auto obj_responses = lmap(
+            [&](auto x) { return x * object.polarity; },
+            get(adjective_response_map, obj_adjective, marginalized_responses));
+
+        for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
+          all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
+        }
+      }
+      /*
       for (auto causalFragment : graph[e].causalFragments) {
         auto subj_adjective = causalFragment.subj_adjective;
         auto obj_adjective = causalFragment.obj_adjective;
@@ -408,6 +494,7 @@ public:
           all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
         }
       }
+      */
       // TODO: Why kde is optional in struct Edge?
       // It seems all the edges get assigned with a kde
       graph[e].kde = KDE(all_thetas);
@@ -686,8 +773,12 @@ public:
   /**
    * Find all the transition matrix (A) cells that are dependent on this β 
    * and update them.
+   *
+   * @param A: The current transitin matrix
+   * @param e: The directed edge ≡ β that has been perturbed
+   * @param br: value of the new β divided by old β
    */
-  void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e, double beta_ratio  )
+  void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e, double br )
   {
     pair< int, int > beta = make_pair( boost::source( e, this->graph ), boost::target( e, this->graph ) ); 
 
@@ -709,7 +800,7 @@ public:
       // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
       //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, br );
     }
   }
   
@@ -722,7 +813,7 @@ public:
    *    Perturbing it a bit.
    *    Updating all the transition matrix cells that are dependent on it.
    * 
-   * @parm A: Transition matrix
+   * @param A: Transition matrix
    */
   // TODO: Need testng
   // TODO: Before calling sample_from_proposal() we must call 
@@ -748,11 +839,18 @@ public:
     // TODO: Check whether this perturbation is accurate
     graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
 
+    // Remeber the ratio: β_new / β_old
+    this->beta_ratio = make_pair( e[0], this->graph[ e[0] ].beta / prev_beta );
+
+    this->update_transition_matrix_cells( A, e[0], beta_ratio.second );
+    
+    /*
     double beta_ratio = this->graph[ e[0] ].beta / prev_beta;
 
     this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
-
+    
     this->update_transition_matrix_cells( A, e[0], beta_ratio );
+    */
 
     /*
     // Find all the transition matrix (A) cells that are dependent on this β 
@@ -777,7 +875,7 @@ public:
       // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
       //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio.second );
     }
     */
   }
@@ -860,32 +958,36 @@ public:
   }
 
 
-  // TODO: This implementation is WRONG!!!
   // Now we are perturbing multiple cell of the transition matrix (A) that are
   // dependent on the randomly selected β (edge in the CAG).
   // In the python implementation, which is wrong, it randomly selects a single
-  // cell in the transition matrix (A) and perturb it. So, it defines the
-  // current value and previous value of that cell.
-  // TODO: We need to go back to Math and workout the Math before implementing
-  // this method.
-  // I have implemented a stub as a placeholder so taht I can move forward with
-  // the AnalysisGraph::sample_from_posterior() method.
+  // cell in the transition matrix (A) and perturb it. So, the python
+  // implementation of this method is based on that incorrect pertubation.
+  // 
+  // Updated the logic of this function in the C++ implementation after having
+  // a discussion with Adarsh.
+  // TODO: Check with Adrash whether this new implementation is correct
   double calculate_delta_log_prior( Eigen::MatrixXd A )
   {
-    //this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
     // If kde of an edge is truely optional ≡ there are some
     // edges without a kde assigned, we should not access it
     // using .value() (In the case of kde being missing, this 
     // with throw and exception). We should follow a process
     // similar to Tran_Mat_Cell::sample_from_prior
-    KDE & kde = this->graph[ this->beta_revert_ratio.first ].kde.value();
+    KDE & kde = this->graph[ this->beta_ratio.first ].kde.value();
 
-    const int & source = boost::source( this->beta_revert_ratio.first, this->graph );
-    const int & target = boost::target( this->beta_revert_ratio.first, this->graph ); 
+    //Trying to match the python implementation, which is wrong
+    //const int & source = boost::source( this->beta_ratio.first, this->graph );
+    //const int & target = boost::target( this->beta_ratio.first, this->graph ); 
 
-    // TODO: Now since we are changing multiple cells of A defining the previous
+    // Now since we are changing multiple cells of A defining the previous
     // value is not stratight forward.
-    return kde.logpdf( A( 2 * source, 2 * target + 1 ) / this->delta_t ); // - kde.logpdf( prev_val / this->delta_t );
+    //return kde.logpdf( A( 2 * source, 2 * target + 1 ) / this->delta_t ); // - kde.logpdf( prev_val / this->delta_t );
+
+    // We have to return: log( p( β_new )) - log( p( β_old )) 
+    //                  = log( p( β_new )  /      p( β_old )) 
+    //                  = log( this->beta_ratio.secon )
+    return kde.logpdf( this->beta_ratio.second );
 
     /*
     vector< double > log_diffs( this->A_cells_changed.size() );
@@ -961,7 +1063,7 @@ public:
     
       // Reset the transition matrix cells that were changed
       // TODO: Can we change the transition matrix only when the sample is accpeted?
-      this->update_transition_matrix_cells( A, this->beta_revert_ratio.first, this->beta_revert_ratio.second );
+      this->update_transition_matrix_cells( A, this->beta_ratio.first, 1.0 / this->beta_ratio.second );
     }
 
     return A;
