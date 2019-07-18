@@ -518,7 +518,7 @@ def fortran_to_grfn(
 
     if not network_test:
         return (
-            [src[0] for src in python_src],
+            python_src,
             lambdas_file,
             json_file,
             python_file,
@@ -542,5 +542,5 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src, python_file, lambdas_file, json_file, mode_mapper_dict, False
+        python_src[0][0], python_file, lambdas_file, json_file, mode_mapper_dict, False
     )
