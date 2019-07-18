@@ -23,3 +23,7 @@ apidocs:
 	python swagger-yaml-to-html.py grfn_openapi.yaml grfn_openapi.html
 	rm -rf generated/
 	sphinx-apidoc -o . ../delphi -f
+
+
+grfn_openapi.html:
+	python swagger-yaml-to-html.py grfn_openapi.yaml grfn_openapi.html
