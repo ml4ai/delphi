@@ -268,6 +268,9 @@ def generate_grfn(
     for identifier in grfn_dict["identifiers"]:
         del identifier["gensyms"]
 
+    if not tester_call:
+        genPGM.process_files([python_file], "GrFN.json", "lamdas.py", False)
+
     return grfn_dict
 
 
@@ -542,5 +545,5 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src[0][0], python_file, lambdas_file, json_file, mode_mapper_dict, False
+        python_src[0][0], python_file, lambdas_file, json_file, mode_mapper_dict[0], False
     )
