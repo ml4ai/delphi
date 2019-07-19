@@ -18,6 +18,18 @@ struct Event {
   std::string adjective;
   int polarity;
   std::string concept_name;
+
+  Event( std::string adj, int pol, std::string con_name )
+    : adjective{ adj }, polarity{ pol }, concept_name{ con_name }
+  {
+  }
+
+  Event( std::tuple< string, int, string > evnt )
+  {
+    adjective = std::get< 0 >( evnt );
+    polarity = std::get< 1 >( evnt );
+    concept_name = std::get< 2 >( evnt );
+  }
 };
 
 

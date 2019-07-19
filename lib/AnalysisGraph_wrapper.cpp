@@ -9,6 +9,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(AnalysisGraph, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def("from_json_file", &AnalysisGraph::from_json_file)
+      .def("from_statements", &AnalysisGraph::from_statements)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("to_dot", &AnalysisGraph::to_dot)
@@ -23,6 +24,10 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("initialize", &AnalysisGraph::initialize, py::return_value_policy::reference_internal)
       .def("sample_from_prior", &AnalysisGraph::sample_from_prior, py::return_value_policy::reference_internal)
       .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood, py::return_value_policy::reference_internal)
+      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior, py::return_value_policy::reference_internal)
       .def("sample_from_proposal_debug", &AnalysisGraph::sample_from_proposal_debug, py::return_value_policy::reference_internal)
+      .def("set_initial_state", &AnalysisGraph::set_initial_state)
+      .def("get_beta", &AnalysisGraph::get_beta)
+      .def("take_step", &AnalysisGraph::take_step)
     ;
 }

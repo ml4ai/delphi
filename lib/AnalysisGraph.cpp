@@ -150,6 +150,7 @@ private:
   double delta_t = 1.0;
   vector< Eigen::VectorXd > s0;
   Eigen::VectorXd s0_original;
+  Eigen::MatrixXd A_original;
   int n_timesteps;
 
   // Access this as
@@ -424,16 +425,21 @@ public:
    *
    * @param statements: A vector of Statement objects
    */
-  static AnalysisGraph from_statements( vector< Statement > statements )
+  //static AnalysisGraph from_statements( vector< Statement > statements )
+  static AnalysisGraph from_statements( vector< pair< tuple< string, int, string >, tuple< string, int, string > >> statements )
   {
     DiGraph G;
 
     std::unordered_map<string, int> nameMap = {};
 
-    for ( Statement stmt : statements )
+    //for ( Statement stmt : statements )
+    for ( pair< tuple< string, int, string >, tuple< string, int, string > > stmt : statements )
     {
-      Event subject = stmt.subject;
-      Event object = stmt.object;
+      Event subject = Event( stmt.first );
+      Event object = Event( stmt.second );
+
+      //Event subject = stmt.subject;
+      //Event object = stmt.object;
 
       vector< string > concept;
       boost::split( concept, subject.concept_name, boost::is_any_of( "/" ));
@@ -458,7 +464,8 @@ public:
       auto [e, exists] =
           boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
-      G[e].evidence.push_back( stmt );
+      //G[e].evidence.push_back( stmt );
+      G[e].evidence.push_back( Statement{ subject, object } );
     }
     AnalysisGraph ag =  AnalysisGraph( G, nameMap );
     ag.initialize_random_number_generator();
@@ -483,6 +490,46 @@ public:
 
   auto out_edges(int i) {
     return boost::make_iterator_range(boost::out_edges(i, graph));
+  }
+
+
+  void set_initial_state()
+  {
+    this->A_original = sample_from_prior()[ 0 ];
+    this->s0_original = this->construct_default_initial_state();
+    
+    for( boost::graph_traits< DiGraph >::edge_descriptor e : this->edges() )
+    {
+      int src = boost::source( e, this->graph );
+      int tgt = boost::target( e, this->graph );
+
+      // Initialize ∂source / ∂t values
+      this->s0_original( 2 * src + 1 ) = 0.1 * this->uni_dist( this->rand_num_generator );
+
+      //this->A_original( 2 * tgt, 2 * src + 1 ) = 0.0;
+    }
+
+    // Given the initial latent state vector and the sampled transition matrix,
+    // sample a sequence of latent states and observed states
+    this->sample_from_likelihood();
+    this->latent_state_sequence = this->latent_state_sequences[ 0 ];
+    this->observed_state_sequence = this->observed_state_sequences[ 0 ];
+  }
+
+
+  void take_step()
+  {
+    this->A_original = this->sample_from_posterior( this->A_original );
+
+    cout << this->A_original << endl;
+  }
+
+
+  double get_beta( string source_vertex_name, string target_vertex_name )
+  {
+    // This is ∂target / ∂source
+    return this->A_original( 2 * this->name_to_vertex[ target_vertex_name ], 
+                             2 * this->name_to_vertex[ source_vertex_name ] + 1 );
   }
 
 
