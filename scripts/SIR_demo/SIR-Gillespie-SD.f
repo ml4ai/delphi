@@ -7,8 +7,8 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       double precision, dimension(0:Tmax) :: L
       integer i
 
-      do i = 0, 20
-         write (*, 10) L(i+0), L(i+1), L(i+2), L(i+3), L(i+4)
+      do i = 0, 19
+         write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
       end do
       write (*, 11)
 
@@ -39,22 +39,13 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       end function pyrand
 
 ********************************************************************************
-      subroutine update_mean_var(means, variances, k, n, runs)
+      subroutine update_mean_var(means, vars, k, n, runs)
       integer, parameter :: Tmax = 100
-      double precision, dimension(0:Tmax) :: means, variances
+      double precision, dimension(0:Tmax) :: means, vars
       integer k, n, runs
-      double precision upd_mean, upd_var
 
-      upd_mean = (n - means(k))/(runs+1)
-
-!      write (*,10) k, means(k), n, runs, upd_mean
-! 10   format("k:", I3, ", means[k] = ", F7.3, ", n = ", I3, 
-!     &   ", runs =", I3, ", upd_mean: ", F7.3)
-
-      means(k) = means(k) + upd_mean
-
-      upd_var = runs/(runs+1) * (n-means(k))*(n-means(k))
-      variances(k) = variances(k) + upd_var
+      means(k) = means(k) + (n - means(k))/(runs+1)
+      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))
 
       return
       end subroutine update_mean_var
@@ -63,7 +54,7 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       program main
 
       integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
-      integer, parameter :: total_runs = 10 !1000
+      integer, parameter :: total_runs = 1000
       double precision, parameter :: gamma = 1.0/3.0  ! Rate of recovery from an infection
       double precision, parameter :: rho = 2.0  ! Basic reproduction Number
       double precision, parameter :: beta = rho * gamma ! Rate of infection
@@ -76,9 +67,6 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, sample
       double precision t, randval
       double precision rateInfect, rateRecover, totalRates, dt
-
-      ! DEBUGGING VALUES
-      double precision logval
 
       do i = 0, Tmax    ! Initialize the mean and variance arrays
          MeanS(i) = 0
@@ -96,14 +84,14 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
 
       randval = pyrand(.true.)    ! initialize the random-number sequence
 
-      do runs = 0, total_runs
+      do runs = 0, total_runs-1
          t = 0.0    ! Restart the event clock
 
          n_S = S0
          n_I = I0
          n_R = R0
 
-C main Gillespie loop
+         ! main Gillespie loop
          sample_idx = 0
          do while (t .le. Tmax .and. n_I .gt. 0)
             rateInfect = beta * n_S * n_I / (n_S + n_I + n_R)
@@ -111,26 +99,22 @@ C main Gillespie loop
             totalRates = rateInfect + rateRecover
 
             randval = pyrand(.false.)
-            logval = log(1.0-randval)
             dt = -log(1.0-randval)/totalRates  ! next inter-event time
 
             t = t + dt          !  Advance the system clock
 
             ! Calculate all measures up to the current time t using
-            ! Welford's one pass algorithm 
+            ! Welford's one pass algorithm
             do while (sample_idx < Tmax .and. t > samples(sample_idx))
                sample = samples(sample_idx)
-!               write(*,10) sample
-! 10            format("@@@ sample =", I3)
                call update_mean_var(MeanS, VarS, sample, n_S, runs)
                call update_mean_var(MeanI, VarI, sample, n_I, runs)
                call update_mean_var(MeanR, VarR, sample, n_R, runs)
                sample_idx = sample_idx+1
-             end do
+            end do
 
             ! Determine which event fired.  With probability rateInfect/totalRates
             ! the next event is infection.
-
             randval = pyrand(.false.)
             if (randval < (rateInfect/totalRates)) then
                 ! Delta for infection
@@ -145,25 +129,29 @@ C main Gillespie loop
             endif
          end do
 
-        ! After all events have been processed, clean up by evaluating all remaining measures.
-        do while (sample_idx < Tmax)
+         ! After all events have been processed, clean up by evaluating all remaining measures.
+         do while (sample_idx < Tmax)
             sample = samples(sample_idx)
             call update_mean_var(MeanS, VarS, sample, n_S, runs)
             call update_mean_var(MeanI, VarI, sample, n_I, runs)
             call update_mean_var(MeanR, VarR, sample, n_R, runs)
             sample_idx = sample_idx + 1
-        end do
-      end do
-
-      do i = 0, Tmax
-         VarS(i) = VarS(i)/total_runs
-         VarI(i) = VarI(i)/total_runs
-         VarR(i) = VarR(i)/total_runs
+         end do
       end do
 
       call print_output(MeanS)
       call print_output(MeanI)
       call print_output(MeanR)
 
+!      do i = 0, Tmax
+!         VarS(i) = VarS(i)/total_runs
+!         VarI(i) = VarI(i)/total_runs
+!         VarR(i) = VarR(i)/total_runs
+!      end do
+!
+!      call print_output(VarS)
+!      call print_output(VarI)
+!      call print_output(VarR)
+!
       end program main
       

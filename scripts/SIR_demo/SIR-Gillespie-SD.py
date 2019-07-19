@@ -1,6 +1,3 @@
-import math
-import random
-#import matplotlib.pyplot as plt
 """ SIR Model implemented as a Monte Carlo Simulation via the Gillespie Method
 State Variables: S, I, R
     S - Susceptible population
@@ -8,6 +5,9 @@ State Variables: S, I, R
     R - Recovered population
 Events: Infection, Recovery
 """
+
+import math
+import random
 
 def print_output(L):
     n = 5   # no. of values per line
@@ -20,7 +20,6 @@ def print_output(L):
 # Welford's one pass algorithm for mean and variance
 def update_mean_var(means, variances, k, n, runs):
     upd_mean = (n - means[k])/(runs+1)
-#    print(f"k: {k}, means[k] = {means[k]}, n = {n}, runs = {runs}, upd_mean: {upd_mean}")
     means[k] += upd_mean
 
     upd_var = runs/(runs+1) * (n-means[k])*(n-means[k])
@@ -56,7 +55,7 @@ def main():
 
     # int array: Time points to collect measurements of mean and variance
     samples = [x for x in range(0, int(math.ceil(T)))]
-    
+
     # Main loop over totalRuns iterations
     for runs in range(0, totalRuns):
         # Restart the event clock
@@ -71,20 +70,17 @@ def main():
         # Main Gillespie Loop
         sample_idx = 0
         while (t < T) and (n_I > 0.0):
-    
             # float: Current state dependent rate of infection
             rateInfect = beta * n_S * n_I / (n_S + n_I + n_R)
             # float: Current state dependent rate of recovery
             rateRecover = gamma * n_I
-            # Sum of total rates; taking advantage of Markovian identities to improve
-            # performance.
+            # Sum of total rates; taking advantage of Markovian identities to improve performance.
             totalRates = rateInfect + rateRecover
 
             # float: next inter-event time
             randval = random.uniform(0.0, 1.0)
             dt = -math.log(1.0 - randval) / totalRates
 
-            #print(f"randval = {randval}, log = {math.log(1.0-randval)}, totalRates = {totalRates}, dt = {dt}")
             # Advance the system clock
             t = t + dt
     
@@ -96,7 +92,7 @@ def main():
                 update_mean_var(MeanI, VarI, sample, n_I, runs)
                 update_mean_var(MeanR, VarR, sample, n_R, runs)
                 sample_idx += 1
-    
+
             # Determine which event fired.  With probability rateInfect/totalRates
             # the next event is infection.
             randval = random.uniform(0.0, 1.0)
@@ -111,7 +107,7 @@ def main():
                 # Delta for recovery
                 n_I = n_I - 1
                 n_R = n_R + 1
-    
+
         # After all events have been processed, clean up by evaluating all remaining measures.
         while sample_idx < len(samples):
             sample = samples[sample_idx]
@@ -119,36 +115,18 @@ def main():
             update_mean_var(MeanI, VarI, sample, n_I, runs)
             update_mean_var(MeanR, VarR, sample, n_R, runs)
             sample_idx += 1
-    
-    # float array: Time points for all measures for plotting
-    t = [float(x) for x in range(0, int(math.ceil(T)))]
-    
-    VarS = [v/totalRuns for v in VarS]    # Unbiased variance computation for S
-    VarI = [v/totalRuns for v in VarI]    # Unbiased variance computation for I
-    VarR = [v/totalRuns for v in VarR]    # Unbiased variance computation for R
-    
+
     print_output(MeanS)
     print_output(MeanI)
     print_output(MeanR)
 
+#    VarS = [v/totalRuns for v in VarS]    # Unbiased variance computation for S
+#    VarI = [v/totalRuns for v in VarI]    # Unbiased variance computation for I
+#    VarR = [v/totalRuns for v in VarR]    # Unbiased variance computation for R
+#    
+#    print_output(VarS)
+#    print_output(VarI)
+#    print_output(VarR)
+
 main()
 
-
-# fig, ax = plt.subplots(figsize=(20, 10))
-# ax.plot(t, MeanS, label="S")
-# # float: negative and positive confidence intervals for E[S]
-# nCI = [x-y for x,y in zip(MeanS, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarS])]
-# pCI = [x+y for x,y in zip(MeanS, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarS])]
-# ax.fill_between(t, nCI, pCI, alpha=.1)
-# ax.plot(t, MeanI, label="I")
-# # float: negative and positive confidence intervals for E[I]
-# nCI = [x-y for x,y in zip(MeanI, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarI])]
-# pCI = [x+y for x,y in zip(MeanI, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarI])]
-# ax.fill_between(t, nCI, pCI, alpha=.1)
-# ax.plot(t, MeanR, label="R")
-# # float: negative and positive confidence intervals for E[R]
-# nCI = [x-y for x,y in zip(MeanR, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarR])]
-# pCI = [x+y for x,y in zip(MeanR, [1.96 * math.sqrt(x)/math.sqrt(totalRuns) for x in VarR])]
-# ax.fill_between(t, nCI, pCI, alpha=.1)
-# ax.legend()
-# fig.savefig("Python-Gillespie.pdf", bbox_inches='tight')
