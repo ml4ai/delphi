@@ -473,7 +473,9 @@ def fortran_to_grfn(
         with open(original_fortran_file_path, "r") as f:
             inputLines = f.readlines()
     except IOError:
-        assert False, f"Fortran file: {original_fortran_file_path} Not Found"
+        sys.stderr.write(f"Fortran file: {original_fortran_file_path} Not "
+                         f"Found")
+        sys.exit(1)
 
     # Preprocess the read in fortran file
     if not tester_call:
