@@ -504,6 +504,7 @@ public:
       int tgt = boost::target( e, this->graph );
 
       // Initialize ∂source / ∂t values
+      // *Loren: See the next comment from me below*
       this->s0_original( 2 * src + 1 ) = 0.1 * this->uni_dist( this->rand_num_generator );
 
       //this->A_original( 2 * tgt, 2 * src + 1 ) = 0.0;
@@ -511,6 +512,13 @@ public:
 
     // Given the initial latent state vector and the sampled transition matrix,
     // sample a sequence of latent states and observed states
+    //
+    // *Loren: So this isn't an absolutely necessary training step, really
+    // sample_from_likelihood is just to generate predictions after the
+    // training process, maybe we should rename it sample_predictions. Also
+    // only the initial latent state needs to be initialized as specified in
+    // the google doc, the rest of the latent_state_sequence is actually
+    // learned from that initial latent state.* 
     this->sample_from_likelihood();
     this->latent_state_sequence = this->latent_state_sequences[ 0 ];
     this->observed_state_sequence = this->observed_state_sequences[ 0 ];
@@ -1172,7 +1180,13 @@ public:
     Basic Modeling Interface (BMI)
     ==========================================================================
   */
-
+  //*Loren: So this section in AnalysisGraph.py is outdated and is not
+  //currently used at all in evaluation.py. I think originally it was here to
+  //control all modeling aspects such as the training and predictions, but has
+  //been solely neglected. I found that it was basically easier to just work
+  //around it than update this section. I think we can talk about revamping
+  //this section, especially the config file aspect will be useful going
+  //forward.* 
 
   /**
    * Create a BMI config file to initialize the model.
