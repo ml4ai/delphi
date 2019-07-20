@@ -219,8 +219,8 @@ components:
     function_name:
       title: <function_name>
       description: >
-        `"<namespace_path_string>::<scope_path_string>::<base_name>"`
-        where:
+        `"<namespace_path_string>::<scope_path_string>::<base_name>"`<br>
+        where:<br>
         `<base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]`
       type: string
 
