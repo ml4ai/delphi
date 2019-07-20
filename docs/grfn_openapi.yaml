@@ -134,7 +134,7 @@ components:
 
     base_name:
       title: <base_name>
-      description:
+      description: >
         The identifier name (when available) that was used in the
         original source code.
       type: string
@@ -283,7 +283,7 @@ components:
           type: string
           description: >
             String representing a disjunctive normal form representation
-            with v = variable value, for example:
+            with v = variable value, for example:<br>
             `"(or (and (< v infty) (>= v 5)) (and (> v -infty) (< v 0)))"`
         mutable:
           type: string
@@ -324,8 +324,8 @@ components:
       description: >
         Define a function with a function subnetwork body.
         Flow through the function body depends on value
-        of container "type":
-        "container" = flow through once;
+        of container "type":<br>
+        "container" = flow through once<br>
         "loop" = repeat flow through.
       required:
         - name
@@ -384,18 +384,11 @@ components:
     function_ref:
       title: <function_ref>
       description:
-        A `<function_ref>` is either a
-
-        1. `<function_name>` denoting a function specification (generally
-        an another container function).
-
-        2. `<lambda_function_source_ref>` denoting an executable
-        lambda function.
-
-
-        "type" is a convenience indicating whether the "function" is a
-        `<function_name>` or `<lambda_function_source_ref>` without
-        having to parse the string.
+        A `<function_ref>` is either<br>
+        (1) `<function_name>` denoting a function specification
+        (generally another container function).<br>
+        (2) `<lambda_function_source_ref>` denoting an executable
+        lambda function.<br>
       required:
         - function
         - type
@@ -405,6 +398,9 @@ components:
             - $ref: '#/components/schemas/function_name'
             - $ref: '#/components/schemas/lambda_function_source_ref'
         type:
+          description: >
+            Indicate whether "function" is a
+            `<function_name>` or `<lambda_function_source_ref>`.
           type: string
           enum:
             - function_name
@@ -600,9 +596,10 @@ components:
       title: <type_tuple>
       description: >
         Tuple primitive type.
-        "element_types" is an array of the `<types>` of each element of the tuple.
-        The order of `<types>` corresponds to the order of elements in the
-        tuple.
+        "element_types" is an array of the `<types>` of each
+        element of the tuple.
+        The order of `<types>` corresponds to the order of
+        elements in the tuple.
       required:
         - name
         - type
