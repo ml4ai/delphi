@@ -1,15 +1,15 @@
 openapi: 3.0.0
 
 info:
-  title: GrFN Spec
-  description: Grounded Function Network (GrFN) Specification
+  title: GrFN spec
+  description: Grounded Function Network (GrFN) schema specification
   contact:
     name: Clayton T. Morrison
     email: claytonm@email.arizona.edu
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.3
+  version: 0.2.4
 
 paths: {}
 
@@ -21,7 +21,7 @@ components:
       title: <system_def>
       description: >
         Specification of a GrFN system consisting of one or
-        more GrFN_spec files.
+        more GrFN files.
         With imports, the system must represent a DAG.
       required:
         - date_created
@@ -36,28 +36,29 @@ components:
         components:
           type: array
           items:
-            $ref: '#/components/schemas/grfn_spec_ref'
+            $ref: '#/components/schemas/grfn_ref'
 
-    grfn_spec_ref:
-      title: <grfn_spec_ref>
+    grfn_ref:
+      title: <grfn_ref>
       description: >
-        Specifies a GrFN_spec file that is part of a GrFN system.
-        "imports" (optional) specifies list of any GrFN_spec files
+        Specifies a GrFN def file that is part of a GrFN system.
+        "imports" (optional) specifies list of any GrFN files
         that need to also be loaded due to dependencies.
       required:
         - name
       properties:
-        name:
-          $ref: '#/components/schemas/namespace_path_string'
+        file_path:
+          $ref: '#/components/schemas/file_path'
         imports:
           type: array
           items:
-            $ref: '#/components/schemas/namespace_path_string'
+            $ref: '#/components/schemas/file_path'
 
-    grfn_spec:
-      title: <grfn_spec>
+    grfn_def:
+      title: <grfn_def>
       description: >
-        The top-level structure of the GrFN specification.
+        The top-level structure of the GrFN definition derived
+        from Program Analysis of source code.
       required:
         - date_created
         - source
@@ -71,9 +72,11 @@ components:
           description: >
             Date and time that current GrFN was generated.
         source:
+          description:
+            Path(s) to source code file(s) that were analyzed.
           type: array
           items:
-            $ref: '#/components/schemas/source_code_file_path'
+            $ref: '#/components/schemas/file_path'
         start:
           type: array
           items:
@@ -83,24 +86,24 @@ components:
         identifiers:
           type: array
           items:
-            $ref: '#/components/schemas/identifier_spec'
+            $ref: '#/components/schemas/identifier_def'
         types:
           type: array
           items:
-            $ref: '#/components/schemas/type_spec'
+            $ref: '#/components/schemas/type_def'
         variables:
           type: array
           items:
-            $ref: '#/components/schemas/variable_spec'
+            $ref: '#/components/schemas/variable_def'
         functions:
           type: array
           items:
             oneOf:
-              - $ref: '#/components/schemas/function_assign_spec'
-              - $ref: '#/components/schemas/function_container_spec'
+              - $ref: '#/components/schemas/function_assign_def'
+              - $ref: '#/components/schemas/function_container_def'
 
-    identifier_spec:
-      title: <identifier_spec>
+    identifier_def:
+      title: <identifier_def>
       description: >
         Defines a source code identifier, the context of it's creation
         and use, and associates with it a unique gensym and any
@@ -109,7 +112,7 @@ components:
         - base_name
         - scope
         - namespace
-        - source_references
+        - source_refs
         - gensym
       properties:
         base_name:
@@ -118,16 +121,16 @@ components:
           $ref: '#/components/schemas/scope_path'
         namespace:
           $ref: '#/components/schemas/namespace_path'
-        source_references:
+        source_refs:
           type: array
           items:
-            $ref: '#/components/schemas/source_code_reference'
+            $ref: '#/components/schemas/source_code_ref'
         gensym:
           $ref: '#/components/schemas/gensym'
         grounding:
           type: array
           items:
-            $ref: '#/components/schemas/grounding_metadata_spec'
+            $ref: '#/components/schemas/grounding_metadata'
 
     base_name:
       title: <base_name>
@@ -180,8 +183,8 @@ components:
         generated from GrFN.
       type: string
 
-    grounding_metadata_spec:
-      title: <grounding_metadata_spec>
+    grounding_metadata:
+      title: <grounding_metadata>
       description: >
         Text Reading currently extracts three types of information
         that can be associated with identifiers:
@@ -229,10 +232,10 @@ components:
         `"<namespace_path_string>::<scope_path_string>::<base_name>::TYPE"`
       type: string
 
-    type_spec:
-      title: <type_spec>
+    type_def:
+      title: <type_def>
       description: >
-        Non-primitive type.
+        Define a non-primitive type.
       required:
         - name
         - type
@@ -246,12 +249,12 @@ components:
         attributes:
           type: array
           items:
-            $ref: '#/components/schemas/attribute_spec'
+            $ref: '#/components/schemas/attribute_def'
 
-    attribute_spec:
-      title: <attribute_spec>
+    attribute_def:
+      title: <attribute_def>
       description: >
-        An attribute of a `<type>`.
+        Define an attribute of a `<type>`.
       required:
         - name
       properties:
@@ -260,8 +263,8 @@ components:
         type:
           $ref: '#/components/schemas/type'
 
-    variable_spec:
-      title: <variable_spec>
+    variable_def:
+      title: <variable_def>
       description: >
         The specification of a variable hosting a value.
       required:
@@ -289,10 +292,10 @@ components:
             - false
           default: true
 
-    function_assign_spec:
-      title: <function_assign_spec>
+    function_assign_def:
+      title: <function_assign_def>
       description: >
-        Setting the value of a variable.
+        Defin a function setting the value of a variable.
       required:
         - name
         - type
@@ -306,7 +309,7 @@ components:
             - condition
             - decision
         lambda_source:
-          $ref: '#/components/schemas/lambda_function_source_reference'
+          $ref: '#/components/schemas/lambda_function_source_ref'
         arguments:
           type: array
           items:
@@ -316,13 +319,13 @@ components:
         return_value:
           $ref: '#/components/schemas/variable_name'
 
-    function_container_spec:
-      title: <function_container_spec>
+    function_container_def:
+      title: <function_container_def>
       description: >
-        Representing a function subnetwork.
+        Define a function with a function subnetwork body.
         Flow through the function body depends on value
         of container "type":
-        "container" = flow through once.
+        "container" = flow through once;
         "loop" = repeat flow through.
       required:
         - name
@@ -354,10 +357,10 @@ components:
         body:
           type: array
           items:
-            $ref: '#/components/schemas/function_wiring_spec'
+            $ref: '#/components/schemas/function_wiring'
 
-    function_wiring_spec:
-      title: <function_wiring_spec>
+    function_wiring:
+      title: <function_wiring>
       description: >
         Defines the "wiring" of container functions,
         specifying associations of variables to function
@@ -368,7 +371,7 @@ components:
         - output
       properties:
         function:
-          $ref: '#/components/schemas/function_reference'
+          $ref: '#/components/schemas/function_ref'
         input:
           type: array
           items:
@@ -378,20 +381,20 @@ components:
         output:
           $ref: '#/components/schemas/variable_name'
 
-    function_reference:
-      title: <function_reference>
+    function_ref:
+      title: <function_ref>
       description:
-        A `<function_reference>` is either a
+        A `<function_ref>` is either a
 
         1. `<function_name>` denoting a function specification (generally
         an another container function).
 
-        2. `<lambda_function_source_reference>` denoting an executable
+        2. `<lambda_function_source_ref>` denoting an executable
         lambda function.
 
 
         "type" is a convenience indicating whether the "function" is a
-        `<function_name>` or `<lambda_function_source_reference>` without
+        `<function_name>` or `<lambda_function_source_ref>` without
         having to parse the string.
       required:
         - function
@@ -400,40 +403,44 @@ components:
         function:
           oneOf:
             - $ref: '#/components/schemas/function_name'
-            - $ref: '#/components/schemas/lambda_function_source_reference'
+            - $ref: '#/components/schemas/lambda_function_source_ref'
         type:
           type: string
           enum:
             - function_name
             - lambda_source
 
-    lambda_function_source_reference:
-      title: <lambda_function_source_reference>
+    lambda_function_source_ref:
+      title: <lambda_function_source_ref>
       description:
         String representation of a path/reference to a function
         in `lambda.py`.
       type: string
 
-    source_code_reference:
-      title: <source_code_reference>
+    source_code_ref:
+      title: <source_code_ref>
       description: >
-        String representation of the location within the source
-        code where an identifier was used.
-      type: string
+        Reference to the location within the a source code file.
+      required:
+        - source_ref
+        - file_path
+      properties:
+        source_ref:
+          type: string
+        file_path:
+          $ref: '#/components/schemas/file_path'
 
-    source_code_file_path:
-      title: <source_code_file_path>
+    file_path:
+      title: <file_path>
       description: >
-        String representation of the path to source file, using
-        system root as the path root, and including the file
-        extension.
+        String representation of the path to a file.
       type: string
 
     type:
       title: <type>
       description: Root type.
       oneOf:
-        - $ref: '#/components/schemas/type_type_spec'
+        - $ref: '#/components/schemas/type_type_def'
         - $ref: '#/components/schemas/type_integer'
         - $ref: '#/components/schemas/type_float'
         - $ref: '#/components/schemas/type_boolean'
@@ -443,11 +450,11 @@ components:
         - $ref: '#/components/schemas/type_map'
         - $ref: '#/components/schemas/type_tuple'
 
-    type_type_spec:
-      title: <type_type_spec>
+    type_type_def:
+      title: <type_type_def>
       description: >
-        Indicator of a user-defined type_spec.
-        "name" is a `<type_name>` that identifies the `<type_spec>`.
+        Indicator of a user-defined `<type_def>`.
+        "name" is a `<type_name>` that identifies the `<type_def>`.
       required:
         - name
         - type
