@@ -10,10 +10,10 @@
  * This class represents a single cell of the transition matrix which is computed
  * by a sum of products of βs.
  * Accordign to our current model, which uses variables and their partial
- * derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ), only half of the
- * transition matrix cells are affected by βs. 
+ * derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
+ * at most half of the transition matrix cells are affected by βs. 
  * According to the way we organize the transition matrix, the cells A[row][col]
- * where row is an odd index and col is an even index are such cells.
+ * where row is an even index and col is an odd index are such cells.
  */
 class Tran_Mat_Cell {
   private:
@@ -25,12 +25,15 @@ class Tran_Mat_Cell {
     int source;
     int target;
 
-    // Records all the directed paths in the CAG that starts at source vertex
-    // and ends at target vertex.
+    // Records all the directed paths in the CAG that
+    // starts at source vertex and ends at target vertex.
     // Each path informs how to calculate one product in the calculation of the
     // value of this transition matrix cell, which is a sum of products.
     // We multiply all the βs along a path to compute a product. Then we add all
     // the products to compute the value of the cell.
+    // TODO: βs can be very small numbers. Multiplying a bunch of them could
+    // run into floating point underflow. Can we store log( β )s instead of 
+    // βs and add them and then take the exp of the addition?
     std::vector< vector< int >> paths;
 
     // Keeps the value of each product. There is an entry for each path here.
@@ -67,10 +70,10 @@ class Tran_Mat_Cell {
     // Allocates the prodcut vector with the same length as the paths vector
     // Populates the beat2prodcut multimap linking each β (edge - A pair) to
     // all the products that depend on it.
-    // This **MUST** be called after adding all the paths usign add_path.
+    // This **MUST** be called after adding all the paths usign add_path().
     // After populating the beta2product multimap, the length of the products
     // vector **MUST NOT** be changed.
-    // If it is changes, we run into the dange or OS moving the products vector
+    // If it is changes, we run into the danger of OS moving the products vector
     // into a different location in memory and pointers kept in beta2product
     // multimap becoming dangling pointer.
     void allocate_datastructures()
@@ -98,13 +101,17 @@ class Tran_Mat_Cell {
     // To access βs, the graph needs to be passed in as an argument.
     // Logic is similar to Tran_Mat_Cell::sample_from_prior()
     // At the moment just compute the sum of lengths of all the paths
-    double compute_cell()
+    double compute_cell( const DiGraph &  CAG )
     {
       for( int p = 0; p < this->paths.size(); p++ )
       {
+        this->products[p] = 1; // 0;
+
         for( int v = 0; v < this->paths[p].size() - 1; v++ )
         {
-          this->products[p] += 1;
+          const double & beta = CAG[ boost::edge( v, v+1, CAG ).first ].beta;
+
+          this->products[p] *= beta; //+= 1;
         }
       }
 
@@ -121,7 +128,7 @@ class Tran_Mat_Cell {
         // Assume that none of the edges along this path has KDEs assigned.
         // At the end of traversing this path, if that is the case, leaving
         // the product for this path as 1 does not seem correct. In this case
-        // I feel that that best option is to make the product for this path 0.
+        // I feel that the best option is to make the product for this path 0.
         bool hasKDE = false;
 
         for( int v = 0; v < this->paths[p].size() - 1; v++ )
