@@ -103,9 +103,6 @@ public:
     {
       this->A_beta_factors.push_back( vector< Tran_Mat_Cell * >( num_verts ));
     }
-
-    //cout << A_beta_factors.size() << endl;
-    //cout << A_beta_factors[0].size() << endl;
   }
 
 
@@ -134,14 +131,14 @@ private:
   std::unordered_map<string, int> name_to_vertex = {};
   
   // A_beta_factors is a 2D array (vector of vectors)
-  // that keeps track of the beta factors involved with
+  // that keeps track of the β factors involved with
   // each cell of the transition matrix A.
   // 
   // Accordign to our current model, which uses variables and their partial
-  // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ), only half of the
-  // transition matrix cells are affected by βs. 
+  // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
+  // atmost half of the transition matrix cells are affected by βs. 
   // According to the way we organize the transition matrix, the cells A[row][col]
-  // where row is an odd index and col is an even index are such cells.
+  // where row is an even index and col is an odd index are such cells.
   // 
   // Each cell of matrix A_beta_factors represent
   // all the directed paths starting at the vertex equal to the
@@ -149,7 +146,6 @@ private:
   // the row index of the matrix.
   // 
   // Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.
-  // TODO: Need to free these pointers in the destructor.
   vector< vector< Tran_Mat_Cell * >> A_beta_factors;
 
   // A set of (row, column) numbers of the 2D matrix A_beta_factors where
@@ -184,7 +180,7 @@ private:
   // there it is beign accessed!!!
   // I am defining this here so taht I can complete the implementation of 
   // calculate_log_likelihood().
-  // This needs to be populated somtime before calling that function!!!
+  // This needs to be populated sometime before calling that function!!!
   // Access this as 
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
   vector< vector< vector< double >>> observed_state_sequence; 
@@ -192,18 +188,14 @@ private:
 
   vector< Eigen::MatrixXd > transition_matrix_collection;
   
-  // Remember the ratio: β_new / β_old and the edge where we perturbed the β.
+  // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
-  // got rejected. To revert, we have to:
-  // graph[ beta_ratio.first ].beta *= 1.0 / beta_ratio.second;
-  // and update the cells of A that are dependent on this β with
-  // update_cell( make_pair( source(brr.first, graph), target(brr.first, graph) ), brr.second )
+  // got rejected.
   // In the python implementation the variable original_value
   // was used for the same purpose.
-  //pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_ratio;
   pair< boost::graph_traits< DiGraph >::edge_descriptor, double > previous_beta;
 
-  // TODO: I am introducing this variable as a sustitute for self.original_value
+  // TODO: I am introducing this variable as a substitute for self.original_value
   // found in the python implementation to implement calculate_Δ_log_prior()
   //
   // Cells of the transition matrix that got chagned after perturbing a β
@@ -254,7 +246,9 @@ private:
     path.push_back( start );
 
     // If current vertex is the destination vertex, then
-    //   we have found one path. Append that to the end node
+    //   we have found one path.
+    //   Add this cell to the Tran_Mat_Object that is tracking
+    //   this transition matrix cell.
     if (start == end) 
     {
       // Add this path to the relevant transition matrix cell
@@ -273,7 +267,6 @@ private:
       for( int v = 0; v < path.size() - 1; v++ )
       {
         this->beta2cell.insert( make_pair( make_pair( path[v], path[v+1] ), this_cell ));
-                                           //make_pair( path.back(), path[0])));
       }
 
     } 
@@ -378,7 +371,6 @@ public:
 
     std::unordered_map<string, int> nameMap = {};
 
-    //int i = 0;
     for (auto stmt : json_data) {
       if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
@@ -390,13 +382,10 @@ public:
 
           // Add the nodes to the graph if they are not in it already
           for ( string name : {subj_str, obj_str}) {
-            //if (nameMap.count(c) == 0) {
             if ( nameMap.find( name ) == nameMap.end()) {
-              //nameMap[ name ] = i;
               int v = boost::add_vertex( G );
               nameMap[ name ] = v;
               G[v].name = name;
-              //i++;
             }
           }
 
@@ -416,9 +405,6 @@ public:
             auto subj_polarity = annotations["subj_polarity"];
             auto obj_polarity = annotations["obj_polarity"];
             
-            //G[e].causalFragments.push_back(CausalFragment{
-            //    subj_adjective, obj_adjective, subj_polarity, obj_polarity});
-
             Event subject{ subj_adjective, subj_polarity, "" };
             Event object{ obj_adjective, obj_polarity, "" };
             G[e].evidence.push_back( Statement{ subject, object });
@@ -429,13 +415,12 @@ public:
     AnalysisGraph ag =  AnalysisGraph( G, nameMap );
     ag.initialize_random_number_generator();
     return ag;
-    //return AnalysisGraph( G, nameMap );
   }
 
 
   /**
    * A method to construct an AnalysisGraph object given from a vector of  
-   * Statement objects
+   * ( subject, object ) pairs (Statements)
    *
    * @param statements: A vector of Statement objects
    */
@@ -488,7 +473,6 @@ public:
     AnalysisGraph ag =  AnalysisGraph( G, nameMap );
     ag.initialize_random_number_generator();
     return ag;
-    //return AnalysisGraph( G, nameMap );
   }
 
 
@@ -597,23 +581,7 @@ public:
           all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
         }
       }
-      /*
-      for (auto causalFragment : graph[e].causalFragments) {
-        auto subj_adjective = causalFragment.subj_adjective;
-        auto obj_adjective = causalFragment.obj_adjective;
-        auto subj_responses =
-            lmap([&](auto x) { return x * causalFragment.subj_polarity; },
-                 get(adjective_response_map,
-                     subj_adjective,
-                     marginalized_responses));
-        auto obj_responses = lmap(
-            [&](auto x) { return x * causalFragment.obj_polarity; },
-            get(adjective_response_map, obj_adjective, marginalized_responses));
-        for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
-          all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
-        }
-      }
-      */
+      
       // TODO: Why kde is optional in struct Edge?
       // It seems all the edges get assigned with a kde
       graph[e].kde = KDE(all_thetas);
@@ -690,7 +658,7 @@ public:
   }
 
 
-  // Given an edge (source, target vertex ids - a β=∂target/∂source), 
+  // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source), 
   // print all the transition matrix cells that are dependent on it.
   void print_cells_affected_by_beta( int source, int target )
   {
@@ -734,7 +702,6 @@ public:
     this->transition_matrix_collection.clear();
 
     int num_verts = boost::num_vertices( this->graph );
-    //cout << "Number of vertices: " << num_verts << endl;
 
     // A base transition matrix with the entries that does not change across samples.
     /*
@@ -802,8 +769,6 @@ public:
 
       for( int ts = 1; ts < n_timesteps; ts++ )
       {
-        //cout << this->transition_matrix_collection[ samp ] << endl; 
-        //cout << this->latent_state_sequences[ samp ][ ts-1 ] << endl; 
         this->latent_state_sequences[ samp ][ ts ] = this->transition_matrix_collection[ samp ] * this->latent_state_sequences[ samp ][ ts-1 ];
       }
     }
@@ -843,9 +808,6 @@ public:
 
     vector< vector< double >> observed_state( num_verts );
 
-    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //std::default_random_engine generator( seed );
-
     for( int v = 0; v < num_verts; v++ )
     {
       vector< Indicator > & indicators = this->graph[ v ].indicators;
@@ -862,7 +824,6 @@ public:
             std::normal_distribution< double > gaussian( ind.mean * latent_state[ 2*v ], ind.stdev );
 
             return gaussian( this->rand_num_generator ); 
-            //return gaussian( generator ); 
           });
     }
 
@@ -871,9 +832,9 @@ public:
 
 
   // A method just to test sample_from_proposal( Eigen::MatrixXd A )
+  // Just for debugging purposese
   void sample_from_proposal_debug()
   {
-    // Just for debugging purposese
     int num_verts = boost::num_vertices( this->graph );
 
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero( 2 * num_verts, 2 * num_verts );
@@ -891,12 +852,11 @@ public:
 
 
   /**
-   * Find all the transition matrix (A) cells that are dependent on this β 
-   * and update them.
+   * Find all the transition matrix (A) cells that are dependent on the β 
+   * attached to the provided edge and update them.
    *
    * @param A: The current transitin matrix
    * @param e: The directed edge ≡ β that has been perturbed
-   * @param br: value of the new β divided by old β
    */
   void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e )
   {
@@ -948,58 +908,16 @@ public:
     boost::iterator_range edge_it = this->edges();
 
     vector< boost::graph_traits< DiGraph >::edge_descriptor > e(1); 
-    //std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, std::mt19937{ std::random_device{}() }); 
     std::sample( edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator ); 
 
-    //cout << source( e[0], graph ) << ", " << target( e[0], graph ) << endl;
-
     // Remember the previous β
-    double prev_beta = this->graph[ e[0] ].beta;
+    this->previous_beta = make_pair( e[0], this->graph[ e[0] ].beta );
 
     // Perturb the β
     // TODO: Check whether this perturbation is accurate
-    //graph[ e[0] ].beta += sample_from_normal( 0.0, 0.01 ); // Defined in kde.hpp
     graph[ e[0] ].beta += this->norm_dist( this->rand_num_generator );
 
-    // Remeber the ratio: β_new / β_old
-    this->previous_beta = make_pair( e[0], prev_beta );
-
     this->update_transition_matrix_cells( A, e[0] );
-    
-    /*
-    double beta_ratio = this->graph[ e[0] ].beta / prev_beta;
-
-    this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
-    
-    this->update_transition_matrix_cells( A, e[0] );
-    */
-
-    /*
-    // Find all the transition matrix (A) cells that are dependent on this β 
-    // and update them.
-    pair< int, int > beta = make_pair( boost::source( e[0], this->graph ), boost::target( e[0], this->graph ) ); 
-
-    typedef multimap< pair< int, int >,  pair< int, int > >::iterator MMAPIterator;
-
-    pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range( beta );
-
-    // TODO: I am introducing this to implement calculate_Δ_log_prior
-    // Remember the cells of A that got changed and their previous values
-    //this->A_cells_changed.clear();
-
-    for( MMAPIterator it = res.first; it != res.second; it++ )
-    {
-      int & row = it->second.first;
-      int & col = it->second.second;;
-
-      // Note that I am remembering row and col instead of 2*row and 2*col+1
-      // row and col resembles an edge in the CAG: row -> col
-      // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
-      //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
-
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, beta_ratio.second );
-    }
-    */
   }
 
 
@@ -1083,7 +1001,7 @@ public:
   // Now we are perturbing multiple cell of the transition matrix (A) that are
   // dependent on the randomly selected β (edge in the CAG).
   // In the python implementation, which is wrong, it randomly selects a single
-  // cell in the transition matrix (A) and perturb it. So, the python
+  // cell in the transition matrix (A) and perturbs it. So, the python
   // implementation of this method is based on that incorrect pertubation.
   // 
   // Updated the logic of this function in the C++ implementation after having
@@ -1094,21 +1012,11 @@ public:
     // If kde of an edge is truely optional ≡ there are some
     // edges without a kde assigned, we should not access it
     // using .value() (In the case of kde being missing, this 
-    // with throw and exception). We should follow a process
+    // will throw an exception). We should follow a process
     // similar to Tran_Mat_Cell::sample_from_prior
     KDE & kde = this->graph[ this->previous_beta.first ].kde.value();
 
-    //Trying to match the python implementation, which is wrong
-    //const int & source = boost::source( this->beta_ratio.first, this->graph );
-    //const int & target = boost::target( this->beta_ratio.first, this->graph ); 
-
-    // Now since we are changing multiple cells of A defining the previous
-    // value is not stratight forward.
-    //return kde.logpdf( A( 2 * source, 2 * target + 1 ) / this->delta_t ); // - kde.logpdf( prev_val / this->delta_t );
-
     // We have to return: log( p( β_new )) - log( p( β_old )) 
-    //                  = log( p( β_new )  /      p( β_old )) 
-    //                  = log( this->beta_ratio.secon )
     return kde.logpdf( this->graph[ this->previous_beta.first ].beta ) - kde.logpdf( this->previous_beta.second );
 
     /*
@@ -1145,8 +1053,8 @@ public:
   {
     // TODO: This check will be called for each sample and will be false
     // except for the 1st time. It is better to remove this and initialize
-    // log_likelihood just after sampling the initial transition matrix A
-    // , make sure log_likelihood is initialize before calling this method
+    // log_likelihood just after sampling the initial transition matrix A,
+    // make sure log_likelihood is initialize before calling this method
     // and get rid of this check from here.
     if( ! this->log_likelihood_initialized )
     {
@@ -1169,16 +1077,6 @@ public:
 
     double acceptance_probability = std::min( 1.0, exp( delta_log_joint_probability ));
 
-    // Define the random number generator
-    // TODO: We have to do this once before calling sample_from_posterior()
-    // We have to move this out of sample_from_posterior()
-    // Maybe we can define this in the class constructor and use it in
-    // all the places we need random numbers.
-    //std::random_device rd;
-    //std::mt19937 mt( rd() );
-    //std::uniform_real_distribution< double > dist( 0.0, 1.0 );
-
-    //if( acceptance_probability < dist( mt ))
     if( acceptance_probability < uni_dist( this->rand_num_generator ))
     {
       // Reject the sample
@@ -1283,9 +1181,6 @@ public:
       
       if( initialize_indicators )
       {
-        //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        //std::default_random_engine generator( seed );
-
         for( Indicator ind : graph[ v ].indicators )
         {
           vector< double > & dataset = this->graph[ v ].rv.dataset;
@@ -1303,7 +1198,6 @@ public:
                 std::normal_distribution< double > gaussian( ind.mean * rv_datum, 0.01 );
 
                 return gaussian( this->rand_num_generator ); 
-                //return gaussian( generator ); 
               });
         }
       }
