@@ -84,6 +84,19 @@ public:
   // Allocate a num_verts x num_verts 2D array (vector of vectors)
   void allocate_A_beta_factors()
   {
+    for( vector< Tran_Mat_Cell * > row : this->A_beta_factors )
+    {
+      for( Tran_Mat_Cell * tmcp : row )
+      {
+        if( tmcp != nullptr )
+        {
+          delete tmcp;
+        }
+      }
+      row.clear();
+    }
+    this->A_beta_factors.clear();
+
     int num_verts = boost::num_vertices( graph );
 
     for( int vert = 0; vert < num_verts; ++vert )
@@ -187,7 +200,8 @@ private:
   // update_cell( make_pair( source(brr.first, graph), target(brr.first, graph) ), brr.second )
   // In the python implementation the variable original_value
   // was used for the same purpose.
-  pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_ratio;
+  //pair< boost::graph_traits< DiGraph >::edge_descriptor, double > beta_ratio;
+  pair< boost::graph_traits< DiGraph >::edge_descriptor, double > previous_beta;
 
   // TODO: I am introducing this variable as a sustitute for self.original_value
   // found in the python implementation to implement calculate_Δ_log_prior()
@@ -441,6 +455,7 @@ public:
       //Event subject = stmt.subject;
       //Event object = stmt.object;
 
+      /*
       vector< string > concept;
       boost::split( concept, subject.concept_name, boost::is_any_of( "/" ));
       string subj_name = concept.back();
@@ -448,6 +463,9 @@ public:
       concept.clear();
       boost::split( concept, object.concept_name, boost::is_any_of( "/" ));
       string obj_name = concept.back();
+      */
+      string subj_name = subject.concept_name;
+      string obj_name = object.concept_name;
 
       // Add the nodes to the graph if they are not in it already
       for ( string name : {subj_name, obj_name} ) 
@@ -872,7 +890,7 @@ public:
    * @param e: The directed edge ≡ β that has been perturbed
    * @param br: value of the new β divided by old β
    */
-  void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e, double br )
+  void update_transition_matrix_cells( Eigen::MatrixXd & A, boost::graph_traits< DiGraph >::edge_descriptor e )
   {
     pair< int, int > beta = make_pair( boost::source( e, this->graph ), boost::target( e, this->graph ) ); 
 
@@ -894,7 +912,7 @@ public:
       // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
       //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->update_cell( beta, br );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( );
     }
   }
   
@@ -936,16 +954,16 @@ public:
     graph[ e[0] ].beta += this->norm_dist( this->rand_num_generator );
 
     // Remeber the ratio: β_new / β_old
-    this->beta_ratio = make_pair( e[0], this->graph[ e[0] ].beta / prev_beta );
+    this->previous_beta = make_pair( e[0], prev_beta );
 
-    this->update_transition_matrix_cells( A, e[0], beta_ratio.second );
+    this->update_transition_matrix_cells( A, e[0] );
     
     /*
     double beta_ratio = this->graph[ e[0] ].beta / prev_beta;
 
     this->beta_revert_ratio = make_pair( e[0], 1.0 / beta_ratio );
     
-    this->update_transition_matrix_cells( A, e[0], beta_ratio );
+    this->update_transition_matrix_cells( A, e[0] );
     */
 
     /*
@@ -1070,7 +1088,7 @@ public:
     // using .value() (In the case of kde being missing, this 
     // with throw and exception). We should follow a process
     // similar to Tran_Mat_Cell::sample_from_prior
-    KDE & kde = this->graph[ this->beta_ratio.first ].kde.value();
+    KDE & kde = this->graph[ this->previous_beta.first ].kde.value();
 
     //Trying to match the python implementation, which is wrong
     //const int & source = boost::source( this->beta_ratio.first, this->graph );
@@ -1083,7 +1101,7 @@ public:
     // We have to return: log( p( β_new )) - log( p( β_old )) 
     //                  = log( p( β_new )  /      p( β_old )) 
     //                  = log( this->beta_ratio.secon )
-    return kde.logpdf( this->beta_ratio.second );
+    return kde.logpdf( this->graph[ this->previous_beta.first ].beta ) - kde.logpdf( this->previous_beta.second );
 
     /*
     vector< double > log_diffs( this->A_cells_changed.size() );
@@ -1157,10 +1175,12 @@ public:
     {
       // Reject the sample
       this->log_likelihood = original_log_likelihood;
-    
+ 
+      this->graph[ this->previous_beta.first ].beta = this->previous_beta.second;
+
       // Reset the transition matrix cells that were changed
       // TODO: Can we change the transition matrix only when the sample is accpeted?
-      this->update_transition_matrix_cells( A, this->beta_ratio.first, 1.0 / this->beta_ratio.second );
+      this->update_transition_matrix_cells( A, this->previous_beta.first );
     }
 
     return A;
@@ -1278,7 +1298,7 @@ public:
 
 
   auto print_nodes() {
-    for_each(vertices(), [&](auto v) { cout << v << endl; });
+    for_each(vertices(), [&](auto v) { cout << v << ": " << this->graph[ v ].name << endl; });
   }
   
   
@@ -1289,6 +1309,15 @@ public:
     });
   }
 
+
+  void print_name_to_vertex()
+  {
+    for( auto [ name, vert ] : this->name_to_vertex )
+    {
+      cout << name << " -> " << vert << endl;
+    }
+    cout << endl;
+  }
   
   auto to_dot() {
     write_graphviz(
