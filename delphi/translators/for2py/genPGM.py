@@ -283,25 +283,20 @@ class GrFNGenerator(object):
         # Enter the body of the function and recursively generate the GrFN of
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
-        # DEBUG
-        print ("LOCAL_LAST_DEFINITIONS: ", local_last_definitions)
-        print ("BODY_GRFN: ", body_grfn, "\n")
         # Get the function_reference_spec, function_assign_spec and
         # identifier_spec for the function
         function_reference_grfn, function_assign_grfn, identifier_grfn = \
             get_body_and_functions(body_grfn)
 
-        # This function removes all variables related to I/O from the
+        # This function removes all variables related to I/O and type from the
         # variable list. This will be done until a specification for I/O is
         # defined in GrFN
         variables = remove_io_and_type_variables(
                         list(local_last_definitions.keys()))
 
-        # DEBUG
-        print ("VARIABLES: ", variables)
-        print ("LOCAL_VARIABLE_TYPES: ", local_variable_types)
-        print ("SELF.ARRAYS: ", self.arrays)
-
+        # Formulate the GrFN for variables depends on either it's
+        # a smple variable or an array. TODO: Addtion may be required
+        # for list or/and map, etc.
         variable_grfn = []
         for var in variables:
             var_grfn = {"name":var}
@@ -313,10 +308,10 @@ class GrFNGenerator(object):
                 var_grfn["index"] = self.arrays[var]["index"]
                 var_grfn["domain"] = {
                         "name": "array",
-                        "type": self.arrays[var]["dtype"],
+                        "type": "array",
                         "dimensions": self.arrays[var]["dimensions"],
                         "element_type": {
-                            "name": self.arrays[var]["dtype"],
+                            "name": self.arrays[var]["elem_type"],
                             "type": "type"
                         }
                 }
@@ -1206,8 +1201,6 @@ class GrFNGenerator(object):
             ast.AnnAssign. This tag appears when a variable has been assigned
             with an annotation e.g. x: int = 5, y: List[float] = None, etc.
         """
-        # DEBUG
-        print ("NODE in process_annotated_assign(): ", node, node.value, node.target)
         # If the assignment value of a variable is of type List, retrieve the
         # targets. As of now, the RHS will be a list only during initial
         # variable definition i.e. day: List[int] = [None]. So, we only
@@ -1291,12 +1284,10 @@ class GrFNGenerator(object):
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
 
-        # DEBUG
-        print ("\nNODE in process_assign(): ", node, node.value, node.targets)
-        print ("SOURCES in process_assign(): ", sources[0])
         array_assignment = False
         # If current assignment is for Array declaration,
-        #
+        # we need to extract information (dimension, index, and type)
+        # of the array based on its dimension (single or multi-).
         if (
                 "call" in sources[0]
                 and sources[0]["call"]["function"] == "Array"
@@ -1311,24 +1302,21 @@ class GrFNGenerator(object):
                     assert (
                             lists["list"][0]["type"] == "literal"
                             and lists["list"][1]["type"] == "literal"
-                    ), f"Currently, only handles literal type dimensions,\
+                    ), f"Currently, we only handle literal type dimensions,\
                         but either lower or upper bound is not a literal type."
                     low_bound = int(lists["list"][0]["value"])
                     upper_bound = int(lists["list"][1]["value"])
-                    array_dimensions.append(upper_bound-low_bound)
+                    array_dimensions.append(upper_bound-low_bound+1)
+            # 1-D array handler
             else:
                 assert (
                         inputs[1][0]["list"][0]["type"] == "literal"
                         and inputs[1][0]["list"][1]["type"] == "literal"
-                ), f"Currently, only handles literal type dimensions,\
+                ), f"Currently, we only handle literal type dimensions,\
                     but either lower or upper bound is not a literal type."
                 low_bound = int(inputs[1][0]["list"][0]["value"])
                 upper_bound = int(inputs[1][0]["list"][1]["value"])
-                array_dimensions.append(upper_bound-low_bound)
-
-        # DEBUG
-        print ("ARRAY_DIMENSIONS: ", array_dimensions)
-        print ("ARRAY_TYPE: ", array_type)
+                array_dimensions.append(upper_bound-low_bound+1)
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -1341,9 +1329,6 @@ class GrFNGenerator(object):
                 for target in node.targets
             ],
         )
-
-        # DEBUG
-        print ("TARGETS in process_assign(): ", targets)
 
         grfn = {"functions": [], "body": [], "identifiers": []}
 
@@ -1369,7 +1354,7 @@ class GrFNGenerator(object):
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
-                    "dtype": array_type,
+                    "elem_type": array_type,
                     "mutable": True,
                 }
                 self.arrays[var_name] = array_info
@@ -1391,9 +1376,6 @@ class GrFNGenerator(object):
             if len(fn) == 0:
                 return []
             body = self.make_body_dict(name, target, sources, state)
-
-            # DEBUG
-            print ("BODY in process_assign(): ", body, "\n")
 
             source_list = self.make_source_list_dict(sources)
 

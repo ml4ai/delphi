@@ -269,7 +269,7 @@ def generate_grfn(
         del identifier["gensyms"]
 
     if not tester_call:
-        genPGM.process_files([python_file], "GrFN.json", "lamdas.py", False)
+        genPGM.process_files([python_file], "GrFN.json", "lambdas.py", False)
 
     return grfn_dict
 
