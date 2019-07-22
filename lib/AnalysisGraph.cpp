@@ -343,6 +343,7 @@ private:
     this->norm_dist = std::normal_distribution< double >( 0.0, 1.0);
 
     this->construct_beta_pdfs();
+    this->find_all_paths();
   }
 
 
@@ -701,7 +702,7 @@ public:
     //this->construct_beta_pdfs();
 
     // Find all directed simple paths of the CAG
-    this->find_all_paths();
+    //this->find_all_paths();
 
     this->transition_matrix_collection.clear();
 
