@@ -17,14 +17,13 @@ DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(
     original_fortran_file
-) -> Tuple[str, str, str, str, Dict]:
+) -> Tuple[str, str, str, str, str, Dict]:
     return f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename, python_filename, mode_mapper_dict = get_python_source(
-        original_fortran_file
-    )
+    pySrc, lambdas_filename, json_filename, python_filename, \
+    original_fortran, mode_mapper_dict = get_python_source(original_fortran_file)
     _dict = f2grfn.generate_grfn(
         pySrc,
         python_filename,
