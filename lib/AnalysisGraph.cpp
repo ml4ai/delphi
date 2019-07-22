@@ -1262,6 +1262,8 @@ public:
     {
       query = query_base + "where `Concept` like " + "'" + this->graph[ v ].name +"'";
       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+      this->graph[ v ].indicators.clear();
+      this->graph[ v ].indicator_names.clear();
       for( int c = 0; c < n; c = c + 1 ) 
       { 
         rc = sqlite3_step(stmt);
@@ -1271,7 +1273,8 @@ public:
               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
           string ind_name = std::string(
               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-          this->graph[ v ].indicators[c] = Indicator(ind_name,ind_source);
+          Indicator ind = Indicator(ind_name,ind_source);
+          this->graph[ v ].indicators.push_back(ind);
           this->graph[ v ].indicator_names[ind_name] = c;
         } else {
           cout << "No more data, only " << c << "indicators attached to " << this->graph[ v ].name << endl;
