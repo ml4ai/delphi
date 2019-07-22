@@ -84,6 +84,7 @@ public:
   // Allocate a num_verts x num_verts 2D array (vector of vectors)
   void allocate_A_beta_factors()
   {
+    /*
     for( vector< Tran_Mat_Cell * > row : this->A_beta_factors )
     {
       for( Tran_Mat_Cell * tmcp : row )
@@ -95,13 +96,15 @@ public:
       }
       row.clear();
     }
+    */
     this->A_beta_factors.clear();
 
     int num_verts = boost::num_vertices( graph );
 
     for( int vert = 0; vert < num_verts; ++vert )
     {
-      this->A_beta_factors.push_back( vector< Tran_Mat_Cell * >( num_verts ));
+      //this->A_beta_factors.push_back( vector< Tran_Mat_Cell * >( num_verts ));
+      this->A_beta_factors.push_back( vector< std::shared_ptr< Tran_Mat_Cell >>( num_verts ));
     }
   }
 
@@ -115,7 +118,8 @@ public:
       for( int col = 0; col < num_verts; ++col )
       {
         cout << endl << "Printing cell: (" << row << ", " << col << ") " << endl;
-        if( this->A_beta_factors[ row ][ col ] != nullptr )
+        //if( this->A_beta_factors[ row ][ col ] != nullptr )
+        if( this->A_beta_factors[ row ][ col ] )
         {
           this->A_beta_factors[ row ][ col ]->print_beta2product();
         }
@@ -146,7 +150,9 @@ private:
   // the row index of the matrix.
   // 
   // Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.
-  vector< vector< Tran_Mat_Cell * >> A_beta_factors;
+  //vector< vector< Tran_Mat_Cell * >> A_beta_factors;
+  //vector< vector< std::unique_ptr< Tran_Mat_Cell >>> A_beta_factors;
+  vector< vector< std::shared_ptr< Tran_Mat_Cell >>> A_beta_factors;
 
   // A set of (row, column) numbers of the 2D matrix A_beta_factors where
   // the cell (row, column) depends on β factors.
@@ -252,9 +258,11 @@ private:
     if (start == end) 
     {
       // Add this path to the relevant transition matrix cell
-      if( A_beta_factors[ path.back() ][ path[0] ] == nullptr )
+      //if( A_beta_factors[ path.back() ][ path[0] ] == nullptr )
+      if( ! A_beta_factors[ path.back() ][ path[0] ] )
       {
-        this->A_beta_factors[ path.back() ][ path[0] ] = new Tran_Mat_Cell( path[0], path.back() );
+        //this->A_beta_factors[ path.back() ][ path[0] ] = new Tran_Mat_Cell( path[0], path.back() );
+        this->A_beta_factors[ path.back() ][ path[0] ].reset( new Tran_Mat_Cell( path[0], path.back() ));
       }
 
       this->A_beta_factors[ path.back() ][ path[0] ]->add_path( path );
@@ -353,10 +361,18 @@ public:
   {
       // Free memeroy allocated for Tran_Mat_Cell objects
       // that were used track β dependent cells in the transition matrix
+      /*    
       for( auto & [row, col] : this->beta_dependent_cells )
       {
-        delete this->A_beta_factors[ row ][ col ];
+        //if( this->A_beta_factors[ row ][ col ] != nullptr )
+        {
+          cout << "Freeing (" << row << ", " << col << ")\n";
+          cout << this->A_beta_factors[ row ][ col ].use_count()<< endl;
+          //this->A_beta_factors[ row ][ col ]->print_paths();
+          //delete this->A_beta_factors[ row ][ col ];
+        }
       }
+      */
   }
 
 
@@ -631,7 +647,8 @@ public:
     {
       for( int col = 0; col < num_verts; ++col )
       {
-        if( this->A_beta_factors[ row ][ col ] != nullptr )
+        //if( this->A_beta_factors[ row ][ col ] != nullptr )
+        if( this->A_beta_factors[ row ][ col ] )
         {
           this->A_beta_factors[ row ][ col ]->allocate_datastructures();
         }
@@ -654,7 +671,8 @@ public:
     {
       for( int col = 0; col < num_verts; ++col )
       {
-        if( this->A_beta_factors[ row ][ col ] != nullptr )
+        //if( this->A_beta_factors[ row ][ col ] != nullptr )
+        if( this->A_beta_factors[ row ][ col ] )
         {
           this->A_beta_factors[ row ][ col ]->print_paths();
         }
