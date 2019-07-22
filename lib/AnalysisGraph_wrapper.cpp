@@ -32,5 +32,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("take_step", &AnalysisGraph::take_step)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators)
+      .def("print_indicators", &AnalysisGraph::print_indicators)
     ;
 }

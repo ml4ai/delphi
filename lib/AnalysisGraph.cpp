@@ -1318,4 +1318,16 @@ public:
   }
 
 
+  auto print_indicators()
+  {
+    for( int v : this->vertices() )
+    {
+      cout << "node " << v << ": " << this->graph[ v ].name << ":" << endl;
+      for( auto [ name, vert ] : this->graph[ v ].indicator_names )
+      {
+        cout << "\t" << "indicator " << vert << ": " << name << endl;
+      }
+
+    }
+  }
 };
