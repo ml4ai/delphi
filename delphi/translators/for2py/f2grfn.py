@@ -273,7 +273,6 @@ def generate_grfn(
             "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
             "<genPGM.py>"
         )
-
     asts = [ast.parse(python_source_string)]
     grfn_dictionary = genPGM.create_grfn_dict(
         lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
@@ -563,6 +562,6 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src, python_file, lambdas_file, mode_mapper_dict,
+        python_src[0], python_file, lambdas_file, mode_mapper_dict,
         original_fortran_file_path, False
     )
