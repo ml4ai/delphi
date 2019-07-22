@@ -341,6 +341,8 @@ private:
 
     // Normal distrubution used to perturb β
     this->norm_dist = std::normal_distribution< double >( 0.0, 1.0);
+
+    this->construct_beta_pdfs();
   }
 
 
@@ -529,9 +531,11 @@ public:
 
   void take_step()
   {
+    cout << "A before step:\n" << this->A_original << endl;
+
     this->A_original = this->sample_from_posterior( this->A_original );
 
-    cout << this->A_original << endl;
+    cout << "A after step:\n" << this->A_original << endl;
   }
 
 
@@ -694,7 +698,7 @@ public:
   {
     // Add probability distribution functions constructed from gradable
     // adjective data to the edges of the analysis graph data structure.
-    this->construct_beta_pdfs();
+    //this->construct_beta_pdfs();
 
     // Find all directed simple paths of the CAG
     this->find_all_paths();
@@ -841,7 +845,7 @@ public:
     // Update the β factor dependent cells of this matrix
     for( auto & [row, col] : this->beta_dependent_cells )
     {
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( this->graph );
     }
     cout << endl << "Before Update: " << endl << A << endl;
 
@@ -880,7 +884,7 @@ public:
       // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
       //this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col * 2 + 1 )));
 
-      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( );
+      A( row * 2, col * 2 + 1 ) = this->A_beta_factors[ row ][ col ]->compute_cell( this->graph );
     }
   }
   
@@ -1206,7 +1210,10 @@ public:
 
 
   auto print_nodes() {
-    for_each(vertices(), [&](auto v) { cout << v << ": " << this->graph[ v ].name << endl; });
+    cout << "Vertex IDs and their names in the CAG" << endl;
+    cout << "Vertex ID : Name" << endl;
+    cout << "--------- : ----" << endl;
+    for_each(vertices(), [&](auto v) { cout << v << "         : " << this->graph[ v ].name << endl; });
   }
   
   
