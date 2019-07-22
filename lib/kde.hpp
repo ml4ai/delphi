@@ -69,7 +69,7 @@ public:
 
   KDE(vector<double> v) : dataset(v) {
     // Compute the bandwidth using Silverman's rule
-    auto mu = mean(v);
+    mu = mean(v);
     auto X = v | transformed(_1 - mu);
 
     // Compute standard deviation of the sample.
