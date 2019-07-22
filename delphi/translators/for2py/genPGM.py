@@ -81,6 +81,7 @@ class GrFNState:
         variable_types: Optional[Dict] = {},
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
+        arrays: Optional[List] = {},
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -90,6 +91,7 @@ class GrFNState:
         self.variable_types = variable_types
         self.start = start
         self.scope_path = scope_path
+        self.arrays = arrays
 
     def copy(
         self,
@@ -101,6 +103,7 @@ class GrFNState:
         variable_types: Optional[Dict] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
+        arrays: Optional[List] = None,
     ):
         return GrFNState(
             self.lambda_strings if lambda_strings is None else lambda_strings,
@@ -114,6 +117,7 @@ class GrFNState:
             self.variable_types if variable_types is None else variable_types,
             self.start if start is None else start,
             self.scope_path if scope_path is None else scope_path,
+            self.arrays if arrays is None else arrays,
         )
 
 
@@ -132,6 +136,7 @@ class GrFNGenerator(object):
         self.name_mapper = {}
         self.function_names = {}
         self.types = (list, ast.Module, ast.FunctionDef)
+        self.arrays = {}
 
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -166,9 +171,6 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-
-        #DEBUG
-        print(dump_ast(node[-1]))
 
         # Look for code that is not inside any function. This will generally
         # involve
@@ -281,6 +283,9 @@ class GrFNGenerator(object):
         # Enter the body of the function and recursively generate the GrFN of
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
+        # DEBUG
+        print ("LOCAL_LAST_DEFINITIONS: ", local_last_definitions)
+        print ("BODY_GRFN: ", body_grfn, "\n")
         # Get the function_reference_spec, function_assign_spec and
         # identifier_spec for the function
         function_reference_grfn, function_assign_grfn, identifier_grfn = \
@@ -289,8 +294,39 @@ class GrFNGenerator(object):
         # This function removes all variables related to I/O from the
         # variable list. This will be done until a specification for I/O is
         # defined in GrFN
-        variables = remove_io_variables(
+        variables = remove_io_and_type_variables(
                         list(local_last_definitions.keys()))
+
+        # DEBUG
+        print ("VARIABLES: ", variables)
+        print ("LOCAL_VARIABLE_TYPES: ", local_variable_types)
+        print ("SELF.ARRAYS: ", self.arrays)
+
+        variable_grfn = []
+        for var in variables:
+            var_grfn = {"name":var}
+            if var in local_variable_types:
+                var_grfn["index"] = local_last_definitions[var]
+                var_grfn["domain"] = local_variable_types[var]
+                var_grfn["mutatble"] = False
+            elif var in self.arrays:
+                var_grfn["index"] = self.arrays[var]["index"]
+                var_grfn["domain"] = {
+                        "name": "array",
+                        "type": self.arrays[var]["dtype"],
+                        "dimensions": self.arrays[var]["dimensions"],
+                        "element_type": {
+                            "name": self.arrays[var]["dtype"],
+                            "type": "type"
+                        }
+                }
+                var_grfn["mutatble"] = True
+            else:
+                assert (
+                        False
+                ), f"{var} is neither a simple variable nor an array,\
+                     which, currently is not handled."
+            variable_grfn.append(var_grfn)
 
         function_container_grfn = {
             "name": node.name,
@@ -299,10 +335,7 @@ class GrFNGenerator(object):
                 {"name": arg, "domain": local_variable_types[arg]} for arg in
                 argument_list
             ],
-            "variables": [
-                {"name": var, "domain": local_variable_types[var]}
-                for var in variables
-            ],
+            "variables": variable_grfn,
             "body": function_reference_grfn,
         }
 
@@ -1149,7 +1182,6 @@ class GrFNGenerator(object):
             last_definition = get_last_definition(node.id,
                                                   state.last_definitions,
                                                   state.last_definition_default)
-
             # Only increment the index of the variable if it is on the RHS of
             # the assignment/operation i.e. Store(). Also, we don't increment
             # it when the operation is an annotated assignment (of the form
@@ -1174,6 +1206,8 @@ class GrFNGenerator(object):
             ast.AnnAssign. This tag appears when a variable has been assigned
             with an annotation e.g. x: int = 5, y: List[float] = None, etc.
         """
+        # DEBUG
+        print ("NODE in process_annotated_assign(): ", node, node.value, node.target)
         # If the assignment value of a variable is of type List, retrieve the
         # targets. As of now, the RHS will be a list only during initial
         # variable definition i.e. day: List[int] = [None]. So, we only
@@ -1257,6 +1291,45 @@ class GrFNGenerator(object):
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
 
+        # DEBUG
+        print ("\nNODE in process_assign(): ", node, node.value, node.targets)
+        print ("SOURCES in process_assign(): ", sources[0])
+        array_assignment = False
+        # If current assignment is for Array declaration,
+        #
+        if (
+                "call" in sources[0]
+                and sources[0]["call"]["function"] == "Array"
+        ):
+            array_assignment = True
+            inputs = sources[0]["call"]["inputs"]
+            array_type = inputs[0][0]["var"]["variable"]
+            array_dimensions = []
+            # A multi-dimensional array handler
+            if "list" in inputs[1][0]["list"][0]:
+                for lists in inputs[1][0]["list"]:
+                    assert (
+                            lists["list"][0]["type"] == "literal"
+                            and lists["list"][1]["type"] == "literal"
+                    ), f"Currently, only handles literal type dimensions,\
+                        but either lower or upper bound is not a literal type."
+                    low_bound = int(lists["list"][0]["value"])
+                    upper_bound = int(lists["list"][1]["value"])
+                    array_dimensions.append(upper_bound-low_bound)
+            else:
+                assert (
+                        inputs[1][0]["list"][0]["type"] == "literal"
+                        and inputs[1][0]["list"][1]["type"] == "literal"
+                ), f"Currently, only handles literal type dimensions,\
+                    but either lower or upper bound is not a literal type."
+                low_bound = int(inputs[1][0]["list"][0]["value"])
+                upper_bound = int(inputs[1][0]["list"][1]["value"])
+                array_dimensions.append(upper_bound-low_bound)
+
+        # DEBUG
+        print ("ARRAY_DIMENSIONS: ", array_dimensions)
+        print ("ARRAY_TYPE: ", array_type)
+
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
         # python code does not appear in this way and only a single target
@@ -1268,6 +1341,9 @@ class GrFNGenerator(object):
                 for target in node.targets
             ],
         )
+
+        # DEBUG
+        print ("TARGETS in process_assign(): ", targets)
 
         grfn = {"functions": [], "body": [], "identifiers": []}
 
@@ -1284,6 +1360,21 @@ class GrFNGenerator(object):
                     [x["var"]["variable"] for x in target["list"]]
                 )
                 target = {"var": {"variable": targets, "index": 1}}
+            
+            # If current assignment is for array assignment,
+            # then extract the variable name and store it to
+            # the self.arrays for later check
+            if array_assignment:
+                var_name = target["var"]["variable"]
+                array_info = {
+                    "index": target["var"]["index"],
+                    "dimensions": array_dimensions,
+                    "dtype": array_type,
+                    "mutable": True,
+                }
+                self.arrays[var_name] = array_info
+                array_assignment = False
+                return []
 
             # Check whether this is an alias assignment i.e. of the form
             # y=x where y is now the alias of variable x
@@ -1300,6 +1391,9 @@ class GrFNGenerator(object):
             if len(fn) == 0:
                 return []
             body = self.make_body_dict(name, target, sources, state)
+
+            # DEBUG
+            print ("BODY in process_assign(): ", body, "\n")
 
             source_list = self.make_source_list_dict(sources)
 
@@ -1501,8 +1595,6 @@ class GrFNGenerator(object):
         # TODO Is the namespace path for the python intermediates or the
         #  original FORTRAN code? Currently, it captures the intermediate
         #  python file's path
-        # DEBUG
-        print ("\nself.mode_mapper: ", self.mode_mapper)
         name_space = self.mode_mapper["file_name"][1].split("/")
         name_space = ".".join(name_space)
 
@@ -1939,18 +2031,18 @@ def make_call_body_dict(source):
     return source_list
 
 
-def remove_io_variables(variable_list):
+def remove_io_and_type_variables(variable_list):
     """
         This function scans each variable from a list of currently defined
         variables and removes those which are related to I/O such as format
-        variables, file handles, write lists and write_lines.
+        variables, file handles, write lists and write_lines, and type.
     """
     io_regex = re.compile(r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|"
                           r"(write_line)")
     io_match_list = [io_regex.match(var) for var in variable_list]
 
     return [var for var in variable_list if io_match_list[
-        variable_list.index(var)] is None]
+        variable_list.index(var)] is None and var not in ANNOTATE_MAP]
 
 
 def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
