@@ -1210,6 +1210,61 @@ public:
   }
 
 
+  /*
+    ==========================================================================
+    Model parameterization
+    *Loren: I am going to try to port this, I'll try not to touch anything up top
+    and only push changes that compile. If I do push a change that breaks things
+    you could probably just comment out this section.*
+    ==========================================================================
+  */
+
+
+  /** 
+   * Map each concept node in the AnalysisGraph instance to one or more
+   * tangible quantities, known as 'indicators'.
+   *
+   * @param n: Int representing number of indicators to attach per node.
+   * Default is 1 since our model so far is configured for only 1 indicator per
+   * node.
+   */ 
+  void map_concepts_to_indicators( int n=1 )
+  {
+    sqlite3 *db;
+    int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+    if (!rc)
+      print("Opened db successfully");
+    else
+      print("Could not open db");
+
+    sqlite3_stmt *stmt;
+    string query_base = "select Source, Indicator from concept_to_indicator_mapping ";
+    string query;
+    for( int v : this->vertices() )
+    {
+      query = query_base + "where `Concept` like " + "'" + this->graph[ v ].name +"'";
+      rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+      for( int c = 0; c < n; c = c + 1 ) 
+      { 
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW)
+        {
+          string ind_source = std::string(
+              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+          string ind_name = std::string(
+              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+          this->graph[ v ].indicators[c] = Indicator(ind_name,ind_source);
+          this->graph[ v ].indicator_names[ind_name] = c;
+        } else {
+          cout << "No more data, only " << c << "indicators attached to " << this->graph[ v ].name << endl;
+        }
+      }
+      sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+  }
+
+
   auto print_nodes() {
     cout << "Vertex IDs and their names in the CAG" << endl;
     cout << "Vertex ID : Name" << endl;
@@ -1235,8 +1290,11 @@ public:
     cout << endl;
   }
   
+
   auto to_dot() {
     write_graphviz(
         cout, graph, make_label_writer(boost::get(&Node::name, graph)));
   }
+
+
 };
