@@ -12,6 +12,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("from_statements", &AnalysisGraph::from_statements)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
+      .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("sample_from_prior", &AnalysisGraph::sample_from_prior)
