@@ -126,11 +126,13 @@ class GrFNGenerator(object):
         self.annotated_assigned = annotated_assigned
         self.elif_grfn = elif_grfn
         self.function_definitions = function_definitions
+        self.fortran_file = None
         self.exclude_list = []
         self.mode_mapper = {}
         self.alias_mapper = {}
         self.name_mapper = {}
         self.function_names = {}
+        self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
 
         self.process_grfn = {
@@ -257,7 +259,18 @@ class GrFNGenerator(object):
         #  arguments is the outermost function i.e. call to the `start`
         #  function. But there can be functions without arguments which are not
         #  the `start` functions but instead some inner functions.
+
+        # The following is a test to make sure that there is only one
+        # function without arguments and that is the outermost function. All
+        # of the models that we currently handle have this structure and
+        # we'll have to think about how to handle cases that have more than
+        # one non-argument function.
         if len(node.args.args) == 0:
+            self.outer_count += 1
+            assert self.outer_count == 1, "There is more than one function " \
+                                          "without arguments in this system. " \
+                                          "This is not currently handled."
+
             function_state = state.copy(
                 last_definitions=local_last_definitions,
                 next_definitions=local_next_definitions,
@@ -550,6 +563,11 @@ class GrFNGenerator(object):
         return [pgm]
 
     def process_if(self, node, state, call_source):
+        """
+            This function handles the ast.IF node of the AST. It goes through
+            the IF body and generates the `decision` and `condition` type of
+            the `<function_assign_def>`.
+        """
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
             scope_path.append("_TOP")
@@ -557,45 +575,51 @@ class GrFNGenerator(object):
 
         state.scope_path = scope_path
 
+        # If a ast.If is present within another ast.If, the call_source will
+        # be `if`. This can happen in two cases:
+        # 1. A nested if condition.
+        # 2. A Fortran if-else condition which when translated to Python is
+        # converted into a else: if .. condition (See PETASCE_simple.py for
+        # example).
         if call_source == "if":
-            pgm = {"functions": [], "body": [], "identifiers": []}
+            grfn = {"functions": [], "body": [], "identifiers": []}
 
-            condSrcs = self.gen_grfn(node.test, state, "if")
+            condition_sources = self.gen_grfn(node.test, state, "if")
 
-            startDefs = state.last_definitions.copy()
-            ifDefs = startDefs.copy()
-            elseDefs = startDefs.copy()
-            ifState = state.copy(last_definitions=ifDefs)
-            elseState = state.copy(last_definitions=elseDefs)
-            ifPgm = self.gen_grfn(node.body, ifState, "if")
-            elsePgm = self.gen_grfn(node.orelse, elseState, "if")
+            start_definitions = state.last_definitions.copy()
+            if_definitions = start_definitions.copy()
+            else_definitions = start_definitions.copy()
+            if_state = state.copy(last_definitions=if_definitions)
+            else_state = state.copy(last_definitions=else_definitions)
+            if_grfn = self.gen_grfn(node.body, if_state, "if")
+            else_grfn = self.gen_grfn(node.orelse, else_state, "if")
 
-            updatedDefs = [
+            updated_definitions = [
                 var
-                for var in set(startDefs.keys())
-                    .union(ifDefs.keys())
-                    .union(elseDefs.keys())
-                if var not in startDefs
-                   or ifDefs[var] != startDefs[var]
-                   or elseDefs[var] != startDefs[var]
+                for var in set(start_definitions.keys())
+                    .union(if_definitions.keys())
+                    .union(else_definitions.keys())
+                if var not in start_definitions
+                   or if_definitions[var] != start_definitions[var]
+                   or else_definitions[var] != start_definitions[var]
             ]
 
-            pgm["functions"] += reduce(
-                (lambda x, y: x + y["functions"]), [[]] + ifPgm
-            ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
+            grfn["functions"] += reduce(
+                (lambda x, y: x + y["functions"]), [[]] + if_grfn
+            ) + reduce((lambda x, y: x + y["functions"]), [[]] + else_grfn)
 
-            pgm["body"] += reduce(
-                (lambda x, y: x + y["body"]), [[]] + ifPgm
-            ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
+            grfn["body"] += reduce(
+                (lambda x, y: x + y["body"]), [[]] + if_grfn
+            ) + reduce((lambda x, y: x + y["body"]), [[]] + else_grfn)
 
             self.elif_grfn = [
-                pgm,
-                condSrcs,
+                grfn,
+                condition_sources,
                 node.test,
                 node.lineno,
                 node,
-                updatedDefs,
-                ifDefs,
+                updated_definitions,
+                if_definitions,
                 state,
             ]
             return []
@@ -1636,9 +1660,9 @@ class GrFNGenerator(object):
 
         return source_list
 
-    def make_source_list_dict(self, sourceDict):
+    def make_source_list_dict(self, source_dictionary):
         source_list = []
-        for src in sourceDict:
+        for src in source_dictionary:
             if "var" in src:
                 source_list.append(src["var"]["variable"])
             elif "call" in src:
@@ -1653,14 +1677,13 @@ class GrFNGenerator(object):
 
         return source_list
 
-
     def make_fn_dict(self, name, target, sources, node):
         source = []
         fn = {}
 
         # Preprocessing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = RE_BYPASS_IO.match(target["var"][ "variable"])
+        bypass_match_target = RE_BYPASS_IO.match(target["var"]["variable"])
 
         if bypass_match_target:
             self.exclude_list.append(target["var"]["variable"])
@@ -1723,7 +1746,7 @@ def process_decorators(node, state):
                 state.variable_types[variable] = ANNOTATE_MAP[variable_type]
 
 
-def genFn(node, function_name: str, returnVal: bool, inputs, state):
+def genFn(node, function_name: str, return_value: bool, inputs, state):
     lambda_strings = []
     argument_strings = []
 
@@ -1739,8 +1762,9 @@ def genFn(node, function_name: str, returnVal: bool, inputs, state):
             # such as 'abc_1', etc. Check if the such variables exist and
             # assign appropriate annotations
             key_match = lambda var, dicn: ([i for i in dicn if i in var])
-            annotation = state.variable_types[key_match(ip,
-                                                    state.variable_types)[0]]
+            annotation = state.variable_types[
+                    key_match(ip, state.variable_types)[0]
+            ]
         annotation = ANNOTATE_MAP[annotation]
         argument_strings.append(f"{ip}: {annotation}")
 
@@ -1753,7 +1777,7 @@ def genFn(node, function_name: str, returnVal: bool, inputs, state):
         code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
     else:
         code = genCode(node, PrintState("\n    "))
-    if returnVal:
+    if return_value:
         lambda_strings.append(f"return {code}")
     else:
         lines = code.split("\n")
@@ -1810,16 +1834,16 @@ def get_function_name(function_names, basename, target):
             )
     else:
         new_basename = basename
-    fnId = function_names.get(new_basename, 0)
+    function_id = function_names.get(new_basename, 0)
     if len(target) > 0:
         if target.get("var"):
-            fnId = target["var"]["index"]
+            function_id = target["var"]["index"]
         elif target.get("variable"):
-            fnId = target["index"]
-    if fnId < 0:
-        fnId = function_names.get(new_basename, 0)
-    function_name = f"{basename}_{fnId}"
-    function_names[basename] = fnId + 1
+            function_id = target["index"]
+    if function_id < 0:
+        function_id = function_names.get(new_basename, 0)
+    function_name = f"{basename}_{function_id}"
+    function_names[basename] = function_id + 1
     return function_name
 
 
@@ -2025,6 +2049,7 @@ def create_grfn_dict(
     asts: List,
     file_name: str,
     mode_mapper_dict: dict,
+    original_file: str,
     save_file=False,
 ) -> Dict:
     """
@@ -2040,6 +2065,7 @@ def create_grfn_dict(
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
+    generator.fortran_file = original_file
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     # If the GrFN has a `start` node, it will refer to the name of the
@@ -2051,11 +2077,15 @@ def create_grfn_dict(
         #  the last function in the `function_defs` list of functions
         grfn["start"] = generator.function_definitions[-1]
 
-    grfn["source"] = [[get_path(file_name, "source")]]
+    # Finding the original Fortran source file being analyzed.
+    source_match = re.match(r'[./]*(.*)', original_file)
+    assert source_match, f"Original Fortran source file for {file_name} not " \
+        f"found."
+    grfn["source"] = [source_match.group(1)]
 
     # dateCreated stores the date and time on which the lambda and GrFN files
     # were created. It is stored in the YYYMMDD format
-    grfn["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
+    grfn["date_created"] = f"{datetime.utcnow().isoformat('T')}Z"
 
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
@@ -2089,14 +2119,62 @@ def get_asts_from_files(file_list: List[str], printast=False) -> List:
     return ast_list
 
 
+def get_system_name(pyfile_list: List[str]):
+    """
+    This function returns the name of the system under analysis. Generally,
+    the system is the one which is not prefixed by `m_` (which represents
+    modules).
+    """
+    system_name = None
+    path = None
+    for file in pyfile_list:
+        if not file.startswith("m_"):
+            system_name_match = re.match(r'.*/(.*)\.py', file)
+            assert system_name_match, f"System name for file {file} not found."
+            system_name = system_name_match.group(1)
+
+            path_match = re.match(r'(.*)/.*', file)
+            assert path_match, "Target path not found"
+            path = path_match.group(1)
+
+    if not (system_name or path):
+        assert False, f"Error when trying to find the system name of the " \
+            f"analyzed program."
+
+    return system_name, path
+
+
+def generate_system_def(python_list: List[str], component_list: List[str]):
+    """
+        This function generates the system definition for the system under
+        analysis and writes this to the main system file.
+    """
+    (system_name, path) = get_system_name(python_list)
+    system_filename = f"{path}/system.json"
+    grfn_components = []
+    for component in component_list:
+        grfn_components.append({
+            "file_path": component,
+            "imports": []
+        })
+    with open(system_filename, "w") as system_file:
+        system_def = {
+            "date_created": f"{datetime.utcnow().isoformat('T')}Z",
+            "name": system_name,
+            "components": grfn_components
+        }
+        system_file.write(json.dumps(system_def, indent=2))
+
+
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
-                  str, print_ast_flag=False):
+                  str, original_file: str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN 
         and generates each file's AST along with starting the GrFN generation
         process. 
     """
     module_mapper = {}
+    grfn_filepath_list = []
     ast_list = get_asts_from_files(python_list, print_ast_flag)
 
     # Regular expression to identify the path and name of all python files
@@ -2123,12 +2201,17 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
-            lambda_file, [ast_string], python_list[index], module_mapper
+            lambda_file, [ast_string], python_list[index], module_mapper,
+            original_file
         )
-
+        grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, indent=2))
+
+    # Finally, write the <systems.json> file which gives a mapping of all the
+    # GrFN files related to the system.
+    generate_system_def(python_list, grfn_filepath_list)
 
 
 if __name__ == "__main__":
@@ -2169,6 +2252,13 @@ if __name__ == "__main__":
         required=False,
         help="Print ASTs",
     )
+    parser.add_argument(
+        "-g",
+        "--original_file",
+        nargs=1,
+        required=True,
+        help="Filename of the original Fortran file",
+    )
     arguments = parser.parse_args(sys.argv[1:])
 
     # Read the outputFile which contains the name of all the python files
@@ -2182,6 +2272,8 @@ if __name__ == "__main__":
 
     grfn_suffix = arguments.grfn_suffix[0]
     lambda_suffix = arguments.lambda_suffix[0]
+    fortran_file = arguments.original_file[0]
     print_ast = arguments.print_ast
 
-    process_files(python_file_list, grfn_suffix, lambda_suffix, print_ast)
+    process_files(python_file_list, grfn_suffix, lambda_suffix, fortran_file,
+                  print_ast)
