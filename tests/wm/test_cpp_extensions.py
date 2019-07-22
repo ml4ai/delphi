@@ -7,7 +7,7 @@ import seaborn as sns
 
 def test_cpp_extensions():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
-    G.construct_beta_pdfs()
+    #G.construct_beta_pdfs()
     G.sample_from_prior()
 
 def test_simple_path_construction():
@@ -53,7 +53,56 @@ def test_simple_path_construction():
 def test_inference():
     statements = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
 
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
     G = AnalysisGraph.from_statements( statements )
+    #G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    #print( '\nConstructing beta pdfs' )
+    #G.construct_beta_pdfs()
+
+    #G.find_all_paths()
+
+    print( '\nSetting initial state' )
+    G.set_initial_state()
+
+    print( '\nSample from proposal debug' )
+    G.sample_from_proposal_debug()
+
+    # Get the original value of our parameter of interest (the ground truth
+    # value that we can use to evaluate our inference.
+    original_beta = G.get_beta( "UN/events/human/conflict", "UN/entities/human/food/food_security" )
+
+    print( "\noriginal_beta: ", original_beta )
+
+    print( '\nTaking a step' )
+    G.take_step()
+
+    print( '\nTaking second step' )
+    G.take_step()
+
+    beta_after_step = G.get_beta( "UN/events/human/conflict", "UN/entities/human/food/food_security" )
+
+    print( "\nbeta after step: ", beta_after_step )
+
+'''
+    statements = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
+
+    #G = AnalysisGraph.from_statements( statements )
+    G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+    G.print_nodes()
+    #G.construct_beta_pdfs()
+    #G.find_all_paths()
+    G.print_all_paths()
+    G.initialize( True )
+    samples = G.sample_from_prior()
+    G.sample_from_likelihood( 10 )
+    G.sample_from_proposal_debug()
 
     G.set_initial_state()
 
@@ -67,7 +116,7 @@ def test_inference():
     beta_after_step = G.get_beta( "conflict", "food_security" )
 
     print( "beta after step: ", beta_after_step )
-'''
+
     # Create empty lists to hold the scores
     betas = []
     log_likelihoods = []
