@@ -991,7 +991,7 @@ public:
 
     for( int ts = 0; ts < num_timesteps; ts++ )
     {
-      Eigen::VectorXd latent_state = this->latent_state_sequence[ ts ];
+      const Eigen::VectorXd & latent_state = this->latent_state_sequence[ ts ];
 
       // TODO: In the python file I cannot find the place where 
       // self.observed_state_sequence gets populated.
@@ -999,16 +999,16 @@ public:
       // there it is beign accessed!!!
       // Access
       // observed_state[ vertex ][ indicator ]
-      vector< vector< double >> observed_state = this->observed_state_sequence[ ts ];
+      const vector< vector< double >> & observed_state = this->observed_state_sequence[ ts ];
 
       for( int v : vertices() )
       {
-        int num_inds_for_v = observed_state[ v ].size();
+        const int & num_inds_for_v = observed_state[ v ].size();
 
         for( int indicator = 0; indicator < num_inds_for_v; indicator++ )
         {
-          double value = observed_state[ v ]           [ indicator ];
-          Indicator ind =         graph[ v ].indicators[ indicator ];
+          const double & value = observed_state[ v ]           [ indicator ];
+          const Indicator & ind =         graph[ v ].indicators[ indicator ];
 
           // Even indices of latent_state keeps track of the state of each vertex
           double log_likelihood = this->log_normpdf( value, latent_state[ 2 * v ] * ind.mean, ind.stdev );
