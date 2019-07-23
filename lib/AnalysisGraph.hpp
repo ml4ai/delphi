@@ -80,15 +80,14 @@ struct Node {
     //TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
     //      in the indicator_names map
-    //if( indicator_names.find( indicator ) != indicator_names.end() )
-    if (indicator_names.count( indicator ) == 1 )
+    if( indicator_names.find( indicator ) != indicator_names.end() )
     {
       std::cout << indicator << " already attached to " << name << std::endl;
       return;
     }
     if (replace)
     {
-      if ((replace_index + 1) > indicators.size())
+      if ( replace_index >= indicators.size())
       {
         std::cout << "Replace index is out of bounds, adding " << indicator << " to " << name << " instead" << std::endl;
         indicator_names [ indicator ] = indicators.size();
@@ -96,7 +95,7 @@ struct Node {
         return;
       }
       string to_be_replaced;
-      for (auto [ name, vert ] : indicator_names)
+      for (auto [ name, idx ] : indicator_names)
       {
         if (indicator_names[name] == replace_index)
         {
