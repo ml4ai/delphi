@@ -33,5 +33,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators)
       .def("print_indicators", &AnalysisGraph::print_indicators)
+      .def("set_indicator", &AnalysisGraph::set_indicator)
     ;
 }

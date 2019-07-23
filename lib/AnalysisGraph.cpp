@@ -1228,6 +1228,26 @@ public:
   }
 
 
+  // ==========================================================================
+  // Manipulation
+  // ==========================================================================
+
+  void set_indicator( string concept, string indicator, string source )
+  {
+    try
+    {
+      this->graph[ this->name_to_vertex.at( concept )]
+                  .indicators.push_back( Indicator( indicator, source ));
+    }
+    catch( const std::out_of_range & oor )
+    {
+      std::cerr << "Error:\n" << "\tConcept: " << concept << " is not in the CAG\n";
+      std::cerr << "\tIndicator: " << indicator << " with Source: " << source << endl;
+      std::cerr << "\tCannot be added\n";
+    }
+  }
+
+
   /*
     ==========================================================================
     Model parameterization
