@@ -75,14 +75,47 @@ struct Node {
   // Maps each indicator name to its index in the indicators vector
   std::map< std::string, int > indicator_names;
 
-  void add_indicator( string indicator, string source )
+  void add_indicator( string indicator, string source, bool replace = true, int replace_index = 0 )
   {
     //TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
     //      in the indicator_names map
-    //if( indicator_names.find( indicator ) != indicator_names.end() ) {}
+    //if( indicator_names.find( indicator ) != indicator_names.end() )
+    if (indicator_names.count( indicator ) == 1 )
+    {
+      std::cout << indicator << " already attached to " << name << std::endl;
+      return;
+    }
+    if (replace)
+    {
+      if ((replace_index + 1) > indicators.size())
+      {
+        std::cout << "Replace index is out of bounds, adding " << indicator << " to " << name << " instead" << std::endl;
+        indicator_names [ indicator ] = indicators.size();
+        indicators.push_back( Indicator( indicator, source ));
+        return;
+      }
+      string to_be_replaced;
+      for (auto [ name, vert ] : indicator_names)
+      {
+        if (indicator_names[name] == replace_index)
+        {
+          to_be_replaced = name;
+        }
+      }
+      indicator_names.erase(to_be_replaced);
+      indicator_names[indicator] = replace_index;
+      indicators[replace_index] = Indicator( indicator, source );
+      return;
+    }
     indicator_names[ indicator ] = indicators.size();
     indicators.push_back( Indicator( indicator, source ));
+  }
+
+  void clear_indicators()
+  {
+    indicators.clear();
+    indicator_names.clear();
   }
 };
 
