@@ -34,5 +34,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators)
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator", &AnalysisGraph::set_indicator)
+      .def("replace_indicator", &AnalysisGraph::replace_indicator)
     ;
 }

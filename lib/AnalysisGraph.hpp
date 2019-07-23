@@ -75,7 +75,7 @@ struct Node {
   // Maps each indicator name to its index in the indicators vector
   std::map< std::string, int > indicator_names;
 
-  void add_indicator( string indicator, string source, bool replace = true, int replace_index = 0 )
+  void add_indicator( string indicator, string source )
   {
     //TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
@@ -91,30 +91,30 @@ struct Node {
       std::cout << indicator << " already attached to " << name << std::endl;
       return;
     }
-    if (replace)
-    {
-      if ( replace_index >= indicators.size())
-      {
-        std::cout << "Replace index is out of bounds, adding " << indicator << " to " << name << " instead" << std::endl;
-        indicator_names [ indicator ] = indicators.size();
-        indicators.push_back( Indicator( indicator, source ));
-        return;
-      }
-      string to_be_replaced;
-      for (auto [ name, idx ] : indicator_names)
-      {
-        if (indicator_names[name] == replace_index)
-        {
-          to_be_replaced = name;
-        }
-      }
-      indicator_names.erase(to_be_replaced);
-      indicator_names[indicator] = replace_index;
-      indicators[replace_index] = Indicator( indicator, source );
-      return;
-    }
+
     indicator_names[ indicator ] = indicators.size();
     indicators.push_back( Indicator( indicator, source ));
+  }
+
+
+  void replace_indicator( string indicator_old, string indicator_new, string source )
+  {
+    auto map_entry =  indicator_names.extract( indicator_old );
+
+    if( map_entry ) // indicator_old is in the map
+    {
+      // Update the map entry and add the new indicator
+      // in place of the old indicator
+      map_entry.key() = indicator_new;
+      indicator_names.insert( move( map_entry ));
+      indicators[ map_entry.mapped() ] = Indicator( indicator_new, source );
+    }
+    else // indicator_old is not attached to this node
+    {
+      std::cout << "Node::replace_indicator - indicator " << indicator_old << " is not attached to node " << name << std::endl;
+      std::cout << "\tAdding indicator " << indicator_new << " afresh\n";
+      add_indicator( indicator_new, source );
+    }
   }
 
   void clear_indicators()
