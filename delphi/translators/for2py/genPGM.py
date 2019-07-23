@@ -130,13 +130,15 @@ class GrFNGenerator(object):
         self.annotated_assigned = annotated_assigned
         self.elif_grfn = elif_grfn
         self.function_definitions = function_definitions
+        self.fortran_file = None
         self.exclude_list = []
         self.mode_mapper = {}
         self.alias_mapper = {}
         self.name_mapper = {}
         self.function_names = {}
-        self.types = (list, ast.Module, ast.FunctionDef)
         self.arrays = {}
+        self.outer_count = 0
+        self.types = (list, ast.Module, ast.FunctionDef)
 
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -262,7 +264,18 @@ class GrFNGenerator(object):
         #  arguments is the outermost function i.e. call to the `start`
         #  function. But there can be functions without arguments which are not
         #  the `start` functions but instead some inner functions.
+
+        # The following is a test to make sure that there is only one
+        # function without arguments and that is the outermost function. All
+        # of the models that we currently handle have this structure and
+        # we'll have to think about how to handle cases that have more than
+        # one non-argument function.
         if len(node.args.args) == 0:
+            self.outer_count += 1
+            assert self.outer_count == 1, "There is more than one function " \
+                                          "without arguments in this system. " \
+                                          "This is not currently handled."
+
             function_state = state.copy(
                 last_definitions=local_last_definitions,
                 next_definitions=local_next_definitions,
@@ -575,6 +588,7 @@ class GrFNGenerator(object):
             "identifiers": [],
         }
 
+
         for id_spec in id_specList:
             pgm["identifiers"].append(id_spec)
 
@@ -782,7 +796,6 @@ class GrFNGenerator(object):
             # This seems to be in development phase and documentation is
             # missing from the GrFN spec as well. Actual removal (or not)
             # of this tag depends on further information about this
-
             if "IF_" in updatedDef:
                 count = 0
                 for var in inputs:
@@ -1157,6 +1170,7 @@ class GrFNGenerator(object):
                         state.next_definitions,
                         state.last_definition_default,
                     )
+
                     self.annotated_assigned.append(val[0]["var"]["variable"])
             else:
                 self.annotated_assigned.append(val[0]["var"]["variable"])
@@ -1715,9 +1729,9 @@ class GrFNGenerator(object):
 
         return source_list
 
-    def make_source_list_dict(self, sourceDict):
+    def make_source_list_dict(self, source_dictionary):
         source_list = []
-        for src in sourceDict:
+        for src in source_dictionary:
             if "var" in src:
                 source_list.append(src["var"]["variable"])
             elif "call" in src:
@@ -1732,14 +1746,13 @@ class GrFNGenerator(object):
 
         return source_list
 
-
     def make_fn_dict(self, name, target, sources, node):
         source = []
         fn = {}
 
         # Preprocessing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = RE_BYPASS_IO.match(target["var"][ "variable"])
+        bypass_match_target = RE_BYPASS_IO.match(target["var"]["variable"])
 
         if bypass_match_target:
             self.exclude_list.append(target["var"]["variable"])
@@ -1801,7 +1814,6 @@ def process_decorators(node, state):
                 variable_type = arg.values[2].s
                 state.variable_types[variable] = ANNOTATE_MAP[variable_type]
 
-
 def genFn(node, function_name: str, returnVal: bool, inputs, state):
     lambda_strings = []
     argument_strings = []
@@ -1818,8 +1830,9 @@ def genFn(node, function_name: str, returnVal: bool, inputs, state):
             # such as 'abc_1', etc. Check if the such variables exist and
             # assign appropriate annotations
             key_match = lambda var, dicn: ([i for i in dicn if i in var])
-            annotation = state.variable_types[key_match(ip,
-                                                    state.variable_types)[0]]
+            annotation = state.variable_types[
+                    key_match(ip, state.variable_types)[0]
+            ]
         annotation = ANNOTATE_MAP[annotation]
         argument_strings.append(f"{ip}: {annotation}")
 
@@ -1832,6 +1845,7 @@ def genFn(node, function_name: str, returnVal: bool, inputs, state):
         code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
     else:
         code = genCode(node, PrintState("\n    "))
+
     if returnVal:
         lambda_strings.append(f"return {code}")
     else:
@@ -1892,7 +1906,7 @@ def get_function_name(function_names, basename, target):
     fnId = function_names.get(new_basename, 0)
     if len(target) > 0:
         if target.get("var"):
-            fnId = target["var"]["index"]
+            function_id = target["var"]["index"]
         elif target.get("variable"):
             fnId = target["index"]
     if fnId < 0:
@@ -2026,7 +2040,6 @@ def remove_io_and_type_variables(variable_list):
     return [var for var in variable_list if io_match_list[
         variable_list.index(var)] is None and var not in ANNOTATE_MAP]
 
-
 def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
         Return a formatted dump of the tree in *node*. This is mainly useful for
@@ -2104,6 +2117,7 @@ def create_grfn_dict(
     asts: List,
     file_name: str,
     mode_mapper_dict: dict,
+    original_file: str,
     save_file=False,
 ) -> Dict:
     """
@@ -2119,6 +2133,7 @@ def create_grfn_dict(
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict
+    generator.fortran_file = original_file
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     # If the GrFN has a `start` node, it will refer to the name of the
@@ -2153,7 +2168,6 @@ def generate_ast(filename: str):
     """
     return ast.parse(tokenize.open(filename).read())
 
-
 def get_asts_from_files(file_list: List[str], printast=False) -> List:
     """
         This function returns the AST of each python file in the
@@ -2169,13 +2183,14 @@ def get_asts_from_files(file_list: List[str], printast=False) -> List:
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
-                  str, print_ast_flag=False):
+                  str, original_file: str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN 
         and generates each file's AST along with starting the GrFN generation
         process. 
     """
     module_mapper = {}
+    grfn_filepath_list = []
     ast_list = get_asts_from_files(python_list, print_ast_flag)
 
     # Regular expression to identify the path and name of all python files
@@ -2202,13 +2217,13 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
-            lambda_file, [ast_string], python_list[index], module_mapper
+            lambda_file, [ast_string], python_list[index], module_mapper,
+            original_file
         )
 
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, indent=2))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
