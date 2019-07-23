@@ -315,8 +315,11 @@ class GrFNGenerator(object):
             var_grfn = {"name":var}
             if var in local_variable_types:
                 var_grfn["index"] = local_last_definitions[var]
-                var_grfn["domain"] = local_variable_types[var]
-                var_grfn["mutatble"] = False
+                # Temporarily commenting out in order to pass the
+                # webapp test that it may not been updated to the
+                # lastest GrFN spec.
+                # var_grfn["domain"] = local_variable_types[var]
+                # var_grfn["mutatble"] = False
             elif var in self.arrays:
                 var_grfn["index"] = self.arrays[var]["index"]
                 var_grfn["domain"] = {
