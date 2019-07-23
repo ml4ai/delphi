@@ -77,9 +77,16 @@ struct Node {
 
   void add_indicator( string indicator, string source, bool replace = true, int replace_index = 0 )
   {
+<<<<<<< HEAD
     //TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
     //      in the indicator_names map
+    //What if this indicator already exists?
+    //*Loren: We just say it's already attached and do nothing.
+    // As of right now, we are only attaching one indicator per node but even
+    // if we were attaching multiple indicators to one node, I can't yet think
+    // of a case where the numerical id (i.e. the order) matters. If we do come
+    // across that case, we will just write a function that swaps ids.*
     if( indicator_names.find( indicator ) != indicator_names.end() )
     {
       std::cout << indicator << " already attached to " << name << std::endl;
