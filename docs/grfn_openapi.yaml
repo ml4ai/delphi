@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.4
+  version: 0.2.5
 
 paths: {}
 
@@ -257,10 +257,11 @@ components:
         Define an attribute of a `<type>`.
       required:
         - name
+        - value_type
       properties:
         name:
           type: string
-        type:
+        value_type:
           $ref: '#/components/schemas/type'
 
     variable_def:
@@ -444,6 +445,7 @@ components:
         - $ref: '#/components/schemas/type_array'
         - $ref: '#/components/schemas/type_list'
         - $ref: '#/components/schemas/type_map'
+        - $ref: '#/components/schemas/type_hashmap'
         - $ref: '#/components/schemas/type_tuple'
 
     type_type_def:
@@ -552,6 +554,17 @@ components:
           enum:
             - "type"
         dimensions:
+          description: >
+            Array of integers defining size of each array dimension.
+            Dimension sizes cannot be less than 1.
+          type: array
+          items:
+            type: integer
+        index_start:
+          description: >
+            Array of integers defining start index of each dimension.
+            This field is optional. If left out, assumption is each
+            dimension has a start index of 0.
           type: array
           items:
             type: integer
@@ -592,14 +605,34 @@ components:
           enum:
             - "type"
 
+    type_hashmap:
+      title: <type_hashmap>
+      description: >
+        A Map who's keys have a "key_type" `<type>`.
+      required:
+        - name
+        - type
+        - key_type
+      properties:
+        name:
+          type: string
+          enum:
+            - "hashmap"
+        type:
+          type: string
+          enum:
+            - "type"
+        key_type:
+          $ref: '#/components/schemas/type'
+
     type_tuple:
       title: <type_tuple>
       description: >
         Tuple primitive type.
         "element_types" is an array of the `<types>` of each
         element of the tuple.
-        The order of `<types>` corresponds to the order of
-        elements in the tuple.
+        The order of `<types>` in "elemennt_types" corresponds
+        to the order of elements in the tuple.
       required:
         - name
         - type
