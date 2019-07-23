@@ -51,13 +51,47 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       end subroutine update_mean_var
 
 ********************************************************************************
-      program main
+C     Variables:
+C     beta     Rate of infection
+C     gamma    Rate of recovery from an infection
+C     rho      Basic reproduction Number
+C
+C     State Variables: S, I, R
+C     S - Susceptible population
+C     I - Infected population
+C     R - Recovered population
+C     n_S      current number of susceptible members
+C     n_I      current number of infected members
+C     n_R      current number of recovered members
+C     S0       initial value of S
+C     I0       initial value of I
+C     R0       initial value of R
+C     MeanS    Measures of Mean for S
+C     MeanI    Measures of Mean for I
+C     MeanR    Measures of Mean for R
+C     VarS     Measures of Variance for S
+C     VarI     Measures of Variance for I
+C     VarR     Measures of Variance for R
+C
+C     rateInfect    Current state dependent rate of infection
+C     rateRecover   Current state dependent rate of recovery
+C     totalRates    Sum of total rates; taking advantage of Markovian identities 
+C                       to improve performance.
+C
+C     Tmax          Maximum time for the simulation
+C     t             Initial time for the simulation
+C     totalRuns     Total number of trajectories to generate for the analysis
+C     dt       next inter-event time
+********************************************************************************
+      subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, 
+     &                     VarR)
 
-      integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
+      integer, parameter :: Tmax = 100
+      integer S0, I0, R0
       integer, parameter :: total_runs = 1000
-      double precision, parameter :: gamma = 1.0/3.0  ! Rate of recovery from an infection
-      double precision, parameter :: rho = 2.0  ! Basic reproduction Number
-      double precision, parameter :: beta = rho * gamma ! Rate of infection
+      double precision, parameter :: gamma = 1.0/3.0
+      double precision, parameter :: rho = 2.0
+      double precision, parameter :: beta = rho * gamma ! 
 
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
       double precision, dimension(0:Tmax) :: VarS, VarI, VarR
@@ -138,6 +172,15 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
             sample_idx = sample_idx + 1
          end do
       end do
+
+      end subroutine gillespie
+
+      program main
+      integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
+      double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
+      double precision, dimension(0:Tmax) :: VarS, VarI, VarR
+
+      call gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, VarR)
 
       call print_output(MeanS)
       call print_output(MeanI)

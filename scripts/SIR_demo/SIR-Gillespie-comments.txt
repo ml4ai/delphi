@@ -1,0 +1,117 @@
+$file_head:
+    
+
+$file_foot:
+    
+
+Function: print_output
+  head:
+    C     Fortranification of AMIDOL's SIR-Gillespie.py
+    
+    ********************************************************************************
+
+  neck:
+
+  foot:
+    
+    ********************************************************************************
+
+Function: pyrand
+  head:
+    
+    ********************************************************************************
+    *                                                                              *
+    *                Pretend to be Python's ramdon-number generator                *
+    *                                                                              *
+    ********************************************************************************
+
+  neck:
+
+  foot:
+    
+    ********************************************************************************
+    C     Variables:
+    C     beta     Rate of infection
+    C     gamma    Rate of recovery from an infection
+    C     rho      Basic reproduction Number
+    C
+    C     State Variables: S, I, R
+    C     S - Susceptible population
+    C     I - Infected population
+    C     R - Recovered population
+    C     n_S      current number of susceptible members
+    C     n_I      current number of infected members
+    C     n_R      current number of recovered members
+    C     S0       initial value of S
+    C     I0       initial value of I
+    C     R0       initial value of R
+    C     MeanS    Measures of Mean for S
+    C     MeanI    Measures of Mean for I
+    C     MeanR    Measures of Mean for R
+    C     VarS     Measures of Variance for S
+    C     VarI     Measures of Variance for I
+    C     VarR     Measures of Variance for R
+    C
+    C     rateInfect    Current state dependent rate of infection
+    C     rateRecover   Current state dependent rate of recovery
+    C     totalRates    Sum of total rates; taking advantage of Markovian identities
+    C                       to improve performance.
+    C
+    C     Tmax          Maximum time for the simulation
+    C     t             Initial time for the simulation
+    C     totalRuns     Total number of trajectories to generate for the analysis
+    C     dt       next inter-event time
+    ********************************************************************************
+
+Function: update_mean_var
+  head:
+    
+    ********************************************************************************
+
+  neck:
+
+  foot:
+
+Function: gillespie
+  head:
+    
+    ********************************************************************************
+    C     Variables:
+    C     beta     Rate of infection
+    C     gamma    Rate of recovery from an infection
+    C     rho      Basic reproduction Number
+    C
+    C     State Variables: S, I, R
+    C     S - Susceptible population
+    C     I - Infected population
+    C     R - Recovered population
+    C     n_S      current number of susceptible members
+    C     n_I      current number of infected members
+    C     n_R      current number of recovered members
+    C     S0       initial value of S
+    C     I0       initial value of I
+    C     R0       initial value of R
+    C     MeanS    Measures of Mean for S
+    C     MeanI    Measures of Mean for I
+    C     MeanR    Measures of Mean for R
+    C     VarS     Measures of Variance for S
+    C     VarI     Measures of Variance for I
+    C     VarR     Measures of Variance for R
+    C
+    C     rateInfect    Current state dependent rate of infection
+    C     rateRecover   Current state dependent rate of recovery
+    C     totalRates    Sum of total rates; taking advantage of Markovian identities
+    C                       to improve performance.
+    C
+    C     Tmax          Maximum time for the simulation
+    C     t             Initial time for the simulation
+    C     totalRuns     Total number of trajectories to generate for the analysis
+    C     dt       next inter-event time
+    ********************************************************************************
+
+  neck:
+    
+
+  foot:
+    
+
