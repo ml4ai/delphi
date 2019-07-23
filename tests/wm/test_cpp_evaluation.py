@@ -14,6 +14,16 @@ def test_cpp_extensions():
         )
     ]
     G = AnalysisGraph.from_statements(statements)
-
+    print("\n")
     G.print_nodes()
-    G.to_dot()
+    G.map_concepts_to_indicators(1)
+    G.print_indicators()
+    print("\n")
+    G.set_indicator(
+        "UN/events/human/human_migration",
+        "New asylum seeking applicants",
+        "UNHCR",
+        True,
+        0,
+    )
+    G.print_indicators()

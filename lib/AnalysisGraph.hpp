@@ -117,6 +117,8 @@ struct Node {
     }
   }
 
+  
+  //Utility function that clears the indicators vector and the name map.
   void clear_indicators()
   {
     indicators.clear();
