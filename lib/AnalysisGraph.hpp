@@ -74,6 +74,16 @@ struct Node {
   std::vector< Indicator > indicators;
   // Maps each indicator name to its index in the indicators vector
   std::map< std::string, int > indicator_names;
+
+  void add_indicator( string indicator, string source )
+  {
+    //TODO: What if this indicator already exists?
+    //      At the moment only the last indicator is recorded
+    //      in the indicator_names map
+    //if( indicator_names.find( indicator ) != indicator_names.end() ) {}
+    indicator_names[ indicator ] = indicators.size();
+    indicators.push_back( Indicator( indicator, source ));
+  }
 };
 
 struct GraphData {

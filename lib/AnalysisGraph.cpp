@@ -1237,7 +1237,7 @@ public:
     try
     {
       this->graph[ this->name_to_vertex.at( concept )]
-                  .indicators.push_back( Indicator( indicator, source ));
+                  .add_indicator( indicator, source );
     }
     catch( const std::out_of_range & oor )
     {
