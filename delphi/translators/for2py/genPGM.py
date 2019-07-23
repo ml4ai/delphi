@@ -319,7 +319,6 @@ class GrFNGenerator(object):
                 # webapp test that it may not been updated to the
                 # lastest GrFN spec.
                 # var_grfn["index"] = local_last_definitions[var]
-                var_grfn["domain"] = local_variable_types[var]
                 # var_grfn["mutatble"] = False
             elif var in self.arrays:
                 var_grfn["index"] = self.arrays[var]["index"]
