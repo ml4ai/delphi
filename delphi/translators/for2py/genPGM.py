@@ -295,7 +295,7 @@ class GrFNGenerator(object):
                         list(local_last_definitions.keys()))
 
         # Formulate the GrFN for variables depends on either it's
-        # a smple variable or an array. TODO: Addtion may be required
+        # a smple variable or an array. TODO: Addition may be required
         # for list or/and map, etc.
         variable_grfn = []
         for var in variables:
@@ -312,7 +312,7 @@ class GrFNGenerator(object):
                         "dimensions": self.arrays[var]["dimensions"],
                         "element_type": {
                             "name": self.arrays[var]["elem_type"],
-                            "type": "type"
+                            "type": self.arrays[var]["elem_type"]
                         }
                 }
                 var_grfn["mutatble"] = True
