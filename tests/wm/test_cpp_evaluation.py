@@ -22,8 +22,8 @@ def test_cpp_extensions():
     G.set_indicator(
         "UN/events/human/human_migration",
         "New asylum seeking applicants",
-        "UNHCR",
-        True,
-        0,
+        "UNHCR"#,
+        #True,
+        #0,
     )
     G.print_indicators()
