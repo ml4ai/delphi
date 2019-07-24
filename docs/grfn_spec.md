@@ -1,36 +1,21 @@
 # Grounded Function Network (GrFN) JSON Specification
 
-**Version 0.1.m7**
+**Version 0.1.m9**
 
-## TODO
-
-In progress. Release target date: July 1, 2019
-
->TODO:
->
->- Add namespace (corresonding to Fortran Modules)
->	- each module is a GrFN file (no matter how many source files)
->	- each program is a GrFN file (no matter how many source files)
->- Change loops to open-ended representation
->	- subsumes for/iteration loops
->- Structured Types
->	- Add arrays
->- Add goto
->- Add precision info to `<variable_domain_type>`
->- Add variable domain constraints to `<variable_spec>`
->	- set of intervals
-
-### `[0.1.m7]` - 2019-07-01
+### `[0.1.m9]` - 2019-07-01
 
 Changes since [0.1.m5]
 
 #### Added
-- GrFN_spec Index with links for quick reference navigation
-- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com)
-- [`<grounding_metadata_spec>`](#grounding-metadata-spec) in "grounding" field of [`<identifier_spec>`](#identifier-specification). Includes source, type (definition, units, constraints) and value
+- GrFN_spec Index with links for quick reference navigation.
+- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com).
+- [`<grounding_metadata_spec>`](#grounding-metadata-spec) in "grounding" field of [`<identifier_spec>`](#identifier-specification). Includes source, type (definition, units, constraints) and value.
+- `<system_def>` for defining the GrFN representation of a system (collection of source files and multiple modules).
 
 #### Changed
-- Reorganized and rewrote portions of Introduction
+- Reorganized and rewrote portions of Introduction.
+- Modified [`<function_reference_spec>`](#function-reference-specification) so that it now has an "exit_condition" to represent while loops, and subsumes for/iteration loops.
+- Modified [`<varaible_spec>`](#variable-specification) adding variable value "domain" constraints.
 
 [Change Log](#change-og) (from previous releases)
 
