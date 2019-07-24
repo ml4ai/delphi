@@ -167,11 +167,12 @@ components:
         - source_refs
         - gensym
       properties:
-        name:
-          oneOf:
-            - $ref: '#/components/schemas/variable_name'
-            - $ref: '#/components/schemas/function_name'
-            - $ref: '#/components/schemas/type_name'
+        type:
+          type: string
+          enum:
+            - variable
+            - function
+            - type
         base_name:
           $ref: '#/components/schemas/base_name'
         scope:
