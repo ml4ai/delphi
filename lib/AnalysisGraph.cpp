@@ -658,6 +658,17 @@ public:
    ==========================================================================
   */
 
+
+  void train_model( int start_year = 2012,
+                    int start_month = 1,
+                    int end_year = 2017,
+                    int end_month = 12,
+                    int res = 200,
+                    int burn = 10000 )
+  {
+  }
+
+
   // TODO: Need testing
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
