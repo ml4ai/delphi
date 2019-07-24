@@ -1179,6 +1179,35 @@ public:
     }
   }
 
+
+  // TODO: Demosntrate how to use the Node::get_indicator() method
+  // with the custom exception.
+  // Not sure whether we need this method in AnalaysisGraph
+  // so that python side can directly access the Indicator class
+  // objects and maipulate them (we need to fiture out how to map a
+  // custom class from C++ into python for this) - harder
+  // or
+  // mirror getter and setter methods of the Indicator class
+  // in AnalysisGraph and make the python side call them - easier.
+  Indicator get_indicator( string concept, string indicator )
+  {
+    try
+    {
+      return graph[ name_to_vertex.at( concept )].get_indicator( indicator );
+    } 
+    catch ( const std::out_of_range &oor ) 
+    {
+      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
+                << "\tConcept: " << concept << " is not in the CAG\n";
+    }
+    catch ( IndicatorNotFoundException &  infe ) 
+    {
+      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
+                << "\tindicator: " << infe.what() << " is not attached to CAG node " << concept << endl;
+    }
+  }
+
+
   void replace_indicator(string concept, string indicator_old, string indicator_new, string source)
   {
     try {

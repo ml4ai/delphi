@@ -1,7 +1,8 @@
 #pragma once
 
-#include "kde.hpp"
 #include <optional>
+#include <exception>
+#include "kde.hpp"
 #include "kde.hpp"
 #include "random_variables.hpp"
 
@@ -12,6 +13,18 @@ template <class T> void printVec(std::vector<T> xs) {
     print(x);
   }
 }
+
+
+struct IndicatorNotFoundException : public std::exception 
+{
+  std::string msg;
+
+  IndicatorNotFoundException( std::string msg ) : msg(msg) { }
+
+  const char * what() const throw () {
+    return this->msg.c_str();
+  }
+};
 
 
 struct Event {
@@ -97,6 +110,19 @@ struct Node {
   }
 
 
+  Indicator get_indicator( string indicator )
+  {
+    try 
+    {
+      return indicators[ indicator_names.at( indicator )];
+    }
+    catch (const std::out_of_range &oor) 
+    {
+      throw IndicatorNotFoundException( indicator );   
+    }
+  }
+
+
   void replace_indicator( string indicator_old, string indicator_new, string source )
   {
     auto map_entry =  indicator_names.extract( indicator_old );
@@ -117,7 +143,7 @@ struct Node {
     }
   }
   
-
+/*
   template <class T> void set_indicator_attribute( string indicator, string attribute, T value )
   {
     int ind_index;
@@ -203,7 +229,7 @@ struct Node {
       std::cerr << "\tattribute: " << attribute << " cannot be retrieved" << std::endl;
     }
   }
-
+*/
 
 
 
