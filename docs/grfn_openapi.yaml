@@ -128,8 +128,8 @@ components:
     link_element:
       title: <link_element>
       description: >
-        A semantic element:
-        identifier (<variable_name>, <function_name>, <type_name>),
+        A grounding hypothesis link element.<br>
+        "type": identifier (<variable_name>, <function_name>, <type_name>),
         content_span, text_span, equation_term, or ontology_term
       required:
         - type
