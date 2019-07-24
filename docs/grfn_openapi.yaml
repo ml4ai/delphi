@@ -118,15 +118,15 @@ components:
         - score
       properties:
         element_1:
-          $ref: '#/components/schemas/semantic_element'
+          $ref: '#/components/schemas/link_element'
         element_2:
-          $ref: '#/components/schemas/semantic_element'
+          $ref: '#/components/schemas/link_element'
         score:
           type: number
           format: float
 
-    semantic_element:
-      title: <semantic_element>
+    link_element:
+      title: <link_element>
       description: >
         A semantic element:
         identifier (<variable_name>, <function_name>, <type_name>),
