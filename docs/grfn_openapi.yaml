@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.5
+  version: 0.2.6
 
 paths: {}
 
@@ -101,20 +101,77 @@ components:
             oneOf:
               - $ref: '#/components/schemas/function_assign_def'
               - $ref: '#/components/schemas/function_container_def'
+        grounding:
+          type: array
+          items:
+            $ref: '#/components/schemas/link_hypothesis'
+
+    link_hypothesis:
+      title: <link_hypothesis>
+      description: >
+        A commutative binary relation representing a hypothesized
+        link between two <semantic_element>s:
+          (elm1=A, elm2=B) == (elm1=B, elm2=A)
+      required:
+        - element_1
+        - element_2
+        - score
+      properties:
+        element_1:
+          $ref: '#/components/schemas/semantic_element'
+        element_2:
+          $ref: '#/components/schemas/semantic_element'
+        score:
+          type: number
+          format: float
+
+    semantic_element:
+      title: <semantic_element>
+      description: >
+        A semantic element:
+        identifier (<variable_name>, <function_name>, <type_name>),
+        content_span, text_span, equation_term, or ontology_term
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum:
+            - identifier
+            - comment_span
+            - text_span
+            - equation_term
+            - ontology_term
+        source:
+          type: string
+        content:
+          type: string
+        content_type:
+          type: string
+          enum:
+            - definition
+            - units
+            - constraint
 
     identifier_def:
       title: <identifier_def>
       description: >
         Defines a source code identifier, the context of it's creation
-        and use, and associates with it a unique gensym and any
-        grounding metadata.
+        and use, and associates with it a unique gensym.
       required:
+        - name
         - base_name
         - scope
         - namespace
         - source_refs
         - gensym
       properties:
+        name:
+          oneOf:
+            - $ref: '#/components/schemas/variable_name'
+            - $ref: '#/components/schemas/function_name'
+            - $ref: '#/components/schemas/type_name'
         base_name:
           $ref: '#/components/schemas/base_name'
         scope:
@@ -127,10 +184,6 @@ components:
             $ref: '#/components/schemas/source_code_ref'
         gensym:
           $ref: '#/components/schemas/gensym'
-        grounding:
-          type: array
-          items:
-            $ref: '#/components/schemas/grounding_metadata'
 
     base_name:
       title: <base_name>
@@ -182,33 +235,6 @@ components:
         Used as identifiers in lambdas and other source code
         generated from GrFN.
       type: string
-
-    grounding_metadata:
-      title: <grounding_metadata>
-      description: >
-        Text Reading currently extracts three types of information
-        that can be associated with identifiers:
-
-        1. Definitions (e.g., 'wind speed', 'susceptible individuals')
-
-        2. Units (e.g., 'millimeters', 'per capita')
-
-        3. Constraints (e.g., '> 0', '<= 100')
-      required:
-        - source
-        - types
-        - value
-      properties:
-        source:
-          type: string
-        type:
-          type: string
-          enum:
-            - definition
-            - units
-            - constraint
-        value:
-          type: string
 
     variable_name:
       title: <variable_name>
@@ -556,10 +582,10 @@ components:
         dimensions:
           description: >
             Array of integers defining size of each array dimension.
-            Dimension sizes cannot be less than 1.
           type: array
           items:
             type: integer
+            minimum: 1
         index_start:
           description: >
             Array of integers defining start index of each dimension.
