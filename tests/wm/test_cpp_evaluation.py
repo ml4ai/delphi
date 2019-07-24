@@ -19,11 +19,10 @@ def test_cpp_extensions():
     G.map_concepts_to_indicators(1)
     G.print_indicators()
     print("\n")
-    G.set_indicator(
+    G.replace_indicator(
         "UN/events/human/human_migration",
+        "Net migration",
         "New asylum seeking applicants",
-        "UNHCR",
-        True,
-        0,
+        "UNHCR"
     )
     G.print_indicators()
