@@ -123,37 +123,38 @@ struct Node {
     int ind_index;
     try {
       ind_index = indicator_names[indicator];
+
+      switch(attribute) {
+        case "source" : indicators[ind_index].source = value;
+                        break;
+        case "unit"   : indicators[ind_index].unit = value;
+                        break;
+        case "mean"   : indicators[ind_index].mean = value;
+                        break;
+        case "value"  : indicators[ind_index].value = value;
+                        break;
+        case "stdev"  : indicators[ind_index].stdev = value;
+                        break;
+        case "time"   : indicators[ind_index].time = value;
+                        break;
+        case "aggaxes": indicators[ind_index].aggaxes = value;
+                        break;
+        case "aggregation_method": indicators[ind_index].aggregation_method = value;
+                                   break;
+        case "timeseries": indicators[ind_index].timeseries = value;
+                           break;
+        case "samples": indicators[ind_index].samples = value;
+                        break;
+        case "name"   : std::cout << "Cannot change indicator name, use Node::replace_indcator() instead." << std::endl;
+                        break;
+        default       : std::cerr << "Error: Node::set_indicator_attribute()\n"
+                        << "attribute: " << attribute << " does not exist" << std::endl;
+
+      }
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: Node::set_indicator_attribute()\n"
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tattribute: " << attribute << " cannot be set" << std::endl;
-    }
-    switch(attribute) {
-      case "source" : indicators[ind_index].source = value;
-                      break;
-      case "unit"   : indicators[ind_index].unit = value;
-                      break;
-      case "mean"   : indicators[ind_index].mean = value;
-                      break;
-      case "value"  : indicators[ind_index].value = value;
-                      break;
-      case "stdev"  : indicators[ind_index].stdev = value;
-                      break;
-      case "time"   : indicators[ind_index].time = value;
-                      break;
-      case "aggaxes": indicators[ind_index].aggaxes = value;
-                      break;
-      case "aggregation_method": indicators[ind_index].aggregation_method = value;
-                                 break;
-      case "timeseries": indicators[ind_index].timeseries = value;
-                         break;
-      case "samples": indicators[ind_index].samples = value;
-                      break;
-      case "name"   : std::cout << "Cannot change indicator name, use Node::replace_indcator() instead." << std::endl;
-                      break;
-      default       : std::cerr << "Error: Node::set_indicator_attribute()\n"
-                               << "attribute: " << attribute << " does not exist" << std::endl;
- 
     }
   }
 
@@ -163,38 +164,43 @@ struct Node {
     int ind_index;
     try {
       ind_index = indicator_names[indicator];
+
+      T value;
+      switch(attribute) {
+        case "source" : value = indicators[ind_index].source;
+                        break;
+        case "unit"   : value = indicators[ind_index].unit;
+                        break;
+        case "mean"   : value = indicators[ind_index].mean;
+                        break;
+        case "value"  : value = indicators[ind_index].value;
+                        break;
+        case "stdev"  : value = indicators[ind_index].stdev;
+                        break;
+        case "time"   : value = indicators[ind_index].time;
+                        break;
+        case "aggaxes": value = indicators[ind_index].aggaxes;
+                        break;
+        case "aggregation_method": value = indicators[ind_index].aggregation_method;
+                                   break;
+        case "timeseries": value = indicators[ind_index].timeseries;
+                           break;
+        case "samples": value = indicators[ind_index].samples;
+                        break;
+        case "name"   : value = indicators[ind_index].name;
+                        break;
+        default       : std::cerr << "Error: Node::get_indicator_attribute()\n"
+                        << "attribute: " << attribute << " does not exist" << std::endl;
+
+      }
+
+      // We run into a problem when attribute is incorrect
+      return value;
+
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: Node::get_indicator_attribute()\n"
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tattribute: " << attribute << " cannot be retrieved" << std::endl;
-    }
-    T value;
-    switch(attribute) {
-      case "source" : value = indicators[ind_index].source;
-                      break;
-      case "unit"   : value = indicators[ind_index].unit;
-                      break;
-      case "mean"   : value = indicators[ind_index].mean;
-                      break;
-      case "value"  : value = indicators[ind_index].value;
-                      break;
-      case "stdev"  : value = indicators[ind_index].stdev;
-                      break;
-      case "time"   : value = indicators[ind_index].time;
-                      break;
-      case "aggaxes": value = indicators[ind_index].aggaxes;
-                      break;
-      case "aggregation_method": value = indicators[ind_index].aggregation_method;
-                                 break;
-      case "timeseries": value = indicators[ind_index].timeseries;
-                         break;
-      case "samples": value = indicators[ind_index].samples;
-                      break;
-      case "name"   : value = indicators[ind_index].name;
-                      break;
-      default       : std::cerr << "Error: Node::get_indicator_attribute()\n"
-                               << "attribute: " << attribute << " does not exist" << std::endl;
- 
     }
   }
 

@@ -99,4 +99,125 @@ class Indicator : public RV
           timeseries( timeseries ),
           samples( samples )
   { }
+
+  void set_source( string source )
+  {
+    this->source = source;
+  }
+
+
+  string get_source( )
+  {
+    return this->source;
+  }
+
+
+  void set_unit( string unit )
+  {
+    this->unit = unit;
+  }
+
+
+  string get_unit( string indicator )
+  {
+    return this->unit;
+  }
+
+
+  void set_mean( double mean )
+  {
+    this->mean = mean;
+  }
+
+
+  double get_mean( )
+  {
+    return this->mean;
+  }
+
+
+  void set_value( double value )
+  {
+    this->value = value;
+  }
+
+
+  double get_value( )
+  {
+    return this->value;
+  }
+
+
+  void set_stdev( double stdev )
+  {
+    this->stdev = stdev;
+  }
+
+
+  double get_stdev( )
+  {
+    return this->stdev;
+  }
+
+  //uses temporary time type
+  void set_time( string time )
+  {
+    this->time = time;
+  }
+
+  //uses temporary time type
+  string get_time( )
+  {
+    return this->time;
+  }
+
+
+  void set_aggaxes( vector< std::string > aggaxes )
+  {
+    this->aggaxes = aggaxes;
+  }
+
+
+  vector< std::string > get_aggaxes( )
+  {
+    return this->aggaxes;
+  }
+
+
+  void set_aggregation_method( string aggregation_method )
+  {
+    this->aggregation_method = aggregation_method;
+  }
+
+
+  string get_aggregation_method( )
+  {
+    return this->aggregation_method;
+  }
+
+
+  void set_timeseries( double timeseries )
+  {
+    this->timeseries = timeseries;
+  }
+
+
+  double get_timeseries( )
+  {
+    return this->timeseries;
+  }
+
+
+  void set_samples( vector< double > samples )
+  {
+    this->samples = samples;
+  }
+
+
+  vector< double > get_samples( )
+  {
+    return this->samples;
+  }
+
+
 };
