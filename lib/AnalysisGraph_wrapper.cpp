@@ -5,6 +5,7 @@
 #include "AnalysisGraph.cpp"
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 PYBIND11_MODULE(AnalysisGraph, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
@@ -21,19 +22,19 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)
-      .def("print_cells_affected_by_beta", &AnalysisGraph::print_cells_affected_by_beta)
-      .def("initialize", &AnalysisGraph::initialize, py::return_value_policy::reference_internal)
+      .def("print_cells_affected_by_beta", &AnalysisGraph::print_cells_affected_by_beta,"source"_a,"target"_a)
+      .def("initialize", &AnalysisGraph::initialize,"initialize_indicators"_a=true,py::return_value_policy::reference_internal)
       .def("sample_from_prior", &AnalysisGraph::sample_from_prior, py::return_value_policy::reference_internal)
-      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood, py::return_value_policy::reference_internal)
-      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior, py::return_value_policy::reference_internal)
+      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood,"n_timesteps"_a=10,py::return_value_policy::reference_internal)
+      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,"A"_a,py::return_value_policy::reference_internal)
       .def("sample_from_proposal_debug", &AnalysisGraph::sample_from_proposal_debug, py::return_value_policy::reference_internal)
       .def("set_initial_state", &AnalysisGraph::set_initial_state)
-      .def("get_beta", &AnalysisGraph::get_beta)
+      .def("get_beta", &AnalysisGraph::get_beta,"source_vertex_name"_a,"target_vertex_name"_a)
       .def("take_step", &AnalysisGraph::take_step)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
-      .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators)
+      .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators,"n"_a=1)
       .def("print_indicators", &AnalysisGraph::print_indicators)
-      .def("set_indicator", &AnalysisGraph::set_indicator)
-      .def("replace_indicator", &AnalysisGraph::replace_indicator)
+      .def("set_indicator", &AnalysisGraph::set_indicator,"concept"_a,"indicator"_a,"source"_a)
+      .def("replace_indicator", &AnalysisGraph::replace_indicator,"concept"_a,"indicator_old"_a,"indicator_new"_a,"source"_a)
     ;
 }
