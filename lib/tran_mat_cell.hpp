@@ -119,7 +119,7 @@ class Tran_Mat_Cell {
     }
 
 
-   double sample_from_prior( const DiGraph &  CAG, int samp_num )
+   double sample_from_prior( const DiGraph &  CAG, int samp_num=0 )
     {
       for( int p = 0; p < this->paths.size(); p++ )
       {

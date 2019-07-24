@@ -158,6 +158,11 @@ private:
   vector<Eigen::VectorXd> s0;
   Eigen::VectorXd s0_original;
   Eigen::MatrixXd A_original;
+  // This is the transition matrix that is evolved by sampling.
+  // Since variable A has been already used locally in other methods
+  // I chose to name this _A_. After refactoring the code, we could
+  // rename this to A.
+  Eigen::MatrixXd _A_;
   int n_timesteps;
 
   // Access this as
@@ -659,6 +664,50 @@ public:
   */
 
 
+  // TODO: Need testing
+  // Sample elements of the stochastic transition matrix from the
+  // prior distribution, based on gradable adjectives.
+  void sample_initial_transition_matrix_from_prior() {
+    // Add probability distribution functions constructed from gradable
+    // adjective data to the edges of the analysis graph data structure.
+    // this->construct_beta_pdfs();
+
+    // Find all directed simple paths of the CAG
+    // this->find_all_paths();
+
+    int num_verts = boost::num_vertices(this->graph);
+
+    // A base transition matrix with the entries that does not change across
+    // samples.
+    /*
+     *          0  1  2  3  4  5
+     *  var_1 | 1 Δt             | 0
+     *        | 0  1  0  0  0  0 | 1 ∂var_1 / ∂t
+     *  var_2 |       1 Δt       | 2
+     *        | 0  0  0  1  0  0 | 3
+     *  var_3 |             1 Δt | 4
+     *        | 0  0  0  0  0  1 | 5
+     *
+     *  Based on the directed simple paths in the CAG, some of the remaining
+     *  blank cells would be filled with β related values
+     *  If we include second order derivatives to the model, there would be
+     *  three rows for each variable and some of the off diagonal elements
+     *  of odd indexed rows would be non zero.
+     */
+    this->_A_ = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
+
+    // Fill the Δts
+    for (int vert = 0; vert < 2 * num_verts; vert += 2) {
+      this->_A_(vert, vert + 1) = this->delta_t;
+    }
+
+    // Update the β factor dependent cells of this matrix
+    for (auto & [ row, col ] : this->beta_dependent_cells) {
+      this->_A_(row * 2, col * 2 + 1) =
+          this->A_beta_factors[row][col]->sample_from_prior(this->graph);
+    }
+  }
+
   void train_model( int start_year = 2012,
                     int start_month = 1,
                     int end_year = 2017,
@@ -666,6 +715,7 @@ public:
                     int res = 200,
                     int burn = 10000 )
   {
+    this->sample_initial_transition_matrix_from_prior();
   }
 
 
