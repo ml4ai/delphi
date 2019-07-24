@@ -116,6 +116,316 @@ struct Node {
       add_indicator( indicator_new, source );
     }
   }
+  
+
+  void set_indicator_source( string indicator, string source )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_source()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tsource: " << source << " cannot be set" << endl;
+    }
+    indicators[ind_index].source = source;
+  }
+
+
+  string get_indicator_source( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_source()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tsource could not be retrieved" << endl;
+    }
+    return indicators[ind_index].source;
+  }
+
+
+  void set_indicator_unit( string indicator, string unit )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_unit()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tunit: " << unit << " cannot be set" << endl;
+    }
+    indicators[ind_index].unit = unit;
+  }
+
+
+  string get_indicator_unit( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_unit()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tunit could not be retrieved" << endl;
+    }
+    return indicators[ind_index].unit;
+  }
+
+
+  void set_indicator_mean( string indicator, double mean )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_mean()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tmean: " << mean << " cannot be set" << endl;
+    }
+    indicators[ind_index].mean = mean;
+  }
+
+
+  double get_indicator_mean( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_mean()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tmean could not be retrieved" << endl;
+    }
+    return indicators[ind_index].mean;
+  }
+
+
+  void set_indicator_mean( string indicator, double mean )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_mean()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tmean: " << mean << " cannot be set" << endl;
+    }
+    indicators[ind_index].mean = mean;
+  }
+
+
+  double get_indicator_mean( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_mean()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tmean could not be retrieved" << endl;
+    }
+    return indicators[ind_index].mean;
+  }
+
+
+  void set_indicator_value( string indicator, double value )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_value()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tvalue: " << value << " cannot be set" << endl;
+    }
+    indicators[ind_index].value = value;
+  }
+
+
+  double get_indicator_value( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_value()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tvalue could not be retrieved" << endl;
+    }
+    return indicators[ind_index].value;
+  }
+
+
+  void set_indicator_stdev( string indicator, double stdev )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_stdev()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tstdev: " << stdev << " cannot be set" << endl;
+    }
+    indicators[ind_index].stdev = stdev;
+  }
+
+
+  double get_indicator_stdev( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_stdev()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tstdev could not be retrieved" << endl;
+    }
+    return indicators[ind_index].stdev;
+  }
+
+  //uses temporary time type
+  void set_indicator_time( string indicator, string time )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_time()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\ttime: " << time << " cannot be set" << endl;
+    }
+    indicators[ind_index].time = time;
+  }
+
+  //uses temporary time type
+  string get_indicator_time( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_time()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\ttime could not be retrieved" << endl;
+    }
+    return indicators[ind_index].time;
+  }
+
+
+  void set_indicator_aggaxes( string indicator, vector< std:: string > aggaxes )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_aggaxes()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\taggaxes: " << aggaxes << " cannot be set" << endl;
+    }
+    indicators[ind_index].aggaxes = aggaxes;
+  }
+
+
+  vector< std:: string > get_indicator_aggaxes( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_aggaxes()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\taggaxes could not be retrieved" << endl;
+    }
+    return indicators[ind_index].aggaxes;
+  }
+
+
+  void set_indicator_aggregation_method( string indicator, string aggregation_method )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_aggregation_method()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\taggregation_method: " << aggregation_method << " cannot be set" << endl;
+    }
+    indicators[ind_index].aggregation_method = aggregation_method;
+  }
+
+
+  string get_indicator_aggregation_method( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_aggregation_method()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\taggregation_method could not be retrieved" << endl;
+    }
+    return indicators[ind_index].aggregation_method;
+  }
+
+
+  void set_indicator_timeseries( string indicator, double timeseries )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_timeseries()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\ttimeseries: " << timeseries << " cannot be set" << endl;
+    }
+    indicators[ind_index].timeseries = timeseries;
+  }
+
+
+  double get_indicator_timeseries( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_timeseries()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\ttimeseries could not be retrieved" << endl;
+    }
+    return indicators[ind_index].timeseries;
+  }
+
+
+  void set_indicator_samples( string indicator, vector< double > samples )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_samples()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tsamples: " << samples << " cannot be set" << endl;
+    }
+    indicators[ind_index].samples = samples;
+  }
+
+
+  vector< double > get_indicator_samples( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::get_indicator_samples()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tsamples could not be retrieved" << endl;
+    }
+    return indicators[ind_index].samples;
+  }
+
+
 
   
   //Utility function that clears the indicators vector and the name map.
