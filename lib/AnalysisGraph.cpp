@@ -1244,6 +1244,52 @@ public:
     sqlite3_close(db);
   }
 
+
+  /**
+   * Parameterize the indicators of the AnalysisGraph..
+   *
+   * @param n: Int representing number of indicators to attach per node.
+   * Default is 1 since our model so far is configured for only 1 indicator per
+   * node.
+   */
+ /* void parameterize(string country = "South Sudan", string state = "", int year = 2012, int month = 1, ) {
+    sqlite3 *db;
+    int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+    if (!rc)
+      print("Opened db successfully");
+    else
+      print("Could not open db");
+
+    sqlite3_stmt *stmt;
+    string query_base =
+        "select Source, Indicator from concept_to_indicator_mapping ";
+    string query;
+    for (int v : this->vertices()) {
+      query = query_base + "where `Concept` like " + "'" + this->graph[v].name +
+              "'";
+      rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+      this->graph[v].clear_indicators();
+      for (int c = 0; c < n; c = c + 1) {
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+          string ind_source = std::string(
+              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+          string ind_name = std::string(
+              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+          this->graph[v].add_indicator(ind_name, ind_source);
+        } else {
+          cout << "No more data, only " << c << "indicators attached to "
+               << this->graph[v].name << endl;
+        }
+      }
+      sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+  }
+*/
+
+
+
   auto print_nodes() {
     cout << "Vertex IDs and their names in the CAG" << endl;
     cout << "Vertex ID : Name" << endl;
