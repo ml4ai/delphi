@@ -3,7 +3,6 @@
 #include <optional>
 #include <exception>
 #include "kde.hpp"
-#include "kde.hpp"
 #include "random_variables.hpp"
 
 template <class T> void print(T x) { std::cout << x << std::endl; }
@@ -183,6 +182,44 @@ struct Node {
       std::cerr << "\tunit: " << unit << " cannot be set" << std::endl;
     }
     indicators[ind_index].set_unit(unit);
+  }
+
+  
+  void set_indicator_default_unit( string indicator )
+  {
+    int ind_index;
+    try {
+      ind_index = indicator_names[indicator];
+    } catch (const std::out_of_range &oor) {
+      std::cerr << "Error: Node::set_indicator_unit()\n"
+                << "\tIndicator: " << indicator << " does not exist\n";
+      std::cerr << "\tunit: default units cannot be set" << std::endl;
+    }
+    sqlite3 *db;
+    int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+    if (!rc)
+      print("Opened db successfully");
+    else
+      print("Could not open db");
+
+    std::vector< std::string > units;
+    sqlite3_stmt *stmt;
+    string query =
+      "select Unit from indicator where `Variable` like '" + indicator + "'";
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+      string ind_unit = std::string(
+          reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+      units.push_back(ind_unit);
+    }
+    if (!units.empty()) {
+      std::sort(units.begin(),units.end());
+      indicators[ind_index].set_unit(units.front());
+    }
+    else {
+      std::cerr << "Error: Node::set_indicator_default_unit()\n"
+                << "\tIndicator: No data exists for " << indicator << std::endl;
+    }
   }
 
 
@@ -422,8 +459,6 @@ struct Node {
     }
     return indicators[ind_index].get_samples();
   }
-
-
 
   
   //Utility function that clears the indicators vector and the name map.
