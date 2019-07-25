@@ -378,8 +378,8 @@ public:
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
 
-          auto subj_str = subj.dump();
-          auto obj_str = obj.dump();
+          string subj_str = subj.dump();
+          string obj_str = obj.dump();
 
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
