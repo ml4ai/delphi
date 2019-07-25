@@ -1,3 +1,6 @@
+#ifndef RANDOM_VARIABLES_HPP
+#define RANDOM_VARIABLES_HPP
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -221,3 +224,4 @@ class Indicator : public RV
 
 
 };
+#endif
