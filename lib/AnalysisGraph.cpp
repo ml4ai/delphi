@@ -15,6 +15,7 @@
 #include "AnalysisGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
+#include <fmt/format.h>
 
 #include <typeinfo>
 
@@ -23,7 +24,7 @@ using std::cout, std::endl, std::unordered_map, std::pair, std::string,
     std::tuple, std::make_tuple, std::set, boost::inner_product, boost::edge,
     boost::source, boost::target, boost::graph_bundle, boost::make_label_writer,
     boost::write_graphviz, boost::lambda::make_const, utils::load_json,
-    utils::hasKey, utils::get, utils::lmap;
+    utils::hasKey, utils::get, utils::lmap, fmt::print;
 
 const size_t default_n_samples = 100;
 
@@ -143,8 +144,9 @@ private:
   // vector< vector< Tran_Mat_Cell * >> A_beta_factors;
   // vector< vector< std::unique_ptr< Tran_Mat_Cell >>> A_beta_factors;
   vector<vector<std::shared_ptr<Tran_Mat_Cell>>> A_beta_factors;
-  //std::unique_ptr<Tran_Mat_Cell> ptr = std::unique_ptr<Tran_Mat_Cell>( new Tran_Mat_Cell( 0, 0 ) );
-  std::shared_ptr<int> ptr = std::shared_ptr<int>( new int(3) );
+  // std::unique_ptr<Tran_Mat_Cell> ptr = std::unique_ptr<Tran_Mat_Cell>( new
+  // Tran_Mat_Cell( 0, 0 ) );
+  std::shared_ptr<int> ptr = std::shared_ptr<int>(new int(3));
 
   // A set of (row, column) numbers of the 2D matrix A_beta_factors where
   // the cell (row, column) depends on β factors.
@@ -663,7 +665,6 @@ public:
    ==========================================================================
   */
 
-
   // TODO: Need testing
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
@@ -708,16 +709,11 @@ public:
     }
   }
 
-  void train_model( int start_year = 2012,
-                    int start_month = 1,
-                    int end_year = 2017,
-                    int end_month = 12,
-                    int res = 200,
-                    int burn = 10000 )
-  {
+  void train_model(int start_year = 2012, int start_month = 1,
+                   int end_year = 2017, int end_month = 12, int res = 200,
+                   int burn = 10000) {
     this->sample_initial_transition_matrix_from_prior();
   }
-
 
   // TODO: Need testing
   // Sample elements of the stochastic transition matrix from the
@@ -1226,11 +1222,10 @@ public:
   // Manipulation
   // ==========================================================================
 
-  void set_indicator(string concept, string indicator, string source)
-  {
+  void set_indicator(string concept, string indicator, string source) {
     try {
-      this->graph[this->name_to_vertex.at(concept)].add_indicator(
-          indicator, source );
+      this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
+                                                                  source);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::set_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
@@ -1239,7 +1234,6 @@ public:
       std::cerr << "\tCannot be added\n";
     }
   }
-
 
   // TODO: Demosntrate how to use the Node::get_indicator() method
   // with the custom exception.
@@ -1250,34 +1244,29 @@ public:
   // or
   // mirror getter and setter methods of the Indicator class
   // in AnalysisGraph and make the python side call them - easier.
-  Indicator get_indicator( string concept, string indicator )
-  {
-    try
-    {
-      return graph[ name_to_vertex.at( concept )].get_indicator( indicator );
-    } 
-    catch ( const std::out_of_range &oor ) 
-    {
+  Indicator get_indicator(string concept, string indicator) {
+    try {
+      return graph[name_to_vertex.at(concept)].get_indicator(indicator);
+    } catch (const std::out_of_range &oor) {
+      print("Error: AnalysisGraph::get_indicator()\n");
+      print("\tConcept: {} is not in the CAG\n", concept);
+    } catch (IndicatorNotFoundException &infe) {
       std::cerr << "Error: AnalysisGraph::get_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-    }
-    catch ( IndicatorNotFoundException &  infe ) 
-    {
-      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
-                << "\tindicator: " << infe.what() << " is not attached to CAG node " << concept << endl;
+                << "\tindicator: " << infe.what()
+                << " is not attached to CAG node " << concept << endl;
     }
   }
 
-
-  void replace_indicator(string concept, string indicator_old, string indicator_new, string source)
-  {
+  void replace_indicator(string concept, string indicator_old,
+                         string indicator_new, string source) {
     try {
       this->graph[this->name_to_vertex.at(concept)].replace_indicator(
-          indicator_old, indicator_new, source );
+          indicator_old, indicator_new, source);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::replace_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicator: " << indicator_old << " cannot be replaced" << endl;
+      std::cerr << "\tIndicator: " << indicator_old << " cannot be replaced"
+                << endl;
     }
   }
 
@@ -1334,7 +1323,6 @@ public:
     sqlite3_close(db);
   }
 
-
   /**
    * Parameterize the indicators of the AnalysisGraph..
    *
@@ -1342,43 +1330,43 @@ public:
    * Default is 1 since our model so far is configured for only 1 indicator per
    * node.
    */
- /* void parameterize(string country = "South Sudan", string state = "", int year = 2012, int month = 1, ) {
-    sqlite3 *db;
-    int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
-    if (!rc)
-      print("Opened db successfully");
-    else
-      print("Could not open db");
+  /* void parameterize(string country = "South Sudan", string state = "", int
+   year = 2012, int month = 1, ) {
+     sqlite3 *db;
+     int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+     if (!rc)
+       print("Opened db successfully");
+     else
+       print("Could not open db");
 
-    sqlite3_stmt *stmt;
-    string query_base =
-        "select Source, Indicator from concept_to_indicator_mapping ";
-    string query;
-    for (int v : this->vertices()) {
-      query = query_base + "where `Concept` like " + "'" + this->graph[v].name +
-              "'";
-      rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-      this->graph[v].clear_indicators();
-      for (int c = 0; c < n; c = c + 1) {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-          string ind_source = std::string(
-              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
-          string ind_name = std::string(
-              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-          this->graph[v].add_indicator(ind_name, ind_source);
-        } else {
-          cout << "No more data, only " << c << "indicators attached to "
-               << this->graph[v].name << endl;
-        }
-      }
-      sqlite3_finalize(stmt);
-    }
-    sqlite3_close(db);
-  }
-*/
-
-
+     sqlite3_stmt *stmt;
+     string query_base =
+         "select Source, Indicator from concept_to_indicator_mapping ";
+     string query;
+     for (int v : this->vertices()) {
+       query = query_base + "where `Concept` like " + "'" + this->graph[v].name
+   +
+               "'";
+       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+       this->graph[v].clear_indicators();
+       for (int c = 0; c < n; c = c + 1) {
+         rc = sqlite3_step(stmt);
+         if (rc == SQLITE_ROW) {
+           string ind_source = std::string(
+               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+           string ind_name = std::string(
+               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+           this->graph[v].add_indicator(ind_name, ind_source);
+         } else {
+           cout << "No more data, only " << c << "indicators attached to "
+                << this->graph[v].name << endl;
+         }
+       }
+       sqlite3_finalize(stmt);
+     }
+     sqlite3_close(db);
+   }
+ */
 
   auto print_nodes() {
     cout << "Vertex IDs and their names in the CAG" << endl;
