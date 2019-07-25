@@ -20,7 +20,7 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
 
 ********************************************************************************
 *                                                                              *
-*                Pretend to be Python's ramdon-number generator                *
+*                Pretend to be Python's random-number generator                *
 *                                                                              *
 ********************************************************************************
       double precision function pyrand(do_init)
