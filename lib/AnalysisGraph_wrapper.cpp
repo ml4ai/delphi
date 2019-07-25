@@ -1,6 +1,6 @@
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 
 #include "AnalysisGraph.cpp"
 
@@ -22,52 +22,56 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)
-      .def("print_cells_affected_by_beta", &AnalysisGraph::print_cells_affected_by_beta,"source"_a,"target"_a)
-      .def("initialize", &AnalysisGraph::initialize,"initialize_indicators"_a=true,py::return_value_policy::reference_internal)
-      .def("sample_from_prior", &AnalysisGraph::sample_from_prior, py::return_value_policy::reference_internal)
-      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood,"n_timesteps"_a=10,py::return_value_policy::reference_internal)
-      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,"A"_a,py::return_value_policy::reference_internal)
-      .def("sample_from_proposal_debug", &AnalysisGraph::sample_from_proposal_debug, py::return_value_policy::reference_internal)
+      .def("print_cells_affected_by_beta",
+           &AnalysisGraph::print_cells_affected_by_beta, "source"_a, "target"_a)
+      .def("initialize", &AnalysisGraph::initialize,
+           "initialize_indicators"_a = true,
+           py::return_value_policy::reference_internal)
+      .def("sample_from_prior", &AnalysisGraph::sample_from_prior,
+           py::return_value_policy::reference_internal)
+      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood,
+           "n_timesteps"_a = 10, py::return_value_policy::reference_internal)
+      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,
+           "A"_a, py::return_value_policy::reference_internal)
+      .def("sample_from_proposal_debug",
+           &AnalysisGraph::sample_from_proposal_debug,
+           py::return_value_policy::reference_internal)
       .def("set_initial_state", &AnalysisGraph::set_initial_state)
-      .def("get_beta", &AnalysisGraph::get_beta,"source_vertex_name"_a,"target_vertex_name"_a)
+      .def("get_beta", &AnalysisGraph::get_beta, "source_vertex_name"_a,
+           "target_vertex_name"_a)
       .def("take_step", &AnalysisGraph::take_step)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
-      .def("map_concepts_to_indicators", &AnalysisGraph::map_concepts_to_indicators,"n"_a=1)
+      .def("map_concepts_to_indicators",
+           &AnalysisGraph::map_concepts_to_indicators, "n"_a = 1)
       .def("print_indicators", &AnalysisGraph::print_indicators)
-      .def("set_indicator", &AnalysisGraph::set_indicator,"concept"_a,"indicator"_a,"source"_a)
-      .def("replace_indicator", &AnalysisGraph::replace_indicator,"concept"_a,"indicator_old"_a,"indicator_new"_a,"source"_a)
-      .def("get_indicator", &AnalysisGraph::get_indicator,"concept"_a,"indicator"_a, py::return_value_policy::reference)
-    ;
-}
-
-PYBIND11_MODULE(RV, m) {
+      .def("set_indicator", &AnalysisGraph::set_indicator, "concept"_a,
+           "indicator"_a, "source"_a)
+      .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
+           "indicator_old"_a, "indicator_new"_a, "source"_a)
+      .def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
+           "indicator"_a, py::return_value_policy::automatic);
   py::class_<RV>(m, "RV")
-    .def(py::init<std::string>())
-    .def("sample", &RV::sample)
-    ;
-}
-
-PYBIND11_MODULE(Indicator, m) {
+      .def(py::init<std::string>())
+      .def("sample", &RV::sample);
   py::class_<Indicator, RV>(m, "Indicator")
-    .def("set_source", &Indicator::set_source)
-    .def("set_unit", &Indicator::set_unit)
-    .def("set_mean", &Indicator::set_mean)
-    .def("set_value", &Indicator::set_value)
-    .def("set_stdev", &Indicator::set_stdev)
-    .def("set_time", &Indicator::set_time)
-    .def("set_aggaxes", &Indicator::set_aggaxes)
-    .def("set_aggregation_method", &Indicator::set_aggregation_method)
-    .def("set_timeseries", &Indicator::set_timeseries)
-    .def("set_samples", &Indicator::set_samples)
-    .def("get_source", &Indicator::get_source)
-    .def("get_unit", &Indicator::get_unit)
-    .def("get_mean", &Indicator::get_mean)
-    .def("get_value", &Indicator::get_value)
-    .def("get_stdev", &Indicator::get_stdev)
-    .def("get_time", &Indicator::get_time)
-    .def("get_aggaxes", &Indicator::get_aggaxes)
-    .def("get_aggregation_method", &Indicator::get_aggregation_method)
-    .def("get_timeseries", &Indicator::get_timeseries)
-    .def("get_samples", &Indicator::get_samples)
-    ;
+      .def("set_source", &Indicator::set_source)
+      .def("set_unit", &Indicator::set_unit)
+      .def("set_mean", &Indicator::set_mean)
+      .def("set_value", &Indicator::set_value)
+      .def("set_stdev", &Indicator::set_stdev)
+      .def("set_time", &Indicator::set_time)
+      .def("set_aggaxes", &Indicator::set_aggaxes)
+      .def("set_aggregation_method", &Indicator::set_aggregation_method)
+      .def("set_timeseries", &Indicator::set_timeseries)
+      .def("set_samples", &Indicator::set_samples)
+      .def("get_source", &Indicator::get_source)
+      .def("get_unit", &Indicator::get_unit)
+      .def("get_mean", &Indicator::get_mean)
+      .def("get_value", &Indicator::get_value)
+      .def("get_stdev", &Indicator::get_stdev)
+      .def("get_time", &Indicator::get_time)
+      .def("get_aggaxes", &Indicator::get_aggaxes)
+      .def("get_aggregation_method", &Indicator::get_aggregation_method)
+      .def("get_timeseries", &Indicator::get_timeseries)
+      .def("get_samples", &Indicator::get_samples);
 }
