@@ -143,97 +143,8 @@ struct Node {
     }
   }
   
-/*
-  template <class T> void set_indicator_attribute( string indicator, string attribute, T value )
-  {
-    int ind_index;
-    try {
-      ind_index = indicator_names[indicator];
 
-      switch(attribute) {
-        case "source" : indicators[ind_index].source = value;
-                        break;
-        case "unit"   : indicators[ind_index].unit = value;
-                        break;
-        case "mean"   : indicators[ind_index].mean = value;
-                        break;
-        case "value"  : indicators[ind_index].value = value;
-                        break;
-        case "stdev"  : indicators[ind_index].stdev = value;
-                        break;
-        case "time"   : indicators[ind_index].time = value;
-                        break;
-        case "aggaxes": indicators[ind_index].aggaxes = value;
-                        break;
-        case "aggregation_method": indicators[ind_index].aggregation_method = value;
-                                   break;
-        case "timeseries": indicators[ind_index].timeseries = value;
-                           break;
-        case "samples": indicators[ind_index].samples = value;
-                        break;
-        case "name"   : std::cout << "Cannot change indicator name, use Node::replace_indcator() instead." << std::endl;
-                        break;
-        default       : std::cerr << "Error: Node::set_indicator_attribute()\n"
-                        << "attribute: " << attribute << " does not exist" << std::endl;
-
-      }
-    } catch (const std::out_of_range &oor) {
-      std::cerr << "Error: Node::set_indicator_attribute()\n"
-                << "\tIndicator: " << indicator << " does not exist\n";
-      std::cerr << "\tattribute: " << attribute << " cannot be set" << std::endl;
-    }
-  }
-
-
-  template <class T> T get_indicator_attribute( string indicator, string attribute)
-  {
-    int ind_index;
-    try {
-      ind_index = indicator_names[indicator];
-
-      T value;
-      switch(attribute) {
-        case "source" : value = indicators[ind_index].source;
-                        break;
-        case "unit"   : value = indicators[ind_index].unit;
-                        break;
-        case "mean"   : value = indicators[ind_index].mean;
-                        break;
-        case "value"  : value = indicators[ind_index].value;
-                        break;
-        case "stdev"  : value = indicators[ind_index].stdev;
-                        break;
-        case "time"   : value = indicators[ind_index].time;
-                        break;
-        case "aggaxes": value = indicators[ind_index].aggaxes;
-                        break;
-        case "aggregation_method": value = indicators[ind_index].aggregation_method;
-                                   break;
-        case "timeseries": value = indicators[ind_index].timeseries;
-                           break;
-        case "samples": value = indicators[ind_index].samples;
-                        break;
-        case "name"   : value = indicators[ind_index].name;
-                        break;
-        default       : std::cerr << "Error: Node::get_indicator_attribute()\n"
-                        << "attribute: " << attribute << " does not exist" << std::endl;
-
-      }
-
-      // We run into a problem when attribute is incorrect
-      return value;
-
-    } catch (const std::out_of_range &oor) {
-      std::cerr << "Error: Node::get_indicator_attribute()\n"
-                << "\tIndicator: " << indicator << " does not exist\n";
-      std::cerr << "\tattribute: " << attribute << " cannot be retrieved" << std::endl;
-    }
-  }
-*/
-
-
-
-  /*void set_indicator_source( string indicator, string source )
+  void set_indicator_source( string indicator, string source )
   {
     int ind_index;
     try {
@@ -243,7 +154,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tsource: " << source << " cannot be set" << std::endl;
     }
-    indicators[ind_index].source = source;
+    indicators[ind_index].set_source(source);
   }
 
 
@@ -257,7 +168,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tsource could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].source;
+    return indicators[ind_index].get_source();
   }
 
 
@@ -271,7 +182,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tunit: " << unit << " cannot be set" << std::endl;
     }
-    indicators[ind_index].unit = unit;
+    indicators[ind_index].set_unit(unit);
   }
 
 
@@ -285,7 +196,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tunit could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].unit;
+    return indicators[ind_index].get_unit();
   }
 
 
@@ -299,7 +210,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tmean: " << mean << " cannot be set" << std::endl;
     }
-    indicators[ind_index].mean = mean;
+    indicators[ind_index].set_mean(mean);
   }
 
 
@@ -313,7 +224,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tmean could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].mean;
+    return indicators[ind_index].get_mean();
   }
 
 
@@ -327,7 +238,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tvalue: " << value << " cannot be set" << std::endl;
     }
-    indicators[ind_index].value = value;
+    indicators[ind_index].set_value(value);
   }
 
 
@@ -341,7 +252,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tvalue could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].value;
+    return indicators[ind_index].get_value();
   }
 
 
@@ -355,7 +266,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tstdev: " << stdev << " cannot be set" << std::endl;
     }
-    indicators[ind_index].stdev = stdev;
+    indicators[ind_index].set_stdev(stdev);
   }
 
 
@@ -369,7 +280,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tstdev could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].stdev;
+    return indicators[ind_index].get_stdev();
   }
 
   //uses temporary time type
@@ -383,7 +294,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\ttime: " << time << " cannot be set" << std::endl;
     }
-    indicators[ind_index].time = time;
+    indicators[ind_index].set_time(time);
   }
 
   //uses temporary time type
@@ -397,7 +308,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\ttime could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].time;
+    return indicators[ind_index].get_time();
   }
 
 
@@ -411,7 +322,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\taggaxes: given aggaxes cannot be set" << std::endl;
     }
-    indicators[ind_index].aggaxes = aggaxes;
+    indicators[ind_index].set_aggaxes(aggaxes);
   }
 
 
@@ -425,7 +336,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\taggaxes could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].aggaxes;
+    return indicators[ind_index].get_aggaxes();
   }
 
 
@@ -439,7 +350,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\taggregation_method: " << aggregation_method << " cannot be set" << std::endl;
     }
-    indicators[ind_index].aggregation_method = aggregation_method;
+    indicators[ind_index].set_aggregation_method(aggregation_method);
   }
 
 
@@ -453,7 +364,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\taggregation_method could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].aggregation_method;
+    return indicators[ind_index].get_aggregation_method();
   }
 
 
@@ -467,7 +378,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\ttimeseries: " << timeseries << " cannot be set" << std::endl;
     }
-    indicators[ind_index].timeseries = timeseries;
+    indicators[ind_index].set_timeseries(timeseries);
   }
 
 
@@ -481,7 +392,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\ttimeseries could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].timeseries;
+    return indicators[ind_index].get_timeseries();
   }
 
 
@@ -495,7 +406,7 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tsamples: given samples cannot be set" << std::endl;
     }
-    indicators[ind_index].samples = samples;
+    indicators[ind_index].set_samples(samples);
   }
 
 
@@ -509,9 +420,9 @@ struct Node {
                 << "\tIndicator: " << indicator << " does not exist\n";
       std::cerr << "\tsamples could not be retrieved" << std::endl;
     }
-    return indicators[ind_index].samples;
+    return indicators[ind_index].get_samples();
   }
-*/
+
 
 
   
