@@ -118,7 +118,7 @@ class Indicator : public RV
   }
 
 
-  string get_unit( string indicator )
+  string get_unit( )
   {
     return this->unit;
   }
