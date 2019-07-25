@@ -15,6 +15,7 @@
 #include "AnalysisGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
+#include "data.hpp"
 #include <fmt/format.h>
 
 #include <typeinfo>
@@ -60,6 +61,7 @@ construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   sqlite3_close(db);
   return adjective_response_map;
 }
+
 
 /**
  * The AnalysisGraph class is the main model/interface for Delphi.
@@ -1291,11 +1293,10 @@ public:
   void map_concepts_to_indicators(int n = 1) {
     sqlite3 *db;
     int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
-    if (!rc)
-      print("Opened db successfully");
-    else
+    if (rc) {
       print("Could not open db");
-
+      return;
+    }
     sqlite3_stmt *stmt;
     string query_base =
         "select Source, Indicator from concept_to_indicator_mapping ";
