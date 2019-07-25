@@ -3,7 +3,6 @@
 #include <pybind11/numpy.h>
 
 #include "AnalysisGraph.cpp"
-#include "random_variables.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -41,8 +40,15 @@ PYBIND11_MODULE(AnalysisGraph, m) {
     ;
 }
 
+PYBIND11_MODULE(RV, m) {
+  py::class_<RV>(m, "RV")
+    .def(py::init<std::string>())
+    .def("sample", &RV::sample)
+    ;
+}
+
 PYBIND11_MODULE(Indicator, m) {
-  py::class_<Indicator>(m, "Indicator")
+  py::class_<Indicator, RV>(m, "Indicator")
     .def("set_source", &Indicator::set_source)
     .def("set_unit", &Indicator::set_unit)
     .def("set_mean", &Indicator::set_mean)
