@@ -14,10 +14,21 @@ class Interval:
         self.right_inclusive = r_inc
 
 
-class ConstraintSetter(ABCMeta):
-    def __init__(self, d: Interval, r: Interval) -> None:
+class Constraint(ABCMeta):
+    def __init__(self, d: Interval, r: Interval, f: Callable) -> None:
         self.__domain = d
         self.__range = r
+        self.__inverse = f
+
+    def __repr__(self):
+        return self.__str__()
+
+    @abstractmethod
+    def __str__(self, constraint_type):
+        return f"{constraint_type}\n" + \
+            f"\tD: {self.__domain}\n" + \
+            f"\tR: {self.__range}\n" + \
+            f"\tI: {self.__inverse}"
 
     def is_domain_left_inclusive(self) -> bool:
         return self.__domain.left_inclusive
@@ -30,83 +41,148 @@ class ConstraintSetter(ABCMeta):
 
     def is_range_right_inclusive(self) -> bool:
         return self.__range.right_inclusive
-
-
-class ConstraintShifter(ABCMeta):
-    def __init__(self, d_scale: Callable, r_scale: Callable) -> None:
-        return NotImplemented
-
-
-class ConstraintScalar(ABCMeta):
-    def __init__(self, d_scale: Callable, r_scale: Callable) -> None:
-        return NotImplemented
 # ==============================================================================
 
 
 # ==============================================================================
 # ELEMENTARY MATH OPERATIONS
 # ==============================================================================
-class AddOpScalar(ConstraintScalar):
-    def __init__(self, amt) -> None:
-        super().__init__(None, amt)
+class AddOpConstraint(Constraint):
+    def __init__(self, operand) -> None:
+        d = Interval(-math.inf, math.inf, False, False)
+        r = Interval(-math.inf, math.inf, False, False)
+        inv = lambda x: x - operand
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class ExponentialConstraint(ConstraintSetter):
+class SubOpConstraint(Constraint):
+    def __init__(self, operand) -> None:
+        d = Interval(-math.inf, math.inf, False, False)
+        r = Interval(-math.inf, math.inf, False, False)
+        inv = lambda x: x + operand
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
+
+
+class DivOpConstraint(Constraint):
+    def __init__(self, operand) -> None:
+        d = Interval(-math.inf, math.inf, False, False)
+        r = Interval(-math.inf, math.inf, False, False)
+        inv = lambda x: x * operand
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
+
+
+class MulOpConstraint(Constraint):
+    def __init__(self, operand) -> None:
+        d = Interval(-math.inf, math.inf, False, False)
+        r = Interval(-math.inf, math.inf, False, False)
+        inv = lambda x: x / operand
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
+# ==============================================================================
+
+
+# ==============================================================================
+# COMMON FUNCTION OPERATIONS
+# ==============================================================================
+class ExpConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-math.inf, math.inf, False, False)
         r = Interval(0, math.inf, False, True)
-        super().__init__(d, r)
+        inv = lambda x: math.log(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class LogarithmConstraint(ConstraintSetter):
+class NLogConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(0, math.inf, False, False)
         r = Interval(-math.inf, math.inf, False, True)
-        super().__init__(d, r)
+        inv = lambda x: math.exp(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 # ==============================================================================
 
 
 # ==============================================================================
 # TRIGONOMETRIC FUNCTION CONSTRAINTS
 # ==============================================================================
-class CosConstraint(ConstraintSetter):
+class CosConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-math.inf, math.inf, False, False)
         r = Interval(-1, 1, True, True)
-        super().__init__(d, r)
+        inv = lambda x: math.acos(x)        # NOTE: This value will be in radians
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class SinConstraint(ConstraintSetter):
+class SinConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-math.inf, math.inf, False, False)
         r = Interval(-1, 1, True, True)
-        super().__init__(d, r)
+        inv = lambda x: math.asin(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class TanConstraint(ConstraintSetter):
+class TanConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-math.inf, math.inf, False, False)
         r = Interval(-math.inf, math.inf, False, False)
-        super().__init__(d, r)
+        inv = lambda x: math.atan(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class ACosConstraint(ConstraintSetter):
+class ACosConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-1, 1, True, True)
         r = Interval(0, math.pi, True, True)
-        super().__init__(d, r)
+        inv = lambda x: math.cos(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class ASinConstraint(ConstraintSetter):
+class ASinConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-1, 1, True, True)
         r = Interval(-math.pi/2, math.pi/2, True, True)
-        super().__init__(d, r)
+        inv = lambda x: math.sin(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 
 
-class ATanConstraint(ConstraintSetter):
+class ATanConstraint(Constraint):
     def __init__(self) -> None:
         d = Interval(-math.inf, math.inf, False, False)
         r = Interval(0, math.pi, False, False)
-        super().__init__(d, r)
+        inv = lambda x: math.tan(x)
+        super().__init__(d, r, inv)
+
+    def __str__(self):
+        return super().__str__(self.__name__)
 # ==============================================================================
