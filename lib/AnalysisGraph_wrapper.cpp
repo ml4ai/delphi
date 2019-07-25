@@ -3,6 +3,7 @@
 #include <pybind11/numpy.h>
 
 #include "AnalysisGraph.cpp"
+#include "random_variables.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -36,5 +37,31 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator", &AnalysisGraph::set_indicator,"concept"_a,"indicator"_a,"source"_a)
       .def("replace_indicator", &AnalysisGraph::replace_indicator,"concept"_a,"indicator_old"_a,"indicator_new"_a,"source"_a)
+      .def("get_indicator", &AnalysisGraph::get_indicator,"concept"_a,"indicator"_a, py::return_value_policy::reference)
+    ;
+}
+
+PYBIND11_MODULE(Indicator, m) {
+  py::class_<Indicator>(m, "Indicator")
+    .def("set_source", &Indicator::set_source)
+    .def("set_unit", &Indicator::set_unit)
+    .def("set_mean", &Indicator::set_mean)
+    .def("set_value", &Indicator::set_value)
+    .def("set_stdev", &Indicator::set_stdev)
+    .def("set_time", &Indicator::set_time)
+    .def("set_aggaxes", &Indicator::set_aggaxes)
+    .def("set_aggregation_method", &Indicator::set_aggregation_method)
+    .def("set_timeseries", &Indicator::set_timeseries)
+    .def("set_samples", &Indicator::set_samples)
+    .def("get_source", &Indicator::get_source)
+    .def("get_unit", &Indicator::get_unit)
+    .def("get_mean", &Indicator::get_mean)
+    .def("get_value", &Indicator::get_value)
+    .def("get_stdev", &Indicator::get_stdev)
+    .def("get_time", &Indicator::get_time)
+    .def("get_aggaxes", &Indicator::get_aggaxes)
+    .def("get_aggregation_method", &Indicator::get_aggregation_method)
+    .def("get_timeseries", &Indicator::get_timeseries)
+    .def("get_samples", &Indicator::get_samples)
     ;
 }
