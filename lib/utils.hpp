@@ -5,17 +5,16 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <vector>
+#include <fmt/format.h>
 
 namespace utils {
 
 using std::cout, std::endl, std::vector, std::string, std::ifstream,
     std::unordered_map;
 
-template <class T> void print(T x) { cout << x << endl; }
-
 template <class T> void printVec(vector<T> xs) {
   for (auto x : xs) {
-    print(x);
+    fmt::print(x);
   }
 }
 template <class Key, class Value> bool hasKey(unordered_map<Key, Value> umap, Key key) {
