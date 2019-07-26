@@ -166,12 +166,12 @@ private:
   // Since variable A has been already used locally in other methods
   // I chose to name this _A_. After refactoring the code, we could
   // rename this to A.
-  Eigen::MatrixXd _A_;
+  //Eigen::MatrixXd _A_;
   // initial latent state
   // Since s0 is used to represent a sequence of latent states,
   // I named this _s0_. Once things are refactored, we might be able to
   // convert this to s0
-  Eigen::VectorXd _s0_;
+  // Eigen::VectorXd _s0_;
   int n_timesteps;
 
   // Sampling resolution. Default is 200
@@ -707,29 +707,18 @@ public:
      *  three rows for each variable and some of the off diagonal elements
      *  of odd indexed rows would be non zero.
      */
-    this->_A_ = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
+    this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
 
     // Fill the Δts
     for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-      this->_A_(vert, vert + 1) = this->delta_t;
+      this->A_original(vert, vert + 1) = this->delta_t;
     }
 
     // Update the β factor dependent cells of this matrix
     for (auto & [ row, col ] : this->beta_dependent_cells) {
-      this->_A_(row * 2, col * 2 + 1) =
+      this->A_original(row * 2, col * 2 + 1) =
           this->A_beta_factors[row][col]->sample_from_prior(this->graph);
     }
-  }
-
-  /**
-   * TODO: This is just a stub, so that I can proceed with methods dependent on
-   * this
-   * When Loren finishes his implementation, it should replace this.
-   * As discussed possibly it will be outsie AnalysisGraph
-   */
-  double get_data_value(string name, string country, string state, int year,
-                        int month, string unit) {
-    return 0.0;
   }
 
   /**
@@ -755,7 +744,8 @@ public:
 
   /**
    * Get the observed state for a given time point from data. See
-   * get_data_value() for missing data rules. Note: units are automatically set
+   * data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set
    * according to the parameterization of the given CAG.
    * NOTE: I changed the name from set_... to get_... since it is more meaninful
    * here
@@ -775,6 +765,7 @@ public:
 
       std::transform(indicators.begin(), indicators.end(),
                      observed_state[v].begin(), [&](Indicator ind) {
+                       // get_data_value() is defined in data.hpp
                        return get_data_value(ind.get_name(), country, state,
                                              year, month, ind.get_unit());
                      });
@@ -785,7 +776,7 @@ public:
 
   /**
    * Set the observed state sequence for a given time range from data. See
-   * get_data_value() for missing data rules. Note: units are automatically set
+   * data.hpp::get_data_value() for missing data rules. Note: units are automatically set
    * according to the parameterization of the given CAG.
    *
    */
@@ -834,7 +825,7 @@ public:
 
     // TODO: Ideally, we should make construct_default_initial_state()
     // to set this->_s0_ instead of returning a vlue
-    this->_s0_ = this->construct_default_initial_state();
+    this->s0_original = this->construct_default_initial_state();
 
     for (int v = 0; v < num_verts; v++) {
       vector<Indicator> & indicators = this->graph[v].indicators;
@@ -854,23 +845,23 @@ public:
 
         // TODO: If ind_mean is very close to zero, this could overflow
         // Even indexes of the latent state vector represent variables
-        this->_s0_( 2 * v ) = ind_value / ind_mean;
+        this->s0_original( 2 * v ) = ind_value / ind_mean;
 
         if( timestep == this->n_timesteps )
         {
           double prev_ind_value = this->observed_state_sequence[ timestep - 1 ][ v ][ i ];
           double prev_state_value = prev_ind_value / ind_mean;
-          double diff = this->_s0_( 2 * v ) - prev_state_value;
+          double diff = this->s0_original( 2 * v ) - prev_state_value;
           //TODO: Why this is different from else branch?
-          this->_s0_( 2 * v + 1 ) = this->norm_dist(this->rand_num_generator) + diff;
+          this->s0_original( 2 * v + 1 ) = this->norm_dist(this->rand_num_generator) + diff;
         }
         else
         {
           double next_ind_value = this->observed_state_sequence[ timestep + 1 ][ v ][ i ];
           double next_state_value = next_ind_value / ind_mean;
-          double diff = next_state_value - this->_s0_( 2 * v );
+          double diff = next_state_value - this->s0_original( 2 * v );
           //TODO: Why this is different from if branch?
-          this->_s0_( 2 * v + 1 ) = diff;
+          this->s0_original( 2 * v + 1 ) = diff;
         }
       }
     }
@@ -909,6 +900,26 @@ public:
     this->set_observed_state_sequence_from_data( start_year, start_month, end_year, end_month, country, state );
 
     this->set_initial_latent_state_from_observed_state_sequence();
+
+    // TODO: Why are we doing this? If zeroing out these transision matrix cells
+    // is required, I can do this at
+    // sample_initial_transition_matrix_from_prior()
+    // Zero out the β factor dependent cells of this matrix
+    for (auto & [ row, col ] : this->beta_dependent_cells) {
+      this->A_original(row * 2, col * 2 + 1) = 0.0;
+    }
+
+    // Moving the check whether log_likelihood is set outside from
+    // AnalysisGraph::sample_from_posterior(). Making sure it is set
+    // when we call AnalysisGraph::sample_from_posterior() is called.
+    // TODO: When rest of the code also does this, remove the check
+    // from AnalysisGraph::sample_from_posterior().
+    // TODO: Ideally, we should nto pass this->_A_ as a parameter, but
+    // make AnalysisGraph::sample_from_posterior() acto on the class
+    // member variable. Once the code starts working and other 
+    // functions are updated, do this modification.
+    this->log_likelihood = this->calculate_log_likelihood(this->A_original);
+    this->log_likelihood_initialized = true;
   }
 
   // TODO: Need testing
