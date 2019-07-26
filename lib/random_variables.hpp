@@ -255,6 +255,8 @@ class Indicator : public RV
       std::cerr << "Error: Indicator::set_indicator_default_unit()\n"
                 << "\tIndicator: No data exists for " << name << std::endl;
     }
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
   }
 
 };
