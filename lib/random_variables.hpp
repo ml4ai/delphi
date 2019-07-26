@@ -103,6 +103,12 @@ class Indicator : public RV
           samples( samples )
   { }
 
+  string get_name( )
+  {
+    return this->name;
+  }
+
+
   void set_source( string source )
   {
     this->source = source;
