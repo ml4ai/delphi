@@ -722,17 +722,6 @@ public:
   }
 
   /**
-   * TODO: This is just a stub, so that I can proceed with methods dependent on
-   * this
-   * When Loren finishes his implementation, it should replace this.
-   * As discussed possibly it will be outsie AnalysisGraph
-   */
-  double get_data_value(string name, string country, string state, int year,
-                        int month, string unit) {
-    return 0.0;
-  }
-
-  /**
    * Utility function that converts a time range given a start date and end date
    * into an integer value.
    * At the moment returns the number of days withing the time range.
@@ -755,7 +744,8 @@ public:
 
   /**
    * Get the observed state for a given time point from data. See
-   * get_data_value() for missing data rules. Note: units are automatically set
+   * data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set
    * according to the parameterization of the given CAG.
    * NOTE: I changed the name from set_... to get_... since it is more meaninful
    * here
@@ -775,6 +765,7 @@ public:
 
       std::transform(indicators.begin(), indicators.end(),
                      observed_state[v].begin(), [&](Indicator ind) {
+                       // get_data_value() is defined in data.hpp
                        return get_data_value(ind.get_name(), country, state,
                                              year, month, ind.get_unit());
                      });
@@ -785,7 +776,7 @@ public:
 
   /**
    * Set the observed state sequence for a given time range from data. See
-   * get_data_value() for missing data rules. Note: units are automatically set
+   * data.hpp::get_data_value() for missing data rules. Note: units are automatically set
    * according to the parameterization of the given CAG.
    *
    */
