@@ -165,7 +165,17 @@ private:
   // I chose to name this _A_. After refactoring the code, we could
   // rename this to A.
   Eigen::MatrixXd _A_;
+  // initial latent state
+  // Since s0 is used to represent a sequence of latent states,
+  // I named this _s0_. Once things are refactored, we might be able to
+  // convert this to s0
+  Eigen::VectorXd _s0_;
   int n_timesteps;
+
+  // Sampling resolution. Default is 200
+  int res = 200;
+  int init_training_year;
+  int init_training_month;
 
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
@@ -709,10 +719,187 @@ public:
     }
   }
 
+  /**
+   * TODO: This is just a stub, so that I can proceed with methods dependent on
+   * this
+   * When Loren finishes his implementation, it should replace this.
+   * As discussed possibly it will be outsie AnalysisGraph
+   */
+  double get_data_value(string name, string country, string state, int year,
+                        int month, string unit) {
+    return 0.0;
+  }
+
+  /**
+   * Utility function that converts a time range given a start date and end date
+   * into an integer value.
+   * At the moment returns the number of days withing the time range.
+   * This should be the number of traing data time points we have
+   */
+  int calculate_num_timesteps(int start_year, int start_month, int end_year,
+                              int end_month) {
+    assert(start_year <= end_year);
+
+    if (start_year == end_year) {
+      assert(start_month <= end_month);
+    }
+
+    int diff_year = end_year - start_year;
+    int year_to_month = diff_year * 12;
+
+    // NOTE: I am adding 1 here itself so that I do not have to add it outside
+    return year_to_month - (start_month - 1) + (end_month - 1) + 1;
+  }
+
+  /**
+   * Get the observed state for a given time point from data. See
+   * get_data_value() for missing data rules. Note: units are automatically set
+   * according to the parameterization of the given CAG.
+   * NOTE: I changed the name from set_... to get_... since it is more meaninful
+   * here
+   */
+  vector<vector<double>> get_observed_state_from_data(
+      int year, int month, string country = "South Sudan", string state = "") {
+    int num_verts = boost::num_vertices(this->graph);
+
+    // Access
+    // [ vertex ][ indicator ]
+    vector<vector<double>> observed_state(num_verts);
+
+    for (int v = 0; v < num_verts; v++) {
+      vector<Indicator> &indicators = this->graph[v].indicators;
+
+      observed_state[v] = vector<double>(indicators.size(), 0.0);
+
+      std::transform(indicators.begin(), indicators.end(),
+                     observed_state[v].begin(), [&](Indicator ind) {
+                       return get_data_value(ind.get_name(), country, state,
+                                             year, month, ind.get_unit());
+                     });
+    }
+
+    return observed_state;
+  }
+
+  /**
+   * Set the observed state sequence for a given time range from data. See
+   * get_data_value() for missing data rules. Note: units are automatically set
+   * according to the parameterization of the given CAG.
+   *
+   */
+  void set_observed_state_sequence_from_data(int start_year, int start_month,
+                                             int end_year, int end_month,
+                                             string country = "South Sudan",
+                                             string state = "") {
+    this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
+                                                      end_year, end_month);
+    this->observed_state_sequence.clear();
+
+    // Access
+    // [ timestep ][ veretx ][ indicator ]
+    this->observed_state_sequence = vector< vector< vector< double >>>( this->n_timesteps );
+
+    int year = start_year;
+    int month = start_month;
+
+    for( int ts = 0; ts < this->n_timesteps; ts++ )
+    {
+      this->observed_state_sequence[ ts ] = get_observed_state_from_data( year, month, country, state );
+
+      if( month == 12 )
+      {
+        year++;
+        month = 1;
+      }
+      else
+      {
+        month++;
+      }
+    }
+  }
+
+  /**
+   * Utility function that sets an initial latent state from observed data. 
+   * This is used for the inference of the transition matrix as well as the
+   * training latent state sequences.
+   *
+   * @param timestep: Optional setting for setting the initial state to be other
+   *                  than the first time step. Not currently used.
+   */
+  void set_initial_latent_state_from_observed_state_sequence( int timestep = 0 )
+  {
+    int num_verts = boost::num_vertices(this->graph);
+
+    // TODO: Ideally, we should make construct_default_initial_state()
+    // to set this->_s0_ instead of returning a vlue
+    this->_s0_ = this->construct_default_initial_state();
+
+    for (int v = 0; v < num_verts; v++) {
+      vector<Indicator> & indicators = this->graph[v].indicators;
+
+      for( int i = 0; i < indicators.size(); i++ )
+      {
+        Indicator & ind = indicators[ i ];
+        
+        double ind_mean = ind.get_mean();
+
+        while( ind_mean == 0 )
+        {
+          ind_mean = this->norm_dist(this->rand_num_generator);
+        }
+
+        double ind_value = this->observed_state_sequence[ timestep ][ v ][ i ];
+
+        // TODO: If ind_mean is very close to zero, this could overflow
+        // Even indexes of the latent state vector represent variables
+        this->_s0_( 2 * v ) = ind_value / ind_mean;
+
+        if( timestep == this->n_timesteps )
+        {
+          double prev_ind_value = this->observed_state_sequence[ timestep - 1 ][ v ][ i ];
+          double prev_state_value = prev_ind_value / ind_mean;
+          double diff = this->_s0_( 2 * v ) - prev_state_value;
+          //TODO: Why this is different from else branch?
+          this->_s0_( 2 * v + 1 ) = this->norm_dist(this->rand_num_generator) + diff;
+        }
+        else
+        {
+          double next_ind_value = this->observed_state_sequence[ timestep + 1 ][ v ][ i ];
+          double next_state_value = next_ind_value / ind_mean;
+          double diff = next_state_value - this->_s0_( 2 * v );
+          //TODO: Why this is different from if branch?
+          this->_s0_( 2 * v + 1 ) = diff;
+        }
+      }
+    }
+  }
+
+  /**
+   * Train a prediction model given a CAG with indicators
+   */
   void train_model(int start_year = 2012, int start_month = 1,
                    int end_year = 2017, int end_month = 12, int res = 200,
-                   int burn = 10000) {
+                   int burn = 10000, string country="South Sudan", string state="") {
+    this->res = res;
     this->sample_initial_transition_matrix_from_prior();
+    //this->parameterize();
+    
+    /*
+     * Not sure how this affects
+    if( start_month = 0 )
+    {
+      start_month = 1;
+    }
+    */
+
+    //this->set_mean_for_data();
+
+    this->init_training_year = start_year;
+    this->init_training_month = start_month;
+
+    this->set_observed_state_sequence_from_data( start_year, start_month, end_year, end_month, country, state );
+
+    this->set_initial_latent_state_from_observed_state_sequence();
   }
 
   // TODO: Need testing
