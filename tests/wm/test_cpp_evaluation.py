@@ -23,6 +23,11 @@ def test_cpp_extensions():
         "UN/events/human/human_migration",
         "Net migration",
         "New asylum seeking applicants",
-        "UNHCR"
+        "UNHCR",
     )
     G.print_indicators()
+
+    value = G.get_data_value_test(
+            "Inflation Rate", country="South Sudan", year=2013, month=9
+    )
+    print(value)
