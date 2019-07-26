@@ -13,9 +13,9 @@
 #include <boost/graph/graphviz.hpp>
 
 #include "AnalysisGraph.hpp"
+#include "data.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
-#include "data.hpp"
 #include <fmt/format.h>
 
 #include <typeinfo>
@@ -61,7 +61,6 @@ construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   sqlite3_close(db);
   return adjective_response_map;
 }
-
 
 /**
  * The AnalysisGraph class is the main model/interface for Delphi.
@@ -166,13 +165,22 @@ private:
   // Since variable A has been already used locally in other methods
   // I chose to name this _A_. After refactoring the code, we could
   // rename this to A.
-  //Eigen::MatrixXd _A_;
+  // Eigen::MatrixXd _A_;
   // initial latent state
   // Since s0 is used to represent a sequence of latent states,
   // I named this _s0_. Once things are refactored, we might be able to
   // convert this to s0
   // Eigen::VectorXd _s0_;
   int n_timesteps;
+
+  // Accumulates the transition matrices for accepted samples
+  // Access: [ sample number ]
+  vector<Eigen::MatrixXd> training_sampled_transition_matrix_sequence;
+
+  // Accumulates the latent states for accepted samples
+  // Access this as
+  // latent_state_sequences[ sample ][ time step ]
+  vector<vector<Eigen::VectorXd>> training_latent_state_sequence_s;
 
   // Sampling resolution. Default is 200
   int res = 200;
@@ -776,7 +784,8 @@ public:
 
   /**
    * Set the observed state sequence for a given time range from data. See
-   * data.hpp::get_data_value() for missing data rules. Note: units are automatically set
+   * data.hpp::get_data_value() for missing data rules. Note: units are
+   * automatically set
    * according to the parameterization of the given CAG.
    *
    */
@@ -790,37 +799,34 @@ public:
 
     // Access
     // [ timestep ][ veretx ][ indicator ]
-    this->observed_state_sequence = vector< vector< vector< double >>>( this->n_timesteps );
+    this->observed_state_sequence =
+        vector<vector<vector<double>>>(this->n_timesteps);
 
     int year = start_year;
     int month = start_month;
 
-    for( int ts = 0; ts < this->n_timesteps; ts++ )
-    {
-      this->observed_state_sequence[ ts ] = get_observed_state_from_data( year, month, country, state );
+    for (int ts = 0; ts < this->n_timesteps; ts++) {
+      this->observed_state_sequence[ts] =
+          get_observed_state_from_data(year, month, country, state);
 
-      if( month == 12 )
-      {
+      if (month == 12) {
         year++;
         month = 1;
-      }
-      else
-      {
+      } else {
         month++;
       }
     }
   }
 
   /**
-   * Utility function that sets an initial latent state from observed data. 
+   * Utility function that sets an initial latent state from observed data.
    * This is used for the inference of the transition matrix as well as the
    * training latent state sequences.
    *
    * @param timestep: Optional setting for setting the initial state to be other
    *                  than the first time step. Not currently used.
    */
-  void set_initial_latent_state_from_observed_state_sequence( int timestep = 0 )
-  {
+  void set_initial_latent_state_from_observed_state_sequence(int timestep = 0) {
     int num_verts = boost::num_vertices(this->graph);
 
     // TODO: Ideally, we should make construct_default_initial_state()
@@ -828,40 +834,38 @@ public:
     this->s0_original = this->construct_default_initial_state();
 
     for (int v = 0; v < num_verts; v++) {
-      vector<Indicator> & indicators = this->graph[v].indicators;
+      vector<Indicator> &indicators = this->graph[v].indicators;
 
-      for( int i = 0; i < indicators.size(); i++ )
-      {
-        Indicator & ind = indicators[ i ];
-        
+      for (int i = 0; i < indicators.size(); i++) {
+        Indicator &ind = indicators[i];
+
         double ind_mean = ind.get_mean();
 
-        while( ind_mean == 0 )
-        {
+        while (ind_mean == 0) {
           ind_mean = this->norm_dist(this->rand_num_generator);
         }
 
-        double ind_value = this->observed_state_sequence[ timestep ][ v ][ i ];
+        double ind_value = this->observed_state_sequence[timestep][v][i];
 
         // TODO: If ind_mean is very close to zero, this could overflow
         // Even indexes of the latent state vector represent variables
-        this->s0_original( 2 * v ) = ind_value / ind_mean;
+        this->s0_original(2 * v) = ind_value / ind_mean;
 
-        if( timestep == this->n_timesteps )
-        {
-          double prev_ind_value = this->observed_state_sequence[ timestep - 1 ][ v ][ i ];
+        if (timestep == this->n_timesteps) {
+          double prev_ind_value =
+              this->observed_state_sequence[timestep - 1][v][i];
           double prev_state_value = prev_ind_value / ind_mean;
-          double diff = this->s0_original( 2 * v ) - prev_state_value;
-          //TODO: Why this is different from else branch?
-          this->s0_original( 2 * v + 1 ) = this->norm_dist(this->rand_num_generator) + diff;
-        }
-        else
-        {
-          double next_ind_value = this->observed_state_sequence[ timestep + 1 ][ v ][ i ];
+          double diff = this->s0_original(2 * v) - prev_state_value;
+          // TODO: Why this is different from else branch?
+          this->s0_original(2 * v + 1) =
+              this->norm_dist(this->rand_num_generator) + diff;
+        } else {
+          double next_ind_value =
+              this->observed_state_sequence[timestep + 1][v][i];
           double next_state_value = next_ind_value / ind_mean;
-          double diff = next_state_value - this->s0_original( 2 * v );
-          //TODO: Why this is different from if branch?
-          this->s0_original( 2 * v + 1 ) = diff;
+          double diff = next_state_value - this->s0_original(2 * v);
+          // TODO: Why this is different from if branch?
+          this->s0_original(2 * v + 1) = diff;
         }
       }
     }
@@ -872,32 +876,35 @@ public:
    */
   void train_model(int start_year = 2012, int start_month = 1,
                    int end_year = 2017, int end_month = 12, int res = 200,
-                   int burn = 10000, string country="South Sudan", string state="") {
+                   int burn = 10000, string country = "South Sudan",
+                   string state = "") {
     this->res = res;
     this->sample_initial_transition_matrix_from_prior();
-    //this->parameterize();
-    
+    // this->parameterize();
+
     /*
      * Not sure how this affects
-     * *Loren: That's an old artifact that I forgot to remove. 
+     * *Loren: That's an old artifact that I forgot to remove.
      * It's because you can pass none as an argument in python and so
      * parameterize is set to handle Nonetypes in a certain way, but we
-     * specifically want to do our modeling at a monthly rate and so I made the default setting
+     * specifically want to do our modeling at a monthly rate and so I made the
+    default setting
      * an actual value instead.
     if( start_month = 0 )
     {
       start_month = 1;
     }
     */
-    
+
     // *Loren: This will no longer be needed, the c++ version of parameterize
-    // will handle this. 
-    //this->set_mean_for_data();
+    // will handle this.
+    // this->set_mean_for_data();
 
     this->init_training_year = start_year;
     this->init_training_month = start_month;
 
-    this->set_observed_state_sequence_from_data( start_year, start_month, end_year, end_month, country, state );
+    this->set_observed_state_sequence_from_data(
+        start_year, start_month, end_year, end_month, country, state);
 
     this->set_initial_latent_state_from_observed_state_sequence();
 
@@ -916,10 +923,39 @@ public:
     // from AnalysisGraph::sample_from_posterior().
     // TODO: Ideally, we should nto pass this->_A_ as a parameter, but
     // make AnalysisGraph::sample_from_posterior() acto on the class
-    // member variable. Once the code starts working and other 
+    // member variable. Once the code starts working and other
     // functions are updated, do this modification.
     this->log_likelihood = this->calculate_log_likelihood(this->A_original);
     this->log_likelihood_initialized = true;
+
+    // Accumulates the transition matrices for accepted samples
+    // Access: [ sample number ]
+    training_sampled_transition_matrix_sequence.clear();
+    training_sampled_transition_matrix_sequence =
+        vector<Eigen::MatrixXd>(this->res);
+
+    // Accumulates the latent states for accepted samples
+    // Access this as
+    // latent_state_sequences[ sample ][ time step ]
+    this->training_latent_state_sequence_s.clear();
+    this->training_latent_state_sequence_s =
+        vector<vector<Eigen::VectorXd>>(this->res);
+
+    for (int _ = 0; _ < burn; _++) {
+      // TODO: Make AnalysisGraph::sample_from_posterior update A_original
+      // instead of returning the matrix
+      this->A_original = this->sample_from_posterior(this->A_original);
+    }
+
+    for (int samp = 0; samp < this->res; samp++) {
+      // TODO: Make AnalysisGraph::sample_from_posterior update A_original
+      // instead of returning the matrix
+      this->A_original = this->sample_from_posterior(this->A_original);
+      this->training_sampled_transition_matrix_sequence[samp] =
+          this->A_original;
+      this->training_latent_state_sequence_s[samp] =
+          this->latent_state_sequence;
+    }
   }
 
   // TODO: Need testing
