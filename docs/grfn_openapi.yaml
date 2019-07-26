@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.6
+  version: 0.2.7
 
 paths: {}
 
@@ -240,13 +240,13 @@ components:
     variable_name:
       title: <variable_name>
       description: >
-        `"<namespace_path_string>::<scope_path_string>::<base_name>::<index>"`
+        `"@variable::<namespace_path_string>::<scope_path_string>::<base_name>::<index>"`
       type: string
 
     function_name:
       title: <function_name>
       description: >
-        `"<namespace_path_string>::<scope_path_string>::<base_name>"`<br>
+        `"@function::<namespace_path_string>::<scope_path_string>::<base_name>"`<br>
         where:<br>
         `<base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]`
       type: string
@@ -254,9 +254,19 @@ components:
     type_name:
       title: <type_name>
       description: >
-        Denotes a non-primitive type; will have a corresponding unique
+        String denoting a non-primitive type; will have a corresponding unique
         `<type_spec>`:
-        `"<namespace_path_string>::<scope_path_string>::<base_name>::TYPE"`
+        `"@type::<namespace_path_string>::<scope_path_string>::<base_name>"`
+      type: string
+
+    literal_name:
+      title: <literal_name>
+      description: >
+        String representing a literal value:
+          `"@literal::<type>::<value>"`<br>
+        where `<type>` is any primitive type:
+          "integer" | "float" | "boolean" | "string"<br>
+        TODO: generalize to any <type> (requires move to structured object)
       type: string
 
     type_def:
@@ -323,7 +333,7 @@ components:
     function_assign_def:
       title: <function_assign_def>
       description: >
-        Defin a function setting the value of a variable.
+        Define a function setting the value of a variable.
       required:
         - name
         - type
@@ -344,6 +354,11 @@ components:
             oneOf:
               - $ref: '#/components/schemas/variable_name'
               - $ref: '#/components/schemas/function_name'
+              - $ref: '#/components/schemas/literal_name'
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_name'
         return_value:
           $ref: '#/components/schemas/variable_name'
 
@@ -359,7 +374,6 @@ components:
         - name
         - type
         - arguments
-        - updated
         - return_value
         - body
       properties:
@@ -376,6 +390,7 @@ components:
             oneOf:
               - $ref: '#/components/schemas/variable_name'
               - $ref: '#/components/schemas/function_name'
+              - $ref: '#/components/schemas/literal_name'
         updated:
           type: array
           items:
@@ -406,8 +421,13 @@ components:
             oneOf:
               - $ref: '#/components/schemas/variable_name'
               - $ref: '#/components/schemas/function_name'
+              - $ref: '#/components/schemas/literal_name'
         output:
           $ref: '#/components/schemas/variable_name'
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_name'
 
     function_ref:
       title: <function_ref>
@@ -418,10 +438,10 @@ components:
         (2) `<lambda_function_source_ref>` denoting an executable
         lambda function.<br>
       required:
-        - function
+        - name
         - type
       properties:
-        function:
+        name:
           oneOf:
             - $ref: '#/components/schemas/function_name'
             - $ref: '#/components/schemas/lambda_function_source_ref'
