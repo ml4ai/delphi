@@ -1647,4 +1647,17 @@ public:
       }
     }
   }
+  
+  //Temporary method for testing get_data_value()
+  double get_data_value_test(string indicator, 
+                             string country = "",
+                             string state = "",
+                             int year = 2012,
+                             int month = 1,
+                             string unit = "") 
+  {
+    double value = get_data_value(indicator,country,state,year,month,unit);
+    return value;   
+  }
+
 };
