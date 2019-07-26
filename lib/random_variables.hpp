@@ -233,7 +233,7 @@ class Indicator : public RV
   {
     sqlite3 *db;
     int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
-    if (!rc){
+    if (rc){
       fmt::print("Could not open db");
       return;
     }
