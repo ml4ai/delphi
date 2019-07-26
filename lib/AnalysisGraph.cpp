@@ -888,12 +888,19 @@ public:
     
     /*
      * Not sure how this affects
+     * *Loren: That's an old artifact that I forgot to remove. 
+     * It's because you can pass none as an argument in python and so
+     * parameterize is set to handle Nonetypes in a certain way, but we
+     * specifically want to do our modeling at a monthly rate and so I made the default setting
+     * an actual value instead.
     if( start_month = 0 )
     {
       start_month = 1;
     }
     */
-
+    
+    // *Loren: This will no longer be needed, the c++ version of parameterize
+    // will handle this. 
     //this->set_mean_for_data();
 
     this->init_training_year = start_year;
