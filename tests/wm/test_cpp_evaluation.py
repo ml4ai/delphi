@@ -16,7 +16,7 @@ def test_cpp_extensions():
     G = AnalysisGraph.from_statements(statements)
     print("\n")
     G.print_nodes()
-    G.map_concepts_to_indicators(1)
+    G.map_concepts_to_indicators()
     G.print_indicators()
     print("\n")
     G.replace_indicator(
@@ -26,8 +26,3 @@ def test_cpp_extensions():
         "UNHCR",
     )
     G.print_indicators()
-
-    value = G.get_data_value_test(
-            "Inflation Rate", country="South Sudan", year=2013, month=9
-    )
-    print(value)
