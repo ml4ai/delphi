@@ -1,21 +1,19 @@
-# Grounded Function Network (GrFN) JSON Specification
+# Grounded Function Network (GrFN) Documentation
 
-**Version 0.1.m9**
+**Version 0.2.8**
 
-### `[0.1.m9]` - 2019-07-01
+### `[0.2.8]` - 2019-09-01
 
-Changes since [0.1.m5]
+Changes since [0.1.m9]
 
-#### Added
-- GrFN_spec Index with links for quick reference navigation.
-- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com).
-- [`<grounding_metadata_spec>`](#grounding-metadata-spec) in "grounding" field of [`<identifier_spec>`](#identifier-specification). Includes source, type (definition, units, constraints) and value.
-- `<system_def>` for defining the GrFN representation of a system (collection of source files and multiple modules).
+#### Changes
 
-#### Changed
-- Reorganized and rewrote portions of Introduction.
-- Modified [`<function_reference_spec>`](#function-reference-specification) so that it now has an "exit_condition" to represent while loops, and subsumes for/iteration loops.
-- Modified [`<varaible_spec>`](#variable-specification) adding variable value "domain" constraints.
+- Major refactoring of GrFN Spec into
+	1. OpenAPI
+	2. GrFN documentation (this document)
+- Change GrFN specification versioning from `#.#.m#` to `#.#.#`
+	- Previous release was `[0.1.m9]`
+	- Advancing minor version to 2 with refactoring to OpenAPI
 
 [Change Log](#change-og) (from previous releases)
 
@@ -825,6 +823,19 @@ Inspired by [Keep a Changelog](https://keepachangelog.com)
 
 This project does not (yet) adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
+## `[0.1.m9]` - 2019-07-01:
+
+### Added
+- GrFN_spec Index with links for quick reference navigation.
+- Changelog, inspired by [Keep a Changelog](https://keepachangelog.com).
+- [`<grounding_metadata_spec>`](#grounding-metadata-spec) in "grounding" field of [`<identifier_spec>`](#identifier-specification). Includes source, type (definition, units, constraints) and value.
+- `<system_def>` for defining the GrFN representation of a system (collection of source files and multiple modules).
+
+### Changed
+- Reorganized and rewrote portions of Introduction.
+- Modified [`<function_reference_spec>`](#function-reference-specification) so that it now has an "exit_condition" to represent while loops, and subsumes for/iteration loops.
+- Modified [`<varaible_spec>`](#variable-specification) adding variable value "domain" constraints.
+
 
 ## `[0.1.m5]` - 2019-05-01:
 
@@ -852,7 +863,8 @@ This project does not (yet) adhere to [Semantic Versioning](https://semver.org/s
 
 
 ## Releases
-- [unreleased](https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md)
+- Unreleased: [development GrFN OpenAPI] [devlopment GrFN documentation](https://github.com/ml4ai/delphi/blob/grfn/docs/grfn_spec.md)
+- [0.1.m9](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m9_milestone_report/GrFN_specification_v0.1.m9.md)
 - [0.1.m5](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m5_final_phase1_report/GrFN_specification_v0.1.m5.md)
 - [0.1.m3](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m3_report_prototype_system/GrFN_specification_v0.1.m3.md)
 - [0.1.m1](https://github.com/ml4ai/automates/blob/master/documentation/deliverable_reports/m1_architecture_report/GrFN_specification_v0.1.md)
