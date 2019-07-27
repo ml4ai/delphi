@@ -34,9 +34,9 @@ construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   sqlite3 *db;
   int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
   if (!rc)
-    print("Opened db successfully");
+    print("Opened db successfully\n");
   else
-    print("Could not open db");
+    print("Could not open db\n");
 
   sqlite3_stmt *stmt;
   const char *query = "select * from gradableAdjectiveData";
@@ -1681,7 +1681,7 @@ public:
     sqlite3 *db;
     int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
     if (rc) {
-      print("Could not open db");
+      print("Could not open db\n");
       return;
     }
     sqlite3_stmt *stmt;
@@ -1777,11 +1777,4 @@ public:
     }
   }
 
-  // Temporary method for testing get_data_value()
-  double get_data_value_test(string indicator, string country = "",
-                             string state = "", int year = 2012, int month = 1,
-                             string unit = "") {
-    double value = get_data_value(indicator, country, state, year, month, unit);
-    return value;
-  }
 };
