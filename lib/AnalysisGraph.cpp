@@ -882,10 +882,10 @@ public:
   void train_model(int start_year = 2012, int start_month = 1,
                    int end_year = 2017, int end_month = 12, int res = 200,
                    int burn = 10000, string country = "South Sudan",
-                   string state = "") {
+                   string state = "",map<std::string,std::string> units = {}) {
     this->res = res;
     this->sample_initial_transition_matrix_from_prior();
-    // this->parameterize();
+    this->parameterize(country,state,start_year,start_month,units);
 
     /*
      * Not sure how this affects
@@ -916,7 +916,7 @@ public:
     // TODO: Why are we doing this? If zeroing out these transision matrix cells
     // is required, I can do this at
     // sample_initial_transition_matrix_from_prior()
-    // Zero out the β factor dependent cells of this matrix
+    // Zero out the β factor dependent cells of this matrix 
     for (auto & [ row, col ] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) = 0.0;
     }
@@ -1714,47 +1714,30 @@ public:
   /**
    * Parameterize the indicators of the AnalysisGraph..
    *
-   * @param n: Int representing number of indicators to attach per node.
-   * Default is 1 since our model so far is configured for only 1 indicator per
-   * node.
    */
-  /* void parameterize(string country = "South Sudan", string state = "", int
-   year = 2012, int month = 1, ) {
-     sqlite3 *db;
-     int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
-     if (!rc)
-       print("Opened db successfully");
-     else
-       print("Could not open db");
-
-     sqlite3_stmt *stmt;
-     string query_base =
-         "select Source, Indicator from concept_to_indicator_mapping ";
-     string query;
-     for (int v : this->vertices()) {
-       query = query_base + "where `Concept` like " + "'" + this->graph[v].name
-   +
-               "'";
-       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-       this->graph[v].clear_indicators();
-       for (int c = 0; c < n; c = c + 1) {
-         rc = sqlite3_step(stmt);
-         if (rc == SQLITE_ROW) {
-           string ind_source = std::string(
-               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
-           string ind_name = std::string(
-               reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-           this->graph[v].add_indicator(ind_name, ind_source);
-         } else {
-           cout << "No more data, only " << c << "indicators attached to "
-                << this->graph[v].name << endl;
-         }
-       }
-       sqlite3_finalize(stmt);
-     }
-     sqlite3_close(db);
-   }
- */
+  void parameterize(string country = "South Sudan", string state = "", int
+   year = 2012, int month = 1,map<std::string,std::string> units={}) {
+    double stdev;
+    for(int v : this->vertices()){
+      for(auto[name,i] : this->graph[ v ].indicator_names){
+        if (units.find(name) != units.end()){
+          this->graph[ v ].indicators[ i ].set_unit(units[name]);
+          this->graph[ v ].indicators[ i ].set_mean(get_data_value(name,country,state,year,month,units[name]));
+          stdev = 0.1 * abs(this->graph[ v ].indicators[ i ].get_mean());
+          this->graph[ v ].indicators[ i ].set_stdev(stdev);
+          
+        }
+        else{
+          this->graph[ v ].indicators[ i ].set_default_unit();
+          this->graph[ v ].indicators[ i ].set_mean(get_data_value(name,country,state,year,month));
+          stdev = 0.1 * abs(this->graph[ v ].indicators[ i ].get_mean());
+          this->graph[ v ].indicators[ i ].set_stdev(stdev);
+        }
+      }
+    }
+  
+  }
+ 
 
   auto print_nodes() {
     cout << "Vertex IDs and their names in the CAG" << endl;
