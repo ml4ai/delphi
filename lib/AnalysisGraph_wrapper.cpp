@@ -9,8 +9,8 @@ using namespace pybind11::literals;
 
 PYBIND11_MODULE(AnalysisGraph, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
-      .def("from_json_file", &AnalysisGraph::from_json_file)
-      .def("from_statements", &AnalysisGraph::from_statements)
+      .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a)
+      .def_static("from_statements", &AnalysisGraph::from_statements,"statements"_a)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
@@ -48,15 +48,12 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "indicator"_a, "source"_a)
       .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
            "indicator_old"_a, "indicator_new"_a, "source"_a)
-      .def("get_data_value_test", &AnalysisGraph::get_data_value_test,
-           "indicator"_a, "country"_a = "", "state"_a = "", "year"_a = 2012,
-           "month"_a = 1, "unit"_a = "")
       .def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
            "indicator"_a, py::return_value_policy::automatic)
       .def("train_model", &AnalysisGraph::train_model, "start_year"_a = 2012,
            "start_month"_a = 1, "end_year"_a = 2017, "end_month"_a = 12,
            "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
-           "state"_a = "")
+           "state"_a = "",py::arg("units") = map<std::string,std::string>{})
       .def("generate_prediction", &AnalysisGraph::generate_prediction,
            "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")
