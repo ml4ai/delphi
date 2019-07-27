@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.7
+  version: 0.2.8
 
 paths: {}
 
@@ -255,7 +255,7 @@ components:
       title: <type_name>
       description: >
         String denoting a non-primitive type; will have a corresponding unique
-        `<type_spec>`:
+        `<type_spec>`:<br>
         `"@type::<namespace_path_string>::<scope_path_string>::<base_name>"`
       type: string
 
@@ -354,7 +354,6 @@ components:
             oneOf:
               - $ref: '#/components/schemas/variable_name'
               - $ref: '#/components/schemas/function_name'
-              - $ref: '#/components/schemas/literal_name'
         updated:
           type: array
           items:
@@ -390,7 +389,6 @@ components:
             oneOf:
               - $ref: '#/components/schemas/variable_name'
               - $ref: '#/components/schemas/function_name'
-              - $ref: '#/components/schemas/literal_name'
         updated:
           type: array
           items:
