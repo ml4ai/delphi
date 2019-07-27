@@ -48,10 +48,17 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "indicator"_a, "source"_a)
       .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
            "indicator_old"_a, "indicator_new"_a, "source"_a)
-      .def("get_data_value_test", &AnalysisGraph::get_data_value_test, "indicator"_a,
-           "country"_a="","state"_a="","year"_a=2012,"month"_a=1,"unit"_a="")
+      .def("get_data_value_test", &AnalysisGraph::get_data_value_test,
+           "indicator"_a, "country"_a = "", "state"_a = "", "year"_a = 2012,
+           "month"_a = 1, "unit"_a = "")
       .def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
-           "indicator"_a, py::return_value_policy::automatic);
+           "indicator"_a, py::return_value_policy::automatic)
+      .def("train_model", &AnalysisGraph::train_model, "start_year"_a = 2012,
+           "start_month"_a = 1, "end_year"_a = 2017, "end_month"_a = 12,
+           "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
+           "state"_a = "")
+      .def("generate_prediction", &AnalysisGraph::generate_prediction,
+           "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
       .def("sample", &RV::sample);

@@ -175,17 +175,22 @@ private:
 
   // Accumulates the transition matrices for accepted samples
   // Access: [ sample number ]
-  vector<Eigen::MatrixXd> training_sampled_transition_matrix_sequence;
+  // vector<Eigen::MatrixXd> training_sampled_transition_matrix_sequence;
 
   // Accumulates the latent states for accepted samples
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
   vector<vector<Eigen::VectorXd>> training_latent_state_sequence_s;
 
+  vector<Eigen::VectorXd> prediction_initial_latent_state_s;
+  vector<string> pred_range;
+
   // Sampling resolution. Default is 200
   int res = 200;
   int init_training_year;
   int init_training_month;
+
+  bool trained = false;
 
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
@@ -930,9 +935,25 @@ public:
 
     // Accumulates the transition matrices for accepted samples
     // Access: [ sample number ]
-    training_sampled_transition_matrix_sequence.clear();
-    training_sampled_transition_matrix_sequence =
-        vector<Eigen::MatrixXd>(this->res);
+    // training_sampled_transition_matrix_sequence.clear();
+    // training_sampled_transition_matrix_sequence =
+    //    vector<Eigen::MatrixXd>(this->res);
+    //
+    // generate_prediction()      uses
+    // sample_from_likelihood. It uses
+    // transition_mateix_collection
+    // So to keep things simple for the moment
+    // I had to fall back to
+    // transition_matrix_collection
+    // HOWEVER: The purpose of transition_matrix_collection
+    // seem to be different in the prevous code than here.
+    // In the earlier code, (in sample_from_prior()) this is
+    // populated with default_n_samples of initial transition matrices.
+    // Here we populate it with res number of sampler emitted transition
+    // matrices.
+    //
+    this->transition_matrix_collection.clear();
+    this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
     // Accumulates the latent states for accepted samples
     // Access this as
@@ -951,11 +972,136 @@ public:
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
       this->A_original = this->sample_from_posterior(this->A_original);
-      this->training_sampled_transition_matrix_sequence[samp] =
-          this->A_original;
+      // this->training_sampled_transition_matrix_sequence[samp] =
+      this->transition_matrix_collection[samp] = this->A_original;
       this->training_latent_state_sequence_s[samp] =
           this->latent_state_sequence;
     }
+
+    this->trained = true;
+  }
+
+  /**
+   * Utility function that sets an initial latent states for predictions.
+   * During model training a latent state sequence is inferred for each sampled
+   * transition matrix, these are then used as the initial states for
+   * predictions.
+   *
+   * @param timestep: Optional setting for setting the initial state to be other
+                      than the first time step. Ensures that the correct
+                      initial state is used.
+   */
+  void set_initial_latent_states_for_prediction(int timestep = 0) {
+    this->prediction_initial_latent_state_s.clear();
+    // TODO: Verify whether the number of elements allocated is correct
+    this->prediction_initial_latent_state_s =
+        vector<Eigen::VectorXd>(this->res);
+
+    std::transform(
+        this->training_latent_state_sequence_s.begin(),
+        this->training_latent_state_sequence_s.end(),
+        this->prediction_initial_latent_state_s.begin(),
+        [&timestep](vector<Eigen::VectorXd> ls) { return ls[timestep]; });
+  }
+
+  std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
+  generate_prediction(int start_year, int start_month, int end_year,
+                      int end_month) {
+    if (!this->trained) {
+      fmt::print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
+                 "Try calling <CAG>.train_model(...) first!");
+      throw "Model not yet trained";
+    }
+
+    if (start_year < this->init_training_year ||
+        (start_year == this->init_training_year &&
+         start_month < this->init_training_month)) {
+      fmt::print("The initial prediction date can't be before the\n"
+                 "inital training date. Defaulting initial prediction date\n"
+                 "to initial training date.");
+      start_year = this->init_training_year;
+      start_month = this->init_training_month;
+    }
+
+    /*
+     *              total_timesteps
+     *   ____________________________________________
+     *  |                                            |
+     *  v                                            v
+     * init_trainig                                 end prediction
+     *  |--------------------------------------------|
+     *  :           |--------------------------------|
+     *  :         start prediction                   :
+     *  ^           ^                                ^
+     *  |___________|________________________________|
+     *      diff              pred_timesteps
+     */
+    int total_timesteps = this->calculate_num_timesteps(
+        this->init_training_year, this->init_training_month, end_year,
+        end_month);
+
+    int pred_timesteps = this->calculate_num_timesteps(start_year, start_month,
+                                                       end_year, end_month);
+
+    int diff_timesteps = total_timesteps - pred_timesteps;
+    int truncate = 0;
+
+    int year = start_year;
+    int month = start_month;
+
+    this->pred_range.clear();
+    this->pred_range = vector<string>(pred_timesteps);
+
+    for (int ts = 0; ts < pred_timesteps; ts++) {
+      this->pred_range[ts] = std::to_string(year) + "-" + std::to_string(month);
+
+      if (month == 12) {
+        year++;
+        month = 1;
+      } else {
+        month++;
+      }
+    }
+
+    int pred_init_timestep = diff_timesteps;
+
+    if (diff_timesteps > this->n_timesteps) {
+      /*
+       *              total_timesteps
+       *   ____________________________________________
+       *  |                                            |
+       *  v                                            v
+       *tr_st           tr_ed     pr_st              pr_ed
+       *  |---------------|---------|------------------|
+       *  ^               ^         ^                  ^
+       *  |_______________|_________|__________________|
+       *  :  n_timesteps   truncate :   pred_timesteps
+       *  ^                         ^
+       *  |_________________________|
+       *            diff
+       */
+      pred_init_timestep = this->n_timesteps;
+      truncate = diff_timesteps - this->n_timesteps;
+      pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
+    }
+
+    this->set_initial_latent_states_for_prediction(pred_init_timestep);
+
+    this->sample_from_likelihood(pred_timesteps);
+
+    for (vector<Eigen::VectorXd> &latent_state_s :
+         this->latent_state_sequences) {
+      latent_state_s.erase(latent_state_s.begin(),
+                           latent_state_s.begin() + truncate);
+    }
+
+    for (vector<vector<vector<double>>> &observed_state_s :
+         this->observed_state_sequences) {
+      observed_state_s.erase(observed_state_s.begin(),
+                             observed_state_s.begin() + truncate);
+    }
+
+    return std::make_pair(this->pred_range, this->observed_state_sequences);
   }
 
   // TODO: Need testing
@@ -1647,17 +1793,12 @@ public:
       }
     }
   }
-  
-  //Temporary method for testing get_data_value()
-  double get_data_value_test(string indicator, 
-                             string country = "",
-                             string state = "",
-                             int year = 2012,
-                             int month = 1,
-                             string unit = "") 
-  {
-    double value = get_data_value(indicator,country,state,year,month,unit);
-    return value;   
-  }
 
+  // Temporary method for testing get_data_value()
+  double get_data_value_test(string indicator, string country = "",
+                             string state = "", int year = 2012, int month = 1,
+                             string unit = "") {
+    double value = get_data_value(indicator, country, state, year, month, unit);
+    return value;
+  }
 };
