@@ -668,13 +668,13 @@ public:
 
     pair<int, int> beta = make_pair(source, target);
 
-    pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range(beta);
+    pair<MMAPIterator, MMAPIterator> beta_dept_cells = this->beta2cell.equal_range(beta);
 
     cout << endl
          << "Cells of A afected by beta_(" << source << ", " << target << ")"
          << endl;
 
-    for (MMAPIterator it = res.first; it != res.second; it++) {
+    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second; it++) {
       cout << "(" << it->second.first * 2 << ", " << it->second.second * 2 + 1
            << ") ";
     }
@@ -1001,7 +1001,7 @@ public:
         this->training_latent_state_sequence_s.begin(),
         this->training_latent_state_sequence_s.end(),
         this->prediction_initial_latent_state_s.begin(),
-        [&timestep](vector<Eigen::VectorXd> ls) { return ls[timestep]; });
+        [&timestep](vector<Eigen::VectorXd> &ls) { return ls[timestep]; });
   }
 
   std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
@@ -1175,10 +1175,13 @@ public:
 
     // Allocate memory for latent_state_sequences
     this->latent_state_sequences = vector<vector<Eigen::VectorXd>>(
-        default_n_samples,
+        //default_n_samples, // A constant hard coded to be 100. From earlier code
+        this->res,
         vector<Eigen::VectorXd>(n_timesteps, Eigen::VectorXd(num_verts * 2)));
 
-    for (int samp = 0; samp < default_n_samples; samp++) {
+    //default_n_samples is a constant hard coded to be 100. From earlier code
+    //for (int samp = 0; samp < default_n_samples; samp++) {
+    for (int samp = 0; samp < this->res; samp++) {
       this->latent_state_sequences[samp][0] = this->s0_original;
 
       for (int ts = 1; ts < n_timesteps; ts++) {
@@ -1190,10 +1193,13 @@ public:
 
     // Allocate memory for observed_state_sequences
     this->observed_state_sequences = vector<vector<vector<vector<double>>>>(
-        default_n_samples,
+        //default_n_samples, // A constant hard coded to be 100. From earlier code
+        this->res,
         vector<vector<vector<double>>>(n_timesteps, vector<vector<double>>()));
 
-    for (int samp = 0; samp < default_n_samples; samp++) {
+    //default_n_samples is a constant hard coded to be 100. From earlier code
+    //for (int samp = 0; samp < default_n_samples; samp++) {
+    for (int samp = 0; samp < this->res; samp++) {
       vector<Eigen::VectorXd> &sample = this->latent_state_sequences[samp];
 
       std::transform(sample.begin(), sample.end(),
@@ -1279,16 +1285,15 @@ public:
 
     typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
-    pair<MMAPIterator, MMAPIterator> res = this->beta2cell.equal_range(beta);
+    pair<MMAPIterator, MMAPIterator> beta_dept_cells = this->beta2cell.equal_range(beta);
 
     // TODO: I am introducing this to implement calculate_Δ_log_prior
     // Remember the cells of A that got changed and their previous values
     // this->A_cells_changed.clear();
 
-    for (MMAPIterator it = res.first; it != res.second; it++) {
+    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second; it++) {
       int &row = it->second.first;
       int &col = it->second.second;
-      ;
 
       // Note that I am remembering row and col instead of 2*row and 2*col+1
       // row and col resembles an edge in the CAG: row -> col
