@@ -266,7 +266,7 @@ def createProjection(modelID):
     return jsonify(
         {
             "experimentId": experiment_id,
-            "results": executor.futures._state(experimentID),
+            "results": executor.futures._state(experiment_id),
         }
     )
 
@@ -291,7 +291,7 @@ def getExperimentResults(modelID: str, experimentID: str):
         return jsonify(
             {
                 "id": experimentID,
-                "results": experimentResult.deserialize(),
+                "results": experimentResult.deserialize()["results"],
                 "status": "COMPLETE",
             }
         )
