@@ -2,7 +2,7 @@
   "identifiers": [],
   "functions": [
     {
-      "name": "main",
+      "name": "SIR-Gillespie-SD::@global::main",
       "type": "container",
       "arguments": [],
       "updated": [],
@@ -183,7 +183,7 @@
       ]
     },
     {
-      "name": "gillespie",
+      "name": "SIR-Gillespie-SD::@global::gillespie",
       "type": "container",
       "arguments": [
         "SIR-Gillespie-SD::gillespie::S0::-1",
@@ -349,7 +349,7 @@
       ]
     },
     {
-      "name": "update_mean_var",
+      "name": "SIR-Gillespie-SD::@global::update_mean_var",
       "type": "container",
       "arguments": [
         "SIR-Gillespie-SD::update_mean_var::means::-1",
@@ -405,7 +405,7 @@
       ]
     },
     {
-      "name": "pyrand",
+      "name": "SIR-Gillespie-SD::@global::pyrand",
       "type": "container",
       "arguments": [
         "SIR-Gillespie-SD::pyrand::do_init::-1"
@@ -454,7 +454,7 @@
       ]
     },
     {
-      "name": "print_output",
+      "name": "SIR-Gillespie-SD::@global::print_output",
       "type": "container",
       "arguments": [
         "SIR-Gillespie-SD::print_output::L::-1"
@@ -484,11 +484,29 @@
         },
         {
           "function": {
-            "name": "@lang-object::builtin::print",
+            "name": "@function::builtin::write",
+            "type": "function_name"
+          },
+          "input": [],
+          "output": null,
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@function::builtin::format",
+            "type": "function_name"
+          },
+          "input": [],
+          "output": null,
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@function::builtin::format",
             "type": "function_name"
           },
           "input": [
-            "@lang-object::literal::string::----------"
+            "@literal::string::----------"
           ],
           "output": null,
           "updated": []
@@ -1389,6 +1407,71 @@
             "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1"
           ],
           "output": "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::0",
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "SIR-Gillespie-SD::print_output::loop$0",
+      "type": "loop",
+      "arguments": [
+        "SIR-Gillespie-SD::print_output.loop$0::L::-1"
+      ],
+      "updated": [],
+      "return_value": null,
+      "body": [
+        {
+          "function": {
+            "name": "SIR-Gillespie-SD::print_output.loop$0::assign__i::0",
+            "type": "lambda_source"
+          },
+          "input": [],
+          "output": "SIR-Gillespie-SD::print_output.loop$0::i::0",
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR-Gillespie-SD::print_output.loop$0::condition__IF_0::0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "SIR-Gillespie-SD::print_output.loop$0::i::0"
+          ],
+          "output": "SIR-Gillespie-SD::print_output.loop$0::IF_0::0",
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR-Gillespie-SD::print_output.loop$0::decision__BK::0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "SIR-Gillespie-SD::print_output.loop$0::IF_0::0"
+          ],
+          "output": "SIR-Gillespie-SD::print_output.loop$0::BK::0",
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@function::builtin::write",
+            "type": "function_name"
+          },
+          "input": [
+            "SIR-Gillespie-SD::print_output.loop$0::L::-1",
+            "SIR-Gillespie-SD::print_output.loop$0::i::0"
+          ],
+          "output": null,
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR-Gillespie-SD::print_output.loop$0::assign__i::1",
+            "type": "lambda_source"
+          },
+          "input": [
+            "SIR-Gillespie-SD::print_output.loop$0::i::0"
+          ],
+          "output": "SIR-Gillespie-SD::print_output.loop$0::i::1",
           "updated": []
         }
       ]
