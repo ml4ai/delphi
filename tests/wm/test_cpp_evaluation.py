@@ -27,4 +27,11 @@ def test_cpp_extensions():
     )
     G.print_indicators()
     G.train_model(2015, 1, 2015, 12, 1000, 10000)
-    G.generate_prediction(2016, 1, 2016, 12)
+    preds = G.generate_prediction(2015, 1, 2016, 12)
+    print(len(preds[0]))
+    print(len(preds[1]))
+    print(len(preds[1][0]))
+    print(preds[0])
+    predicted_point = preds[1][0]
+    for ts in predicted_point:
+        print(ts)
