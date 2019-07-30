@@ -26,3 +26,5 @@ def test_cpp_extensions():
         "UNHCR",
     )
     G.print_indicators()
+    G.train_model(2015, 1, 2015, 12, 1000, 10000)
+    G.generate_prediction(2016, 1, 2016, 12)
