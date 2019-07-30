@@ -22,7 +22,7 @@ def line_is_comment(line: str) -> bool:
     except within character literals, then everything after the ! on that
     line is a comment.
 
-    A totally blank line is a comment line.
+    A totally blank line is a comment line (we ignore this here).
 
     Args:
         line
@@ -32,14 +32,7 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    if line[0] in "cCdD*!":
-        return True
-
-    llstr = line.strip()
-    if len(llstr) == 0 or llstr[0] == "!":
-        return True
-
-    return False
+    return (line[0] in "cCdD*!")
 
 
 ################################################################################
@@ -62,13 +55,13 @@ RE_SUB_START = re.compile(SUB_START, re.I)
 FN_START = r"\s*(\w*\s*){0,2}function\s+(\w+)\s*\("
 RE_FN_START = re.compile(FN_START, re.I)
 
-PGM_UNIT = r"\s+\w*\s+(program|module|subroutine|(\w*\s*){0,2}function)\s+(\w+)"
+PGM_UNIT = r"\s*\w*\s*(program|module|subroutine|(\w*\s*){0,2}function)\s+(\w+)"
 RE_PGM_UNIT_START = re.compile(PGM_UNIT, re.I)
 
 PGM_UNIT_SEP = r"\s+contains(\W+)"
 RE_PGM_UNIT_SEP = re.compile(PGM_UNIT_SEP, re.I)
 
-PGM_UNIT_END = r"\s+[a-z]*\s+end\s+(program|module|subroutine|function)\s+"
+PGM_UNIT_END = r"\s*[a-z]*\s*end\s+(program|module|subroutine|function)\s+"
 RE_PGM_UNIT_END = re.compile(PGM_UNIT_END, re.I)
 
 SUBPGM_END = r"\s*end\s+"

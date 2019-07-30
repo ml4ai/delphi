@@ -10,8 +10,8 @@ def test_simple_path_construction():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
     G.add_node()
     G.add_node()
-    G.add_node()
-    G.add_node()
+    #G.add_node()
+    #G.add_node()
 
     print( 'Nodes of the graph:' )
     G.print_nodes()
@@ -33,8 +33,14 @@ def test_simple_path_construction():
     G.print_cells_affected_by_beta( 1, 2 )
     
     G2 = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+
+    G2.initialize( True )
     samples = G2.sample_from_prior()
     
     print( 'Nunber of samples from prior: ', len(samples) )
     for i in range(5):
         print( samples[i] )
+
+    G2.sample_from_likelihood( 10 )
+    
+    G.sample_from_proposal_debug()

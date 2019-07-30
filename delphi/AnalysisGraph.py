@@ -380,15 +380,13 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
-        self.n_timesteps = n_timesteps
         self.latent_state_sequences = lmap(
-            lambda A: ltake(
+            lambda A, t: ltake(
                 n_timesteps,
-                iterate(
-                    lambda s: pd.Series(A @ s.values, index=s.index), self.s0
-                ),
+                iterate(lambda s: pd.Series(A @ s.values, index=s.index), t),
             ),
             self.transition_matrix_collection,
+            self.initial_latent_states_for_prediction,
         )
 
         self.observed_state_sequences = [
@@ -452,7 +450,7 @@ class AnalysisGraph(nx.DiGraph):
 
     def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
-            self.n_timesteps, iterate(lambda s: A.dot(s), self.s0)
+            self.n_timesteps + 1, iterate(lambda s: A.dot(s), self.s0)
         )
 
     def sample_observed_state(self, s: pd.Series) -> Dict:
@@ -490,7 +488,7 @@ class AnalysisGraph(nx.DiGraph):
         # Remember the original value of the element, in case we need to revert
         # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.01)
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=1)
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)
