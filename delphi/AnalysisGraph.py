@@ -1133,12 +1133,12 @@ class AnalysisGraph(nx.DiGraph):
         self.tag_for_CX = True
         with app.app_context():
             db.create_all()
-            db.session.add(icm_metadata)
-            db.session.add(DelphiModel(id=self.id, model=self))
+            db.session.merge(icm_metadata)
+            db.session.merge(DelphiModel(id=self.id, model=self))
             for causal_primitive in causal_primitives:
-                db.session.add(causal_primitive)
+                db.session.merge(causal_primitive)
             for evidence in evidences:
-                db.session.add(evidence)
+                db.session.merge(evidence)
             db.session.commit()
 
     def to_agraph(
