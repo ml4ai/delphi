@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union, Cal lable, Tuple, List, Iterable
+from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from tqdm import trange
 import pickle
 import pandas as pd
@@ -445,13 +445,13 @@ def pred_plot(
 # ==========================================================================
 
 
-def walk_forward_val(
-        initial_training_window: Tuple[Tuple[int]],
-        end_prediction_date: Tuple[int],
-        burn: int = 10000,
-        res: int = 200,
-        **kwargs,
-) -> pd.DataFrame:
+#def walk_forward_val(
+#        initial_training_window: Tuple[Tuple[int]],
+#        end_prediction_date: Tuple[int],
+#        burn: int = 10000,
+#        res: int = 200,
+#        **kwargs,
+#) -> pd.DataFrame:
 
 
 # ==========================================================================
