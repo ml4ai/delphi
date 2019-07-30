@@ -21,7 +21,7 @@
 #include <typeinfo>
 
 using std::cout, std::endl, std::unordered_map, std::pair, std::string,
-    std::ifstream, std::stringstream, std::map, std::multimap, std::make_pair,
+    std::ifstream, std::stringstream, std::map, std::unordered_map, std::multimap, std::make_pair,
     std::tuple, std::make_tuple, std::set, boost::inner_product, boost::edge,
     boost::source, boost::target, boost::graph_bundle, boost::make_label_writer,
     boost::write_graphviz, boost::lambda::make_const, utils::load_json,
@@ -1004,7 +1004,8 @@ public:
         [&timestep](vector<Eigen::VectorXd> &ls) { return ls[timestep]; });
   }
 
-  std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
+  //std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
+  std::pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
   generate_prediction(int start_year, int start_month, int end_year,
                       int end_month) {
     if (!this->trained) {
@@ -1101,7 +1102,34 @@ public:
                              observed_state_s.begin() + truncate);
     }
 
-    return std::make_pair(this->pred_range, this->observed_state_sequences);
+    //return std::make_pair(this->pred_range, this->observed_state_sequences);
+    return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps));
+  }
+
+  vector< vector< unordered_map< string, unordered_map< string, double >>>> 
+  format_prediction_result(int pred_timesteps)
+  {
+    // Access
+    // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
+    vector< vector< unordered_map< string, unordered_map< string, double >>>> result = 
+    vector< vector< unordered_map< string, unordered_map< string, double >>>>
+        (this->res, vector< unordered_map< string, unordered_map< string, double >>>(pred_timesteps)) ;
+
+    for( int samp = 0; samp < this->res; samp++ )
+    {
+      for( int ts = 0; ts < pred_timesteps; ts++ )
+      {
+        for( auto[ vert_name, vert_id ] : this->name_to_vertex )
+        {
+          for( auto[ ind_name, ind_id ] : this->graph[ vert_id ].indicator_names )
+          {
+            result[ samp ][ ts ][ vert_name ][ ind_name ] = this->observed_state_sequences[ samp ][ ts ][ vert_id ][ ind_id ];
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   // TODO: Need testing
