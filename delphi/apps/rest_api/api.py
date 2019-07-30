@@ -16,7 +16,7 @@ from delphi.random_variables import LatentVar
 from delphi.utils import flatten, lmap
 from flask import jsonify, request, Blueprint
 from delphi.db import engine
-from delphi.apps.rest_api import db
+from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
 from delphi.random_variables import Indicator
 from sqlalchemy import exists
@@ -196,68 +196,72 @@ def createProjection(modelID):
                 for s in G.s0:
                     s[f"∂({n[0]})/∂t"] = rv.partial_t
 
-    id = str(uuid4())
-    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
-    db.session.add(experiment)
-    db.session.commit()
+    experiment_id = str(uuid4())
 
-    result = CauseMosForwardProjectionResult(
-        id=id, baseType="CauseMosForwardProjectionResult"
-    )
-    result.results = {
-        concept: {
-            "values": [],
-            "confidenceInterval": {"upper": [], "lower": []},
-        }
-        for concept in G
-    }
-    db.session.add(result)
+    def runExperiment():
+        experiment = ForwardProjection(baseType="ForwardProjection", id=experiment_id)
+        db.session.add(experiment)
+        db.session.commit()
 
-    startTime = data["startTime"]
-    d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
+        result = CauseMosForwardProjectionResult(
+            id=experiment_id, baseType="CauseMosForwardProjectionResult"
+        )
 
-    τ = 1.0  # Time constant to control the rate of the decay
-
-    # From https://www.ucl.ac.uk/child-health/short-courses-events/
-    #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-    n = len(G.s0)
-    lower_rank = int((n - 1.96 * sqrt(n)) / 2)
-    upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
-
-    for i in range(int(data["timeStepsInMonths"])):
-        d = d + relativedelta(months=1)
-
-        for n, attrs in G.nodes(data=True):
-            indicator = list(attrs['indicators'].values())[0]
-            if indicator.samples is not None:
-                values = sorted(indicator.samples)
-            else:
-                values = sorted([s[n]*indicator.mean for s in G.s0])
-            median_value = median(values)
-            lower_limit = values[lower_rank]
-            upper_limit = values[upper_rank]
-            value_dict = {
-                "year": d.year,
-                "month": d.month,
-                "value": median_value,
+        result.results = {
+            concept: {
+                "values": [],
+                "confidenceInterval": {"upper": [], "lower": []},
             }
+            for concept in G
+        }
+        db.session.add(result)
 
-            result.results[n]["values"].append(value_dict.copy())
-            value_dict.update({"value": lower_limit})
-            result.results[n]["confidenceInterval"]["lower"].append(
-                value_dict.copy()
-            )
-            value_dict.update({"value": upper_limit})
-            result.results[n]["confidenceInterval"]["upper"].append(
-                value_dict.copy()
-            )
+        startTime = data["startTime"]
+        d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
 
-        G.update(update_indicators=True, dampen=True, τ=τ)
+        τ = 1.0  # Time constant to control the rate of the decay
 
-    db.session.add(result)
-    db.session.commit()
+        # From https://www.ucl.ac.uk/child-health/short-courses-events/
+        #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+        n = len(G.s0)
+        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
-    return jsonify({"experimentId": experiment.id})
+        for i in range(int(data["timeStepsInMonths"])):
+            d = d + relativedelta(months=1)
+
+            for n, attrs in G.nodes(data=True):
+                indicator = list(attrs['indicators'].values())[0]
+                if indicator.samples is not None:
+                    values = sorted(indicator.samples)
+                else:
+                    values = sorted([s[n]*indicator.mean for s in G.s0])
+                median_value = median(values)
+                lower_limit = values[lower_rank]
+                upper_limit = values[upper_rank]
+                value_dict = {
+                    "year": d.year,
+                    "month": d.month,
+                    "value": median_value,
+                }
+
+                result.results[n]["values"].append(value_dict.copy())
+                value_dict.update({"value": lower_limit})
+                result.results[n]["confidenceInterval"]["lower"].append(
+                    value_dict.copy()
+                )
+                value_dict.update({"value": upper_limit})
+                result.results[n]["confidenceInterval"]["upper"].append(
+                    value_dict.copy()
+                )
+
+            G.update(update_indicators=True, dampen=True, τ=τ)
+
+        db.session.add(result)
+        db.session.commit()
+
+    executor.submit_stored(experiment_id, runExperiment)
+    return jsonify({"experimentId": experiment_id})
 
 
 @bp.route(
@@ -266,10 +270,13 @@ def createProjection(modelID):
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
-    experimentResult = CauseMosForwardProjectionResult.query.filter_by(
-        id=experimentID
-    ).first()
-    return jsonify(experimentResult.deserialize())
+    if not executor.futures.done(experimentID):
+        return jsonify({'status': executor.futures._state(experimentID)})
+    else:
+        experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+            id=experimentID
+        ).first()
+        return jsonify(experimentResult.deserialize())
 
 
 # ============
