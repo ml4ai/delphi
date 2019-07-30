@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
+from typing import Dict, Optional, Union, Cal lable, Tuple, List, Iterable
 from tqdm import trange
 import pickle
 import pandas as pd
@@ -175,11 +175,11 @@ def get_data_value(
 
 
 # ==========================================================================
-# Evaluation and inference functions
+# Inference Output functions
 # ==========================================================================
 
 
-def data_to_df(
+ def data_to_df(
     indicator: str,
     start_year: int,
     start_month: int,
@@ -438,6 +438,20 @@ def pred_plot(
     if save_as is not None:
         fig = ax.get_figure()
         fig.savefig(save_as)
+
+
+# ==========================================================================
+# Evaluation and Validation functions
+# ==========================================================================
+
+
+def walk_forward_val(
+        initial_training_window: Tuple[Tuple[int]],
+        end_prediction_date: Tuple[int],
+        burn: int = 10000,
+        res: int = 200,
+        **kwargs,
+) -> pd.DataFrame:
 
 
 # ==========================================================================
