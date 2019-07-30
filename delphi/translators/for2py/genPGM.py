@@ -120,11 +120,9 @@ class GrFNState:
 class GrFNGenerator(object):
     def __init__(self,
                  annotated_assigned=[],
-                 elif_grfn=[],
                  function_definitions=[]
                  ):
         self.annotated_assigned = annotated_assigned
-        self.elif_grfn = elif_grfn
         self.function_definitions = function_definitions
         self.fortran_file = None
         self.exclude_list = []
@@ -134,6 +132,7 @@ class GrFNGenerator(object):
         self.function_names = {}
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
+        self.elif_condition_number = None
 
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -435,6 +434,9 @@ class GrFNGenerator(object):
         ]
 
     def process_for(self, node, state, *_):
+        """
+            This function handles the ast.For node of the AST.
+        """
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
             scope_path.append("_TOP")
@@ -451,116 +453,130 @@ class GrFNGenerator(object):
             scope_path=scope_path,
         )
 
+        # Currently For-Else on Python is not supported
         if self.gen_grfn(node.orelse, state, "for"):
             raise For2PyError("For/Else in for not supported.")
 
-        indexVar = self.gen_grfn(node.target, state, "for")
-        if len(indexVar) != 1 or "var" not in indexVar[0]:
+        index_variable = self.gen_grfn(node.target, state, "for")
+
+        # Currently, only one variable is supported as a loop variable
+        if len(index_variable) != 1 or "var" not in index_variable[0]:
             raise For2PyError("Only one index variable is supported.")
-        indexName = indexVar[0]["var"]["variable"]
-        loopIter = self.gen_grfn(node.iter, state, "for")
+
+        index_name = index_variable[0]["var"]["variable"]
+
+        # Currently, the loop iterator is strictly a `range` function.
+        # TODO Will need to expand this over to arrays as iterators for loops
+        #  and other possible loop iterators
+        loop_iterator = self.gen_grfn(node.iter, state, "for")
         if (
-                len(loopIter) != 1
-                or "call" not in loopIter[0]
-                or loopIter[0]["call"]["function"] != "range"
+                len(loop_iterator) != 1
+                or "call" not in loop_iterator[0]
+                or loop_iterator[0]["call"]["function"] != "range"
         ):
             raise For2PyError("Can only iterate over a range.")
 
-        rangeCall = loopIter[0]["call"]
+        range_call = loop_iterator[0]["call"]
+
+        # Perform some sanity checks for the loop range call
         if (
-                len(rangeCall["inputs"]) != 2
-                or len(rangeCall["inputs"][0]) != 1
-                or len(rangeCall["inputs"][1]) != 1
+                len(range_call["inputs"][0]) != 1
+                or len(range_call["inputs"][1]) != 1
                 or (
-                "type" in rangeCall["inputs"][0]
-                and rangeCall["inputs"][0]["type"] == "literal"
-        )
+                "type" in range_call["inputs"][0]
+                and range_call["inputs"][0]["type"] == "literal"
+                )
                 or (
-                "type" in rangeCall["inputs"][1]
-                and rangeCall["inputs"][1]["type"] == "literal"
-        )
+                "type" in range_call["inputs"][1]
+                and range_call["inputs"][1]["type"] == "literal"
+                )
         ):
             raise For2PyError("Can only iterate over a constant range.")
 
-        if len(rangeCall["inputs"]) == 2:
-            iterationRange = {
-                "start": rangeCall["inputs"][0][0],
-                "end": rangeCall["inputs"][1][0],
+        if len(range_call["inputs"]) == 1:
+            iteration_range = {
+                "start": 0,
+                "end": range_call["inputs"][0][0]-1,
             }
-        elif len(rangeCall["inputs"]) == 3:
-            iterationRange = {
-                "start": rangeCall["inputs"][0][0],
-                "end": rangeCall["inputs"][1][0],
-                "step": rangeCall["inputs"][2][0],
+        elif len(range_call["inputs"]) == 2:
+            iteration_range = {
+                "start": range_call["inputs"][0][0],
+                "end": range_call["inputs"][1][0],
             }
+        elif len(range_call["inputs"]) == 3:
+            iteration_range = {
+                "start": range_call["inputs"][0][0],
+                "end": range_call["inputs"][1][0],
+                "step": range_call["inputs"][2][0],
+            }
+        else:
+            raise For2PyError(f"Invalid number of arguments in range: "
+                              f"{len(range_call['inputs'])}")
 
-        loopLastDef = {}
-        loopState = state.copy(
-            last_definitions=loopLastDef, next_definitions={},
+        loop_last_definition = {}
+        loop_state = state.copy(
+            last_definitions=loop_last_definition, next_definitions={},
             last_definition_default=-1
         )
 
-        loopState.last_definitions[indexName] = None
+        loop_state.last_definitions[index_name] = None
+        loop = self.gen_grfn(node.body, loop_state, "for")
 
-        loop = self.gen_grfn(node.body, loopState, "for")
+        # TODO Take a look at this function
+        loop_body, loop_functions, identifier_specification = \
+            get_body_and_functions(loop)
 
-        loopBody, loopFns, iden_spec = get_body_and_functions(loop)
-
-        # If loopLastDef[x] == 0, this means that the variable was not
+        # If loop_last_definition[x] == 0, this means that the variable was not
         # declared before the loop and is being declared/defined within
         # the loop. So we need to remove that from the variable_list
-        variable_list = [x for x in loopLastDef if (x != indexName and
-                                                    state.last_definitions[
-                                                        x] !=
-                                                    0)]
+        variable_list = [x for x in loop_last_definition if (x != index_name and
+                         state.last_definitions[x] != 0)]
 
+        # TODO change this
         variables = [
             {"name": variable, "domain": state.variable_types[variable]}
             for variable in variable_list
         ]
 
-        # Removing the indexing of the loop index variable from the loopName
-        # loopName = get_function_name(
-        #     f"{state.function_name}__loop_plate__{
-        #     indexName}", {}
-        # )
+        loop_plate = state.function_name + "__loop_plate__" + index_name
 
-        loopName = state.function_name + "__loop_plate__" + indexName
-
-        loopFn = {
-            "name": loopName,
+        # TODO This will be removed and be part of the container spec
+        loop_function = {
+            "name": loop_plate,
             "type": "loop_plate",
             "input": variables,
-            "index_variable": indexName,
-            "index_iteration_range": iterationRange,
-            "body": loopBody,
+            "index_variable": index_name,
+            "index_iteration_range": iteration_range,
+            "body": loop_body,
         }
 
-        id_specList = self.make_identifier_spec(
-            loopName, indexName, {}, state
+        id_spec_list = self.make_identifier_spec(
+            loop_plate, index_name, {}, state
         )
-        loopCall = {
-            "name": loopName,
+
+        # TODO change this
+        loop_call = {
+            "name": loop_plate,
             "input": [
                 {
                     "name": variable,
-                    "index": loopState.last_definitions[variable]
+                    "index": loop_state.last_definitions[variable]
                 }
                 for variable in variable_list
             ],
             "output": {}
         }
 
-        pgm = {
-            "functions": loopFns + [loopFn],
-            "body": [loopCall],
+        grfn = {
+            "functions": loop_functions + [loop_function],
+            "body": [loop_call],
             "identifiers": [],
         }
 
-        for id_spec in id_specList:
-            pgm["identifiers"].append(id_spec)
+        for id_spec in id_spec_list:
+            grfn["identifiers"].append(id_spec)
 
-        return [pgm]
+        return [grfn]
 
     def process_if(self, node, state, call_source):
         """
@@ -574,177 +590,157 @@ class GrFNGenerator(object):
         scope_path.append("if")
 
         state.scope_path = scope_path
+        grfn = {"functions": [], "body": [], "identifiers": []}
 
-        # If a ast.If is present within another ast.If, the call_source will
-        # be `if`. This can happen in two cases:
-        # 1. A nested if condition.
-        # 2. A Fortran if-else condition which when translated to Python is
-        # converted into a else: if .. condition (See PETASCE_simple.py for
-        # example).
-        if call_source == "if":
-            grfn = {"functions": [], "body": [], "identifiers": []}
+        # Get the GrFN schema of the test condition of the `IF` command
+        condition_sources = self.gen_grfn(node.test, state, "if")
 
-            condition_sources = self.gen_grfn(node.test, state, "if")
+        # The index of the IF_x_x variable will start from 0
+        if state.last_definition_default in (-1, 0):
+            default_if_index = state.last_definition_default + 1
+        else:
+            assert False, f"Invalid value of last_definition_default:" \
+                f"{state.last_definition_default}"
 
-            start_definitions = state.last_definitions.copy()
-            if_definitions = start_definitions.copy()
-            else_definitions = start_definitions.copy()
-            if_state = state.copy(last_definitions=if_definitions)
-            else_state = state.copy(last_definitions=else_definitions)
-            if_grfn = self.gen_grfn(node.body, if_state, "if")
-            else_grfn = self.gen_grfn(node.orelse, else_state, "if")
+        if call_source != "if":
+            condition_number = state.next_definitions.get("#cond",
+                                                          default_if_index)
+            state.next_definitions["#cond"] = condition_number + 1
+        else:
+            condition_number = self.elif_condition_number
 
-            updated_definitions = [
-                var
-                for var in set(start_definitions.keys())
-                    .union(if_definitions.keys())
-                    .union(else_definitions.keys())
-                if var not in start_definitions
-                   or if_definitions[var] != start_definitions[var]
-                   or else_definitions[var] != start_definitions[var]
-            ]
+        condition_name = f"IF_{condition_number}"
+        state.variable_types[condition_name] = "bool"
 
-            grfn["functions"] += reduce(
-                (lambda x, y: x + y["functions"]), [[]] + if_grfn
-            ) + reduce((lambda x, y: x + y["functions"]), [[]] + else_grfn)
+        # TODO: Is this used anywhere?
+        state.last_definitions[condition_name] = 0
 
-            grfn["body"] += reduce(
-                (lambda x, y: x + y["body"]), [[]] + if_grfn
-            ) + reduce((lambda x, y: x + y["body"]), [[]] + else_grfn)
-
-            self.elif_grfn = [
-                grfn,
-                condition_sources,
-                node.test,
-                node.lineno,
-                node,
-                updated_definitions,
-                if_definitions,
-                state,
-            ]
-            return []
-
-        pgm = {"functions": [], "body": [], "identifiers": []}
-
-        condSrcs = self.gen_grfn(node.test, state, "if")
-
-        # Making the index of IF_X_X start from 1 instead of 2
-        condNum = state.next_definitions.get("#cond",
-                                             state.last_definition_default
-                                             + 2)
-        state.next_definitions["#cond"] = condNum + 1
-
-        condName = f"IF_{condNum}"
-        state.variable_types[condName] = "bool"
-        state.last_definitions[condName] = 0
         function_name = get_function_name(self.function_names,
                                           f"{state.function_name}__condition__"
-                                          f"{condName}", {})
+                                          f"{condition_name}", {})
 
-        # The condName is of the form 'IF_1' and the index holds the
-        # ordering of the condName. This means that index should increment
-        # of every new 'IF' statement. Previously, it was set to set to 0.
-        # But, 'function_name' holds the current index of 'condName'
+        # The condition_name is of the form 'IF_1' and the index holds the
+        # ordering of the condition_name. This means that index should increment
+        # for every new 'IF' statement. Previously, it was set to set to 0.
+        # But, 'function_name' holds the current index of 'condition_name'
         # So, extract the index from 'function_name'.
-        # condOutput = {"variable": condName, "index": 0}
-        condOutput = {"variable": condName, "index": int(function_name[-1])}
+        condition_output = {"variable": condition_name, "index": int(
+            function_name[-1])}
 
+        # TODO
+        # Creating the condition block
         fn = {
             "name": function_name,
             "type": "condition",
-            "target": condName,
+            "target": condition_name,
             "reference": node.lineno,
             "sources": [
                 {"name": src["var"]["variable"], "type": "variable"}
-                for src in condSrcs
+                for src in condition_sources
                 if "var" in src
             ],
         }
 
-        id_specList = self.make_identifier_spec(
+        # TODO
+        id_spec_list = self.make_identifier_spec(
             function_name,
-            condOutput,
-            [src["var"] for src in condSrcs if "var" in src],
+            condition_output,
+            [src["var"] for src in condition_sources if "var" in src],
             state,
         )
 
-        for id_spec in id_specList:
-            pgm["identifiers"].append(id_spec)
+        # TODO
+        for id_spec in id_spec_list:
+            grfn["identifiers"].append(id_spec)
 
+        # TODO
         body = {
             "name": function_name,
-            "output": condOutput,
-            "input": [src["var"] for src in condSrcs if "var" in src],
+            "output": condition_output,
+            "input": [src["var"] for src in condition_sources if "var" in src],
         }
 
-        pgm["functions"].append(fn)
-        pgm["body"].append(body)
+        grfn["functions"].append(fn)
+        grfn["body"].append(body)
+
         lambda_string = genFn(
             node.test,
             function_name,
             None,
-            [src["var"]["variable"] for src in condSrcs if "var" in src],
+            [src["var"]["variable"] for src in condition_sources if
+             "var" in src],
             state,
         )
         state.lambda_strings.append(lambda_string)
-        startDefs = state.last_definitions.copy()
-        ifDefs = startDefs.copy()
-        elseDefs = startDefs.copy()
-        ifState = state.copy(last_definitions=ifDefs)
-        elseState = state.copy(last_definitions=elseDefs)
-        ifPgm = self.gen_grfn(node.body, ifState, "if")
-        elsePgm = self.gen_grfn(node.orelse, elseState, "if")
 
-        pgm["functions"] += reduce(
-            (lambda x, y: x + y["functions"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
+        start_definitions = state.last_definitions.copy()
+        if_definitions = start_definitions.copy()
+        else_definitions = start_definitions.copy()
+        if_state = state.copy(last_definitions=if_definitions)
+        else_state = state.copy(last_definitions=else_definitions)
+        if_grfn = self.gen_grfn(node.body, if_state, "if")
+        # Note that `else_grfn` will be empty if the else block contains
+        # another `if-else` block
+        else_node_name = node.orelse.__repr__().split()[0][3:]
+        if else_node_name != "ast.If":
+            else_grfn = self.gen_grfn(node.orelse, else_state, "if")
+        else:
+            else_grfn = []
+            self.elif_condition_number = condition_number
 
-        pgm["body"] += reduce(
-            (lambda x, y: x + y["body"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
+        for spec in if_grfn:
+            grfn["functions"] += spec["functions"]
+            grfn["body"] += spec["body"]
 
-        updatedDefs = [
+        for spec in else_grfn:
+            grfn["functions"] += spec["functions"]
+            grfn["body"] += spec["body"]
+
+        updated_definitions = [
             var
-            for var in set(startDefs.keys())
-                .union(ifDefs.keys())
-                .union(elseDefs.keys())
-            if var not in startDefs
-               or ifDefs[var] != startDefs[var]
-               or elseDefs[var] != startDefs[var]
+            for var in set(start_definitions.keys())
+            .union(if_definitions.keys())
+            .union(else_definitions.keys())
+            if var not in start_definitions
+            or if_definitions[var] != start_definitions[var]
+            or else_definitions[var] != start_definitions[var]
         ]
 
-        defVersions = {
-            key: [
+        # For every updated variable in the `if-else` block, get a list of
+        # all defined indices of that variable
+        defined_versions = {}
+        for key in updated_definitions:
+            defined_versions[key] = [
                 version
                 for version in [
-                    startDefs.get(key),
-                    ifDefs.get(key),
-                    elseDefs.get(key),
+                    start_definitions.get(key),
+                    if_definitions.get(key),
+                    else_definitions.get(key),
                 ]
                 if version is not None
             ]
-            for key in updatedDefs
-        }
 
-        for updatedDef in defVersions:
-            versions = defVersions[updatedDef]
+        # For every updated identifier, we need one __decision__ block. So
+        # iterate over all updated identifiers.
+        for updated_definition in defined_versions:
+            versions = defined_versions[updated_definition]
             inputs = (
                 [
-                    condOutput,
-                    {"variable": updatedDef, "index": versions[-1]},
-                    {"variable": updatedDef, "index": versions[-2]},
+                    condition_output,
+                    {"variable": updated_definition, "index": versions[-1]},
+                    {"variable": updated_definition, "index": versions[-2]},
                 ]
                 if len(versions) > 1
                 else [
-                    condOutput,
-                    {"variable": updatedDef, "index": versions[0]},
+                    condition_output,
+                    {"variable": updated_definition, "index": versions[0]},
                 ]
             )
 
             output = {
-                "variable": updatedDef,
+                "variable": updated_definition,
                 "index": get_next_definition(
-                    updatedDef,
+                    updated_definition,
                     state.last_definitions,
                     state.next_definitions,
                     state.last_definition_default,
@@ -753,13 +749,15 @@ class GrFNGenerator(object):
 
             function_name = get_function_name(
                 self.function_names,
-                f"{state.function_name}__decision__{updatedDef}", output
+                f"{state.function_name}__decision__{updated_definition}", output
             )
 
+            # TODO
+            # Creating the __decision__ block
             fn = {
                 "name": function_name,
                 "type": "decision",
-                "target": updatedDef,
+                "target": updated_definition,
                 "reference": node.lineno,
                 "sources": [
                     {
@@ -770,230 +768,40 @@ class GrFNGenerator(object):
                 ],
             }
 
-            # Check for buggy __decision__ tag containing of only IF_ blocks
-            # More information required on how __decision__ tags are made
-            # This seems to be in development phase and documentation is
-            # missing from the GrFN spec as well. Actual removal (or not)
-            # of this tag depends on further information about this
+            # TODO
+            body = {"name": function_name, "output": output, "input": inputs}
 
-            if "IF_" in updatedDef:
-                count = 0
-                for var in inputs:
-                    if "IF_" in var["variable"]:
-                        count += 1
-                if count == len(inputs):
-                    continue
-
-            body = {"name": function_name, "output": output, "input":
-                inputs}
-
-            id_specList = self.make_identifier_spec(
+            # TODO
+            id_spec_list = self.make_identifier_spec(
                 function_name, output, inputs, state
             )
 
-            for id_spec in id_specList:
-                pgm["identifiers"].append(id_spec)
+            # TODO
+            for id_spec in id_spec_list:
+                grfn["identifiers"].append(id_spec)
 
             lambda_string = genFn(
                 node,
                 function_name,
-                updatedDef,
+                updated_definition,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
                 state,
             )
             state.lambda_strings.append(lambda_string)
 
-            pgm["functions"].append(fn)
-            pgm["body"].append(body)
+            grfn["functions"].append(fn)
+            grfn["body"].append(body)
 
-        # Previous ELIF Block is filled??
-        if len(self.elif_grfn) > 0:
+        if else_node_name == "ast.If":
+            # else_definitions = state.last_definitions.copy()
+            else_state = state.copy(last_definitions=state.last_definitions)
+            elseif_grfn = self.gen_grfn(node.orelse, else_state, "if")
+            for spec in elseif_grfn:
+                grfn["functions"] += spec["functions"]
+                grfn["body"] += spec["body"]
+                grfn["identifiers"] += spec["identifiers"]
 
-            condSrcs = self.elif_grfn[1]
-
-            for item in self.elif_grfn[0]["functions"]:
-                pgm["functions"].append(item)
-
-            for item in self.elif_grfn[0]["body"]:
-                pgm["body"].append(item)
-
-            state.next_definitions["#cond"] = condNum + 1
-
-            condName = f"IF_{condNum}"
-            state.variable_types[condName] = "bool"
-            state.last_definitions[condName] = 0
-            function_name = get_function_name(
-                self.function_names,
-                f"{state.function_name}__condition__{condName}", {}
-            )
-            condOutput = {
-                "variable": condName,
-                "index": int(function_name[-1])
-            }
-
-            fn = {
-                "name": function_name,
-                "type": "condition",
-                "target": condName,
-                "reference": self.elif_grfn[3],
-                "sources": [
-                    {
-                        "name": src["var"]["variable"],
-                        "type": "variable",
-                    }
-                    for src in condSrcs
-                    if "var" in src
-                ],
-            }
-
-            id_specList = self.make_identifier_spec(
-                function_name,
-                condOutput,
-                [src["var"] for src in condSrcs if "var" in src],
-                state,
-            )
-
-            for id_spec in id_specList:
-                pgm["identifiers"].append(id_spec)
-
-            body = {
-                "name": function_name,
-                "output": condOutput,
-                "input": [
-                    src["var"] for src in condSrcs if "var" in src
-                ],
-            }
-            pgm["functions"].append(fn)
-            pgm["body"].append(body)
-
-            lambda_string = genFn(
-                self.elif_grfn[2],
-                function_name,
-                None,
-                [
-                    src["var"]["variable"]
-                    for src in condSrcs
-                    if "var" in src
-                ],
-                state,
-            )
-            state.lambda_strings.append(lambda_string)
-
-            startDefs = state.last_definitions.copy()
-            ifDefs = self.elif_grfn[6]
-            elseDefs = startDefs.copy()
-
-            updatedDefs = self.elif_grfn[5]
-
-            defVersions = {
-                key: [
-                    version
-                    for version in [
-                        startDefs.get(key),
-                        ifDefs.get(key),
-                        elseDefs.get(key),
-                    ]
-                    if version is not None
-                ]
-                for key in updatedDefs
-            }
-
-            for updatedDef in defVersions:
-                versions = defVersions[updatedDef]
-                inputs = (
-                    [
-                        condOutput,
-                        {
-                            "variable": updatedDef,
-                            "index": versions[-1],
-                        },
-                        {
-                            "variable": updatedDef,
-                            "index": versions[-2],
-                        },
-                    ]
-                    if len(versions) > 1
-                    else [
-                        condOutput,
-                        {"variable": updatedDef, "index": versions[0]},
-                    ]
-                )
-
-                output = {
-                    "variable": updatedDef,
-                    "index": get_next_definition(
-                        updatedDef,
-                        state.last_definitions,
-                        state.next_definitions,
-                        state.last_definition_default,
-                    ),
-                }
-                function_name = get_function_name(
-                    self.function_names,
-                    f"{state.function_name}__decision__{updatedDef}",
-                    output,
-                )
-                fn = {
-                    "name": function_name,
-                    "type": "decision",
-                    "target": updatedDef,
-                    "reference": self.elif_grfn[3],
-                    "sources": [
-                        {
-                            "name": f"{var['variable']}_{var['index']}",
-                            "type": "variable",
-                        }
-                        for var in inputs
-                    ],
-                }
-
-                # Check for buggy __decision__ tag containing of only
-                # IF_ blocks. More information required on how
-                # __decision__ tags are made.
-                # This seems to be in development phase and documentation is
-                # missing from the GrFN spec as well. Actual removal
-                # (or not) of this tag depends on further information
-                # about this
-
-                if "IF_" in updatedDef:
-                    count = 0
-                    for var in inputs:
-                        if "IF_" in var["variable"]:
-                            count += 1
-                    if count == len(inputs):
-                        continue
-
-                body = {
-                    "name": function_name,
-                    "output": output,
-                    "input": inputs,
-                }
-
-                id_specList = self.make_identifier_spec(
-                    function_name, output, inputs, state
-                )
-
-                for id_spec in id_specList:
-                    pgm["identifiers"].append(id_spec)
-
-                lambda_string = genFn(
-                    self.elif_grfn[4],
-                    function_name,
-                    updatedDef,
-                    [
-                        f"{src['variable']}_{src['index']}"
-                        for src in inputs
-                    ],
-                    state,
-                )
-                state.lambda_strings.append(lambda_string)
-
-                pgm["functions"].append(fn)
-                pgm["body"].append(body)
-
-            self.elif_grfn = []
-
-        return [pgm]
+        return [grfn]
 
     def process_unary_operation(self, node, state, *_):
         """
@@ -1815,23 +1623,19 @@ def merge_dictionary(dicts: Iterable[Dict]) -> Dict:
 
 
 def get_function_name(function_names, basename, target):
+    """
+        This function creates the function name in GrFN format for every
+        assign/container function encounter in the program.
+    """
+
     # First, check whether the basename is a 'decision' block. If it is, we
     # need to get it's index from the index of its corresponding identifier's
     # 'assign' block. We do not use the index of the 'decision' block as that
     # will not correspond with that of the 'assign' block.  For example: for
     # petpt__decision__albedo, its index will be the index of the latest
     # petpt__assign__albedo + 1
-
     if "__decision__" in basename:
-        part_match = re.match(
-            r"(?P<body>\S+)__decision__(?P<identifier>\S+)", basename
-        )
-        if part_match:
-            new_basename = (
-                part_match.group("body")
-                + "__assign__"
-                + part_match.group("identifier")
-            )
+        new_basename = basename.replace("__decision__", "__assign__")
     else:
         new_basename = basename
     function_id = function_names.get(new_basename, 0)
@@ -1911,8 +1715,9 @@ def get_variable_type(annotation_node):
 def get_body_and_functions(pgm):
     body = list(chain.from_iterable(stmt["body"] for stmt in pgm))
     fns = list(chain.from_iterable(stmt["functions"] for stmt in pgm))
-    iden_spec = list(chain.from_iterable(stmt["identifiers"] for stmt in pgm))
-    return body, fns, iden_spec
+    identifier_specification = list(chain.from_iterable(stmt["identifiers"]
+                                                        for stmt in pgm))
+    return body, fns, identifier_specification
 
 
 def generate_gensym(tag):
