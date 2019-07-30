@@ -1121,7 +1121,7 @@ public:
       latent_state_s.erase(latent_state_s.begin(),
                            latent_state_s.begin() + truncate);
     }
-
+  
     for (vector<vector<vector<double>>> &observed_state_s :
          this->observed_state_sequences) {
       observed_state_s.erase(observed_state_s.begin(),
@@ -1129,7 +1129,7 @@ public:
     }
 
     //return std::make_pair(this->pred_range, this->observed_state_sequences);
-    return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps));
+    return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps - truncate));
   }
 
   vector< vector< unordered_map< string, unordered_map< string, double >>>> 
