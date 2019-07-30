@@ -55,9 +55,11 @@ def createNewModel():
     id = data["id"]
     if db.session.query(ICMMetadata.id).filter_by(id=id).scalar() is not None:
         ICMMetadata.query.filter_by(id=id).delete()
-        CausalVariable.query.filter_by(model_id=id).delete()
-        CausalRelationship.query.filter_by(model_id=id).delete()
         DelphiModel.query.filter_by(id=id).delete()
+        for record in CausalVariable.query.filter_by(model_id=id):
+            db.session.delete(record)
+        for record in CausalRelationship.query.filter_by(model_id=id):
+            db.session.delete(record)
         db.session.commit()
 
     G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
