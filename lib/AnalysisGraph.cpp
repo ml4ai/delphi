@@ -1092,7 +1092,7 @@ public:
 
     int pred_init_timestep = diff_timesteps;
 
-    if (diff_timesteps > this->n_timesteps) {
+    if (diff_timesteps >= this->n_timesteps) {
       /*
        *              total_timesteps
        *   ____________________________________________
