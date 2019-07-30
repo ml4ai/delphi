@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
-import os
-import re
 import json
-from math import exp, sqrt
-from uuid import uuid4
+import os
 import pickle
-from datetime import date, timedelta, datetime
-import dateutil
-from dateutil.relativedelta import relativedelta
-from typing import Optional, List
+import re
+from datetime import date, datetime, timedelta
 from itertools import product
-from statistics import median, mean
+from math import exp, sqrt
+from statistics import mean, median
+from typing import List, Optional
+from uuid import uuid4
+
+import dateutil
+import numpy as np
+import scipy.stats
+from dateutil.relativedelta import relativedelta
+from flask import Blueprint, current_app, jsonify, request
+from sqlalchemy import exists
+
 from delphi.AnalysisGraph import AnalysisGraph
-from delphi.random_variables import LatentVar
-from delphi.utils import flatten, lmap
-from flask import jsonify, request, Blueprint
-from delphi.db import engine
 from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
-from delphi.random_variables import Indicator
-from sqlalchemy import exists
-import numpy as np
-from flask import current_app
-import scipy.stats
+from delphi.db import engine
+from delphi.random_variables import Indicator, LatentVar
+from delphi.utils import flatten, lmap
 
 bp = Blueprint("rest_api", __name__)
 
@@ -199,7 +199,9 @@ def createProjection(modelID):
     experiment_id = str(uuid4())
 
     def runExperiment():
-        experiment = ForwardProjection(baseType="ForwardProjection", id=experiment_id)
+        experiment = ForwardProjection(
+            baseType="ForwardProjection", id=experiment_id
+        )
         db.session.add(experiment)
         db.session.commit()
 
@@ -231,11 +233,11 @@ def createProjection(modelID):
             d = d + relativedelta(months=1)
 
             for n, attrs in G.nodes(data=True):
-                indicator = list(attrs['indicators'].values())[0]
+                indicator = list(attrs["indicators"].values())[0]
                 if indicator.samples is not None:
                     values = sorted(indicator.samples)
                 else:
-                    values = sorted([s[n]*indicator.mean for s in G.s0])
+                    values = sorted([s[n] * indicator.mean for s in G.s0])
                 median_value = median(values)
                 lower_limit = values[lower_rank]
                 upper_limit = values[upper_rank]
@@ -261,7 +263,12 @@ def createProjection(modelID):
         db.session.commit()
 
     executor.submit_stored(experiment_id, runExperiment)
-    return jsonify({"experimentId": experiment_id})
+    return jsonify(
+        {
+            "experimentId": experiment_id,
+            "results": executor.futures._state(experimentID),
+        }
+    )
 
 
 @bp.route(
@@ -271,12 +278,23 @@ def createProjection(modelID):
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
     if not executor.futures.done(experimentID):
-        return jsonify({'status': executor.futures._state(experimentID)})
+        return jsonify(
+            {
+                "id": experimentID,
+                "status": executor.futures._state(experimentID),
+            }
+        )
     else:
         experimentResult = CauseMosForwardProjectionResult.query.filter_by(
             id=experimentID
         ).first()
-        return jsonify(experimentResult.deserialize())
+        return jsonify(
+            {
+                "id": experimentID,
+                "results": experimentResult.deserialize(),
+                "status": "COMPLETE",
+            }
+        )
 
 
 # ============
