@@ -1055,7 +1055,7 @@ public:
      *   ____________________________________________
      *  |                                            |
      *  v                                            v
-     * init_trainig                                 end prediction
+     * start trainig                                 end prediction
      *  |--------------------------------------------|
      *  :           |--------------------------------|
      *  :         start prediction                   :
@@ -1107,7 +1107,7 @@ public:
        *  |_________________________|
        *            diff
        */
-      pred_init_timestep = this->n_timesteps;
+      pred_init_timestep = this->n_timesteps - 1;
       truncate = diff_timesteps - this->n_timesteps;
       pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
     }
@@ -1403,6 +1403,9 @@ public:
     // Allocate memory for latent_state_sequence
     this->latent_state_sequence = vector<Eigen::VectorXd>(
         this->n_timesteps, Eigen::VectorXd(num_verts * 2));
+
+    this->latent_state_sequence.clear();
+    this->latent_state_sequence = vector< Eigen::VectorXd >( this->n_timesteps );
 
     // TODO: Disambiguate the type of s0 in the python implementation of this
     // method.
