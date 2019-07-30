@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/progress.hpp>
 
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
@@ -361,6 +362,23 @@ private:
 
     this->construct_beta_pdfs();
     this->find_all_paths();
+
+    /*
+    int iter = 1e9;
+    boost::progress_display progress_bar(iter);
+    boost::progress_timer t;
+    double temp;
+    for( int i = 1; i < iter/2; i++)
+    {
+      temp = sin(i) / i;
+      ++progress_bar;
+    }
+    for( int i = 1; i < iter/2; i++)
+    {
+      temp = sin(i) / i;
+      ++progress_bar;
+    }
+    */
   }
 
 public:
@@ -962,10 +980,15 @@ public:
     this->training_latent_state_sequence_s =
         vector<vector<Eigen::VectorXd>>(this->res);
 
+
+    boost::progress_display progress_bar( burn + this->res );
+    boost::progress_timer t;
+
     for (int _ = 0; _ < burn; _++) {
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
       this->A_original = this->sample_from_posterior(this->A_original);
+      ++progress_bar;
     }
 
     for (int samp = 0; samp < this->res; samp++) {
@@ -976,9 +999,12 @@ public:
       this->transition_matrix_collection[samp] = this->A_original;
       this->training_latent_state_sequence_s[samp] =
           this->latent_state_sequence;
+      ++progress_bar;
     }
 
     this->trained = true;
+    fmt::print("\n");
+    return;
   }
 
   /**
