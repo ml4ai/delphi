@@ -874,7 +874,7 @@ public:
         // Even indexes of the latent state vector represent variables
         this->s0_original(2 * v) = ind_value / ind_mean;
 
-        if (timestep == this->n_timesteps) {
+        if (timestep == this->n_timesteps - 1) {
           double prev_ind_value =
               this->observed_state_sequence[timestep - 1][v][i];
           double prev_state_value = prev_ind_value / ind_mean;
@@ -919,9 +919,6 @@ public:
     }
     */
 
-    // *Loren: This will no longer be needed, the c++ version of parameterize
-    // will handle this.
-    // this->set_mean_for_data();
 
     this->init_training_year = start_year;
     this->init_training_month = start_month;
@@ -1092,7 +1089,7 @@ public:
 
     int pred_init_timestep = diff_timesteps;
 
-    if (diff_timesteps >= this->n_timesteps) {
+    if (diff_timesteps > this->n_timesteps) {
       /*
        *              total_timesteps
        *   ____________________________________________
