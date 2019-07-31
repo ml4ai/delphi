@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.8
+  version: 0.2.9
 
 paths: {}
 
@@ -64,7 +64,7 @@ components:
         - source
         - identifiers
         - variables
-        - functions
+        - containers
       properties:
         date_created:
           type: string
@@ -80,13 +80,9 @@ components:
         start:
           type: array
           items:
-            $ref: '#/components/schemas/function_name'
+            $ref: '#/components/schemas/container_identifier_name'
           description:
             (optional) Top-level entry-points into program
-        identifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/identifier_def'
         types:
           type: array
           items:
@@ -95,12 +91,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/variable_def'
-        functions:
+        containers:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/function_assign_def'
-              - $ref: '#/components/schemas/function_container_def'
+            $ref: '#/components/schemas/container_def'
         grounding:
           type: array
           items:
@@ -129,7 +123,8 @@ components:
       title: <link_element>
       description: >
         A grounding hypothesis link element.<br>
-        "type": identifier (<variable_name>, <function_name>, <type_name>),
+        "type": identifier (<variable_identifier_name>,
+        <function_identifier_name>, <type_identifier_name>),
         content_span, text_span, equation_term, or ontology_term
       required:
         - type
@@ -153,38 +148,6 @@ components:
             - definition
             - units
             - constraint
-
-    identifier_def:
-      title: <identifier_def>
-      description: >
-        Defines a source code identifier, the context of it's creation
-        and use, and associates with it a unique gensym.
-      required:
-        - name
-        - base_name
-        - scope
-        - namespace
-        - source_refs
-        - gensym
-      properties:
-        type:
-          type: string
-          enum:
-            - variable
-            - function
-            - type
-        base_name:
-          $ref: '#/components/schemas/base_name'
-        scope:
-          $ref: '#/components/schemas/scope_path'
-        namespace:
-          $ref: '#/components/schemas/namespace_path'
-        source_refs:
-          type: array
-          items:
-            $ref: '#/components/schemas/source_code_ref'
-        gensym:
-          $ref: '#/components/schemas/gensym'
 
     base_name:
       title: <base_name>
@@ -237,26 +200,42 @@ components:
         generated from GrFN.
       type: string
 
-    variable_name:
-      title: <variable_name>
+    variable_identifier_name:
+      title: <variable_identifier_name>
       description: >
-        `"@variable::<namespace_path_string>::<scope_path_string>::<base_name>::<index>"`
+        `"@variable::<namespace_path_string>::<scope_path_string>::<variable_base_name>"`
       type: string
 
-    function_name:
-      title: <function_name>
+    variable_base_name:
+      title: <variable_base_name>
       description: >
-        `"@function::<namespace_path_string>::<scope_path_string>::<base_name>"`<br>
-        where:<br>
-        `<base_name> ::= <function_type>[$[<var_affected>|<code_given_name>]]`
+        `"@variable::<base_name>::<index>"`
       type: string
 
-    type_name:
-      title: <type_name>
+    container_identifier_name:
+      title: <container_identifier_name>
+      description: >
+        `"@container::<namespace_path_string>::<scope_path_string>::<container_base_name>"`
+      type: string
+
+    container_base_name:
+      title: <container_base_name>
+      description: >
+        `"@container::<container_type>[$[<var_affected>|<code_given_name>]]"`
+      type: string
+
+    type_identifier_name:
+      title: <type_identifier_name>
       description: >
         String denoting a non-primitive type; will have a corresponding unique
         `<type_spec>`:<br>
         `"@type::<namespace_path_string>::<scope_path_string>::<base_name>"`
+      type: string
+
+    type_base_name:
+      title: <type_base_name>
+      description: >
+        `"@type::<base_name>"`
       type: string
 
     literal_name:
@@ -275,14 +254,24 @@ components:
         Define a non-primitive type.
       required:
         - name
-        - type
+        - scope
+        - namespace
+        - source_refs
+        - gensym
       properties:
         name:
-          $ref: '#/components/schemas/type_name'
-        type:
-          type: string
-          enum:
-            - "type"
+          $ref: '#/components/schemas/type_identifier_name'
+        scope:
+          $ref: '#/components/schemas/scope_path'
+        namespace:
+          $ref: '#/components/schemas/namespace_path'
+        source_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
         attributes:
           type: array
           items:
@@ -308,13 +297,28 @@ components:
       required:
         - name
         - index
+        - scope
+        - namespace
+        - source_refs
+        - gensym
         - domain
         - mutable
       properties:
         name:
-          $ref: '#/components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_identifier_name'
         index:
           type: integer
+        scope:
+          $ref: '#/components/schemas/scope_path'
+        namespace:
+          $ref: '#/components/schemas/namespace_path'
+        source_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
         domain:
            $ref: '#/components/schemas/type'
         domain_constraints:
@@ -330,80 +334,61 @@ components:
             - false
           default: true
 
-    function_assign_def:
-      title: <function_assign_def>
+    container_def:
+      title: <container_def>
       description: >
-        Define a function setting the value of a variable.
+        Define a container with a function subnetwork body.
+        Execution through the container body depends on value
+        of the boolean "repeat":<br>
+        false = execute once<br>
+        true = execute indefinitely (loop).
       required:
         - name
-        - type
-        - arguments
-        - return_value
-      properties:
-        type:
-          type: string
-          enum:
-            - assign
-            - condition
-            - decision
-        lambda_source:
-          $ref: '#/components/schemas/lambda_function_source_ref'
-        arguments:
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/variable_name'
-              - $ref: '#/components/schemas/function_name'
-        updated:
-          type: array
-          items:
-            $ref: '#/components/schemas/variable_name'
-        return_value:
-          $ref: '#/components/schemas/variable_name'
-
-    function_container_def:
-      title: <function_container_def>
-      description: >
-        Define a function with a function subnetwork body.
-        Flow through the function body depends on value
-        of container "type":<br>
-        "container" = flow through once<br>
-        "loop" = repeat flow through.
-      required:
-        - name
-        - type
+        - scope
+        - namespace
+        - source_refs
+        - gensym
+        - repeat
         - arguments
         - return_value
         - body
       properties:
         name:
-          $ref: '#/components/schemas/function_name'
-        type:
-          type: string
-          enum:
-            - container
-            - loop
+          $ref: '#/components/schemas/container_identifier_name'
+        scope:
+          $ref: '#/components/schemas/scope_path'
+        namespace:
+          $ref: '#/components/schemas/namespace_path'
+        source_refs:
+          type: array
+          items:
+            $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
+        repeat:
+          type: boolean
         arguments:
           type: array
           items:
             oneOf:
-              - $ref: '#/components/schemas/variable_name'
-              - $ref: '#/components/schemas/function_name'
+              - $ref: '#/components/schemas/variable_identifier_name'
+              - $ref: '#/components/schemas/container_identifier_name'
         updated:
           type: array
           items:
-            $ref: '#/components/schemas/variable_name'
+            $ref: '#/components/schemas/variable_identifier_name'
         return_value:
-          $ref: '#/components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_base_name'
         body:
           type: array
           items:
-            $ref: '#/components/schemas/function_wiring'
+            $ref: '#/components/schemas/container_wiring'
 
-    function_wiring:
-      title: <function_wiring>
+    container_wiring:
+      title: <container_wiring>
       description: >
-        Defines the "wiring" of container functions,
+        Defines the "wiring" of functions within a container,
         specifying associations of variables to function
         arguments ("input") and the function return_value ("output").
       required:
@@ -417,22 +402,22 @@ components:
           type: array
           items:
             oneOf:
-              - $ref: '#/components/schemas/variable_name'
-              - $ref: '#/components/schemas/function_name'
+              - $ref: '#/components/schemas/variable_base_name'
+              - $ref: '#/components/schemas/container_base_name'
               - $ref: '#/components/schemas/literal_name'
         output:
-          $ref: '#/components/schemas/variable_name'
+          $ref: '#/components/schemas/variable_base_name'
         updated:
           type: array
           items:
-            $ref: '#/components/schemas/variable_name'
+            $ref: '#/components/schemas/variable_base_name'
 
     function_ref:
       title: <function_ref>
-      description:
+      description: >
         A `<function_ref>` is either<br>
-        (1) `<function_name>` denoting a function specification
-        (generally another container function).<br>
+        (1) `<container_identifier_name>` denoting a container
+        specification<br>
         (2) `<lambda_function_source_ref>` denoting an executable
         lambda function.<br>
       required:
@@ -441,20 +426,20 @@ components:
       properties:
         name:
           oneOf:
-            - $ref: '#/components/schemas/function_name'
+            - $ref: '#/components/schemas/container_identifier_name'
             - $ref: '#/components/schemas/lambda_function_source_ref'
         type:
           description: >
             Indicate whether "function" is a
-            `<function_name>` or `<lambda_function_source_ref>`.
+            `<container_identifier_name>` or `<lambda_function_source_ref>`.
           type: string
           enum:
-            - function_name
-            - lambda_source
+            - container
+            - lambda
 
     lambda_function_source_ref:
       title: <lambda_function_source_ref>
-      description:
+      description: >
         String representation of a path/reference to a function
         in `lambda.py`.
       type: string
@@ -497,13 +482,13 @@ components:
       title: <type_type_def>
       description: >
         Indicator of a user-defined `<type_def>`.
-        "name" is a `<type_name>` that identifies the `<type_def>`.
+        "name" is a `<type_identifier_name>` that identifies the `<type_def>`.
       required:
         - name
         - type
       properties:
         name:
-          $ref: '#/components/schemas/type_name'
+          $ref: '#/components/schemas/type_identifier_name'
         type:
           type: string
           enum:
