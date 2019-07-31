@@ -1,6 +1,1263 @@
 {
-  "identifiers": [],
-  "functions": [
+  "functions": [],
+  "types": [],
+  "variables" : [
+    {
+      "name": "SIR-Gillespie-SD::gillespie::S0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::I0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::R0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD:main::Tmax::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::MeanR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::main::VarR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::S0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::I0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::R0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::Tmax::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::total_runs::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::gamma::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::rho::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::beta::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::samples::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::Tmax::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::samples::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::n_samples::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::randval::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::n_samples::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::samples::2",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::MeanR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie::VarR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::means::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::vars::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::k::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::n::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::runs::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::Tmax::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::means_k::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::update_mean_var::vars_k::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::pyrand::do_init::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::pyrand::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::pyrand::retval::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::pyrand::retval::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::pyrand::retval::2",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::Tmax::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::samples::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::BK::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanS_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanI_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::MeanR_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarS_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarI_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::VarR_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::samples_i::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$0::i::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::Tmax::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::samples::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::S0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::I0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::R0::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::beta::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::gamma::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::total_runs::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::runs::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::BK::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::t::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_S::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_I::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_R::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_S::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_I::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::n_R::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::MeanR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarS::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarI::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::VarR::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::2",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__runs::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::Tmax::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::samples::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::beta::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::gamma::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::t::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::BK::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::rateInfect::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::rateRecover::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::totalRates::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::randval::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::dt::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::t::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::randval::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_S::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_I::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_S::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_I::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_I::2",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_R::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_I::3",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$2::n_R::1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::Tmax::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::samples::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::t::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::n_S::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::n_I::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::n_R::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::runs::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::BK::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::sample::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::Tmax::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarS::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarI::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarR::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::samples::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::t::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::n_S::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::n_I::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::n_R::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::runs::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::IF_0::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::BK::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::sample::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarS::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarI::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::MeanR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::VarR::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    }
+  ],
+  "containers": [
     {
       "name": "SIR-Gillespie-SD::@global::main",
       "type": "container",
@@ -10,34 +1267,34 @@
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__S0::0",
+            "name": "SIR_Gillespie_SD__main__assign__S0__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::S0::0",
+          "output": "@variable::S0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__I0::0",
+            "name": "SIR_Gillespie_SD__main__assign__I0__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::I0::0",
+          "output": "@variable::I0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__R0::0",
+            "name": "SIR_Gillespie_SD__main__assign__R0__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::R0::0",
+          "output": "@variable::R0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__Tmax::0",
+            "name": "SIR_Gillespie_SD__main__assign__Tmax__0",
             "type": "lambda_source"
           },
           "input": [],
@@ -46,79 +1303,79 @@
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__MeanS::0",
+            "name": "SIR_Gillespie_SD__main__assign__MeanS__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::MeanS::0",
+          "output": "@variable::MeanS::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__MeanI::0",
+            "name": "SIR_Gillespie_SD__main__assign__MeanI__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::MeanI::0",
+          "output": "@variable::MeanI::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__MeanI::0",
+            "name": "SIR_Gillespie_SD__main__assign__MeanI__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::MeanI::0",
+          "output": "@variable::MeanI::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__MeanR::0",
+            "name": "SIR_Gillespie_SD__main__assign__MeanR__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::MeanR::0",
+          "output": "@variable::MeanR::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__VarS::0",
+            "name": "SIR_Gillespie_SD__main__assign__VarS__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::VarS::0",
+          "output": "@variable::VarS::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__VarI::0",
+            "name": "SIR_Gillespie_SD__main__assign__VarI__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::VarI::0",
+          "output": "@variable::VarI::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::main::assign__VarR::0",
+            "name": "SIR_Gillespie_SD__main__assign__VarR__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::main::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::main::VarR::0",
+          "output": "@variable::VarR::0",
           "updated": []
         },
         {
@@ -127,56 +1384,23 @@
             "type": "function_name"
           },
           "updated": [
-            "SIR-Gillespie-SD::main::MeanS::1",
-            "SIR-Gillespie-SD::main::MeanI::1",
-            "SIR-Gillespie-SD::main::MeanR::1",
-            "SIR-Gillespie-SD::main::VarS::1",
-            "SIR-Gillespie-SD::main::VarI::1",
-            "SIR-Gillespie-SD::main::VarR::1"
+            "@variable::MeanS::1",
+            "@variable::MeanI::1",
+            "@variable::MeanR::1",
+            "@variable::VarS::1",
+            "@variable::VarI::1",
+            "@variable::VarR::1"
           ],
           "input": [
-            "SIR-Gillespie-SD::main::S0::0",
-            "SIR-Gillespie-SD::main::I0::0",
-            "SIR-Gillespie-SD::main::R0::0",
-            "SIR-Gillespie-SD::main::MeanS::0",
-            "SIR-Gillespie-SD::main::MeanI::0",
-            "SIR-Gillespie-SD::main::MeanR::0",
-            "SIR-Gillespie-SD::main::VarS::0",
-            "SIR-Gillespie-SD::main::VarI::0",
-            "SIR-Gillespie-SD::main::VarR::0"
-          ],
-          "output": null
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::main::print_output",
-            "type": "function_name"
-          },
-          "updated": [],
-          "input": [
-            "SIR-Gillespie-SD::main::MeanS::1"
-          ],
-          "output": null
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::main::print_output",
-            "type": "function_name"
-          },
-          "updated": [],
-          "input": [
-            "SIR-Gillespie-SD::main::MeanI::1"
-          ],
-          "output": null
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::main::print_output",
-            "type": "function_name"
-          },
-          "updated": [],
-          "input": [
-            "SIR-Gillespie-SD::main::MeanR::1"
+            "@variable::S0::0",
+            "@variable::I0::0",
+            "@variable::R0::0",
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0"
           ],
           "output": null
         }
@@ -186,76 +1410,76 @@
       "name": "SIR-Gillespie-SD::@global::gillespie",
       "type": "container",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie::S0::-1",
-        "SIR-Gillespie-SD::gillespie::I0::-1",
-        "SIR-Gillespie-SD::gillespie::R0::-1",
-        "SIR-Gillespie-SD::gillespie::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie::VarS::-1",
-        "SIR-Gillespie-SD::gillespie::VarI::-1",
-        "SIR-Gillespie-SD::gillespie::VarR::-1"
+        "@variable::S0::-1",
+        "@variable::I0::-1",
+        "@variable::R0::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1"
       ],
       "updated": [],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__Tmax::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__Tmax__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::Tmax::0",
+          "output": "@variable::Tmax::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__total_runs::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__total_runs__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::total_runs::0",
+          "output": "@variable::total_runs::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__gamma::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__gamma__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::gamma::0",
+          "output": "@variable::gamma::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__rho::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__rho__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::rho::0",
+          "output": "@variable::rho::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__beta::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__beta__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie::rho::0",
-            "SIR-Gillespie-SD::gillespie::gamma::0"
+            "@variable::rho::0",
+            "@variable::gamma::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie::beta::0",
+          "output": "@variable::beta::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__samples::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__samples__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie::Tmax::0"
+            "@variable::Tmax::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie::samples::0",
+          "output": "@variable::samples::0",
           "updated": []
         },
         {
@@ -265,33 +1489,33 @@
           },
           "output": null,
           "input": [
-            "SIR-Gillespie-SD::gillespie::Tmax::0",
-            "SIR-Gillespie-SD::gillespie::MeanS::-1",
-            "SIR-Gillespie-SD::gillespie::MeanI::-1",
-            "SIR-Gillespie-SD::gillespie::MeanR::-1",
-            "SIR-Gillespie-SD::gillespie::VarS::-1",
-            "SIR-Gillespie-SD::gillespie::VarI::-1",
-            "SIR-Gillespie-SD::gillespie::VarR::-1",
-            "SIR-Gillespie-SD::gillespie::samples::0"
+            "@variable::Tmax::0",
+            "@variable::MeanS::-1",
+            "@variable::MeanI::-1",
+            "@variable::MeanR::-1",
+            "@variable::VarS::-1",
+            "@variable::VarI::-1",
+            "@variable::VarR::-1",
+            "@variable::samples::0"
           ],
           "updated": [
-            "SIR-Gillespie-SD::gillespie::Tmax::1",
-            "SIR-Gillespie-SD::gillespie::MeanS::0",
-            "SIR-Gillespie-SD::gillespie::MeanI::0",
-            "SIR-Gillespie-SD::gillespie::MeanR::0",
-            "SIR-Gillespie-SD::gillespie::VarS::0",
-            "SIR-Gillespie-SD::gillespie::VarI::0",
-            "SIR-Gillespie-SD::gillespie::VarR::0",
-            "SIR-Gillespie-SD::gillespie::samples::1"
+            "@variable::Tmax::1",
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0",
+            "@variable::samples::1"
           ]
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__n_samples::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__n_samples__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::n_samples::0",
+          "output": "@variable::n_samples::0",
           "updated": []
         },
         {
@@ -299,7 +1523,7 @@
             "name": "SIR-Gillespie-SD::gillespie::pyrand",
             "type": "function_name"
           },
-          "output": "SIR-Gillespie-SD::gillespie::randval::0",
+          "output": "@variable::randval::0",
           "input": [
             "@literal::boolean::true"
           ],
@@ -307,11 +1531,11 @@
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie::assign__n_samples::0",
+            "name": "SIR_Gillespie_SD__gillespie__assign__n_samples__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie::n_samples::0",
+          "output": "@variable::n_samples::0",
           "updated": []
         },
         {
@@ -321,29 +1545,29 @@
           },
           "output": null,
           "input": [
-            "SIR-Gillespie-SD::gillespie::total_runs::0",
-            "SIR-Gillespie-SD::gillespie::S0::-1",
-            "SIR-Gillespie-SD::gillespie::I0::-1",
-            "SIR-Gillespie-SD::gillespie::R0::-1",
-            "SIR-Gillespie-SD::gillespie::Tmax::0",
-            "SIR-Gillespie-SD::gillespie::beta::0",
-            "SIR-Gillespie-SD::gillespie::gamma::0",
-            "SIR-Gillespie-SD::gillespie::samples::1",
-            "SIR-Gillespie-SD::gillespie::MeanS::0",
-            "SIR-Gillespie-SD::gillespie::MeanI::0",
-            "SIR-Gillespie-SD::gillespie::MeanR::0",
-            "SIR-Gillespie-SD::gillespie::VarS::0",
-            "SIR-Gillespie-SD::gillespie::VarI::0",
-            "SIR-Gillespie-SD::gillespie::VarR::0"
+            "@variable::total_runs::0",
+            "@variable::S0::-1",
+            "@variable::I0::-1",
+            "@variable::R0::-1",
+            "@variable::Tmax::0",
+            "@variable::beta::0",
+            "@variable::gamma::0",
+            "@variable::samples::1",
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0"
           ],
           "updated": [
-            "SIR-Gillespie-SD::gillespie::samples::2",
-            "SIR-Gillespie-SD::gillespie::MeanS::1",
-            "SIR-Gillespie-SD::gillespie::MeanI::1",
-            "SIR-Gillespie-SD::gillespie::MeanR::1",
-            "SIR-Gillespie-SD::gillespie::VarS::1",
-            "SIR-Gillespie-SD::gillespie::VarI::1",
-            "SIR-Gillespie-SD::gillespie::VarR::1"
+            "@variable::samples::2",
+            "@variable::MeanS::1",
+            "@variable::MeanI::1",
+            "@variable::MeanR::1",
+            "@variable::VarS::1",
+            "@variable::VarI::1",
+            "@variable::VarR::1"
           ]
         }
       ]
@@ -352,54 +1576,54 @@
       "name": "SIR-Gillespie-SD::@global::update_mean_var",
       "type": "container",
       "arguments": [
-        "SIR-Gillespie-SD::update_mean_var::means::-1",
-        "SIR-Gillespie-SD::update_mean_var::vars::-1",
-        "SIR-Gillespie-SD::update_mean_var::k::-1",
-        "SIR-Gillespie-SD::update_mean_var::n::-1",
-        "SIR-Gillespie-SD::update_mean_var::runs::-1"
+        "@variable::means::-1",
+        "@variable::vars::-1",
+        "@variable::k::-1",
+        "@variable::n::-1",
+        "@variable::runs::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::update_mean_var::means::-1",
-        "SIR-Gillespie-SD::update_mean_var::vars::-1"
+        "@variable::means::0",
+        "@variable::vars::0"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::update_mean_var::assign__Tmax::0",
+            "name": "SIR_Gillespie_SD__update_mean_var__assign__Tmax__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::update_mean_var::Tmax::0",
+          "output": "@variable::Tmax::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::update_mean_var::assign__means_k::0",
+            "name": "SIR_Gillespie_SD__update_mean_var__assign__means_k__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::update_mean_var::means_k::-1",
-            "SIR-Gillespie-SD::update_mean_var::n::-1",
-            "SIR-Gillespie-SD::update_mean_var::k::-1",
-            "SIR-Gillespie-SD::update_mean_var::runs::-1"
+            "@variable::means_k::-1",
+            "@variabl::n::-1",
+            "@variable::k::-1",
+            "@variable::runs::-1"
           ],
-          "output": "SIR-Gillespie-SD::update_mean_var::means_k::0",
+          "output": "@variable::means_k::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::update_mean_var::assign__vars_k::0",
+            "name": "SIR_Gillespie_SD__update_mean_var__assign__vars_k__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::update_mean_var::vars_k::-1",
-            "SIR-Gillespie-SD::update_mean_var::means_k::0",
-            "SIR-Gillespie-SD::update_mean_var::n::-1",
-            "SIR-Gillespie-SD::update_mean_var::k::-1",
-            "SIR-Gillespie-SD::update_mean_var::runs::-1"
+            "@variable::vars_k::-1",
+            "@variable::means_k::0",
+            "@variable::n::-1",
+            "@variable::k::-1",
+            "@variable::runs::-1"
           ],
-          "output": "SIR-Gillespie-SD::update_mean_var::vars_k::0",
+          "output": "@variable::vars_k::0",
           "updated": []
         }
       ]
@@ -408,107 +1632,47 @@
       "name": "SIR-Gillespie-SD::@global::pyrand",
       "type": "container",
       "arguments": [
-        "SIR-Gillespie-SD::pyrand::do_init::-1"
+        "@variable::do_init::-1"
       ],
       "updated": [],
-      "return_value": "SIR-Gillespie-SD::pyrand::retval::2",
+      "return_value": "@variable::retval::2",
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::pyrand::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__pyrand__condition__IF_0__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::pyrand::do_init::-1"
+            "@variable::do_init::-1"
           ],
-          "output": "SIR-Gillespie-SD::pyrand::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::pyrand::assign__retval::0",
+            "name": "SIR_Gillespie_SD__pyrand__assign__retval__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::pyrand::retval::0",
+          "output": "@variable::retval::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::pyrand::assign__retval::1",
+            "name": "SIR_Gillespie_SD__pyrand__assign__retval__1",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::pyrand::retval::1",
+          "output": "@variable::retval::1",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::pyrand::decision__retval::2",
+            "name": "SIR_Gillespie_SD__pyrand__decision__retval__2",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::pyrand::retval::2",
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "SIR-Gillespie-SD::@global::print_output",
-      "type": "container",
-      "arguments": [
-        "SIR-Gillespie-SD::print_output::L::-1"
-      ],
-      "updated": [],
-      "return_value": null,
-      "body": [
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output::assign__Tmax::0",
-            "type": "lambda_source"
-          },
-          "input": [],
-          "output": "SIR-Gillespie-SD::print_output::Tmax::0",
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output::loop$0",
-            "type": "function_name"
-          },
-          "input": [
-            "SIR-Gillespie-SD::print_output::L::-1"
-          ],
-          "output": null,
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@function::builtin::write",
-            "type": "function_name"
-          },
-          "input": [],
-          "output": null,
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@function::builtin::format",
-            "type": "function_name"
-          },
-          "input": [],
-          "output": null,
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@function::builtin::format",
-            "type": "function_name"
-          },
-          "input": [
-            "@literal::string::----------"
-          ],
-          "output": null,
+          "output": "@variable::retval::2",
           "updated": []
         }
       ]
@@ -517,151 +1681,151 @@
       "name": "SIR-Gillespie-SD::gillespie::loop$0",
       "type": "loop",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie.loop$0::Tmax::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$0::samples::-1"
+        "@variable::Tmax::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1",
+        "@variable::samples::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanS::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanI::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::MeanR::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarS::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarI::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::VarR::0",
-        "SIR-Gillespie-SD::gillespie.loop$0::samples::0"
+        "@variable::MeanS::0",
+        "@variable::MeanI::0",
+        "@variable::MeanR::0",
+        "@variable::VarS::0",
+        "@variable::VarI::0",
+        "@variable::VarR::0",
+        "@variable::samples::0"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__i__0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::i::0",
+          "output": "@variable::i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__condition__IF_0__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::Tmax::-1"
+            "@variable::i::0",
+            "@variable::Tmax::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::decision__BK::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__decision__BK__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::IF_0::0"
+            "@variable::IF_0::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::BK::0",
+          "output": "@variable::BK::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__MeanS_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__MeanS_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::MeanS::-1"
+            "@variable::i::0",
+            "@variable::MeanS::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::MeanS_i::0",
+          "output": "@variable::MeanS_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__MeanI_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__MeanI_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::MeanI::-1"
+            "@variable::i::0",
+            "@variable::MeanI::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::MeanI_i::0",
+          "output": "@variable::MeanI_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__MeanR_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__MeanR_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::MeanR::-1"
+            "@variable::i::0",
+            "@variable::MeanR::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::MeanR_i::0",
+          "output": "@variable::MeanR_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__VarS_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__VarS_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::VarS::-1"
+            "@variable::i::0",
+            "@variable::VarS::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::VarS_i::0",
+          "output": "@variable::VarS_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__VarI_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__VarI_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::VarI::-1"
+            "@variable::i::0",
+            "@variable::VarI::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::VarI_i::0",
+          "output": "@variable::VarI_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__VarR_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__VarR_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::VarR::-1"
+            "@variable::i::0",
+            "@variable::VarR::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::VarR_i::0",
+          "output": "@variable::VarR_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__samples_i::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__samples_i__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0",
-            "SIR-Gillespie-SD::gillespie.loop$0::samples::-1"
+            "@variable::i::0",
+            "@variable::samples::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::samples_i::0",
+          "output": "@variable::samples_i::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$0::assign__i::1",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__assign__i__1",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$0::i::0"
+            "@variable::i::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$0::i::1",
+          "output": "@variable::i::1",
           "updated": []
         }
       ]
@@ -670,112 +1834,112 @@
       "name": "SIR-Gillespie-SD::gillespie::loop$1",
       "type": "loop",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie.loop$1::Tmax::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::samples::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::S0::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::I0::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::R0::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::beta::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::gamma::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::total_runs::-1"
+        "@variable::Tmax::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1",
+        "@variable::samples::-1",
+        "@variable::S0::-1",
+        "@variable::I0::-1",
+        "@variable::R0::-1",
+        "@variable::beta::-1",
+        "@variable::gamma::-1",
+        "@variable::total_runs::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$1::VarR::-1"
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__runs::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__runs::0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::runs::0",
+          "output": "@variable::runs::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__condition__IF_0::0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::runs::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::total_runs::-1"
+            "@variable::runs::0",
+            "@variable::total_runs::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::decision__BK::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__decision__BK::0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::IF_0::0"
+            "@variable::IF_0::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::BK::0",
+          "output": "@variable::BK::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__t::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__t::0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::t::0",
+          "output": "@variable::t::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__n_S::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__n_S::0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::S0::-1"
+            "@variable::S0::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::n_S::0",
+          "output": "@variable::n_S::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__n_I::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__n_I::0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::I0::-1"
+            "@variable::I0::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::n_I::0",
+          "output": "@variable::n_I::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__n_R::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__n_R::0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::R0::-1"
+            "@variable::R0::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::n_R::0",
+          "output": "@variable::n_R::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__sample_idx::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__sample_idx::0",
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::0",
+          "output": "@variable::sample_idx::0",
           "updated": []
         },
         {
@@ -784,33 +1948,33 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::beta::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::gamma::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::t::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_S::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_I::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_R::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::0"
+            "@variable::Tmax::-1",
+            "@variable::MeanS::-1",
+            "@variable::MeanI::-1",
+            "@variable::MeanR::-1",
+            "@variable::VarS::-1",
+            "@variable::VarI::-1",
+            "@variable::VarR::-1",
+            "@variable::beta::-1",
+            "@variable::gamma::-1",
+            "@variable::t::0",
+            "@variable::n_S::0",
+            "@variable::n_I::0",
+            "@variable::n_R::0",
+            "@variable::sample_idx::0"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanS::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanI::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanR::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarS::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarI::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarR::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_S::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_I::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_R::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::1"
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0",
+            "@variable::n_S::1",
+            "@variable::n_I::1",
+            "@variable::n_R::1",
+            "@variable::sample_idx::1"
           ]
         },
         {
@@ -819,40 +1983,40 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::runs::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanS::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanI::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanR::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarS::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarI::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarR::0",
-            "SIR-Gillespie-SD::gillespie.loop$1::samples::-1",
-            "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_S::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_I::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::n_R::1"
+            "@variable::Tmax::-1",
+            "@variable::runs::0",
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0",
+            "@variable::samples::-1",
+            "@variable::sample_idx::1",
+            "@variable::n_S::1",
+            "@variable::n_I::1",
+            "@variable::n_R::1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanS::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanI::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::MeanR::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarS::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarI::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::VarR::1",
-            "SIR-Gillespie-SD::gillespie.loop$1::sample_idx::2"
+            "@variable::MeanS::1",
+            "@variable::MeanI::1",
+            "@variable::MeanR::1",
+            "@variable::VarS::1",
+            "@variable::VarI::1",
+            "@variable::VarR::1",
+            "@variable::sample_idx::2"
           ]
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$1::assign__runs::1",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__assign__runs::1",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$1::assign__runs::0"
+            "@variable::assign__runs::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$1::assign__runs::1",
+          "output": "@variable::assign__runs::1",
           "updated": []
         }
       ]
@@ -861,97 +2025,97 @@
       "name": "SIR-Gillespie-SD::gillespie.loop$1::loop$2",
       "type": "loop",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie.loop$2::Tmax::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::samples::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::beta::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::gamma::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::t::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1",
-        "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::-1"
+        "@variable::Tmax::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1",
+        "@variable::samples::-1",
+        "@variable::beta::-1",
+        "@variable::gamma::-1",
+        "@variable::t::-1",
+        "@variable::n_S::-1",
+        "@variable::n_I::-1",
+        "@variable::n_R::-1",
+        "@variable::sample_idx::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::gillespie.loop$2::t::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanS::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanI::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::MeanR::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarS::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarI::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::VarR::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::0",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_S::1",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_I::3",
-        "SIR-Gillespie-SD::gillespie.loop$2::n_R::1"
+        "@variable::t::0",
+        "@variable::MeanS::0",
+        "@variable::MeanI::0",
+        "@variable::MeanR::0",
+        "@variable::VarS::0",
+        "@variable::VarI::0",
+        "@variable::VarR::0",
+        "@variable::sample_idx::0",
+        "@variable::n_S::1",
+        "@variable::n_I::3",
+        "@variable::n_R::1"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__condition__IF_0__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::t::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1"
+            "@variable::t::-1",
+            "@variable::Tmax::-1",
+            "@variable::n_I::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::decision__BK::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__BK__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::IF_0::0"
+            "@variable::IF_0::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::BK::0",
+          "output": "@variable::BK::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__rateInfect::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__rateInfect__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::beta::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1"
+            "@variable::beta::-1",
+            "@variable::n_S::-1",
+            "@variable::n_I::-1",
+            "@variable::n_R::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::rateInfect::0",
+          "output": "@variable::rateInfect::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__rateRecover::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__rateRecover__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::gamma::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1"
+            "@variable::gamma::-1",
+            "@variable::n_I::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::rateRecover::0",
+          "output": "@variable::rateRecover::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__totalRates::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__totalRates__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::rateInfect::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::rateRecover::0"
+            "@variable::rateInfect::0",
+            "@variable::rateRecover::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::totalRates::0",
+          "output": "@variable::totalRates::0",
           "updated": []
         },
         {
@@ -962,31 +2126,31 @@
           "input": [
             "@literal::boolean::false"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::randval::0",
+          "output": "@variable::randval::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__dt::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__dt__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::randval::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::totalRates::0"
+            "@variable::randval::0",
+            "@variable::totalRates::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::dt::0",
+          "output": "@variable::dt::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__t::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__t__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::t::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::dt::0"
+            "@variable::t::-1",
+            "@variable::dt::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::t::0",
+          "output": "@variable::t::0",
           "updated": []
         },
         {
@@ -995,30 +2159,30 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::t::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::samples::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::runs::-1"
+            "@variable::sample_idx::-1",
+            "@variable::t::0",
+            "@variable::Tmax::-1",
+            "@variable::samples::-1",
+            "@variable::MeanS::-1",
+            "@variable::MeanI::-1",
+            "@variable::MeanR::-1",
+            "@variable::VarS::-1",
+            "@variable::VarI::-1",
+            "@variable::VarR::-1",
+            "@variable::n_S::-1",
+            "@variable::n_I::-1",
+            "@variable::n_R::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanS::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanI::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::MeanR::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarS::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarI::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::VarR::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::sample_idx::0"
+            "@variable::MeanS::0",
+            "@variable::MeanI::0",
+            "@variable::MeanR::0",
+            "@variable::VarS::0",
+            "@variable::VarI::0",
+            "@variable::VarR::0",
+            "@variable::sample_idx::0"
           ]
         },
         {
@@ -1029,116 +2193,116 @@
           "input": [
             "@literal::boolean::false"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::randval::1",
+          "output": "@variable::randval::1",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::condition__IF_1::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__condition__IF_1__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::randval::1",
-            "SIR-Gillespie-SD::gillespie.loop$2::rateInfect::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::totalRates::0"
+            "@variable::randval::1",
+            "@variable::rateInfect::0",
+            "@variable::totalRates::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0",
+          "output": "@variable::IF_1::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__n_S::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__n_S__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1"
+            "@variable::n_S::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_S::0",
+          "output": "@variable::n_S::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__n_I::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__n_I__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1"
+            "@variable::n_I::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_I::0",
+          "output": "@variable::n_I::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::decision__n_S::1",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__n_S__1",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_S::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_S::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0"
+            "@variable::n_S::-1",
+            "@variable::n_S::0",
+            "@variable::IF_1::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_S::1",
+          "output": "@variable::n_S::1",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::decision__n_I::1",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__n_I__1",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0"
+            "@variable::n_I::-1",
+            "@variable::n_I::0",
+            "@variable::IF_1::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_I::1",
+          "output": "@variable::n_I::1",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__n_I::2",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__n_I__2",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1"
+            "@variable::n_I::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_I::2",
+          "output": "@variable::n_I::2",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::assign__n_R::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__assign__n_R__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1"
+            "@variable::n_R::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_R::0",
+          "output": "@variable::n_R::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::decision__n_I::3",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__n_I__3",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_I::2",
-            "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0"
+            "@variable::n_I::-1",
+            "@variable::n_I::2",
+            "@variable::IF_1::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_I::3",
+          "output": "@variable::n_I::3",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$2::decision__n_R::1",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__n_R__1",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$2::n_R::-1",
-            "SIR-Gillespie-SD::gillespie.loop$2::n_R::0",
-            "SIR-Gillespie-SD::gillespie.loop$2::IF_1::0"
+            "@variable::n_R::-1",
+            "@variable::n_R::0",
+            "@variable::IF_1::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$2::n_R::1",
+          "output": "@variable::n_R::1",
           "updated": []
         }
       ]
@@ -1147,67 +2311,67 @@
       "name": "SIR-Gillespie-SD::gillespie.loop$1.loop$2::loop$3",
       "type": "loop",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie.loop$3::Tmax::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::samples::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::t::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::n_S::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::n_I::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::n_R::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::runs::-1",
-        "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::-1"
+        "@variable::Tmax::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1",
+        "@variable::samples::-1",
+        "@variable::t::-1",
+        "@variable::n_S::-1",
+        "@variable::n_I::-1",
+        "@variable::n_R::-1",
+        "@variable::runs::-1",
+        "@variable::sample_idx::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanS::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanI::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::MeanR::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarS::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarI::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::VarR::0",
-        "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::0"
+        "@variable::MeanS::0",
+        "@variable::MeanI::0",
+        "@variable::MeanR::0",
+        "@variable::VarS::0",
+        "@variable::VarI::0",
+        "@variable::VarR::0",
+        "@variable::sample_idx::0"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$3::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__condition__IF_0__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::t::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::samples::-1"
+            "@variable::sample_idx::-1",
+            "@variable::Tmax::-1",
+            "@variable::t::-1",
+            "@variable::samples::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$3::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$3::decision__BK::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__decision__BK__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::IF_0::0"
+            "@variable::IF_0::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$3::BK::0",
+          "output": "@variable::BK::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$3::assign__sample::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__sample__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::samples::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::-1"
+            "@variable::samples::-1",
+            "@variable::sample_idx::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$3::sample::0",
+          "output": "@variable::sample::0",
           "updated": []
         },
         {
@@ -1216,16 +2380,16 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::n_S::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::runs::-1"
+            "@variable::MeanS::-1",
+            "@variable::VarS::-1",
+            "@variable::sample::0",
+            "@variable::n_S::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanS::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarS::0"
+            "@variable::MeanS::0",
+            "@variable::VarS::0"
           ]
         },
         {
@@ -1234,16 +2398,16 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::runs::-1"
+            "@variable::MeanI::-1",
+            "@variable::VarI::-1",
+            "@variable::sample::0",
+            "@variable::n_I::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanI::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarI::0"
+            "@variable::MeanI::0",
+            "@variable::VarI::0"
           ]
         },
         {
@@ -1252,27 +2416,27 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::n_R::-1",
-            "SIR-Gillespie-SD::gillespie.loop$3::runs::-1"
+            "@variable::MeanR::-1",
+            "@variable::VarR::-1",
+            "@variable::sample::0",
+            "@variable::n_R::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$3::MeanR::0",
-            "SIR-Gillespie-SD::gillespie.loop$3::VarR::0"
+            "@variable::MeanR::0",
+            "@variable::VarR::0"
           ]
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$3::assign__sample_idx::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__sample_idx__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::-1"
+            "@variable::sample_idx::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$3::sample_idx::0",
+          "output": "@variable::sample_idx::0",
           "updated": []
         }
       ]
@@ -1281,67 +2445,67 @@
       "name": "SIR-Gillespie-SD::gillespie.loop$1::loop$4",
       "type": "loop",
       "arguments": [
-        "SIR-Gillespie-SD::gillespie.loop$4::Tmax::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarS::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarI::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarR::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::samples::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::t::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::n_S::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::n_I::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::n_R::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::runs::-1",
-        "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1"
+        "@variable::Tmax::-1",
+        "@variable::MeanS::-1",
+        "@variable::MeanI::-1",
+        "@variable::MeanR::-1",
+        "@variable::VarS::-1",
+        "@variable::VarI::-1",
+        "@variable::VarR::-1",
+        "@variable::samples::-1",
+        "@variable::t::-1",
+        "@variable::n_S::-1",
+        "@variable::n_I::-1",
+        "@variable::n_R::-1",
+        "@variable::runs::-1",
+        "@variable::sample_idx::-1"
       ],
       "updated": [
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanS::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanI::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::MeanR::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarS::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarI::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::VarR::0",
-        "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::0"
+        "@variable::MeanS::0",
+        "@variable::MeanI::0",
+        "@variable::MeanR::0",
+        "@variable::VarS::0",
+        "@variable::VarI::0",
+        "@variable::VarR::0",
+        "@variable::sample_idx::0"
       ],
       "return_value": null,
       "body": [
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$4::condition__IF_0::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__condition__IF_0__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::Tmax::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::t::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::samples::-1"
+            "@variable::sample_idx::-1",
+            "@variable::Tmax::-1",
+            "@variable::t::-1",
+            "@variable::samples::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$4::IF_0::0",
+          "output": "@variable::IF_0::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$4::decision__BK::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__decision__BK__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::IF_0::0"
+            "@variable::IF_0::0"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$4::BK::0",
+          "output": "@variable::BK::0",
           "updated": []
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$4::assign__sample::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__sample__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::samples::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1"
+            "@variable::samples::-1",
+            "@variable::sample_idx::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$4::sample::0",
+          "output": "@variable::sample::0",
           "updated": []
         },
         {
@@ -1350,16 +2514,16 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarS::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::n_S::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::runs::-1"
+            "@variable::MeanS::-1",
+            "@variable::VarS::-1",
+            "@variable::sample::0",
+            "@variable::n_S::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanS::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarS::0"
+            "@variable::MeanS::0",
+            "@variable::VarS::0"
           ]
         },
         {
@@ -1368,16 +2532,16 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarI::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::n_I::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::runs::-1"
+            "@variable::MeanI::-1",
+            "@variable::VarI::-1",
+            "@variable::sample::0",
+            "@variable::n_I::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanI::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarI::0"
+            "@variable::MeanI::0",
+            "@variable::VarI::0"
           ]
         },
         {
@@ -1386,98 +2550,32 @@
             "type": "function_name"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarR::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::sample::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::n_R::-1",
-            "SIR-Gillespie-SD::gillespie.loop$4::runs::-1"
+            "@variable::MeanR::-1",
+            "@variable::VarR::-1",
+            "@variable::sample::0",
+            "@variable::n_R::-1",
+            "@variable::runs::-1"
           ],
           "output": null,
           "updated": [
-            "SIR-Gillespie-SD::gillespie.loop$4::MeanR::0",
-            "SIR-Gillespie-SD::gillespie.loop$4::VarR::0"
+            "@variable::MeanR::0",
+            "@variable::VarR::0"
           ]
         },
         {
           "function": {
-            "name": "SIR-Gillespie-SD::gillespie.loop$4::assign__sample_idx::0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__sample_idx__0",
             "type": "lambda_source"
           },
           "input": [
-            "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::-1"
+            "@variable::sample_idx::-1"
           ],
-          "output": "SIR-Gillespie-SD::gillespie.loop$4::sample_idx::0",
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "SIR-Gillespie-SD::print_output::loop$0",
-      "type": "loop",
-      "arguments": [
-        "SIR-Gillespie-SD::print_output.loop$0::L::-1"
-      ],
-      "updated": [],
-      "return_value": null,
-      "body": [
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output.loop$0::assign__i::0",
-            "type": "lambda_source"
-          },
-          "input": [],
-          "output": "SIR-Gillespie-SD::print_output.loop$0::i::0",
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output.loop$0::condition__IF_0::0",
-            "type": "lambda_source"
-          },
-          "input": [
-            "SIR-Gillespie-SD::print_output.loop$0::i::0"
-          ],
-          "output": "SIR-Gillespie-SD::print_output.loop$0::IF_0::0",
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output.loop$0::decision__BK::0",
-            "type": "lambda_source"
-          },
-          "input": [
-            "SIR-Gillespie-SD::print_output.loop$0::IF_0::0"
-          ],
-          "output": "SIR-Gillespie-SD::print_output.loop$0::BK::0",
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@function::builtin::write",
-            "type": "function_name"
-          },
-          "input": [
-            "SIR-Gillespie-SD::print_output.loop$0::L::-1",
-            "SIR-Gillespie-SD::print_output.loop$0::i::0"
-          ],
-          "output": null,
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR-Gillespie-SD::print_output.loop$0::assign__i::1",
-            "type": "lambda_source"
-          },
-          "input": [
-            "SIR-Gillespie-SD::print_output.loop$0::i::0"
-          ],
-          "output": "SIR-Gillespie-SD::print_output.loop$0::i::1",
+          "output": "@variable::sample_idx::0",
           "updated": []
         }
       ]
     }
   ],
-  "variables" : [],
   "types": [],
   "start": "SIR-Gillespie-SD::@global::main",
   "source": [
