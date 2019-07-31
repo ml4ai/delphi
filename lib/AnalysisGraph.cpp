@@ -183,8 +183,21 @@ private:
   // latent_state_sequences[ sample ][ time step ]
   vector<vector<Eigen::VectorXd>> training_latent_state_sequence_s;
 
+  // prediction_initial_latent_state_s.size() = this->res
+  // This is a column of the 
+  // this->training_latent_state_sequence_s
+  // TODO: If we make the code using this variable to directly fetch the values
+  // from this->training_latent_state_sequence_s, we can get rid of this
   vector<Eigen::VectorXd> prediction_initial_latent_state_s;
   vector<string> pred_range;
+
+  // Access this as
+  // prediction_latent_state_sequence_s[ sample ][ time step ]
+  vector<vector<Eigen::VectorXd>> predicted_latent_state_sequence_s;
+
+  // Access this as
+  // prediction_observed_state_sequence_s[ sample ][ time step ][ vertex ][ indicator ]
+  vector<vector<vector<vector<double>>>> predicted_observed_state_sequence_s;
 
   // Sampling resolution. Default is 200
   int res = 200;
@@ -848,6 +861,7 @@ public:
    *
    * @param timestep: Optional setting for setting the initial state to be other
    *                  than the first time step. Not currently used.
+   *                  0 <= timestep < this->n_timesteps
    */
   void set_initial_latent_state_from_observed_state_sequence(int timestep = 0) {
     int num_verts = boost::num_vertices(this->graph);
@@ -874,7 +888,7 @@ public:
         // Even indexes of the latent state vector represent variables
         this->s0_original(2 * v) = ind_value / ind_mean;
 
-        if (timestep == this->n_timesteps) {
+        if (timestep == this->n_timesteps - 1) {
           double prev_ind_value =
               this->observed_state_sequence[timestep - 1][v][i];
           double prev_state_value = prev_ind_value / ind_mean;
@@ -1016,6 +1030,7 @@ public:
    * @param timestep: Optional setting for setting the initial state to be other
                       than the first time step. Ensures that the correct
                       initial state is used.
+                      0 <= timestep < this->n_timesteps
    */
   void set_initial_latent_states_for_prediction(int timestep = 0) {
     this->prediction_initial_latent_state_s.clear();
@@ -1028,6 +1043,54 @@ public:
         this->training_latent_state_sequence_s.end(),
         this->prediction_initial_latent_state_s.begin(),
         [&timestep](vector<Eigen::VectorXd> &ls) { return ls[timestep]; });
+  }
+
+  /**
+   * Sample a collection of observed state sequences from the likelihood
+   * model given a collection of transition matrices.
+   *
+   * @param n_timesteps: The number of timesteps for the sequences.
+   */
+  void sample_predicted_latent_state_sequence_s_from_likelihood(int timesteps) {
+    this->n_timesteps = timesteps;
+
+    int num_verts = boost::num_vertices(this->graph);
+
+    // Allocate memory for prediction_latent_state_sequence_s
+    this->predicted_latent_state_sequence_s.clear(); 
+    this->predicted_latent_state_sequence_s = vector<vector<Eigen::VectorXd>>(
+        //default_n_samples, // A constant hard coded to be 100. From earlier code
+        this->res,
+        vector<Eigen::VectorXd>(this->n_timesteps, Eigen::VectorXd(num_verts * 2)));
+
+    for (int samp = 0; samp < this->res; samp++) {
+      this->predicted_latent_state_sequence_s[samp][0] = this->prediction_initial_latent_state_s[samp];
+
+      for (int ts = 1; ts < n_timesteps; ts++) {
+        this->predicted_latent_state_sequence_s[samp][ts] =
+            this->transition_matrix_collection[samp] *
+            this->predicted_latent_state_sequence_s[samp][ts - 1];
+      }
+    }
+  }
+
+  void generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s()
+  {
+    // Allocate memory for observed_state_sequences
+    this->predicted_observed_state_sequence_s.clear(); 
+    this->predicted_observed_state_sequence_s = vector<vector<vector<vector<double>>>>(
+        this->res,
+        vector<vector<vector<double>>>(this->n_timesteps, vector<vector<double>>()));
+
+    for (int samp = 0; samp < this->res; samp++) {
+      vector<Eigen::VectorXd> &sample = this->predicted_latent_state_sequence_s[samp];
+
+      std::transform(sample.begin(), sample.end(),
+                     this->predicted_observed_state_sequence_s[samp].begin(),
+                     [this](Eigen::VectorXd latent_state) {
+                       return this->sample_observed_state(latent_state);
+                     });
+    }
   }
 
   //std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
@@ -1114,16 +1177,18 @@ public:
 
     this->set_initial_latent_states_for_prediction(pred_init_timestep);
 
-    this->sample_from_likelihood(pred_timesteps);
+    //this->sample_from_likelihood(pred_timesteps);
+    this->sample_predicted_latent_state_sequence_s_from_likelihood(pred_timesteps);
+    this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
 
     for (vector<Eigen::VectorXd> &latent_state_s :
-         this->latent_state_sequences) {
+         this->predicted_latent_state_sequence_s) {
       latent_state_s.erase(latent_state_s.begin(),
                            latent_state_s.begin() + truncate);
     }
   
     for (vector<vector<vector<double>>> &observed_state_s :
-         this->observed_state_sequences) {
+         this->predicted_observed_state_sequence_s) {
       observed_state_s.erase(observed_state_s.begin(),
                              observed_state_s.begin() + truncate);
     }
@@ -1149,7 +1214,7 @@ public:
         {
           for( auto[ ind_name, ind_id ] : this->graph[ vert_id ].indicator_names )
           {
-            result[ samp ][ ts ][ vert_name ][ ind_name ] = this->observed_state_sequences[ samp ][ ts ][ vert_id ][ ind_id ];
+            result[ samp ][ ts ][ vert_name ][ ind_name ] = this->predicted_observed_state_sequence_s[ samp ][ ts ][ vert_id ][ ind_id ];
           }
         }
       }
