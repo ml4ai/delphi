@@ -933,9 +933,6 @@ public:
     }
     */
 
-    // *Loren: This will no longer be needed, the c++ version of parameterize
-    // will handle this.
-    // this->set_mean_for_data();
 
     this->init_training_year = start_year;
     this->init_training_month = start_month;
@@ -1155,7 +1152,7 @@ public:
 
     int pred_init_timestep = diff_timesteps;
 
-    if (diff_timesteps >= this->n_timesteps) {
+    if (diff_timesteps > this->n_timesteps) {
       /*
        *              total_timesteps
        *   ____________________________________________
