@@ -1,22 +1,22 @@
 C     Fortranification of AMIDOL's SIR-Gillespie.py
 
 ********************************************************************************
-      subroutine print_output(L)
-      implicit none
-      integer, parameter :: Tmax = 100
-      double precision, dimension(0:Tmax) :: L
-      integer i
-
-      do i = 0, 19
-         write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
-      end do
-      write (*, 11)
-
- 10   format (5(F10.4,X))
- 11   format('----------')
-
-      return
-      end subroutine print_output
+C      subroutine print_output(L)
+C      implicit none
+C      integer, parameter :: Tmax = 100
+C      double precision, dimension(0:Tmax) :: L
+C      integer i
+C
+C      do i = 0, 19
+C         write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
+C      end do
+C      write (*, 11)
+C
+C 10   format (5(F10.4,X))
+C 11   format('----------')
+C
+C      return
+C      end subroutine print_output
 
 ********************************************************************************
 *                                                                              *
@@ -26,7 +26,7 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
       double precision function pyrand(do_init)
       logical do_init
       double precision retval
-      
+
       if (do_init .eqv. .TRUE.) then        ! initialize
          open (2, file = 'PY_RANDOM_GILLESPIE')
          retval = 0.0
@@ -75,7 +75,7 @@ C     VarR     Measures of Variance for R
 C
 C     rateInfect    Current state dependent rate of infection
 C     rateRecover   Current state dependent rate of recovery
-C     totalRates    Sum of total rates; taking advantage of Markovian identities 
+C     totalRates    Sum of total rates; taking advantage of Markovian identities
 C                       to improve performance.
 C
 C     Tmax          Maximum time for the simulation
@@ -83,7 +83,7 @@ C     t             Initial time for the simulation
 C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
-      subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, 
+      subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI,
      &                     VarR)
 
       integer, parameter :: Tmax = 100
@@ -91,7 +91,7 @@ C     dt       next inter-event time
       integer, parameter :: total_runs = 1000
       double precision, parameter :: gamma = 1.0/3.0
       double precision, parameter :: rho = 2.0
-      double precision, parameter :: beta = rho * gamma ! 
+      double precision, parameter :: beta = rho * gamma !
 
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
       double precision, dimension(0:Tmax) :: VarS, VarI, VarR
@@ -182,9 +182,9 @@ C     dt       next inter-event time
 
       call gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, VarR)
 
-      call print_output(MeanS)
-      call print_output(MeanI)
-      call print_output(MeanR)
+!      call print_output(MeanS)
+!      call print_output(MeanI)
+!      call print_output(MeanR)
 
 !      do i = 0, Tmax
 !         VarS(i) = VarS(i)/total_runs
@@ -197,4 +197,3 @@ C     dt       next inter-event time
 !      call print_output(VarR)
 !
       end program main
-      
