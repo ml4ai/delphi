@@ -453,13 +453,27 @@ def pred_plot(
 # ==========================================================================
 
 
-# def walk_forward_val(
-#        initial_training_window: Tuple[Tuple[int],Tuple[int]],
-#        end_prediction_date: Tuple[int,int],
-#        burn: int = 10000,
-#        res: int = 200,
-#        **kwargs,
-# ) -> pd.DataFrame:
+def walk_forward_val(
+    initial_training_window: Tuple[Tuple[int, int], Tuple[int, int]],
+    end_prediction_date: Tuple[int, int],
+    burn: int = 10000,
+    res: int = 200,
+    **kwargs,
+) -> pd.DataFrame:
+    training_year_start, training_month_start, training_year_end, training_month_end = (
+        initial_training_window
+    )
+
+    if (training_month_start) > 12 or (training_month_start < 1):
+        temp_x = training_month_start
+        training_month_start = training_year_start
+        training_year_start = temp_x
+    if (training_month_end) > 12 or (training_month_end < 1):
+        temp_x = training_month_end
+        training_month_end = training_year_end
+        training_year_end = temp_x
+
+    print("test")
 
 
 # ==========================================================================
