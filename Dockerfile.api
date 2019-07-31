@@ -1,0 +1,43 @@
+FROM centos:7
+
+# Install Python 3.6
+RUN yum update -y \
+    && yum install -y https://centos7.iuscommunity.org/ius-release.rpm \
+    && yum install -y python36u python36u-libs python36u-devel python36u-pip
+
+# Download Delphi Database
+RUN curl -O http://vision.cs.arizona.edu/adarsh/delphi.db \
+    && echo "export DELPHI_DB=`pwd`/delphi.db" >> ~/.bashrc \
+    && source ~/.bashrc
+
+# Setup dependencies
+RUN yum -y install graphviz-devel.x86_64 \
+    && yum -y install centos-release-scl \
+    && yum -y install devtoolset-8-gcc devtoolset-8-gcc-c++ \
+
+RUN yum -y install centos-release-scl
+SHELL [ "/usr/bin/scl", "enable", "devtoolset-8"]
+RUN yum -y install which
+RUN gcc --version
+RUN g++ --version
+
+RUN yum -y install java-1.8.0-openjdk-devel \
+    && yum -y install cmake \
+    && yum -y install make \
+    && yum -y install boost-devel \
+    && yum -y install sqlite-devel
+
+# Setup python virtual environment
+RUN pip3.6 install virtualenv \
+    && virtualenv delphi-env \
+    && source delphi-env/bin/activate \
+    && pip install Cython \
+    && yum -y install git \
+    && git clone https://github.com/adamocarolli/delphi.git \
+    && cd delphi \
+    && git checkout -b hacks origin/hacks \
+    && git submodule update --init --recursive \
+    && make extensions \
+    && pip install -e .[test,docs]
+
+CMD delphi-env/bin/delphi_rest_api
