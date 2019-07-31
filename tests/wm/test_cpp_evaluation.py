@@ -19,12 +19,12 @@ def test_cpp_extensions():
     G.map_concepts_to_indicators()
     G.print_indicators()
     print("\n")
-    G.replace_indicator(
-        "UN/events/human/human_migration",
-        "Net migration",
-        "New asylum seeking applicants",
-        "UNHCR",
-    )
+   # G.replace_indicator(
+   #     "UN/events/human/human_migration",
+   #     "Net migration",
+   #     "New asylum seeking applicants",
+   #     "UNHCR",
+   # )
     G.print_indicators()
     G.train_model(2015, 1, 2015, 12, 1000, 10000)
     preds = G.generate_prediction(2015, 1, 2016, 12)
