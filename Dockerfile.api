@@ -11,19 +11,26 @@ RUN curl -O http://vision.cs.arizona.edu/adarsh/delphi.db \
     && source ~/.bashrc
 
 # Setup dependencies
-RUN yum -y install graphviz-devel.x86_64 \
+RUN yum -y install time \
+    && yum -y install graphviz-devel.x86_64 \
     && yum -y install centos-release-scl \
-    && yum -y install devtoolset-8-gcc devtoolset-8-gcc-c++ \
+    && yum -y install devtoolset-8-gcc devtoolset-8-gcc-c++
 
 RUN yum -y install centos-release-scl
 SHELL [ "/usr/bin/scl", "enable", "devtoolset-8"]
 RUN yum -y install which
-RUN gcc --version
-RUN g++ --version
 
 RUN yum -y install java-1.8.0-openjdk-devel \
-    && yum -y install cmake \
-    && yum -y install make \
+    && yum -y install epel-release \
+    && yum -y install cmake3
+
+RUN alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
+    --slave /usr/local/bin/ctest ctest /usr/bin/ctest3 \
+    --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 \
+    --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 \
+    --family cmake
+
+RUN yum -y install make \
     && yum -y install boost-devel \
     && yum -y install sqlite-devel
 
@@ -32,10 +39,14 @@ RUN pip3.6 install virtualenv \
     && virtualenv delphi-env \
     && source delphi-env/bin/activate \
     && pip install Cython \
+    && pip install conan \
+    && pip install pyscaffold \
+    && pip install botocore \
+    && pip install flask_executor \
     && yum -y install git \
-    && git clone https://github.com/adamocarolli/delphi.git \
+    && git clone https://github.com/adamocarolli/delphi \
     && cd delphi \
-    && git checkout -b hacks origin/hacks \
+    && git checkout -b rest_api origin/rest_api \
     && git submodule update --init --recursive \
     && make extensions \
     && pip install -e .[test,docs]
