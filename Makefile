@@ -3,7 +3,7 @@ docs:
 
 extensions: 
 	mkdir -p build
-	cd build; conan install .. --build missing
+	cd build; conan install .. --build missing -s compiler.libcxx=libstdc++11
 	cd build; cmake ..; cmake --build . -- -j
 	cp build/lib/* delphi/cpp
 
