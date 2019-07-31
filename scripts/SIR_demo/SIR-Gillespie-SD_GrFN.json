@@ -1259,8 +1259,8 @@
   ],
   "containers": [
     {
-      "name": "SIR-Gillespie-SD::@global::main",
-      "type": "container",
+      "name": "@container::SIR-Gillespie-SD::@global::main",
+      "repeat": false,
       "arguments": [],
       "updated": [],
       "return_value": null,
@@ -1407,8 +1407,8 @@
       ]
     },
     {
-      "name": "SIR-Gillespie-SD::@global::gillespie",
-      "type": "container",
+      "name": "@container::SIR-Gillespie-SD::@global::gillespie",
+      "repeat": false,
       "arguments": [
         "@variable::S0::-1",
         "@variable::I0::-1",
@@ -1573,8 +1573,8 @@
       ]
     },
     {
-      "name": "SIR-Gillespie-SD::@global::update_mean_var",
-      "type": "container",
+      "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+      "repeat": false,
       "arguments": [
         "@variable::means::-1",
         "@variable::vars::-1",
@@ -1629,8 +1629,8 @@
       ]
     },
     {
-      "name": "SIR-Gillespie-SD::@global::pyrand",
-      "type": "container",
+      "name": "@container::SIR-Gillespie-SD::@global::pyrand",
+      "repeat": false,
       "arguments": [
         "@variable::do_init::-1"
       ],
@@ -1679,7 +1679,7 @@
     },
     {
       "name": "SIR-Gillespie-SD::gillespie::loop$0",
-      "type": "loop",
+      "repeat": true,
       "arguments": [
         "@variable::Tmax::-1",
         "@variable::MeanS::-1",
@@ -1832,7 +1832,7 @@
     },
     {
       "name": "SIR-Gillespie-SD::gillespie::loop$1",
-      "type": "loop",
+      "repeat": true,
       "arguments": [
         "@variable::Tmax::-1",
         "@variable::MeanS::-1",
@@ -2023,7 +2023,7 @@
     },
     {
       "name": "SIR-Gillespie-SD::gillespie.loop$1::loop$2",
-      "type": "loop",
+      "repeat": true,
       "arguments": [
         "@variable::Tmax::-1",
         "@variable::MeanS::-1",
@@ -2309,7 +2309,7 @@
     },
     {
       "name": "SIR-Gillespie-SD::gillespie.loop$1.loop$2::loop$3",
-      "type": "loop",
+      "repeat": true,
       "arguments": [
         "@variable::Tmax::-1",
         "@variable::MeanS::-1",
@@ -2443,7 +2443,7 @@
     },
     {
       "name": "SIR-Gillespie-SD::gillespie.loop$1::loop$4",
-      "type": "loop",
+      "repeat": true,
       "arguments": [
         "@variable::Tmax::-1",
         "@variable::MeanS::-1",
