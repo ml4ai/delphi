@@ -12,6 +12,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .value("ZERO", InitialBeta::ZERO)
       .value("ONE", InitialBeta::ONE)
       .value("HALF", InitialBeta::HALF)
+      .value("MEAN", InitialBeta::MEAN)
       .value("RANDOM", InitialBeta::RANDOM);
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a)
