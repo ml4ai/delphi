@@ -30,6 +30,8 @@ using std::cout, std::endl, std::unordered_map, std::pair, std::string,
 
 const size_t default_n_samples = 100;
 
+enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
+
 unordered_map<string, vector<double>>
 construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   sqlite3 *db;
@@ -908,14 +910,52 @@ public:
     }
   }
 
+  void init_betas_to( InitialBeta ib = InitialBeta::MEAN )
+  {
+    switch( ib )
+    {
+      // Initialize the initial β for this edge
+      case InitialBeta::ZERO:
+        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+          graph[e].beta = 0;
+        }
+        break;
+      case InitialBeta::ONE:
+        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+          graph[e].beta = 1.0;
+        }
+        break;
+      case InitialBeta::HALF:
+        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+          graph[e].beta = 0.5;
+        }
+        break;
+      case InitialBeta::MEAN:
+        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+          graph[e].beta = graph[e].kde.value().mu;
+        }
+        break;
+      case InitialBeta::RANDOM:
+        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+          // this->uni_dist() gives a random number in range [0, 1]
+          // Multiplying by 2 scales the range to [0, 2]
+          // Sustracting 1 moves the range to [-1, 1]
+          graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+        }
+        break;
+    }
+  }
+
   /**
    * Train a prediction model given a CAG with indicators
    */
   void train_model(int start_year = 2012, int start_month = 1,
                    int end_year = 2017, int end_month = 12, int res = 200,
                    int burn = 10000, string country = "South Sudan",
-                   string state = "",map<std::string,std::string> units = {}) {
+                   string state = "", map<std::string,std::string> units = {},
+                   InitialBeta initial_beta = InitialBeta::MEAN) {
     this->res = res;
+    this->init_betas_to( initial_beta );
     this->sample_initial_transition_matrix_from_prior();
     this->parameterize(country,state,start_year,start_month,units);
 
@@ -946,9 +986,11 @@ public:
     // is required, I can do this at
     // sample_initial_transition_matrix_from_prior()
     // Zero out the β factor dependent cells of this matrix 
+    /*
     for (auto & [ row, col ] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) = 0.0;
     }
+    */
 
     // Moving the check whether log_likelihood is set outside from
     // AnalysisGraph::sample_from_posterior(). Making sure it is set

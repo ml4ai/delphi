@@ -8,6 +8,11 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 PYBIND11_MODULE(AnalysisGraph, m) {
+  py::enum_<InitialBeta>(m, "InitialBeta")
+      .value("ZERO", InitialBeta::ZERO)
+      .value("ONE", InitialBeta::ONE)
+      .value("HALF", InitialBeta::HALF)
+      .value("RANDOM", InitialBeta::RANDOM);
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a)
       .def_static("from_statements", &AnalysisGraph::from_statements,"statements"_a)
@@ -53,7 +58,8 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("train_model", &AnalysisGraph::train_model, "start_year"_a = 2012,
            "start_month"_a = 1, "end_year"_a = 2017, "end_month"_a = 12,
            "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
-           "state"_a = "",py::arg("units") = map<std::string,std::string>{})
+           "state"_a = "",py::arg("units") = map<std::string,std::string>{},
+           "initial_beta"_a = InitialBeta::MEAN)
       .def("generate_prediction", &AnalysisGraph::generate_prediction,
            "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")
