@@ -1259,7 +1259,7 @@
   ],
   "containers": [
     {
-      "name": "@container::SIR-Gillespie-SD::@global::main",
+      "name": "@container::SIR-Gillespie-SD::global::main",
       "repeat": false,
       "arguments": [],
       "updated": [],
@@ -1380,7 +1380,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::gillespie",
+            "name": "@container::SIR-Gillespie-SD::global::gillespie",
             "type": "function_name"
           },
           "updated": [
@@ -1407,7 +1407,7 @@
       ]
     },
     {
-      "name": "@container::SIR-Gillespie-SD::@global::gillespie",
+      "name": "@container::SIR-Gillespie-SD::global::gillespie",
       "source_refs": {
         "head": {
           "line_start": 53,
@@ -1580,7 +1580,7 @@
       ]
     },
     {
-      "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+      "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
       "repeat": false,
       "arguments": [
         "@variable::means::-1",
@@ -1636,7 +1636,7 @@
       ]
     },
     {
-      "name": "@container::SIR-Gillespie-SD::@global::pyrand",
+      "name": "@container::SIR-Gillespie-SD::global::pyrand",
       "repeat": false,
       "arguments": [
         "@variable::do_init::-1"
@@ -2127,7 +2127,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::pyrand",
+            "name": "@container::SIR-Gillespie-SD::global::pyrand",
             "type": "function_name"
           },
           "input": [
@@ -2194,7 +2194,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::pyrand",
+            "name": "@container::SIR-Gillespie-SD::global::pyrand",
             "type": "function_name"
           },
           "input": [
@@ -2383,7 +2383,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2401,7 +2401,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2419,7 +2419,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2517,7 +2517,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2535,7 +2535,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2553,7 +2553,7 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
+            "name": "@container::SIR-Gillespie-SD::global::update_mean_var",
             "type": "function_name"
           },
           "input": [
@@ -2584,7 +2584,7 @@
     }
   ],
   "types": [],
-  "start": "@container::SIR-Gillespie-SD::@global::main",
+  "start": "@container::SIR-Gillespie-SD::global::main",
   "source": [
     "SIR-Gillespie-SD.f"
   ],
