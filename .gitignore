@@ -18,13 +18,14 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+scripts/data/
 build/
+bin/
 develop-eggs/
 dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -33,7 +34,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-data/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -137,3 +137,18 @@ bmi_config.txt
 *.dot
 *.png
 *.pdf
+
+# VSCode
+.vscode/
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps

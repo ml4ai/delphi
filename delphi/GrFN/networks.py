@@ -15,17 +15,14 @@ from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
+from delphi.translators.for2py.types_ext import Float32
 from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    rectify,
+    f2grfn,
 )
 import numpy as np
 import torch
@@ -95,7 +92,7 @@ class ComputationalGraph(nx.DiGraph):
 
         Args:
             inputs: Input set where keys are the names of input nodes in the
-              GrFN and each key points to a set of input values (or just one).
+                GrFN and each key points to a set of input values (or just one).
 
         Returns:
             A set of outputs from executing the GrFN, one for every set of
@@ -103,7 +100,13 @@ class ComputationalGraph(nx.DiGraph):
         """
         # Set input values
         for i in self.inputs:
-            self.nodes[i]["value"] = inputs[i]
+            value = inputs[i]
+            if isinstance(value, float) or isinstance(value, int):
+                value = Float32(value)
+            elif isinstance(value, list):
+                value = np.array(value, dtype=np.float32)
+
+            self.nodes[i]["value"] = value
 
         for func_set in self.function_sets:
             for func_name in func_set:
@@ -113,6 +116,8 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+                if len(input_values) == 0:
+                    res = Float32(res)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -372,15 +377,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
+        fortran_file: str,
         save_file: bool = False,
     ):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_pgm_dict(
+        pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
             asts,
             json_filename,
-            {"FileName": f"{stem}.py"},  # HACK
+            {"file_name": f"{stem}.py"}, # HACK
+            fortran_file,
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -390,40 +397,21 @@ class GroundedFunctionNetwork(ComputationalGraph):
     @classmethod
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
         """Builds GrFN object from a Fortran program."""
-        stem = Path(fortran_file).stem
+
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
-        preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
-        lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
-        json_filename = stem + ".json"
 
-        with open(fortran_file, "r") as f:
-            inputLines = f.readlines()
+        (
+                pySrc,
+                lambdas_path,
+                json_filename,
+                stem,
+                fortran_filename,
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
-        with open(preprocessed_fortran_file, "w") as f:
-            f.write(preprocessor.process(inputLines))
+        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
+                                fortran_file)
 
-        xml_string = sp.run(
-            [
-                "java",
-                "fortran.ofp.FrontEnd",
-                "--class",
-                "fortran.ofp.XMLPrinter",
-                "--verbosity",
-                "0",
-                preprocessed_fortran_file,
-            ],
-            stdout=sp.PIPE,
-        ).stdout
-        tree = rectify.buildNewASTfromXMLString(xml_string)
-        trees = [tree]
-        comments = get_comments.get_comments(preprocessed_fortran_file)
-        os.remove(preprocessed_fortran_file)
-        xml_to_json_translator = translate.XMLToJSONTranslator()
-        outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
         return G
 
     @classmethod
@@ -466,6 +454,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
             else:
                 return torch.tensor(samples)
 
+        def get_input(name, sample):
+            type_info = var_types[name]
+            if type_info[0] == str:
+                (val1, val2) = type_info[1]
+                return val1 if sample >= 0.5 else val2
+            else:
+                return sample
+
         samples = saltelli.sample(
             prob_def, num_samples, calc_second_order=True
         )
@@ -486,8 +482,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
         else:
             Y = np.zeros(samples.shape[0])
             for i, sample in enumerate(samples):
-                values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values)
+                if var_types is None:
+                    values = {n: v for n, v in zip(prob_def["names"], sample)}
+                else:
+                    values = {n: get_input(n, val)
+                              for n, val in zip(prob_def["names"], sample)}
+
+                res = self.run(values)
+                Y[i] = res
 
         return sobol.analyze(prob_def, Y)
 

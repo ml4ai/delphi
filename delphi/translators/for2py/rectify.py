@@ -3,7 +3,7 @@
 The purpose of this program is to do all the clean up for translate.py.
 This (rectify.py) program will receive OFP generated XML file as an input.
 Then, it removes any unnecessary elements and refactor randomly structured
-(nested) elementss into a correct structure. The output file will be
+(nested) elements into a correct structure. The output file will be
 approximately 30%~40% lighter in terms of number of lines than the OFP XML.
 
 Example:
@@ -13,15 +13,15 @@ Example:
 
         $python rectify.py <ast_file>
 
-ast_file: The XML represenatation of the AST of the Fortran file. This is
+ast_file: The XML representation of the AST of the Fortran file. This is
 produced by the OpenFortranParser.
 
 Author: Terrence J. Lim
-Last Modified: 6/12/2019
 
 """
 
 import re
+import os
 import sys
 import argparse
 import xml.etree.ElementTree as ET
@@ -39,20 +39,15 @@ NEGATED_OP = {
                 ">=" : "<"
               }
 
-# Const variable for setting
-# a maximum range for random
-# number generation
-RANGE = 9999
-
 class RectifyOFPXML:
     def __init__(self):
         # True if derived type declaration exist
         self.is_derived_type = False
-        # True if derived type var. refecrence exist
+        # True if derived type var. reference exist
         self.is_derived_type_ref = False
         # True if current var. is an array
         self.is_array = False
-        # True if format exist in the code
+        # True if format exists in the code
         self.is_format = False
         # True if current var. is for function argument
         self.is_function_arg = False
@@ -62,7 +57,7 @@ class RectifyOFPXML:
         self.continue_elimination = False
         # True if operation negation is needed
         self.need_op_negation = False
-        # True if any statement requires reconstruction 
+        # True if any statement requires reconstruction
         self.need_reconstruct = False
         # True if each goto case is ready for reconstruction
         self.reconstruct_after_case_now = False
@@ -99,6 +94,8 @@ class RectifyOFPXML:
         # 'label_flag_' variables
         self.declared_label_flags = []
         self.declared_goto_flags = []
+        # A list to hold save_entity tags
+        self.saved_entities = []
         # Keep a track of all encountered goto and label stmts
         self.encountered_goto_label = []
         # Keep a track of goto and label with its case
@@ -114,26 +111,26 @@ class RectifyOFPXML:
         # Keep a track of collected goto-stmts and labels
         # for goto elimination and reconstruction
         self.stmts_after_goto = {
-                                    'goto-stmts': [],
-                                    'labels': [],
+            'goto-stmts': [],
+            'labels': [],
         }
         # Dictionary to hold statements before_after case
         self.statements_to_reconstruct_before = {
-                                                    "stmts-follow-label": [], 
-                                                    "count-gotos" : 0,
+            "stmts-follow-label": [],
+            "count-gotos": 0,
         }
         # Dictionary to hold statements label_after case
         self.statements_to_reconstruct_after = {
-                                                    "stmts-follow-goto": [],
-                                                    "stmts-follow-label": [],
-                                                    "count-gotos" : 0,
+            "stmts-follow-goto": [],
+            "stmts-follow-label": [],
+            "count-gotos": 0,
         }
         # Keeps a track of current derived type name
         self.cur_derived_type_name = None
         # Keeps a track of current scope of code
         # i.e. program, main, or function, etc.
         self.current_scope = None
-        # Keep a track of both array and non-array variables 
+        # Keep a track of both array and non-array variables
         # in the dictionary of {'name' : 'scope'}
         self.declared_non_array_vars = {}
         self.declared_array_vars = {}
@@ -145,14 +142,51 @@ class RectifyOFPXML:
         # Keeps track of subscripts of arrays
         self.subscripts_holder = []
         # Holds format XML for later reconstruction
-        self.format_holder = ET.Element('')
-        # Holds a type of parent element's type element 
+        self.format_holder = []
+        # Holds a type of parent element's type element
         self.parent_type = ET.Element('')
         # Holds XML of derived type reference for later reconstruction
         self.derived_type_ref = ET.Element('')
         # Actually holds XML of current scope
         self.current_body_scope = ET.Element('')
-
+        # Keeps a track of parent statements to goto-stmt
+        self.goto_stmt_parents = []
+        # Keeps a track of parent statements to label
+        self.label_parents = []
+        # Keeps a track of the main body that the statement
+        # is nested under, i.e. program, loop, and if, etc
+        self.body_level = {
+            "current": None,
+            "prev": None,
+            "grand-prev": None,
+        }
+        self.body_level_rank = {
+            "program":1,
+            "loop":2,
+            "if":2
+        }
+        self.body_elem_holder = {
+            "program": None,
+            "loop": None,
+            "if": None,
+        }
+        # Check for the status whether current <goto-stmt> is
+        # conditional or not.
+        self.conditional_goto = False
+        # True if goto handling needs outward or
+        # inward movement.
+        self.outward_move = False
+        self.inward_move = False
+        # True if another <if> appears before
+        # goto. This <if> has nothing to do
+        # conditional status of goto.
+        self.if_appear_before_goto = True
+        # True if goto is under <if> that is
+        # a conditional goto statement.
+        self.goto_under_if = False
+        # If goto is conditional and under else
+        # that is a case of conditional without operator
+        self.goto_under_else = False
 
     #################################################################
     #                                                               #
@@ -161,11 +195,11 @@ class RectifyOFPXML:
     #################################################################
 
     file_child_tags = [
-        "program", 
-        "subroutine", 
-        "module", 
-        "declaration", 
-        "function", 
+        "program",
+        "subroutine",
+        "module",
+        "declaration",
+        "function",
         "prefix"
     ]
 
@@ -199,6 +233,7 @@ class RectifyOFPXML:
         "internal-subprogram-part",
         "prefix",
         "exit",
+        "cycle",
     ]
 
     loop_child_tags = [
@@ -221,6 +256,7 @@ class RectifyOFPXML:
         "type-declaration-stmt",
         "prefix-spec",
         "save-stmt",
+        "saved-entity",
         "access-spec",
         "attr-spec",
         "access-stmt",
@@ -350,11 +386,21 @@ class RectifyOFPXML:
         "print-stmt",
         "print-format",
         "keyword-argument",
+        "logical-literal-constant",
         "end-subroutine-stmt",
         "logical-literal-constant",
         "equiv-op",
         "equiv-operand",
-    ] 
+        "saved-entity-list__begin",
+        "saved-entity-list",
+        "access-id",
+    ]
+
+    output_child_tags = [
+        "name",
+        "literal",
+        "operation",
+    ]
 
     #################################################################
     #                                                               #
@@ -370,10 +416,10 @@ class RectifyOFPXML:
             between the file elementss.
 
             In order to control new sub-element creation under
-            the current element, if child.tag == "__tag_name__" 
+            the current element, if child.tag == "__tag_name__"
             has been added. If any new tag(s) that is not being
-            handled currently, appears in the future, add 
-            child.tag == "__tag_name__" at the end of the last 
+            handled currently, appears in the future, add
+            child.tag == "__tag_name__" at the end of the last
             condition. This applies all other handler functions.
 
             <file>
@@ -383,14 +429,14 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
 
             try:
                 error_chk = self.file_child_tags.index(child.tag)
             except KeyError:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_file: "{child.tag}" not handled'
 
             if len(child) > 0 or child.text:
@@ -400,7 +446,7 @@ class RectifyOFPXML:
             self, root, current, parent, grandparent, traverse
     ):
         """
-            This function handles cleaning up the XML 
+            This function handles cleaning up the XML
             elementss between the program elementss.
             <program>
                 ...
@@ -410,20 +456,20 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.tag in self.program_child_tags:
                 if child.tag == "body":
                     self.current_body_scope = cur_elem
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 try:
                     error_chk = self.unnecessary_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_program: "{child.tag}" not handled'
 
     def handle_tag_header(
@@ -454,7 +500,7 @@ class RectifyOFPXML:
                     current.attrib.update(child.attrib)
                 else:
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
 
                     if len(child) > 0 or child.text:
@@ -466,13 +512,38 @@ class RectifyOFPXML:
                         temp_elem_holder.append(cur_elem)
                         if cur_elem.tag == "equiv-operand__equiv-op":
                             need_refactoring = True
+                    # Handler for the case wher label appears under
+                    # the header element. This happens when label
+                    # is assigned to the if statement.
+                    if (
+                        traverse == 1
+                        and child.tag == "label"
+                    ):
+                        lbl = child.attrib['lbl']
+                        parent.attrib['label'] = lbl
+                        self.encountered_goto_label.append(lbl)
+                        # Label-before case
+                        if (
+                                not self.goto_target_lbl_after
+                                or lbl not in self.goto_target_lbl_after
+                        ):
+                            self.goto_label_with_case[lbl] = "before"
+                            if self.label_after:
+                                self.label_before = False
+                            else:
+                                self.label_before = True
+                            if lbl not in self.label_lbl_for_before:
+                                self.label_lbl_for_before.append(lbl)
             else:
                 try:
                     error_chk = self.unnecessary_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
+
+        # equivalent operator has a weird ast syntax,
+        # so it requires refactoring.
         if need_refactoring:
             self.reconstruct_header(temp_elem_holder, current)
             need_refactoring = False
@@ -488,22 +559,37 @@ class RectifyOFPXML:
             </body>
         """
         current.attrib['parent'] = parent.tag
+        self.body_elem_holder[parent.tag] = current
+        # Keeping the track of the body's boundary.
+        if traverse == 1:
+            if self.body_level['prev'] == None:
+                self.body_level['grand-prev'] = parent.tag
+                self.body_level['prev'] = parent.tag
+            else:
+                assert (
+                        self.body_level['current'] != None
+                ), "self.body_level['current'] cannot be None."
+
+                self.body_level['grand-prev'] = self.body_level['prev']
+                self.body_level['prev'] = self.body_level['current']
+            self.body_level['current'] = parent.tag
+
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag in self.body_child_tags:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
 
-                    # Handling conditional <goto-stmt>
                     if traverse == 1:
+                        # Handling conditional <goto-stmt>
                         if (
-                            parent.tag == "if"
-                            and "goto-stmt" in cur_elem.attrib
+                                parent.tag == "if"
+                                and "goto-stmt" in cur_elem.attrib
                         ):
                             assert (
                                     "lbl" in cur_elem.attrib
@@ -514,85 +600,124 @@ class RectifyOFPXML:
                             # that are nested one in another
                             unique_code = str(self.goto_stmt_counter)
 
-                            parent.attrib['conditional-goto-stmt-lbl'] = cur_elem.attrib['lbl']
+                            parent.attrib['conditional-goto-stmt-lbl'] = \
+                            cur_elem.attrib['lbl']
                             parent.attrib['code'] = unique_code
                             if "goto-move" in cur_elem.attrib:
                                 parent.attrib['goto-move'] = "true"
                             if "goto-remove" in cur_elem.attrib:
                                 parent.attrib['goto-remove'] = "true"
+
                             cur_elem.attrib['conditional-goto-stmt'] = "true"
                             cur_elem.attrib['code'] = unique_code
+                            # If the <statment> for <goto-stmt> was nested under the
+                            # conditional <if>, then the boundary of <statment> is still
+                            # remain as the current - 1 level.
+                            cur_elem.attrib['body-level'] = self.body_level['prev']
 
+                            self.body_level['current'] = self.body_level['prev']
+                        else:
+                            self.body_level['grand-prev'] = self.body_level['prev']
+                            self.body_level['prev'] = self.body_level['current']
+                            self.body_level['current'] = parent.tag
+
+                        # Check if conditional goto-stmt is under loop statement
                         if parent.tag == "loop":
                             if (
-                                child.tag == "if"
-                                or child.tag == "statement"
-                                and "conditional-goto-stmt" in child.attrib
+                                    child.tag == "if"
+                                    or (
+                                        child.tag == "statement"
+                                        and "conditional-goto-stmt" in child.attrib
+                                    )
                             ):
                                 self.goto_under_loop = True
+
+                        # Check a case where <if> under another <if>.
+                        # <if>
+                        #   <if>
+                        if (
+                            grandparent.tag == "body"
+                            and "parent" in grandparent.attrib
+                            and grandparent.attrib['parent'] == "if"
+                        ):
+                            self.goto_under_if = True
+
                     else:
+                        # A Checker for whethter current statement is
+                        # nested under the loop.
+                        if "body-level" in cur_elem.attrib:
+                            if cur_elem.attrib['body-level'] == "loop":
+                                self.goto_under_loop = True
+                            else:
+                                self.goto_under_loop = False
+
                         new_parent = current
                         # Reconstruction of statements
                         if (
-                            "parent" in current.attrib
-                            and (not self.goto_under_loop
-                            and current.attrib['parent'] == "program")
-                            or (self.goto_under_loop
-                            and current.attrib['parent'] == "loop")
+                                "parent" in current.attrib
+                                and (
+                                (not self.goto_under_loop
+                                    and not self.goto_under_if
+                                    and current.attrib['parent'] == "program")
+                                or (self.goto_under_if
+                                    and current.attrib['parent'] == "if")
+                                or (self.goto_under_loop
+                                    and current.attrib['parent'] == "loop")
+                                    )
                         ):
                             # Remove statements that is marked to be removed (2nd traverse)
                             if (
-                                "goto-remove" in child.attrib 
-                                or "goto-move" in child.attrib
+                                    "goto-remove" in child.attrib
+                                    or "goto-move" in child.attrib
                             ):
                                 current.remove(cur_elem)
-
                                 if (
-                                    self.reconstruct_after_case_now 
-                                    and not self.reconstruction_for_after_done
+                                        self.reconstruct_after_case_now
+                                        and not self.reconstruction_for_after_done
                                 ):
                                     self.reconstruct_goto_after_label(
-                                            new_parent, traverse, self.statements_to_reconstruct_after
+                                        new_parent, traverse,
+                                        self.statements_to_reconstruct_after
                                     )
                                     if self.label_lbl_for_before:
                                         self.continue_elimination = True
                                 if (
-                                    self.reconstruct_before_case_now 
-                                    and not self.reconstruction_for_before_done
+                                        self.reconstruct_before_case_now
+                                        and not self.reconstruction_for_before_done
                                 ):
                                     reconstruct_target = self.statements_to_reconstruct_before
                                     self.reconstruct_goto_before_label(
-                                            new_parent, traverse, reconstruct_target
+                                        new_parent, traverse, reconstruct_target
                                     )
-                                    if self.label_lbl_for_after :
+                                    if self.label_lbl_for_after:
                                         self.continue_elimination = True
                                 if (
-                                    not self.label_lbl_for_before
-                                    and not self.label_lbl_for_after
+                                        not self.label_lbl_for_before
+                                        and not self.label_lbl_for_after
                                 ):
                                     self.continue_elimination = False
                 else:
                     assert False, f'In handle_tag_body: "{child.tag}" not handled'
             else:
                 if (
-                    child.tag in self.body_child_tags
-                    and child.tag != "statement"
+                        child.tag in self.body_child_tags
+                        and child.tag != "statement"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 elif child.tag == "statement":
                     if len(child) > 0:
                         cur_elem = ET.SubElement(
-                                current, child.tag, child.attrib
+                            current, child.tag, child.attrib
                         )
                         self.parseXMLTree(
-                                child, cur_elem, current, parent, traverse
+                            child, cur_elem, current, parent, traverse
                         )
                 else:
                     assert (
-                            False
-                    ), f'In handle_tag_body: Empty elements  "{child.tag}" not handled'
+                        False
+                    ), f'In handle_tag_body: Empty elements "{child.tag}" not handled'
 
         if self.is_format:
             self.reconstruct_format(parent, traverse)
@@ -612,23 +737,23 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
 
                 try:
                     error_chk = self.specification_child_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_specification: "{child.tag}" not handled'
-                    
+
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 if child.tag != "declaration":
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_specification: Empty elements "{child.tag}" not handled'
 
     def handle_tag_declaration(
@@ -647,7 +772,7 @@ class RectifyOFPXML:
                 if child.tag in self.declaration_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -655,25 +780,42 @@ class RectifyOFPXML:
                         if child.tag == "dimensions":
                             self.is_array = True
                         self.parseXMLTree(
-                                child, cur_elem, current, parent, traverse
+                            child, cur_elem, current, parent, traverse
                         )
                 elif (
-                    child.tag == "component-array-spec"
-                    or child.tag == "literal"
+                        child.tag == "component-array-spec"
+                        or child.tag == "literal"
                 ):
                     self.derived_type_var_holder_list.append(child)
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_declaration: "{child.tag}" not handled'
             else:
                 if child.tag in self.declaration_child_tags:
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
+                    if child.tag == "saved-entity":
+                        # If you find saved-entity, add the element to a list 
+                        # and remove it from the XML since you want to shift 
+                        # it below save-stmt
+                        self.saved_entities.append(cur_elem)
+                        current.remove(cur_elem)
+                    elif child.tag == "save-stmt":
+                        # If you find save-stmt, check if it contains 
+                        # saved-entities and add it below this XML element
+                        if len(self.saved_entities) > 0:
+                            for item in self.saved_entities:
+                                sub_elem = ET.SubElement(cur_elem, item.tag,
+                                                         item.attrib)
+
+                            # Reinitialize this list since you'll need an
+                            # empty one for the next SAVE statement
+                            self.saved_entities = []
                 elif (
-                    child.tag == "component-decl"
-                    or child.tag == "component-decl-list"
+                        child.tag == "component-decl"
+                        or child.tag == "component-decl-list"
                 ):
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
@@ -681,12 +823,13 @@ class RectifyOFPXML:
                     self.derived_type_var_holder_list.append(child)
                 else:
                     if (
-                        child.tag not in self.unnecessary_tags
-                        and child.tag not in self.derived_type_child_tags
+                            child.tag not in self.unnecessary_tags
+                            and child.tag not in self.derived_type_child_tags
                     ):
                         assert (
-                                False
-                        ), f'self.In handle_tag_declaration: Empty elements "{child.tag}" not handled'
+                            False
+                        ), f'self.In handle_tag_declaration: Empty elements "' \
+                            f'{child.tag}" not handled'
         if self.is_array == True:
             self.is_array = False
 
@@ -704,7 +847,7 @@ class RectifyOFPXML:
             self, root, current, parent, grandparent, traverse
     ):
         """
-            This function handles cleaning up the XML elements 
+            This function handles cleaning up the XML elements
             between the variables elementss.
             <type>
                 ...
@@ -730,25 +873,34 @@ class RectifyOFPXML:
                 #    </type>
                 self.is_derived_type = True
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 self.parent_type = current
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
-            elif child.tag == "intrinsic-type-spec":
-                if self.is_derived_type:
-                    self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "derived-type-stmt" 
-                    and self.is_derived_type
-            ):
+            elif child.tag == "derived-type-stmt":
+                # If child.tag is derived-type-stmt while self.is_derived_type
+                # is not true, it's an indication of only a sinlge variable
+                # was declared under the derived type declaration, so the syntax
+                # has no nested type case like above. Thus, in order to make
+                # the syntax same, I'm adding another type and nest everything
+                # under it.
+                if not self.is_derived_type:
+                    self.is_derived_type = True
+                    type_elem = ET.SubElement(current, current.tag, current.attrib)
+                    type_elem.set("is_derived_type", str(self.is_derived_type))
+                    type_elem.set("name", child.attrib['id'])
+                    self.parent_type = current
                 # Modify or add 'name' attribute of the <type>
                 # elements with the name of derived type name
                 current.set("name", child.attrib['id'])
                 # And, store the name of the derived type name for
                 # later setting the outer most <type> elements's name attribute
                 self.cur_derived_type_name = child.attrib['id']
+            elif child.tag == "intrinsic-type-spec":
+                if self.is_derived_type:
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-spec":
                 if not self.is_derived_type:
                     self.is_derived_type = True
@@ -760,8 +912,8 @@ class RectifyOFPXML:
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
             elif (
-                child.tag == "component-decl"
-                or child.tag == "component-decl-list"
+                    child.tag == "component-decl"
+                    or child.tag == "component-decl-list"
             ):
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
@@ -781,7 +933,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the variables elementss.
+            between the variables elements.
             <variables>
                 ...
             </variables>
@@ -792,20 +944,23 @@ class RectifyOFPXML:
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 cur_elem.set("is_array", str(self.is_array).lower())
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
-                if child.tag == "variable":
+                if (
+                    child.tag == "variable"
+                    and child.attrib
+                ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 else:
                     assert (
-                            False
+                        child.tag == "variable" 
                     ), f'In handle_tag_variables: "{child.tag}" not handled'
 
     def handle_tag_variable(
@@ -832,22 +987,22 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag == "initial-value":
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_variable: "{child.tag}" not handled'
             else:
                 if child.tag == "entity-decl":
                     current.attrib.update(child.attrib)
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_variable: Empty elements "{child.tag}" not handled'
 
     def handle_tag_statement(
@@ -861,16 +1016,20 @@ class RectifyOFPXML:
             </satement>
         """
         label_presented = False
-        
+
+        if traverse == 1:
+            current.attrib['body-level'] = self.body_level['current']
+
         for child in root:
             self.clean_attrib(child)
             if child.tag in self.statement_child_tags:
                 if child.tag == "stop":
                     self.is_stop = True
                     current.attrib['has-stop'] = "true"
+                    current.attrib['goto-remove'] = "true"
 
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
 
                 if child.tag == "label":
@@ -883,10 +1042,9 @@ class RectifyOFPXML:
                     if traverse == 1:
                         # Label-before case
                         if (
-                            not self.goto_target_lbl_after
-                            or lbl not in self.goto_target_lbl_after
+                                not self.goto_target_lbl_after
+                                or lbl not in self.goto_target_lbl_after
                         ):
-
                             self.goto_label_with_case[lbl] = "before"
                             # Since we want to handle label_after case before
                             # label_before when both cases appear in the code,
@@ -906,7 +1064,10 @@ class RectifyOFPXML:
                             if lbl not in self.label_lbl_for_after:
                                 self.label_lbl_for_after.append(lbl)
 
-                        if self.label_before or lbl in self.label_lbl_for_before:
+                        if (
+                                self.label_before 
+                                or lbl in self.label_lbl_for_before
+                        ):
                             current.attrib['goto-move'] = "true"
                         else:
                             current.attrib['goto-remove'] = "true"
@@ -922,7 +1083,7 @@ class RectifyOFPXML:
                             self.label_before = False
                     else:
                         assert (
-                            traverse > 1
+                                traverse > 1
                         ), "In handle_tag_statement. Reconstruction must be done in traverse > 1."
                         if self.collecting_stmts_done:
                             self.reconstruct_after_case_now = True
@@ -930,47 +1091,57 @@ class RectifyOFPXML:
 
                 if child.text or len(child) > 0:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
             elif child.tag == "name":
                 # If a 'name' tag is the direct sub-elements of 'statement',
                 # it's an indication of this statement is handling
                 # (usually assignment) derived type variables. Thus,
                 # in order to make concurrent with other assignment syntax,
-                # remove the outside name elements (but store it to the temporary 
+                # remove the outside name elements (but store it to the temporary
                 # holder) and reconstruct it before the end of statement
                 assert is_empty(self.derived_type_var_holder_list)
                 self.derived_type_var_holder_list.append(child.attrib['id'])
                 self.parseXMLTree(
-                        child, current, current, parent, traverse
+                    child, current, current, parent, traverse
                 )
             elif child.tag == "goto-stmt":
+                # self.goto_stmt_level = parent.attrib['parent']
+
                 # <goto-stmt> met, increment the counter
                 self.goto_stmt_counter += 1
                 # If goto-stmt was seen, we do not construct element for it.
-                # However, we collect the information (attributes) that is 
+                # However, we collect the information (attributes) that is
                 # associated to the existing OFP generated element
                 self.need_goto_elimination = True
+                self.if_appear_before_goto = False
                 target_lbl = child.attrib['target_label']
                 current.attrib['goto-stmt'] = "true"
                 current.attrib['lbl'] = target_lbl
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 # Reaching goto-stmt is a flag to stop collecting stmts
                 if traverse == 1:
+                    if (
+                        "type" in parent.attrib
+                        and parent.attrib['type'] == "else"
+                    ):
+                        self.goto_under_else = True
+
                     self.encountered_goto_label.append(target_lbl)
                     if self.collect_stmts_after_label:
                         current.attrib['goto-remove'] = "true"
                         current.attrib['next-goto'] = "true"
-                        self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
+                        self.statements_to_reconstruct_after[
+                            'stmts-follow-label'].append(current)
                         self.collect_stmts_after_label = False
                         self.collecting_stmts_done = True
 
                     # A case where label appears "before" goto
                     if target_lbl in self.label_lbl_for_before:
                         self.goto_label_with_case[target_lbl] = "before"
-                        self.statements_to_reconstruct_before['count-gotos'] += 1
+                        self.statements_to_reconstruct_before[
+                            'count-gotos'] += 1
                         self.goto_target_lbl_before.append(target_lbl)
-                        # self.label_before = False
                     # A case where label appears "after" goto
                     else:
                         self.goto_label_with_case[target_lbl] = "after"
@@ -991,7 +1162,7 @@ class RectifyOFPXML:
                         return
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_statement: "{child.tag}" not handled'
 
         # Statement collector (1st traverse)
@@ -1001,39 +1172,48 @@ class RectifyOFPXML:
                 # that is not a main body, check it before extraction
                 if "has-stop" not in current.attrib:
                     current.attrib['goto-move'] = "true"
-                    self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
-                else: 
+                    self.statements_to_reconstruct_before[
+                        'stmts-follow-label'].append(current)
+                else:
                     if (
-                        parent.tag == "body" 
-                        and parent.attrib['parent'] == "program"
+                            parent.tag == "body"
+                            and parent.attrib['parent'] == "program"
                     ):
-                        self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
+                        self.statements_to_reconstruct_before[
+                            'stmts-follow-label'].append(current)
             elif self.label_after:
                 if self.collect_stmts_after_goto:
                     current.attrib['goto-remove'] = "true"
                     if "has-stop" not in current.attrib:
-                        self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
+                        self.statements_to_reconstruct_after[
+                            'stmts-follow-goto'].append(current)
                     else:
                         if (
-                            parent.tag == "body"
-                            and parent.attrib['parent'] == "program"
+                                parent.tag == "body"
+                                and parent.attrib['parent'] == "program"
                         ):
-                            self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
+                            self.statements_to_reconstruct_after[
+                                'stmts-follow-goto'].append(current)
 
                     if "goto-stmt" in current.attrib:
-                        self.stmts_after_goto['goto-stmts'].append(current.attrib['lbl'])
+                        self.stmts_after_goto['goto-stmts'].append(
+                            current.attrib['lbl'])
                     elif "target-label-statement" in current.attrib:
-                        self.stmts_after_goto['labels'].append(current.attrib['label'])
-                        
+                        self.stmts_after_goto['labels'].append(
+                            current.attrib['label'])
+
                 elif self.collect_stmts_after_label:
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
-                    
+                    self.statements_to_reconstruct_after[
+                        'stmts-follow-label'].append(current)
+
                     if (
-                        (parent.tag == "body"
-                        and parent.attrib['parent'] == "program"
-                        and "has-stop" in current.attrib)
-                        or self.goto_under_loop
+                            (
+                                parent.tag == "body"
+                                and parent.attrib['parent'] == "program"
+                                and "has-stop" in current.attrib
+                            )
+                            or self.goto_under_loop
                     ):
                         self.collect_stmts_after_label = False
                         self.reconstruct_after_case_now = True
@@ -1055,9 +1235,9 @@ class RectifyOFPXML:
                 self.parseXMLTree(child, cur_elem, current, parent, traverse)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_assignment: "{child.tag}" not handled'
-     
+
     def handle_tag_target(
             self, root, current, parent, grandparent, traverse
     ):
@@ -1071,17 +1251,17 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.tag == "name":
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
                 if child.tag == "name" and self.need_reconstruct:
                     self.reconstruct_name_element(cur_elem, current)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_target: "{child.tag}" not handled'
 
     def handle_tag_names(
@@ -1098,14 +1278,14 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.tag == "name":
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 # If the element holds subelements,
                 # call the XML tree parser with created
                 # new <name> element
                 if len(child) > 0 or child.text:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 # Else, update the element's attribute
                 # with the default <name> element attributes
@@ -1150,11 +1330,11 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if (
-                    child.tag == "subscripts" 
-                    or child.tag == "assignment"
+                        child.tag == "subscripts"
+                        or child.tag == "assignment"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     if child.tag == "subscripts":
                         # Default
@@ -1163,51 +1343,51 @@ class RectifyOFPXML:
                         # variable is for the current scope. This is important
                         # for derived type variable referencing
                         if (
-                            current.attrib['id'] in self.declared_array_vars
-                            and self.declared_array_vars[current.attrib['id']]
-                            == self.current_scope
+                                current.attrib['id'] in self.declared_array_vars
+                                and self.declared_array_vars[
+                                        current.attrib['id']
+                                    ] == self.current_scope
                         ):
                             # Since the procedure "call" has a same AST syntax
                             # as an array, check its type and set the "is_array" value
                             assert (
-                                current.attrib['type'] != "procedure"
+                                    current.attrib['type'] != "procedure"
                             ), "Trying to assign a procedure call to while is_array true."
                             current.attrib['is_array'] = "true"
                         elif (
-                            current.attrib['id']
-                            in self.declared_non_array_vars
-                            and self.declared_non_array_vars[
                                 current.attrib['id']
-                            ]
-                            == self.current_scope
+                                in self.declared_non_array_vars
+                                and self.declared_non_array_vars[
+                                        current.attrib['id']
+                                    ] == self.current_scope
                         ):
                             current.attrib['hasSubscripts'] = "false"
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 elif child.tag == "output":
                     assert (
-                            is_empty(self.derived_type_var_holder_list)
+                        is_empty(self.derived_type_var_holder_list)
                     ), "derived_type_var holder must be empty."
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.derived_type_var_holder_list.append(root.attrib['id'])
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 elif child.tag == "name":
                     self.parseXMLTree(
-                            child, current, current, parent, traverse
+                        child, current, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In self.handle_tag_name: "{child.tag}" not handled'
             else:
                 if child.tag == "generic_spec":
                     cur_elem = ET.SubElement(
-                                    current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 elif child.tag == "data-ref":
                     current.attrib.update(child.attrib)
@@ -1216,7 +1396,7 @@ class RectifyOFPXML:
                         error_chk = self.unnecessary_tags.index(child.tag)
                     except ValueError:
                         assert (
-                                False
+                            False
                         ), f'In self.handle_tag_name: Empty elements "{child.tag}" not handled'
 
         # If the name element is for handling
@@ -1246,11 +1426,11 @@ class RectifyOFPXML:
                 assert False, f'In handle_tag_value: "{child.tag}" not handled'
 
             self.parseXMLTree(
-                    child, cur_elem, current, parent, traverse
+                child, cur_elem, current, parent, traverse
             )
             if (
-                child.tag == "name"
-                and self.need_reconstruct
+                    child.tag == "name"
+                    and self.need_reconstruct
             ):
                 self.reconstruct_name_element(cur_elem, current)
 
@@ -1271,24 +1451,24 @@ class RectifyOFPXML:
             if len(child) > 0 or child.text:
                 if child.tag == "stop":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     try:
                         error_chk = self.unnecessary_tags.index(child.tag)
                     except ValueError:
                         assert (
-                                False
+                            False
                         ), f'In handle_tag_literal: "{child.tag}" not handled'
             else:
                 try:
                     error_chk = self.unnecessary_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_literal: Empty "{child.tag}" not handled'
 
     def handle_tag_dimensions(
@@ -1305,25 +1485,25 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag == "dimension":
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     try:
                         error_chk = self.unnecessary_tags.index(child.tag)
                     except ValueError:
                         assert (
-                                False
+                            False
                         ), f'In handle_tag_dimensions: "{child.tag}" not handled'
             else:
                 try:
                     error_chk = self.unnecessary_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_dimensions: Empty "{child.tag}" not handled'
 
     def handle_tag_dimension(
@@ -1340,11 +1520,11 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if (
-                    child.tag == "literal"
-                    or child.tag == "range"
+                        child.tag == "literal"
+                        or child.tag == "range"
                 ):
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
@@ -1380,7 +1560,7 @@ class RectifyOFPXML:
                 if child.tag in self.loop_child_tags:
                     if child.tag == "format":
                         self.is_format = True
-                        self.format_holder = child
+                        self.format_holder.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -1390,14 +1570,14 @@ class RectifyOFPXML:
                         )
                 else:
                     assert (
-                        child.tag in self.unnecessary_tags 
+                            child.tag in self.unnecessary_tags
                     ), f'In self.handle_tag_loop: "{child.tag}" not handled'
 
     def handle_tag_index_variable_or_range(
             self, root, current, parent, grandparent, traverse
     ):
         """
-            This function handles cleaning up the XML elementss 
+            This function handles cleaning up the XML elementss
             between the index_variable or range elementss.
             <index_variable>                    <range>
                 ...                 or              ...
@@ -1412,23 +1592,23 @@ class RectifyOFPXML:
 
                 if child.tag in self.index_range_child_tags:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                        child.tag in self.unnecessary_tags 
+                            child.tag in self.unnecessary_tags
                     ), f'In handle_tag_index_variable_or_range: "{child.tag}" not handled'
 
             else:
                 if traverse > 1:
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 else:
                     assert (
-                        child.tag in self.unnecessary_tags 
+                            child.tag in self.unnecessary_tags
                     ), f'In handle_tag_index_variable_or_range: Empty "{child.tag}" not handled'
-    
+
     def handle_tag_bound(
             self, root, current, parent, grandparent, traverse
     ):
@@ -1443,29 +1623,29 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag in self.bound_child_tags:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                     if (
-                        child.tag == "name"
-                        and self.need_reconstruct
+                            child.tag == "name"
+                            and self.need_reconstruct
                     ):
                         self.reconstruct_name_element(cur_elem, current)
                 else:
                     assert (
-                        child.tag in self.unnecessary_tags 
+                            child.tag in self.unnecessary_tags
                     ), f'In handle_tag_upper_bound: "{child.tag}" not handled'
             else:
                 if traverse > 1:
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 else:
                     assert (
-                        child.tag in self.unnecessary_tags 
+                            child.tag in self.unnecessary_tags
                     ), f'In handle_tag_upper_bound: Empty "{child.tag}" not handled'
 
     def handle_tag_subscripts(
@@ -1482,15 +1662,15 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag == "subscript":
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In self.handle_tag_subscripts: "{child.tag}" not handled'
 
     def handle_tag_subscript(
@@ -1507,18 +1687,18 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
 
                 try:
                     error_chk = self.subscripts_child_tags.index(child.tag)
                 except:
                     assert (
-                            False
+                        False
                     ), f'In self.handle_tag_subscript: "{child.tag}" not handled'
-                    
+
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
 
     def handle_tag_operation(
@@ -1535,22 +1715,22 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             # A process of negating the operator during goto elimination
             if (
-                child.tag == "operator" 
-                and self.need_op_negation
+                    child.tag == "operator"
+                    and self.need_op_negation
             ):
                 child.attrib['operator'] = NEGATED_OP[child.attrib['operator']]
                 self.need_op_negation = False
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.tag == "operand":
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 if child.tag != "operator":
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_operation: "{child.tag}" not handled'
 
     def handle_tag_operand(
@@ -1566,22 +1746,22 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
 
             try:
                 error_chk = self.operand_child_tags.index(child.tag)
             except ValueError:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_operand: "{child.tag}" not handled'
-            
+
             self.parseXMLTree(
-                    child, cur_elem, current, parent, traverse
+                child, cur_elem, current, parent, traverse
             )
             if (
-                child.tag == "name"
-                and self.need_reconstruct
+                    child.tag == "name"
+                    and self.need_reconstruct
             ):
                 self.reconstruct_name_element(cur_elem, current)
 
@@ -1599,20 +1779,19 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text or len(child) > 0:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if (
-                    child.tag == "io-controls"
-                    or child.tag == "outputs"
+                        child.tag == "io-controls"
+                        or child.tag == "outputs"
                 ):
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_write: "{child.tag}" not handled'
-
 
     def handle_tag_io_controls(
             self, root, current, parent, grandparent, traverse
@@ -1627,16 +1806,16 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.text or len(child) > 0:
                 if child.tag == "io-control":
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_io_controls: "{child.tag}" not handled'
 
     def handle_tag_io_control(
@@ -1651,7 +1830,7 @@ class RectifyOFPXML:
         """
         for child in root:
             self.clean_attrib(child)
-            # To make io-control elements simpler, the code below 
+            # To make io-control elements simpler, the code below
             # will append io-control-spec's attributes to its
             # parent (io-control). This will eliminate at least
             # one recursion in translate.py to retrieve
@@ -1661,7 +1840,8 @@ class RectifyOFPXML:
             if child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
                 if child.tag == "io-control" or child.tag == "literal":
-                    self.parseXMLTree(child, cur_elem, current, parent, traverse)
+                    self.parseXMLTree(child, cur_elem, current, parent,
+                                      traverse)
                 else:
                     assert False, f'In handle_tag_io_control: "{child.tag}" not handled'
             else:
@@ -1692,7 +1872,7 @@ class RectifyOFPXML:
                 self.parseXMLTree(child, current, current, parent, traverse)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_outputs: "{child.tag}" not handled'
 
     def handle_tag_output(
@@ -1708,17 +1888,17 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
-            if child.tag == "name" or child.tag == "literal":
+            if child.tag in self.output_child_tags:
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
                 if child.tag == "name" and self.need_reconstruct:
                     self.reconstruct_name_element(cur_elem, current)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_outputs: "{child.tag}" not handled'
 
     def handle_tag_format(
@@ -1734,16 +1914,16 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.tag == "format-items":
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 if child.tag != "label":
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_format: "{child.tag}" not handled'
 
     def handle_tag_format_items(
@@ -1762,11 +1942,11 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if child.tag == "format-items" or child.tag == "format-item":
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 assert (
@@ -1787,18 +1967,18 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.tag != "print-stmt":
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
             if child.tag == "outputs":
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
             else:
                 try:
                     error_chk = self.unnecessary_tags.index(child.tag)
                 except ValueError:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_print: "{child.tag}" not handled'
 
     def handle_tag_open(
@@ -1816,21 +1996,21 @@ class RectifyOFPXML:
             if child.text:
                 if child.tag == "keyword-arguments":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_open: "{child.tag}" not handled'
             else:
                 if child.tag == "open-stmt":
                     current.attrib.update(child.attrib)
                 else:
                     assert (
-                        False, 
+                        False
                     ), f'In handle_tag_open: Empty elements "{child.tag}" not handled'
 
     def handle_tag_keyword_arguments(
@@ -1850,14 +2030,14 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if (
-                    child.tag == "keyword-argument"
-                    or child.tag == "literal"
+                        child.tag == "keyword-argument"
+                        or child.tag == "literal"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
@@ -1876,7 +2056,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the read elementss. 
+            between the read elementss.
             <read>
                 ...
             </read>
@@ -1885,25 +2065,25 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if (
-                    child.tag == "io-controls"
-                    or child.tag == "inputs"
+                        child.tag == "io-controls"
+                        or child.tag == "inputs"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_read: "{child.tag}" not handled'
             else:
                 if child.tag == "read-stmt":
                     current.attrib.update(child.attrib)
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_read: Empty elements "{child.tag}" not handled'
 
     def handle_tag_inputs(
@@ -1923,14 +2103,14 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if (
-                    child.tag == "input"
-                    or child.tag == "name"
+                        child.tag == "input"
+                        or child.tag == "name"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
@@ -1946,7 +2126,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the close elementss. 
+            between the close elementss.
             <close>
                 ...
             </close>
@@ -1956,14 +2136,14 @@ class RectifyOFPXML:
             if child.text:
                 if child.tag == "keyword-arguments":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_close: "{child.tag}" not handled'
             else:
                 if child.tag == "close-stmt":
@@ -1971,14 +2151,14 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                        ), f'In handle_tag_close: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_close: Empty elements "{child.tag}" not handled'
 
     def handle_tag_call(
             self, root, current, parent, grandparent, traverse
     ):
         """
             This function handles cleaning up the XML elements
-            between the call elements. 
+            between the call elements.
             <call>
                 ...
             </call>
@@ -1988,14 +2168,14 @@ class RectifyOFPXML:
             if child.text:
                 if child.tag == "name":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_call: "{child.tag}" not handled'
             else:
                 if child.tag == "call-stmt":
@@ -2010,7 +2190,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the subroutine elements. 
+            between the subroutine elements.
             <subroutine>
                 ...
             </subroutine>
@@ -2021,16 +2201,16 @@ class RectifyOFPXML:
             if child.text:
                 if child.tag == "header" or child.tag == "body":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
-                    )
-                    self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        current, child.tag, child.attrib
                     )
                     if child.tag == "body":
                         self.current_body_scope = cur_elem
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_subroutine: "{child.tag}" not handled'
             else:
                 try:
@@ -2045,7 +2225,7 @@ class RectifyOFPXML:
     ):
         """
             This function handles cleaning up the XML elements
-            between the arguments. 
+            between the arguments.
             <arguments>
                 ...
             </arsuments>
@@ -2054,11 +2234,11 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.tag == "argument":
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_variable: "{child.tag}" not handled'
 
     def handle_tag_if(
@@ -2071,36 +2251,38 @@ class RectifyOFPXML:
                 ...
             </if>
         """
+        if traverse == 1:
+            current.attrib['if-before-goto'] = str(self.if_appear_before_goto).lower()
         condition = None
         for child in root:
             self.clean_attrib(child)
             if child.text or len(child) > 0:
                 if child.tag == "header" or child.tag == "body":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                     if traverse == 1:
                         # Check and hold conditional operation for <goto-stmt>
                         if child.tag == "header":
-                            for stmt in child:
-                                if stmt.tag == "operation":
-                                    condition = stmt
+                            condition = child
                         elif child.tag == "body":
-                            if (
-                                condition != None
-                                and "code" in current.attrib
-                            ):
-                                assert (
-                                        "conditional-goto-stmt-lbl" in current.attrib
-                                ), f"If statement must nests conditional goto-stmt"
-                                unique_code = current.attrib['code']
-                                self.conditional_op[unique_code] = condition
+                            if "conditional-goto-stmt-lbl" in current.attrib:
+                                if (
+                                    "type" not in child.attrib
+                                    or child.attrib['type'] != "else"
+                                ):
+                                    if (
+                                        condition != None
+                                        and "code" in current.attrib
+                                    ):
+                                        unique_code = current.attrib['code']
+                                        self.conditional_op[unique_code] = condition
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_if: "{child.tag}" not handled'
             else:
                 if child.tag == "if-stmt":
@@ -2112,7 +2294,7 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_if: Empty elements "{child.tag}" not handled'
 
-        # If label appears before <goto>, mark <if> 
+        # If label appears before <goto>, mark <if>
         # with goto-move to move it later (1st traverse)
         if traverse == 1:
             # Since label_after needs to be reconstructed first,
@@ -2121,21 +2303,28 @@ class RectifyOFPXML:
             # then we collect those reconstructed elements
             if self.label_before and not self.label_after:
                 current.attrib['goto-move'] = "true"
-                self.statements_to_reconstruct_before['stmts-follow-label'].append(current)
+                self.statements_to_reconstruct_before[
+                    'stmts-follow-label'].append(current)
             if self.label_after:
-                if self.collect_stmts_after_goto:
+                if (
+                    self.collect_stmts_after_goto
+                    and "conditional-goto-stmt-lbl" not in current.attrib
+                    and current.attrib['if-before-goto'] == "false"
+                ):
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after['stmts-follow-goto'].append(current)
+                    self.statements_to_reconstruct_after[
+                        'stmts-follow-goto'].append(current)
                 elif self.collect_stmts_after_label:
                     current.attrib['goto-remove'] = "true"
-                    self.statements_to_reconstruct_after['stmts-follow-label'].append(current)
+                    self.statements_to_reconstruct_after[
+                        'stmts-follow-label'].append(current)
 
     def handle_tag_stop(
             self, root, current, parent, grandparent, traverse
     ):
         """
             This function handles cleaning up the XML elements
-            between the stop elements 
+            between the stop elements
             <stop>
                 ...
             </stop>
@@ -2146,7 +2335,7 @@ class RectifyOFPXML:
                 current.attrib.update(child.attrib)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_stop: "{child.tag}" not handled'
 
     def handle_tag_step(
@@ -2163,18 +2352,18 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 if (
-                    child.tag == "operation" 
-                    or child.tag == "literal"
+                        child.tag == "operation"
+                        or child.tag == "literal"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_step: "{child.tag}" not handled'
             else:
                 assert (
@@ -2202,7 +2391,7 @@ class RectifyOFPXML:
                 current.attrib.update(child.attrib)
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_return: "{child.tag}" not handled'
 
     def handle_tag_function(
@@ -2221,10 +2410,10 @@ class RectifyOFPXML:
             if child.text:
                 if child.tag == "header" or child.tag == "body":
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "header":
                         self.is_function_arg = True
@@ -2232,16 +2421,16 @@ class RectifyOFPXML:
                         self.current_body_scope = cur_elem
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_function: "{child.tag}" not handled'
             else:
                 if (
-                    child.tag == "function-stmt"
-                    or child.tag == "end-function-stmt"
-                    or child.tag == "function-subprogram"
+                        child.tag == "function-stmt"
+                        or child.tag == "end-function-stmt"
+                        or child.tag == "function-subprogram"
                 ):
                     cur_elem = ET.SubElement(
-                            current, child.tag, child.attrib
+                        current, child.tag, child.attrib
                     )
                 else:
                     assert (
@@ -2262,15 +2451,15 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.tag == "use-stmt" or child.tag == "only":
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.text:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_use: "{child.tag}" not handled'
 
     def handle_tag_module(
@@ -2292,11 +2481,11 @@ class RectifyOFPXML:
                 assert False, f'In handle_tag_module: "{child.tag}" not handled'
 
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if len(child) > 0 or child.text:
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
 
     def handle_tag_initial_value(
@@ -2313,15 +2502,15 @@ class RectifyOFPXML:
             self.clean_attrib(child)
             if child.text:
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if child.tag == "literal" or child.tag == "operation":
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
                 else:
                     assert (
-                            False
+                        False
                     ), f'In handle_tag_initial_value: "{child.tag}" not handled'
             else:
                 if child.tag == "initialization":
@@ -2348,15 +2537,15 @@ class RectifyOFPXML:
                 error_chk = self.members_child_tags.index(child.tag)
             except ValueError:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_members: "{child.tag}" not handled'
-                
+
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if len(child) > 0 or child.text:
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
 
     def handle_tag_only(
@@ -2374,15 +2563,15 @@ class RectifyOFPXML:
                 error_chk = self.only_child_tags.index(child.tag)
             except ValueError:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_only: "{child.tag}" not handled'
 
             cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
+                current, child.tag, child.attrib
             )
             if len(child) > 0 or child.text:
                 self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
+                    child, cur_elem, current, parent, traverse
                 )
 
     def handle_tag_length(
@@ -2398,15 +2587,15 @@ class RectifyOFPXML:
         for child in root:
             if child.tag == "literal" or child.tag == "char-length":
                 cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
+                    current, child.tag, child.attrib
                 )
                 if len(child) > 0 or child.text:
                     self.parseXMLTree(
-                            child, cur_elem, current, parent, traverse
+                        child, cur_elem, current, parent, traverse
                     )
             else:
                 assert (
-                        False
+                    False
                 ), f'In handle_tag_length: "{child.tag}" not handled'
 
     #################################################################
@@ -2419,6 +2608,11 @@ class RectifyOFPXML:
             self, root, current, parent, grandparent, traverse
     ):
         """
+            Recursively traverse through the nested XML AST tree and
+            calls appropriate tag handler, which will generate
+            a cleaned version of XML tree for translate.py.
+            Any new tags handlers must be added under this this function.
+
             parseXMLTree
 
             Arguments:
@@ -2427,37 +2621,39 @@ class RectifyOFPXML:
                 parent: Parent element of the current.
                 grandparent: A parent of parent statement of current.
                 traverse: Keeps the track of number of traverse time.
-        
+
             Returns:
                 None
-                
-            Recursively traverse through the nested XML AST tree and
-            calls appropriate tag handler, which will generate
-            a cleaned version of XML tree for translate.py. 
-            Any new tags handlers must be added under this this function.
         """
         if root.tag == "file":
             self.handle_tag_file(root, current, parent, grandparent, traverse)
         elif root.tag == "program":
-            self.handle_tag_program(root, current, parent, grandparent, traverse)
+            self.handle_tag_program(root, current, parent, grandparent,
+                                    traverse)
         elif root.tag == "header":
             self.handle_tag_header(root, current, parent, grandparent, traverse)
         elif root.tag == "specification":
-            self.handle_tag_specification(root, current, parent, grandparent, traverse)
+            self.handle_tag_specification(root, current, parent, grandparent,
+                                          traverse)
         elif root.tag == "body":
             self.handle_tag_body(root, current, parent, grandparent, traverse)
         elif root.tag == "declaration":
-            self.handle_tag_declaration(root, current, parent, grandparent, traverse)
+            self.handle_tag_declaration(root, current, parent, grandparent,
+                                        traverse)
         elif root.tag == "type":
             self.handle_tag_type(root, current, parent, grandparent, traverse)
         elif root.tag == "variables":
-            self.handle_tag_variables(root, current, parent, grandparent, traverse)
+            self.handle_tag_variables(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "variable":
-            self.handle_tag_variable(root, current, parent, grandparent, traverse)
+            self.handle_tag_variable(root, current, parent, grandparent,
+                                     traverse)
         elif root.tag == "statement":
-            self.handle_tag_statement(root, current, parent, grandparent, traverse)
+            self.handle_tag_statement(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "assignment":
-            self.handle_tag_assignment(root, current, parent, grandparent, traverse)
+            self.handle_tag_assignment(root, current, parent, grandparent,
+                                       traverse)
         elif root.tag == "target":
             self.handle_tag_target(root, current, parent, grandparent, traverse)
         elif root.tag == "value":
@@ -2467,45 +2663,58 @@ class RectifyOFPXML:
         elif root.tag == "name":
             self.handle_tag_name(root, current, parent, grandparent, traverse)
         elif root.tag == "literal":
-            self.handle_tag_literal(root, current, parent, grandparent, traverse)
+            self.handle_tag_literal(root, current, parent, grandparent,
+                                    traverse)
         elif root.tag == "dimensions":
-            self.handle_tag_dimensions(root, current, parent, grandparent, traverse)
+            self.handle_tag_dimensions(root, current, parent, grandparent,
+                                       traverse)
         elif root.tag == "dimension":
-            self.handle_tag_dimension(root, current, parent, grandparent, traverse)
+            self.handle_tag_dimension(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "loop":
             self.handle_tag_loop(root, current, parent, grandparent, traverse)
         elif root.tag == "index-variable" or root.tag == "range":
-            self.handle_tag_index_variable_or_range(root, current, parent, grandparent, traverse)
+            self.handle_tag_index_variable_or_range(root, current, parent,
+                                                    grandparent, traverse)
         elif root.tag == "lower-bound" or root.tag == "upper-bound":
             self.handle_tag_bound(root, current, parent, grandparent, traverse)
         elif root.tag == "subscripts":
-            self.handle_tag_subscripts(root, current, parent, grandparent, traverse)
+            self.handle_tag_subscripts(root, current, parent, grandparent,
+                                       traverse)
         elif root.tag == "subscript":
-            self.handle_tag_subscript(root, current, parent, grandparent, traverse)
+            self.handle_tag_subscript(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "operation":
-            self.handle_tag_operation(root, current, parent, grandparent, traverse)
+            self.handle_tag_operation(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "operand":
-            self.handle_tag_operand(root, current, parent, grandparent, traverse)
+            self.handle_tag_operand(root, current, parent, grandparent,
+                                    traverse)
         elif root.tag == "write":
             self.handle_tag_write(root, current, parent, grandparent, traverse)
         elif root.tag == "io-controls":
-            self.handle_tag_io_controls(root, current, parent, grandparent, traverse)
+            self.handle_tag_io_controls(root, current, parent, grandparent,
+                                        traverse)
         elif root.tag == "io-control":
-            self.handle_tag_io_control(root, current, parent, grandparent, traverse)
+            self.handle_tag_io_control(root, current, parent, grandparent,
+                                       traverse)
         elif root.tag == "outputs":
-            self.handle_tag_outputs(root, current, parent, grandparent, traverse)
+            self.handle_tag_outputs(root, current, parent, grandparent,
+                                    traverse)
         elif root.tag == "output":
             self.handle_tag_output(root, current, parent, grandparent, traverse)
         elif root.tag == "format":
             self.handle_tag_format(root, current, parent, grandparent, traverse)
         elif root.tag == "format-items" or root.tag == "format-item":
-            self.handle_tag_format_items(root, current, parent, grandparent, traverse)
+            self.handle_tag_format_items(root, current, parent, grandparent,
+                                         traverse)
         elif root.tag == "print":
             self.handle_tag_print(root, current, parent, grandparent, traverse)
         elif root.tag == "open":
             self.handle_tag_open(root, current, parent, grandparent, traverse)
         elif root.tag == "keyword-arguments" or root.tag == "keyword-argument":
-            self.handle_tag_keyword_arguments(root, current, parent, grandparent, traverse)
+            self.handle_tag_keyword_arguments(root, current, parent,
+                                              grandparent, traverse)
         elif root.tag == "read":
             self.handle_tag_read(root, current, parent, grandparent, traverse)
         elif root.tag == "inputs" or root.tag == "input":
@@ -2515,9 +2724,11 @@ class RectifyOFPXML:
         elif root.tag == "call":
             self.handle_tag_call(root, current, parent, grandparent, traverse)
         elif root.tag == "subroutine":
-            self.handle_tag_subroutine(root, current, parent, grandparent, traverse)
+            self.handle_tag_subroutine(root, current, parent, grandparent,
+                                       traverse)
         elif root.tag == "arguments":
-            self.handle_tag_arguments(root, current, parent, grandparent, traverse)
+            self.handle_tag_arguments(root, current, parent, grandparent,
+                                      traverse)
         elif root.tag == "if":
             self.handle_tag_if(root, current, parent, grandparent, traverse)
         elif root.tag == "stop":
@@ -2527,19 +2738,28 @@ class RectifyOFPXML:
         elif root.tag == "return":
             self.handle_tag_return(root, current, parent, grandparent, traverse)
         elif root.tag == "function":
-            self.handle_tag_function(root, current, parent, grandparent, traverse)
+            self.handle_tag_function(root, current, parent, grandparent,
+                                     traverse)
         elif root.tag == "use":
             self.handle_tag_use(root, current, parent, grandparent, traverse)
         elif root.tag == "module":
             self.handle_tag_module(root, current, parent, grandparent, traverse)
         elif root.tag == "initial-value":
-            self.handle_tag_initial_value(root, current, parent, grandparent, traverse)
+            self.handle_tag_initial_value(root, current, parent, grandparent,
+                                          traverse)
         elif root.tag == "members":
-            self.handle_tag_members(root, current, parent, grandparent, traverse)
+            self.handle_tag_members(root, current, parent, grandparent,
+                                    traverse)
         elif root.tag == "only":
             self.handle_tag_only(root, current, parent, grandparent, traverse)
         elif root.tag == "length":
             self.handle_tag_length(root, current, parent, grandparent, traverse)
+        elif root.tag == "saved-entity":
+            self.handle_tag_saved_entity(root, current, parent, grandparent,
+                                    traverse)
+        elif root.tag == "save-stmt":
+            self.handle_tag_save_statement(root, current, parent, grandparent,
+                                     traverse)
         else:
             assert (
                 False
@@ -2551,13 +2771,18 @@ class RectifyOFPXML:
     #                                                               #
     #################################################################
 
-
     def reconstruct_derived_type_declaration(self):
         """
             This function reconstructs the derived type
-            with the collected derived type declaration 
-            elements in the handle_tag_declaration and 
+            with the collected derived type declaration
+            elements in the handle_tag_declaration and
             handle_tag_type.
+
+            Args:
+                None.
+
+            Returns:
+                None.
         """
         if self.derived_type_var_holder_list:
             literal = ET.Element("")
@@ -2677,18 +2902,24 @@ class RectifyOFPXML:
             that this new form was generated in the python syntax,
             so it is a pre-process for translate.py and
             even pyTranslate.py that
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         assert (
-            current.tag == "name"
+                current.tag == "name"
         ), f"The tag <name> must be passed to reconstruct_derived_type_ref.\
              Currently, it's {current.tag}."
-        # First the root <name> id gets the very first 
+        # First the root <name> id gets the very first
         # variable reference i.e. x in x.y.k (or x%y%k in Fortran syntax)
         current.attrib['id'] = self.derived_type_var_holder_list[0]
         if (
-            current.attrib['id'] in self.declared_array_vars
-            and self.declared_array_vars[current.attrib['id']]
-            == self.current_scope
+                current.attrib['id'] in self.declared_array_vars
+                and self.declared_array_vars[current.attrib['id']]
+                == self.current_scope
         ):
             current.attrib['hasSubscripts'] = "true"
             current.attrib['is_array'] = "true"
@@ -2705,9 +2936,9 @@ class RectifyOFPXML:
             attributes.update(current.attrib)
             attributes['id'] = variable_name
             if (
-                variable_name in self.declared_array_vars
-                and self.declared_array_vars[variable_name]
-                == self.current_scope
+                    variable_name in self.declared_array_vars
+                    and self.declared_array_vars[variable_name]
+                    == self.current_scope
             ):
                 attributes['hasSubscripts'] = "true"
                 attributes['is_array'] = "true"
@@ -2716,7 +2947,7 @@ class RectifyOFPXML:
             # Create N (number_of_vars) number of new subElement
             # under the root <name> for each referencing variable
             reference_var = ET.SubElement(
-                            parent_ref, "name", attributes
+                parent_ref, "name", attributes
             )
             parent_ref = reference_var
             self.derived_type_refs.append(parent_ref)
@@ -2735,22 +2966,36 @@ class RectifyOFPXML:
             declared under (2) and (3) will be extracted
             and reconstructed to be nested under (1)
             in this function.
+
+            Args:
+                grandparent (:obj: 'ET'): Grand parent element object.
+                traverse (int): Current traverse number.
+
+            Returns:
+                None.
         """
         root_scope = ET.SubElement(self.current_body_scope, "statement")
-        cur_elem = ET.SubElement(root_scope, "format")
-        self.parseXMLTree(
-                self.format_holder, cur_elem, root_scope, grandparent, traverse
-        )
+        for form in self.format_holder:
+            cur_elem = ET.SubElement(root_scope, form.tag, form.attrib)
+            self.parseXMLTree(
+                form, cur_elem, root_scope, grandparent, traverse
+            )
 
     def reconstruct_derived_type_names(self, current):
         """
             This function reconstructs derived type
             reference syntax tree. However, this functions is
             actually a preprocessor for the real final reconstruction.
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         # Update reconstruced derived type references
         assert (
-            self.is_derived_type_ref == True
+                self.is_derived_type_ref == True
         ), "'self.is_derived_type_ref' must be true"
         numPartRef = int(current.attrib['numPartRef'])
         for idx in range(1, len(self.derived_type_refs)):
@@ -2769,6 +3014,14 @@ class RectifyOFPXML:
             (including sub-elements) and split & store <name> and
             <subscripts> into separate lists. Then, it comibines
             and reconstructs two lists appropriately.
+
+            Args:
+                cur_elem (:obj: 'ET'): Newly generated element
+                for current element object.
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         name_elements = [cur_elem]
         # Remove the original <name> elements.
@@ -2821,37 +3074,231 @@ class RectifyOFPXML:
     ):
         """
             This function gets called when goto appears
-            after the corresponding label and all necessary 
+            after the corresponding label and all necessary
             statements are collected for the reconstruction.
+
+            Args:
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                header (list): A header tht holds conditional header.
+                traverse (int): A traverse counter.
+                reconstruct_target (dict): A dictionary that holds statements
+                for goto and label as well as the number of goto counter.
+
+            Return:
+                None.
         """
         number_of_gotos = reconstruct_target['count-gotos']
         stmts_follow_goto = reconstruct_target['stmts-follow-goto']
-                    
-        conditional_goto = False
-        header = None
-        uniq_code = None
-        for stmt in stmts_follow_goto:
-            if (
-                stmt.tag == "statement"
-                and "goto-stmt" in stmt.attrib
-                and "conditional-goto-stmt" in stmt.attrib
-            ):
-                uniq_code = stmt.attrib['code']
-                conditional_goto = True
-            if (
-                stmt.tag == "if"
-                and "conditional-goto-stmt-lbl" in stmt.attrib
-                and uniq_code == stmt.attrib['code']
-            ):
-                header = stmt[0]
-                stmts_follow_goto.remove(stmt)
-
         stmts_follow_label = reconstruct_target['stmts-follow-label']
 
+        header = [None]
+        self.check_conditional_goto(header, stmts_follow_goto)
+
+        # Corrent boundaries of gotos in case of a multiple
+        # nested gotos.
+        self.goto_boundary_corrector(
+                reconstruct_target, stmts_follow_goto,
+                stmts_follow_label
+        )
+
+        # Check for the case where goto and label are
+        # at different lexical levels
+        self.handle_in_outward_movement(stmts_follow_goto, stmts_follow_label, parent)
+
+        if not self.conditional_goto:
+            declared_goto_flag_num = []
+            self.generate_declaration_element(
+                parent, "goto_flag", number_of_gotos,
+                declared_goto_flag_num, traverse
+            )
+
+        # This variable is for storing goto that may appear
+        # at the end of if because we want to extract one 
+        # scope out and place it right after
+        # the constructed if-statement
+        next_goto = []
+        reconstructed_goto_elem = []
+        for i in range(number_of_gotos):
+            # Constructor for statements if and statements nested
+            self.reconstruct_stmts_follow_goto_after_case(
+                    header, parent, stmts_follow_goto, next_goto,
+                    traverse, reconstructed_goto_elem, i
+            )
+            # Constructor for statements with L_i:stmt_n
+            self.reconstruct_stmts_follow_label_after_case(
+                        stmts_follow_label, next_goto, reconstructed_goto_elem, 
+                        header, traverse, parent, i
+            )
+            # When unconditional goto, it generates 'goto_flag_i = False'
+            # statement at the end of reconstrcted goto statement.
+            # Else, nothing gets printed, but set self.conditional_goto to False
+            if not self.conditional_goto:
+                statement = ET.SubElement(parent, "statement")
+                self.generate_assignment_element(statement, f"goto_flag_{i+1}", None, "literal", "false", traverse)
+                reconstructed_goto_elem.append(statement)
+                parent.remove(statement)
+            else:
+                self.conditional_goto = False
+
+            if len(reconstructed_goto_elem) > 1:
+                stmts_follow_label = reconstructed_goto_elem[1]
+
+            self.encapsulate_under_do_while = False
+
+            # next_goto holds another goto after the current label_after
+            # case label, which will encapsulate reconstrcted goto element
+            if next_goto:
+                self.reconstruct_next_goto(next_goto, reconstructed_goto_elem, parent)
+
+        # Set all holders and checkers (markers) to default
+        self.label_after = False
+        self.goto_under_if = False
+        self.reconstruct_after_case_now = False
+        self.reconstruction_for_after_done = True
+        self.goto_target_lbl_after.clear()
+        self.label_lbl_for_after.clear()
+        self.statements_to_reconstruct_after.clear()
+
+    def reconstruct_goto_before_label(
+            self, parent, traverse, reconstruct_target
+    ):
+        """
+            This function gets called when goto appears
+            before the corresponding label and all necessary
+            statements are collected for the reconstruction.
+
+            Args:
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                traverse (int): A traverse counter.
+                reconstruct_target (dict): A dictionary that holds statements
+                for goto and label as well as the number of goto counter.
+
+            Return:
+                None.
+        """
+        stmts_follow_label = reconstruct_target['stmts-follow-label']
+        number_of_gotos = reconstruct_target['count-gotos']
+
+        # This removes the statement that's a child statement of
+        # if body being seprately re-added to the list.
+        self.remove_dup_stmt(stmts_follow_label)
+
+        # Declare label flag for loop condition
+        declared_label_flag_num = []
+        self.generate_declaration_element(
+            parent, "label_flag", number_of_gotos,
+            declared_label_flag_num, traverse
+        )
+
+        # Find the boundary from label to goto.
+        # Remove any statements that are not within the boundary.
+        goto_index_holder = []
+        target_label_lbl = [None]
+        statements_to_recover =\
+            self.boundary_identifier_for_backward_goto(
+                    stmts_follow_label, goto_index_holder,
+                    number_of_gotos, target_label_lbl
+            )
+
+        # In case of multiple goto statements appears,
+        # slice them into N number of list objects
+        # The location of goto statement (inner to outer)
+        # is represented by the increament of index
+        # i.e. [0]: innermost, [N]: Outermost
+        multiple_goto_stmts = []
+        self.multiple_goto_identifier(
+                goto_index_holder, multiple_goto_stmts,
+                stmts_follow_label
+        )
+
+        # Check whether there is nested label_after
+        # case goto statements. Handles one case
+        # at a time.
+        nested_gotos_exist =\
+                self.nested_forward_goto_identifier(multiple_goto_stmts)
+
+        # Generate loop ast
+        self.construct_goto_loop(
+                parent, reconstruct_target, 
+                nested_gotos_exist, multiple_goto_stmts, 
+                number_of_gotos, declared_label_flag_num, 
+                traverse, target_label_lbl)
+
+        # Recover rest of the statements
+        self.statement_recovery(statements_to_recover, parent, traverse)
+
+        # Set all holders and checkers (markers) to default
+        self.label_before = False
+        self.reconstruct_before_case_now = False
+        self.reconstruct_for_before_done = True 
+        self.label_lbl_for_before.clear()
+        self.statements_to_reconstruct_before['stmts-follow-label'] = []
+        self.statements_to_reconstruct_before['count-gotos'] = 0
+        
+    def reconstruct_header(
+            self, temp_elem_holder, parent
+    ):
+        """
+            This function is for reconstructing the oddly
+            generated header AST to have an uniform structure
+            with other multiary type operation nested headers.
+
+            Args:
+                temp_elem_holder (list): A temporary holder that
+                holds statements under header for swap.
+                parent (:obj: 'ET'): A parent ET object that current
+
+            Return:
+                None.
+        """
+        # This operation is basically for switching
+        # the location of operator and 2nd operand,
+        # so the output syntax can have a common structure
+        # with other operation AST
+        op = temp_elem_holder.pop()
+        temp_elem_holder.insert(1, op)
+
+        # First create <operation> element
+        # Currently, only assume multiary reconstruction
+        operation = ET.SubElement(
+                parent, "operation", {"type":"multiary"}
+        )
+        for elem in temp_elem_holder:
+            if elem.tag == "name" or elem.tag == "literal":
+                operand = ET.SubElement(operation, "operand")
+                value = ET.SubElement(operand, elem.tag, elem.attrib)
+            else:
+                assert (
+                        elem.tag == "equiv-operand__equiv-op" 
+                ), f"Tag must be 'equiv-operand__equiv-op'. Current: {elem.tag}."
+                operator = ET.SubElement(
+                        operation, "operator", {"operator":elem.attrib['equivOp']}
+                )
+            parent.remove(elem)
+
+    def goto_boundary_corrector(self, reconstruct_target, stmts_follow_goto, stmts_follow_label):
+        """
+            This function is for correcting the boundaries of goto
+            statements in case of a multiple gotos are nested and
+            crossing each other.
+
+            Args:
+                reconstruct_target (dict): A dictionary that holds statements
+                for goto and label as well as the number of goto counter.
+                stmts_follow_goto (list): A list that holds statements
+                after goto statement.
+                stmts_follow_label (list): A list that holds statements
+                after label statements.
+
+            Return:
+                None.
+        """
         # If [0] <goto-stmt> is an inner scope statement of the [N-1]
-        # <goto-stmt> (if it is a <goto-stmt> in the stmts_follow_goto, 
-        # then we need to correct the scoping issue by moving
-        # the [N-1] element to the end of stmts_follow_label
+        # <goto-stmt>in the stmts_follow_goto, then we need to correct
+        # the boundary issue by moving the [N-1] element to 
+        # the end of stmts_follow_label
         last_stmt = reconstruct_target['stmts-follow-goto'][-1]
         if "goto-stmt" in last_stmt.attrib:
             first_goto = reconstruct_target['stmts-follow-goto'][0]
@@ -2871,8 +3318,8 @@ class RectifyOFPXML:
         index = 0
         for stmt in stmts_follow_label:
             if (
-                "label" in stmt.attrib
-                or "goto-stmt" in stmt.attrib
+                    "label" in stmt.attrib
+                    or "goto-stmt" in stmt.attrib
             ):
                 num_of_goto_and_label_after_label += 1
                 # Since the first label-statement of
@@ -2881,331 +3328,286 @@ class RectifyOFPXML:
                 # stmt_follow_goto in the label_after case,
                 # remove the goto-move (label_before) case mark
                 if (
-                    index == 0
-                    and "goto-move" in stmt.attrib
+                        index == 0
+                        and "goto-move" in stmt.attrib
                 ):
                     del stmt.attrib['goto-move']
 
-        # -2 disregarding the first and last statements 
+        # -2 disregarding the first and last statements
         num_of_goto_and_label_after_label -= 2
 
         for i in range(num_of_goto_and_label_after_label):
             stmt = stmts_follow_label.pop(-2)
             stmts_follow_goto.append(stmt)
- 
-        if not conditional_goto:
-            declared_goto_flag_num = []
-            self.generate_declaration_element(
-                    parent, "goto_flag", number_of_gotos, declared_goto_flag_num, traverse
-            )
-       
-        # This variable is for storing goto that may appear at the end of if
-        # because we want to extract one scope out and place it right 
-        # after the constructed if-statement
-        next_goto = []
 
-        reconstructed_if_elem = []
-        for i in range(number_of_gotos):
-            if conditional_goto:
-                assert (
-                        header != None
-                ), "Header cannot be None in case of conditional goto"
-                self.need_op_negation = True
-                self.generate_if_element(
-                        header, parent, stmts_follow_goto, next_goto, True, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
-                )
-                if reconstructed_if_elem:
-                    stmts_follow_goto = reconstructed_if_elem[0]
-                self.need_op_negation = True
-                self.generate_if_element(
-                        header, parent, stmts_follow_label, next_goto, True, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
-                )
-                if len(reconstructed_if_elem) > 1:
-                    stmts_follow_label = reconstructed_if_elem[1]
-                conditional_goto = False
-
-            else:
-                self.generate_if_element(
-                        None, parent, stmts_follow_goto, next_goto, True, "unary", 
-                        f"goto_flag_{i+1}", None, ".not.", traverse, reconstructed_if_elem
-                )
-                if reconstructed_if_elem:
-                    stmts_follow_goto = reconstructed_if_elem[0]
-                self.generate_if_element(
-                        None, parent, stmts_follow_label, next_goto, False, None,
-                        f"goto_flag_{i+1}", None, None, traverse, reconstructed_if_elem
-                )
-                if len(reconstructed_if_elem) > 1:
-                    stmts_follow_label = reconstructed_if_elem[1]
-            self.encapsulate_under_do_while = False
-
-            if next_goto:
-                statement = ET.SubElement(
-                                    parent, next_goto[0]['statement'].tag,
-                                    next_goto[0]['statement'].attrib
-                )
-                goto_stmt = ET.SubElement(
-                                    statement, next_goto[0]['goto-stmt'].tag, 
-                                    next_goto[0]['goto-stmt'].attrib
-                )
-                if (
-                    reconstructed_if_elem
-                    and reconstructed_if_elem[0].attrib['label']
-                        == goto_stmt.attrib['target_label']
-                ):
-                    for stmt in reconstructed_if_elem:
-                        self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
-                    self.statements_to_reconstruct_before['stmts-follow-label'].append(statement)
-                    if self.statements_to_reconstruct_before['count-gotos'] < 1:
-                        self.statements_to_reconstruct_before['count-gotos'] = 1
-                    self.reconstruct_before_case_now = True
-                    self.reconstruction_for_before_done = False
-
-        # Set all holders and checkers (markers) to default
-        self.label_after = False
-        self.reconstruct_after_case_now = False
-        self.reconstruction_for_after_done = True
-        self.goto_target_lbl_after.clear()
-        self.label_lbl_for_after.clear()
-        self.statements_to_reconstruct_after.clear()
-
-    def reconstruct_goto_before_label(
-            self, parent, traverse, reconstruct_target
+    def reconstruct_stmts_follow_goto_after_case(
+            self, header, parent, stmts_follow_goto, 
+            next_goto, traverse, reconstructed_goto_elem,
+            index
     ):
         """
-            This function gets called when goto appears
-            before the corresponding label and all necessary 
-            statements are collected for the reconstruction.
-        """
-        stmts_follow_label = reconstruct_target['stmts-follow-label']
-        number_of_gotos = reconstruct_target['count-gotos']
-        
-        declared_label_flag_num = []
-        self.generate_declaration_element(
-                    parent, "label_flag", number_of_gotos,
-                    declared_label_flag_num, traverse
-        )
+            This function generates a new if statement to
+            nests statements that follow goto-stmt based on
+            condition or non-condition status to eliminate
+            goto.
 
-        # Find the scope from label to goto.
-        # Remove any statements that are not within the scope.
-        index = 0
-        goto_counter = 0
-        goto_index_holder = []
-        target_label_lbl = None
+            Args:
+                next_goto (list): A list to hold next goto-stmt that may exist
+                within the boundary of current goto.
+                reconstructed_goto_elem (list): A list that will hold
+                reconstructed if statements.
+                header (list): A header tht holds conditional header.
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                stmts_follow_goto (list): A list that holds statements
+                within the boundary of currently handling goto.
+                traverse (int): A current traverse counter.
+                index (int): An index of goto.
+
+            Return:
+                None.
+        """
+
+        if self.conditional_goto:
+            if not self.outward_move and not self.inward_move:
+                self.need_op_negation = True
+            if header[0] != None:
+                self.generate_if_element(
+                        header[0], parent, stmts_follow_goto, next_goto, True, None,
+                        None, None, None, traverse, reconstructed_goto_elem
+                )
+            elif self.outward_move:
+                for stmt in stmts_follow_goto:
+                    if "skip-collect" not in stmt.attrib:
+                        cur_elem = ET.SubElement (parent, stmt.tag, stmt.attrib)
+                        self.parseXMLTree(stmt, cur_elem, stmt, parent, traverse)
+            else:
+                assert (
+                        False
+                ), "Currently inward movement for goto is not being handled."
+        else:
+            self.generate_if_element(
+                None, parent, stmts_follow_goto, next_goto, True, "unary",
+                f"goto_flag_{index + 1}", None, ".not.", traverse,
+                reconstructed_goto_elem
+            )
+
+        if reconstructed_goto_elem:
+            stmts_follow_goto = reconstructed_goto_elem[0]
+
+    def handle_in_outward_movement(self, stmts_follow_goto, stmts_follow_label, parent):
+        """
+            This function checks the lexical level of goto and label.
+            Then, generate and add (remove) statements to the statement
+            holders, so they can be handled appropriately.
+
+            Args:
+                stmts_follow_goto (list): It holds all the statements
+                that appeared after the goto statement in the original
+                code.
+                stmts_follow_label (list): It holds all the statements
+                that appeared after the label statement in the original
+                code.
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+
+            Returns:
+                None.
+        """
+        body_levels = {}
+        for goto_stmt in stmts_follow_goto:
+            # If the statements are in different level,
+            # we do not want to have them in the stmts_follow_goto,
+            # so check such case and remove anything follow goto-stmt.
+            if (
+                self.outward_move
+                and ("generated-exit-stmt" not in goto_stmt.attrib
+                     and "goto-stmt" not in goto_stmt.attrib)
+            ):
+                stmts_follow_goto.remove(goto_stmt)
+
+            if "goto-stmt" in goto_stmt.attrib:
+                lbl = goto_stmt.attrib['lbl']
+                body_levels[lbl] = goto_stmt.attrib['body-level']
+                for label_stmt in stmts_follow_label:
+                    if 'target-label-statement' in label_stmt.attrib:
+                        label = label_stmt.attrib['label']
+                        label_body_level = label_stmt.attrib['body-level']
+                        # A goto-forward case where goto and label are
+                        # located in different levels
+                        if (
+                            label in body_levels
+                            and body_levels[label] != label_body_level
+                        ):
+                            if self.body_level_rank[label_body_level]\
+                                    < self.body_level_rank[body_levels[label]]:
+                                self.outward_move = True
+                                # Since outward movement is simply adding exit (break) to
+                                # the goto-stmt place, we have to create <exit> statement,
+                                # then append it to the stmts_follo_goto
+                                statement = ET.SubElement(parent, "statement")
+                                statement.attrib['generated-exit-stmt'] = "true"
+                                exit = ET.SubElement(statement, "exit")
+                                stmts_follow_goto.append(statement)
+                                # We need to remove it from the parent as it was just
+                                # a place holder before append to the list
+                                parent.remove(statement)
+
+                                if label_body_level != "loop":
+                                    self.goto_under_loop = False
+                                else:
+                                    self.goto_under_loop = True
+
+    def reconstruct_next_goto(self, next_goto, reconstructed_goto_elem, parent):
+        """
+            This function reconstruct a goto statement that appears
+            after the currently handling goto case. The default case
+            is that the next goto is a backward goto case, which
+            requires reconstruction by reconstruct_goto_before function.
+            Thus, this function prepares the ingredient for it.
+
+            Args:
+                next_goto (list): Holds statement and goto-stmt elements.
+                reconstructed_goto_elem (list): Holds reconstructed if statements
+                that was generated after eliminating the goto.
+                header (list): A header tht holds conditional header.
+
+            Return:
+                None.
+        """
+        statement = ET.SubElement(
+            parent, next_goto[0]['statement'].tag,
+            next_goto[0]['statement'].attrib
+        )
+        goto_stmt = ET.SubElement(
+            statement, next_goto[0]['goto-stmt'].tag,
+            next_goto[0]['goto-stmt'].attrib
+        )
+        if (
+            reconstructed_goto_elem
+            and reconstructed_goto_elem[0].attrib['label']
+                == goto_stmt.attrib['target_label']
+        ):
+            for stmt in reconstructed_goto_elem:
+                self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
+            self.statements_to_reconstruct_before['stmts-follow-label'].append(statement)
+            if self.statements_to_reconstruct_before['count-gotos'] < 1:
+                self.statements_to_reconstruct_before['count-gotos'] = 1
+            self.reconstruct_before_case_now = True
+            self.reconstruction_for_before_done = False
+
+    def check_conditional_goto(self, header, stmts_follow_goto):
+        """
+            This function checks whether the goto is conditional
+            or unconditional. If it's conditional, it extracts
+            conditional operation (header).
+
+            Args:
+                header (list): A header tht holds conditional header.
+                stmts_follow_goto (list): It holds all the statements
+                that appeared after the goto statement in the original
+                code.
+
+            Returns:
+                None.
+        """
+        # Check for the status whether current <goto-stmt> is
+        # conditional. If yes, only extract the header (condition)
+        # and remove the if statement AST from the tree. 
+        uniq_code = None
+        for stmt in stmts_follow_goto:
+            if (
+                    stmt.tag == "statement"
+                    and "goto-stmt" in stmt.attrib
+                    and "conditional-goto-stmt" in stmt.attrib
+            ):
+                uniq_code = stmt.attrib['code']
+                self.conditional_goto = True
+
+                if uniq_code in self.conditional_op:
+                    header[0] = self.conditional_op[uniq_code]
+
+    def reconstruct_stmts_follow_label_after_case(
+                self, stmts_follow_label, next_goto, 
+                reconstructed_goto_elem, header, traverse,
+                parent, index
+    ):
+        """
+            This function generates a new statements to
+            nest statements that follow label based on
+            condition or non-condition status to eliminate
+            goto.
+
+            Args:
+                next_goto (list): A list to hold next goto-stmt that may exist
+                within the boundary of current goto.
+                reconstructed_goto_elem (list): A list that will hold
+                reconstructed if statements.
+                header (list): A header tht holds conditional header.
+                parent (:obj: 'ET'): A parent ET object that current
+                element will be nested under.
+                stmts_follow_label (list): A list that holds statements
+                follow label statement for currently handling goto.
+                traverse (int): A current traverse counter.
+                index (int): An index of goto.
+
+            Return:
+                None.
+        """
+
         for stmt in stmts_follow_label:
-            if (
-                index == 0
-                and "label" in stmt.attrib
-            ):
-                target_label_lbl = stmt.attrib['label']
-            for child in stmt:
-                if (
-                    child.tag == "goto-stmt"
-                    and child.attrib['target_label'] == target_label_lbl
-                ):
-                    goto_counter += 1
-                    goto_index_holder.append(index)
-            if goto_counter == number_of_gotos:
-                break
-            index += 1
-
-        # Store statements that are outside of
-        # the label-goto scope in a separate list,
-        # which will then be used to recover the syntax
-        # after the elimination process is done
-        statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
-        for stmt in statements_to_recover:
-            if (
-                stmt.tag == "if"
-                and "conditional-goto-stmt-lbl" in stmt.attrib
-            ):
-                statements_to_recover.remove(stmt)
-        del stmts_follow_label[index+1:len(stmts_follow_label)]
-
-        # In case of multiple goto statements appears,
-        # slice them into N number of list objects
-        # The location of goto statement (inner to outer)
-        # is represented by the increament of index
-        # i.e. [0]: innermost, [N]: Outermost
-        multiple_goto_stmts = []
-        for i in range(len(goto_index_holder)):
-            if i == 0:
-                multiple_goto_stmts.append(
-                            stmts_follow_label[0:goto_index_holder[i]+1]
-                )
-            else:
-                if i+1 < len(goto_index_holder):
-                    multiple_goto_stmts.append(
-                            stmts_follow_label[goto_index_holder[i-1]+1:goto_index_holder[i+1]+1]
-                    )
-                else:
-                    multiple_goto_stmts.append(
-                            stmts_follow_label[goto_index_holder[i-1]+1:goto_index_holder[-1]+1]
-                    )
-
-        # Check whether there is inner label_after
-        # case goto statements. Handles one case
-        # at a time
-        inner_gotos_exist = False
-        labels = []
-        index_scope = []
-        for goto in multiple_goto_stmts:
-            index = 0
-            main_loop_lbl = goto[0].attrib['label']
-            label_after_lbl = None
-            for stmt in goto:
-                if "label" in stmt.attrib:
-                    labels.append(stmt.attrib["label"])
-                    if stmt.attrib["label"] == label_after_lbl:
-                        index_scope.append(index)
+            if len(stmt) > 0:
+                # A case where another goto-stmt appears after the current label
                 if "goto-stmt" in stmt.attrib:
-                    if (
-                        main_loop_lbl != stmt.attrib['lbl']
-                        and stmt.attrib['lbl'] not in labels
-                    ):
-                        inner_gotos_exist = True
-                        label_after_lbl = stmt.attrib['lbl']
-                        index_scope.append(index)
-                index += 1
-
-        # Generate loop ast
-        cur_elem_parent = parent
-        current_goto_num = 1
-        end_of_current_goto_loop = False
-        for i in range(number_of_gotos):
-            loop_elem = ET.SubElement(cur_elem_parent, "loop", {"type":"do-while"})
-
-            header_elem = ET.SubElement(loop_elem, "header")
-            # The outermost flag == N and the innermost flag == 1
-            flag_num = declared_label_flag_num[i]
-            name = f"label_flag_{str(flag_num)}"
-            name_attrib = {
-                            "hasSubscripts":"false",
-                            "id":name,
-                            "type":"ambiguous",
-            }
-            name_elem = ET.SubElement(header_elem, "name", name_attrib)
-            flag_name = name
-            body_elem = ET.SubElement(loop_elem, "body")
-            # Keep a track of the parent and grandparent elements
-            grand_parent_elem = cur_elem_parent
-            cur_elem_parent = body_elem
-            # Since reconstruction of multiple goto is done from outermost
-            # to the inner, we are not constructing any subelements until
-            # all encapsulating loops are created first
-            if current_goto_num == number_of_gotos:
-                for statements in multiple_goto_stmts:
-                    index = 0
-                    for stmt in statements:
-                        if len(stmt) > 0:
-                            if inner_gotos_exist:
-                                reconstruct_target['stmts-follow-goto']\
-                                    = statements[index_scope[0]:index_scope[1]]
-                                reconstruct_target['stmts-follow-label']\
-                                    = statements[index_scope[1]]
-                                reconstruct_target['count-gotos']\
-                                    = 1
-
-                                self.reconstruct_goto_after_label(
-                                        body_elem, traverse, reconstruct_target
-                                )
-
-                                self.statements_to_reconstruct_after['stmts-follow-goto'] = []
-                                # self.statements_to_reconstruct_after['stmts-follow-label'] = stmts_follow_label_copy
-                                inner_gotos_exist = False
-                            else:
-                                elems = ET.SubElement(
-                                        body_elem, stmt.tag, stmt.attrib
-                                )
-                                for child in stmt:
-                                    if (
-                                        child.tag == "goto-stmt"
-                                        and target_label_lbl == child.attrib['target_label']
-                                    ):
-                                        # Conditional
-                                        if "conditional-goto-stmt" in stmt.attrib:
-                                            self.generate_assignment_element(
-                                                    elems, flag_name, self.conditional_op, None, None, traverse
-                                            )
-                                        # Unconditional
-                                        else:
-                                            self.generate_assignment_element(
-                                                    elems, flag_name, None, "literal", "true", traverse
-                                            )
-                                        end_of_current_goto_loop = True
-                                    else:
-                                        child_elem = ET.SubElement(
-                                                elems, child.tag, child.attrib
-                                        )
-                                        if len(child) > 0:
-                                            self.parseXMLTree(
-                                                    child, child_elem, elems, parent, traverse
-                                            )
-                        # If end_of_current_goto_loop is True,
-                        # escape one loop out to continue
-                        # construct statements
-                        if end_of_current_goto_loop:
-                            body_elem = grand_parent_elem
-                            end_of_current_goto_loop = False
-                            flag_name = f"label_flag_{str(number_of_gotos+i-1)}"
-                    index += 1
-            else:
-                current_goto_num += 1
-
-        for recover_stmt in statements_to_recover:
-            statement = ET.SubElement(
-                        parent, recover_stmt.tag, recover_stmt.attrib
-            )
-            for child in recover_stmt:
-                child_elem = ET.SubElement(
-                        statement, child.tag, child.attrib
-                )
-                if len(child) > 0:
-                    self.parseXMLTree(
-                            child, child_elem, statement, parent, traverse
-                    )
-
-        # Set all holders and checkers (markers) to default
-        self.label_before = False
-        self.reconstruct_before_case_now = False
-        self.label_lbl_for_before.clear()
-        self.statements_to_reconstruct_before['stmts-follow-label'] = []
-        self.statements_to_reconstruct_before['count-gotos'] = 0
-
-    def reconstruct_header(
-            self, temp_elem_holder, parent
-    ):
-        """
-            This function is for reconstructing the oddly
-            generated header AST to have an uniform structure
-            with other multiary type operation nested headers.
-        """
-        # This operation is basically for switching
-        # the location of operator and 2nd operand,
-        # so the output syntax can have a common structure
-        # with other operation AST
-        op = temp_elem_holder.pop()
-        temp_elem_holder.insert(1, op)
-
-        # First create <operation> element
-        # Currently, only assume multiary reconstruction
-        operation = ET.SubElement(
-                parent, "operation", {"type":"multiary"}
-        )
-        for elem in temp_elem_holder:
-            if elem.tag == "name" or elem.tag == "literal":
-               operand = ET.SubElement(operation, "operand")
-               value = ET.SubElement(operand, elem.tag, elem.attrib)
-            else:
-                assert (
-                        elem.tag == "equiv-operand__equiv-op" 
-                ), f"Tag must be 'equiv-operand__equiv-op'. Current: {elem.tag}."
-                operator = ET.SubElement(
-                        operation, "operator", {"operator":elem.attrib['equivOp']}
-                )
-            parent.remove(elem)
+                    goto_stmt = {}
+                    goto_stmt['statement'] = stmt
+                    for child in stmt:
+                        if child.attrib['target_label'] in self.goto_target_lbl_before:
+                            goto_stmt['statement'].attrib['goto-move'] = "true"
+                        if (
+                            child.attrib['target_label'] not in self.goto_target_lbl_after
+                            and "goto-move" in goto_stmt['statement']
+                        ):
+                            del goto_stmt['statement'].attrib['goto-move']
+                        goto_stmt['goto-stmt'] = child
+                    next_goto.append(goto_stmt)
+                else:
+                    # A case where both goto and label are under the same level
+                    if not self.outward_move and not self.inward_move:
+                        reconstructed_goto_elem.append(stmt)
+                        if not self.encapsulate_under_do_while:
+                            statement = ET.SubElement(parent, stmt.tag, stmt.attrib)
+                            for child in stmt:
+                                cur_elem = ET.SubElement(statement, child.tag, child.attrib)
+                                if len(child) > 0:
+                                    self.parseXMLTree(child, cur_elem, statement, parent, traverse)
+                    # A case where outward movement goto handling is need
+                    elif self.outward_move:
+                        label_body_level = self.body_elem_holder[stmt.attrib['body-level']]
+                        # If goto is a conditional case, but under else then
+                        # there is no header operation. Thus, we simply declare new boolean
+                        # variable like a non-conditional goto, then use that variable to
+                        # construct new if statement and nest statement under label.
+                        if self.goto_under_else:
+                            number_of_gotos = int(self.statements_to_reconstruct_after['count-gotos'])
+                            declared_goto_flag_num = []
+                            self.generate_declaration_element(
+                                label_body_level, "goto_flag", number_of_gotos,
+                                declared_goto_flag_num, traverse
+                            )
+                            self.generate_if_element(
+                                None, label_body_level, stmts_follow_label, next_goto, False, None,
+                                f"goto_flag_{index + 1}", None, None, traverse,
+                                reconstructed_goto_elem
+                            )
+                        else:
+                            self.generate_if_element(
+                                    header[0], label_body_level, stmts_follow_label, next_goto, True, None,
+                                    None, None, None, traverse, reconstructed_goto_elem
+                            )
+                    # A case where inward movement goto handling is need
+                    else:
+                        pass
 
 
     #################################################################
@@ -3219,62 +3621,75 @@ class RectifyOFPXML:
             declared_flag_num, traverse
     ):
         """
-            A flag declaration and assginment xml generation.
+            A flag declaration and assignment xml generation.
             This will generate N number of label_flag_i or goto_i,
             where N is the number of gotos in the Fortran code
-            and i is the number assgined to the flag
+            and i is the number assigned to the flag
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                default_name (str): A default name given for
+                new variable.
+                number_of_gotos (int): A number of gotos. Amount
+                of variables will be generated based on this number.
+                declared_flag_num (list): A list to hold the number
+                of delcared varaibles (flags).
+                traverse (int): A current traverse counter.
+
+            Return:
+                None.
         """
 
         # Declaration
         specification_attribs = {
-                                "declaration":"1",
-                                "implicit":"1",
-                                "imports":"0",
-                                "uses":"0"
+            "declaration": "1",
+            "implicit": "1",
+            "imports": "0",
+            "uses": "0"
         }
         specification_elem = ET.SubElement(
-                            parent, "specification", specification_attribs
+            parent, "specification", specification_attribs
         )
         declaration_elem = ET.SubElement(
-                            specification_elem, "declaration", {"type":"variable"}
+            specification_elem, "declaration", {"type": "variable"}
         )
         type_attribs = {
-                        "hasKind":"false", 
-                        "hasLength":"false",
-                        "is_derived_type":"False",
-                        "keyword2":"none",
-                        "name":"logical",
+            "hasKind": "false",
+            "hasLength": "false",
+            "is_derived_type": "False",
+            "keyword2": "none",
+            "name": "logical",
         }
         type_elem = ET.SubElement(
-                        declaration_elem, "type", type_attribs
+            declaration_elem, "type", type_attribs
         )
         variables_elem = ET.SubElement(
-                        declaration_elem,
-                        "variables",
-                        {"count":str(number_of_gotos)}
+            declaration_elem,
+            "variables",
+            {"count": str(number_of_gotos)}
         )
         variable_attribs = {
-                            "hasArraySpec":"false",
-                            "hasCharLength":"false",
-                            "hasCoarraySpec":"false",
-                            "hasInitialValue":"false",
-                            "hasInitialization":"false",
-                            "is_array":"false",
+            "hasArraySpec": "false",
+            "hasCharLength": "false",
+            "hasCoarraySpec": "false",
+            "hasInitialValue": "false",
+            "hasInitialization": "false",
+            "is_array": "false",
         }
         for flag in range(number_of_gotos):
-            flag_num = flag+1
+            flag_num = flag + 1
             if default_name == "label_flag":
                 if flag_num in self.declared_label_flags:
-                    flag_num = self.declared_label_flags[-1]+1
+                    flag_num = self.declared_label_flags[-1] + 1
             if default_name == "goto_flag":
                 if flag_num in self.declared_goto_flags:
-                    flag_num = self.declared_goto_flags[-1]+1
+                    flag_num = self.declared_goto_flags[-1] + 1
             self.declared_label_flags.append(flag_num)
             declared_flag_num.append(flag_num)
             variable_attribs['id'] = f"{default_name}_{flag_num}"
             variable_attribs['name'] = f"{default_name}_{flag_num}"
             variable_elem = ET.SubElement(
-                            variables_elem, "variable", variable_attribs
+                variables_elem, "variable", variable_attribs
             )
 
         # Assignment
@@ -3283,7 +3698,8 @@ class RectifyOFPXML:
             declared_flag_num.append(flag_num)
             statement_elem = ET.SubElement(parent, "statement")
             self.generate_assignment_element(
-                    statement_elem, f"{default_name}_{flag_num}", None, "literal", "true", traverse
+                statement_elem, f"{default_name}_{flag_num}", None, "literal",
+                "true", traverse
             )
 
     def generate_assignment_element(
@@ -3292,12 +3708,21 @@ class RectifyOFPXML:
         """
             This is a function for generating new assignment element xml
             for goto reconstruction.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                name_id (str): Name of a target variable.
+                value_type (str): Type of value that will be assigned.
+                traverse (int): A current traverse counter.
+
+            Returns:
+                None.
         """
         assignment_elem = ET.SubElement(parent, "assignment")
         target_elem = ET.SubElement(assignment_elem, "target")
 
         self.generate_name_element(
-                target_elem, "false", name_id, "false", "1", "variable"
+            target_elem, "false", name_id, "false", "1", "variable"
         )
 
         value_elem = ET.SubElement(assignment_elem, "value")
@@ -3307,7 +3732,7 @@ class RectifyOFPXML:
                     condition == None
             ), "Literal type assignment must not hold condition element."
             literal_elem = ET.SubElement(
-                    value_elem, "literal", {"type":"bool", "value":value}
+                value_elem, "literal", {"type": "bool", "value": value}
             )
         # Conditional goto has dynamic values of operation
         else:
@@ -3315,14 +3740,16 @@ class RectifyOFPXML:
                     condition != None
             ), "Conditional <goto-stmt> assignment must be passed with operation."
             unique_code = parent.attrib['code']
-            condition_op = condition[unique_code]
+            for stmt in condition[unique_code]:
+                if stmt.tag == "operation":
+                    condition_op = stmt
             operation_elem = ET.SubElement(
-                    value_elem, condition_op.tag, condition_op.attrib
+                value_elem, condition_op.tag, condition_op.attrib
             )
             self.parseXMLTree(
-                    condition_op, operation_elem,
-                    value_elem, assignment_elem,
-                    traverse
+                condition_op, operation_elem,
+                value_elem, assignment_elem,
+                traverse
             )
 
     def generate_operation_element(self, parent, op_type, operator, name):
@@ -3332,50 +3759,96 @@ class RectifyOFPXML:
 
             Currently, it generates only a unary operation syntax only.
             It may require update in the future.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                op_type (str): Operation type.
+                operator (str): Operator.
+                name (str): Name of a variable for new element.
+
+            Returns:
+                None.
         """
-        operation_elem = ET.SubElement(parent, "operation", {"type":op_type})
-        operator_elem = ET.SubElement(operation_elem, "operator", {"operator":operator})
+        operation_elem = ET.SubElement(parent, "operation", {"type": op_type})
+        operator_elem = ET.SubElement(operation_elem, "operator",
+                                      {"operator": operator})
         operand_elem = ET.SubElement(operation_elem, "operand")
 
-        self.generate_name_element(operand_elem, "false", name, "false", "1", "ambiguous")
+        self.generate_name_element(operand_elem, "false", name, "false", "1",
+                                   "ambiguous")
 
-    def generate_name_element(self, parent, hasSubscripts, name_id, is_array, numPartRef, name_type): 
+    def generate_name_element(self, parent, hasSubscripts, name_id, is_array,
+                              numPartRef, name_type):
         """
             This is a function for generating new name element based on
             the provided arguments.
+
+            Args:
+                parent (:obj: 'ET'): Parent element object.
+                hasSubscripts (str): "true" or "false" status in string.
+                name_id (str): Name of a variable.
+                numPartRef (str): Number of references.
+                type (str): Type of a variable.
+
+            Returns:
+                None.
+
         """
         name_attribs = {
-                        "hasSubscripts":hasSubscripts,
-                        "id":name_id,
-                        "is_array":is_array,
-                        "numPartRef":numPartRef,
-                        "type":name_type,
+            "hasSubscripts": hasSubscripts,
+            "id": name_id,
+            "is_array": is_array,
+            "numPartRef": numPartRef,
+            "type": name_type,
         }
         name_elem = ET.SubElement(parent, "name", name_attribs)
 
     def generate_if_element(
             self, header, parent, stored_stmts, next_goto,
             need_operation, op_type, lhs, rhs, operator,
-            traverse, reconstructed_if_elem
+            traverse, reconstructed_goto_elem
     ):
         """
             This is a function generating new if element.
             Since header can hold unary, multiary, or name, some arguments
             may be passed with None. Check them to generate an appropriate XML.
+
+            Args:
+                header (:obj: 'ET'): Header element from if.
+                parent (:obj: 'ET'): Parent element object.
+                stored_stmts (list): List of statements.
+                next_goto (list): Another gotos appear while
+                handling current goto stmt.
+                need_operation (bool): Boolean to state whether
+                new if needs operation header.
+                op_type (str): Operation type.
+                lhs (str): Left hand side variabel name.
+                rhs (str): Right hand side variabel name.
+                operator (str): Operator.
+                traverse (int): Current traverse counter.
+                reconstructed_goto_elem (list): A list to
+                hold reconstructed AST after goto elimination.
+
+            Returns:
+                None.
         """
-        goto_nest_if_elem = ET.SubElement(parent, "if")
+        goto_nest_if_elem = ET.SubElement(parent, "if", {"parent":parent.attrib['parent']})
 
         header_elem = ET.SubElement(goto_nest_if_elem, "header")
 
         if need_operation:
             if header == None:
-                self.generate_operation_element(header_elem, op_type, operator, lhs)
+                self.generate_operation_element(header_elem, op_type, operator,
+                                                lhs)
             else:
                 for stmt in header:
-                    operation_elem = ET.SubElement(header_elem, stmt.tag, stmt.attrib)
-                    self.parseXMLTree(stmt, operation_elem, header_elem, goto_nest_if_elem, traverse)
+                    operation_elem = ET.SubElement(header_elem, stmt.tag,
+                                                   stmt.attrib)
+                    self.parseXMLTree(stmt, operation_elem, header_elem,
+                                      goto_nest_if_elem, traverse)
         else:
-            self.generate_name_element(header_elem, "false", lhs, "false", "1", "variable")
+            self.generate_name_element(header_elem, "false", lhs, "false", "1",
+                                       "variable")
 
         # Generate AST for statements that will be nested under if (!cond) or (cond)
         label = None
@@ -3393,8 +3866,10 @@ class RectifyOFPXML:
                 else:
                     if (
                         "next-goto" not in stmt.attrib
-                        or "lbl" in stmt.attrib
-                        and stmt.attrib['lbl'] == self.current_label
+                        or (
+                            "lbl" in stmt.attrib
+                            and stmt.attrib['lbl'] == self.current_label
+                        )
                     ):
                         if "goto-move" in stmt.attrib and not label_before_within_scope:
                             if "target-label-statement" in stmt.attrib:
@@ -3412,14 +3887,15 @@ class RectifyOFPXML:
                                 self.statements_to_reconstruct_before['stmts-follow-label'] = []
                                 self.current_label = stmt.attrib['label']
                         if label_before_within_scope:
-                            # del stmt.attrib['goto-remove']
-                            self.statements_to_reconstruct_before['stmts-follow-label'].append(stmt)
+                            self.statements_to_reconstruct_before[
+                                'stmts-follow-label'].append(stmt)
                             for child in stmt:
                                 if child.tag == "label":
                                     label = child.attrib['lbl']
                                     if self.current_label == label:
                                         if self.encapsulate_under_do_while:
-                                            goto_nest_if_elem.attrib['label'] = label
+                                            goto_nest_if_elem.attrib[
+                                                'label'] = label
                                 if child.tag == "goto-stmt":
                                     # If current goto-stmt label is equal to the scope label,
                                     # it means that end-of-scope is met and ready to reconstruct
@@ -3432,47 +3908,64 @@ class RectifyOFPXML:
                                         self.current_label = None
 
                                         reconstruct_target = self.statements_to_reconstruct_before
-                                        self.reconstruct_goto_before_label(body_elem, traverse, reconstruct_target)
+                                        self.reconstruct_goto_before_label(
+                                            body_elem, traverse,
+                                            reconstruct_target)
 
                                     # Else, a new goto-stmt was found that is nested current label_before
                                     # case scope, so we need to update the parent for it
                                     else:
                                         stmt.attrib['parent-goto'] = self.current_label
                         else:
-                            cur_elem = ET.SubElement(body_elem, stmt.tag, stmt.attrib)
+                            cur_elem = ET.SubElement(body_elem, stmt.tag,
+                                                     stmt.attrib)
                             if "goto-remove" in cur_elem.attrib:
                                 del cur_elem.attrib['goto-remove']
                             for child in stmt:
-                                child_elem = ET.SubElement(cur_elem, child.tag, child.attrib)
+                                child_elem = ET.SubElement(cur_elem, child.tag,
+                                                           child.attrib)
                                 if len(child) > 0:
-                                    self.parseXMLTree(child, child_elem, cur_elem, parent, traverse)
+                                    self.parseXMLTree(child, child_elem,
+                                                      cur_elem, parent,
+                                                      traverse)
                     else:
-                        goto_stmt = {}
-                        goto_stmt['statement'] = stmt
-                        for child in stmt:
-                            assert (
-                                    child.tag == "goto-stmt"
-                            ), f"Must only store <goto-stmt> in next_goto['goto-stmt']. Current: <{child.tag}>."
-                            if child.attrib['target_label'] in self.goto_target_lbl_before:
-                                goto_stmt['statement'].attrib['goto-move'] = "true"
-                            if (
-                                child.attrib['target_label'] not in self.goto_target_lbl_after
-                                and "goto-move" in goto_stmt['statement']
-                            ):
-                               del goto_stmt['statement'].attrib['goto-move']
-                            goto_stmt['goto-stmt'] = child
-                        next_goto.append(goto_stmt)
+                        if need_operation:
+                            goto_stmt = {}
+                            goto_stmt['statement'] = stmt
+                            for child in stmt:
+                                assert (
+                                        child.tag == "goto-stmt"
+                                ), f"Must only store <goto-stmt> in next_goto['goto-stmt']. Current: <{child.tag}>."
+                                if child.attrib[
+                                    'target_label'] in self.goto_target_lbl_before:
+                                    goto_stmt['statement'].attrib[
+                                        'goto-move'] = "true"
+                                if (
+                                        child.attrib[
+                                            'target_label'] not in self.goto_target_lbl_after
+                                        and "goto-move" in goto_stmt['statement']
+                                ):
+                                    del goto_stmt['statement'].attrib['goto-move']
+                                goto_stmt['goto-stmt'] = child
+                            next_goto.append(goto_stmt)
                     statement_num += 1
 
-        if self.encapsulate_under_do_while:
+        if (
+            self.encapsulate_under_do_while
+            and (
+                    (
+                        goto_nest_if_elem.attrib['parent'] != "program"
+                        and self.outward_move
+                    )
+                    or (
+                        goto_nest_if_elem.attrib['parent'] == "program"
+                        and not self.outward_move
+                    )
+            )
+        ):
             goto_nest_if_elem.attrib['goto-move'] = "true"
-            reconstructed_if_elem.append(goto_nest_if_elem)
+            reconstructed_goto_elem.append(goto_nest_if_elem)
             parent.remove(goto_nest_if_elem)
-
-        # Unconditional goto sets goto_flag always to false when it enters 2nd if-statement
-        if not need_operation:
-            statement = ET.SubElement(body_elem, "statement")
-            self.generate_assignment_element(statement, lhs, None, "literal", "false", traverse)
 
     #################################################################
     #                                                               #
@@ -3482,13 +3975,22 @@ class RectifyOFPXML:
 
     def clean_derived_type_ref(self, current):
         """
-            This function will clean up the derived type referencing syntax, which is stored in a form of "id='x'%y" in the id attribute.
-            Once the id gets cleaned, it will call the reconstruc_derived_type_ref function to reconstruct and replace the messy version
-            of id with the cleaned version.
+            This function will clean up the derived type referencing syntax,
+            which is stored in a form of "id='x'%y" in the id attribute.
+            Once the id gets cleaned, it will call the
+            reconstruc_derived_type_ref function to reconstruct and replace the
+            messy version of id with the cleaned version.
+
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
         current_id = current.attrib[
             "id"
-        ]  # 1. Get the original form of derived type id, which is in a form of, for example, id="x"%y in the original XML.
+        ]  # 1. Get the original form of derived type id, which is in a form of,
+        # for example, id="x"%y in the original XML.
         self.derived_type_var_holder_list.append(
             self.clean_id(current_id)
         )  # 2. Extract the first variable name, for example, x in this case.
@@ -3496,40 +3998,68 @@ class RectifyOFPXML:
             "%"
         )  # 3. Get the location of the '%' sign.
         self.derived_type_var_holder_list.append(
-            current_id[percent_sign + 1 : len(current_id)]
+            current_id[percent_sign + 1: len(current_id)]
         )  # 4. Get the field variable. y in this example.
         self.reconstruct_derived_type_ref(current)
 
     def clean_id(self, unrefined_id):
         """
-            This function refines id (or value) with quotation makrs included by removing them and returns only the variable name.
-            For example, from "OUTPUT" to OUTPUT and "x" to x. Thus, the id name will be modified as below:
+            This function refines id (or value) with quotation
+            marks included by removing them and returns only
+            the variable name. For example, from "OUTPUT"
+            to OUTPUT and "x" to x. Thus, the id name will
+            be modified as below:
                 Unrefined id: id = ""OUTPUT""
                 Refined id: id = "OUTPUT"
+
+            Args:
+                unrefined_id (str): Id of name element that holds
+                unnecessary strings.
+
+            Returns:
+                None
         """
         return re.findall(r"\"([^\']+)\"", unrefined_id)[0]
 
-    def clean_attrib(self, elements):
+    def clean_attrib(self, current):
         """
-            The original XML elements holds 'eos' and 'rule' attributes that are not necessary and being used.
-            Thus, this function will remove them in the rectified version of XML.
-        """
-        if "eos" in elements.attrib:
-            elements.attrib.pop("eos")
-        if "rule" in elements.attrib:
-            elements.attrib.pop("rule")
+            The original XML elements holds 'eos' and
+            'rule' attributes that are not necessary
+            and being used. Thus, this function will 
+            remove them in the rectified version of
+            XML.
 
-    def boundary_identifier (self, goto_label_with_case):
+            Args:
+                current (:obj: 'ET'): Current element object.
+
+            Returns:
+                None.
         """
-            This function will be called to dientify the boundary for each goto-
-            and-label. The definition of scope here is that whether one goto-label
+        if "eos" in current.attrib:
+            current.attrib.pop("eos")
+        if "rule" in current.attrib:
+            current.attrib.pop("rule")
+
+    def boundary_identifier (self):
+        """
+            This function will be called to identify the boundary for each goto-
+            and-label. The definition of scope here is that whether one
+            goto-label
             is nested under another goto-label. For example,
                 <label with lbl = 111>
                     <goto-stmt with lbl = 222>
                     <label with lbl = 222>
                 <goto-stmt with lbl = 111>
-            In this case, "goto-label with lbl = 222" is within the scope of "lbl = 111"
-            Thus, the elements will be assigned with "parent-goto" attribute with 111.
+            In this case, "goto-label with lbl = 222" is within the scope of
+            "lbl = 111"
+            Thus, the elements will be assigned with "parent-goto" attribute
+            with 111.
+
+            Args:
+                None.
+
+            Returns:
+                None.
         """
         boundary = {}
         lbl_counter = {}
@@ -3560,8 +4090,8 @@ class RectifyOFPXML:
                         boundary[lbl] = label
 
         # This will check for the handled goto cases.
-        # If any unhandled case enountered, then it will
-        # aseert and give out an error. Else, return nothing
+        # If any unhandled case encountered, then it will
+        # assert and give out an error. Else, return nothing
         self.case_availability (boundary)
 
         boundary_for_label = boundary.copy()
@@ -3578,40 +4108,66 @@ class RectifyOFPXML:
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
+    #################################################################
+    #                                                               #
+    #               GOTO ELIMINATION HELPER FUNCTIONS               #
+    #                                                               #
+    #################################################################
+
     def case_availability(self, boundary):
         """
             This function checks for the goto cases in the code based
-            on the scope. If any unhandled case encountered, then it
+            on the boundary. If any unhandled case encountered, then it
             will assert and halt the program.
+
+            Args:
+                boundary (dict): A dictonary of goto label
+                and boundary label.
+
+            Returns:
+                None.
         """
 
         # Case check for more than double nested goto case
         nested_gotos = {}
-        root_scope = None
-        current_scope = None
+        root_boundary = None
+        current_boundary = None
 
-        for goto, scope in boundary.items():
-            if current_scope == None:
-                current_scope = goto
-                root_scope = goto
-                nested_gotos[root_scope] = 1
+        for goto, boundary in boundary.items():
+            if current_boundary == None:
+                current_boundary = goto
+                root_boundary = goto
+                nested_gotos[root_boundary] = 1
             else:
-                if scope == current_scope:
-                    nested_gotos[root_scope] += 1
+                if boundary == current_boundary:
+                    nested_gotos[root_boundary] += 1
                     assert (
-                        nested_gotos[root_scope] <= 2
+                            nested_gotos[root_boundary] <= 2
                     ), f"Do do not handle > 2 nested goto case at this moment."
                 else:
-                    root_scope = goto
-                    nested_gotos[root_scope] = 1
-                current_scope = goto
-                
+                    root_boundary = goto
+                    nested_gotos[root_boundary] = 1
+                current_boundary = goto
+
         # All cases are currently handled
         return
 
-    def parent_goto_assigner(self, boundary, boundary_for_label, statements_to_reconstruct):
+    def parent_goto_assigner(self, boundary, boundary_for_label,
+                             statements_to_reconstruct
+    ):
         """
-            This function actually assigns scope(s) to each goto and label statements
+            This function actually assigns boundary(s) to each goto
+            and label statements.
+
+            Args:
+                boundary (list): A list of boundaries.
+                boundary_for_label (dict): A dictionary of
+                label as a key and its parent boundary label.
+                statements_to_reconstruct (list): A list of
+                statements that require reconstruction.
+
+            Returns:
+                None.
         """
         for stmt in statements_to_reconstruct:
             if "goto-stmt" in stmt.attrib:
@@ -3630,6 +4186,332 @@ class RectifyOFPXML:
                 else:
                     stmt.attrib['parent-goto'] = "none"
 
+    def remove_dup_stmt(self, stmts_follow_label):
+        """
+            This removes the statement that's a child statement of
+            if body being seprately re-added to the list.
+
+            Args:
+               stmts_follow_label (:obj: 'ET'): A list that holds
+               statements appeard under the label-statement for
+               reconstruction.
+
+            Returns:
+                None.
+        """
+        prev_stmt = None
+        for stmt in stmts_follow_label:
+            if prev_stmt != None:
+                # This statement always appears right before
+                # the if-statement, so check this condition
+                # and remove it from the list.
+                if (
+                    stmt.tag == "if"
+                    and (prev_stmt.tag == "statement"
+                         and prev_stmt.attrib['body-level'] == "if")
+                ):
+                    stmts_follow_label.remove(prev_stmt)
+            prev_stmt = stmt
+
+    def boundary_identifier_for_backward_goto(
+            self, stmts_follow_label, goto_index_holder,
+            number_of_gotos, target_label_lbl
+    ):
+        """
+            This function identifies the boundary from label to goto.
+            Remove any statements that are not within the boundary.
+            Then, store those removed statements seprately for later
+            restoration.
+
+            Args:
+                stmts_follow_label (list): A list holding the
+                statements that appear after the label-statement
+                for reconstruction.
+                goto_index_holder (list): A list of index of goto
+                in the stmts_follow_label.
+                number_of_gotos (int): Number of gotos in the
+                stmts_follow_label.
+                target_label_lbl (list): A list that should
+                only hold one value of label-stmt's label value.
+
+            Returns:
+                (list): A list of statements that requires
+                restoration after loop generation.
+        """
+        index = 0
+        goto_counter = 0
+        for stmt in stmts_follow_label:
+            if (
+                    index == 0
+                    and "label" in stmt.attrib
+            ):
+                target_label_lbl[0] = stmt.attrib['label']
+            for child in stmt:
+                if (
+                        child.tag == "goto-stmt"
+                        and child.attrib['target_label'] == target_label_lbl[0]
+                ):
+                    goto_counter += 1
+                    goto_index_holder.append(index)
+            if goto_counter == number_of_gotos:
+                break
+            index += 1
+
+        statements_to_recover = stmts_follow_label[index+1:len(stmts_follow_label)]
+        for stmt in statements_to_recover:
+            if (
+                    stmt.tag == "if"
+                    and "conditional-goto-stmt-lbl" in stmt.attrib
+            ):
+                statements_to_recover.remove(stmt)
+        del stmts_follow_label[index + 1:len(stmts_follow_label)]
+
+        return statements_to_recover
+
+    def multiple_goto_identifier ( 
+            self, goto_index_holder,
+            multiple_goto_stmts, stmts_follow_label
+    ):
+        """
+            This function identifies any additional goto
+            statements may appear within the boundary of
+            currently handling backward goto case.
+
+            Args:
+                stmts_follow_label (list): A list holding the
+                statements that appear after the label-statement
+                for reconstruction.
+                goto_index_holder (list): A list of index of goto
+                in the stmts_follow_label.
+                multiple_goto_stmts (list): A list that will hold
+                additional gotos within the boundary of current
+                goto.
+
+            Returns:
+                None.
+        """
+        for i in range(len(goto_index_holder)):
+            if i == 0:
+                multiple_goto_stmts.append(
+                    stmts_follow_label[0:goto_index_holder[i] + 1]
+                )
+            else:
+                if i + 1 < len(goto_index_holder):
+                    multiple_goto_stmts.append(
+                        stmts_follow_label[
+                        goto_index_holder[i - 1] + 1:goto_index_holder[
+                                                         i + 1] + 1]
+                    )
+                else:
+                    multiple_goto_stmts.append(
+                        stmts_follow_label[
+                        goto_index_holder[i - 1] + 1:goto_index_holder[-1] + 1]
+                    )
+
+    def nested_forward_goto_identifier(self, multiple_goto_stmts):
+        """
+            This function identifies any existing forward
+            goto case nested under the backward goto case.
+
+            Args:
+                multiple_goto_stmts (list): A list that will hold
+                additional gotos within the boundary of current
+                goto.
+                index_boundary (list): A list that will hold
+                the indices of label of <label> and <goto-stmt>.
+
+            Returns:
+                (bool): A boolean status indicating whether the
+                nested forward goto exists within the boundary.
+        """
+        labels = []
+        index_boundary = []
+        nested_gotos_exist = False
+        for goto in multiple_goto_stmts:
+            index = 0
+            main_loop_lbl = goto[0].attrib['label']
+            label_after_lbl = None
+            for stmt in goto:
+                if "label" in stmt.attrib:
+                    labels.append(stmt.attrib["label"])
+                    if stmt.attrib["label"] == label_after_lbl:
+                        index_boundary.append(index)
+                if "goto-stmt" in stmt.attrib:
+                    if (
+                            main_loop_lbl != stmt.attrib['lbl']
+                            and stmt.attrib['lbl'] not in labels
+                    ):
+                        nested_gotos_exist = True
+                        label_after_lbl = stmt.attrib['lbl']
+                        index_boundary.append(index)
+                index += 1
+
+        return nested_gotos_exist
+
+    def construct_goto_loop(
+            self, parent, reconstruct_target, nested_gotos_exist, 
+            multiple_goto_stmts, number_of_gotos, declared_label_flag_num, 
+            traverse, target_label_lbl
+    ):
+        """
+            This function constructs loop syntax tree for goto
+            backward case.
+
+            Args:
+                parent (:obj: 'ET'): Parent element of loop.
+                reconstruct_target (dict): A dictionary that
+                will hold nested goto statement.
+                nested_gotos_exist (bool): Boolean to indicating
+                whether nested goto exists or not.
+                multiple_goto_stmts (list): A list of goto and other
+                statements.
+                number_of_gotos (int): Number of gotos to reconstruct.
+                declared_label_flag_num (list): List of flag numbers.
+                traverse (int): Current traverse counter.
+                target_label_lbl (list): A single value list that
+                holds the label value of <label>.
+
+            Returns:
+                None.
+        """
+        cur_elem_parent = parent
+        current_goto_num = 1
+        end_of_current_goto_loop = False
+        for i in range(number_of_gotos):
+            loop_elem = ET.SubElement(cur_elem_parent, "loop",
+                                      {"type": "do-while"})
+
+            header_elem = ET.SubElement(loop_elem, "header")
+            # The outermost flag == N and the innermost flag == 1
+            flag_num = declared_label_flag_num[i]
+            name = f"label_flag_{str(flag_num)}"
+            name_attrib = {
+                "hasSubscripts": "false",
+                "id": name,
+                "type": "ambiguous",
+            }
+            name_elem = ET.SubElement(header_elem, "name", name_attrib)
+            flag_name = name
+            body_elem = ET.SubElement(loop_elem, "body")
+            # Keep a track of the parent and grandparent elements
+            grand_parent_elem = cur_elem_parent
+            cur_elem_parent = body_elem
+            # Since reconstruction of multiple goto is done from outermost
+            # to the inner, we are not constructing any subelements until
+            # all encapsulating loops are created first
+            if current_goto_num == number_of_gotos:
+                for statements in multiple_goto_stmts:
+                    index = 0
+                    for stmt in statements:
+                        if len(stmt) > 0:
+                            if nested_gotos_exist:
+                                self.nested_goto_handler(
+                                        reconstruct_target, statements,
+                                        body_elem, traverse
+                                )
+                                nested_gotos_exist = False
+                            else:
+                                elems = ET.SubElement(
+                                    body_elem, stmt.tag, stmt.attrib
+                                )
+                                for child in stmt:
+                                    if (
+                                            child.tag == "goto-stmt"
+                                            and target_label_lbl[0] ==
+                                            child.attrib['target_label']
+                                    ):
+                                        # Conditional
+                                        if "conditional-goto-stmt" in stmt.attrib:
+                                            self.generate_assignment_element(
+                                                elems, flag_name,
+                                                self.conditional_op, None, None,
+                                                traverse
+                                            )
+                                        # Unconditional
+                                        else:
+                                            self.generate_assignment_element(
+                                                elems, flag_name, None,
+                                                "literal", "true", traverse
+                                            )
+                                        end_of_current_goto_loop = True
+                                    else:
+                                        child_elem = ET.SubElement(
+                                            elems, child.tag, child.attrib
+                                        )
+                                        if len(child) > 0:
+                                            self.parseXMLTree(
+                                                child, child_elem, elems,
+                                                parent, traverse
+                                            )
+                        # If end_of_current_goto_loop is True,
+                        # escape one loop out to continue
+                        # construct statements
+                        if end_of_current_goto_loop:
+                            body_elem = grand_parent_elem
+                            end_of_current_goto_loop = False
+                            flag_name = f"label_flag_" \
+                                f"{str(number_of_gotos + i - 1)}"
+                    index += 1
+
+            else:
+                    current_goto_num += 1
+
+    def nested_goto_handler (
+                self, reconstruct_target, statements, 
+                body_elem, traverse
+    ):
+        """
+            This function collects forward goto case
+            related statements under the backward goto
+            boundary. Then, it calls goto_after function
+            to reconstruct goto.
+
+            Args:
+                reconstruct_target (list): A list that holds
+                statements for reconstruction.
+                statements (:obj: 'ET'): Statements for
+                reconstructions.
+                body_elem (:obj: 'ET'): Body element of
+                the loop.
+                traverse (int): Current traverse counter. 
+        """
+        reconstruct_target['stmts-follow-goto'] \
+            = statements[index_scope[0]:index_scope[1]]
+        reconstruct_target['stmts-follow-label'] \
+            = statements[index_scope[1]]
+        reconstruct_target['count-gotos'] \
+            = 1
+
+        self.reconstruct_goto_after_label(
+            body_elem, traverse, reconstruct_target
+        )
+
+        self.statements_to_reconstruct_after[
+            'stmts-follow-goto'] = []
+
+    def statement_recovery (self, statements_to_recover, parent, traverse):
+        """
+            This function is for recovering any existing statements
+            that follow reconstructed loop.
+
+            Args:
+                statements_to_recover (list): A list of statements.
+                parent (:obj: 'ET'): A prent element.
+                traverse (int): Current traverse counter.
+        """
+        for recover_stmt in statements_to_recover:
+            statement = ET.SubElement(
+                parent, recover_stmt.tag, recover_stmt.attrib
+            )
+            for child in recover_stmt:
+                child_elem = ET.SubElement(
+                    statement, child.tag, child.attrib
+                )
+                if len(child) > 0:
+                    self.parseXMLTree(
+                        child, child_elem, statement, parent, traverse
+                        )
+
 
 #################################################################
 #                                                               #
@@ -3642,17 +4524,31 @@ def is_empty(elem):
         This function is just a helper function for
         check whether the passed elements (i.e. list)
         is empty or not
+
+        Args:
+            elem (:obj:): Any structured data object (i.e. list).
+
+        Returns:
+            bool: True if element is empty or false if not.
     """
     if not elem:
         return True
     else:
         return False
 
+
 def indent(elem, level=0):
     """
         This function indents each level of XML.
         Source: https://stackoverflow.com/questions/3095434/inserting-newlines
                 -in-xml-file-generated-via-xml-etree-elementstree-in-python
+
+        Args:
+            elem (:obj: 'ET'): An XML root.
+            level (int): A root level in integer.
+
+        Returns:
+            None.
     """
     i = "\n" + level * "  "
     if len(elem):
@@ -3668,84 +4564,148 @@ def indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-def buildNewAST(filename: str):
-    """
-        Using the list of cleaned AST, construct a new XML AST and write to a file
-    """
-    # A variable for keep a track of number of traverse time
-    traverse = 1
-
-    # Read AST from the OFP generated XML file
-    ast = ET.parse(filename)
-    # Get a root of a tree
-    root = ast.getroot()
-    XMLCreator = RectifyOFPXML()
-    # A root of the new AST
-    newRoot = ET.Element(root.tag, root.attrib)
-    # First add the root to the new AST list
-    for child in root:
-        # Handle only non-empty elementss
-        if child.text:
-            cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
-
-    tree = ET.ElementTree(newRoot)
-    indent(newRoot)
-    
-    # Checks if the rectified AST requires goto elimination,
-    # if it does, it does a 2nd traverse to eliminate and
-    # reconstruct the AST once more
-    while (XMLCreator.need_goto_elimination):
-        traverse += 1
-
-        XMLCreator.boundary_identifier(XMLCreator.goto_label_with_case)
-
-        root = tree.getroot()	
-        newRoot = ET.Element(root.tag, root.attrib)
-        for child in root:	
-            if child.text:	
-                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
-                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
-        tree = ET.ElementTree(newRoot)	
-        indent(newRoot)
-        if not XMLCreator.continue_elimination:
-            XMLCreator.need_goto_elimination = False
-
-    rectFilename = filename.split("/")[-1]
-    tree.write(f"tmp/rectified_{rectFilename}")
-
 
 def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+    """
+        This function process OFP generated XML and generates
+        a rectified version by recursively calling the appropriate
+        functions.
+
+        Args:
+            xmlString (str): XML in string type.
+
+        Returns:
+            ET object: A reconstructed element object.
+    """
     traverse = 1
-    ast = ET.XML(xmlString)
+
+    ofpAST = ET.XML(xmlString)
     XMLCreator = RectifyOFPXML()
     # A root of the new AST
-    newRoot = ET.Element(ast.tag, ast.attrib)
+    newRoot = ET.Element(ofpAST.tag, ofpAST.attrib)
     # First add the root to the new AST list
-    for child in ast:
+    for child in ofpAST:
         # Handle only non-empty elementss
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
             XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
 
+    # Indent and structure the tree properly
+    tree = ET.ElementTree(newRoot)
+    indent(newRoot)
+
     # Checks if the rectified AST requires goto elimination,
     # if it does, it does a 2nd traverse to eliminate and
     # reconstruct the AST once more
     while (XMLCreator.need_goto_elimination):
+        oldRoot = newRoot
         traverse += 1
-        ast = ET.XML(newRoot)
-        newRoot = ET.Element(ast.tag, ast.attrib)
-        for child in ast:	
-            if child.text:	
-                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)	
-                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)	
+
+        XMLCreator.boundary_identifier()
+
+        newRoot = ET.Element(oldRoot.tag, oldRoot.attrib)
+        for child in oldRoot:
+            if child.text:
+                cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
+                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot,
+                                        traverse)
+        tree = ET.ElementTree(newRoot)
+        indent(newRoot)
         if not XMLCreator.continue_elimination:
             XMLCreator.need_goto_elimination = False
 
     return newRoot
 
 
+def parse_args():
+    """
+        This function parse the arguments passed to the script.
+        It returns a tuple of (input ofp xml, output xml)
+        file names.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-f",
+        "--file",
+        nargs="+",
+        help="OFP generated XML file needs to be passed.",
+    )
+
+    parser.add_argument(
+        "-g",
+        "--gen",
+        nargs="+",
+        help="A rectified version of XML.",
+    )
+
+    args = parser.parse_args(sys.argv[1:])
+
+    if (
+            args.file != None
+            and args.gen != None
+    ):
+        ofpFile = args.file[0]
+        rectifiedFile = args.gen[0]
+    else:
+        assert (
+            False
+        ), f"[[ Missing either input or output file.\
+             Input: {args.file}, Output: {args.gen} ]]"
+
+    return (ofpFile, rectifiedFile)
+
+
+def fileChecker(filename, mode):
+    """
+        This function checks for the validity (file existance and
+        mode). If either the file does not exist or the mode is
+        not valid, throws an IO exception and terminates the program
+
+        Args:
+            filename (str): A file name that reconstructed XMl
+            will be written to.
+            mode (str): Open more for a file.
+
+        Returns:
+            None.
+    """
+    try:
+        with open(filename, mode) as f:
+            pass
+    except IOError:
+        assert (
+            False
+        ), f"File {filename} does not exit or invalid mode {mode}."
+
+
 if __name__ == "__main__":
-    filename = sys.argv[1]
-    # Build a new cleaned AST XML
-    buildNewAST(filename)
+    (ofpFile, rectifiedFile) = parse_args()
+
+    # Since we pass the file name to the element
+    # tree parser not opening it with open function,
+    # we check for the validity before the file name
+    # is actually passed to the parser
+    fileChecker(ofpFile, "r")
+    ofpXML = ET.parse(ofpFile)
+    ofpXMLRoot = ofpXML.getroot()
+
+    # Converts the XML tree into string
+    ofpXMLStr = ET.tostring(ofpXMLRoot).decode()
+    # Call buildNewASTfromXMLString to rectify the XML
+    rectifiedXML = buildNewASTfromXMLString(ofpXMLStr)
+    rectifiedTree = ET.ElementTree(rectifiedXML)
+
+    # The write function is used with the generated
+    # XML tree object not with the file object. Thus,
+    # same as the ofpFile, we do a check for the validity
+    # of a file before pass to the ET tree object's write
+    # function
+    fileChecker(rectifiedFile, "w")
+    rectifiedTree.write(rectifiedFile)

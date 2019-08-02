@@ -1,0 +1,3271 @@
+{
+    "id": "test-15-2",
+    "statements": [
+        {
+            "type": "Influence",
+            "belief": 0.86,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6558e.pdf",
+                    "text": "In Tharparkar District and the surrounding areas of  Sindh Province, the drought‑affected cereal production  and the loss of livestock for the third consecutive  year has aggravated food insecurity and caused acute  malnutrition.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_a_i6558e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 17471,
+                                    "start": 17313
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_a_i6558e_AL_0-110960"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            17313,
+                            17471
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the drought‑affected cereal production",
+                                "acute \nmalnutrition"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "8313b3e9-d880-4d30-b8f2-17437c28c464"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "the third consecutive \nyear",
+                            "start": null,
+                            "end": null
+                        },
+                        "geo_location": {
+                            "name": "Sindh Province",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6558e.pdf"
+                    },
+                    "source_hash": "-1234523687801630500",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/December%202016%20FAOB.pdf",
+                    "text": "Near-average harvests are expected to improve food security in most areas.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_December_2016_FAOB_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 7729,
+                                    "start": 7671
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_December_2016_FAOB_AL_0-239526"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            7671,
+                            7729
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Near-average harvests",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "db8c7050-a90b-416d-84e2-9888cf2c8aa8"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "most areas",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/December%202016%20FAOB.pdf"
+                    },
+                    "source_hash": "-4903709178558066000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "a90bbf8a-6e9a-4100-96c1-782ff9452d4e",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Farming",
+                "db_refs": {
+                    "TEXT": "the drought‑affected cereal production",
+                    "concept": "UN/entities/human/farming"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "acute \nmalnutrition",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.86,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6558e.pdf",
+                    "text": "The  food  insecurity  situation  was  further  exacerbated by an economic downturn in some countries that  has  weakened  households’  capacity  to  effectively  respond  to  shocks.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_a_i6558e_AL_2",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 22765,
+                                    "start": 22683
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_a_i6558e_AL_2-54664"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            22683,
+                            22765
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "an economic downturn",
+                                "The  food  insecurity  situation"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "2e57fb9d-0204-4f59-99de-6413074b356c"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "some countries",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6558e.pdf"
+                    },
+                    "source_hash": "6063820863390400000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf",
+                    "text": "The  food  insecurity  situation  was  further  exacerbated  by  an  economic  downturn  in  some  countries  that  weakened  households’  capacity  to  effectively  respond  to  shocks.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_a_i6903e_AL_2",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 27135,
+                                    "start": 27049
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_a_i6903e_AL_2-271433"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            27049,
+                            27135
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "an  economic  downturn",
+                                "The  food  insecurity  situation"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "668596b0-e442-4f83-9146-ca144e8f6bec"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "some  countries",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf"
+                    },
+                    "source_hash": "576730551491962900",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "ab573d54-0cc8-4284-a01c-e2d836c967aa",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Economic",
+                "db_refs": {
+                    "TEXT": "an  economic  downturn",
+                    "concept": "UN/entities/human/financial/economic"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "The  food  insecurity  situation",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.86,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://documents.wfp.org/stellent/groups/public/documents/ena/wfp276214.pdf?_ga=2.255381519.663241502.1537278448-841502227.1498664735",
+                    "text": "High inflation is affecting household’s purchasing power   food security.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20150501_wfp276214_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 2902,
+                                    "start": 2831
+                                },
+                                "sentence": "Sentence-ENG_NW_20150501_wfp276214_AL_0-337167"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            2831,
+                            2902
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "High inflation",
+                                "household’s purchasing power \n\nfood security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "fa16e7b1-b153-4e63-bc64-d1811cbba054"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://documents.wfp.org/stellent/groups/public/documents/ena/wfp276214.pdf?_ga=2.255381519.663241502.1537278448-841502227.1498664735"
+                    },
+                    "source_hash": "8301737235185051000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20South%20Sudan%20Situation%20Report%20%23169%20-%20%2024%20March%202017.pdf",
+                    "text": "Food insecurity in  Kapoeta is exacerbated by very high inflation.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_WFP_South_Sudan_Situation_Report_169_24_March_2017_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 1706,
+                                    "start": 1642
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_WFP_South_Sudan_Situation_Report_169_24_March_2017_AL_0-73963"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            1642,
+                            1706
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "very high inflation",
+                                "Food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "bb9ddf5c-22bc-4810-ad1a-a4bbace4df6f"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20South%20Sudan%20Situation%20Report%20%23169%20-%20%2024%20March%202017.pdf"
+                    },
+                    "source_hash": "2628921603252439000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "daff3341-9268-4118-bd4d-24a5cb368759",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Inflation",
+                "db_refs": {
+                    "TEXT": "very high inflation",
+                    "concept": "UN/entities/human/financial/economic/inflation"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "Food insecurity",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.9497812999999999,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20Situation%20Report%20%23164%20-%2018%20Feb%202017.pdf",
+                    "text": "Shortages and depreciation of local  currency, coupled with rising cereal prices and  shortages of imported commodities in local markets are  affecting the food security of households and increasing  vulnerability.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170201_WFP_Situation_Report_164_18_Feb_2017_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 2355,
+                                    "start": 2247
+                                },
+                                "sentence": "Sentence-ENG_NW_20170201_WFP_Situation_Report_164_18_Feb_2017_AL_0-48478"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            2247,
+                            2355
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "cereal prices",
+                                "the food security of households"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "752b2228-acdb-4f42-b42c-265710100d5e"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20Situation%20Report%20%23164%20-%2018%20Feb%202017.pdf"
+                    },
+                    "source_hash": "-3022299334380435500",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://documents.wfp.org/stellent/groups/Public/documents/ep/WFP284209.pdf?_ga=2.194738536.497798276.1538588036-841502227.1498664735",
+                    "text": "  General  food  distributions  (GFD)  have  commenced  in  Northern  Bahr  el  Ghazal  to  provide  food  assistance  through  the  lean  season  to  over  200,000  people  whose  food  security  situation  has  deteriorated  due  to  high  prices  and  the  collapsing  economy.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20160501_WFP284209_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 947,
+                                    "start": 913
+                                },
+                                "sentence": "Sentence-ENG_NW_20160501_WFP284209_AL_0-174327"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            913,
+                            947
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "high \nprices",
+                                "over  200,000  people  whose  food  security  situation  has  deteriorated  due  to  high \nprices  and  the  collapsing  economy"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "6be0f1df-f485-4516-824f-ae8a99f7a3fc"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://documents.wfp.org/stellent/groups/Public/documents/ep/WFP284209.pdf?_ga=2.194738536.497798276.1538588036-841502227.1498664735"
+                    },
+                    "source_hash": "-6620931942142673000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4970e.pdf",
+                    "text": "Over 460 000 people from the Sudan’s Darfur  Region, the Central African Republic and northern  Nigeria, as well as the return of an estimated  340 000 Chadians, have put added pressure on local  food supplies negatively affecting food security.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20151001_a_I4970e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 6971,
+                                    "start": 6917
+                                },
+                                "sentence": "Sentence-ENG_NW_20151001_a_I4970e_AL_0-252598"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            6917,
+                            6971
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "local \nfood supplies",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "b918d2e9-29e2-4804-8cfd-b85bd67e0799"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4970e.pdf"
+                    },
+                    "source_hash": "-7714646416958568000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4410E.pdf",
+                    "text": "Over 461 000 people from the Sudan’s Darfur region, the  Central African Republic and northern Nigeria, as well as  the return of an estimated 340 000 Chadians, have put  added pressure on local food supplies negatively affecting  food security.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20150301_a_I4410E_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 6031,
+                                    "start": 5988
+                                },
+                                "sentence": "Sentence-ENG_NW_20150301_a_I4410E_AL_0-241478"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            5988,
+                            6031
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "local food supplies",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "a930ac47-ddda-4eae-9231-b32dd607d24f"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4410E.pdf"
+                    },
+                    "source_hash": "-1852148131820522800",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-I4256E.pdf",
+                    "text": "Over 461 000 people from the Sudan’s Darfur region, the  Central African Republic and northern Nigeria, as well as  the return of an estimated 340 000 Chadians, have put  added pressure on local food supply negatively affecting  food security.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20141201_a_I4256E_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 6017,
+                                    "start": 5965
+                                },
+                                "sentence": "Sentence-ENG_NW_20141201_a_I4256E_AL_0-92184"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            5965,
+                            6017
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "local food supply",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "a7a7ad06-1365-4248-b789-3a8ef4e58d92"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-I4256E.pdf"
+                    },
+                    "source_hash": "285134863966024900",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/i4096e.pdf",
+                    "text": "Chad Influx of refugees, estimated at over 461 000 people  from the Sudan’s Darfur region, the Central African  Republic and northern Nigeria, and the return of an  estimated 340 000 Chadians, have put additional  pressure on the local food supply negatively  affecting food security.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20141001_i4096e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 4657,
+                                    "start": 4601
+                                },
+                                "sentence": "Sentence-ENG_NW_20141001_i4096e_AL_0-376376"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            4601,
+                            4657
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the local food supply",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "9f8d75b4-b20f-41d8-8bc9-258f93d1f19b"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/i4096e.pdf"
+                    },
+                    "source_hash": "-7550095721034117000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20Situation%20Report%20%23164%20-%2018%20Feb%202017.pdf",
+                    "text": "Shortages and depreciation of local  currency, coupled with rising cereal prices and  shortages of imported commodities in local markets are  affecting the food security of households and increasing  vulnerability.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170201_WFP_Situation_Report_164_18_Feb_2017_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 2341,
+                                    "start": 2247
+                                },
+                                "sentence": "Sentence-ENG_NW_20170201_WFP_Situation_Report_164_18_Feb_2017_AL_0-48478"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            2247,
+                            2341
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "cereal prices",
+                                "the food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "257a6d1f-65fd-4b67-a6f0-983d8abf819b"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/WFP%20Situation%20Report%20%23164%20-%2018%20Feb%202017.pdf"
+                    },
+                    "source_hash": "-3022299334380435500",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "0b2017a5-d1d5-41a2-9e2a-283f12516067",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Market",
+                "db_refs": {
+                    "TEXT": "cereal prices",
+                    "concept": "UN/entities/human/financial/economic/market"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "food security",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.9956362374682,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf",
+                    "text": "Higher food prices have further affected  food security conditions.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_a_i6903e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 9283,
+                                    "start": 9230
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_a_i6903e_AL_0-11953"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            9230,
+                            9283
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Higher food prices",
+                                "food security conditions"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "c949cc19-3d0f-49df-ae60-63fd2451bab7"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf"
+                    },
+                    "source_hash": "1333085493031740200",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf",
+                    "text": "Higher food prices have further affected  food security conditions.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_a_i6903e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 9283,
+                                    "start": 9218
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_a_i6903e_AL_0-11953"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            9218,
+                            9283
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Higher food prices",
+                                "food security conditions"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "52fa4a42-8bb7-4fb1-abe9-fb1c12708624"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf"
+                    },
+                    "source_hash": "1333085493031740200",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6558e.pdf",
+                    "text": "Higher food prices are  further affecting the food security conditions.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_a_i6558e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 8717,
+                                    "start": 8648
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_a_i6558e_AL_0-110860"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            8648,
+                            8717
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Higher food prices",
+                                "the food security conditions"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "d5aeb7d4-0617-4acd-af8e-6bb7f6d85712"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6558e.pdf"
+                    },
+                    "source_hash": "985280891578211800",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "eidos",
+                    "text": "Nutrition and mortality : The prevalence of acute malnutrition is expected to  rise in the coming months due to the typical  seasonal increase that occurs during the March to June season .",
+                    "annotations": {
+                        "found_by": "dueToSyntax2-Causal",
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "South Sudan FSO_04_2015",
+                                    "title": "SOUTH SUDAN Food Security Outlook",
+                                    "corpus": "500m"
+                                },
+                                "documentCharInterval": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 13577,
+                                        "end": 13688
+                                    }
+                                ],
+                                "sentence": {
+                                    "@id": "_:Sentence_133"
+                                },
+                                "positions": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 6,
+                                        "end": 23
+                                    }
+                                ]
+                            }
+                        ],
+                        "document_creation_time": {
+                            "text": "April 2015.",
+                            "start": "2015-04-01T00:00",
+                            "end": "2015-05-01T00:00"
+                        },
+                        "subj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "April 2015.",
+                                "start": "2015-04-01T00:00",
+                                "end": "2015-05-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "obj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "April 2015.",
+                                "start": "2015-04-01T00:00",
+                                "end": "2015-05-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "subj_adjectives": [
+                            "typical"
+                        ],
+                        "obj_adjectives": [],
+                        "subj_polarity": 1,
+                        "obj_polarity": 1,
+                        "agents": {
+                            "raw_text": [
+                                "typical  seasonal increase",
+                                "prevalence of acute malnutrition"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "8097ce76-fc38-4eba-b4c6-acd1065709b3"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "epistemics": {
+                        "hedgings": [
+                            "expect"
+                        ]
+                    },
+                    "source_hash": "1627650843383624700",
+                    "grounding_score": 0.7206337451934814
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6558e.pdf",
+                    "text": "Higher food prices are  further affecting the food security conditions.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_a_i6558e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 8717,
+                                    "start": 8660
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_a_i6558e_AL_0-110860"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            8660,
+                            8717
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Higher food prices",
+                                "the food security conditions"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "66429fc3-cb11-4292-9d9c-3e1307f18a23"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6558e.pdf"
+                    },
+                    "source_hash": "985280891578211800",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "eidos",
+                    "text": "Studies in other countries confirm that  similar price increases can raise global acute malnutrition ( GAM ) rates between 8 and 16 per cent .",
+                    "annotations": {
+                        "found_by": "ported_syntax_1_verb-Causal",
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "UNICEF_South_Sudan_Humanitarian_SitRep_11_Feb_2016",
+                                    "title": "South Sudan Humanitarian Situation Report",
+                                    "corpus": "500m"
+                                },
+                                "documentCharInterval": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 13380,
+                                        "end": 13450
+                                    }
+                                ],
+                                "sentence": {
+                                    "@id": "_:Sentence_126"
+                                },
+                                "positions": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 7,
+                                        "end": 18
+                                    }
+                                ]
+                            }
+                        ],
+                        "document_creation_time": {
+                            "text": "February 2016.",
+                            "start": "2016-02-01T00:00",
+                            "end": "2016-03-01T00:00"
+                        },
+                        "subj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "February 2016.",
+                                "start": "2016-02-01T00:00",
+                                "end": "2016-03-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "obj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "February 2016.",
+                                "start": "2016-02-01T00:00",
+                                "end": "2016-03-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "subj_adjectives": [],
+                        "obj_adjectives": [],
+                        "subj_polarity": 1,
+                        "obj_polarity": 1,
+                        "agents": {
+                            "raw_text": [
+                                "similar price increases",
+                                "global acute malnutrition (GAM) rates"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "4e6eb7ea-df98-415b-b666-e966c8aec860"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "epistemics": {
+                        "hedgings": [
+                            "can"
+                        ]
+                    },
+                    "source_hash": "-1433050568643162000",
+                    "grounding_score": 0.7385807037353516
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf",
+                    "text": "A highly market  dependent  region,  Greater  Bahr  el  Ghazal  food  insecurity  will  be  mainly  driven  by  high  food  prices,  the  economic crisis, and the beginning of rainy season road deterioration.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_ipc_report_january_2017_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 25213,
+                                    "start": 25148
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_ipc_report_january_2017_AL_1-97037"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            25148,
+                            25213
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "high  food  prices",
+                                "food  insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "15aadec9-8192-4df7-94d3-f3f811fb2dcf"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "the beginning of rainy season",
+                            "start": null,
+                            "end": null
+                        },
+                        "geo_location": null
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf"
+                    },
+                    "source_hash": "6119053059531973000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "0ca62a03-6d3b-424b-b9e5-16bb85cb15c1",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": [
+                    "typical"
+                ]
+            },
+            "subj": {
+                "name": "Food price",
+                "db_refs": {
+                    "TEXT": "Higher food prices",
+                    "concept": "UN/entities/human/food/food_price"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "food security conditions",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.9419,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/December%202016%20FAOB.pdf",
+                    "text": "Near-average harvests are expected to improve food security in most areas.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_December_2016_FAOB_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 7729,
+                                    "start": 7684
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_December_2016_FAOB_AL_0-239526"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            7684,
+                            7729
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Near-average harvests",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "8e56d93c-83ab-4020-a554-aa2842844657"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "most areas",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/December%202016%20FAOB.pdf"
+                    },
+                    "source_hash": "-4903709178558066000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/south_sudan_national_multi-hazard_early_warning_bulletin.pdf",
+                    "text": "As per the food security and nutrition monitoring system (FSNMS) survey conducted in December 2017, more than  two-thirds of the households were found to be food insecure in South Sudan, showing the highest ever food insecurity  in the period immediately after the harvest, since FSNMS started in 2010.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170401_south_sudan_national_multi_hazard_early_warning_bulletin_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 5687,
+                                    "start": 5611
+                                },
+                                "sentence": "Sentence-ENG_NW_20170401_south_sudan_national_multi_hazard_early_warning_bulletin_AL_0-67484"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            5611,
+                            5687
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the harvest",
+                                "the highest ever food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "1874a105-6e32-42c3-9793-9599af4e3720"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "December 2017",
+                            "start": "2017-12-01T00:00",
+                            "end": "2017-12-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": {
+                            "name": "South Sudan",
+                            "db_refs": {
+                                "GEOID": "7909807"
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/south_sudan_national_multi-hazard_early_warning_bulletin.pdf"
+                    },
+                    "source_hash": "-8397289582575012000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf",
+                    "text": "In Tharparkar District and the surrounding areas of Sindh  Province, the drought-affected cereal production and the loss  of livestock for the third consecutive year have aggravated  the food insecurity and caused acute malnutrition.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_a_i6903e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 17033,
+                                    "start": 16871
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_a_i6903e_AL_0-12047"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            16871,
+                            17033
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the drought-affected cereal production",
+                                "acute malnutrition"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "71ef5d88-4da5-4deb-bfcd-5021981cc45a"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "the third consecutive year",
+                            "start": null,
+                            "end": null
+                        },
+                        "geo_location": {
+                            "name": "Sindh Province",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf"
+                    },
+                    "source_hash": "-8908314378831669000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20FSOU%2008_2016.pdf",
+                    "text": "While  August  green  harvests  are  slightly  improving  food  security in these areas, high market prices and depreciating  local currency continue to restrict food access.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20160801_South_Sudan_FSOU_08_2016_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 865,
+                                    "start": 816
+                                },
+                                "sentence": "Sentence-ENG_NW_20160801_South_Sudan_FSOU_08_2016_AL_0-44541"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            816,
+                            865
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "August  green  harvests",
+                                "food \nsecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "36032ad6-d587-4eb9-b885-dcd535775d92"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "August",
+                            "start": "2016-08-01T00:00",
+                            "end": "2016-08-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": {
+                            "name": "these areas",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20FSOU%2008_2016.pdf"
+                    },
+                    "source_hash": "3366065427391657500",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i3652e.pdf",
+                    "text": "market dominance is lowest here, given the high levels of crop production  in these states (WEQ being the only self-sufficient state in South Sudan), but still can reach 50 percent  of the households during the hunger gap after a poor harvest.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20140201_a_i3652e_AL_5",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 11046,
+                                    "start": 11016
+                                },
+                                "sentence": "Sentence-ENG_NW_20140201_a_i3652e_AL_5-110509"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            11016,
+                            11046
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "a poor harvest",
+                                "hunger"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "c95a6f10-6f45-429b-931b-b246edb6cf3b"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i3652e.pdf"
+                    },
+                    "source_hash": "-2052009435581684700",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/south_sudan_national_multi-hazard_early_warning_bulletin.pdf",
+                    "text": "As per the food security and nutrition monitoring system (FSNMS) survey conducted in December 2017, more than  two-thirds of the households were found to be food insecure in South Sudan, showing the highest ever food insecurity  in the period immediately after the harvest, since FSNMS started in 2010.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170401_south_sudan_national_multi_hazard_early_warning_bulletin_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 5687,
+                                    "start": 5633
+                                },
+                                "sentence": "Sentence-ENG_NW_20170401_south_sudan_national_multi_hazard_early_warning_bulletin_AL_0-67484"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            5633,
+                            5687
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the harvest",
+                                "the highest ever food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "15510d0f-33b1-4cfc-8673-6a538da1d2b1"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/south_sudan_national_multi-hazard_early_warning_bulletin.pdf"
+                    },
+                    "source_hash": "-8397289582575012000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20FSOU%2008_2016.pdf",
+                    "text": "In Greater Bahr el Ghazal and GUN, crop development is favorable and the October to January harvest is expected  to improve food security; however, newly displaced households  in Unity and Western Bahr el Ghazal  are unlikely to have  access to their farms and  own production.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20160801_South_Sudan_FSOU_08_2016_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 7961,
+                                    "start": 7917
+                                },
+                                "sentence": "Sentence-ENG_NW_20160801_South_Sudan_FSOU_08_2016_AL_0-44598"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            7917,
+                            7961
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "the October to January harvest",
+                                "food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "0f142867-2862-41d5-a12f-1e10a465878f"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20FSOU%2008_2016.pdf"
+                    },
+                    "source_hash": "-310413454185370500",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "162f896f-64b3-48d6-a91d-2e9e6557ac0a",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Food production",
+                "db_refs": {
+                    "TEXT": "the harvest",
+                    "concept": "UN/events/human/agriculture/food_production"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "the highest ever food insecurity",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "supported_by": [
+                "3b49bd76-d66c-4114-a70d-cda769e54fc1"
+            ]
+        },
+        {
+            "type": "Influence",
+            "belief": 0.7053,
+            "evidence": [
+                {
+                    "source_api": "eidos",
+                    "text": "High levels of acute malnutrition are attributed to inadequate  food consumption as well as other factors including morbidity , dietary and feeding habits , and constrained health  and nutrition service delivery .",
+                    "annotations": {
+                        "found_by": "ported_syntax_1_verb-Causal",
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "IPC South Sudan - Sept 2014 - Communication Summary 092314",
+                                    "title": "\"INTEGRATED FOOD SECURITY PHASE CLASSIFICATION REPUBLIC OF SOUTH SUDAN COMMUNICATION SUMMARY\"",
+                                    "corpus": "500m"
+                                },
+                                "documentCharInterval": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 2180,
+                                        "end": 2388
+                                    }
+                                ],
+                                "sentence": {
+                                    "@id": "_:Sentence_23"
+                                },
+                                "positions": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 1,
+                                        "end": 31
+                                    }
+                                ]
+                            }
+                        ],
+                        "document_creation_time": {
+                            "text": "September 2014.",
+                            "start": "2014-09-01T00:00",
+                            "end": "2014-10-01T00:00"
+                        },
+                        "subj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "September 2014.",
+                                "start": "2014-09-01T00:00",
+                                "end": "2014-10-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "obj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "September 2014.",
+                                "start": "2014-09-01T00:00",
+                                "end": "2014-10-01T00:00"
+                            },
+                            "geo_location": null
+                        },
+                        "subj_adjectives": [],
+                        "obj_adjectives": [],
+                        "subj_polarity": 1,
+                        "obj_polarity": -1,
+                        "agents": {
+                            "raw_text": [
+                                "High levels of acute malnutrition",
+                                "health  and nutrition service delivery"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "4ca13f17-c151-4a86-bb84-65e0861ba6a2"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "source_hash": "7517911166535366000",
+                    "grounding_score": 0.7669603824615479
+                }
+            ],
+            "id": "4ca13f17-c151-4a86-bb84-65e0861ba6a2",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "High levels of acute malnutrition",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "obj_delta": {
+                "polarity": -1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Food security",
+                "db_refs": {
+                    "TEXT": "health  and nutrition service delivery",
+                    "concept": "UN/entities/human/food/food_security"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.617,
+            "evidence": [
+                {
+                    "source_api": "eidos",
+                    "text": "This may involve giving  smallholder farmers the chance to purchase effective storage containers for their  harvest , improving the roads so that they can get their produce to market , and  creating links between smallholders and bulk buyers .",
+                    "annotations": {
+                        "found_by": "ported_syntax_5_verb-Causal",
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "WFP-0000023327",
+                                    "title": "Counting the Beans - the true cost of a plate of food around the world",
+                                    "corpus": "500m"
+                                },
+                                "documentCharInterval": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 19199,
+                                        "end": 19334
+                                    }
+                                ],
+                                "sentence": {
+                                    "@id": "_:Sentence_291"
+                                },
+                                "positions": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 1,
+                                        "end": 20
+                                    }
+                                ]
+                            }
+                        ],
+                        "document_creation_time": {
+                            "text": "2017.",
+                            "start": null,
+                            "end": null
+                        },
+                        "subj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "2017.",
+                                "start": null,
+                                "end": null
+                            },
+                            "geo_location": null
+                        },
+                        "obj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "2017.",
+                                "start": null,
+                                "end": null
+                            },
+                            "geo_location": null
+                        },
+                        "subj_adjectives": [
+                            "significantly"
+                        ],
+                        "obj_adjectives": [],
+                        "subj_polarity": -1,
+                        "obj_polarity": 1,
+                        "agents": {
+                            "raw_text": [
+                                "hunger",
+                                "roads"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "df6cc4d8-460b-4c1e-a43b-884d767ad99b"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "epistemics": {
+                        "hedgings": [
+                            "can",
+                            "may"
+                        ]
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "bulk",
+                            "start": null,
+                            "end": null,
+                            "duration": 0
+                        },
+                        "geo_location": null
+                    },
+                    "source_hash": "-8123457414156269000",
+                    "grounding_score": 0.9283079504966736
+                }
+            ],
+            "id": "df6cc4d8-460b-4c1e-a43b-884d767ad99b",
+            "subj_delta": {
+                "polarity": -1,
+                "adjectives": [
+                    "significantly"
+                ]
+            },
+            "subj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "hunger",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Road",
+                "db_refs": {
+                    "TEXT": "roads",
+                    "concept": "UN/entities/human/infrastructure/transportation/road"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.923,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf",
+                    "text": "Sufficient,  timely  and  sustained  humanitarian  access  to  all  populations  facing  Famine  and  Elevated  Risk  of  Famine  is  urgently  required  for  both  the  unimpeded  delivery  of  emergency  assistance  and  continued  monitoring of the food security and nutrition situation.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_ipc_report_january_2017_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 22082,
+                                    "start": 21983
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_ipc_report_january_2017_AL_1-97023"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            21983,
+                            22082
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Famine",
+                                "the  unimpeded  delivery"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "889ec79b-e9d5-4a36-aea5-dcbca744e9c2"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf"
+                    },
+                    "source_hash": "5378059501988815000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf",
+                    "text": "Sufficient,  timely  and  sustained  humanitarian  access  to  all  populations  facing  Famine  and  Elevated  Risk  of  Famine  is  urgently  required  for  both  the  unimpeded  delivery  of  emergency  assistance  and  continued  monitoring of the food security and nutrition situation.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_ipc_report_january_2017_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 14044,
+                                    "start": 13945
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_ipc_report_january_2017_AL_1-96981"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            13945,
+                            14044
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Famine",
+                                "the  unimpeded  delivery"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "110a7913-f434-41f0-88ba-fc334a0c7af3"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf"
+                    },
+                    "source_hash": "5378059501988815000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/SSD17-March-2016.pdf",
+                    "text": "  Better access to pocket areas of starvation in   southern Unity State needed to allow urgent  delivery of humanitarian aid and avert  deterioration of situation into famine",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20160301_SSD17_March_2016_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 735,
+                                    "start": 667
+                                },
+                                "sentence": "Sentence-ENG_NW_20160301_SSD17_March_2016_AL_0-366781"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            667,
+                            735
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "starvation",
+                                "urgent \ndelivery"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "9ebc6a2e-6b54-4ea1-9d88-7d105c03ec89"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "Unity",
+                            "db_refs": {
+                                "GEOID": "408650"
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/SSD17-March-2016.pdf"
+                    },
+                    "source_hash": "6216655567911662000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "fed32072-a428-40b1-99c8-4891d17c176e",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "Famine",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Transportation methods",
+                "db_refs": {
+                    "TEXT": "the  unimpeded  delivery",
+                    "concept": "UN/entities/human/infrastructure/transportation/transportation_methods"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.65,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf",
+                    "text": "Conflicts  continue  to  acutely impact agriculture, livelihoods and food security in the Syrian Arab Republic,  Yemen and Iraq, resulting in low harvests and increased humanitarian needs.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170301_a_i6903e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 1892,
+                                    "start": 1808
+                                },
+                                "sentence": "Sentence-ENG_NW_20170301_a_i6903e_AL_0-11840"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            1808,
+                            1892
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "food security",
+                                "low harvests"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "0ff9b32d-406b-4dbf-ac22-1bdc19d822a3"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "Republic of Yemen",
+                            "db_refs": {
+                                "GEOID": "69543"
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-i6903e.pdf"
+                    },
+                    "source_hash": "-3406820718631094000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "0ff9b32d-406b-4dbf-ac22-1bdc19d822a3",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "food security",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Food production",
+                "db_refs": {
+                    "TEXT": "low harvests",
+                    "concept": "UN/events/human/agriculture/food_production"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.86,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf",
+                    "text": "In  addition  to  low  cereal  harvests,  food  insecurity  was  aggravated  by  declining  access  to  livestock  products,  poorly  functioning  markets  characterized  by  unseasonably  high  food  prices,  and  escalating  inter-communal  conflict across the state.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_ipc_report_january_2017_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 2364,
+                                    "start": 2162
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_ipc_report_january_2017_AL_1-96917"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            2162,
+                            2364
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "food  insecurity",
+                                "inter-communal \nconflict"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "d2c60965-420e-4884-86a7-6956b5573647"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "Former state",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf"
+                    },
+                    "source_hash": "-8499945841892910000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf",
+                    "text": "In  addition  to  low  cereal  harvests,  food  insecurity  was  aggravated  by  declining  access  to  livestock  products,  poorly  functioning  markets  characterized  by  unseasonably  high  food  prices,  and  escalating  inter-communal  conflict across the state.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_ipc_report_january_2017_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 2364,
+                                    "start": 2162
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_ipc_report_january_2017_AL_1-96917"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            2162,
+                            2364
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "food  insecurity",
+                                "inter-communal \nconflict"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "b1a9d0ee-b573-4c76-839f-be765d69322b"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://fscluster.org/sites/default/files/documents/ipc_report_-_january_2017.pdf"
+                    },
+                    "source_hash": "-8499945841892910000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "d3f621fd-58f1-4537-95b7-38507db7a1bb",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "food  insecurity",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Conflict",
+                "db_refs": {
+                    "TEXT": "inter-communal \nconflict",
+                    "concept": "UN/events/human/conflict"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.65,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6790e.pdf",
+                    "text": "³³ Food insecurity in the northeast is driven by continued displacement as well as low market functioning,   reduced land cultivation and destruction of infrastructure.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20170101_a_i6790e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 22415,
+                                    "start": 22353
+                                },
+                                "sentence": "Sentence-ENG_NW_20170101_a_i6790e_AL_0-371838"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            22353,
+                            22415
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "continued displacement",
+                                "Food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "d763bd67-7e58-4443-9293-522313f70526"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "the northeast",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6790e.pdf"
+                    },
+                    "source_hash": "4992050844150322000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "eidos",
+                    "text": "Since 1 January 2016 , over 728 000 undocumented  Afghans have returned mostly due to changes in refugee  policies in Pakistan .",
+                    "annotations": {
+                        "found_by": "dueToSyntax6-Causal",
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "a-i6903e",
+                                    "title": "Crop Prospects and Food Situation",
+                                    "corpus": "500m"
+                                },
+                                "documentCharInterval": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 15204,
+                                        "end": 15301
+                                    }
+                                ],
+                                "sentence": {
+                                    "@id": "_:Sentence_195"
+                                },
+                                "positions": [
+                                    {
+                                        "@type": "Interval",
+                                        "start": 7,
+                                        "end": 21
+                                    }
+                                ]
+                            }
+                        ],
+                        "document_creation_time": {
+                            "text": "March 2017.",
+                            "start": "2017-03-01T00:00",
+                            "end": "2017-04-01T00:00"
+                        },
+                        "subj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "March 2017.",
+                                "start": "2017-03-01T00:00",
+                                "end": "2017-04-01T00:00"
+                            },
+                            "geo_location": {
+                                "name": "Pakistan",
+                                "db_refs": {
+                                    "GEOID": "8056723"
+                                }
+                            }
+                        },
+                        "obj_context": {
+                            "type": "world",
+                            "time": {
+                                "text": "January",
+                                "start": null,
+                                "end": null,
+                                "duration": 2678400
+                            },
+                            "geo_location": null
+                        },
+                        "subj_adjectives": [],
+                        "obj_adjectives": [],
+                        "subj_polarity": null,
+                        "obj_polarity": null,
+                        "agents": {
+                            "raw_text": [
+                                "changes in refugee  policies in Pakistan",
+                                "728 000 undocumented  Afghans"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "934658e2-f9ed-42e1-9a0e-5652c42f0561"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "January",
+                            "start": null,
+                            "end": null,
+                            "duration": 2678400
+                        },
+                        "geo_location": {
+                            "name": "Pakistan",
+                            "db_refs": {
+                                "GEOID": "8056723"
+                            }
+                        }
+                    },
+                    "source_hash": "8992812513997192000",
+                    "grounding_score": 0.7093514204025269
+                }
+            ],
+            "id": "d763bd67-7e58-4443-9293-522313f70526",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Human migration",
+                "db_refs": {
+                    "TEXT": "changes in refugee  policies in Pakistan",
+                    "concept": "UN/events/human/human_migration"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "728 000 undocumented  Afghans",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "supported_by": [
+                "934658e2-f9ed-42e1-9a0e-5652c42f0561"
+            ]
+        },
+        {
+            "type": "Influence",
+            "belief": 0.86,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/i4096e.pdf",
+                    "text": "Mali Insecurity Insecurity in northern areas has  resulted in large population displacement,  worsening the already precarious food  security situation created by previous  droughts and floods.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20141001_i4096e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 5487,
+                                    "start": 5449
+                                },
+                                "sentence": "Sentence-ENG_NW_20141001_i4096e_AL_0-376384"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            5449,
+                            5487
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "previous \ndroughts",
+                                "the already precarious food \nsecurity situation"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "ec0511ef-e6be-46bb-bb10-e2cf71951451"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/i4096e.pdf"
+                    },
+                    "source_hash": "892217728378401800",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-i6558e.pdf",
+                    "text": "Drought conditions in southern regions caused a sharp  decrease in the 2016 cereal harvest from an already  below‑average 2015 output, resulting in severe food  insecurity conditions; approximately 850 000 people  require humanitarian assistance in Androy, Anosy  and Astimo Andrefana.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20161201_a_i6558e_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 10974,
+                                    "start": 10793
+                                },
+                                "sentence": "Sentence-ENG_NW_20161201_a_i6558e_AL_0-110884"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            10793,
+                            10974
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "Drought conditions",
+                                "severe food \ninsecurity conditions"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "e87cd942-ed62-4274-8391-f53c46a89b01"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": null,
+                        "geo_location": {
+                            "name": "southern regions",
+                            "db_refs": {
+                                "GEOID": null
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-i6558e.pdf"
+                    },
+                    "source_hash": "-6023226026737774000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "48226d94-10ae-42f8-9a83-16e15e66bbd0",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Drought",
+                "db_refs": {
+                    "TEXT": "Drought conditions",
+                    "concept": "UN/events/natural_disaster/drought"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "the already precarious food \nsecurity situation",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.923,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf",
+                    "text": "Food security risk  Relatively at less risk, seasonal food insecurity, mainly due to  recurring floods.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 31135,
+                                    "start": 31079
+                                },
+                                "sentence": "Sentence-ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1-98683"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            31079,
+                            31135
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "recurring floods",
+                                "seasonal food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "069299cc-2832-4bfc-892a-5812c50c3789"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf"
+                    },
+                    "source_hash": "6844008038652564000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf",
+                    "text": "Food security risk  Relatively at less risk, seasonal food insecurity, mainly due to  recurring floods.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 31135,
+                                    "start": 31093
+                                },
+                                "sentence": "Sentence-ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1-98683"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            31093,
+                            31135
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "recurring floods",
+                                "seasonal food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "32c71084-68e2-4db7-b8dd-63de43bfe155"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf"
+                    },
+                    "source_hash": "6844008038652564000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf",
+                    "text": "Food security risk  Relatively at less risk, seasonal food insecurity, mainly due to  recurring floods.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 31135,
+                                    "start": 31093
+                                },
+                                "sentence": "Sentence-ENG_NW_20130801_South_Sudan_LHZ_Report_Final_AL_1-98683"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            31093,
+                            31135
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "recurring floods",
+                                "seasonal food insecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "7857dbd6-9803-4408-af86-06c19f7a4a47"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/South%20Sudan%20LHZ%20%20Report_Final.pdf"
+                    },
+                    "source_hash": "6844008038652564000",
+                    "grounding_score": 1
+                }
+            ],
+            "id": "79723693-bbea-4cc6-99c1-f9d185326573",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Flooding",
+                "db_refs": {
+                    "TEXT": "recurring floods",
+                    "concept": "UN/events/natural_disaster/flooding"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "seasonal food insecurity",
+                    "concept": "UN/events/human/famine"
+                }
+            }
+        },
+        {
+            "type": "Influence",
+            "belief": 0.923,
+            "evidence": [
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/FAOB_August_2015.pdf",
+                    "text": "However, by January 2016, an expected above-average October-to- December short rains may lead to substantially improved food security in much of Kenya.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20150801_FAOB_August_2015_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 8080,
+                                    "start": 8027
+                                },
+                                "sentence": "Sentence-ENG_NW_20150801_FAOB_August_2015_AL_0-49746"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            8027,
+                            8080
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "an expected above-average October-to-\nDecember short rains",
+                                "substantially improved food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "a2094bba-6a2b-4799-bab3-39eaa07ef36c"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "January 2016",
+                            "start": "2016-01-01T00:00",
+                            "end": "2016-01-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": {
+                            "name": "Republic of Kenya",
+                            "db_refs": {
+                                "GEOID": "192950"
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/FAOB_August_2015.pdf"
+                    },
+                    "source_hash": "-3199296689761277000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://fews.net/sites/default/files/documents/reports/FAOB_August_2015.pdf",
+                    "text": "However, by January 2016, an expected above-average October-to- December short rains may lead to substantially improved food security in much of Kenya.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20150801_FAOB_August_2015_AL_0",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 8080,
+                                    "start": 8027
+                                },
+                                "sentence": "Sentence-ENG_NW_20150801_FAOB_August_2015_AL_0-49746"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            8027,
+                            8080
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "an expected above-average October-to-\nDecember short rains",
+                                "substantially improved food security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "caa54ee4-0908-4fb6-9bf5-b388736761e9"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "January 2016",
+                            "start": "2016-01-01T00:00",
+                            "end": "2016-01-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": {
+                            "name": "Republic of Kenya",
+                            "db_refs": {
+                                "GEOID": "192950"
+                            }
+                        }
+                    },
+                    "text_refs": {
+                        "PMID": "http://fews.net/sites/default/files/documents/reports/FAOB_August_2015.pdf"
+                    },
+                    "source_hash": "-3199296689761277000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "sofia",
+                    "pmid": "Global Weather Hazard-160623",
+                    "text": "The lack of rainfall over the past few weeks has negatively impacted ground conditions over these dry portions of Famine Early Warning Systems Hazards to slightly rainfall forecast during the next week . ",
+                    "annotations": {
+                        "Relation": "impacted",
+                        "provenance": [
+                            {
+                                "document": {
+                                    "@id": "Global Weather Hazard-160623",
+                                    "corpus": "500m"
+                                }
+                            }
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "rainfall",
+                                "Famine"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "ff8c2bfb-5446-40db-8b0b-6955f65af2c9"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "the, next, week",
+                            "start": null,
+                            "end": null
+                        },
+                        "geo_location": null
+                    },
+                    "text_refs": {
+                        "PMID": "Global Weather Hazard-160623"
+                    },
+                    "source_hash": "-2140931292529261800",
+                    "grounding_score": 0.81851065
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4410E.pdf",
+                    "text": "In  addition,  in  parts  of  Katanga  province  heavy  rains  in  January  caused  floods  and  landslides  that  resulted in severe damage to infrastructure, houses and crops,  and  affected  at  least  30  000  individuals,  raising  serious  food  security  and  health  concerns.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20150301_a_I4410E_AL_2",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 11372,
+                                    "start": 11169
+                                },
+                                "sentence": "Sentence-ENG_NW_20150301_a_I4410E_AL_2-361070"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            11169,
+                            11372
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "heavy  rains",
+                                "serious  food \nsecurity"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "2d51785e-9dd9-470c-8b66-9cc40d62f85d"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "January",
+                            "start": "2015-01-01T00:00",
+                            "end": "2015-01-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": null
+                    },
+                    "text_refs": {
+                        "PMID": "https://reliefweb.int/sites/reliefweb.int/files/resources/a-I4410E.pdf"
+                    },
+                    "source_hash": "-1140574437683568400",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "hume",
+                    "pmid": "http://www.fao.org/3/a-I4256E.pdf",
+                    "text": "In addition, in parts of these provinces heavy  rains during October and November caused floods and landslides  which  resulted  in  severe  damage  to  infrastructure,  houses  and  crops,  and  affected  at  least  16  000  individuals,  raising  serious  food security and health concerns.",
+                    "annotations": {
+                        "found_by": null,
+                        "provenance": [
+                            {
+                                "@type": "Provenance",
+                                "document": {
+                                    "@id": "ENG_NW_20141201_a_I4256E_AL_2",
+                                    "corpus": "500m"
+                                },
+                                "documentCharPositions": {
+                                    "@type": "Interval",
+                                    "end": 12257,
+                                    "start": 12035
+                                },
+                                "sentence": "Sentence-ENG_NW_20141201_a_I4256E_AL_2-276800"
+                            }
+                        ],
+                        "event_type": "relation",
+                        "adjectives": [],
+                        "bounds": [
+                            12035,
+                            12257
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "heavy \nrains",
+                                "serious \nfood security"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "90f8b77c-05d3-4424-9e43-19068663f9a4"
+                        ],
+                        "support_type": "direct"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "October",
+                            "start": "2014-10-01T00:00",
+                            "end": "2014-10-31T23:59",
+                            "duration": 2678399
+                        },
+                        "geo_location": null
+                    },
+                    "text_refs": {
+                        "PMID": "http://www.fao.org/3/a-I4256E.pdf"
+                    },
+                    "source_hash": "1124721638740849000",
+                    "grounding_score": 1
+                },
+                {
+                    "source_api": "sofia",
+                    "pmid": "Global Weather Hazard-160623",
+                    "text": "The lack of rainfall over the past few weeks has negatively impacted ground conditions over these dry portions of Famine Early Warning Systems Hazards to slightly rainfall forecast during the next week . ",
+                    "annotations": {
+                        "Relation": "impacted",
+                        "provenance": [
+                            {
+                                "document": {
+                                    "@id": "Global Weather Hazard-160623",
+                                    "corpus": "500m"
+                                }
+                            }
+                        ],
+                        "agents": {
+                            "raw_text": [
+                                "rainfall",
+                                "Famine"
+                            ]
+                        },
+                        "prior_uuids": [
+                            "ff8c2bfb-5446-40db-8b0b-6955f65af2c9"
+                        ],
+                        "support_type": "supported_by"
+                    },
+                    "context": {
+                        "type": "world",
+                        "time": {
+                            "text": "the, next, week",
+                            "start": null,
+                            "end": null
+                        },
+                        "geo_location": null
+                    },
+                    "text_refs": {
+                        "PMID": "Global Weather Hazard-160623"
+                    },
+                    "source_hash": "-2140931292529261800",
+                    "grounding_score": 0.81851065
+                }
+            ],
+            "id": "94dcf9d5-6145-4eda-bdde-887acdc0af99",
+            "subj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "subj": {
+                "name": "Precipitation",
+                "db_refs": {
+                    "TEXT": "rainfall",
+                    "concept": "UN/events/weather/precipitation"
+                }
+            },
+            "obj_delta": {
+                "polarity": 1,
+                "adjectives": []
+            },
+            "obj": {
+                "name": "Famine",
+                "db_refs": {
+                    "TEXT": "substantially improved food security",
+                    "concept": "UN/events/human/famine"
+                }
+            },
+            "supported_by": [
+                "ff8c2bfb-5446-40db-8b0b-6955f65af2c9",
+                "a2094bba-6a2b-4799-bab3-39eaa07ef36c"
+            ]
+        }
+    ],
+    "conceptIndicators": {
+      "UN/entities/human/farming": {
+        "func": "mean",
+        "name": "Emissions (CO2eq) (Manure on pasture), Cattle, dairy",
+        "source": "FAO",
+        "values": [
+          {
+            "month": 1,
+            "value": 123,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 232,
+              "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 454,
+              "year": 2010
+          }
+        ]
+      },
+      "UN/entities/human/financial/economic/inflation": {
+        "func": "mean",
+        "name": "Inflation Rate",
+        "source": "ieconomics.com",
+        "values": [
+          {
+            "month": 1,
+            "value": 145,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 345,
+              "year": 2019
+          },
+          {
+              "month": 1,
+              "value": 5456,
+              "year": 2015
+          }
+        ]
+      },
+      "UN/entities/human/financial/economic/market": {
+        "func": "mean",
+        "name": "Inflation, consumer prices",
+        "source": "WDI",
+        "values": [
+          {
+            "month": 1,
+            "value": 1344,
+            "year": 2010
+          },
+          {
+              "month": 2,
+              "value": 323,
+              "year": 2011
+          },
+          {
+              "month": 5,
+              "value": 523,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/entities/human/food/food_price": {
+        "func": "mean",
+        "name": "Average price of poultry",
+        "source": "CLiMIS",
+        "values": [
+          {
+            "month": 1,
+            "value": 1,
+            "year": 2010
+          },
+          {
+              "month": 2,
+              "value": 3,
+              "year": 2011
+          },
+          {
+              "month": 7,
+              "value": 5,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/entities/human/food/food_security": {
+        "func": "mean",
+        "name": "Import Value, Infant food",
+        "source": "FAO",
+        "values": [
+          {
+            "month": 4,
+            "value": 1222,
+            "year": 2010
+          },
+          {
+              "month": 7,
+              "value": 322,
+              "year": 2011
+          },
+          {
+              "month": 2,
+              "value": 52,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/entities/human/infrastructure/transportation/road": {
+        "func": "mean",
+        "name": "Mortality caused by road traffic injury",
+        "source": "WDI",
+        "values": [
+          {
+            "month": 1,
+            "value": 1789789,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 3123,
+              "year": 2015
+          },
+          {
+              "month": 1,
+              "value": 5,
+              "year": 2018
+          }
+        ]
+      },
+      "UN/entities/human/infrastructure/transportation/transportation_methods": {
+        "func": "mean",
+        "name": "Transport services",
+        "source": "WDI",
+        "values": [
+          {
+            "month": 1,
+            "value": 1123312,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 3123,
+              "year": 2014
+          },
+          {
+              "month": 1,
+              "value": 512,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/human/agriculture/food_production": {
+        "func": "mean",
+        "name": "Cereal yield",
+        "source": "WDI",
+        "values": [
+          {
+            "month": 1,
+            "value": 1123,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 38234978,
+              "year": 2014
+          },
+          {
+              "month": 1,
+              "value": 5123,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/human/conflict": {
+        "func": "mean",
+        "name": "Conflict incidences",
+        "source": "unknown",
+        "values": [
+          {
+            "month": 1,
+            "value": 1,
+            "year": 2017
+          },
+          {
+              "month": 1,
+              "value": 3,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 5,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/human/famine": {
+        "func": "mean",
+        "name": "Percentage of cattle loss accounted for by starvation",
+        "source": "CliMIS",
+        "values": [
+          {
+            "month": 1,
+            "value": 1,
+            "year": 2013
+          },
+          {
+              "month": 1,
+              "value": 3,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 5,
+              "year": 2014
+          }
+        ]
+      },
+      "UN/events/human/human_migration": {
+        "func": "mean",
+        "name": "Net migration",
+        "source": "WDI",
+        "values": [
+          {
+            "month": 1,
+            "value": 1,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 300021,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 555,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/natural_disaster/drought": {
+        "func": "mean",
+        "name": "Rainfall",
+        "source": "CliMIS",
+        "values": [
+          {
+            "month": 1,
+            "value": 10000,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 33,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 53,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/natural_disaster/flooding": {
+        "func": "mean",
+        "name": "Percentage of livestock whose main water source is rivers",
+        "source": "CLiMIS",
+        "values": [
+          {
+            "month": 1,
+            "value": 1100,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 270,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 509,
+              "year": 2012
+          }
+        ]
+      },
+      "UN/events/weather/precipitation": {
+        "func": "mean",
+        "name": "Rainfall",
+        "source": "CliMIS",
+        "values": [
+          {
+            "month": 1,
+            "value": 30,
+            "year": 2010
+          },
+          {
+              "month": 1,
+              "value": 20,
+              "year": 2011
+          },
+          {
+              "month": 1,
+              "value": 500,
+              "year": 2012
+          }
+        ]
+      }
+    }
+}

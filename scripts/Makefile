@@ -1,5 +1,6 @@
 # This Makefile has not been fully tested. Please report any errors to
 # champlin@email.arizona.edu
+# Last edited: 6/20/2019
 #
 # =============================================================================
 # *Please read all comments before running Makefile*
@@ -52,7 +53,7 @@ data:
 $(RAW)/FAOSTAT: $(RAW)
 $(RAW)/WDI/WDIData.csv: $(RAW)
 $(RAW)/FEWS: $(RAW)
-PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/wm_12_month_4_reader_20190118.json
+PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/jsonld-merged20190404.json
 $(PREASSEMBLED_CORPUS): $(RAW)
 $(DSSAT_DATA): $(RAW)
 $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv: $(RAW)
@@ -76,6 +77,9 @@ dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
 data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
+	
+data/south_sudan_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
+	python $<
 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
@@ -87,7 +91,8 @@ data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
-						   data/south_sudan_data_dssat.tsv
+						   data/south_sudan_data_dssat.tsv\
+						   data/south_sudan_data_UNHCR.tsv
 	python $< --combine
 
 data/indicator_flat_list.txt: data/south_sudan_data.tsv
@@ -160,22 +165,20 @@ build:
 #Set SCENARIO to evaluations for precipitation build and hackathon for human migration build.
 SCENARIO := hackathon
 
-build/pruned_corpus.json: $(RAW) $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) | build 
-	python $(SCENARIO)/create_pruned_corpus.py $(PREASSEMBLED_CORPUS) $@
-
-build/all_sts.pkl: $(SCENARIO)/create_all_sts.py build/pruned_corpus.json
+build/all_sts.pkl: $(SCENARIO)/create_all_sts.py $(PREASSEMBLED_CORPUS) 
 	python $^ $@
 
 build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
 	python $^ $@
 
 build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
-									  build/reference_cag.pkl
+													  build/reference_cag.pkl\
+													  data/delphi.db
 	python $^ $@
 
 build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-							   build/scenario_centered_CAG.pkl\
-							   data/delphi.db
+										 build/scenario_centered_CAG.pkl\
+										 data/delphi.db
 	python $< build/scenario_centered_CAG.pkl $@
 
 build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\

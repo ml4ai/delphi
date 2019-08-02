@@ -54,20 +54,22 @@ mkdir -p tmp
 for file in "$@"; do
     base=$(basename "$file")
     extension=${base##*.}
+    targetDir="tmp/"
     base=${base%.*}
-    processedFile=tmp/"$base"_processed."$extension"
-    pickleFile=tmp/"$base"_pickle
-    astFile=tmp/"$base".xml
-    rectifiedAstFile=tmp/rectified_"$base".xml
+    processedFile="$targetDir$base"_processed."$extension"
+    pickleFile="$targetDir$base"_pickle
+    astFile="$targetDir$base".xml
+    rectifiedAstFile="$targetDir"rectified_"$base".xml
     ( set -x; $PYTRANSLATE preprocessor.py "$file" "$processedFile") 
     ( set -x; java fortran.ofp.FrontEnd --class fortran.ofp.XMLPrinter --verbosity 0 "$processedFile" > "$astFile")
-    ( set -x; $PYTRANSLATE rectify.py "$astFile")
+    echo "Filename: $rectifiedAstFile"
+    ( set -x; $PYTRANSLATE rectify.py -f "$astFile" -g "$rectifiedAstFile")
 
-    pyFile=tmp/"$base".py
-    outputFileList=tmp/"$base"_outputList.txt
+    pyFile="$targetDir$base".py
+    outputFileList="$targetDir$base"_outputList.txt
     ( set -x; $PYTRANSLATE translate.py -f "$rectifiedAstFile" -g "$pickleFile" -i "$file")
-    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -o "$outputFileList")
+    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -t "$targetDir" -o "$outputFileList")
     pyFiles+=" $pyFile"
 done
 
-( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList)
+( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList -g $file)

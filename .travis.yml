@@ -1,14 +1,27 @@
-language: python
+dist: xenial
+language: 
+ - python
+ - cpp
+
+compiler:
+  - gcc
 
 python:
   - "3.6"
 
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
     packages:
+    - g++-8
     - graphviz
+    - doxygen
 
 install:
+  - export CC=gcc-8
+  - export CXX=g++-8
+  - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
   - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
@@ -26,6 +39,7 @@ deploy:
   github-token: $GITHUB_TOKEN
   on:
     branch: master
+
 
 after_success: bash <(curl -s https://codecov.io/bash)
 
