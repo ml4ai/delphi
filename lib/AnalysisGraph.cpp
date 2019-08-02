@@ -101,8 +101,6 @@ public:
     int num_verts = boost::num_vertices(graph);
 
     for (int vert = 0; vert < num_verts; ++vert) {
-      // this->A_beta_factors.push_back( vector< Tran_Mat_Cell * >( num_verts
-      // ));
       this->A_beta_factors.push_back(
           vector<std::shared_ptr<Tran_Mat_Cell>>(num_verts));
     }
@@ -115,7 +113,6 @@ public:
       for (int col = 0; col < num_verts; ++col) {
         cout << endl
              << "Printing cell: (" << row << ", " << col << ") " << endl;
-        // if( this->A_beta_factors[ row ][ col ] != nullptr )
         if (this->A_beta_factors[row][col]) {
           this->A_beta_factors[row][col]->print_beta2product();
         }
@@ -124,36 +121,30 @@ public:
   }
 
 private:
-  // Maps each concept name to the vertex id of the vertex that concept is
-  // represented in the CAG
+  // Maps each concept name to the vertex id of the
+  // vertex that concept is represented in the CAG
+  // concept name --> CAV vertex id
   std::unordered_map<string, int> name_to_vertex = {};
 
-  // A_beta_factors is a 2D array (vector of vectors)
-  // that keeps track of the β factors involved with
-  // each cell of the transition matrix A.
+  // A_beta_factors is a 2D array (vector of vectors) that keeps track
+  // of the β factors involved with each cell of the transition matrix A.
   //
   // Accordign to our current model, which uses variables and their partial
   // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
-  // atmost half of the transition matrix cells are affected by βs.
+  // atmost half of the transition matrix cells can be affected by βs.
   // According to the way we organize the transition matrix, the cells
-  // A[row][col]
-  // where row is an even index and col is an odd index are such cells.
+  // A[row][col] where row is an even index and col is an odd index
+  // are such cells.
   //
-  // Each cell of matrix A_beta_factors represent
-  // all the directed paths starting at the vertex equal to the
-  // column index of the matrix and ending at the vertex equal to
-  // the row index of the matrix.
+  // Each cell of matrix A_beta_factors represent all the directed paths
+  // starting at the vertex equal to the column index of the matrix and
+  // ending at the vertex equal to the row index of the matrix.
   //
   // Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.
-  // vector< vector< Tran_Mat_Cell * >> A_beta_factors;
-  // vector< vector< std::unique_ptr< Tran_Mat_Cell >>> A_beta_factors;
   vector<vector<std::shared_ptr<Tran_Mat_Cell>>> A_beta_factors;
-  // std::unique_ptr<Tran_Mat_Cell> ptr = std::unique_ptr<Tran_Mat_Cell>( new
-  // Tran_Mat_Cell( 0, 0 ) );
-  std::shared_ptr<int> ptr = std::shared_ptr<int>(new int(3));
 
-  // A set of (row, column) numbers of the 2D matrix A_beta_factors where
-  // the cell (row, column) depends on β factors.
+  // A set of (row, column) numbers of the 2D matrix A_beta_factors
+  // where the cell (row, column) depends on β factors.
   set<pair<int, int>> beta_dependent_cells;
 
   // Maps each β to all the transition matrix cells that are dependent on it.
@@ -162,18 +153,19 @@ private:
   double t = 0.0;
   double delta_t = 1.0;
   vector<Eigen::VectorXd> s0;
-  Eigen::VectorXd s0_original;
-  Eigen::MatrixXd A_original;
-  // This is the transition matrix that is evolved by sampling.
-  // Since variable A has been already used locally in other methods
-  // I chose to name this _A_. After refactoring the code, we could
-  // rename this to A.
-  // Eigen::MatrixXd _A_;
-  // initial latent state
+
+  // Latent state that is evolved by sampling.
   // Since s0 is used to represent a sequence of latent states,
-  // I named this _s0_. Once things are refactored, we might be able to
+  // I named this s0_original. Once things are refactored, we might be able to
   // convert this to s0
-  // Eigen::VectorXd _s0_;
+  Eigen::VectorXd s0_original;
+
+  // Transition matrix that is evolved by sampling.
+  // Since variable A has been already used locally in other methods,
+  // I chose to name this A_orginal. After refactoring the code, we could
+  // rename this to A.
+  Eigen::MatrixXd A_original;
+
   int n_timesteps;
 
   // Accumulates the transition matrices for accepted samples
@@ -185,9 +177,9 @@ private:
   // latent_state_sequences[ sample ][ time step ]
   vector<vector<Eigen::VectorXd>> training_latent_state_sequence_s;
 
-  // prediction_initial_latent_state_s.size() = this->res
   // This is a column of the 
   // this->training_latent_state_sequence_s
+  // prediction_initial_latent_state_s.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
   // from this->training_latent_state_sequence_s, we can get rid of this
   vector<Eigen::VectorXd> prediction_initial_latent_state_s;
@@ -198,14 +190,20 @@ private:
   vector<vector<Eigen::VectorXd>> predicted_latent_state_sequence_s;
 
   // Access this as
-  // prediction_observed_state_sequence_s[ sample ][ time step ][ vertex ][ indicator ]
+  // prediction_observed_state_sequence_s
+  //                            [ sample ][ time step ][ vertex ][ indicator ]
   vector<vector<vector<vector<double>>>> predicted_observed_state_sequence_s;
 
   // Sampling resolution. Default is 200
   int res = 200;
+
+  // Training start
   int init_training_year;
   int init_training_month;
 
+  // Keep track whether the model is trained.
+  // Used to check whether there is a trained model before calling
+  // generate_prediction()
   bool trained = false;
 
   // Access this as
@@ -221,9 +219,8 @@ private:
   vector<vector<vector<vector<double>>>> observed_state_sequences;
 
   // TODO: In the python file I cannot find the place where
-  // self.observed_state_sequence gets populated.
-  // It only appears within the calculate_log_likelihood and
-  // there it is beign accessed!!!
+  // self.observed_state_sequence gets populated. It only appears within the
+  // calculate_log_likelihood and there it is beign accessed!!!
   // I am defining this here so taht I can complete the implementation of
   // calculate_log_likelihood().
   // This needs to be populated sometime before calling that function!!!
@@ -235,19 +232,8 @@ private:
 
   // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
-  // got rejected.
-  // In the python implementation the variable original_value
-  // was used for the same purpose.
+  // gets rejected.
   pair<boost::graph_traits<DiGraph>::edge_descriptor, double> previous_beta;
-
-  // TODO: I am introducing this variable as a substitute for
-  // self.original_value
-  // found in the python implementation to implement calculate_Δ_log_prior()
-  //
-  // Cells of the transition matrix that got chagned after perturbing a β
-  // and their previous values.
-  // A vector of triples - (row, column, previous value)
-  // vector< tuple< int, int, double >> A_cells_changed;
 
   // To keep track whetehr the log_likelihood is initialized for the 1st time
   bool log_likelihood_initialized = false;
@@ -260,7 +246,6 @@ private:
   /**
    * Finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
-   * Paths found are appended to the influenced_by data structure in the Node
    * Uses find_all_paths_between_util() as a helper to recursively find the
    * paths
    */
@@ -275,10 +260,16 @@ private:
   }
 
   /**
-   * Used by find_all_paths_between()
    * Recursively finds all the simple paths starting at the start vertex and
-   * ending at the end vertex.
-   * Paths found are appended to the influenced_by data structure in the Node
+   * ending at the end vertex. Used by find_all_paths_between()
+   * Paths found are added to the Tran_Mat_Cell object that is tracking the
+   * transition matrix cell (2*end, 2*start)
+   * 
+   * @param start: Start vertex of the path
+   * @param end  : End vertex of the path
+   * @param path : A path starting at vettex start that is being explored
+   *
+   * @return void
    */
   void find_all_paths_between_util(int start, int end, vector<int> &path) {
     // Mark the current vertex visited
@@ -293,10 +284,7 @@ private:
     //   this transition matrix cell.
     if (start == end) {
       // Add this path to the relevant transition matrix cell
-      // if( A_beta_factors[ path.back() ][ path[0] ] == nullptr )
       if (!A_beta_factors[path.back()][path[0]]) {
-        // this->A_beta_factors[ path.back() ][ path[0] ] = new Tran_Mat_Cell(
-        // path[0], path.back() );
         this->A_beta_factors[path.back()][path[0]].reset(
             new Tran_Mat_Cell(path[0], path.back()));
       }
@@ -315,7 +303,7 @@ private:
 
     } else {
       // Current vertex is not the destination
-      // Process all the vertices adjacent to the current node
+      // Recursively process all the vertices adjacent to the current vertex 
       for_each(successors(start), [&](int v) {
         if (!graph[v].visited) {
           this->find_all_paths_between_util(v, end, path);
@@ -351,8 +339,8 @@ private:
     return init_st;
   }
 
-  // Random number generator shared by all
-  // the random number generation tasks of AnalysisGraph
+  // Random number generator shared by all the
+  // random number generation tasks of AnalysisGraph
   // Note: If we are usign multiple threads, they should not share
   // one generator. We need to have a generator per thread
   std::mt19937 rand_num_generator;
@@ -377,48 +365,17 @@ private:
 
     this->construct_beta_pdfs();
     this->find_all_paths();
-
-    /*
-    int iter = 1e9;
-    boost::progress_display progress_bar(iter);
-    boost::progress_timer t;
-    double temp;
-    for( int i = 1; i < iter/2; i++)
-    {
-      temp = sin(i) / i;
-      ++progress_bar;
-    }
-    for( int i = 1; i < iter/2; i++)
-    {
-      temp = sin(i) / i;
-      ++progress_bar;
-    }
-    */
   }
 
 public:
   ~AnalysisGraph() {
-    // Free memeroy allocated for Tran_Mat_Cell objects
-    // that were used track β dependent cells in the transition matrix
-    /*
-    for( auto & [row, col] : this->beta_dependent_cells )
-    {
-      //if( this->A_beta_factors[ row ][ col ] != nullptr )
-      {
-        cout << "Freeing (" << row << ", " << col << ")\n";
-        cout << this->A_beta_factors[ row ][ col ].use_count()<< endl;
-        //this->A_beta_factors[ row ][ col ]->print_paths();
-        //delete this->A_beta_factors[ row ][ col ];
-      }
-    }
-    */
   }
 
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
    * of INDRA statements.
    *
-   * @param filename The path to the file containing the JSON-serialized INDRA
+   * @param filename: The path to the file containing the JSON-serialized INDRA
    * statements.
    */
   static AnalysisGraph from_json_file(string filename) {
@@ -480,7 +437,6 @@ public:
    *
    * @param statements: A vector of Statement objects
    */
-  // static AnalysisGraph from_statements( vector< Statement > statements )
   static AnalysisGraph from_statements(
       vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
           statements) {
@@ -488,24 +444,11 @@ public:
 
     std::unordered_map<string, int> nameMap = {};
 
-    // for ( Statement stmt : statements )
     for (pair<tuple<string, int, string>, tuple<string, int, string>> stmt :
          statements) {
       Event subject = Event(stmt.first);
       Event object = Event(stmt.second);
 
-      // Event subject = stmt.subject;
-      // Event object = stmt.object;
-
-      /*
-      vector< string > concept;
-      boost::split( concept, subject.concept_name, boost::is_any_of( "/" ));
-      string subj_name = concept.back();
-
-      concept.clear();
-      boost::split( concept, object.concept_name, boost::is_any_of( "/" ));
-      string obj_name = concept.back();
-      */
       string subj_name = subject.concept_name;
       string obj_name = object.concept_name;
 
@@ -522,7 +465,6 @@ public:
       auto[e, exists] =
           boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
-      // G[e].evidence.push_back( stmt );
       G[e].evidence.push_back(Statement{subject, object});
     }
     AnalysisGraph ag = AnalysisGraph(G, nameMap);
@@ -542,44 +484,6 @@ public:
 
   auto out_edges(int i) {
     return boost::make_iterator_range(boost::out_edges(i, graph));
-  }
-
-  void set_initial_state() {
-    this->A_original = sample_from_prior()[0];
-    this->s0_original = this->construct_default_initial_state();
-
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-      int src = boost::source(e, this->graph);
-      int tgt = boost::target(e, this->graph);
-
-      // Initialize ∂source / ∂t values
-      // *Loren: See the next comment from me below*
-      this->s0_original(2 * src + 1) =
-          0.1 * this->uni_dist(this->rand_num_generator);
-
-      // this->A_original( 2 * tgt, 2 * src + 1 ) = 0.0;
-    }
-
-    // Given the initial latent state vector and the sampled transition matrix,
-    // sample a sequence of latent states and observed states
-    //
-    // *Loren: So this isn't an absolutely necessary training step, really
-    // sample_from_likelihood is just to generate predictions after the
-    // training process, maybe we should rename it sample_predictions. Also
-    // only the initial latent state needs to be initialized as specified in
-    // the google doc, the rest of the latent_state_sequence is actually
-    // learned from that initial latent state.*
-    this->sample_from_likelihood();
-    this->latent_state_sequence = this->latent_state_sequences[0];
-    this->observed_state_sequence = this->observed_state_sequences[0];
-  }
-
-  void take_step() {
-    cout << "A before step:\n" << this->A_original << endl;
-
-    this->A_original = this->sample_from_posterior(this->A_original);
-
-    cout << "A after step:\n" << this->A_original << endl;
   }
 
   double get_beta(string source_vertex_name, string target_vertex_name) {
@@ -641,8 +545,7 @@ public:
     auto verts = vertices();
 
     // Allocate the 2D array that keeps track of the cells of the transition
-    // matrix
-    // (A) that are dependent on βs.
+    // matrix (A_original) that are dependent on βs.
     // This function can be called anytime after creating the CAG.
     this->allocate_A_beta_factors();
 
@@ -666,7 +569,6 @@ public:
 
     for (int row = 0; row < num_verts; ++row) {
       for (int col = 0; col < num_verts; ++col) {
-        // if( this->A_beta_factors[ row ][ col ] != nullptr )
         if (this->A_beta_factors[row][col]) {
           this->A_beta_factors[row][col]->allocate_datastructures();
         }
@@ -686,7 +588,6 @@ public:
 
     for (int row = 0; row < num_verts; ++row) {
       for (int col = 0; col < num_verts; ++col) {
-        // if( this->A_beta_factors[ row ][ col ] != nullptr )
         if (this->A_beta_factors[row][col]) {
           this->A_beta_factors[row][col]->print_paths();
         }
@@ -723,17 +624,9 @@ public:
    ==========================================================================
   */
 
-  // TODO: Need testing
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void sample_initial_transition_matrix_from_prior() {
-    // Add probability distribution functions constructed from gradable
-    // adjective data to the edges of the analysis graph data structure.
-    // this->construct_beta_pdfs();
-
-    // Find all directed simple paths of the CAG
-    // this->find_all_paths();
-
     int num_verts = boost::num_vertices(this->graph);
 
     // A base transition matrix with the entries that does not change across
@@ -751,7 +644,7 @@ public:
      *  blank cells would be filled with β related values
      *  If we include second order derivatives to the model, there would be
      *  three rows for each variable and some of the off diagonal elements
-     *  of odd indexed rows would be non zero.
+     *  of rows with index % 3 = 1 would be non zero.
      */
     this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
 
@@ -770,8 +663,16 @@ public:
   /**
    * Utility function that converts a time range given a start date and end date
    * into an integer value.
-   * At the moment returns the number of days withing the time range.
+   * At the moment returns the number of months withing the time range.
    * This should be the number of traing data time points we have
+   * 
+   * @param start_year  : Start year of the training data sequence
+   * @param start_month : Start month of the training data sequence
+   * @param end_year    : End year of the training data sequence
+   * @param end_month   : End month of the training data sequence
+   *
+   * @return            : Number of months in the training data sequence
+   *                      Including both start and end months
    */
   int calculate_num_timesteps(int start_year, int start_month, int end_year,
                               int end_month) {
@@ -789,12 +690,20 @@ public:
   }
 
   /**
-   * Get the observed state for a given time point from data. See
-   * data.hpp::get_data_value() for missing data rules.
-   * Note: units are automatically set
-   * according to the parameterization of the given CAG.
-   * NOTE: I changed the name from set_... to get_... since it is more meaninful
-   * here
+   * Get the observed state (values for all the indicators)
+   * for a given time point from data.
+   * See data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set according
+   * to the parameterization of the given CAG.
+   *
+   * @param year    : Year of the time point data is extracted
+   * @param month   : Month of the time point data is extracted
+   * @param country : Country where the data is about
+   * @param state   : State where the data is about
+   *
+   * @return        : Observed state vector for the specified location
+   *                  on the specified time point.
+   *                  Access it as: [ vertex id ][ indicator id ]
    */
   vector<vector<double>> get_observed_state_from_data(
       int year, int month, string country = "South Sudan", string state = "") {
@@ -821,10 +730,18 @@ public:
   }
 
   /**
-   * Set the observed state sequence for a given time range from data. See
-   * data.hpp::get_data_value() for missing data rules. Note: units are
-   * automatically set
-   * according to the parameterization of the given CAG.
+   * Set the observed state sequence for a given time range from data.
+   * The sequence includes both ends of the range.
+   * See data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set according
+   * to the parameterization of the given CAG.
+   *
+   * @param start_year  : Start year of the sequence of data
+   * @param start_month : Start month of the sequence of data
+   * @param end_year    : End year of the sequence of data
+   * @param end_month   : End month of the sequenec of data
+   * @param country     : Country where the data is about
+   * @param state       : State where the data is about
    *
    */
   void set_observed_state_sequence_from_data(int start_year, int start_month,
@@ -910,11 +827,19 @@ public:
     }
   }
 
+  /**
+   * To help experiment with initializing βs to differet values
+   *
+   * @param ib: Criteria to initialize β
+   */
   void init_betas_to( InitialBeta ib = InitialBeta::MEAN )
   {
     switch( ib )
     {
       // Initialize the initial β for this edge
+      // Note: I am repeating the loop within each case for efficiency.
+      // If we embed the switch withn the for loop, there will be less code
+      // but we will evaluate the switch for each iteration through the loop
       case InitialBeta::ZERO:
         for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
           graph[e].beta = 0;
@@ -948,6 +873,20 @@ public:
 
   /**
    * Train a prediction model given a CAG with indicators
+   *
+   * @param start_year  : Start year of the sequence of data
+   * @param start_month : Start month of the sequence of data
+   * @param end_year    : End year of the sequence of data
+   * @param end_month   : End month of the sequenec of data
+   * @param res         : Sampling resolution. The number of samples to retain.
+   * @param burn        : Number of samples to throw away. Start retaining
+   *                      samples after throwing away this many samples.
+   * @param country     : Country where the data is about
+   * @param state       : State where the data is about
+   * @param units       : Units for each indicator. Maps
+   *                      indicator name --> unit
+   * @param initial_beta: Criteria to initialize β
+   *
    */
   void train_model(int start_year = 2012, int start_month = 1,
                    int end_year = 2017, int end_month = 12, int res = 200,
@@ -959,21 +898,6 @@ public:
     this->sample_initial_transition_matrix_from_prior();
     this->parameterize(country,state,start_year,start_month,units);
 
-    /*
-     * Not sure how this affects
-     * *Loren: That's an old artifact that I forgot to remove.
-     * It's because you can pass none as an argument in python and so
-     * parameterize is set to handle Nonetypes in a certain way, but we
-     * specifically want to do our modeling at a monthly rate and so I made the
-    default setting
-     * an actual value instead.
-    if( start_month = 0 )
-    {
-      start_month = 1;
-    }
-    */
-
-
     this->init_training_year = start_year;
     this->init_training_month = start_month;
 
@@ -982,23 +906,13 @@ public:
 
     this->set_initial_latent_state_from_observed_state_sequence();
 
-    // TODO: Why are we doing this? If zeroing out these transision matrix cells
-    // is required, I can do this at
-    // sample_initial_transition_matrix_from_prior()
-    // Zero out the β factor dependent cells of this matrix 
-    /*
-    for (auto & [ row, col ] : this->beta_dependent_cells) {
-      this->A_original(row * 2, col * 2 + 1) = 0.0;
-    }
-    */
-
     // Moving the check whether log_likelihood is set outside from
     // AnalysisGraph::sample_from_posterior(). Making sure it is set
     // when we call AnalysisGraph::sample_from_posterior() is called.
     // TODO: When rest of the code also does this, remove the check
     // from AnalysisGraph::sample_from_posterior().
     // TODO: Ideally, we should nto pass this->_A_ as a parameter, but
-    // make AnalysisGraph::sample_from_posterior() acto on the class
+    // make AnalysisGraph::sample_from_posterior() act on the class
     // member variable. Once the code starts working and other
     // functions are updated, do this modification.
     this->log_likelihood = this->calculate_log_likelihood(this->A_original);
@@ -1061,7 +975,7 @@ public:
   }
 
   /**
-   * Utility function that sets an initial latent states for predictions.
+   * Utility function that sets initial latent states for predictions.
    * During model training a latent state sequence is inferred for each sampled
    * transition matrix, these are then used as the initial states for
    * predictions.
@@ -1073,7 +987,6 @@ public:
    */
   void set_initial_latent_states_for_prediction(int timestep = 0) {
     this->prediction_initial_latent_state_s.clear();
-    // TODO: Verify whether the number of elements allocated is correct
     this->prediction_initial_latent_state_s =
         vector<Eigen::VectorXd>(this->res);
 
@@ -1088,7 +1001,7 @@ public:
    * Sample a collection of observed state sequences from the likelihood
    * model given a collection of transition matrices.
    *
-   * @param n_timesteps: The number of timesteps for the sequences.
+   * @param timesteps: The number of timesteps for the sequences.
    */
   void sample_predicted_latent_state_sequence_s_from_likelihood(int timesteps) {
     this->n_timesteps = timesteps;
@@ -1098,14 +1011,13 @@ public:
     // Allocate memory for prediction_latent_state_sequence_s
     this->predicted_latent_state_sequence_s.clear(); 
     this->predicted_latent_state_sequence_s = vector<vector<Eigen::VectorXd>>(
-        //default_n_samples, // A constant hard coded to be 100. From earlier code
         this->res,
         vector<Eigen::VectorXd>(this->n_timesteps, Eigen::VectorXd(num_verts * 2)));
 
     for (int samp = 0; samp < this->res; samp++) {
       this->predicted_latent_state_sequence_s[samp][0] = this->prediction_initial_latent_state_s[samp];
 
-      for (int ts = 1; ts < n_timesteps; ts++) {
+      for (int ts = 1; ts < this->n_timesteps; ts++) {
         this->predicted_latent_state_sequence_s[samp][ts] =
             this->transition_matrix_collection[samp] *
             this->predicted_latent_state_sequence_s[samp][ts - 1];
@@ -1113,6 +1025,9 @@ public:
     }
   }
 
+  /** Generate predicted observed state sequenes given predicted latent state
+   * sequences using the emission model
+   */
   void generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s()
   {
     // Allocate memory for observed_state_sequences
@@ -1132,7 +1047,26 @@ public:
     }
   }
 
-  //std::pair<vector<string>, vector<vector<vector<vector<double>>>>>
+  /**
+   * Given a trained model, generate this->res number of
+   * predicted observed state sequences.
+   *
+   * @param start_year  : Start year of the prediction
+   *                      Should be >= the start year of training
+   * @param start_month : Start month of the prediction
+   *                      If training and prediction start years are equal
+   *                      should be >= the start month of training
+   * @param end_year    : End year of the prediction
+   * @param end_month   : End month of the prediction
+   *
+   * @return Predicted observed state (indicator value) sequence for the
+   *         prediction period including start and end time points.
+   *         This is a tuple.
+   *         The first element is a vector of strings with lables for each
+   *         time point predicted (year-month).
+   *         The second element contains predicted values. Access it as:
+   *         [ sample number ][ time point ][ vertex name ][ indicator name ]
+   */
   std::pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
   generate_prediction(int start_year, int start_month, int end_year,
                       int end_month) {

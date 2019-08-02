@@ -42,10 +42,10 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("sample_from_proposal_debug",
            &AnalysisGraph::sample_from_proposal_debug,
            py::return_value_policy::reference_internal)
-      .def("set_initial_state", &AnalysisGraph::set_initial_state)
+      //.def("set_initial_state", &AnalysisGraph::set_initial_state)
       .def("get_beta", &AnalysisGraph::get_beta, "source_vertex_name"_a,
            "target_vertex_name"_a)
-      .def("take_step", &AnalysisGraph::take_step)
+      //.def("take_step", &AnalysisGraph::take_step)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators, "n"_a = 1)
