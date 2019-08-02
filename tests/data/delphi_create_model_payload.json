@@ -2822,28 +2822,6 @@
         }
     ],
     "conceptIndicators": {
-      "UN/entities/human/farming": {
-        "func": "mean",
-        "name": "Emissions (CO2eq) (Manure on pasture), Cattle, dairy",
-        "source": "FAO",
-        "values": [
-          {
-            "month": 1,
-            "value": 123,
-            "year": 2010
-          },
-          {
-              "month": 1,
-              "value": 232,
-              "year": 2010
-          },
-          {
-              "month": 1,
-              "value": 454,
-              "year": 2010
-          }
-        ]
-      },
       "UN/entities/human/financial/economic/inflation": {
         "func": "mean",
         "name": "Inflation Rate",

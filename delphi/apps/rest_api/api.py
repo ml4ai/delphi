@@ -233,11 +233,18 @@ def createProjection(modelID):
             d = d + relativedelta(months=1)
 
             for n, attrs in G.nodes(data=True):
-                indicator = list(attrs["indicators"].values())[0]
-                if indicator.samples is not None:
-                    values = sorted(indicator.samples)
+                # If there are indicators, update them.
+                if attrs.get("indicators") is not None:
+                    indicator = list(attrs["indicators"].values())[0]
+                    if indicator.samples is not None:
+                        values = sorted(indicator.samples)
+                    else:
+                        values = sorted([s[n] * indicator.mean for s in G.s0])
+                # Otherwise, just return the latent state values.
                 else:
-                    values = sorted([s[n] * indicator.mean for s in G.s0])
+                    values = sorted([s[n] for s in G.s0])
+
+
                 median_value = median(values)
                 lower_limit = values[lower_rank]
                 upper_limit = values[upper_rank]
@@ -257,7 +264,7 @@ def createProjection(modelID):
                     value_dict.copy()
                 )
 
-            G.update(update_indicators=True, dampen=True, τ=τ)
+                G.update(update_indicators=True, dampen=True, τ=τ)
 
         db.session.add(result)
         db.session.commit()

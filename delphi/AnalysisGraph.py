@@ -272,13 +272,21 @@ class AnalysisGraph(nx.DiGraph):
         }
 
         for node, attrs in G.nodes(data=True):
-            indicator = _dict["conceptIndicators"][node]
-            indicator_name = indicator["name"]
-            indicator_source = indicator["source"]
-            values = [x["value"] for x in indicator["values"]]
-            mean = func_dict[indicator["func"]](values)
-            attrs["indicators"] = {indicator_name: Indicator(indicator_name,
-                indicator_source, mean=mean)}
+            indicator = _dict["conceptIndicators"].get(node)
+            if indicator is not None:
+                indicator_name = indicator["name"]
+                indicator_source = indicator["source"]
+                values = [x["value"] for x in indicator["values"]]
+                mean = func_dict[indicator["func"]](values)
+                attrs["indicators"] = {indicator_name: Indicator(indicator_name,
+                    indicator_source, mean=mean)}
+            else:
+                indicator_name = f"Qualitative measure of {node}"
+                indicator_source = "Delphi"
+                values = [1.0]
+                mean = 1.0
+                attrs["indicators"] = {indicator_name: Indicator(indicator_name,
+                    indicator_source, mean=mean)}
 
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
