@@ -84,6 +84,7 @@ setup(
         "flask",
         "SQLAlchemy",
         "flask-sqlalchemy",
+        "flask-executor",
         "jupyter",
         "jupyter-contrib-nbextensions",
         "python-dateutil",
