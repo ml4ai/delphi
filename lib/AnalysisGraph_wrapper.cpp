@@ -61,6 +61,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
            "state"_a = "",py::arg("units") = map<std::string,std::string>{},
            "initial_beta"_a = InitialBeta::MEAN)
+      .def("set_random_seed", &AnalysisGraph::set_random_seed, "seed"_a)
       .def("generate_prediction", &AnalysisGraph::generate_prediction,
            "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")

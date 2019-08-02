@@ -344,6 +344,9 @@ private:
   // Note: If we are usign multiple threads, they should not share
   // one generator. We need to have a generator per thread
   std::mt19937 rand_num_generator;
+  
+  //Is set by giving an int to set_random_seed()
+  int random_seed;
 
   // Uniform distribution used by the MCMC sampler
   std::uniform_real_distribution<double> uni_dist;
@@ -623,6 +626,19 @@ public:
    This section contains code for sampling and Bayesian inference.
    ==========================================================================
   */
+
+
+  /**
+   * Sets random seed for random number generator
+   *
+   * @param seed : The value (an int) in which to set the random seed
+   *
+   */
+  void set_random_seed(int seed) {
+    this->random_seed = seed;
+    this->rand_num_generator = std::mt19937(this->random_seed);
+  }
+
 
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
