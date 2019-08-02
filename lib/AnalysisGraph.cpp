@@ -1186,6 +1186,15 @@ public:
     return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps - truncate));
   }
 
+  /**
+   * Format the prediction result into a format python callers favor.
+   *
+   * @param pred_timestes: Number of timesteps in the predicted sequence.
+   *
+   * @return Re-formatted prediction result.
+   *         Access it as:
+   *         [ sample number ][ time point ][ vertex name ][ indicator name ]
+   */
   vector< vector< unordered_map< string, unordered_map< string, double >>>> 
   format_prediction_result(int pred_timesteps)
   {
@@ -1210,112 +1219,6 @@ public:
     }
 
     return result;
-  }
-
-  // TODO: Need testing
-  // Sample elements of the stochastic transition matrix from the
-  // prior distribution, based on gradable adjectives.
-  const vector<Eigen::MatrixXd> &sample_from_prior() {
-    // Add probability distribution functions constructed from gradable
-    // adjective data to the edges of the analysis graph data structure.
-    // this->construct_beta_pdfs();
-
-    // Find all directed simple paths of the CAG
-    // this->find_all_paths();
-
-    this->transition_matrix_collection.clear();
-
-    int num_verts = boost::num_vertices(this->graph);
-
-    // A base transition matrix with the entries that does not change across
-    // samples.
-    /*
-     *          0  1  2  3  4  5
-     *  var_1 | 1 Δt             | 0
-     *        | 0  1  0  0  0  0 | 1 ∂var_1 / ∂t
-     *  var_2 |       1 Δt       | 2
-     *        | 0  0  0  1  0  0 | 3
-     *  var_3 |             1 Δt | 4
-     *        | 0  0  0  0  0  1 | 5
-     *
-     *  Based on the directed simple paths in the CAG, some of the remaining
-     *  blank cells would be filled with β related values
-     *  If we include second order derivatives to the model, there would be
-     *  three rows for each variable and some of the off diagonal elements
-     *  of odd indexed rows would be non zero.
-     */
-    Eigen::MatrixXd base_mat =
-        Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
-
-    // Fill the Δts
-    for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-      base_mat(vert, vert + 1) = this->delta_t;
-    }
-
-    for (int samp_num = 0; samp_num < default_n_samples; samp_num++) {
-      // Get a copy of the base transition matrix
-      Eigen::MatrixXd tran_mat(base_mat);
-
-      // Update the β factor dependent cells of this matrix
-      for (auto & [ row, col ] : this->beta_dependent_cells) {
-        tran_mat(row * 2, col * 2 + 1) =
-            this->A_beta_factors[row][col]->sample_from_prior(this->graph,
-                                                              samp_num);
-      }
-
-      this->transition_matrix_collection.push_back(tran_mat);
-    }
-
-    return this->transition_matrix_collection;
-  }
-
-  // TODO: Need testing
-  /**
-   * Sample a collection of observed state sequences from the likelihood
-   * model given a collection of transition matrices.
-   *
-   * @param n_timesteps: The number of timesteps for the sequences.
-   */
-  void sample_from_likelihood(int n_timesteps = 10) {
-    this->n_timesteps = n_timesteps;
-
-    int num_verts = boost::num_vertices(this->graph);
-
-    // Allocate memory for latent_state_sequences
-    this->latent_state_sequences = vector<vector<Eigen::VectorXd>>(
-        //default_n_samples, // A constant hard coded to be 100. From earlier code
-        this->res,
-        vector<Eigen::VectorXd>(n_timesteps, Eigen::VectorXd(num_verts * 2)));
-
-    //default_n_samples is a constant hard coded to be 100. From earlier code
-    //for (int samp = 0; samp < default_n_samples; samp++) {
-    for (int samp = 0; samp < this->res; samp++) {
-      this->latent_state_sequences[samp][0] = this->s0_original;
-
-      for (int ts = 1; ts < n_timesteps; ts++) {
-        this->latent_state_sequences[samp][ts] =
-            this->transition_matrix_collection[samp] *
-            this->latent_state_sequences[samp][ts - 1];
-      }
-    }
-
-    // Allocate memory for observed_state_sequences
-    this->observed_state_sequences = vector<vector<vector<vector<double>>>>(
-        //default_n_samples, // A constant hard coded to be 100. From earlier code
-        this->res,
-        vector<vector<vector<double>>>(n_timesteps, vector<vector<double>>()));
-
-    //default_n_samples is a constant hard coded to be 100. From earlier code
-    //for (int samp = 0; samp < default_n_samples; samp++) {
-    for (int samp = 0; samp < this->res; samp++) {
-      vector<Eigen::VectorXd> &sample = this->latent_state_sequences[samp];
-
-      std::transform(sample.begin(), sample.end(),
-                     this->observed_state_sequences[samp].begin(),
-                     [this](Eigen::VectorXd latent_state) {
-                       return this->sample_observed_state(latent_state);
-                     });
-    }
   }
 
   // TODO: Need testing
@@ -1361,29 +1264,11 @@ public:
     return observed_state;
   }
 
-  // A method just to test sample_from_proposal( Eigen::MatrixXd A )
-  // Just for debugging purposese
-  void sample_from_proposal_debug() {
-    int num_verts = boost::num_vertices(this->graph);
-
-    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2 * num_verts, 2 * num_verts);
-    // Update the β factor dependent cells of this matrix
-    for (auto & [ row, col ] : this->beta_dependent_cells) {
-      A(row * 2, col * 2 + 1) =
-          this->A_beta_factors[row][col]->compute_cell(this->graph);
-    }
-    cout << endl << "Before Update: " << endl << A << endl;
-
-    this->sample_from_proposal(A);
-
-    cout << endl << "After Update: " << endl << A << endl;
-  }
-
   /**
    * Find all the transition matrix (A) cells that are dependent on the β
    * attached to the provided edge and update them.
    *
-   * @param A: The current transitin matrix
+   * @param A: The current transition matrix
    * @param e: The directed edge ≡ β that has been perturbed
    */
   void update_transition_matrix_cells(
@@ -1545,33 +1430,6 @@ public:
     // We have to return: log( p( β_new )) - log( p( β_old ))
     return kde.logpdf(this->graph[this->previous_beta.first].beta) -
            kde.logpdf(this->previous_beta.second);
-
-    /*
-    vector< double > log_diffs( this->A_cells_changed.size() );
-
-    std::transform( this->A_cells_changed.begin(), this->A_cells_changed.end(),
-                    log_diffs.begin(),
-                    [&]( tuple< int, int, double > cell )
-                    {
-                      int & source = std::get< 0 >( cell );
-                      int & target = std::get< 1 >( cell );
-                      double & prev_val = std::get< 2 >( cell );
-
-                      const pair< boost::graph_traits< DiGraph
-    >::edge_descriptor, bool > & e = boost::edge( source, target, this->graph);
-
-                      // If kde of an edge is truely optional ≡ there are some
-                      // edges without a kde assigned, we should not access it
-                      // using .value() (In the case of kde being missing, this
-                      // with throw and exception). We should follow a process
-                      // similar to Tran_Mat_Cell::sample_from_prior
-                      KDE & kde = this->graph[ e.first ].kde.value();
-
-                      return kde.logpdf( A( 2 * source, 2 * target + 1 ) /
-    this->delta_t ) - kde.logpdf( prev_val / this->delta_t );
-                    });
-    return std::accumulate( log_diffs.begin(), log_diffs.end(), 0.0 );
-    */
   }
 
   /**
@@ -1620,109 +1478,6 @@ public:
     return A;
   }
 
-  /*
-    ==========================================================================
-    Basic Modeling Interface (BMI)
-    ==========================================================================
-  */
-  //*Loren: So this section in AnalysisGraph.py is outdated and is not
-  // currently used at all in evaluation.py. I think originally it was here to
-  // control all modeling aspects such as the training and predictions, but has
-  // been solely neglected. I found that it was basically easier to just work
-  // around it than update this section. I think we can talk about revamping
-  // this section, especially the config file aspect will be useful going
-  // forward.*
-
-  /**
-   * Create a BMI config file to initialize the model.
-   *
-   * @param filename: The filename with which the config file should be saved.
-   */
-  void create_bmi_config_file(string filename = "bmi_config.txt") {
-    Eigen::VectorXd s0 = this->construct_default_initial_state();
-
-    std::ofstream file(filename.c_str());
-
-    file << s0;
-
-    file.close();
-  }
-
-  /**
-   * The default update function for a CAG node.
-   *
-   * @param vert_id: vertex id of the CAG node
-   *
-   * @return A vector of values corresponding to the distribution of the value
-   * of
-   *         the real-valued variable representing the node.
-   */
-  vector<double> default_update_function(int vert_id) {
-    vector<double> xs(default_n_samples);
-
-    // Note: Both transition_matrix_collection and s0 should have
-    //       default_n_samples elements.
-    std::transform(this->transition_matrix_collection.begin(),
-                   this->transition_matrix_collection.end(), this->s0.begin(),
-                   xs.begin(), [&](Eigen::MatrixXd A, Eigen::VectorXd s) {
-                     // The row of the transition matrix (A) that is associated
-                     // with vertex vert_id = 2 * vert_id
-                     return A.row(2 * vert_id) * s;
-                   });
-
-    return xs;
-  }
-
-  /**
-   * Initialize the executable AnalysisGraph with a config file.
-   *
-   * @param initialize_indicators: Boolean flag that sets whether indicators
-   * are initialized as well.
-   */
-  void initialize(bool initialize_indicators = true) {
-    this->t = 0.0;
-
-    // Create a 'reference copy' of the initial latent state vector
-    //    indexes 2*v keeps track of the state of each variable v
-    //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-    this->s0_original = this->construct_default_initial_state();
-
-    // Create default_n_samples copies of the initial latent state vector
-    this->s0 = vector(default_n_samples, this->s0_original);
-
-    for (int v : this->vertices()) {
-      this->graph[v].rv.name = this->graph[v].name;
-      this->graph[v].rv.dataset = vector<double>(default_n_samples, 1.0);
-      this->graph[v].rv.partial_t = this->s0_original[2 * v + 1];
-      // TODO: Need to add the update_function variable to the node
-      // n[1]["update_function"] = self.default_update_function
-      // graph[ v ].update_function = ????;
-
-      if (initialize_indicators) {
-        for (Indicator ind : graph[v].indicators) {
-          vector<double> &dataset = this->graph[v].rv.dataset;
-
-          ind.samples.clear();
-          ind.samples = vector<double>(dataset.size());
-
-          // Sample observed value of each indicator around the mean of the
-          // indicator
-          // scaled by the value of the latent state that caused this
-          // observation.
-          // TODO: Question - Is ind.mean * rv_datun correct?
-          //                  Shouldn't it be ind.mean + rv_datum?
-          std::transform(dataset.begin(), dataset.end(), ind.samples.begin(),
-                         [&](int rv_datum) {
-                           std::normal_distribution<double> gaussian(
-                               ind.mean * rv_datum, 0.01);
-
-                           return gaussian(this->rand_num_generator);
-                         });
-        }
-      }
-    }
-  }
-
   // ==========================================================================
   // Manipulation
   // ==========================================================================
@@ -1740,6 +1495,7 @@ public:
     }
   }
 
+  /*
   // TODO: Demosntrate how to use the Node::get_indicator() method
   // with the custom exception.
   // Not sure whether we need this method in AnalaysisGraph
@@ -1761,6 +1517,7 @@ public:
                 << " is not attached to CAG node " << concept << endl;
     }
   }
+  */
 
   void replace_indicator(string concept, string indicator_old,
                          string indicator_new, string source) {
