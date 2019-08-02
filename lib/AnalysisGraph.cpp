@@ -961,14 +961,14 @@ public:
     for (int _ = 0; _ < burn; _++) {
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
-      this->A_original = this->sample_from_posterior(this->A_original);
+      this->A_original = this->sample_from_posterior();
       ++progress_bar;
     }
 
     for (int samp = 0; samp < this->res; samp++) {
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
-      this->A_original = this->sample_from_posterior(this->A_original);
+      this->A_original = this->sample_from_posterior();
       // this->training_sampled_transition_matrix_sequence[samp] =
       this->transition_matrix_collection[samp] = this->A_original;
       this->training_latent_state_sequence_s[samp] =
@@ -1426,16 +1426,16 @@ public:
   /**
    * Run Bayesian inference - sample from the posterior distribution.
    */
-  Eigen::MatrixXd sample_from_posterior(Eigen::MatrixXd A) {
+  Eigen::MatrixXd sample_from_posterior() {
     // Sample a new transition matrix from the proposal distribution
-    this->sample_from_proposal(A);
+    this->sample_from_proposal(this->A_original);
 
     // TODO: AnalysisGraph::calculate_delat_log_prior() method is not properly
     // implemented. Only a stub is implemented.
-    double delta_log_prior = this->calculate_delta_log_prior(A);
+    double delta_log_prior = this->calculate_delta_log_prior(this->A_original);
 
     double original_log_likelihood = this->log_likelihood;
-    double candidate_log_likelihood = this->calculate_log_likelihood(A);
+    double candidate_log_likelihood = this->calculate_log_likelihood(this->A_original);
     double delta_log_likelihood =
         candidate_log_likelihood - original_log_likelihood;
 
@@ -1453,10 +1453,10 @@ public:
       // Reset the transition matrix cells that were changed
       // TODO: Can we change the transition matrix only when the sample is
       // accpeted?
-      this->update_transition_matrix_cells(A, this->previous_beta.first);
+      this->update_transition_matrix_cells(this->A_original, this->previous_beta.first);
     }
 
-    return A;
+    return this->A_original;
   }
 
   // ==========================================================================

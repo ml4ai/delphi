@@ -30,7 +30,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_cells_affected_by_beta",
            &AnalysisGraph::print_cells_affected_by_beta, "source"_a, "target"_a)
       .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,
-           "A"_a, py::return_value_policy::reference_internal)
+           py::return_value_policy::reference_internal)
       .def("get_beta", &AnalysisGraph::get_beta, "source_vertex_name"_a,
            "target_vertex_name"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
