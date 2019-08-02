@@ -235,9 +235,6 @@ private:
   // gets rejected.
   pair<boost::graph_traits<DiGraph>::edge_descriptor, double> previous_beta;
 
-  // To keep track whetehr the log_likelihood is initialized for the 1st time
-  bool log_likelihood_initialized = false;
-
   double log_likelihood;
 
   AnalysisGraph(DiGraph G, std::unordered_map<string, int> name_to_vertex)
@@ -922,17 +919,11 @@ public:
 
     this->set_initial_latent_state_from_observed_state_sequence();
 
-    // Moving the check whether log_likelihood is set outside from
-    // AnalysisGraph::sample_from_posterior(). Making sure it is set
-    // when we call AnalysisGraph::sample_from_posterior() is called.
-    // TODO: When rest of the code also does this, remove the check
-    // from AnalysisGraph::sample_from_posterior().
     // TODO: Ideally, we should nto pass this->_A_ as a parameter, but
     // make AnalysisGraph::sample_from_posterior() act on the class
     // member variable. Once the code starts working and other
     // functions are updated, do this modification.
     this->log_likelihood = this->calculate_log_likelihood(this->A_original);
-    this->log_likelihood_initialized = true;
 
     // Accumulates the transition matrices for accepted samples
     // Access: [ sample number ]
@@ -1436,16 +1427,6 @@ public:
    * Run Bayesian inference - sample from the posterior distribution.
    */
   Eigen::MatrixXd sample_from_posterior(Eigen::MatrixXd A) {
-    // TODO: This check will be called for each sample and will be false
-    // except for the 1st time. It is better to remove this and initialize
-    // log_likelihood just after sampling the initial transition matrix A,
-    // make sure log_likelihood is initialize before calling this method
-    // and get rid of this check from here.
-    if (!this->log_likelihood_initialized) {
-      this->log_likelihood = this->calculate_log_likelihood(A);
-      this->log_likelihood_initialized = true;
-    }
-
     // Sample a new transition matrix from the proposal distribution
     this->sample_from_proposal(A);
 
