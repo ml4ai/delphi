@@ -48,7 +48,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
            "state"_a = "",py::arg("units") = map<std::string,std::string>{},
            "initial_beta"_a = InitialBeta::MEAN)
-      .def("set_random_seed", &AnalysisGraph::set_random_seed, "seed"_a)
       .def("generate_prediction", &AnalysisGraph::generate_prediction,
            "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")
@@ -75,4 +74,8 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("get_aggregation_method", &Indicator::get_aggregation_method)
       .def("get_timeseries", &Indicator::get_timeseries)
       .def("get_samples", &Indicator::get_samples);
+  py::class_<RNG>(m, "RNG")
+      .def_static("rng",&RNG::rng)
+      .def("set_seed",&RNG::set_seed, "seed"_a)
+      .def("get_seed",&RNG::get_seed);
 }
