@@ -18,6 +18,7 @@
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
 #include <fmt/format.h>
+#include "rng.hpp"
 
 #include <typeinfo>
 
@@ -336,26 +337,20 @@ private:
     return init_st;
   }
 
-  // Random number generator shared by all the
-  // random number generation tasks of AnalysisGraph
-  // Note: If we are usign multiple threads, they should not share
-  // one generator. We need to have a generator per thread
   std::mt19937 rand_num_generator;
   
-  //Is set by giving an int to set_random_seed()
-  int random_seed;
-
   // Uniform distribution used by the MCMC sampler
   std::uniform_real_distribution<double> uni_dist;
 
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
 
+
   void initialize_random_number_generator() {
     // Define the random number generator
     // All the places we need random numbers, share this generator
-    std::random_device rd;
-    this->rand_num_generator = std::mt19937(rd());
+    
+    this->rand_num_generator = RNG::rng()->get_RNG();
 
     // Uniform distribution used by the MCMC sampler
     this->uni_dist = std::uniform_real_distribution<double>(0.0, 1.0);
@@ -431,6 +426,7 @@ public:
     return ag;
   }
 
+ 
   /**
    * A method to construct an AnalysisGraph object given from a vector of
    * ( subject, object ) pairs (Statements)
@@ -624,17 +620,6 @@ public:
    ==========================================================================
   */
 
-
-  /**
-   * Sets random seed for random number generator
-   *
-   * @param seed : The value (an int) in which to set the random seed
-   *
-   */
-  void set_random_seed(int seed) {
-    this->random_seed = seed;
-    this->rand_num_generator = std::mt19937(this->random_seed);
-  }
 
 
   // Sample elements of the stochastic transition matrix from the
