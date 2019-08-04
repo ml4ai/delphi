@@ -2,9 +2,9 @@ docs:
 	cd docs; make html
 
 extensions: 
-	mkdir -p build
-	cd build; cmake ..; cmake --build . -- -j
-	cp build/*.so delphi/cpp
+	mkdir -p build && \
+	cd build  && cmake .. &&  cmake --build . -- -j && \
+	cp *.so ../delphi/cpp
 
 test: extensions
 	time pytest \

@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(Boost_NO_BOOST_CMAKE ON)
 # Add and link pybind11 modules
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake:${CMAKE_MODULE_PATH}")
-find_package(SQLite3)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(SQLite3 REQUIRED)
+if (SQLITE3_FOUND)
+  include_directories(${SQLITE3_INCLUDE_DIRS})
+  target_link_libraries (extension PUBLIC ${SQLITE3_LIBRARIES})
+endif (SQLITE3_FOUND)
 find_package(Boost REQUIRED)
 include_directories(lib)
 include_directories(external)
