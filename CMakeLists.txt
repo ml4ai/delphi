@@ -3,6 +3,7 @@ project(delphi)
 
 set(Boost_NO_BOOST_CMAKE ON)
 # Add and link pybind11 modules
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake:${CMAKE_MODULE_PATH}")
 find_package(SQLite3)
 find_package(Boost REQUIRED)
 include_directories(lib)
