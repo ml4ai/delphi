@@ -1,0 +1,1 @@
+{ "baseType": "ForwardProjection", "interventions": [ { "id": "", "values": { "active": "ACTIVE", "time": "2019-01-31", "value": { "baseType": "FloatValue", "value": 0.4 } } }], "projection": { "startTime": "2019-01-31", "numSteps": 6, "stepSize": "MONTH" }, "options": { "timeout": 60000 } }

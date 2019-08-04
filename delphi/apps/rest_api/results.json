@@ -1,0 +1,235 @@
+{
+  "baseType": "ForwardProjectionResult", 
+  "id": "f92e5b6b-c9ec-4064-8af2-184e60a69c70", 
+  "projection": {}, 
+  "results": [
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-02-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-02-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-02-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-02-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-03-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-03-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-03-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-03-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-04-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-04-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-04-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-04-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-05-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-05-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-05-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-05-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-06-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-06-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-06-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-06-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-07-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "0b34a837-5649-4272-8033-0d5405fec14c", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-07-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }, 
+    {
+      "baseline": {
+        "active": "ACTIVE", 
+        "time": "2019-07-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }, 
+      "id": "73b9f95a-ebfa-4aea-af6a-44ac5a635975", 
+      "intervened": {
+        "active": "ACTIVE", 
+        "time": "2019-07-28T00:00:00", 
+        "value": {
+          "baseType": "FloatValue", 
+          "value": 1.0
+        }
+      }
+    }
+  ]
+}
