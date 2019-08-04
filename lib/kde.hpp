@@ -10,6 +10,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/range/numeric.hpp>
 #include "utils.hpp"
+#include "rng.hpp"
 
 using std::vector 
     , boost::accumulate
@@ -39,7 +40,7 @@ double mean(vector<double> v) { return sum(v) / v.size(); }
  * Returns a randomly selected element of a vector.
  */
 template <class T> T select_random_element(vector<T> v) {
-  boost::random::mt19937 gen;
+  std::mt19937 gen = RNG::rng()->get_RNG();
   boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
   return v[dist(gen)];
 }
@@ -48,8 +49,7 @@ double sample_from_normal(
     double mu = 0.0, /**< The mean of the distribution.*/
     double sd = 1.0  /**< The standard deviation of the distribution.*/
 ) {
-  std::random_device rd{};
-  std::mt19937 gen{rd()};
+  std::mt19937 gen = RNG::rng()->get_RNG();
   std::normal_distribution<> d{mu, sd};
   return d(gen);
 }

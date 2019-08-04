@@ -27,7 +27,7 @@ double get_data_value(string indicator,
       sqlite3_finalize(stmt);
     }
     else {
-      fmt::print("Could not find data for country {}. Averaging data over all countries for given axes (Default Setting)",country);
+      fmt::print("Could not find data for country {}. Averaging data over all countries for given axes (Default Setting)\n",country);
       sqlite3_finalize(stmt);
     }
   }
@@ -41,7 +41,7 @@ double get_data_value(string indicator,
       sqlite3_finalize(stmt);
     }
     else {
-      fmt::print("Could not find data for state {}. Averaging data over all states for given axes (Default Setting)",state);
+      fmt::print("Could not find data for state {}. Averaging data over all states for given axes (Default Setting)\n",state);
       sqlite3_finalize(stmt);
     }
   }
@@ -55,7 +55,7 @@ double get_data_value(string indicator,
       sqlite3_finalize(stmt);
     }
     else {
-      fmt::print("Could not find data for unit {}. Using first unit in alphabetical order (Default Setting)",unit);
+      fmt::print("Could not find data for unit {}. Using first unit in alphabetical order (Default Setting)\n",unit);
       sqlite3_finalize(stmt);
       std::vector< std::string > units;
       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
@@ -121,7 +121,7 @@ double get_data_value(string indicator,
     return sum/vals.size();
   }
   else {
-    fmt::print("No data found for {0},{1}. Averaging over all months for {1} (Default Setting)",month,year);
+    fmt::print("No data found for {0},{1}. Averaging over all months for {1} (Default Setting)\n",month,year);
     sqlite3_finalize(stmt);
   }
 
@@ -138,7 +138,7 @@ double get_data_value(string indicator,
     return sum/vals.size();
   }
   else {
-    fmt::print("No data found for {}. Averaging over all years (Default Setting)",year);
+    fmt::print("No data found for {}. Averaging over all years (Default Setting)\n",year);
     sqlite3_finalize(stmt);
   }
 

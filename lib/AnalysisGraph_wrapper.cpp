@@ -8,6 +8,12 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 PYBIND11_MODULE(AnalysisGraph, m) {
+  py::enum_<InitialBeta>(m, "InitialBeta")
+      .value("ZERO", InitialBeta::ZERO)
+      .value("ONE", InitialBeta::ONE)
+      .value("HALF", InitialBeta::HALF)
+      .value("MEAN", InitialBeta::MEAN)
+      .value("RANDOM", InitialBeta::RANDOM);
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a)
       .def_static("from_statements", &AnalysisGraph::from_statements,"statements"_a)
@@ -16,7 +22,6 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
-      .def("sample_from_prior", &AnalysisGraph::sample_from_prior)
       .def("add_node", &AnalysisGraph::add_node)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
@@ -24,22 +29,10 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       //.def("simple_paths", &AnalysisGraph::simple_paths)
       .def("print_cells_affected_by_beta",
            &AnalysisGraph::print_cells_affected_by_beta, "source"_a, "target"_a)
-      .def("initialize", &AnalysisGraph::initialize,
-           "initialize_indicators"_a = true,
-           py::return_value_policy::reference_internal)
-      .def("sample_from_prior", &AnalysisGraph::sample_from_prior,
-           py::return_value_policy::reference_internal)
-      .def("sample_from_likelihood", &AnalysisGraph::sample_from_likelihood,
-           "n_timesteps"_a = 10, py::return_value_policy::reference_internal)
       .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,
-           "A"_a, py::return_value_policy::reference_internal)
-      .def("sample_from_proposal_debug",
-           &AnalysisGraph::sample_from_proposal_debug,
            py::return_value_policy::reference_internal)
-      .def("set_initial_state", &AnalysisGraph::set_initial_state)
       .def("get_beta", &AnalysisGraph::get_beta, "source_vertex_name"_a,
            "target_vertex_name"_a)
-      .def("take_step", &AnalysisGraph::take_step)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators, "n"_a = 1)
@@ -48,12 +41,13 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "indicator"_a, "source"_a)
       .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
            "indicator_old"_a, "indicator_new"_a, "source"_a)
-      .def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
-           "indicator"_a, py::return_value_policy::automatic)
+      //.def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
+      //     "indicator"_a, py::return_value_policy::automatic)
       .def("train_model", &AnalysisGraph::train_model, "start_year"_a = 2012,
            "start_month"_a = 1, "end_year"_a = 2017, "end_month"_a = 12,
            "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
-           "state"_a = "",py::arg("units") = map<std::string,std::string>{})
+           "state"_a = "",py::arg("units") = map<std::string,std::string>{},
+           "initial_beta"_a = InitialBeta::MEAN)
       .def("generate_prediction", &AnalysisGraph::generate_prediction,
            "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
   py::class_<RV>(m, "RV")
@@ -80,4 +74,8 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("get_aggregation_method", &Indicator::get_aggregation_method)
       .def("get_timeseries", &Indicator::get_timeseries)
       .def("get_samples", &Indicator::get_samples);
+  py::class_<RNG>(m, "RNG")
+      .def_static("rng",&RNG::rng)
+      .def("set_seed",&RNG::set_seed, "seed"_a)
+      .def("get_seed",&RNG::get_seed);
 }
