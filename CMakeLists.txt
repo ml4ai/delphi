@@ -1,24 +1,28 @@
 cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
-# Conan setup
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
+set(Boost_NO_BOOST_CMAKE ON)
 # Add and link pybind11 modules
+find_package(SQLite3)
+find_package(Boost REQUIRED)
 include_directories(lib)
 include_directories(external)
+include_directories(${Boost_INCLUDE_DIR})
+find_package(nlohmann_json REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(PythonInterp)
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 add_subdirectory(external/pybind11)
 pybind11_add_module(kde lib/kde_wrapper.cpp)
 pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
-target_link_libraries(AnalysisGraph PUBLIC ${CONAN_LIBS})
-target_link_libraries(kde PUBLIC ${CONAN_LIBS})
+target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES} nlohmann_json::nlohmann_json Eigen3::Eigen)
+target_link_libraries(kde PRIVATE ${Boost_LIBRARIES} nlohmann_json::nlohmann_json)
 
 
 
 # Tests
+add_library(doctest INTERFACE)
 add_executable(cpptests tests/cpptests.cpp)
-target_link_libraries(cpptests PUBLIC ${CONAN_LIBS})
+target_include_directories(doctest INTERFACE external/doctest)
+target_link_libraries(cpptests PRIVATE doctest)
