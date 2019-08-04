@@ -15,7 +15,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .value("MEAN", InitialBeta::MEAN)
       .value("RANDOM", InitialBeta::RANDOM);
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
-      .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a)
+      .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a,"belief_score_cutoff"_a=0.9)
       .def_static("from_statements", &AnalysisGraph::from_statements,"statements"_a)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
