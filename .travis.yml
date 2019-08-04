@@ -17,7 +17,8 @@ addons:
     - g++-8
     - graphviz
     - doxygen
-    - sqlite3 libsqlite3-dev
+    - sqlite3 
+    - libsqlite3-dev
     - libboost-all-dev
     - libeigen3-dev
 
