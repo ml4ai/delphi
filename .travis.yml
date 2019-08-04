@@ -17,6 +17,8 @@ addons:
     - g++-8
     - graphviz
     - doxygen
+    - libboost-all-dev
+    - libeigen3-dev
 
 install:
   - export CC=gcc-8
