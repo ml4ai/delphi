@@ -117,7 +117,6 @@ setup(
             "sphinx-rtd-theme",
             "sphinxcontrib-bibtex",
             "sphinxcontrib-trio",
-            "sphinx-autodoc-typehints",
             "recommonmark",
             "breathe",
             "exhale",
