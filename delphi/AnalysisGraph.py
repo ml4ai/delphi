@@ -15,7 +15,6 @@ from scipy.stats import gaussian_kde
 import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
-from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
@@ -153,6 +152,7 @@ class AnalysisGraph(nx.DiGraph):
                 or the instance of Eidos running locally on your computer (e.g.
                 http://localhost:9000.
         """
+        from indra.sources.eidos import process_text
         eidosProcessor = process_text(text, webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
