@@ -67,7 +67,6 @@ setup(
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     install_requires=[
-        "conan",
         "pybind11",
         "indra[eidos_offline]",
         "tqdm",
