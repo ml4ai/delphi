@@ -25,6 +25,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 find_package(Eigen3 REQUIRED NO_MODULE)
+include_directories(${EIGEN_INCLUDE_DIRS})
 find_package(SQLite3 REQUIRED)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
