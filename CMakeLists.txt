@@ -31,10 +31,8 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 find_package(SQLite3 REQUIRED)
-if (SQLITE3_FOUND)
-  include_directories(${SQLITE3_INCLUDE_DIRS})
-  target_link_libraries (AnalysisGraph ${SQLITE3_LIBRARIES})
-endif (SQLITE3_FOUND)
+include_directories(${SQLITE3_INCLUDE_DIRS})
+target_link_libraries (AnalysisGraph "sqlite3")
 
 
 # Tests
