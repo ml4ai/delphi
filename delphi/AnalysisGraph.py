@@ -618,8 +618,8 @@ class AnalysisGraph(nx.DiGraph):
         dampen=False,
         set_delta: float = None,
     ):
-        """ Advance the model by one time step.
-            *set_delta is currently just a placeholder for a future feature
+        """ Advance the model by one time step. set_delta is currently just a
+        placeholder for a future feature.
         """
 
         for n in self.nodes(data=True):
