@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.9
+  version: 0.2.10
 
 paths: {}
 
@@ -254,17 +254,11 @@ components:
         Define a non-primitive type.
       required:
         - name
-        - scope
-        - namespace
         - source_refs
         - gensym
       properties:
         name:
           $ref: '#/components/schemas/type_identifier_name'
-        scope:
-          $ref: '#/components/schemas/scope_path'
-        namespace:
-          $ref: '#/components/schemas/namespace_path'
         source_refs:
           type: array
           items:
@@ -297,8 +291,6 @@ components:
       required:
         - name
         - index
-        - scope
-        - namespace
         - source_refs
         - gensym
         - domain
@@ -308,10 +300,6 @@ components:
           $ref: '#/components/schemas/variable_identifier_name'
         index:
           type: integer
-        scope:
-          $ref: '#/components/schemas/scope_path'
-        namespace:
-          $ref: '#/components/schemas/namespace_path'
         source_refs:
           type: array
           items:
@@ -344,8 +332,6 @@ components:
         true = execute indefinitely (loop).
       required:
         - name
-        - scope
-        - namespace
         - source_refs
         - gensym
         - repeat
@@ -355,10 +341,6 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/container_identifier_name'
-        scope:
-          $ref: '#/components/schemas/scope_path'
-        namespace:
-          $ref: '#/components/schemas/namespace_path'
         source_refs:
           type: array
           items:
