@@ -17,6 +17,10 @@ addons:
     - g++-8
     - graphviz
     - doxygen
+    - sqlite3 
+    - libsqlite3-dev
+    - libboost-all-dev
+    - libeigen3-dev
 
 install:
   - export CC=gcc-8

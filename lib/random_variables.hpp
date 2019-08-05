@@ -48,18 +48,18 @@ class LatentVar : public RV
  * quantity that is in some way representative of a higher level concept (i.e.
  * a node in an :class:`delphi.AnalysisGraph.AnalysisGraph` object.)
  *
- * @parm source: The source database (FAO, WDI, etc.)
- * @parm unit: The units of the indicator.
- * @parm mean: The mean value of the indicator (for performing conditional
+ * @param source: The source database (FAO, WDI, etc.)
+ * @param unit: The units of the indicator.
+ * @param mean: The mean value of the indicator (for performing conditional
  *             forecasting queries on the model.)
- * @parm value: The current value of the indicator (used while performing inference)
- * @parm stdev: The standard deviation of the indicator.
- * @parm time: The time corresponding to the parameterization of the indicator.
- * @parm aggaxes: A list of axes across which the indicator values have been
+ * @param value: The current value of the indicator (used while performing inference)
+ * @param stdev: The standard deviation of the indicator.
+ * @param time: The time corresponding to the parameterization of the indicator.
+ * @param aggaxes: A list of axes across which the indicator values have been
  *                aggregated. Examples: 'month', 'year', 'state', etc.
- * @parm aggregation_method: The method of aggregation across the aggregation axes.
+ * @param aggregation_method: The method of aggregation across the aggregation axes.
  *                           Currently defaults to 'mean'.
- * @parm timeseries: A time series for the indicator.
+ * @param timeseries: A time series for the indicator.
  */
 class Indicator : public RV 
 {

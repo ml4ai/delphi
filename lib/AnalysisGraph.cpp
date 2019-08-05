@@ -1282,7 +1282,7 @@ public:
    *    Selecting a random β.
    *    Perturbing it a bit.
    *    Updating all the transition matrix cells that are dependent on it.
-   *
+   * 
    * @param A: Transition matrix
    */
   // TODO: Need testng
