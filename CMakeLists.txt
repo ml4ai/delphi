@@ -32,7 +32,7 @@ endif()
 
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
-target_link_libraries (AnalysisGraph "sqlite3")
+target_link_libraries (AnalysisGraph PRIVATE "sqlite3")
 
 
 # Tests
