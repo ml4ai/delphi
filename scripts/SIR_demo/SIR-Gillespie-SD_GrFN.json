@@ -1507,7 +1507,6 @@
             "@variable::samples::0"
           ],
           "updated": [
-            "@variable::Tmax::1",
             "@variable::MeanS::0",
             "@variable::MeanI::0",
             "@variable::MeanR::0",
