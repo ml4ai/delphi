@@ -24,7 +24,7 @@ install:
   - pip install cython
   - pip install -e .[test,docs]
   # Download SQLite3 database containing model parameterization data.
-  - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
+  - curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
   # Set the environment variable DELPHI_DB to point to the SQLite3 database.
   - export DELPHI_DB=`pwd`/delphi.db
 
