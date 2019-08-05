@@ -24,14 +24,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   include_directories("/usr/include/eigen3")
 endif()
 
-find_package(SQLite3 REQUIRED)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  find_package(Eigen3)
   target_link_libraries (AnalysisGraph PRIVATE Eigen3::Eigen)
 endif()
 
-include_directories(${SQLITE3_INCLUDE_DIRS})
-target_link_libraries (AnalysisGraph PRIVATE ${SQLITE3_LIBRARIES})
+find_package(SQLite3 REQUIRED)
+if (SQLITE3_FOUND)
+  include_directories(${SQLITE3_INCLUDE_DIRS})
+  target_link_libraries (AnalysisGraph ${SQLITE3_LIBRARIES})
+endif (SQLITE3_FOUND)
 
 
 # Tests
