@@ -19,9 +19,9 @@ pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES})
 target_link_libraries(kde PRIVATE ${Boost_LIBRARIES})
 
-
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  set(ENV{EIGEN3_ROOT} "/usr/include/eigen3")
 endif()
 
 find_package(Eigen3 REQUIRED NO_MODULE)
