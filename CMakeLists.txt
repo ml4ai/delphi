@@ -21,11 +21,9 @@ target_link_libraries(kde PRIVATE ${Boost_LIBRARIES})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-  set(ENV{EIGEN3_ROOT} "/usr/include/eigen3")
+  include_directories("/usr/local/eigen3")
 endif()
 
-find_package(Eigen3 REQUIRED NO_MODULE)
-include_directories(${EIGEN_INCLUDE_DIRS})
 find_package(SQLite3 REQUIRED)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
