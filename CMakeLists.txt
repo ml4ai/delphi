@@ -39,14 +39,8 @@ pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES} fmt::fmt)
 target_link_libraries(kde PRIVATE ${Boost_LIBRARIES} fmt::fmt)
 
-find_package(Eigen3)
-if (EIGEN3_FOUND)
-  message("-- Found Eigen3: ${EIGEN3_INCLUDE_DIR}")
-  target_link_libraries(AnalysisGraph PRIVATE Eigen3::Eigen)
-else()
-  message("-- Eigen3 not found on system, using version bundled with Delphi")
-  include_directories(external/eigen)
-endif()
+message("-- Using Eigen3 version 3.3 bundled with Delphi")
+include_directories(external/eigen)
 
 
 find_package(SQLite3 REQUIRED)
