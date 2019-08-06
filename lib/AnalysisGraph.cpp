@@ -127,6 +127,9 @@ private:
   // concept name --> CAV vertex id
   std::unordered_map<string, int> name_to_vertex = {};
 
+  //Keeps track of indicators in CAG to ensure there are no duplicates.
+  vector<std::string> indicators_in_CAG;
+
   // A_beta_factors is a 2D array (vector of vectors) that keeps track
   // of the β factors involved with each cell of the transition matrix A.
   //
@@ -1532,17 +1535,32 @@ public:
               "'";
       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
       this->graph[v].clear_indicators();
+      bool ind_not_found = false;
       for (int c = 0; c < n; c = c + 1) {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-          string ind_source = std::string(
-              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
-          string ind_name = std::string(
-              reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+        string ind_source;
+        string ind_name;
+        do {
+          rc = sqlite3_step(stmt);
+          if (rc == SQLITE_ROW) {
+            ind_source = std::string(
+                reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+            ind_name = std::string(
+                reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+          } else {
+            ind_not_found = true;
+            break;
+          }
+        } while (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name) != this->indicators_in_CAG.end());
+
+        if (!ind_not_found) {
           this->graph[v].add_indicator(ind_name, ind_source);
-        } else {
-          cout << "No more data, only " << c << "indicators attached to "
+          this->indicators_in_CAG.push_back(ind_name);
+        }
+        else {
+          cout << "No more indicators were found, only " << c << "indicators attached to "
                << this->graph[v].name << endl;
+          break;
+        
         }
       }
       sqlite3_finalize(stmt);
