@@ -22,12 +22,34 @@
 
 #include <typeinfo>
 
-using std::cout, std::endl, std::unordered_map, std::pair, std::string,
-    std::ifstream, std::stringstream, std::map, std::unordered_map, std::multimap, std::make_pair,
-    std::tuple, std::make_tuple, std::set, boost::inner_product, boost::edge,
-    boost::source, boost::target, boost::graph_bundle, boost::make_label_writer,
-    boost::write_graphviz, boost::lambda::make_const, utils::load_json,
-    utils::hasKey, utils::get, utils::lmap, fmt::print;
+using std::vector;
+using std::cout;
+using std::endl;
+using std::unordered_map;
+using std::pair;
+using std::string;
+using std::ifstream;
+using std::stringstream;
+using std::map;
+using std::unordered_map;
+using std::multimap;
+using std::make_pair;
+using std::tuple;
+using std::make_tuple;
+using std::set;
+using boost::inner_product;
+using boost::edge;
+using boost::source;
+using boost::target;
+using boost::graph_bundle;
+using boost::make_label_writer;
+using boost::write_graphviz;
+using boost::lambda::make_const;
+using utils::load_json;
+using utils::hasKey;
+using utils::get;
+using utils::lmap;
+using fmt::print;
 
 const size_t default_n_samples = 100;
 

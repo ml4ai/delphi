@@ -1,16 +1,11 @@
 #pragma once
 
+#include <string>
 #include <optional>
 #include <exception>
 #include "kde.hpp"
 #include "random_variables.hpp"
 #include <fmt/format.h>
-
-template <class T> void printVec(std::vector<T> xs) {
-  for (auto x : xs) {
-    fmt::print(x);
-  }
-}
 
 
 struct IndicatorNotFoundException : public std::exception 
@@ -35,7 +30,7 @@ struct Event {
   {
   }
 
-  Event( std::tuple< string, int, string > evnt )
+  Event( std::tuple< std::string, int, std::string > evnt )
   {
     adjective = std::get< 0 >( evnt );
     polarity = std::get< 1 >( evnt );
@@ -86,7 +81,7 @@ struct Node {
   // Maps each indicator name to its index in the indicators vector
   std::map< std::string, int > indicator_names;
 
-  void add_indicator( string indicator, string source )
+  void add_indicator( std::string indicator, std::string source )
   {
     //TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
@@ -108,7 +103,7 @@ struct Node {
   }
 
 
-  Indicator get_indicator( string indicator )
+  Indicator get_indicator( std::string indicator )
   {
     try 
     {
@@ -121,7 +116,7 @@ struct Node {
   }
 
 
-  void replace_indicator( string indicator_old, string indicator_new, string source )
+  void replace_indicator( std::string indicator_old, std::string indicator_new, std::string source )
   {
     auto map_entry =  indicator_names.extract( indicator_old );
 

@@ -4,6 +4,8 @@
 
 #include "kde.hpp"
 
+using std::vector;
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(kde, m) {

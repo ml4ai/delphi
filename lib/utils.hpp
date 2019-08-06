@@ -1,11 +1,10 @@
 #pragma once
 
+#include <fmt/format.h>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <nlohmann/json.hpp>
 #include <vector>
-#include <fmt/format.h>
 
 namespace utils {
 
@@ -17,7 +16,9 @@ template <class T> void printVec(vector<T> xs) {
     fmt::print(x);
   }
 }
-template <class Key, class Value> bool hasKey(unordered_map<Key, Value> umap, Key key) {
+
+template <class Key, class Value>
+bool hasKey(unordered_map<Key, Value> umap, Key key) {
   return umap.count(key) != 0;
 }
 
