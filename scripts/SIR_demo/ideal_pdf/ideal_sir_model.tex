@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{amsmath}
+\title{Ideal SIR Model Description with Equations}
+\author{Adarsh Pyarelal, Paul Hein, Clay Morrison}
+
+\begin{document}
+
+\section{The SIR Model}
+
+\subsection{The SIR model without vital dynamics}
+
+The dynamics of an epidemic, for example the Influenza|flu, are often much
+faster than the dynamics of birth and death, therefore, birth and death are
+often omitted in simple compartmental models.  The SIR system without so-called
+vital dynamics (birth and death, sometimes called demography) described above
+can be expressed by the following set of ordinary differential
+equations:
+
+\begin{align}\frac{dS}{dt} = - \frac{\beta I S}{N} \end{align},
+
+\begin{align}\frac{dI}{dt} = \frac{\beta I S}{N}- \gamma I \end{align},
+
+\begin{align}\frac{dR}{dt} = \gamma I \end{align}.
+
+Where $S$ is the stock of susceptible population, $I$ is the stock of infected, and $R$ is the stock of recovered population.
+
+This model was for the first time proposed by O. Kermack and Anderson Gray McKendrick as a special case of what we now call Kermack-McKendrick theory, and followed work McKendrick had done with Ronald Ross.
+
+This system is non-linear, and does not admit a generic analytic solution. Nevertheless, significant results can be derived analytically, and with Monte Carlo methods, such as the Gillespie algorithm.
+
+Firstly note that from:
+
+\begin{align}\frac{dS}{dt} + \frac{dI}{dt} + \frac{dR}{dt}  = 0  \end{align},
+
+it follows that:
+
+\begin{align}S(t) + I(t) + R(t) = \textrm{Constant} = N  \end{align},
+
+expressing in mathematical terms the constancy of population $ N $. Note that
+the above relationship implies that one need only study the equation for two of
+the three variables.
+
+Secondly, we note that the dynamics of the infectious class depends on the following ratio:
+\begin{align}R_0 = \frac{\beta}{\gamma} \end{align},
+the so-called basic reproduction number (also called basic reproduction ratio).
+This ratio is derived as the expected number of new infections (these new
+infections are sometimes called secondary infections) from a single infection
+in a population where all subjects are susceptible. This idea can probably be
+more readily seen if we say that the typical time between contacts is $ T_{c} =
+\beta^{-1}$, and the typical time until recovery is $ T_{r} = \gamma^{-1}$.
+From here it follows that, on average, the number of contacts by an infected
+individual with others ''before'' the infected has recovered is: $ T_{r}/T_{c}.
+$
+
+By dividing the first differential equation by the third, Separation of variables|separating the variables and integrating we get
+
+\begin{align}S(t) = S(0) e^{-R_0(R(t) - R(0))/N} \end{align},
+(where $S(0)$ and $R(0)$ are the initial numbers of, respectively, susceptible and removed subjects). Thus, in the limit $t \rightarrow +\infty$, the proportion of recovered individuals obeys the following transcendental equation
+\begin{align}R_{\infty} = N - S(0)e^{-R_0(R_{\infty} - R(0))/N} \end{align}.
+This equation shows that at the end of an epidemic, unless $S(0)=0$, not all individuals of the population have recovered, so some must remain susceptible. This means that the end of an epidemic is caused by the decline in the number of infected individuals rather than an absolute lack of susceptible subjects.
+The role of the basic reproduction number is extremely important. In fact, upon rewriting the equation for infectious individuals as follows:
+\begin{align}\frac{dI}{dt} = (R_0 S/N  - 1) \gamma I \end{align},
+it yields that if:
+\begin{align}R_{0} > \frac{N}{S(0)} ,\end{align}
+then:
+\begin{align}\frac{dI}{dt}(0) >0 ,\end{align}
+i.e., there will be a proper epidemic outbreak with an increase of the number of the  infectious (which can reach a considerable fraction of the population). On the contrary, if
+\begin{align}R_{0} < \frac{N}{S(0)} ,\end{align}
+then
+\begin{align}\frac{dI}{dt}(0) <0 ,\end{align}
+i.e., independently from the initial size of the susceptible population the disease can never cause a proper epidemic outbreak. As a consequence, it is clear that the basic reproduction number  is extremely important.
+
+\end{document}
