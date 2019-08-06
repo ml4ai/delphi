@@ -353,9 +353,7 @@ components:
         arguments:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/variable_identifier_name'
-              - $ref: '#/components/schemas/container_identifier_name'
+            $ref: '#/components/schemas/variable_base_name'
         updated:
           type: array
           items:
@@ -387,10 +385,12 @@ components:
           items:
             oneOf:
               - $ref: '#/components/schemas/variable_base_name'
-              - $ref: '#/components/schemas/container_base_name'
+              - $ref: '#/components/schemas/container_identifier_name'
               - $ref: '#/components/schemas/literal_name'
         output:
-          $ref: '#/components/schemas/variable_base_name'
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_base_name'
         updated:
           type: array
           items:
