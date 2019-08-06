@@ -1469,9 +1469,14 @@ public:
   // ==========================================================================
 
   void set_indicator(string concept, string indicator, string source) {
+    if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator) != this->indicators_in_CAG.end()){
+      print("{0} already exists in Casual Analysis Graph, Indicator {0} was not added to Concept {1}.",indicator,concept);
+      return;
+    }
     try {
       this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
                                                                   source);
+      this->indicators_in_CAG.push_back(indicator);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::set_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
@@ -1507,9 +1512,17 @@ public:
 
   void replace_indicator(string concept, string indicator_old,
                          string indicator_new, string source) {
+
+    if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new) != this->indicators_in_CAG.end()){
+      print("{0} already exists in Casual Analysis Graph, Indicator {0} did not replace Indicator {1} for Concept {2}.",indicator_new,indicator_old,concept);
+      return;
+    }
+ 
     try {
       this->graph[this->name_to_vertex.at(concept)].replace_indicator(
           indicator_old, indicator_new, source);
+      this->indicators_in_CAG.push_back(indicator_new);
+      this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(), this->indicators_in_CAG.end(), indicator_old), this->indicators_in_CAG.end());
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::replace_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
