@@ -373,7 +373,7 @@ public:
    * @param filename: The path to the file containing the JSON-serialized INDRA
    * statements.
    */
-  static AnalysisGraph from_json_file(string filename) {
+  static AnalysisGraph from_json_file(string filename, double belief_score_cutoff=0.9) {
     auto json_data = load_json(filename);
 
     DiGraph G;
@@ -381,7 +381,7 @@ public:
     std::unordered_map<string, int> nameMap = {};
 
     for (auto stmt : json_data) {
-      if (stmt["type"] == "Influence" and stmt["belief"] > 0.9) {
+      if (stmt["type"] == "Influence" and stmt["belief"] > belief_score_cutoff) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
@@ -1282,7 +1282,7 @@ public:
    *    Selecting a random β.
    *    Perturbing it a bit.
    *    Updating all the transition matrix cells that are dependent on it.
-   *
+   * 
    * @param A: Transition matrix
    */
   // TODO: Need testng

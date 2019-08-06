@@ -377,15 +377,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
+        fortran_file: str,
         save_file: bool = False,
     ):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_pgm_dict(
+        pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
             asts,
             json_filename,
-            {"FileName": f"{stem}.py"},  # HACK
+            {"file_name": f"{stem}.py"}, # HACK
+            fortran_file,
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
@@ -403,10 +405,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 pySrc,
                 lambdas_path,
                 json_filename,
-                stem
+                stem,
+                fortran_filename,
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
+                                fortran_file)
 
         return G
 
@@ -750,6 +754,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     ) -> Union[float, Iterable]:
         """Executes the FIB over a particular set of inputs and returns the
         result.
+
         Args:
             inputs: Input set where keys are the names of input nodes in the
               GrFN and each key points to a set of input values (or just one).
