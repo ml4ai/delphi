@@ -37,15 +37,9 @@ using std::make_pair;
 using std::tuple;
 using std::make_tuple;
 using std::set;
-using boost::inner_product;
 using boost::edge;
 using boost::source;
 using boost::target;
-using boost::graph_bundle;
-using boost::make_label_writer;
-using boost::write_graphviz;
-using boost::lambda::make_const;
-using utils::load_json;
 using utils::hasKey;
 using utils::get;
 using utils::lmap;
@@ -399,6 +393,7 @@ public:
    * statements.
    */
   static AnalysisGraph from_json_file(string filename, double belief_score_cutoff=0.9) {
+    using utils::load_json;
     auto json_data = load_json(filename);
 
     DiGraph G;
@@ -1642,6 +1637,9 @@ public:
   }
 
   auto to_dot() {
+    using boost::make_label_writer;
+    using boost::write_graphviz;
+
     write_graphviz(cout, graph,
                    make_label_writer(boost::get(&Node::name, graph)));
   }

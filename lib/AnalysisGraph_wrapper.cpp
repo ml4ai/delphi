@@ -14,9 +14,14 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .value("HALF", InitialBeta::HALF)
       .value("MEAN", InitialBeta::MEAN)
       .value("RANDOM", InitialBeta::RANDOM);
+
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
-      .def_static("from_json_file", &AnalysisGraph::from_json_file,"filename"_a,"belief_score_cutoff"_a=0.9)
-      .def_static("from_statements", &AnalysisGraph::from_statements,"statements"_a)
+      .def_static("from_json_file",
+                  &AnalysisGraph::from_json_file,
+                  "filename"_a,
+                  "belief_score_cutoff"_a = 0.9)
+      .def_static(
+          "from_statements", &AnalysisGraph::from_statements, "statements"_a)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
@@ -28,31 +33,57 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)
       .def("print_cells_affected_by_beta",
-           &AnalysisGraph::print_cells_affected_by_beta, "source"_a, "target"_a)
-      .def("sample_from_posterior", &AnalysisGraph::sample_from_posterior,
+           &AnalysisGraph::print_cells_affected_by_beta,
+           "source"_a,
+           "target"_a)
+      .def("sample_from_posterior",
+           &AnalysisGraph::sample_from_posterior,
            py::return_value_policy::reference_internal)
-      .def("get_beta", &AnalysisGraph::get_beta, "source_vertex_name"_a,
+      .def("get_beta",
+           &AnalysisGraph::get_beta,
+           "source_vertex_name"_a,
            "target_vertex_name"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
-           &AnalysisGraph::map_concepts_to_indicators, "n"_a = 1)
+           &AnalysisGraph::map_concepts_to_indicators,
+           "n"_a = 1)
       .def("print_indicators", &AnalysisGraph::print_indicators)
-      .def("set_indicator", &AnalysisGraph::set_indicator, "concept"_a,
-           "indicator"_a, "source"_a)
-      .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
-           "indicator_old"_a, "indicator_new"_a, "source"_a)
+      .def("set_indicator",
+           &AnalysisGraph::set_indicator,
+           "concept"_a,
+           "indicator"_a,
+           "source"_a)
+      .def("replace_indicator",
+           &AnalysisGraph::replace_indicator,
+           "concept"_a,
+           "indicator_old"_a,
+           "indicator_new"_a,
+           "source"_a)
       //.def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
       //     "indicator"_a, py::return_value_policy::automatic)
-      .def("train_model", &AnalysisGraph::train_model, "start_year"_a = 2012,
-           "start_month"_a = 1, "end_year"_a = 2017, "end_month"_a = 12,
-           "res"_a = 200, "burn"_a = 10000, "country"_a = "South Sudan",
-           "state"_a = "",py::arg("units") = map<std::string,std::string>{},
+      .def("train_model",
+           &AnalysisGraph::train_model,
+           "start_year"_a = 2012,
+           "start_month"_a = 1,
+           "end_year"_a = 2017,
+           "end_month"_a = 12,
+           "res"_a = 200,
+           "burn"_a = 10000,
+           "country"_a = "South Sudan",
+           "state"_a = "",
+           py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::MEAN)
-      .def("generate_prediction", &AnalysisGraph::generate_prediction,
-           "start_year"_a, "start_month"_a, "end_year"_a, "end_month"_a);
+      .def("generate_prediction",
+           &AnalysisGraph::generate_prediction,
+           "start_year"_a,
+           "start_month"_a,
+           "end_year"_a,
+           "end_month"_a);
+
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
       .def("sample", &RV::sample);
+
   py::class_<Indicator, RV>(m, "Indicator")
       .def("set_source", &Indicator::set_source)
       .def("set_unit", &Indicator::set_unit)
@@ -74,8 +105,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("get_aggregation_method", &Indicator::get_aggregation_method)
       .def("get_timeseries", &Indicator::get_timeseries)
       .def("get_samples", &Indicator::get_samples);
+
   py::class_<RNG>(m, "RNG")
-      .def_static("rng",&RNG::rng)
-      .def("set_seed",&RNG::set_seed, "seed"_a)
-      .def("get_seed",&RNG::get_seed);
+      .def_static("rng", &RNG::rng)
+      .def("set_seed", &RNG::set_seed, "seed"_a)
+      .def("get_seed", &RNG::get_seed);
 }
