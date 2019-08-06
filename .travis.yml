@@ -21,6 +21,7 @@ addons:
     - libsqlite3-dev
     - libboost-all-dev
     - libeigen3-dev
+    - fmt 
 
 install:
   - export CC=gcc-8
