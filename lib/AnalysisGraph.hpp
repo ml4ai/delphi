@@ -3,7 +3,7 @@
 #include <string>
 #include <optional>
 #include <exception>
-#include "kde.hpp"
+#include "kde.cpp"
 #include "random_variables.hpp"
 #include <fmt/format.h>
 

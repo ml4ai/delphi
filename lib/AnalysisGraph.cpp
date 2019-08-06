@@ -17,8 +17,8 @@
 #include "data.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
-#include <fmt/format.h>
 #include "rng.hpp"
+#include <fmt/format.h>
 
 #include <typeinfo>
 

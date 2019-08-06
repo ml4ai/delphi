@@ -33,8 +33,9 @@ set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 add_subdirectory(external/pybind11)
 
+
 pybind11_add_module(kde lib/kde_wrapper.cpp)
-pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp lib/kde.hpp)
+pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 
 target_link_libraries(kde PRIVATE ${Boost_LIBRARIES} fmt::fmt)
 target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES} fmt::fmt)
