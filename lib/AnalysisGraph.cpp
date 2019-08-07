@@ -1264,12 +1264,12 @@ public:
   /**
    * Find all the transition matrix (A) cells that are dependent on the β
    * attached to the provided edge and update them.
+   * Acts upon this->A_original
    *
-   * @param A: The current transition matrix
    * @param e: The directed edge ≡ β that has been perturbed
    */
   void update_transition_matrix_cells(
-      Eigen::MatrixXd &A, boost::graph_traits<DiGraph>::edge_descriptor e) {
+      boost::graph_traits<DiGraph>::edge_descriptor e) {
     pair<int, int> beta =
         make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
@@ -1291,7 +1291,7 @@ public:
       // this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col
       // * 2 + 1 )));
 
-      A(row * 2, col * 2 + 1) =
+      this->A_original(row * 2, col * 2 + 1) =
           this->A_beta_factors[row][col]->compute_cell(this->graph);
     }
   }
@@ -1303,8 +1303,6 @@ public:
    *    Selecting a random β.
    *    Perturbing it a bit.
    *    Updating all the transition matrix cells that are dependent on it.
-   * 
-   * @param A: Transition matrix
    */
   // TODO: Need testng
   // TODO: Before calling sample_from_proposal() we must call
@@ -1330,7 +1328,7 @@ public:
     // TODO: Check whether this perturbation is accurate
     graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
-    this->update_transition_matrix_cells(A_original, e[0]);
+    this->update_transition_matrix_cells(e[0]);
   }
 
   void set_latent_state_sequence(Eigen::MatrixXd A) {
@@ -1459,7 +1457,7 @@ public:
       // Reset the transition matrix cells that were changed
       // TODO: Can we change the transition matrix only when the sample is
       // accpeted?
-      this->update_transition_matrix_cells(this->A_original, this->previous_beta.first);
+      this->update_transition_matrix_cells(this->previous_beta.first);
     }
 
     return this->A_original;
