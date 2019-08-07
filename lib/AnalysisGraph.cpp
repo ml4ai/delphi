@@ -662,7 +662,7 @@ public:
    *    Perturbing it a bit.
    *    Updating all the transition matrix cells that are dependent on it.
    * 
-   * @parm A: Transition matrix
+   * @param A: Transition matrix
    */
   // TODO: Before calling sample_from_proposal() we must call 
   // AnalysisGraph::find_all_paths()
