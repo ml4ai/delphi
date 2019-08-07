@@ -144,7 +144,8 @@ private:
   std::unordered_map<string, int> name_to_vertex = {};
 
   //Keeps track of indicators in CAG to ensure there are no duplicates.
-  vector<std::string> indicators_in_CAG;
+  //vector<std::string> indicators_in_CAG;
+  std::unordered_set<std::string> indicators_in_CAG;
 
   // A_beta_factors is a 2D array (vector of vectors) that keeps track
   // of the β factors involved with each cell of the transition matrix A.
@@ -1476,7 +1477,8 @@ public:
     try {
       this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
                                                                   source);
-      this->indicators_in_CAG.push_back(indicator);
+      //this->indicators_in_CAG.push_back(indicator);
+      this->indicators_in_CAG.insert(indicator);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::set_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
@@ -1521,8 +1523,10 @@ public:
     try {
       this->graph[this->name_to_vertex.at(concept)].replace_indicator(
           indicator_old, indicator_new, source);
-      this->indicators_in_CAG.push_back(indicator_new);
-      this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(), this->indicators_in_CAG.end(), indicator_old), this->indicators_in_CAG.end());
+      //this->indicators_in_CAG.push_back(indicator_new);
+      //this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(), this->indicators_in_CAG.end(), indicator_old), this->indicators_in_CAG.end());
+      this->indicators_in_CAG.insert(indicator_new);
+      this->indicators_in_CAG.erase(indicator_old);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::replace_indicator()\n"
                 << "\tConcept: " << concept << " is not in the CAG\n";
@@ -1584,7 +1588,8 @@ public:
 
         if (!ind_not_found) {
           this->graph[v].add_indicator(ind_name, ind_source);
-          this->indicators_in_CAG.push_back(ind_name);
+          //this->indicators_in_CAG.push_back(ind_name);
+          this->indicators_in_CAG.insert(ind_name);
         }
         else {
           cout << "No more indicators were found, only " << c << "indicators attached to "
