@@ -1331,7 +1331,7 @@ public:
     this->update_transition_matrix_cells(e[0]);
   }
 
-  void set_latent_state_sequence(Eigen::MatrixXd A) {
+  void set_latent_state_sequence() {
     int num_verts = boost::num_vertices(this->graph);
 
     // Allocate memory for latent_state_sequence
@@ -1350,7 +1350,7 @@ public:
     this->latent_state_sequence[0] = this->s0_original;
 
     for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->latent_state_sequence[ts] = A * this->latent_state_sequence[ts - 1];
+      this->latent_state_sequence[ts] = this->A_original * this->latent_state_sequence[ts - 1];
     }
   }
 
@@ -1365,7 +1365,7 @@ public:
   double calculate_log_likelihood(Eigen::MatrixXd A) {
     double log_likelihood_total = 0.0;
 
-    this->set_latent_state_sequence(A);
+    this->set_latent_state_sequence();
 
     int num_ltsts = this->latent_state_sequence.size();
     int num_obsts = this->observed_state_sequence.size();
