@@ -1315,7 +1315,7 @@ public:
   // TODO: Update Tran_Mat_Cell::compute_cell() to calculate the proper value.
   // At the moment it just computes sum of length of all the paths realted to
   // this cell
-  void sample_from_proposal(Eigen::MatrixXd &A) {
+  void sample_from_proposal() {
     // Randomly pick an edge ≡ β
     boost::iterator_range edge_it = this->edges();
 
@@ -1330,7 +1330,7 @@ public:
     // TODO: Check whether this perturbation is accurate
     graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
-    this->update_transition_matrix_cells(A, e[0]);
+    this->update_transition_matrix_cells(A_original, e[0]);
   }
 
   void set_latent_state_sequence(Eigen::MatrixXd A) {
@@ -1434,7 +1434,7 @@ public:
    */
   Eigen::MatrixXd sample_from_posterior() {
     // Sample a new transition matrix from the proposal distribution
-    this->sample_from_proposal(this->A_original);
+    this->sample_from_proposal();
 
     // TODO: AnalysisGraph::calculate_delat_log_prior() method is not properly
     // implemented. Only a stub is implemented.
