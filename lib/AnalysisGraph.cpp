@@ -929,7 +929,7 @@ public:
     // make AnalysisGraph::sample_from_posterior() act on the class
     // member variable. Once the code starts working and other
     // functions are updated, do this modification.
-    this->log_likelihood = this->calculate_log_likelihood(this->A_original);
+    this->log_likelihood = this->calculate_log_likelihood();
 
     // Accumulates the transition matrices for accepted samples
     // Access: [ sample number ]
@@ -1362,7 +1362,7 @@ public:
     return log_denom - log_nume;
   }
 
-  double calculate_log_likelihood(Eigen::MatrixXd A) {
+  double calculate_log_likelihood() {
     double log_likelihood_total = 0.0;
 
     this->set_latent_state_sequence();
@@ -1439,7 +1439,7 @@ public:
     double delta_log_prior = this->calculate_delta_log_prior();
 
     double original_log_likelihood = this->log_likelihood;
-    double candidate_log_likelihood = this->calculate_log_likelihood(this->A_original);
+    double candidate_log_likelihood = this->calculate_log_likelihood();
     double delta_log_likelihood =
         candidate_log_likelihood - original_log_likelihood;
 
