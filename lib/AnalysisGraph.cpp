@@ -1470,7 +1470,8 @@ public:
   // ==========================================================================
 
   void set_indicator(string concept, string indicator, string source) {
-    if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator) != this->indicators_in_CAG.end()){
+    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator) != this->indicators_in_CAG.end()){
+    if (this->indicators_in_CAG.find(indicator) != this->indicators_in_CAG.end()){
       print("{0} already exists in Casual Analysis Graph, Indicator {0} was not added to Concept {1}.",indicator,concept);
       return;
     }
@@ -1515,7 +1516,8 @@ public:
   void replace_indicator(string concept, string indicator_old,
                          string indicator_new, string source) {
 
-    if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new) != this->indicators_in_CAG.end()){
+    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new) != this->indicators_in_CAG.end()){
+    if (this->indicators_in_CAG.find(indicator_new) != this->indicators_in_CAG.end()){
       print("{0} already exists in Casual Analysis Graph, Indicator {0} did not replace Indicator {1} for Concept {2}.",indicator_new,indicator_old,concept);
       return;
     }
@@ -1584,7 +1586,8 @@ public:
             ind_not_found = true;
             break;
           }
-        } while (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name) != this->indicators_in_CAG.end());
+        //} while (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name) != this->indicators_in_CAG.end());
+        } while (this->indicators_in_CAG.find(ind_name) != this->indicators_in_CAG.end());
 
         if (!ind_not_found) {
           this->graph[v].add_indicator(ind_name, ind_source);
