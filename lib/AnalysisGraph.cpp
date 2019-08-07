@@ -1414,7 +1414,7 @@ public:
   // Updated the logic of this function in the C++ implementation after having
   // a discussion with Adarsh.
   // TODO: Check with Adrash whether this new implementation is correct
-  double calculate_delta_log_prior(Eigen::MatrixXd A) {
+  double calculate_delta_log_prior() {
     // If kde of an edge is truely optional ≡ there are some
     // edges without a kde assigned, we should not access it
     // using .value() (In the case of kde being missing, this
@@ -1436,7 +1436,7 @@ public:
 
     // TODO: AnalysisGraph::calculate_delat_log_prior() method is not properly
     // implemented. Only a stub is implemented.
-    double delta_log_prior = this->calculate_delta_log_prior(this->A_original);
+    double delta_log_prior = this->calculate_delta_log_prior();
 
     double original_log_likelihood = this->log_likelihood;
     double candidate_log_likelihood = this->calculate_log_likelihood(this->A_original);
