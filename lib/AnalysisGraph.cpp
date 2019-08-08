@@ -334,7 +334,7 @@ private:
    Utilities
    ==========================================================================
   */
-  void construct_default_initial_state() {
+  void set_default_initial_state() {
     // Let vertices of the CAG be v = 0, 1, 2, 3, ...
     // Then,
     //    indexes 2*v keeps track of the state of each variable v
@@ -797,7 +797,7 @@ public:
   void set_initial_latent_state_from_observed_state_sequence(int timestep = 0) {
     int num_verts = boost::num_vertices(this->graph);
 
-    this->construct_default_initial_state();
+    this->set_default_initial_state();
 
     for (int v = 0; v < num_verts; v++) {
       vector<Indicator> &indicators = this->graph[v].indicators;
@@ -916,7 +916,7 @@ public:
 
     this->set_initial_latent_state_from_observed_state_sequence();
 
-    this->calculate_log_likelihood();
+    this->set_log_likelihood();
 
     // Accumulates the transition matrices for accepted samples
     // Access: [ sample number ]
@@ -1336,7 +1336,7 @@ public:
     return log_denom - log_nume;
   }
 
-  void calculate_log_likelihood() {
+  void set_log_likelihood() {
     this->previous_log_likelihood = this->log_likelihood;
     this->log_likelihood = 0.0;
 
@@ -1401,7 +1401,7 @@ public:
 
     double delta_log_prior = this->calculate_delta_log_prior();
 
-    this->calculate_log_likelihood();
+    this->set_log_likelihood();
     double delta_log_likelihood =
         this->log_likelihood - this->previous_log_likelihood;
 
