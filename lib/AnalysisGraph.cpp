@@ -239,12 +239,6 @@ private:
   // observed_state_sequences[ sample ][ time step ][ vertex ][ indicator ]
   vector<vector<vector<vector<double>>>> observed_state_sequences;
 
-  // TODO: In the python file I cannot find the place where
-  // self.observed_state_sequence gets populated. It only appears within the
-  // calculate_log_likelihood and there it is beign accessed!!!
-  // I am defining this here so taht I can complete the implementation of
-  // calculate_log_likelihood().
-  // This needs to be populated sometime before calling that function!!!
   // Access this as
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
   vector<vector<vector<double>>> observed_state_sequence;
@@ -916,7 +910,7 @@ public:
     this->res = res;
     this->init_betas_to( initial_beta );
     this->sample_initial_transition_matrix_from_prior();
-    this->parameterize(country,state,start_year,start_month,units);
+    this->parameterize(country, state, start_year, start_month, units);
 
     this->init_training_year = start_year;
     this->init_training_month = start_month;
@@ -1328,18 +1322,9 @@ public:
     int num_verts = boost::num_vertices(this->graph);
 
     // Allocate memory for latent_state_sequence
-    this->latent_state_sequence = vector<Eigen::VectorXd>(
-        this->n_timesteps, Eigen::VectorXd(num_verts * 2));
-
     this->latent_state_sequence.clear();
     this->latent_state_sequence = vector< Eigen::VectorXd >( this->n_timesteps );
 
-    // TODO: Disambiguate the type of s0 in the python implementation of this
-    // method.
-    // in the AnalysisGraph::initialize method, the python implementation sets
-    // s0 to a list of pandas Series.
-    // I'm not sure whether that is what we need here. I'm using s0_original,
-    // one element of s0 here for the moment.
     this->latent_state_sequence[0] = this->s0_original;
 
     for (int ts = 1; ts < this->n_timesteps; ts++) {
@@ -1361,14 +1346,7 @@ public:
 
     this->set_latent_state_sequence();
 
-    int num_ltsts = this->latent_state_sequence.size();
-    int num_obsts = this->observed_state_sequence.size();
-
-    // TODO: Is it always the case that
-    // num_timesteps = num_ltsts = num_obsts = this->n_timesteps?
-    int num_timesteps = num_ltsts < num_obsts ? num_ltsts : num_obsts;
-
-    for (int ts = 0; ts < num_timesteps; ts++) {
+    for (int ts = 0; ts < this->n_timesteps; ts++) {
       const Eigen::VectorXd &latent_state = this->latent_state_sequence[ts];
 
       // Access
