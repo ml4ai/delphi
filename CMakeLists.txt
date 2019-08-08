@@ -37,6 +37,9 @@ add_subdirectory(external/pybind11)
 pybind11_add_module(kde lib/kde_wrapper.cpp)
 pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 
+add_library(AnalysisGraphCpp lib/AnalysisGraph.cpp)
+target_link_libraries(AnalysisGraphCpp PRIVATE ${Boost_LIBRARIES} fmt::fmt "sqlite3")
+
 target_link_libraries(kde PRIVATE ${Boost_LIBRARIES} fmt::fmt)
 target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES} fmt::fmt)
 
@@ -53,4 +56,4 @@ target_link_libraries (AnalysisGraph PRIVATE "sqlite3")
 add_library(doctest INTERFACE)
 add_executable(cpptests tests/cpptests.cpp)
 target_include_directories(doctest INTERFACE external/doctest)
-target_link_libraries(cpptests PRIVATE doctest)
+target_link_libraries(cpptests PRIVATE doctest AnalysisGraphCpp)

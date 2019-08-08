@@ -3,7 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <iomanip>
-#include <pybind11/eigen.h>
+#include <Eigen/Dense>
 #include <sqlite3.h>
 #include <utility>
 
