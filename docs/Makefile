@@ -22,9 +22,4 @@ help:
 apidocs: 
 	python swagger-yaml-to-html.py grfn_openapi.yaml grfn_openapi.html
 	rm -rf generated/
-	sphinx-apidoc -o . ../delphi -f
-
-
-.PHONY: grfn_openapi.html
-grfn_openapi.html:
-	python swagger-yaml-to-html.py grfn_openapi.yaml grfn_openapi.html
+	sphinx-apidoc -o . ../delphi ../delphi/cpp/* -f
