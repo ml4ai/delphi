@@ -967,14 +967,14 @@ public:
     for (int _ = 0; _ < burn; _++) {
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
-      this->A_original = this->sample_from_posterior();
+      this->sample_from_posterior();
       ++progress_bar;
     }
 
     for (int samp = 0; samp < this->res; samp++) {
       // TODO: Make AnalysisGraph::sample_from_posterior update A_original
       // instead of returning the matrix
-      this->A_original = this->sample_from_posterior();
+      this->sample_from_posterior();
       // this->training_sampled_transition_matrix_sequence[samp] =
       this->transition_matrix_collection[samp] = this->A_original;
       this->training_latent_state_sequence_s[samp] =
@@ -1364,6 +1364,7 @@ public:
 
   double calculate_log_likelihood() {
     double log_likelihood_total = 0.0;
+    //this->log_likelihood = 0.0;
 
     this->set_latent_state_sequence();
 
@@ -1395,13 +1396,14 @@ public:
 
           // Even indices of latent_state keeps track of the state of each
           // vertex
-          double log_likelihood = this->log_normpdf(
+          double log_likelihood_component = this->log_normpdf(
               value, latent_state[2 * v] * ind.mean, ind.stdev);
-          log_likelihood_total += log_likelihood;
+          log_likelihood_total += log_likelihood_component;
+          //this->log_likelihood += log_likelihood_component;
         }
       }
     }
-
+    //assert(log_likelihood_total == this->log_likelihood);
     return log_likelihood_total;
   }
 
@@ -1430,7 +1432,7 @@ public:
   /**
    * Run Bayesian inference - sample from the posterior distribution.
    */
-  Eigen::MatrixXd sample_from_posterior() {
+  void sample_from_posterior() {
     // Sample a new transition matrix from the proposal distribution
     this->sample_from_proposal();
 
@@ -1459,8 +1461,6 @@ public:
       // accpeted?
       this->update_transition_matrix_cells(this->previous_beta.first);
     }
-
-    return this->A_original;
   }
 
   // ==========================================================================
