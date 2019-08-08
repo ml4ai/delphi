@@ -256,7 +256,8 @@ private:
   // gets rejected.
   pair<boost::graph_traits<DiGraph>::edge_descriptor, double> previous_beta;
 
-  double log_likelihood;
+  double log_likelihood = 0.0;
+  double previous_log_likelihood = 0.0;
 
   AnalysisGraph(DiGraph G, std::unordered_map<string, int> name_to_vertex)
       : graph(G), name_to_vertex(name_to_vertex){};
@@ -925,11 +926,7 @@ public:
 
     this->set_initial_latent_state_from_observed_state_sequence();
 
-    // TODO: Ideally, we should nto pass this->_A_ as a parameter, but
-    // make AnalysisGraph::sample_from_posterior() act on the class
-    // member variable. Once the code starts working and other
-    // functions are updated, do this modification.
-    this->log_likelihood = this->calculate_log_likelihood();
+    this->calculate_log_likelihood();
 
     // Accumulates the transition matrices for accepted samples
     // Access: [ sample number ]
@@ -965,15 +962,11 @@ public:
     boost::progress_timer t;
 
     for (int _ = 0; _ < burn; _++) {
-      // TODO: Make AnalysisGraph::sample_from_posterior update A_original
-      // instead of returning the matrix
       this->sample_from_posterior();
       ++progress_bar;
     }
 
     for (int samp = 0; samp < this->res; samp++) {
-      // TODO: Make AnalysisGraph::sample_from_posterior update A_original
-      // instead of returning the matrix
       this->sample_from_posterior();
       // this->training_sampled_transition_matrix_sequence[samp] =
       this->transition_matrix_collection[samp] = this->A_original;
@@ -1362,9 +1355,9 @@ public:
     return log_denom - log_nume;
   }
 
-  double calculate_log_likelihood() {
-    double log_likelihood_total = 0.0;
-    //this->log_likelihood = 0.0;
+  void calculate_log_likelihood() {
+    this->previous_log_likelihood = this->log_likelihood;
+    this->log_likelihood = 0.0;
 
     this->set_latent_state_sequence();
 
@@ -1378,10 +1371,6 @@ public:
     for (int ts = 0; ts < num_timesteps; ts++) {
       const Eigen::VectorXd &latent_state = this->latent_state_sequence[ts];
 
-      // TODO: In the python file I cannot find the place where
-      // self.observed_state_sequence gets populated.
-      // It only appears within the calculate_log_likelihood and
-      // there it is beign accessed!!!
       // Access
       // observed_state[ vertex ][ indicator ]
       const vector<vector<double>> &observed_state =
@@ -1398,13 +1387,10 @@ public:
           // vertex
           double log_likelihood_component = this->log_normpdf(
               value, latent_state[2 * v] * ind.mean, ind.stdev);
-          log_likelihood_total += log_likelihood_component;
-          //this->log_likelihood += log_likelihood_component;
+          this->log_likelihood += log_likelihood_component;
         }
       }
     }
-    //assert(log_likelihood_total == this->log_likelihood);
-    return log_likelihood_total;
   }
 
   // Now we are perturbing multiple cell of the transition matrix (A) that are
@@ -1429,6 +1415,18 @@ public:
            kde.logpdf(this->previous_beta.second);
   }
 
+  void revert_back_to_previous_state() {
+    this->log_likelihood = this->previous_log_likelihood;
+
+    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
+
+    // Reset the transition matrix cells that were changed
+    // TODO: Can we change the transition matrix only when the sample is
+    // accpeted?
+    this->update_transition_matrix_cells(this->previous_beta.first);
+  }
+
+
   /**
    * Run Bayesian inference - sample from the posterior distribution.
    */
@@ -1436,14 +1434,11 @@ public:
     // Sample a new transition matrix from the proposal distribution
     this->sample_from_proposal();
 
-    // TODO: AnalysisGraph::calculate_delat_log_prior() method is not properly
-    // implemented. Only a stub is implemented.
     double delta_log_prior = this->calculate_delta_log_prior();
 
-    double original_log_likelihood = this->log_likelihood;
-    double candidate_log_likelihood = this->calculate_log_likelihood();
+    this->calculate_log_likelihood();
     double delta_log_likelihood =
-        candidate_log_likelihood - original_log_likelihood;
+        this->log_likelihood - this->previous_log_likelihood;
 
     double delta_log_joint_probability = delta_log_prior + delta_log_likelihood;
 
@@ -1452,14 +1447,7 @@ public:
 
     if (acceptance_probability < uni_dist(this->rand_num_generator)) {
       // Reject the sample
-      this->log_likelihood = original_log_likelihood;
-
-      this->graph[this->previous_beta.first].beta = this->previous_beta.second;
-
-      // Reset the transition matrix cells that were changed
-      // TODO: Can we change the transition matrix only when the sample is
-      // accpeted?
-      this->update_transition_matrix_cells(this->previous_beta.first);
+      this->revert_back_to_previous_state();
     }
   }
 
