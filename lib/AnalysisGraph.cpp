@@ -334,7 +334,7 @@ private:
    Utilities
    ==========================================================================
   */
-  Eigen::VectorXd construct_default_initial_state() {
+  void construct_default_initial_state() {
     // Let vertices of the CAG be v = 0, 1, 2, 3, ...
     // Then,
     //    indexes 2*v keeps track of the state of each variable v
@@ -342,14 +342,12 @@ private:
     int num_verts = boost::num_vertices(graph);
     int num_els = num_verts * 2;
 
-    Eigen::VectorXd init_st(num_els);
-    init_st.setZero();
+    this->s0_original = Eigen::VectorXd(num_els);
+    this->s0_original.setZero();
 
     for (int i = 0; i < num_els; i += 2) {
-      init_st(i) = 1.0;
+      this->s0_original(i) = 1.0;
     }
-
-    return init_st;
   }
 
   std::mt19937 rand_num_generator;
@@ -799,9 +797,7 @@ public:
   void set_initial_latent_state_from_observed_state_sequence(int timestep = 0) {
     int num_verts = boost::num_vertices(this->graph);
 
-    // TODO: Ideally, we should make construct_default_initial_state()
-    // to set this->_s0_ instead of returning a vlue
-    this->s0_original = this->construct_default_initial_state();
+    this->construct_default_initial_state();
 
     for (int v = 0; v < num_verts; v++) {
       vector<Indicator> &indicators = this->graph[v].indicators;
@@ -1371,15 +1367,6 @@ public:
     }
   }
 
-  // Now we are perturbing multiple cell of the transition matrix (A) that are
-  // dependent on the randomly selected β (edge in the CAG).
-  // In the python implementation, which is wrong, it randomly selects a single
-  // cell in the transition matrix (A) and perturbs it. So, the python
-  // implementation of this method is based on that incorrect pertubation.
-  //
-  // Updated the logic of this function in the C++ implementation after having
-  // a discussion with Adarsh.
-  // TODO: Check with Adrash whether this new implementation is correct
   double calculate_delta_log_prior() {
     // If kde of an edge is truely optional ≡ there are some
     // edges without a kde assigned, we should not access it
