@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.11
+  version: 0.2.13
 
 paths: {}
 
@@ -95,6 +95,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/container_def'
+        source_comments:
+          type: array
+          items:
+            type: string
         grounding:
           type: array
           items:
@@ -350,6 +354,7 @@ components:
 
         repeat:
           type: boolean
+
         arguments:
           type: array
           items:
@@ -357,7 +362,7 @@ components:
         updated:
           type: array
           items:
-            $ref: '#/components/schemas/variable_identifier_name'
+            $ref: '#/components/schemas/variable_base_name'
         return_value:
           type: array
           items:
