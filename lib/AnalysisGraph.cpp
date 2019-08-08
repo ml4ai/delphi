@@ -15,21 +15,21 @@
 
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
+#include "rng.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
-#include "rng.hpp"
 #include <fmt/format.h>
 
 #include <typeinfo>
 
 using std::vector;
 using std::cout;
+using std::cerr;
 using std::endl;
+using std::min;
 using std::unordered_map;
 using std::pair;
 using std::string;
-using std::ifstream;
-using std::stringstream;
 using std::map;
 using std::unordered_map;
 using std::multimap;
@@ -37,12 +37,15 @@ using std::make_pair;
 using std::tuple;
 using std::make_tuple;
 using std::set;
+using std::getenv;
+using std::shared_ptr;
+using boost::num_vertices;
 using boost::edge;
 using boost::source;
 using boost::target;
-using utils::hasKey;
-using utils::get;
-using utils::lmap;
+using boost::add_vertex;
+using boost::make_iterator_range;
+using boost::graph_traits;
 using fmt::print;
 
 const size_t default_n_samples = 100;
@@ -51,8 +54,9 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
 unordered_map<string, vector<double>>
 construct_adjective_response_map(size_t n_kernels = default_n_samples) {
+  using utils::hasKey;
   sqlite3 *db;
-  int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (!rc)
     print("Opened db successfully\n");
   else
@@ -64,17 +68,18 @@ construct_adjective_response_map(size_t n_kernels = default_n_samples) {
   unordered_map<string, vector<double>> adjective_response_map;
 
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    string adjective = std::string(
-        reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+    string adjective =
+        string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
     if (hasKey(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
-    } else {
+    }
+    else {
       adjective_response_map[adjective].push_back(response);
     }
   }
 
-  for (auto & [ k, v ] : adjective_response_map) {
+  for (auto &[k, v] : adjective_response_map) {
     v = KDE(v).resample(n_kernels);
   }
   sqlite3_finalize(stmt);
@@ -88,14 +93,14 @@ construct_adjective_response_map(size_t n_kernels = default_n_samples) {
 class AnalysisGraph {
   DiGraph graph;
 
-public:
+  public:
   AnalysisGraph() {}
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
-  auto vertices() { return boost::make_iterator_range(boost::vertices(graph)); }
+  auto vertices() { return make_iterator_range(boost::vertices(graph)); }
 
   auto successors(int i) {
-    return boost::make_iterator_range(boost::adjacent_vertices(i, graph));
+    return make_iterator_range(boost::adjacent_vertices(i, graph));
   }
 
   // Allocate a num_verts x num_verts 2D array (vector of vectors)
@@ -115,16 +120,16 @@ public:
     */
     this->A_beta_factors.clear();
 
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = num_vertices(graph);
 
     for (int vert = 0; vert < num_verts; ++vert) {
       this->A_beta_factors.push_back(
-          vector<std::shared_ptr<Tran_Mat_Cell>>(num_verts));
+          vector<shared_ptr<Tran_Mat_Cell>>(num_verts));
     }
   }
 
   void print_A_beta_factors() {
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = num_vertices(graph);
 
     for (int row = 0; row < num_verts; ++row) {
       for (int col = 0; col < num_verts; ++col) {
@@ -137,15 +142,15 @@ public:
     }
   }
 
-private:
+  private:
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
   // concept name --> CAV vertex id
   std::unordered_map<string, int> name_to_vertex = {};
 
-  //Keeps track of indicators in CAG to ensure there are no duplicates.
-  //vector<std::string> indicators_in_CAG;
-  std::unordered_set<std::string> indicators_in_CAG;
+  // Keeps track of indicators in CAG to ensure there are no duplicates.
+  // vector<string> indicators_in_CAG;
+  std::unordered_set<string> indicators_in_CAG;
 
   // A_beta_factors is a 2D array (vector of vectors) that keeps track
   // of the β factors involved with each cell of the transition matrix A.
@@ -162,7 +167,7 @@ private:
   // ending at the vertex equal to the row index of the matrix.
   //
   // Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.
-  vector<vector<std::shared_ptr<Tran_Mat_Cell>>> A_beta_factors;
+  vector<vector<shared_ptr<Tran_Mat_Cell>>> A_beta_factors;
 
   // A set of (row, column) numbers of the 2D matrix A_beta_factors
   // where the cell (row, column) depends on β factors.
@@ -198,7 +203,7 @@ private:
   // latent_state_sequences[ sample ][ time step ]
   vector<vector<Eigen::VectorXd>> training_latent_state_sequence_s;
 
-  // This is a column of the 
+  // This is a column of the
   // this->training_latent_state_sequence_s
   // prediction_initial_latent_state_s.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
@@ -254,7 +259,7 @@ private:
   // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  pair<boost::graph_traits<DiGraph>::edge_descriptor, double> previous_beta;
+  pair<graph_traits<DiGraph>::edge_descriptor, double> previous_beta;
 
   double log_likelihood;
 
@@ -282,7 +287,7 @@ private:
    * ending at the end vertex. Used by find_all_paths_between()
    * Paths found are added to the Tran_Mat_Cell object that is tracking the
    * transition matrix cell (2*end, 2*start)
-   * 
+   *
    * @param start: Start vertex of the path
    * @param end  : End vertex of the path
    * @param path : A path starting at vettex start that is being explored
@@ -318,10 +323,10 @@ private:
         this->beta2cell.insert(
             make_pair(make_pair(path[v], path[v + 1]), this_cell));
       }
-
-    } else {
+    }
+    else {
       // Current vertex is not the destination
-      // Recursively process all the vertices adjacent to the current vertex 
+      // Recursively process all the vertices adjacent to the current vertex
       for_each(successors(start), [&](int v) {
         if (!graph[v].visited) {
           this->find_all_paths_between_util(v, end, path);
@@ -344,7 +349,7 @@ private:
     // Then,
     //    indexes 2*v keeps track of the state of each variable v
     //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = num_vertices(graph);
     int num_els = num_verts * 2;
 
     Eigen::VectorXd init_st(num_els);
@@ -358,18 +363,17 @@ private:
   }
 
   std::mt19937 rand_num_generator;
-  
+
   // Uniform distribution used by the MCMC sampler
   std::uniform_real_distribution<double> uni_dist;
 
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-
   void initialize_random_number_generator() {
     // Define the random number generator
     // All the places we need random numbers, share this generator
-    
+
     this->rand_num_generator = RNG::rng()->get_RNG();
 
     // Uniform distribution used by the MCMC sampler
@@ -382,9 +386,8 @@ private:
     this->find_all_paths();
   }
 
-public:
-  ~AnalysisGraph() {
-  }
+  public:
+  ~AnalysisGraph() {}
 
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
@@ -393,7 +396,8 @@ public:
    * @param filename: The path to the file containing the JSON-serialized INDRA
    * statements.
    */
-  static AnalysisGraph from_json_file(string filename, double belief_score_cutoff=0.9) {
+  static AnalysisGraph from_json_file(string filename,
+                                      double belief_score_cutoff = 0.9) {
     using utils::load_json;
     auto json_data = load_json(filename);
 
@@ -402,7 +406,8 @@ public:
     std::unordered_map<string, int> nameMap = {};
 
     for (auto stmt : json_data) {
-      if (stmt["type"] == "Influence" and stmt["belief"] > belief_score_cutoff) {
+      if (stmt["type"] == "Influence" and
+          stmt["belief"] > belief_score_cutoff) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
@@ -413,14 +418,14 @@ public:
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
             if (nameMap.find(name) == nameMap.end()) {
-              int v = boost::add_vertex(G);
+              int v = add_vertex(G);
               nameMap[name] = v;
               G[v].name = name;
             }
           }
 
           // Add the edge to the graph if it is not in it already
-          auto[e, exists] =
+          auto [e, exists] =
               boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
@@ -447,7 +452,6 @@ public:
     return ag;
   }
 
- 
   /**
    * A method to construct an AnalysisGraph object given from a vector of
    * ( subject, object ) pairs (Statements)
@@ -472,14 +476,14 @@ public:
       // Add the nodes to the graph if they are not in it already
       for (string name : {subj_name, obj_name}) {
         if (nameMap.find(name) == nameMap.end()) {
-          int v = boost::add_vertex(G);
+          int v = add_vertex(G);
           nameMap[name] = v;
           G[v].name = name;
         }
       }
 
       // Add the edge to the graph if it is not in it already
-      auto[e, exists] =
+      auto [e, exists] =
           boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
       G[e].evidence.push_back(Statement{subject, object});
@@ -489,18 +493,18 @@ public:
     return ag;
   }
 
-  auto add_node() { return boost::add_vertex(graph); }
+  auto add_node() { return add_vertex(graph); }
 
   auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
 
-  auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
+  auto edges() { return make_iterator_range(boost::edges(graph)); }
 
   auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
+    return make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
 
   auto out_edges(int i) {
-    return boost::make_iterator_range(boost::out_edges(i, graph));
+    return make_iterator_range(boost::out_edges(i, graph));
   }
 
   double get_beta(string source_vertex_name, string target_vertex_name) {
@@ -510,11 +514,14 @@ public:
   }
 
   void construct_beta_pdfs() {
+    using utils::get;
+    using utils::lmap;
+
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
     auto adjective_response_map = construct_adjective_response_map();
     vector<double> marginalized_responses;
-    for (auto[adjective, responses] : adjective_response_map) {
+    for (auto [adjective, responses] : adjective_response_map) {
       for (auto response : responses) {
         marginalized_responses.push_back(response);
       }
@@ -533,14 +540,15 @@ public:
         string obj_adjective = object.adjective;
 
         auto subj_responses = lmap([&](auto x) { return x * subject.polarity; },
-                                   get(adjective_response_map, subj_adjective,
+                                   get(adjective_response_map,
+                                       subj_adjective,
                                        marginalized_responses));
 
         auto obj_responses = lmap(
             [&](auto x) { return x * object.polarity; },
             get(adjective_response_map, obj_adjective, marginalized_responses));
 
-        for (auto[x, y] : iter::product(subj_responses, obj_responses)) {
+        for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
           all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
         }
       }
@@ -582,7 +590,7 @@ public:
     });
 
     // Allocate the cell value calculation data structures
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = num_vertices(graph);
 
     for (int row = 0; row < num_verts; ++row) {
       for (int col = 0; col < num_verts; ++col) {
@@ -599,7 +607,7 @@ public:
    * find_all_paths() should be called before this to populate the paths
    */
   void print_all_paths() {
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = num_vertices(graph);
 
     cout << "All the simple paths of:" << endl;
 
@@ -619,13 +627,15 @@ public:
 
     pair<int, int> beta = make_pair(source, target);
 
-    pair<MMAPIterator, MMAPIterator> beta_dept_cells = this->beta2cell.equal_range(beta);
+    pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+        this->beta2cell.equal_range(beta);
 
     cout << endl
          << "Cells of A afected by beta_(" << source << ", " << target << ")"
          << endl;
 
-    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second; it++) {
+    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+         it++) {
       cout << "(" << it->second.first * 2 << ", " << it->second.second * 2 + 1
            << ") ";
     }
@@ -641,12 +651,10 @@ public:
    ==========================================================================
   */
 
-
-
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void sample_initial_transition_matrix_from_prior() {
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     // A base transition matrix with the entries that does not change across
     // samples.
@@ -673,7 +681,7 @@ public:
     }
 
     // Update the β factor dependent cells of this matrix
-    for (auto & [ row, col ] : this->beta_dependent_cells) {
+    for (auto &[row, col] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) =
           this->A_beta_factors[row][col]->sample_from_prior(this->graph);
     }
@@ -684,7 +692,7 @@ public:
    * into an integer value.
    * At the moment returns the number of months withing the time range.
    * This should be the number of traing data time points we have
-   * 
+   *
    * @param start_year  : Start year of the training data sequence
    * @param start_month : Start month of the training data sequence
    * @param end_year    : End year of the training data sequence
@@ -693,7 +701,9 @@ public:
    * @return            : Number of months in the training data sequence
    *                      Including both start and end months
    */
-  int calculate_num_timesteps(int start_year, int start_month, int end_year,
+  int calculate_num_timesteps(int start_year,
+                              int start_month,
+                              int end_year,
                               int end_month) {
     assert(start_year <= end_year);
 
@@ -726,7 +736,7 @@ public:
    */
   vector<vector<double>> get_observed_state_from_data(
       int year, int month, string country = "South Sudan", string state = "") {
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     // Access
     // [ vertex ][ indicator ]
@@ -737,12 +747,15 @@ public:
 
       observed_state[v] = vector<double>(indicators.size(), 0.0);
 
-      std::transform(indicators.begin(), indicators.end(),
-                     observed_state[v].begin(), [&](Indicator ind) {
-                       // get_data_value() is defined in data.hpp
-                       return get_data_value(ind.get_name(), country, state,
-                                             year, month, ind.get_unit());
-                     });
+      std::transform(
+          indicators.begin(),
+          indicators.end(),
+          observed_state[v].begin(),
+          [&](Indicator ind) {
+            // get_data_value() is defined in data.hpp
+            return get_data_value(
+                ind.get_name(), country, state, year, month, ind.get_unit());
+          });
     }
 
     return observed_state;
@@ -763,12 +776,14 @@ public:
    * @param state       : State where the data is about
    *
    */
-  void set_observed_state_sequence_from_data(int start_year, int start_month,
-                                             int end_year, int end_month,
+  void set_observed_state_sequence_from_data(int start_year,
+                                             int start_month,
+                                             int end_year,
+                                             int end_month,
                                              string country = "South Sudan",
                                              string state = "") {
-    this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
-                                                      end_year, end_month);
+    this->n_timesteps = this->calculate_num_timesteps(
+        start_year, start_month, end_year, end_month);
     this->observed_state_sequence.clear();
 
     // Access
@@ -786,7 +801,8 @@ public:
       if (month == 12) {
         year++;
         month = 1;
-      } else {
+      }
+      else {
         month++;
       }
     }
@@ -802,7 +818,7 @@ public:
    *                  0 <= timestep < this->n_timesteps
    */
   void set_initial_latent_state_from_observed_state_sequence(int timestep = 0) {
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     // TODO: Ideally, we should make construct_default_initial_state()
     // to set this->_s0_ instead of returning a vlue
@@ -834,7 +850,8 @@ public:
           // TODO: Why this is different from else branch?
           this->s0_original(2 * v + 1) =
               this->norm_dist(this->rand_num_generator) + diff;
-        } else {
+        }
+        else {
           double next_ind_value =
               this->observed_state_sequence[timestep + 1][v][i];
           double next_state_value = next_ind_value / ind_mean;
@@ -851,42 +868,40 @@ public:
    *
    * @param ib: Criteria to initialize β
    */
-  void init_betas_to( InitialBeta ib = InitialBeta::MEAN )
-  {
-    switch( ib )
-    {
-      // Initialize the initial β for this edge
-      // Note: I am repeating the loop within each case for efficiency.
-      // If we embed the switch withn the for loop, there will be less code
-      // but we will evaluate the switch for each iteration through the loop
-      case InitialBeta::ZERO:
-        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-          graph[e].beta = 0;
-        }
-        break;
-      case InitialBeta::ONE:
-        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-          graph[e].beta = 1.0;
-        }
-        break;
-      case InitialBeta::HALF:
-        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-          graph[e].beta = 0.5;
-        }
-        break;
-      case InitialBeta::MEAN:
-        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-          graph[e].beta = graph[e].kde.value().mu;
-        }
-        break;
-      case InitialBeta::RANDOM:
-        for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-          // this->uni_dist() gives a random number in range [0, 1]
-          // Multiplying by 2 scales the range to [0, 2]
-          // Sustracting 1 moves the range to [-1, 1]
-          graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
-        }
-        break;
+  void init_betas_to(InitialBeta ib = InitialBeta::MEAN) {
+    switch (ib) {
+    // Initialize the initial β for this edge
+    // Note: I am repeating the loop within each case for efficiency.
+    // If we embed the switch withn the for loop, there will be less code
+    // but we will evaluate the switch for each iteration through the loop
+    case InitialBeta::ZERO:
+      for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+        graph[e].beta = 0;
+      }
+      break;
+    case InitialBeta::ONE:
+      for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+        graph[e].beta = 1.0;
+      }
+      break;
+    case InitialBeta::HALF:
+      for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+        graph[e].beta = 0.5;
+      }
+      break;
+    case InitialBeta::MEAN:
+      for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+        graph[e].beta = graph[e].kde.value().mu;
+      }
+      break;
+    case InitialBeta::RANDOM:
+      for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+        // this->uni_dist() gives a random number in range [0, 1]
+        // Multiplying by 2 scales the range to [0, 2]
+        // Sustracting 1 moves the range to [-1, 1]
+        graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+      }
+      break;
     }
   }
 
@@ -907,15 +922,20 @@ public:
    * @param initial_beta: Criteria to initialize β
    *
    */
-  void train_model(int start_year = 2012, int start_month = 1,
-                   int end_year = 2017, int end_month = 12, int res = 200,
-                   int burn = 10000, string country = "South Sudan",
-                   string state = "", map<std::string,std::string> units = {},
+  void train_model(int start_year = 2012,
+                   int start_month = 1,
+                   int end_year = 2017,
+                   int end_month = 12,
+                   int res = 200,
+                   int burn = 10000,
+                   string country = "South Sudan",
+                   string state = "",
+                   map<string, string> units = {},
                    InitialBeta initial_beta = InitialBeta::MEAN) {
     this->res = res;
-    this->init_betas_to( initial_beta );
+    this->init_betas_to(initial_beta);
     this->sample_initial_transition_matrix_from_prior();
-    this->parameterize(country,state,start_year,start_month,units);
+    this->parameterize(country, state, start_year, start_month, units);
 
     this->init_training_year = start_year;
     this->init_training_month = start_month;
@@ -960,8 +980,7 @@ public:
     this->training_latent_state_sequence_s =
         vector<vector<Eigen::VectorXd>>(this->res);
 
-
-    boost::progress_display progress_bar( burn + this->res );
+    boost::progress_display progress_bar(burn + this->res);
     boost::progress_timer t;
 
     for (int _ = 0; _ < burn; _++) {
@@ -983,7 +1002,7 @@ public:
     }
 
     this->trained = true;
-    fmt::print("\n");
+    print("\n");
     return;
   }
 
@@ -1019,16 +1038,18 @@ public:
   void sample_predicted_latent_state_sequence_s_from_likelihood(int timesteps) {
     this->n_timesteps = timesteps;
 
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     // Allocate memory for prediction_latent_state_sequence_s
-    this->predicted_latent_state_sequence_s.clear(); 
+    this->predicted_latent_state_sequence_s.clear();
     this->predicted_latent_state_sequence_s = vector<vector<Eigen::VectorXd>>(
         this->res,
-        vector<Eigen::VectorXd>(this->n_timesteps, Eigen::VectorXd(num_verts * 2)));
+        vector<Eigen::VectorXd>(this->n_timesteps,
+                                Eigen::VectorXd(num_verts * 2)));
 
     for (int samp = 0; samp < this->res; samp++) {
-      this->predicted_latent_state_sequence_s[samp][0] = this->prediction_initial_latent_state_s[samp];
+      this->predicted_latent_state_sequence_s[samp][0] =
+          this->prediction_initial_latent_state_s[samp];
 
       for (int ts = 1; ts < this->n_timesteps; ts++) {
         this->predicted_latent_state_sequence_s[samp][ts] =
@@ -1041,18 +1062,22 @@ public:
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
    */
-  void generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s()
-  {
+  void
+  generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s() {
     // Allocate memory for observed_state_sequences
-    this->predicted_observed_state_sequence_s.clear(); 
-    this->predicted_observed_state_sequence_s = vector<vector<vector<vector<double>>>>(
-        this->res,
-        vector<vector<vector<double>>>(this->n_timesteps, vector<vector<double>>()));
+    this->predicted_observed_state_sequence_s.clear();
+    this->predicted_observed_state_sequence_s =
+        vector<vector<vector<vector<double>>>>(
+            this->res,
+            vector<vector<vector<double>>>(this->n_timesteps,
+                                           vector<vector<double>>()));
 
     for (int samp = 0; samp < this->res; samp++) {
-      vector<Eigen::VectorXd> &sample = this->predicted_latent_state_sequence_s[samp];
+      vector<Eigen::VectorXd> &sample =
+          this->predicted_latent_state_sequence_s[samp];
 
-      std::transform(sample.begin(), sample.end(),
+      std::transform(sample.begin(),
+                     sample.end(),
                      this->predicted_observed_state_sequence_s[samp].begin(),
                      [this](Eigen::VectorXd latent_state) {
                        return this->sample_observed_state(latent_state);
@@ -1080,21 +1105,27 @@ public:
    *         The second element contains predicted values. Access it as:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
-  std::pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
-  generate_prediction(int start_year, int start_month, int end_year,
+  std::pair<
+      vector<string>,
+      vector<vector<unordered_map<string, unordered_map<string, double>>>>>
+  generate_prediction(int start_year,
+                      int start_month,
+                      int end_year,
                       int end_month) {
+    using std::to_string;
+
     if (!this->trained) {
-      fmt::print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
-                 "Try calling <CAG>.train_model(...) first!");
+      print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
+            "Try calling <CAG>.train_model(...) first!");
       throw "Model not yet trained";
     }
 
     if (start_year < this->init_training_year ||
         (start_year == this->init_training_year &&
          start_month < this->init_training_month)) {
-      fmt::print("The initial prediction date can't be before the\n"
-                 "inital training date. Defaulting initial prediction date\n"
-                 "to initial training date.");
+      print("The initial prediction date can't be before the\n"
+            "inital training date. Defaulting initial prediction date\n"
+            "to initial training date.");
       start_year = this->init_training_year;
       start_month = this->init_training_month;
     }
@@ -1112,12 +1143,14 @@ public:
      *  |___________|________________________________|
      *      diff              pred_timesteps
      */
-    int total_timesteps = this->calculate_num_timesteps(
-        this->init_training_year, this->init_training_month, end_year,
-        end_month);
+    int total_timesteps =
+        this->calculate_num_timesteps(this->init_training_year,
+                                      this->init_training_month,
+                                      end_year,
+                                      end_month);
 
-    int pred_timesteps = this->calculate_num_timesteps(start_year, start_month,
-                                                       end_year, end_month);
+    int pred_timesteps = this->calculate_num_timesteps(
+        start_year, start_month, end_year, end_month);
 
     int diff_timesteps = total_timesteps - pred_timesteps;
     int truncate = 0;
@@ -1129,12 +1162,13 @@ public:
     this->pred_range = vector<string>(pred_timesteps);
 
     for (int ts = 0; ts < pred_timesteps; ts++) {
-      this->pred_range[ts] = std::to_string(year) + "-" + std::to_string(month);
+      this->pred_range[ts] = to_string(year) + "-" + to_string(month);
 
       if (month == 12) {
         year++;
         month = 1;
-      } else {
+      }
+      else {
         month++;
       }
     }
@@ -1163,8 +1197,9 @@ public:
 
     this->set_initial_latent_states_for_prediction(pred_init_timestep);
 
-    //this->sample_from_likelihood(pred_timesteps);
-    this->sample_predicted_latent_state_sequence_s_from_likelihood(pred_timesteps);
+    // this->sample_from_likelihood(pred_timesteps);
+    this->sample_predicted_latent_state_sequence_s_from_likelihood(
+        pred_timesteps);
     this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
 
     for (vector<Eigen::VectorXd> &latent_state_s :
@@ -1172,15 +1207,16 @@ public:
       latent_state_s.erase(latent_state_s.begin(),
                            latent_state_s.begin() + truncate);
     }
-  
+
     for (vector<vector<vector<double>>> &observed_state_s :
          this->predicted_observed_state_sequence_s) {
       observed_state_s.erase(observed_state_s.begin(),
                              observed_state_s.begin() + truncate);
     }
 
-    //return std::make_pair(this->pred_range, this->observed_state_sequences);
-    return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps - truncate));
+    // return make_pair(this->pred_range, this->observed_state_sequences);
+    return make_pair(this->pred_range,
+                     this->format_prediction_result(pred_timesteps - truncate));
   }
 
   /**
@@ -1192,24 +1228,23 @@ public:
    *         Access it as:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
-  vector< vector< unordered_map< string, unordered_map< string, double >>>> 
-  format_prediction_result(int pred_timesteps)
-  {
+  vector<vector<unordered_map<string, unordered_map<string, double>>>>
+  format_prediction_result(int pred_timesteps) {
     // Access
     // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
-    vector< vector< unordered_map< string, unordered_map< string, double >>>> result = 
-    vector< vector< unordered_map< string, unordered_map< string, double >>>>
-        (this->res, vector< unordered_map< string, unordered_map< string, double >>>(pred_timesteps)) ;
+    auto result =
+        vector<vector<unordered_map<string, unordered_map<string, double>>>>(
+            this->res,
+            vector<unordered_map<string, unordered_map<string, double>>>(
+                pred_timesteps));
 
-    for( int samp = 0; samp < this->res; samp++ )
-    {
-      for( int ts = 0; ts < pred_timesteps; ts++ )
-      {
-        for( auto[ vert_name, vert_id ] : this->name_to_vertex )
-        {
-          for( auto[ ind_name, ind_id ] : this->graph[ vert_id ].indicator_names )
-          {
-            result[ samp ][ ts ][ vert_name ][ ind_name ] = this->predicted_observed_state_sequence_s[ samp ][ ts ][ vert_id ][ ind_id ];
+    for (int samp = 0; samp < this->res; samp++) {
+      for (int ts = 0; ts < pred_timesteps; ts++) {
+        for (auto [vert_name, vert_id] : this->name_to_vertex) {
+          for (auto [ind_name, ind_id] : this->graph[vert_id].indicator_names) {
+            result[samp][ts][vert_name][ind_name] =
+                this->predicted_observed_state_sequence_s[samp][ts][vert_id]
+                                                         [ind_id];
           }
         }
       }
@@ -1233,7 +1268,7 @@ public:
    *         Indexed by: [ vertex id ][ indicator id ]
    */
   vector<vector<double>> sample_observed_state(Eigen::VectorXd latent_state) {
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     assert(num_verts == latent_state.size() / 2);
 
@@ -1249,8 +1284,10 @@ public:
       // scaled by the value of the latent state that caused this observation.
       // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
       //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
-      std::transform(indicators.begin(), indicators.end(),
-                     observed_state[v].begin(), [&](Indicator ind) {
+      std::transform(indicators.begin(),
+                     indicators.end(),
+                     observed_state[v].begin(),
+                     [&](Indicator ind) {
                        std::normal_distribution<double> gaussian(
                            ind.mean * latent_state[2 * v], ind.stdev);
 
@@ -1268,20 +1305,22 @@ public:
    *
    * @param e: The directed edge ≡ β that has been perturbed
    */
-  void update_transition_matrix_cells(
-      boost::graph_traits<DiGraph>::edge_descriptor e) {
+  void
+  update_transition_matrix_cells(graph_traits<DiGraph>::edge_descriptor e) {
     pair<int, int> beta =
         make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
     typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
-    pair<MMAPIterator, MMAPIterator> beta_dept_cells = this->beta2cell.equal_range(beta);
+    pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+        this->beta2cell.equal_range(beta);
 
     // TODO: I am introducing this to implement calculate_Δ_log_prior
     // Remember the cells of A that got changed and their previous values
     // this->A_cells_changed.clear();
 
-    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second; it++) {
+    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+         it++) {
       int &row = it->second.first;
       int &col = it->second.second;
 
@@ -1317,9 +1356,9 @@ public:
     // Randomly pick an edge ≡ β
     boost::iterator_range edge_it = this->edges();
 
-    vector<boost::graph_traits<DiGraph>::edge_descriptor> e(1);
-    std::sample(edge_it.begin(), edge_it.end(), e.begin(), 1,
-                this->rand_num_generator);
+    vector<graph_traits<DiGraph>::edge_descriptor> e(1);
+    std::sample(
+        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
     // Remember the previous β
     this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
@@ -1332,14 +1371,14 @@ public:
   }
 
   void set_latent_state_sequence() {
-    int num_verts = boost::num_vertices(this->graph);
+    int num_verts = num_vertices(this->graph);
 
     // Allocate memory for latent_state_sequence
     this->latent_state_sequence = vector<Eigen::VectorXd>(
         this->n_timesteps, Eigen::VectorXd(num_verts * 2));
 
     this->latent_state_sequence.clear();
-    this->latent_state_sequence = vector< Eigen::VectorXd >( this->n_timesteps );
+    this->latent_state_sequence = vector<Eigen::VectorXd>(this->n_timesteps);
 
     // TODO: Disambiguate the type of s0 in the python implementation of this
     // method.
@@ -1350,7 +1389,8 @@ public:
     this->latent_state_sequence[0] = this->s0_original;
 
     for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->latent_state_sequence[ts] = this->A_original * this->latent_state_sequence[ts - 1];
+      this->latent_state_sequence[ts] =
+          this->A_original * this->latent_state_sequence[ts - 1];
     }
   }
 
@@ -1364,7 +1404,7 @@ public:
 
   double calculate_log_likelihood() {
     double log_likelihood_total = 0.0;
-    //this->log_likelihood = 0.0;
+    // this->log_likelihood = 0.0;
 
     this->set_latent_state_sequence();
 
@@ -1381,29 +1421,27 @@ public:
       // TODO: In the python file I cannot find the place where
       // self.observed_state_sequence gets populated.
       // It only appears within the calculate_log_likelihood and
-      // there it is beign accessed!!!
+      // there it is being accessed!!!
       // Access
       // observed_state[ vertex ][ indicator ]
       const vector<vector<double>> &observed_state =
           this->observed_state_sequence[ts];
 
       for (int v : vertices()) {
-        const int &num_inds_for_v = observed_state[v].size();
-
-        for (int indicator = 0; indicator < num_inds_for_v; indicator++) {
-          const double &value = observed_state[v][indicator];
-          const Indicator &ind = graph[v].indicators[indicator];
+        for (int i = 0; i < observed_state[v].size(); i++) {
+          const double &value = observed_state[v][i];
+          const Indicator &ind = graph[v].indicators[i];
 
           // Even indices of latent_state keeps track of the state of each
           // vertex
           double log_likelihood_component = this->log_normpdf(
               value, latent_state[2 * v] * ind.mean, ind.stdev);
           log_likelihood_total += log_likelihood_component;
-          //this->log_likelihood += log_likelihood_component;
+          // this->log_likelihood += log_likelihood_component;
         }
       }
     }
-    //assert(log_likelihood_total == this->log_likelihood);
+    // assert(log_likelihood_total == this->log_likelihood);
     return log_likelihood_total;
   }
 
@@ -1447,8 +1485,7 @@ public:
 
     double delta_log_joint_probability = delta_log_prior + delta_log_likelihood;
 
-    double acceptance_probability =
-        std::min(1.0, exp(delta_log_joint_probability));
+    double acceptance_probability = min(1.0, exp(delta_log_joint_probability));
 
     if (acceptance_probability < uni_dist(this->rand_num_generator)) {
       // Reject the sample
@@ -1468,22 +1505,29 @@ public:
   // ==========================================================================
 
   void set_indicator(string concept, string indicator, string source) {
-    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator) != this->indicators_in_CAG.end()){
-    if (this->indicators_in_CAG.find(indicator) != this->indicators_in_CAG.end()){
-      print("{0} already exists in Casual Analysis Graph, Indicator {0} was not added to Concept {1}.",indicator,concept);
+    // if
+    // (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator)
+    // != this->indicators_in_CAG.end()){
+    if (this->indicators_in_CAG.find(indicator) !=
+        this->indicators_in_CAG.end()) {
+      print("{0} already exists in Casual Analysis Graph, Indicator {0} was "
+            "not added to Concept {1}.",
+            indicator,
+            concept);
       return;
     }
     try {
       this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
                                                                   source);
-      //this->indicators_in_CAG.push_back(indicator);
+      // this->indicators_in_CAG.push_back(indicator);
       this->indicators_in_CAG.insert(indicator);
-    } catch (const std::out_of_range &oor) {
-      std::cerr << "Error: AnalysisGraph::set_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicator: " << indicator << " with Source: " << source
-                << endl;
-      std::cerr << "\tCannot be added\n";
+    }
+    catch (const std::out_of_range &oor) {
+      cerr << "Error: AnalysisGraph::set_indicator()\n"
+           << "\tConcept: " << concept << " is not in the CAG\n";
+      cerr << "\tIndicator: " << indicator << " with Source: " << source
+           << endl;
+      cerr << "\tCannot be added\n";
     }
   }
 
@@ -1511,27 +1555,38 @@ public:
   }
   */
 
-  void replace_indicator(string concept, string indicator_old,
-                         string indicator_new, string source) {
+  void replace_indicator(string concept,
+                         string indicator_old,
+                         string indicator_new,
+                         string source) {
 
-    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new) != this->indicators_in_CAG.end()){
-    if (this->indicators_in_CAG.find(indicator_new) != this->indicators_in_CAG.end()){
-      print("{0} already exists in Casual Analysis Graph, Indicator {0} did not replace Indicator {1} for Concept {2}.",indicator_new,indicator_old,concept);
+    // if
+    // (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new)
+    // != this->indicators_in_CAG.end()){
+    if (this->indicators_in_CAG.find(indicator_new) !=
+        this->indicators_in_CAG.end()) {
+      print("{0} already exists in Casual Analysis Graph, Indicator {0} did "
+            "not replace Indicator {1} for Concept {2}.",
+            indicator_new,
+            indicator_old,
+            concept);
       return;
     }
- 
+
     try {
       this->graph[this->name_to_vertex.at(concept)].replace_indicator(
           indicator_old, indicator_new, source);
-      //this->indicators_in_CAG.push_back(indicator_new);
-      //this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(), this->indicators_in_CAG.end(), indicator_old), this->indicators_in_CAG.end());
+      // this->indicators_in_CAG.push_back(indicator_new);
+      // this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(),
+      // this->indicators_in_CAG.end(), indicator_old),
+      // this->indicators_in_CAG.end());
       this->indicators_in_CAG.insert(indicator_new);
       this->indicators_in_CAG.erase(indicator_old);
-    } catch (const std::out_of_range &oor) {
-      std::cerr << "Error: AnalysisGraph::replace_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicator: " << indicator_old << " cannot be replaced"
-                << endl;
+    }
+    catch (const std::out_of_range &oor) {
+      cerr << "Error: AnalysisGraph::replace_indicator()\n"
+           << "\tConcept: " << concept << " is not in the CAG\n";
+      cerr << "\tIndicator: " << indicator_old << " cannot be replaced" << endl;
     }
   }
 
@@ -1555,7 +1610,7 @@ public:
    */
   void map_concepts_to_indicators(int n = 1) {
     sqlite3 *db;
-    int rc = sqlite3_open(std::getenv("DELPHI_DB"), &db);
+    int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
     if (rc) {
       print("Could not open db\n");
       return;
@@ -1576,27 +1631,30 @@ public:
         do {
           rc = sqlite3_step(stmt);
           if (rc == SQLITE_ROW) {
-            ind_source = std::string(
+            ind_source = string(
                 reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
-            ind_name = std::string(
+            ind_name = string(
                 reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
-          } else {
+          }
+          else {
             ind_not_found = true;
             break;
           }
-        //} while (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name) != this->indicators_in_CAG.end());
-        } while (this->indicators_in_CAG.find(ind_name) != this->indicators_in_CAG.end());
+          //} while
+          //(std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name)
+          //!= this->indicators_in_CAG.end());
+        } while (this->indicators_in_CAG.find(ind_name) !=
+                 this->indicators_in_CAG.end());
 
         if (!ind_not_found) {
           this->graph[v].add_indicator(ind_name, ind_source);
-          //this->indicators_in_CAG.push_back(ind_name);
+          // this->indicators_in_CAG.push_back(ind_name);
           this->indicators_in_CAG.insert(ind_name);
         }
         else {
-          cout << "No more indicators were found, only " << c << "indicators attached to "
-               << this->graph[v].name << endl;
+          cout << "No more indicators were found, only " << c
+               << "indicators attached to " << this->graph[v].name << endl;
           break;
-        
         }
       }
       sqlite3_finalize(stmt);
@@ -1608,29 +1666,31 @@ public:
    * Parameterize the indicators of the AnalysisGraph..
    *
    */
-  void parameterize(string country = "South Sudan", string state = "", int
-   year = 2012, int month = 1,map<std::string,std::string> units={}) {
+  void parameterize(string country = "South Sudan",
+                    string state = "",
+                    int year = 2012,
+                    int month = 1,
+                    map<string, string> units = {}) {
     double stdev;
-    for(int v : this->vertices()){
-      for(auto[name,i] : this->graph[ v ].indicator_names){
-        if (units.find(name) != units.end()){
-          this->graph[ v ].indicators[ i ].set_unit(units[name]);
-          this->graph[ v ].indicators[ i ].set_mean(get_data_value(name,country,state,year,month,units[name]));
-          stdev = 0.1 * abs(this->graph[ v ].indicators[ i ].get_mean());
-          this->graph[ v ].indicators[ i ].set_stdev(stdev);
-          
+    for (int v : this->vertices()) {
+      for (auto [name, i] : this->graph[v].indicator_names) {
+        if (units.find(name) != units.end()) {
+          this->graph[v].indicators[i].set_unit(units[name]);
+          this->graph[v].indicators[i].set_mean(
+              get_data_value(name, country, state, year, month, units[name]));
+          stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
+          this->graph[v].indicators[i].set_stdev(stdev);
         }
-        else{
-          this->graph[ v ].indicators[ i ].set_default_unit();
-          this->graph[ v ].indicators[ i ].set_mean(get_data_value(name,country,state,year,month));
-          stdev = 0.1 * abs(this->graph[ v ].indicators[ i ].get_mean());
-          this->graph[ v ].indicators[ i ].set_stdev(stdev);
+        else {
+          this->graph[v].indicators[i].set_default_unit();
+          this->graph[v].indicators[i].set_mean(
+              get_data_value(name, country, state, year, month));
+          stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
+          this->graph[v].indicators[i].set_stdev(stdev);
         }
       }
     }
-  
   }
- 
 
   auto print_nodes() {
     cout << "Vertex IDs and their names in the CAG" << endl;
@@ -1649,7 +1709,7 @@ public:
   }
 
   void print_name_to_vertex() {
-    for (auto[name, vert] : this->name_to_vertex) {
+    for (auto [name, vert] : this->name_to_vertex) {
       cout << name << " -> " << vert << endl;
     }
     cout << endl;
@@ -1659,18 +1719,17 @@ public:
     using boost::make_label_writer;
     using boost::write_graphviz;
 
-    write_graphviz(cout, graph,
-                   make_label_writer(boost::get(&Node::name, graph)));
+    write_graphviz(
+        cout, graph, make_label_writer(boost::get(&Node::name, graph)));
   }
 
   auto print_indicators() {
     for (int v : this->vertices()) {
       cout << "node " << v << ": " << this->graph[v].name << ":" << endl;
-      for (auto[name, vert] : this->graph[v].indicator_names) {
+      for (auto [name, vert] : this->graph[v].indicator_names) {
         cout << "\t"
              << "indicator " << vert << ": " << name << endl;
       }
     }
   }
-
 };
