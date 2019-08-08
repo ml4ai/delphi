@@ -25,6 +25,7 @@ else()
   option(FMT_INSTALL OFF)
   option(FMT_TEST OFF)
   add_subdirectory(external/fmt)
+  include_directories(external/fmt/include)
 endif()
 
 find_package(PythonInterp REQUIRED)
