@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.14
+  version: 0.2.15
 
 paths: {}
 
@@ -432,11 +432,15 @@ components:
       description: >
         Reference to the location within the a source code file.
       required:
-        - source_ref
+        - line_number
         - file_path
       properties:
-        source_ref:
-          type: string
+        line_number:
+          type: integer
+        column_start:
+          type: integer
+        column_end:
+          type: integer
         file_path:
           $ref: '#/components/schemas/file_path'
 
