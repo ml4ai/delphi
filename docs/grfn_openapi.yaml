@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.13
+  version: 0.2.14
 
 paths: {}
 
@@ -258,15 +258,13 @@ components:
         Define a non-primitive type.
       required:
         - name
-        - source_refs
+        - source_ref
         - gensym
       properties:
         name:
           $ref: '#/components/schemas/type_identifier_name'
-        source_refs:
-          type: array
-          items:
-            $ref: '#/components/schemas/source_code_ref'
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
         gensym:
           $ref: '#/components/schemas/gensym'
 
@@ -295,7 +293,7 @@ components:
       required:
         - name
         - index
-        - source_refs
+        - source_ref
         - gensym
         - domain
         - mutable
@@ -304,10 +302,8 @@ components:
           $ref: '#/components/schemas/variable_identifier_name'
         index:
           type: integer
-        source_refs:
-          type: array
-          items:
-            $ref: '#/components/schemas/source_code_ref'
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
         gensym:
           $ref: '#/components/schemas/gensym'
 
@@ -345,10 +341,8 @@ components:
       properties:
         name:
           $ref: '#/components/schemas/container_identifier_name'
-        source_refs:
-          type: array
-          items:
-            $ref: '#/components/schemas/source_code_ref'
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
         gensym:
           $ref: '#/components/schemas/gensym'
 
