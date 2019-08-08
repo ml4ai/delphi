@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
