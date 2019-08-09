@@ -15,18 +15,9 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-find_package(FMT)
 
-if (FMT_FOUND)
-  message("-- Found fmt.")
-else()
-  message("-- fmt package not found on system, using the version bundled with Delphi.")
-  option(FMT_DOC OFF)
-  option(FMT_INSTALL OFF)
-  option(FMT_TEST OFF)
-  add_subdirectory(external/fmt)
-  include_directories(external/fmt/include)
-endif()
+add_subdirectory(external/fmt)
+include_directories(external/fmt/include)
 
 find_package(PythonInterp REQUIRED)
 
