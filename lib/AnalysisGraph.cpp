@@ -188,6 +188,7 @@ private:
   Eigen::MatrixXd A_original;
 
   int n_timesteps;
+  int pred_timesteps;
 
   // Accumulates the transition matrices for accepted samples
   // Access: [ sample number ]
@@ -902,7 +903,7 @@ public:
                    int end_year = 2017, int end_month = 12, int res = 200,
                    int burn = 10000, string country = "South Sudan",
                    string state = "", map<std::string,std::string> units = {},
-                   InitialBeta initial_beta = InitialBeta::MEAN) {
+                   InitialBeta initial_beta = InitialBeta::ZERO) {
     this->res = res;
     this->init_betas_to( initial_beta );
     this->sample_initial_transition_matrix_from_prior();
@@ -1063,7 +1064,7 @@ public:
    *         The second element contains predicted values. Access it as:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
-  std::pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
+  pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
   generate_prediction(int start_year, int start_month, int end_year,
                       int end_month) {
     if (!this->trained) {
@@ -1099,19 +1100,19 @@ public:
         this->init_training_year, this->init_training_month, end_year,
         end_month);
 
-    int pred_timesteps = this->calculate_num_timesteps(start_year, start_month,
+    this->pred_timesteps = this->calculate_num_timesteps(start_year, start_month,
                                                        end_year, end_month);
 
-    int diff_timesteps = total_timesteps - pred_timesteps;
+    int diff_timesteps = total_timesteps - this->pred_timesteps;
     int truncate = 0;
 
     int year = start_year;
     int month = start_month;
 
     this->pred_range.clear();
-    this->pred_range = vector<string>(pred_timesteps);
+    this->pred_range = vector<string>(this->pred_timesteps);
 
-    for (int ts = 0; ts < pred_timesteps; ts++) {
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
       this->pred_range[ts] = std::to_string(year) + "-" + std::to_string(month);
 
       if (month == 12) {
@@ -1141,13 +1142,12 @@ public:
        */
       pred_init_timestep = this->n_timesteps - 1;
       truncate = diff_timesteps - this->n_timesteps;
-      pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
+      this->pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
     }
 
     this->set_initial_latent_states_for_prediction(pred_init_timestep);
 
-    //this->sample_from_likelihood(pred_timesteps);
-    this->sample_predicted_latent_state_sequence_s_from_likelihood(pred_timesteps);
+    this->sample_predicted_latent_state_sequence_s_from_likelihood(this->pred_timesteps);
     this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
 
     for (vector<Eigen::VectorXd> &latent_state_s :
@@ -1162,8 +1162,8 @@ public:
                              observed_state_s.begin() + truncate);
     }
 
-    //return std::make_pair(this->pred_range, this->observed_state_sequences);
-    return std::make_pair(this->pred_range, this->format_prediction_result(pred_timesteps - truncate));
+    this->pred_timesteps -= truncate;
+    return std::make_pair(this->pred_range, this->format_prediction_result());
   }
 
   /**
@@ -1176,21 +1176,21 @@ public:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
   vector< vector< unordered_map< string, unordered_map< string, double >>>> 
-  format_prediction_result(int pred_timesteps)
+  format_prediction_result()
   {
     // Access
     // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
     vector< vector< unordered_map< string, unordered_map< string, double >>>> result = 
     vector< vector< unordered_map< string, unordered_map< string, double >>>>
-        (this->res, vector< unordered_map< string, unordered_map< string, double >>>(pred_timesteps)) ;
+        (this->res, vector< unordered_map< string, unordered_map< string, double >>>(this->pred_timesteps)) ;
 
     for( int samp = 0; samp < this->res; samp++ )
     {
-      for( int ts = 0; ts < pred_timesteps; ts++ )
+      for( int ts = 0; ts < this->pred_timesteps; ts++ )
       {
-        for( auto[ vert_name, vert_id ] : this->name_to_vertex )
+        for( auto [ vert_name, vert_id ] : this->name_to_vertex )
         {
-          for( auto[ ind_name, ind_id ] : this->graph[ vert_id ].indicator_names )
+          for( auto [ ind_name, ind_id ] : this->graph[ vert_id ].indicator_names )
           {
             result[ samp ][ ts ][ vert_name ][ ind_name ] = this->predicted_observed_state_sequence_s[ samp ][ ts ][ vert_id ][ ind_id ];
           }
@@ -1198,6 +1198,48 @@ public:
       }
     }
 
+    return result;
+  }
+
+  vector<vector<double>> prediction_to_array(string indicator)
+  {
+    int vert_id = -1;
+    int ind_id = -1;
+
+    //vector<vector<double>> result = vector<vector<double>>( 10, vector<double>( 10 ));
+    vector<vector<double>> result = vector<vector<double>>( this->res, vector<double>( this->pred_timesteps ));
+
+    // Find the vertex id the indicator is attached to and
+    // the indicator id of it.
+    // TODO: We can make this more efficient by making indicators_in_CAG
+    // a map from indicator names to vertices they are attached to.
+    // This is just a quick and dirty implementation
+    for( auto [ v_name, v_id ] : this->name_to_vertex )
+    {
+      for( auto [ i_name, i_id ] : this->graph[ vert_id ].indicator_names )
+      {
+        if(indicator.compare( i_name ) == 0)
+        {
+          vert_id = v_id;
+          ind_id = i_id;
+          goto indicator_found;
+        }
+      }
+    }
+    // Program will reach hear only if the indicator is not found
+    fmt::print("AnalysisGraph::prediction_to_array - indicator {} not found!", indicator);
+    throw "Indicator not found";
+
+    indicator_found:
+
+    for( int samp = 0; samp < this->res; samp++ )
+    {
+      for( int ts = 0; ts < this->pred_timesteps; ts++ )
+      {
+        fmt::print("({}, {})\n", samp, ts);
+        result[ samp ][ ts ] = this->predicted_observed_state_sequence_s[ samp ][ ts ][ vert_id ][ ind_id ];
+      }
+    }
     return result;
   }
 
@@ -1421,7 +1463,6 @@ public:
   // ==========================================================================
 
   void set_indicator(string concept, string indicator, string source) {
-    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator) != this->indicators_in_CAG.end()){
     if (this->indicators_in_CAG.find(indicator) != this->indicators_in_CAG.end()){
       print("{0} already exists in Casual Analysis Graph, Indicator {0} was not added to Concept {1}.",indicator,concept);
       return;
@@ -1429,7 +1470,6 @@ public:
     try {
       this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
                                                                   source);
-      //this->indicators_in_CAG.push_back(indicator);
       this->indicators_in_CAG.insert(indicator);
     } catch (const std::out_of_range &oor) {
       std::cerr << "Error: AnalysisGraph::set_indicator()\n"
@@ -1467,7 +1507,6 @@ public:
   void replace_indicator(string concept, string indicator_old,
                          string indicator_new, string source) {
 
-    //if (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),indicator_new) != this->indicators_in_CAG.end()){
     if (this->indicators_in_CAG.find(indicator_new) != this->indicators_in_CAG.end()){
       print("{0} already exists in Casual Analysis Graph, Indicator {0} did not replace Indicator {1} for Concept {2}.",indicator_new,indicator_old,concept);
       return;
@@ -1476,8 +1515,6 @@ public:
     try {
       this->graph[this->name_to_vertex.at(concept)].replace_indicator(
           indicator_old, indicator_new, source);
-      //this->indicators_in_CAG.push_back(indicator_new);
-      //this->indicators_in_CAG.erase(std::remove(this->indicators_in_CAG.begin(), this->indicators_in_CAG.end(), indicator_old), this->indicators_in_CAG.end());
       this->indicators_in_CAG.insert(indicator_new);
       this->indicators_in_CAG.erase(indicator_old);
     } catch (const std::out_of_range &oor) {
@@ -1537,12 +1574,10 @@ public:
             ind_not_found = true;
             break;
           }
-        //} while (std::find(this->indicators_in_CAG.begin(),this->indicators_in_CAG.end(),ind_name) != this->indicators_in_CAG.end());
         } while (this->indicators_in_CAG.find(ind_name) != this->indicators_in_CAG.end());
 
         if (!ind_not_found) {
           this->graph[v].add_indicator(ind_name, ind_source);
-          //this->indicators_in_CAG.push_back(ind_name);
           this->indicators_in_CAG.insert(ind_name);
         }
         else {

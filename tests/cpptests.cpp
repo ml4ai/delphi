@@ -3,5 +3,21 @@
 #include "AnalysisGraph.cpp"
 
 TEST_CASE("Testing model training") {
-  auto G = AnalysisGraph();
+  vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
+          statements = {{{"large", -1, "UN/entities/human/financial/economic/inflation"}, {"small", 1, "UN/events/human/human_migration"}}};
+  AnalysisGraph G = AnalysisGraph::from_statements(statements);
+
+  G.map_concepts_to_indicators();
+
+  G.replace_indicator("UN/events/human/human_migration","Net migration","New asylum seeking applicants", "UNHCR");
+
+  G.train_model(2015,1,2015,12,100,900);
+
+  pair<vector<string>, vector< vector< unordered_map< string, unordered_map< string, double >>>>> 
+  preds = G.generate_prediction(2015,1,2015,12);
+  fmt::print("Prediction to array\n");
+
+  //This seg fauts - even when the function body is almost empty
+  //Could not figure out why :( 
+  //vector<vector<double>> result = G.prediction_to_array("New asylum seeking applicants");
 }
