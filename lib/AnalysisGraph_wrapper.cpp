@@ -61,6 +61,18 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "source"_a)
       //.def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
       //     "indicator"_a, py::return_value_policy::automatic)
+      .def("test_inference_with_synthetic_data",
+           &AnalysisGraph::test_inference_with_synthetic_data,
+           "start_year"_a = 2015,
+           "start_month"_a = 1,
+           "end_year"_a = 2015,
+           "end_month"_a = 12,
+           "res"_a = 100,
+           "burn"_a = 900,
+           "country"_a = "South Sudan",
+           "state"_a = "",
+           py::arg("units") = map<std::string, std::string>{},
+           "initial_beta"_a = InitialBeta::HALF)
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,
@@ -72,7 +84,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "country"_a = "South Sudan",
            "state"_a = "",
            py::arg("units") = map<std::string, std::string>{},
-           "initial_beta"_a = InitialBeta::MEAN)
+           "initial_beta"_a = InitialBeta::ZERO)
       .def("generate_prediction",
            &AnalysisGraph::generate_prediction,
            "start_year"_a,
