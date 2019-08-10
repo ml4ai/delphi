@@ -36,9 +36,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            &AnalysisGraph::print_cells_affected_by_beta,
            "source"_a,
            "target"_a)
-      .def("sample_from_posterior",
-           &AnalysisGraph::sample_from_posterior,
-           py::return_value_policy::reference_internal)
+      //.def("sample_from_posterior",
+      //     &AnalysisGraph::sample_from_posterior,
+      //     py::return_value_policy::reference_internal)
       .def("get_beta",
            &AnalysisGraph::get_beta,
            "source_vertex_name"_a,
@@ -78,7 +78,8 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
-           "end_month"_a);
+           "end_month"_a)
+      .def("prediction_to_array", &AnalysisGraph::prediction_to_array, "indicator"_a);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
