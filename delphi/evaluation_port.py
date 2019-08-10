@@ -402,13 +402,12 @@ def pred_plot(
         df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
         df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_compare, sort=False, **kwargs)
+        ax = sns.lineplot(data=df_compare, sort=False)
         ax.fill_between(
             x=df_compare.index,
             y1=df[f"{indicator}(Upper Confidence Bound)"].values,
             y2=df[f"{indicator}(Lower Confidence Bound)"].values,
             alpha=0.5,
-            **kwargs,
         )
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.set_title(f"Predictions vs. True values for {indicator}")
@@ -416,28 +415,42 @@ def pred_plot(
         df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
         df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_error, sort=False, **kwargs)
+        ax = sns.lineplot(data=df_error, sort=False)
         ax.fill_between(
             x=df_error.index,
             y1=df["Upper Error Bound"].values,
             y2=df["Lower Error Bound"].values,
             alpha=0.5,
-            **kwargs,
         )
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.axhline(color="r")
         ax.set_title(f"Prediction Error for {indicator}")
-    else:
+    elif plot_type == "Test":
+        test_data = kwargs.get("test_data")
+        assert(test_data is not None)
         df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-        df_pred = df.drop(df.columns[[1, 2]], axis=1)
+        df_pred = df.drop(df.columns[[1,2]],axis=1)
+        df_pred[f"{indicator}(Synthetic)"] = test_data
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_pred, sort=False, **kwargs)
+        ax = sns.lineplot(data=df_pred, sort=False)
         ax.fill_between(
             x=df_pred.index,
             y1=df[f"{indicator}(Upper Confidence Bound)"].values,
             y2=df[f"{indicator}(Lower Confidence Bound)"].values,
             alpha=0.5,
-            **kwargs,
+        )
+        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+        ax.set_title(f"Predictions vs. True values(Synthetic) for {indicator}")
+    else:
+        df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+        df_pred = df.drop(df.columns[[1, 2]], axis=1)
+        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+        ax = sns.lineplot(data=df_pred, sort=False)
+        ax.fill_between(
+            x=df_pred.index,
+            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+            alpha=0.5,
         )
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.set_title(f"Predictions for {indicator}")
