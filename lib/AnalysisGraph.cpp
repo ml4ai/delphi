@@ -45,7 +45,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
   if (rc == 1)
-    cerr << "Could not open db\n" << endl;
+    throw "Could not open db\n";
 
   sqlite3_stmt *stmt;
   const char *query = "select * from gradableAdjectiveData";
@@ -490,6 +490,7 @@ class AnalysisGraph {
         marginalized_responses.push_back(response);
       }
     }
+
     marginalized_responses =
         KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES);
 
