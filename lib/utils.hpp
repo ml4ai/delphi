@@ -5,6 +5,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <vector>
+#include <boost/range/numeric.hpp>
 
 namespace utils {
 
@@ -49,4 +50,21 @@ nlohmann::json load_json(string filename) {
   i >> j;
   return j;
 }
+
+/**
+ * Returns the square of a number.
+ */
+double sqr(double x) { return x * x; }
+
+/**
+ * Returns the sum of a vector of doubles.
+ */
+double sum(std::vector<double> v) { return boost::accumulate(v, 0.0); }
+
+
+/**
+ * Returns the arithmetic mean of a vector of doubles.
+ */
+double mean(std::vector<double> v) { return sum(v) / v.size(); }
+
 } // namespace utils

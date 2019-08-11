@@ -1,29 +1,20 @@
 #include <random>
 #include <boost/range/irange.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/range/numeric.hpp>
 #include "utils.hpp"
 #include "rng.hpp"
 #include "kde.hpp"
 
 using std::vector;
-using boost::accumulate;
-using boost::adaptors::transformed;
 using boost::irange;
 using boost::lambda::_1;
 using boost::lambda::_2;
 using std::mt19937;
 using std::normal_distribution;
 
-double sqr(double x) { return x * x; }
-
-double sum(vector<double> v) { return accumulate(v, 0.0); }
-
-double mean(vector<double> v) { return sum(v) / v.size(); }
 
 double sample_from_normal(
     double mu = 0.0, /**< The mean of the distribution.*/
@@ -44,6 +35,7 @@ vector<double> KDE::resample(int n_samples) {
 }
 
 double KDE::pdf(double x) {
+  using utils::sqr;
   double p = 0.0;
   size_t N = dataset.size();
   for (double elem : dataset) {

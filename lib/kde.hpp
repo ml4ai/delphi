@@ -9,22 +9,8 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/range/numeric.hpp>
 #include "rng.hpp"
+#include "utils.hpp"
 
-/**
- * Returns the square of a number.
- */
-double sqr(double x);
-
-/**
- * Returns the sum of a vector of doubles.
- */
-double sum(std::vector<double> v);
-
-
-/**
- * Returns the arithmetic mean of a vector of doubles.
- */
-double mean(std::vector<double> v);
 
 /**
  * Returns a randomly selected element of a vector.
@@ -53,6 +39,7 @@ public:
   KDE(std::vector<double> v) : dataset(v) {
     using boost::adaptors::transformed;
     using boost::lambda::_1;
+    using utils::mean;
 
     // Compute the bandwidth using Silverman's rule
     mu = mean(v);
