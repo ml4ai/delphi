@@ -25,9 +25,6 @@ using namespace std;
 using boost::edge;
 using boost::source;
 using boost::target;
-using utils::hasKey;
-using utils::get;
-using utils::lmap;
 using fmt::print;
 
 const size_t DEFAULT_N_SAMPLES = 100;
@@ -38,8 +35,12 @@ typedef unordered_map<string, vector<double>> AdjectiveResponseMap;
 
 typedef vector<vector<vector<double>>> ObservedStateSequence;
 
+typedef pair<tuple<string, int, string>, tuple<string, int, string>>
+    CausalFragment;
+
 AdjectiveResponseMap
 construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
+  using utils::hasKey;
   sqlite3 *db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -424,15 +425,12 @@ class AnalysisGraph {
    *
    * @param statements: A vector of Statement objects
    */
-  static AnalysisGraph from_statements(
-      vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
-          statements) {
+  static AnalysisGraph from_statements(vector<CausalFragment> statements) {
     DiGraph G;
 
     unordered_map<string, int> nameMap = {};
 
-    for (pair<tuple<string, int, string>, tuple<string, int, string>> stmt :
-         statements) {
+    for (CausalFragment stmt : statements) {
       Event subject = Event(stmt.first);
       Event object = Event(stmt.second);
 
@@ -480,6 +478,9 @@ class AnalysisGraph {
   }
 
   void construct_beta_pdfs() {
+    using utils::get;
+    using utils::lmap;
+
     double sigma_X = 1.0;
     double sigma_Y = 1.0;
     auto adjective_response_map = construct_adjective_response_map();
@@ -1409,7 +1410,7 @@ class AnalysisGraph {
   void update_transition_matrix_cells(
       boost::graph_traits<DiGraph>::edge_descriptor e) {
     pair<int, int> beta =
-        make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
+        make_pair(source(e, this->graph), target(e, this->graph));
 
     typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 

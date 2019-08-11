@@ -45,17 +45,6 @@ struct Statement {
 };
 
 
-/*
-struct CausalFragment {
-  std::string subj_adjective;
-  std::string obj_adjective;
-  // Here we assume that unknown polarities are set to 1.
-  int subj_polarity{1};
-  int obj_polarity{1};
-};
-*/
-
-
 struct Edge {
   std::string name;
   // TODO: Why kde is optional?
