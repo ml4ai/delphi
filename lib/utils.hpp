@@ -13,8 +13,8 @@ using std::cout, std::endl, std::vector, std::string, std::ifstream,
     std::unordered_map;
 
 template <class T> void printVec(vector<T> xs) {
-  for (auto x : xs) {
-    fmt::print(x);
+  for (T x : xs) {
+    cout << x << ", " << endl;
   }
 }
 
