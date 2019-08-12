@@ -460,6 +460,18 @@ class AnalysisGraph {
 
   auto add_node() { return boost::add_vertex(graph); }
 
+  void update_meta_data()
+  {
+    // Update the internal meta-data
+    for( int vert_id : vertices() )
+    {
+      this->name_to_vertex[ this->graph[ vert_id ].name ] = vert_id;
+    }
+
+    // Recalculate all the directed simple paths
+    this->find_all_paths();
+  }
+
   void remove_node( string concept )
   {
     auto node_to_remove = this->name_to_vertex.extract(concept);
@@ -472,19 +484,63 @@ class AnalysisGraph {
       // Remove the vetex
       boost::remove_vertex( node_to_remove.mapped(), this->graph );
 
-      // Update the internal meta-data
-      for( int vert_id : vertices() )
-      {
-        this->name_to_vertex[ this->graph[ vert_id ].name ] = vert_id;
-      }
-
-      // Recalculate all the directed simple paths
-      this->find_all_paths();
+      this->update_meta_data();
     }
     else // indicator_old is not attached to this node
     {
       cerr << "AnalysisGraph::remove_vertex()" << endl;
       cerr << "\tConcept: " << concept << " not present in the CAG!\n" << endl;
+    }
+  }
+
+  // Note:
+  //      Although just calling this->remove_node(concept) within the loop
+  //          for( string concept : concept_s )
+  //      is suffifient to implement this method, it is not very efficient.
+  //      It updates meta-datastructurs and re-calculates directed simple paths
+  //      for each vertex removed
+  //
+  //      Therefore, the code in this->remove_node() has been duplicated with
+  //      slightly different flow to achive a more efficient execution.
+  void remove_node_s( vector<string> concept_s )
+  {
+    vector<string> invalid_concept_s;
+
+    for( string concept : concept_s )
+    {
+      auto node_to_remove = this->name_to_vertex.extract(concept);
+
+      if (node_to_remove) // Concept is in the CAG
+      {
+        // Delete all the edges incident to this node
+        boost::clear_vertex( node_to_remove.mapped(), this->graph );
+
+        // Remove the vetex
+        boost::remove_vertex( node_to_remove.mapped(), this->graph );
+      }
+      else // indicator_old is not attached to this node
+      {
+        invalid_concept_s.push_back(concept);
+      }
+    }
+
+    if( invalid_concept_s.size() < concept_s.size() )
+    {
+      // Some concepts have been removed
+      // Update the internal meta-data
+      this->update_meta_data();
+    }
+
+    if( invalid_concept_s.size() > 0 )
+    {
+      // There were some invalid concepts
+      cerr << "AnalysisGraph::remove_vertex()" << endl;
+      cerr << "\tFollowing concepts were not present in the CAG!" << endl;
+      for( string invalid_concept : invalid_concept_s )
+      {
+        cerr << "\t\t" << invalid_concept << endl;
+      }
+      cerr << endl;
     }
   }
 
