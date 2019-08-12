@@ -7,11 +7,11 @@ TEST_CASE("Testing model training") {
   RNG *R = RNG::rng();
   R->set_seed(87);
 
-  vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
-      statements = {
+  vector<CausalFragment>
+      causal_fragments = {
           {{"large", -1, "UN/entities/human/financial/economic/inflation"},
            {"small", 1, "UN/events/human/human_migration"}}};
-  AnalysisGraph G = AnalysisGraph::from_statements(statements);
+  AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
 
   G.map_concepts_to_indicators();
 
