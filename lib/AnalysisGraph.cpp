@@ -460,6 +460,34 @@ class AnalysisGraph {
 
   auto add_node() { return boost::add_vertex(graph); }
 
+  void remove_node( string concept )
+  {
+    auto node_to_remove = this->name_to_vertex.extract(concept);
+
+    if (node_to_remove) // Concept is in the CAG
+    {
+      // Delete all the edges incident to this node
+      boost::clear_vertex( node_to_remove.mapped(), this->graph );
+
+      // Remove the vetex
+      boost::remove_vertex( node_to_remove.mapped(), this->graph );
+
+      // Update the internal meta-data
+      for( int vert_id : vertices() )
+      {
+        this->name_to_vertex[ this->graph[ vert_id ].name ] = vert_id;
+      }
+
+      // Recalculate all the directed simple paths
+      this->find_all_paths();
+    }
+    else // indicator_old is not attached to this node
+    {
+      cerr << "AnalysisGraph::remove_vertex()" << endl;
+      cerr << "\tConcept: " << concept << " not present in the CAG!\n" << endl;
+    }
+  }
+
   auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
 
   auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
@@ -1753,9 +1781,9 @@ class AnalysisGraph {
   }
 
   auto print_nodes() {
-    print("Vertex IDs and their names in the CAG");
-    print("Vertex ID : Name");
-    print("--------- : ----");
+    print("Vertex IDs and their names in the CAG\n");
+    print("Vertex ID : Name\n");
+    print("--------- : ----\n");
     for_each(vertices(), [&](auto v) {
       cout << v << "         : " << this->graph[v].name << endl;
     });

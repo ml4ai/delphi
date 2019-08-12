@@ -28,6 +28,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("to_dot", &AnalysisGraph::to_dot)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node)
+      .def("remove_node", &AnalysisGraph::remove_node, "concept"_a)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)

@@ -13,7 +13,7 @@ def test_cpp_extensions():
             ("small", 1, "UN/events/human/human_migration"),
         )
     ]
-    G = AnalysisGraph.from_statements(statements)
+    G = AnalysisGraph.from_causal_fragments(statements)
     print("\n")
     G.print_nodes()
     G.map_concepts_to_indicators()

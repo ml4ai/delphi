@@ -74,3 +74,30 @@ def test_inference():
     print( '\nSample from proposal debug' )
     #G.sample_from_proposal_debug()
 
+def test_delete_node():
+    causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    G.print_all_paths()
+
+    print( '\nRemoving an invalid concept' )
+    G.remove_node( concept = 'invalid' )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
+
+    print( '\nRemoving a valid concept' )
+    G.remove_node( concept = 'UN/events/human/conflict' )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
