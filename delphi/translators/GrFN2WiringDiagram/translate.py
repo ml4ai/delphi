@@ -1,3 +1,20 @@
+import sys
+
+from delphi.GrFN.networks import GroundedFunctionNetwork
+
+
+def main():
+    data_dir = "scripts/SIR_Demo/"
+    sys.path.insert(0, data_dir)
+
+    grfn = GroundedFunctionNetwork.from_fortran_file(f"{data_dir}SIR-simple.f")
+    to_wiring_diagram(grfn, "SIR-simple.jl")
+    agraph = grfn.to_agraph()
+    agraph.draw('SIR-gillespie.pdf', prog='dot')
+    CAG = grfn.to_CAG_agraph()
+    CAG.draw('SIR-gillespie-CAG.pdf', prog='dot')
+
+
 def translate_GrFN(out_node, G, homs):
     func_node = list(G.predecessors(out_node))[0]
     inputs = list(G.predecessors(func_node))
@@ -35,3 +52,7 @@ def to_wiring_diagram(G, filename):
     with open(filename, "w+") as outfile:
         outfile.write("\n".join(header))
         outfile.write("\n".join(statements))
+
+
+if __name__ == '__main__':
+    main()
