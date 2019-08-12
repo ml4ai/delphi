@@ -16,9 +16,20 @@
  * Returns a randomly selected element of a vector.
  */
 template <class T> T select_random_element(std::vector<T> v) {
-  std::mt19937 gen = RNG::rng()->get_RNG();
-  boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
-  return v[dist(gen)];
+  using namespace std;
+  mt19937 gen = RNG::rng()->get_RNG();
+  T element;
+  if (v.size() == 0) {
+    throw "Vector is empty, so we cannot select a random element from it. (function: select_random_element)\n";
+  }
+  else if (v.size() == 1){
+    element = v[0];
+  }
+  else {
+    boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
+    element = v[dist(gen)];
+  }
+  return element;
 }
 
 double sample_from_normal(double mu, double sd);
