@@ -201,7 +201,7 @@ def clean_54660_data():
 
     df.loc[5, "Value count"] = df.loc[5, "Value count"] * 31
     df["Unit"] = "people"
-    df.drop([3, 5, 10, 14, 21, 27], inplace=True)
+    df.drop([3, 5, 10, 21, 27], inplace=True)
 
     df.loc[7, "Start year"] = 2017
     df.loc[7, "Start month"] = 3
@@ -253,6 +253,194 @@ def clean_54660_data():
     )
 
 
+def clean_62801_data():
+    df = pd.read_csv(
+        "data/raw/migration/Initial annotation exercise for migration use case - 62801 - dep var.tsv",
+        sep="\t",
+    )
+    df.loc[22, "Value count"] = 700
+    df = df[~np.isnan(df["Value count"].astype(float))]
+    df.drop(
+        df.columns[[0, 1, 2, 4, 5, 8, 9, 12, 13, 16, 19, 20]],
+        axis=1,
+        inplace=True,
+    )
+    df["Value count"] = df["Value count"].astype(float)
+
+    d = {
+        "January": 1.0,
+        "February": 2.0,
+        "March": 3.0,
+        "April": 4.0,
+        "May": 5.0,
+        "June": 6.0,
+        "July": 7.0,
+        "August": 8.0,
+        "September": 9.0,
+        "October": 10.0,
+        "November": 11.0,
+        "December": 12.0,
+    }
+
+    df.replace(d, inplace=True)
+
+    df["Unit"] = "people"
+
+    df["Start year"].fillna(value=-1, inplace=True, downcast="infer")
+    df["Start month"].fillna(value=0, inplace=True, downcast="infer")
+    df["End year"].fillna(value=-1, inplace=True, downcast="infer")
+    df["End month"].fillna(value=0, inplace=True, downcast="infer")
+
+    df.loc[4, "Value count"] = df.loc[4, "Value count"] * 30
+    df.loc[7:9, "Value count"] = (df.loc[7:9, "Value count"] * 365653.0) / 100
+
+    df.loc[7:9, "End year"] = 2017
+    df.loc[7:9, "End month"] = 3
+
+    df.loc[16:19, "Start year"] = 2016
+    df.loc[16:19, "Start month"] = 9
+
+    df["Variable"] = "Outgoing Migrants"
+    df.loc[20, "Variable"] = "Internally Displaced People"
+    df.drop([3, 11], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    df["Source country"] = "South Sudan"
+    df["Source county"] = "None"
+    df["Source state"] = "None"
+    df["Destination country"] = "Ethiopia"
+    df["Destination county"] = "None"
+    df["Destination state"] = "Gambella"
+
+    df.loc[5, "Source state"] = "Upper Nile"
+    df.loc[6, "Source state"] = "Jonglei"
+    df.loc[7, "Source state"] = "Unity"
+    df.loc[13, "Source country"] = "Ethiopia"
+    df.loc[13, "Source state"] = "Gambella"
+    df.loc[15, "Source state"] = "Boma"
+    df.loc[15, "Source county"] = "Pochala"
+
+    df["Source"] = "62801"
+    df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
+
+    df.rename(columns={"Value count": "Value"}, inplace=True)
+    df = df.reindex(
+        columns=[
+            "Source country",
+            "Source state",
+            "Source county",
+            "Destination country",
+            "Destination state",
+            "Destination county",
+            "Source",
+            "Unit",
+            "Value",
+            "Variable",
+            "Start year",
+            "Start month",
+            "End year",
+            "End month",
+        ]
+    )
+
+    df.to_csv(
+        str(data_dir / "south_sudan_62801_migration_data_new.tsv"),
+        index=False,
+        sep="\t",
+    )
+
+
+def clean_62803_data():
+    df = pd.read_csv(
+        "../scripts/data/raw/migration/Initial annotation exercise for migration use case - 62803 - dep var.tsv",
+        sep="\t",
+    )
+    df = df[~np.isnan(df["Value count"])]
+    df.drop(
+        df.columns[[0, 1, 2, 4, 5, 8, 9, 12, 13, 16, 19, 20]],
+        axis=1,
+        inplace=True,
+    )
+
+    d = {
+        "January": 1.0,
+        "February": 2.0,
+        "March": 3.0,
+        "April": 4.0,
+        "May": 5.0,
+        "June": 6.0,
+        "July": 7.0,
+        "August": 8.0,
+        "September": 9.0,
+        "October": 10.0,
+        "November": 11.0,
+        "December": 12.0,
+    }
+
+    df.replace(d, inplace=True)
+
+    df["Unit"] = "people"
+
+    df["Start year"].fillna(value=-1, inplace=True, downcast="infer")
+    df["Start month"].fillna(value=0, inplace=True, downcast="infer")
+    df["End year"].fillna(value=-1, inplace=True, downcast="infer")
+    df["End month"].fillna(value=0, inplace=True, downcast="infer")
+
+    df.loc[3, "Value count"] = df.loc[3, "Value count"] * 30
+    df.loc[4:6, "Value count"] = (df.loc[4:6, "Value count"] * 361991.0) / 100
+
+    df.loc[4:6, "End year"] = 2017
+    df.loc[4:6, "End month"] = 4
+
+    df["Variable"] = "Outgoing Migrants"
+    df.drop([7, 9], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    df["Source country"] = "South Sudan"
+    df["Source county"] = "None"
+    df["Source state"] = "None"
+    df["Destination country"] = "Ethiopia"
+    df["Destination county"] = "None"
+    df["Destination state"] = "Gambella"
+
+    df.loc[4, "Source state"] = "Upper Nile"
+    df.loc[5, "Source state"] = "Jonglei"
+    df.loc[6, "Source state"] = "Unity"
+    df.loc[8, "Source state"] = "Boma"
+    df.loc[8, "Source county"] = "Pochala"
+
+    df["Source"] = "62803"
+    df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
+
+    df.rename(columns={"Value count": "Value"}, inplace=True)
+    df = df.reindex(
+        columns=[
+            "Source country",
+            "Source state",
+            "Source county",
+            "Destination country",
+            "Destination state",
+            "Destination county",
+            "Source",
+            "Unit",
+            "Value",
+            "Variable",
+            "Start year",
+            "Start month",
+            "End year",
+            "End month",
+        ]
+    )
+
+    df.to_csv(
+        str(data_dir / "south_sudan_62803_migration_data_new.tsv"),
+        index=False,
+        sep="\t",
+    )
+
+
 if __name__ == "__main__":
     clean_reachjongleijan_data()
     clean_54660_data()
+    clean_62801_data()
+    clean_62803_data()
