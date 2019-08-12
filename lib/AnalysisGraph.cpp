@@ -341,6 +341,7 @@ class AnalysisGraph {
     // Define the random number generator
     // All the places we need random numbers, share this generator
 
+    
     this->rand_num_generator = RNG::rng()->get_RNG();
 
     // Uniform distribution used by the MCMC sampler
@@ -423,16 +424,16 @@ class AnalysisGraph {
    * A method to construct an AnalysisGraph object given from a vector of
    * ( subject, object ) pairs (Statements)
    *
-   * @param statements: A vector of Statement objects
+   * @param statements: A vector of CausalFragment objects
    */
-  static AnalysisGraph from_statements(vector<CausalFragment> statements) {
+  static AnalysisGraph from_causal_fragments(vector<CausalFragment> causal_fragments) {
     DiGraph G;
 
     unordered_map<string, int> nameMap = {};
 
-    for (CausalFragment stmt : statements) {
-      Event subject = Event(stmt.first);
-      Event object = Event(stmt.second);
+    for (CausalFragment cf : causal_fragments) {
+      Event subject = Event(cf.first);
+      Event object = Event(cf.second);
 
       string subj_name = subject.concept_name;
       string obj_name = object.concept_name;

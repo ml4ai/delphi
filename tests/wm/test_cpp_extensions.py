@@ -60,11 +60,11 @@ def test_simple_path_construction():
 
 
 def test_inference():
-    statements = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
+    causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
 
     print('\n\n\n\n')
     print( '\nCreating CAG' )
-    G = AnalysisGraph.from_statements( statements )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
 
     G.print_nodes()
 

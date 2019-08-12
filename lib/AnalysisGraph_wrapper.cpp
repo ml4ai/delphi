@@ -21,7 +21,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
                   "filename"_a,
                   "belief_score_cutoff"_a = 0.9)
       .def_static(
-          "from_statements", &AnalysisGraph::from_statements, "statements"_a)
+          "from_causal_fragments", &AnalysisGraph::from_causal_fragments, "causal_fragments"_a)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
