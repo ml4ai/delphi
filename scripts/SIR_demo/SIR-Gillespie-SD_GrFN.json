@@ -6,13 +6,7 @@
       "name": "@variable::SIR-Gillespie-SD::main::S0::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
-      "mutable": false,
-      "source_ref": {
-        "line_no": 179,
-        "col_start": 29,
-        "col_end": 31,
-        "file_path": "delphi/scripts/SIR-demo/SIR-Gillespie-SD.f"
-      }
+      "mutable": false
     },
     {
       "name": "@variable::SIR-Gillespie-SD::main::I0::0",
@@ -1408,14 +1402,6 @@
     },
     {
       "name": "@container::SIR-Gillespie-SD::@global::gillespie",
-      "source_refs": {
-        "head": {
-          "line_start": 53,
-          "line_end": 86
-        },
-        "neck": null,
-        "foot": null
-      },
       "repeat": false,
       "arguments": [
         "@variable::S0::-1",
@@ -2583,6 +2569,124 @@
     }
   ],
   "types": [],
+  "source_comments": {
+    "$file_head": [
+      "********************************************************************************\n"
+    ],
+    "$file_foot": [],
+    "pyrand": {
+      "head": [
+        "C     Fortranification of AMIDOL's SIR-Gillespie.py\n",
+        "********************************************************************************\n",
+        "C      subroutine print_output(L)\n",
+        "C      implicit none\n",
+        "C      integer, parameter :: Tmax = 100\n",
+        "C      double precision, dimension(0:Tmax) :: L\n",
+        "C      integer i\n",
+        "C\n",
+        "C      do i = 0, 19\n",
+        "C         write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)\n",
+        "C      end do\n",
+        "C      write (*, 11)\n",
+        "C\n",
+        "C 10   format (5(F10.4,X))\n",
+        "C 11   format('----------')\n",
+        "C\n",
+        "C      return\n",
+        "C      end subroutine print_output\n",
+        "********************************************************************************\n",
+        "*                                                                              *\n",
+        "*                Pretend to be Python's random-number generator                *\n",
+        "*                                                                              *\n",
+        "********************************************************************************\n"
+      ],
+      "neck": [],
+      "foot": [
+        "********************************************************************************\n",
+        "C     Variables:\n",
+        "C     beta     Rate of infection\n",
+        "C     gamma    Rate of recovery from an infection\n",
+        "C     rho      Basic reproduction Number\n",
+        "C\n",
+        "C     State Variables: S, I, R\n",
+        "C     S - Susceptible population\n",
+        "C     I - Infected population\n",
+        "C     R - Recovered population\n",
+        "C     n_S      current number of susceptible members\n",
+        "C     n_I      current number of infected members\n",
+        "C     n_R      current number of recovered members\n",
+        "C     S0       initial value of S\n",
+        "C     I0       initial value of I\n",
+        "C     R0       initial value of R\n",
+        "C     MeanS    Measures of Mean for S\n",
+        "C     MeanI    Measures of Mean for I\n",
+        "C     MeanR    Measures of Mean for R\n",
+        "C     VarS     Measures of Variance for S\n",
+        "C     VarI     Measures of Variance for I\n",
+        "C     VarR     Measures of Variance for R\n",
+        "C\n",
+        "C     rateInfect    Current state dependent rate of infection\n",
+        "C     rateRecover   Current state dependent rate of recovery\n",
+        "C     totalRates    Sum of total rates; taking advantage of Markovian identities\n",
+        "C                       to improve performance.\n",
+        "C\n",
+        "C     Tmax          Maximum time for the simulation\n",
+        "C     t             Initial time for the simulation\n",
+        "C     totalRuns     Total number of trajectories to generate for the analysis\n",
+        "C     dt       next inter-event time\n",
+        "********************************************************************************\n"
+      ],
+      "internal": {}
+    },
+    "update_mean_var": {
+      "head": [
+        "********************************************************************************\n"
+      ],
+      "neck": [],
+      "foot": [],
+      "internal": {}
+    },
+    "gillespie": {
+      "head": [
+        "********************************************************************************\n",
+        "C     Variables:\n",
+        "C     beta     Rate of infection\n",
+        "C     gamma    Rate of recovery from an infection\n",
+        "C     rho      Basic reproduction Number\n",
+        "C\n",
+        "C     State Variables: S, I, R\n",
+        "C     S - Susceptible population\n",
+        "C     I - Infected population\n",
+        "C     R - Recovered population\n",
+        "C     n_S      current number of susceptible members\n",
+        "C     n_I      current number of infected members\n",
+        "C     n_R      current number of recovered members\n",
+        "C     S0       initial value of S\n",
+        "C     I0       initial value of I\n",
+        "C     R0       initial value of R\n",
+        "C     MeanS    Measures of Mean for S\n",
+        "C     MeanI    Measures of Mean for I\n",
+        "C     MeanR    Measures of Mean for R\n",
+        "C     VarS     Measures of Variance for S\n",
+        "C     VarI     Measures of Variance for I\n",
+        "C     VarR     Measures of Variance for R\n",
+        "C\n",
+        "C     rateInfect    Current state dependent rate of infection\n",
+        "C     rateRecover   Current state dependent rate of recovery\n",
+        "C     totalRates    Sum of total rates; taking advantage of Markovian identities\n",
+        "C                       to improve performance.\n",
+        "C\n",
+        "C     Tmax          Maximum time for the simulation\n",
+        "C     t             Initial time for the simulation\n",
+        "C     totalRuns     Total number of trajectories to generate for the analysis\n",
+        "C     dt       next inter-event time\n",
+        "********************************************************************************\n"
+      ],
+      "neck": [],
+      "foot": [],
+      "internal": {}
+    }
+  },
   "start": "@container::SIR-Gillespie-SD::@global::main",
   "source": [
     "SIR-Gillespie-SD.f"
