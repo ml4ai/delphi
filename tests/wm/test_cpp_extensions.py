@@ -74,7 +74,7 @@ def test_inference():
     print( '\nSample from proposal debug' )
     #G.sample_from_proposal_debug()
 
-def test_delete_node():
+def test_remove_node():
     causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
 
     print('\n\n\n\n')
@@ -102,7 +102,7 @@ def test_delete_node():
     G.print_name_to_vertex()
     G.print_all_paths()
 
-def test_delete_node_s():
+def test_remove_nodes():
     causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
 
     print('\n\n\n\n')
@@ -117,7 +117,50 @@ def test_delete_node_s():
     G.print_all_paths()
 
     print( '\nRemoving a several concepts, some valid, some invalid' )
-    G.remove_node_s( concept_s = ['invalid1', 'UN/events/human/conflict', 'invalid2' ] )
+    G.remove_nodes( concepts = ['invalid1', 'UN/events/human/conflict', 'invalid2' ] )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
+
+def test_remove_edge():
+    causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    G.print_all_paths()
+
+    print( '\nRemoving edge - invalid source' )
+    G.remove_edge( source = 'invalid', target = "UN/entities/human/food/food_security" )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
+
+    print( '\nRemoving edge - invalid target' )
+    G.remove_edge( source = 'UN/events/human/conflict', target = 'invalid' )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
+
+    print( '\nRemoving edge - source and target inverted target' )
+    G.remove_edge( source = "UN/entities/human/food/food_security", target = 'UN/events/human/conflict' )
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
+
+
+    print( '\nRemoving edge - correct' )
+    G.remove_edge( source = 'UN/events/human/conflict', target = "UN/entities/human/food/food_security")
     G.print_nodes()
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
