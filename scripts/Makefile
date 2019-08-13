@@ -81,6 +81,9 @@ data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_D
 data/south_sudan_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
 	python $<
 
+data/south_sudan_migration_data_initial: data_processing/process_migration_data_initial.py
+	python $<
+
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
