@@ -1,11 +1,36 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
+#include "AnalysisGraph.cpp"
+#include "rng.hpp"
 
-int factorial(int number) { return number <= 1 ? number : factorial(number - 1) * number; }
+TEST_CASE("Testing model training") {
+  RNG *R = RNG::rng();
+  R->set_seed(87);
 
-TEST_CASE("testing the factorial function") {
-    CHECK(factorial(1) == 1);
-    CHECK(factorial(2) == 2);
-    CHECK(factorial(3) == 6);
-    CHECK(factorial(10) == 3628800);
-}
+  vector<CausalFragment>
+      causal_fragments = {
+          {{"large", -1, "UN/entities/human/financial/economic/inflation"},
+           {"small", 1, "UN/events/human/human_migration"}}};
+  AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
+
+  G.map_concepts_to_indicators();
+
+  G.replace_indicator("UN/events/human/human_migration", "Net migration",
+                      "New asylum seeking applicants", "UNHCR");
+
+  G.train_model(2015, 1, 2015, 12, 100, 900);
+
+  pair<vector<string>,
+       vector<vector<unordered_map<string, unordered_map<string, double>>>>>
+      preds = G.generate_prediction(2015, 1, 2015, 12);
+  fmt::print("Prediction to array\n");
+
+  try {
+    vector<vector<double>> result =
+        G.prediction_to_array("New asylum seeking applicants");
+    fmt::print("Size of result is {} x {}\nFirst value of result is {}\n",
+               result.size(), result[0].size(), result[0][0]);
+  } catch (IndicatorNotFoundException &infe) {
+    fmt::print(infe.what());
+  }
+} 
