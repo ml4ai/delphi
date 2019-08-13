@@ -2555,7 +2555,7 @@
       "********************************************************************************\n"
     ],
     "$file_foot": [],
-    "pyrand": {
+    "@container::SIR-Gillespie-SD::@global::pyrand": {
       "head": [
         "C     Fortranification of AMIDOL's SIR-Gillespie.py\n",
         "********************************************************************************\n",
@@ -2619,7 +2619,7 @@
       ],
       "internal": {}
     },
-    "update_mean_var": {
+    "@container::SIR-Gillespie-SD::@global::update_mean_var": {
       "head": [
         "********************************************************************************\n"
       ],
@@ -2627,7 +2627,7 @@
       "foot": [],
       "internal": {}
     },
-    "gillespie": {
+    "@container::SIR-Gillespie-SD::@global::gillespie": {
       "head": [
         "********************************************************************************\n",
         "C     Variables:\n",
