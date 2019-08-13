@@ -92,13 +92,13 @@ def clean_reachjongleijan_data():
 
     df.loc[0, "Source state"] = "Jonglei"
     df.loc[0, "Destination country"] = "South Sudan"
-    df.loc[0, "Destination State"] = "Eastern Lakes"
+    df.loc[0, "Destination state"] = "Eastern Lakes"
     df.loc[0, "Destination county"] = "Awerial South"
 
     df.loc[1, "Source state"] = "Yei River"
     df.loc[1, "Source county"] = "Yei"
     df.loc[1, "Destination country"] = "South Sudan"
-    df.loc[1, "Destination State"] = "Jonglei"
+    df.loc[1, "Destination state"] = "Jonglei"
     df.loc[1, "Destination county"] = "Bor"
     df.loc[
         df["Variable"] == "Incoming Migrants", "Source country"
