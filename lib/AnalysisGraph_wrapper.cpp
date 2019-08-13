@@ -30,6 +30,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("remove_edge", &AnalysisGraph::remove_edge, "source"_a, "target"_a)
+      .def("remove_edges", &AnalysisGraph::remove_edges, "edges"_a)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)

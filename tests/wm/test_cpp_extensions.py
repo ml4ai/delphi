@@ -165,3 +165,33 @@ def test_remove_edge():
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
     G.print_all_paths()
+
+def test_remove_edges():
+    causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    G.print_all_paths()
+
+    edges_to_remove = [( 'invalid_src_1', "UN/entities/human/food/food_security"),
+                       ( 'invalid_src_2', "UN/entities/human/food/food_security"),
+                       ( 'UN/events/human/conflict', 'invalid_tgt1'),
+                       ( 'UN/events/human/conflict', 'invalid_tgt2'),
+                       ( 'invalid_src_2', 'invalid_tgt_2'),
+                       ( 'invalid_src_3', 'invalid_tgt3'),
+                       ( "UN/entities/human/food/food_security", 'UN/events/human/conflict'),
+                       ( 'UN/events/human/conflict', "UN/entities/human/food/food_security"),
+                      ]
+    print( '\nRemoving edges' )
+    G.remove_edges(edges_to_remove)
+    G.print_nodes()
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+    G.print_all_paths()
