@@ -9,7 +9,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.2.16
+  version: 0.2.17
 
 paths: {}
 
@@ -296,7 +296,6 @@ components:
         - source_ref
         - gensym
         - domain
-        - mutable
       properties:
         name:
           $ref: '#/components/schemas/variable_identifier_name'
@@ -315,12 +314,6 @@ components:
             String representing a disjunctive normal form representation
             with v = variable value, for example:<br>
             `"(or (and (< v infty) (>= v 5)) (and (> v -infty) (< v 0)))"`
-        mutable:
-          type: string
-          enum:
-            - true
-            - false
-          default: true
 
     container_def:
       title: <container_def>
