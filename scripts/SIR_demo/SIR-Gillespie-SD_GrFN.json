@@ -1319,17 +1319,6 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__main__assign__MeanI__0",
-            "type": "lambda_source"
-          },
-          "input": [
-            "@variable::Tmax::0"
-          ],
-          "output": "@variable::MeanI::0",
-          "updated": []
-        },
-        {
-          "function": {
             "name": "SIR_Gillespie_SD__main__assign__MeanR__0",
             "type": "lambda_source"
           },
@@ -1524,15 +1513,6 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__assign__n_samples__0",
-            "type": "lambda_source"
-          },
-          "input": [],
-          "output": "@variable::n_samples::0",
-          "updated": []
-        },
-        {
-          "function": {
             "name": "@container::SIR-Gillespie-SD::gillespie::loop$1",
             "type": "function_name"
           },
@@ -1595,7 +1575,7 @@
             "type": "lambda_source"
           },
           "input": [
-            "@variable::means_k::-1",
+            "@variable::means::-1",
             "@variabl::n::-1",
             "@variable::k::-1",
             "@variable::runs::-1"
@@ -1609,7 +1589,7 @@
             "type": "lambda_source"
           },
           "input": [
-            "@variable::vars_k::-1",
+            "@variable::vars::-1",
             "@variable::means_k::0",
             "@variable::n::-1",
             "@variable::k::-1",
@@ -1663,7 +1643,11 @@
             "name": "SIR_Gillespie_SD__pyrand__decision__retval__2",
             "type": "lambda_source"
           },
-          "input": [],
+          "input": [
+            "@variable::retval::0",
+            "@variable::retval::1",
+            "@variable::IF_0::0"
+          ],
           "output": "@variable::retval::2",
           "updated": []
         }
@@ -2006,9 +1990,9 @@
             "type": "lambda_source"
           },
           "input": [
-            "@variable::assign__runs::0"
+            "@variable::runs::0"
           ],
-          "output": "@variable::assign__runs::1",
+          "output": "@variable::runs::1",
           "updated": []
         }
       ]
@@ -2470,9 +2454,7 @@
           },
           "input": [
             "@variable::sample_idx::-1",
-            "@variable::Tmax::-1",
-            "@variable::t::-1",
-            "@variable::samples::-1"
+            "@variable::Tmax::-1"
           ],
           "output": "@variable::IF_0::0",
           "updated": []
