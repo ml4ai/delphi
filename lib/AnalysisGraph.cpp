@@ -89,6 +89,10 @@ class AnalysisGraph {
   auto successors(int i) {
     return make_iterator_range(boost::adjacent_vertices(i, graph));
   }
+  auto successors(string node_name) {
+    return make_iterator_range(
+        boost::adjacent_vertices(this->name_to_vertex.at(node_name), graph));
+  }
 
   // Allocate a num_verts x num_verts 2D array (vector of vectors)
   void allocate_A_beta_factors() {
@@ -539,9 +543,9 @@ class AnalysisGraph {
 
   auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
 
-  //auto add_edge(string source, string target) {
-    //boost::add_edge(
-        //this->name_to_vertex[source], this->name_to_vertex[target], graph);
+  // auto add_edge(string source, string target) {
+  // boost::add_edge(
+  // this->name_to_vertex[source], this->name_to_vertex[target], graph);
   //}
 
   void remove_edge(string src, string tgt) {
@@ -585,6 +589,9 @@ class AnalysisGraph {
 
   auto edges() { return make_iterator_range(boost::edges(graph)); }
 
+  /** Number of nodes in the graph */
+  int num_nodes() { return boost::num_vertices(graph); }
+
   auto predecessors(int i) {
     return make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
@@ -594,24 +601,40 @@ class AnalysisGraph {
   }
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
-  //void merge_nodes(string n1, string n2, bool same_polarity = true) {
-    //for (auto p : predecessors(n1)) {
-      //auto e = boost::edge(p, this->name_to_vertex[n1], this->graph).first;
-      //if (!same_polarity) {
-        //for (Statement s : this->graph[edge].evidence) {
-          //s.object.polarity = -s.object.polarity;
-        //}
-      //}
+  void merge_nodes(string n1, string n2, bool same_polarity = true) {
+    for (auto predecessor : predecessors(n1)) {
+      auto e =
+          boost::edge(predecessor, this->name_to_vertex[n1], this->graph).first;
+      if (!same_polarity) {
+        for (Statement stmt : this->graph[e].evidence) {
+          stmt.object.polarity = -stmt.object.polarity;
+        }
+      }
 
-      ////auto [edge, is_new_edge] =
-          ////boost::add_edge(p, this->name_to_vertex[n2], this->graph);
-      ////if (!is_new_edge) {
-        ////for (auto s : this->graph[e].evidence) {
-          ////this->graph[edge].evidence.push_back(s);
-        ////}
-      //}
-    //}
-  //}
+      auto [edge, is_new_edge] =
+          boost::add_edge(predecessor, this->name_to_vertex[n2], this->graph);
+      for (auto s : this->graph[e].evidence) {
+        this->graph[edge].evidence.push_back(s);
+      }
+    }
+
+    for (auto successor : successors(n1)) {
+      auto e =
+          boost::edge(this->name_to_vertex[n1], successor, this->graph).first;
+      if (!same_polarity) {
+        for (Statement stmt : this->graph[e].evidence) {
+          stmt.subject.polarity = -stmt.subject.polarity;
+        }
+      }
+
+      auto [edge, is_new_edge] =
+          boost::add_edge(this->name_to_vertex[n2], successor, this->graph);
+      for (auto stmt : this->graph[e].evidence) {
+        this->graph[edge].evidence.push_back(stmt);
+      }
+    }
+    remove_node(n1);
+  }
 
   auto out_edges(int i) {
     return make_iterator_range(boost::out_edges(i, graph));
