@@ -1099,27 +1099,98 @@ class GrFNGenerator(object):
             function, calling print(), etc.
         """
         expressions = self.gen_grfn(node.value, state, "expr")
+
         grfn = {"functions": [], "body": [], "identifiers": []}
         for expr in expressions:
             if "call" in expr:
                 call = expr["call"]
-                body = {
-                    "function": call["function"],
-                    "output": {},
-                    "input": [],
-                }
-                # If the call is to the write() function of a file handle,
-                # bypass this expression as I/O is not handled currently
-                # TODO: Will need to be handled once I/O is handled
-                if re.match(r"file_\d+\.write", body["function"]):
-                    return []
+
+                array_setter = False
+                # Array setter (.set_) handler
+                if ".set_" in call["function"]:
+                    array_setter = True
+                    array_idx = call["inputs"][0][0]
+                    target = call["function"][:-5]
+                    name = get_function_name(
+                            self.function_names,
+                            f"{state.function_name}__set__"
+                            f"{target}",
+                            {},
+                        )
+                    # 1-dimensional array
+                    if "var" in array_idx:
+                        variable = f"{target}_{array_idx['var']['variable']}"
+                        index = array_idx["var"]["index"]
+                    # multi-dimensional array
+                    elif "list" in array_idx:
+                        variable = f"{target}_"
+                        variable += "_".join(
+                                [x["var"]["variable"] for x in array_idx["list"]]
+                        )
+                        # Currently, we are manually setting index of multi-dimensional
+                        # array variable for GrFN default to 1.
+                        index = 1
+
+                    body = {
+                        "name": name,
+                        "output": {
+                            "variable": variable,
+                            "index": index
+                        },
+                        "input": [],
+                    }
+                else:
+                    body = {
+                        "function": call["function"],
+                        "output": {},
+                        "input": [],
+                    }
+                    # If the call is to the write() function of a file handle,
+                    # bypass this expression as I/O is not handled currently
+                    # TODO: Will need to be handled once I/O is handled
+                    if re.match(r"file_\d+\.write", body["function"]):
+                        return []
+
                 for arg in call["inputs"]:
+                    # This is for collecting variables that holds
+                    # a value to be assigned (set) to array
+                    source_list = []
                     if len(arg) == 1:
                         # TODO: Only variables are represented in function
                         #  arguments. But a function can have strings as
                         #  arguments as well. Do we add that?
                         if "var" in arg[0]:
-                            body["input"].append(arg[0]["var"])
+                            if arg[0]["var"] not in body["input"]:
+                                body["input"].append(arg[0]["var"])
+                            # For now, we only want to collect the variables
+                            # when the expression is an array setter expression.
+                            if array_setter:
+                                source_list.append(arg[0]["var"]["variable"])
+                        elif "call" in arg[0]:
+                            assert (
+                                    array_setter
+                            ), f"call in arg[0] is, currently, only for array. So, this assert\
+                                indicates that a new case was encountered. arg: {arg}."
+                            for var in arg[0]["call"]["inputs"][0]:
+                                if var["var"] not in body["input"]:
+                                    body["input"].append(var["var"])
+                                source_list.append(var["var"]["variable"])
+                        elif "list" in arg[0]:
+                            assert (
+                                    array_setter
+                            ), f"list in arg[0] is, currently, only for array. So, this assert\
+                                indicates that a new case was encountered. arg: {arg}."
+                            for var in arg[0]["list"]:
+                                body["input"].append(var)
+                                source_list.append(var["var"]["variable"])
+                        else:
+                            pass
+                        # We want to generate lambdas only for arrays (at least for now).       
+                        if array_setter:
+                            lambda_string = genFn(
+                                node.value, name, target, source_list, state
+                            )
+                            state.lambda_strings.append(lambda_string)
                     else:
                         raise For2PyError(
                             "Only 1 input per argument supported right now."
@@ -1153,6 +1224,7 @@ class GrFNGenerator(object):
             raise For2PyError("can't handle arrays right now.")
 
         val = self.gen_grfn(node.value, state, "subscript")
+
         if val:
             if val[0]["var"]["variable"] in self.annotated_assigned:
                 if isinstance(node.ctx, ast.Store):
@@ -1313,24 +1385,32 @@ class GrFNGenerator(object):
             # A multi-dimensional array handler
             if "list" in inputs[1][0]["list"][0]:
                 for lists in inputs[1][0]["list"]:
-                    assert (
-                            lists["list"][0]["type"] == "literal"
-                            and lists["list"][1]["type"] == "literal"
-                    ), f"Currently, we only handle literal type dimensions,\
-                        but either lower or upper bound is not a literal type."
                     low_bound = int(lists["list"][0]["value"])
                     upper_bound = int(lists["list"][1]["value"])
                     array_dimensions.append(upper_bound-low_bound+1)
             # 1-D array handler
             else:
-                assert (
-                        inputs[1][0]["list"][0]["type"] == "literal"
-                        and inputs[1][0]["list"][1]["type"] == "literal"
-                ), f"Currently, we only handle literal type dimensions,\
-                    but either lower or upper bound is not a literal type."
-                low_bound = int(inputs[1][0]["list"][0]["value"])
-                upper_bound = int(inputs[1][0]["list"][1]["value"])
-                array_dimensions.append(upper_bound-low_bound+1)
+                bounds = inputs[1][0]["list"]
+                if "type" in bounds[0]:
+                    low_bound = bounds[0]["value"]
+                else:
+                    low_bound = bounds[0]["var"]["variable"]
+
+                if "type" in bounds[1]:
+                    upper_bound = bounds[1]["value"]
+                else:
+                    upper_bound = bounds[1]["var"]["variable"]
+
+                if isinstance(low_bound, int) and isinstance(upper_bound, int):
+                    array_dimensions.append(upper_bound-low_bound+1)
+                elif isinstance(upper_bound, str):
+                    assert (
+                        isinstance(low_bound, int) and low_bound == 0
+                    ), "low_bound must be <integer> type and 0 (zero) for now."
+                    array_dimensions.append(upper_bound)
+                else:
+                    assert False, f"low_bound type: {type(low_bound)} is currently not handled."
+
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -1378,7 +1458,6 @@ class GrFNGenerator(object):
             # Check whether this is an alias assignment i.e. of the form
             # y=x where y is now the alias of variable x
             self.check_alias(target, sources)
-
             name = get_function_name(
                 self.function_names,
                 f"{state.function_name}__assign__"
@@ -1387,6 +1466,7 @@ class GrFNGenerator(object):
             )
 
             fn = self.make_fn_dict(name, target, sources, node)
+
             if len(fn) == 0:
                 return []
             body = self.make_body_dict(name, target, sources, state)
@@ -1396,6 +1476,7 @@ class GrFNGenerator(object):
             lambda_string = genFn(
                 node, name, target["var"]["variable"], source_list, state
             )
+
             state.lambda_strings.append(lambda_string)
             if not fn["sources"] and len(sources) == 1:
                 if sources[0].get("list"):
