@@ -26,6 +26,7 @@ def test_cpp_extensions():
         "UNHCR",
     )
     G.print_indicators()
+
     # Now we can specify how to initialize betas. Posible values are:
     # InitialBeta.ZERO
     # InitialBeta.ONE
@@ -41,3 +42,40 @@ def test_cpp_extensions():
     predicted_point = preds[1][0]
     for ts in predicted_point:
         print(ts)
+    print("\n")
+
+def test_delete_indicator():
+    statements = [
+        (
+            ("large", -1, "UN/entities/human/financial/economic/inflation"),
+            ("small", 1, "UN/events/human/human_migration"),
+        )
+    ]
+    G = AnalysisGraph.from_causal_fragments(statements)
+    print("\n")
+    G.print_nodes()
+    G.map_concepts_to_indicators()
+    G.print_indicators()
+    print("\n")
+    G.replace_indicator(
+        "UN/events/human/human_migration",
+        "Net migration",
+        "New asylum seeking applicants",
+        "UNHCR",
+    )
+    G.print_indicators()
+    print("\n")
+    G.set_indicator("UN/events/human/human_migration", "Net Migration", "MITRE12")
+
+    G.print_indicators()
+    print("\n")
+    G.delete_indicator("UN/events/human/human_migration", "New asylum seeking applicants")
+
+    G.print_indicators()
+    print("\n")
+
+    G.set_indicator("UN/events/human/human_migration", "New asylum seeking applicants", "UNHCR")
+
+    G.delete_all_indicators("UN/events/human/human_migration")
+
+    G.print_indicators()
