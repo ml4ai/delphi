@@ -1770,6 +1770,30 @@ class AnalysisGraph {
     }
   }
 
+  void delete_indicator(string concept, string indicator) {
+    try {
+      this->graph[this->name_to_vertex.at(concept)].delete_indicator(indicator);
+      this->indicators_in_CAG.erase(indicator);
+    }
+    catch (const out_of_range &oor) {
+      cerr << "Error: AnalysisGraph::delete_indicator()\n"
+           << "\tConcept: " << concept << " is not in the CAG\n";
+      cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
+    }
+  
+  }
+
+  void delete_all_indicators(string concept) {
+    try {
+      this->graph[this->name_to_vertex.at(concept)].clear_indicators();
+    }
+    catch (const out_of_range &oor) {
+      cerr << "Error: AnalysisGraph::delete_indicator()\n"
+           << "\tConcept: " << concept << " is not in the CAG\n";
+      cerr << "\tIndicators cannot be deleted" << endl;
+    }
+    
+  }
   /*
   // TODO: Demosntrate how to use the Node::get_indicator() method
   // with the custom exception.
