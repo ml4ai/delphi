@@ -79,6 +79,23 @@ struct Node {
     indicators.push_back(Indicator(indicator, source));
   }
 
+
+  void delete_indicator(std::string indicator) {
+    if (indicator_names.find(indicator) != indicator_names.end()) {
+      int ind_index = indicator_names[indicator];
+      indicator_names.clear();
+      indicators.erase(indicators.begin() + ind_index);
+      //The values of the map object have to align with the vecter indexes.
+      for (int i = 0; i < indicators.size(); i++) {
+        indicator_names[indicators[i].get_name()] = i;
+      }
+    }
+    else {
+      std::cout << "There is no indicator  " << indicator << "attached to " << name << std::endl;  
+    }
+  }
+
+
   Indicator get_indicator(std::string indicator) {
     try {
       return indicators[indicator_names.at(indicator)];
@@ -87,6 +104,7 @@ struct Node {
       throw IndicatorNotFoundException(indicator);
     }
   }
+  
 
   void replace_indicator(std::string indicator_old,
                          std::string indicator_new,
