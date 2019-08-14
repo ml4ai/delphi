@@ -207,4 +207,59 @@ public:
       std::cout << std::endl;
     }
   }
+
+  void get_paths_shorter_than_or_equal_to( int length, bool from_beginning ) {
+    std::cout << std::endl
+              << "Paths between vertices: " << this->source << " and "
+              << this->target << std::endl;
+
+    if( from_beginning )
+    {
+      for (std::vector<int> path : this->paths) {
+        for (vector<int>::iterator vert = path.begin(); vert < path.end() && vert <= path.begin()+length; vert++) {
+          std::cout << *vert << " -> ";
+        }
+        std::cout << std::endl;
+      }
+    }
+    else
+    {
+      for (std::vector<int> path : this->paths) {
+        vector<int>::iterator vert = path.size() <= length ? path.begin() : path.end() - length - 1;
+        for ( ; vert < path.end(); vert++) {
+          std::cout << *vert << " -> ";
+        }
+        std::cout << std::endl;
+      }
+    }
+  }
+
+  std::unordered_set<int> get_vertices_within_hops( int hops, bool from_beginning ) {
+
+    std::unordered_set<int> vertices_within_hops;
+
+    if( from_beginning )
+    {
+      for (std::vector<int> path : this->paths) {
+        for (vector<int>::iterator vert = path.begin(); vert < path.end() && vert <= path.begin()+hops; vert++) {
+          std::cout << *vert << " -> ";
+          vertices_within_hops.insert( *vert );
+        }
+        std::cout << std::endl;
+      }
+    }
+    else
+    {
+      for (std::vector<int> path : this->paths) {
+        vector<int>::iterator vert = path.size() <= hops ? path.begin() : path.end() - hops - 1;
+        for ( ; vert < path.end(); vert++) {
+          std::cout << *vert << " -> ";
+          vertices_within_hops.insert( *vert );
+        }
+        std::cout << std::endl;
+      }
+    }
+
+    return vertices_within_hops;
+  }
 };
