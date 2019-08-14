@@ -22,6 +22,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
                   &AnalysisGraph::from_causal_fragments, "causal_fragments"_a)
       .def("get_subgraph_for_concept", &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a, "depth"_a = 1, "reverse"_a = false)
+      .def("get_subgraph_for_concept_pair",
+           &AnalysisGraph::get_subgraph_for_concept_pair, "source_concept"_a,
+           "target_concept"_a, "cutoff"_a = 1)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)

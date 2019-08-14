@@ -510,6 +510,46 @@ public:
     return G_sub;
   }
 
+  AnalysisGraph get_subgraph_for_concept_pair(string source_concept,
+                                              string target_concept,
+                                              int cutoff) {
+    int src_id = this->name_to_vertex.at(source_concept);
+    int tgt_id = this->name_to_vertex.at(target_concept);
+
+    unordered_set<int> vertices_to_keep;
+    unordered_set<string> vertices_to_remove;
+
+    // All paths of length less than or equal to depth ending at vert_id
+    if (this->A_beta_factors[tgt_id][src_id]) {
+      vertices_to_keep =
+          this->A_beta_factors[tgt_id][src_id]
+              ->get_vertices_on_paths_shorter_than_or_equal_to(cutoff);
+      this->A_beta_factors[tgt_id][src_id]->print_paths();
+    } else {
+      cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
+      cerr << "WARNING:" << endl;
+      cerr << "\tThere are no paths of length less than " << cutoff
+           << " from source concept " << source_concept
+           << " --to-> target concept " << target_concept << endl;
+    }
+
+    // Determine the vertices to be removed
+    for (int vert_id : vertices()) {
+      if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+        vertices_to_remove.insert(this->graph[vert_id].name);
+      }
+    }
+
+    // Make a copy of current AnalysisGraph
+    // TODO: We have to make sure that we are making a deep copy.
+    //       Test so far does not show suspicious behavior
+    AnalysisGraph G_sub = *this;
+    G_sub.remove_nodes(vertices_to_remove);
+    G_sub.find_all_paths();
+
+    return G_sub;
+  }
+
   auto add_node() { return boost::add_vertex(graph); }
 
   void remove_node(string concept) {
@@ -559,7 +599,7 @@ public:
         // Remove the vetex
         boost::remove_vertex(node_to_remove.mapped(), this->graph);
 
-        // Since a note has been removed from the boost adjacency list graph
+        // Since a node has been removed from the boost adjacency list graph
         // datastructure, its internal vertex indexes changes.
         // This makes AnalysisGraph name_to_vertex metadata structure out of
         // sync with the boost graph. So we have to update it for each vertex

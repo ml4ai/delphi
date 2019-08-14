@@ -241,23 +241,42 @@ public:
       for (std::vector<int> path : this->paths) {
         for (vector<int>::iterator vert = path.begin();
              vert < path.end() && vert <= path.begin() + hops; vert++) {
-          std::cout << *vert << " -> ";
+          // std::cout << *vert << " -> ";
           vertices_within_hops.insert(*vert);
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
       }
     } else {
       for (std::vector<int> path : this->paths) {
         vector<int>::iterator vert =
             path.size() <= hops ? path.begin() : path.end() - hops - 1;
         for (; vert < path.end(); vert++) {
-          std::cout << *vert << " -> ";
+          // std::cout << *vert << " -> ";
           vertices_within_hops.insert(*vert);
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
       }
     }
 
     return vertices_within_hops;
+  }
+
+  std::unordered_set<int>
+  get_vertices_on_paths_shorter_than_or_equal_to(int hops) {
+
+    std::unordered_set<int> vertices_on_shorter_paths;
+
+    for (std::vector<int> path : this->paths) {
+      if (path.size() <= hops + 1) {
+        for (vector<int>::iterator vert = path.begin(); vert < path.end();
+             vert++) {
+          //std::cout << *vert << " -> ";
+          vertices_on_shorter_paths.insert(*vert);
+        }
+        //std::cout << std::endl;
+      }
+    }
+
+    return vertices_on_shorter_paths;
   }
 };
