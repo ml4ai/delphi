@@ -461,93 +461,56 @@ public:
     return ag;
   }
 
-  // Deep copy constructor
-  /*
-  AnalysisGraph( const AnalysisGraph & rhs )
-  {
-    name_to_vertex = rhs.name_to_vertex;
-
-    indicators_in_CAG = rhs.indicators_in_CAG;
-
-  }
-  */
-
-  AnalysisGraph get_subgraph_for_concept( string concept, int depth = 1, bool reverse = false )
-  {
-    int vert_id = this->name_to_vertex.at( concept );
+  AnalysisGraph get_subgraph_for_concept(string concept, int depth = 1,
+                                         bool reverse = false) {
+    int vert_id = this->name_to_vertex.at(concept);
     int num_verts = boost::num_vertices(graph);
 
     unordered_set<int> vertices_to_keep = unordered_set<int>();
     unordered_set<string> vertices_to_remove;
 
-    if( reverse )
-    {
+    if (reverse) {
       // All paths of length less than or equal to depth ending at vert_id
       for (int col = 0; col < num_verts; ++col) {
-        if (this->A_beta_factors[ vert_id ][col]) {
-          unordered_set<int> vwh = this->A_beta_factors[ vert_id ][col]->get_vertices_within_hops( depth, false );
+        if (this->A_beta_factors[vert_id][col]) {
+          unordered_set<int> vwh =
+              this->A_beta_factors[vert_id][col]->get_vertices_within_hops(
+                  depth, false);
 
-          vertices_to_keep.insert( vwh.begin(), vwh.end() );
+          vertices_to_keep.insert(vwh.begin(), vwh.end());
         }
       }
-    }
-    else
-    {
+    } else {
       // All paths of length less than or equal to depth beginning at vert_id
       for (int row = 0; row < num_verts; ++row) {
-        if (this->A_beta_factors[row][ vert_id ]) {
-          unordered_set<int> vwh  =this->A_beta_factors[row][ vert_id ]->get_vertices_within_hops( depth, true );
+        if (this->A_beta_factors[row][vert_id]) {
+          unordered_set<int> vwh =
+              this->A_beta_factors[row][vert_id]->get_vertices_within_hops(
+                  depth, true);
 
-          vertices_to_keep.insert( vwh.begin(), vwh.end() );
+          vertices_to_keep.insert(vwh.begin(), vwh.end());
         }
       }
     }
 
     // Determine the vertices to be removed
     for (int vert_id : vertices()) {
-      if( vertices_to_keep.find( vert_id ) == vertices_to_keep.end() )
-      {
-        vertices_to_remove.insert( this->graph[ vert_id ].name );
+      if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+        vertices_to_remove.insert(this->graph[vert_id].name);
       }
     }
-
-    /*
-    print( "Vertices to keep\n");
-    for( int vert : vertices_to_keep )
-    {
-      print( "{}, ", vert );
-    }
-    print("\n");
-
-    print("Vertices to remove\n");
-    for( string vert : vertices_to_remove )
-    {
-      print("{}, ", vert);
-    }
-    print("\n");
-    */
 
     // Make a copy of current AnalysisGraph
     // TODO: We have to make sure that we are making a deep copy.
     //       Test so far does not show suspicious behavior
     AnalysisGraph G_sub = *this;
-    G_sub.remove_nodes( vertices_to_remove );
+    G_sub.remove_nodes(vertices_to_remove);
     G_sub.find_all_paths();
 
     return G_sub;
   }
 
   auto add_node() { return boost::add_vertex(graph); }
-
-  void update_meta_data() {
-    // Update the internal meta-data
-    for (int vert_id : vertices()) {
-      this->name_to_vertex[this->graph[vert_id].name] = vert_id;
-    }
-
-    // Recalculate all the directed simple paths
-    this->find_all_paths();
-  }
 
   void remove_node(string concept) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
@@ -560,7 +523,13 @@ public:
       // Remove the vetex
       boost::remove_vertex(node_to_remove.mapped(), this->graph);
 
-      this->update_meta_data();
+      // Update the internal meta-data
+      for (int vert_id : vertices()) {
+        this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+      }
+
+      // Recalculate all the directed simple paths
+      this->find_all_paths();
     } else // indicator_old is not attached to this node
     {
       cerr << "AnalysisGraph::remove_vertex()" << endl;
@@ -572,39 +541,44 @@ public:
   //      Although just calling this->remove_node(concept) within the loop
   //          for( string concept : concept_s )
   //      is suffifient to implement this method, it is not very efficient.
-  //      It updates meta-datastructurs and re-calculates directed simple paths
-  //      for each vertex removed
+  //      It re-calculates directed simple paths for each vertex removed
   //
   //      Therefore, the code in this->remove_node() has been duplicated with
   //      slightly different flow to achive a more efficient execution.
   void remove_nodes(unordered_set<string> concepts) {
     vector<string> invalid_concept_s;
 
-    print("\nRemoving nodes\n");
-    for( string c : concepts )
-      print( "{}\n", c );
-
     for (string concept : concepts) {
       auto node_to_remove = this->name_to_vertex.extract(concept);
 
       if (node_to_remove) // Concept is in the CAG
       {
-        print( "{} -- {}\n", concept, node_to_remove.mapped() );
         // Delete all the edges incident to this node
         boost::clear_vertex(node_to_remove.mapped(), this->graph);
 
         // Remove the vetex
         boost::remove_vertex(node_to_remove.mapped(), this->graph);
+
+        // Since a note has been removed from the boost adjacency list graph
+        // datastructure, its internal vertex indexes changes.
+        // This makes AnalysisGraph name_to_vertex metadata structure out of
+        // sync with the boost graph. So we have to update it for each vertex
+        // removed.
+        for (int vert_id : vertices()) {
+          this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+        }
       } else // Concept is not in the CAG
       {
+        print("INvalid: {} -- {}, {}\n", concept, node_to_remove.key(),
+              node_to_remove.mapped());
         invalid_concept_s.push_back(concept);
       }
     }
 
     if (invalid_concept_s.size() < concepts.size()) {
       // Some concepts have been removed
-      // Update the internal meta-data
-      this->update_meta_data();
+      // Recalculate all the directed simple paths
+      this->find_all_paths();
     }
 
     if (invalid_concept_s.size() > 0) {
@@ -2047,7 +2021,7 @@ public:
     }
   }
 
-  auto print_nodes() {
+  void print_nodes() {
     print("Vertex IDs and their names in the CAG\n");
     print("Vertex ID : Name\n");
     print("--------- : ----\n");

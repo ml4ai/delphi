@@ -134,8 +134,7 @@ public:
                                      .kde.value()
                                      .dataset[samp_num];
             hasKDE = true;
-          }
-          else {
+          } else {
             // What should we do if there is not enough samples generated for
             // this path?
           }
@@ -176,8 +175,8 @@ public:
   void print_beta2product() {
     for (auto it = this->beta2product.begin(); it != this->beta2product.end();
          it++) {
-      fmt::print(
-          "({}, {} -> {})", it->first.first, it->first.second, *(it->second));
+      fmt::print("({}, {} -> {})", it->first.first, it->first.second,
+                 *(it->second));
     }
   }
 
@@ -208,25 +207,24 @@ public:
     }
   }
 
-  void get_paths_shorter_than_or_equal_to( int length, bool from_beginning ) {
+  void get_paths_shorter_than_or_equal_to(int length, bool from_beginning) {
     std::cout << std::endl
               << "Paths between vertices: " << this->source << " and "
               << this->target << std::endl;
 
-    if( from_beginning )
-    {
+    if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin(); vert < path.end() && vert <= path.begin()+length; vert++) {
+        for (vector<int>::iterator vert = path.begin();
+             vert < path.end() && vert <= path.begin() + length; vert++) {
           std::cout << *vert << " -> ";
         }
         std::cout << std::endl;
       }
-    }
-    else
-    {
+    } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert = path.size() <= length ? path.begin() : path.end() - length - 1;
-        for ( ; vert < path.end(); vert++) {
+        vector<int>::iterator vert =
+            path.size() <= length ? path.begin() : path.end() - length - 1;
+        for (; vert < path.end(); vert++) {
           std::cout << *vert << " -> ";
         }
         std::cout << std::endl;
@@ -234,27 +232,27 @@ public:
     }
   }
 
-  std::unordered_set<int> get_vertices_within_hops( int hops, bool from_beginning ) {
+  std::unordered_set<int> get_vertices_within_hops(int hops,
+                                                   bool from_beginning) {
 
     std::unordered_set<int> vertices_within_hops;
 
-    if( from_beginning )
-    {
+    if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin(); vert < path.end() && vert <= path.begin()+hops; vert++) {
+        for (vector<int>::iterator vert = path.begin();
+             vert < path.end() && vert <= path.begin() + hops; vert++) {
           std::cout << *vert << " -> ";
-          vertices_within_hops.insert( *vert );
+          vertices_within_hops.insert(*vert);
         }
         std::cout << std::endl;
       }
-    }
-    else
-    {
+    } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert = path.size() <= hops ? path.begin() : path.end() - hops - 1;
-        for ( ; vert < path.end(); vert++) {
+        vector<int>::iterator vert =
+            path.size() <= hops ? path.begin() : path.end() - hops - 1;
+        for (; vert < path.end(); vert++) {
           std::cout << *vert << " -> ";
-          vertices_within_hops.insert( *vert );
+          vertices_within_hops.insert(*vert);
         }
         std::cout << std::endl;
       }

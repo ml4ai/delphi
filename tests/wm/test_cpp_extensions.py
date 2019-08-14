@@ -196,7 +196,7 @@ def test_remove_edges():
     G.print_name_to_vertex()
     G.print_all_paths()
 
-def test_subgraph():
+def xxx():
     causal_fragments = [ 
             (("small", 1, "n0"), ("large", -1, "n1")),
             (("small", 1, "n1"), ("large", -1, "n2")),
@@ -219,8 +219,60 @@ def test_subgraph():
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
 
-    print( '\nAll paths beginning at n5 graph' )
-    G_sub = G.get_subgraph_for_concept( 'n5', 6, False )
+    G.remove_nodes(set(['n0', 'n1', 'n2', 'n3', 'n4']))
+
+    print('\nAfter removing nodes')
+
+    G.print_nodes()
+    G.print_name_to_vertex()
+
+def test_subgraph():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n1"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n3")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n5")),
+            (("small", 1, "n5"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n7")),
+            (("small", 1, "n7"), ("large", -1, "n8")),
+            #(("small", 1, "n8"), ("large", -1, "n9")),
+            #(("small", 1, "n9"), ("large", -1, "n0")),
+            (("small", 1, "n0"), ("large", -1, "n9")),
+            (("small", 1, "n9"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n10")),
+            (("small", 1, "n10"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n11")),
+            (("small", 1, "n11"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n12")),
+            (("small", 1, "n12"), ("large", -1, "n8")),
+            (("small", 1, "n13"), ("large", -1, "n14")),
+            (("small", 1, "n14"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n15")),
+            (("small", 1, "n15"), ("large", -1, "n16")),
+            (("small", 1, "n5"), ("large", -1, "n3")), # Creates a loop
+            ]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    #G.remove_nodes(set(['n0', 'n1', 'n2', 'n3', 'n4']))
+    #G.remove_nodes(set(['n2', 'n3', 'n4']))
+    #G.remove_nodes(set(['n9', 'n8', 'n7', 'n6', 'n5']))
+
+    G.print_nodes()
+    G.print_name_to_vertex()
+
+    hops = 3
+    node = 'n4'
+    print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
+    G_sub = G.get_subgraph_for_concept( node, hops, False )
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
@@ -235,9 +287,8 @@ def test_subgraph():
     G_sub.print_name_to_vertex()
     #G_sub.print_all_paths()
 
-    '''
-    print( '\nAll paths ending at n5 graph' )
-    G_sub = G.get_subgraph_for_concept( 'n5', 6, True )
+    print( '\nSubgraph of {} hops ending at node {} graph'.format( hops, node ) )
+    G_sub = G.get_subgraph_for_concept( node, hops, True )
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
@@ -251,4 +302,3 @@ def test_subgraph():
     G_sub.print_nodes()
     G_sub.print_name_to_vertex()
     #G_sub.print_all_paths()
-    '''
