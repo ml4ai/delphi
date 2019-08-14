@@ -356,6 +356,21 @@ private:
     this->find_all_paths();
   }
 
+  int get_vertex_id_for_concept(string concept, string caller) {
+    int vert_id = -1;
+
+    try {
+      vert_id = this->name_to_vertex.at(concept);
+    } catch (const out_of_range &oor) {
+      cerr << "AnalysisGraph::" << caller << endl;
+      cerr << "ERROR:" << endl;
+      cerr << "\tThe concept " << concept << " is not in the CAG!" << endl;
+      std::rethrow_exception(std::current_exception());
+    }
+
+    return vert_id;
+  }
+
 public:
   ~AnalysisGraph() {}
 
@@ -461,9 +476,26 @@ public:
     return ag;
   }
 
+  /**
+   * Returns a new AnaysisGraph related to the concept provided,
+   * which is a subgraph of this graph.
+   *
+   * @param concept: The concept where the subgraph is about.
+   * @param depth  : The maximum number of hops from the concept provided
+   *                 to be included in the subgraph.
+   * #param reverse: Sets the direction of the causal influence flow to
+   *                 examine.
+   *                 False - (default) A subgraph with all the paths ending
+   *                         at the concept provided.
+   *                 True  - A subgraph rooted at the concept provided.
+   *
+   */
   AnalysisGraph get_subgraph_for_concept(string concept, int depth = 1,
                                          bool reverse = false) {
-    int vert_id = this->name_to_vertex.at(concept);
+
+    int vert_id =
+        get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+
     int num_verts = boost::num_vertices(graph);
 
     unordered_set<int> vertices_to_keep = unordered_set<int>();
@@ -493,6 +525,12 @@ public:
       }
     }
 
+    if (vertices_to_keep.size() == 0) {
+      cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
+      cerr << "WARNING:" << endl;
+      cerr << "\tReturning and empty CAG!" << endl;
+    }
+
     // Determine the vertices to be removed
     for (int vert_id : vertices()) {
       if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
@@ -510,11 +548,26 @@ public:
     return G_sub;
   }
 
+  /**
+   * Returns a new AnaysisGraph related to the source concept and the target
+   * concetp provided, which is a subgraph of this graph.
+   * This subgraph contains all the simple directed paths of length less than
+   * or equal to the provided cutoff.
+   *
+   * @param source_concept: The concept where the influence starts.
+   * @param target_concept: The concept where the influence ends.
+   * @param cutoff        : Maximum length of a directed simple path from
+   *                        the source to target to be included in the
+   *                        subgraph.
+   */
   AnalysisGraph get_subgraph_for_concept_pair(string source_concept,
                                               string target_concept,
                                               int cutoff) {
-    int src_id = this->name_to_vertex.at(source_concept);
-    int tgt_id = this->name_to_vertex.at(target_concept);
+
+    int src_id = get_vertex_id_for_concept(source_concept,
+                                           "get_subgraph_for_concept_pair()");
+    int tgt_id = get_vertex_id_for_concept(target_concept,
+                                           "get_subgraph_for_concept_pair()");
 
     unordered_set<int> vertices_to_keep;
     unordered_set<string> vertices_to_remove;
@@ -524,13 +577,22 @@ public:
       vertices_to_keep =
           this->A_beta_factors[tgt_id][src_id]
               ->get_vertices_on_paths_shorter_than_or_equal_to(cutoff);
-      this->A_beta_factors[tgt_id][src_id]->print_paths();
+
+      if (vertices_to_keep.size() == 0) {
+        cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
+        cerr << "WARNING:" << endl;
+        cerr << "\tThere are no paths of length <= " << cutoff
+             << " from source concept " << source_concept
+             << " --to-> target concept " << target_concept << endl;
+        cerr << "\tReturning and empty CAG!" << endl;
+      }
+
     } else {
       cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
       cerr << "WARNING:" << endl;
-      cerr << "\tThere are no paths of length less than " << cutoff
-           << " from source concept " << source_concept
+      cerr << "\tThere are no paths from source concept " << source_concept
            << " --to-> target concept " << target_concept << endl;
+      cerr << "\tReturning and empty CAG!" << endl;
     }
 
     // Determine the vertices to be removed
@@ -609,8 +671,6 @@ public:
         }
       } else // Concept is not in the CAG
       {
-        print("INvalid: {} -- {}, {}\n", concept, node_to_remove.key(),
-              node_to_remove.mapped());
         invalid_concept_s.push_back(concept);
       }
     }
@@ -833,8 +893,11 @@ public:
 
   double get_beta(string source_vertex_name, string target_vertex_name) {
     // This is ∂target / ∂source
-    return this->A_original(2 * this->name_to_vertex[target_vertex_name],
-                            2 * this->name_to_vertex[source_vertex_name] + 1);
+    // return this->A_original(2 * this->name_to_vertex[target_vertex_name],
+    //                        2 * this->name_to_vertex[source_vertex_name] + 1);
+    return this->A_original(
+        2 * get_vertex_id_for_concept(target_vertex_name, "get_beta()"),
+        2 * get_vertex_id_for_concept(source_vertex_name, "get_beta()") + 1);
   }
 
   void construct_beta_pdfs() {

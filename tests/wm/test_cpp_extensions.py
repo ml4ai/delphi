@@ -117,7 +117,7 @@ def test_remove_nodes():
     G.print_all_paths()
 
     print( '\nRemoving a several concepts, some valid, some invalid' )
-    G.remove_nodes( concepts = ['invalid1', 'UN/events/human/conflict', 'invalid2' ] )
+    G.remove_nodes( concepts = set(['invalid1', 'UN/events/human/conflict', 'invalid2' ]) )
     G.print_nodes()
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
@@ -240,9 +240,13 @@ def test_subgraph():
     G.print_name_to_vertex()
 
     hops = 3
-    node = 'n4'
+    node = 'n40'
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
-    G_sub = G.get_subgraph_for_concept( node, hops, False )
+    try:
+        G_sub = G.get_subgraph_for_concept( node, hops, False )
+    except IndexError:
+        print('Concept {} is not in the CAG!'.format(node))
+        return
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
@@ -317,7 +321,11 @@ def test_subgraph_between():
     tgt = 'n8'
 
     print( '\nSubgraph with inbetween hops less than or equal {} between source node {} and target node {}'.format( cutoff, src, tgt ) )
-    G_sub = G.get_subgraph_for_concept_pair( src, tgt, cutoff )
+    try:
+        G_sub = G.get_subgraph_for_concept_pair( src, tgt, cutoff )
+    except IndexError:
+        print("Incorrect source or target concept")
+        return
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
