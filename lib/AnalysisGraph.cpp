@@ -612,6 +612,37 @@ public:
     return G_sub;
   }
 
+  void prune(int cutoff = 2) {
+    int num_verts = boost::num_vertices(graph);
+    int src_degree = -1;
+    int tgt_degree = -1;
+
+    for (int tgt = 0; tgt < num_verts; ++tgt) {
+      for (int src = 0; src < num_verts; ++src) {
+        if (this->A_beta_factors[tgt][src] &&
+            this->A_beta_factors[tgt][src]
+                ->has_multiple_paths_longer_than_or_equal_to(cutoff)) {
+          src_degree = boost::in_degree(src, this->graph) +
+                       boost::out_degree(src, this->graph);
+          tgt_degree = boost::in_degree(tgt, this->graph) +
+                       boost::out_degree(tgt, this->graph);
+
+          if (src_degree != 0 && tgt_degree != 0) {
+            pair<int, int> edge = make_pair(src, tgt);
+
+            // edge ≡ β
+            if (this->beta2cell.find(edge) != this->beta2cell.end()) {
+              // Remove the edge
+              boost::remove_edge(src, tgt, this->graph);
+            }
+          }
+        }
+      }
+    }
+    // Recalculate all the directed simple paths
+    this->find_all_paths();
+  }
+
   auto add_node() { return boost::add_vertex(graph); }
 
   void remove_node(string concept) {
@@ -1988,25 +2019,21 @@ public:
     try {
       this->graph[this->name_to_vertex.at(concept)].delete_indicator(indicator);
       this->indicators_in_CAG.erase(indicator);
-    }
-    catch (const out_of_range &oor) {
+    } catch (const out_of_range &oor) {
       cerr << "Error: AnalysisGraph::delete_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
     }
-  
   }
 
   void delete_all_indicators(string concept) {
     try {
       this->graph[this->name_to_vertex.at(concept)].clear_indicators();
-    }
-    catch (const out_of_range &oor) {
+    } catch (const out_of_range &oor) {
       cerr << "Error: AnalysisGraph::delete_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicators cannot be deleted" << endl;
     }
-    
   }
   /*
   // TODO: Demosntrate how to use the Node::get_indicator() method

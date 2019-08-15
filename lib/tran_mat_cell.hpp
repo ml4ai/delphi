@@ -270,13 +270,31 @@ public:
       if (path.size() <= hops + 1) {
         for (vector<int>::iterator vert = path.begin(); vert < path.end();
              vert++) {
-          //std::cout << *vert << " -> ";
+          // std::cout << *vert << " -> ";
           vertices_on_shorter_paths.insert(*vert);
         }
-        //std::cout << std::endl;
+        // std::cout << std::endl;
       }
     }
 
     return vertices_on_shorter_paths;
+  }
+
+  bool has_multiple_paths_longer_than_or_equal_to(int length) {
+    int longer_path_count = 0;
+
+    for (std::vector<int> path : this->paths) {
+      // Note: A path records the sequence of nodes in the path
+      //       e.g.: a -> b -> c-> d
+      //       Therefore, the length of this path is
+      //       path.size() - 1
+      //       So, path.size() > length =>
+      //           length of path >= length
+      if (path.size() > length) {
+        longer_path_count++;
+      }
+    }
+
+    return longer_path_count > 1;
   }
 };

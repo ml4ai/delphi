@@ -339,3 +339,29 @@ def test_subgraph_between():
     G_sub.print_nodes()
     G_sub.print_name_to_vertex()
     #G_sub.print_all_paths()
+
+def test_prune():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n0"), ("large", -1, "n2")),
+            (("small", 1, "n0"), ("large", -1, "n3")),
+            (("small", 1, "n2"), ("large", -1, "n1")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n1")),
+            #(("small", 1, "n4"), ("large", -1, "n2")),
+            #(("small", 1, "n2"), ("large", -1, "n3")),
+            ]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    print( '\nBefore pruning' )
+    G.print_all_paths()
+
+    cutoff = 2
+
+    G.prune( cutoff )
+
+    print( '\nAfter pruning' )
+    G.print_all_paths()
