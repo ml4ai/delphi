@@ -640,18 +640,23 @@ public:
         if (this->A_beta_factors[tgt][src] &&
             this->A_beta_factors[tgt][src]
                 ->has_multiple_paths_longer_than_or_equal_to(cutoff)) {
-          src_degree = this->get_degree(src);
-          tgt_degree = this->get_degree(tgt);
+          // src_degree = this->get_degree(src);
+          // tgt_degree = this->get_degree(tgt);
 
-          if (src_degree != 0 && tgt_degree != 0) {
-            pair<int, int> edge = make_pair(src, tgt);
+          // if (src_degree != 1 && tgt_degree != 1) {
+          // This check will always be true.
+          // If there is a direct edge src --> tgt and
+          // if there are multiple paths, then the degree
+          // will always be > 1
+          pair<int, int> edge = make_pair(src, tgt);
 
-            // edge ≡ β
-            if (this->beta2cell.find(edge) != this->beta2cell.end()) {
-              // Remove the edge
-              boost::remove_edge(src, tgt, this->graph);
-            }
+          // edge ≡ β
+          if (this->beta2cell.find(edge) != this->beta2cell.end()) {
+            // There is a direct edge src --> tgt
+            // Remove that edge
+            boost::remove_edge(src, tgt, this->graph);
           }
+          //}
         }
       }
     }
