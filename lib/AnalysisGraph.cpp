@@ -1971,15 +1971,7 @@ class AnalysisGraph {
     cout << endl;
   }
 
-  void to_png(string filename = "CAG.png") {
-    using boost::make_label_writer;
-    using boost::write_graphviz;
-
-    stringstream sstream;
-
-    write_graphviz(
-        sstream, graph, make_label_writer(boost::get(&Node::name, graph)));
-
+  pair<Agraph_t*, GVC_t*> to_agraph() {
     Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
     GVC_t* gvc;
     gvc = gvContext();
@@ -2025,9 +2017,22 @@ class AnalysisGraph {
         edge = agedge(G, src, trgt, 0, true);
       }
     }
-
-
     gvLayout(gvc, G, "dot");
+    return make_pair(G, gvc);
+  }
+
+  string to_dot() {
+    auto [G, gvc] = this->to_agraph();
+    stringstream buffer;
+    streambuf* old=cout.rdbuf(buffer.rdbuf());
+    gvRender(gvc, G, "dot", stdout);
+    agclose(G);
+    gvFreeContext(gvc);
+    return buffer.str();
+  }
+
+  void to_png(string filename = "CAG.png") {
+    auto [G, gvc] = this->to_agraph();
     gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
     gvFreeLayout(gvc, G);
     agclose(G);

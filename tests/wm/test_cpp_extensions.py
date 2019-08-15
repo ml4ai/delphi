@@ -165,4 +165,4 @@ def test_remove_edge():
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
     G.print_all_paths()
-    G.to_png("CAG.png")
+    G.to_png()
