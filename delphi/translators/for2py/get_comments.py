@@ -23,7 +23,7 @@ Example:
     -- 'head' : whole-line comments just before the subprogram start;
     -- 'neck' : whole-line comments just after the subprogram start;
     -- 'foot' : whole-line comments just after the subprogram ends; and
-    -- 'internal' : comments internal to the function (curently marked
+    -- 'internal' : comments internal to the function (currently marked
             by "marker statements" of the form i_g_n_o_r_e__m_e___NNN = .True.
             where NNN is the line number of the comment.  Internal comments
             are maintained as a dictionary that maps the variables
