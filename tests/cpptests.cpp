@@ -24,6 +24,7 @@ TEST_CASE("Testing model training") {
                       "Net migration",
                       "New asylum seeking applicants",
                       "UNHCR");
+  G.to_png();
 
   G.train_model(2015, 1, 2015, 12, 100, 900);
 
