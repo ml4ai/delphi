@@ -1100,9 +1100,6 @@ class GrFNGenerator(object):
         """
         expressions = self.gen_grfn(node.value, state, "expr")
 
-        # DEBUG
-        print ("expressions: ", expressions)
-
         grfn = {"functions": [], "body": [], "identifiers": []}
         for expr in expressions:
             if "call" in expr:
@@ -1160,8 +1157,6 @@ class GrFNGenerator(object):
                 # by the argument index counter.
                 arg_idx = 0
                 for arg in call["inputs"]:
-                    # DEBUG
-                    print ("arg: ", arg)
                     # This is for collecting variables that holds
                     # a value to be assigned (set) to array
                     source_list = []
@@ -1207,7 +1202,13 @@ class GrFNGenerator(object):
                             state.lambda_strings.append(lambda_string)
                     else:
                         if array_setter:
-                            pass
+                            for argm in arg:
+                                if "var" in argm:
+                                    body["input"].append(argm["var"])
+                                else:
+                                    assert (
+                                            "type" in argm
+                                    ), f"Only 'var' or 'type' are supported for array right now."
                         else:
                             raise For2PyError(
                                 "Only 1 input per argument supported right now."
