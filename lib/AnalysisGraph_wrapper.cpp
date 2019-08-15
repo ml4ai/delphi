@@ -20,6 +20,11 @@ PYBIND11_MODULE(AnalysisGraph, m) {
                   "filename"_a, "belief_score_cutoff"_a = 0.9)
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments, "causal_fragments"_a)
+      .def("get_subgraph_for_concept", &AnalysisGraph::get_subgraph_for_concept,
+           "concept"_a, "depth"_a = 1, "reverse"_a = false)
+      .def("get_subgraph_for_concept_pair",
+           &AnalysisGraph::get_subgraph_for_concept_pair, "source_concept"_a,
+           "target_concept"_a, "cutoff"_a = 1)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
@@ -31,6 +36,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("remove_edge", &AnalysisGraph::remove_edge, "source"_a, "target"_a)
+      .def("remove_edges", &AnalysisGraph::remove_edges, "edges"_a)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
       //.def("simple_paths", &AnalysisGraph::simple_paths)

@@ -362,6 +362,22 @@ class AnalysisGraph {
     this->find_all_paths();
   }
 
+  int get_vertex_id_for_concept(string concept, string caller) {
+    int vert_id = -1;
+
+    try {
+      vert_id = this->name_to_vertex.at(concept);
+    }
+    catch (const out_of_range& oor) {
+      cerr << "AnalysisGraph::" << caller << endl;
+      cerr << "ERROR:" << endl;
+      cerr << "\tThe concept " << concept << " is not in the CAG!" << endl;
+      std::rethrow_exception(std::current_exception());
+    }
+
+    return vert_id;
+  }
+
   public:
   ~AnalysisGraph() {}
 
@@ -467,17 +483,145 @@ class AnalysisGraph {
     return ag;
   }
 
-  auto add_node() { return boost::add_vertex(graph); }
+  /**
+   * Returns a new AnaysisGraph related to the concept provided,
+   * which is a subgraph of this graph.
+   *
+   * @param concept: The concept where the subgraph is about.
+   * @param depth  : The maximum number of hops from the concept provided
+   *                 to be included in the subgraph.
+   * #param reverse: Sets the direction of the causal influence flow to
+   *                 examine.
+   *                 False - (default) A subgraph with all the paths ending
+   *                         at the concept provided.
+   *                 True  - A subgraph rooted at the concept provided.
+   *
+   */
+  AnalysisGraph get_subgraph_for_concept(string concept,
+                                         int depth = 1,
+                                         bool reverse = false) {
 
-  void update_meta_data() {
-    // Update the internal meta-data
-    for (int vert_id : vertices()) {
-      this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+    int vert_id =
+        get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+
+    int num_verts = boost::num_vertices(graph);
+
+    unordered_set<int> vertices_to_keep = unordered_set<int>();
+    unordered_set<string> vertices_to_remove;
+
+    if (reverse) {
+      // All paths of length less than or equal to depth ending at vert_id
+      for (int col = 0; col < num_verts; ++col) {
+        if (this->A_beta_factors[vert_id][col]) {
+          unordered_set<int> vwh =
+              this->A_beta_factors[vert_id][col]->get_vertices_within_hops(
+                  depth, false);
+
+          vertices_to_keep.insert(vwh.begin(), vwh.end());
+        }
+      }
+    }
+    else {
+      // All paths of length less than or equal to depth beginning at vert_id
+      for (int row = 0; row < num_verts; ++row) {
+        if (this->A_beta_factors[row][vert_id]) {
+          unordered_set<int> vwh =
+              this->A_beta_factors[row][vert_id]->get_vertices_within_hops(
+                  depth, true);
+
+          vertices_to_keep.insert(vwh.begin(), vwh.end());
+        }
+      }
     }
 
-    // Recalculate all the directed simple paths
-    this->find_all_paths();
+    if (vertices_to_keep.size() == 0) {
+      cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
+      cerr << "WARNING:" << endl;
+      cerr << "\tReturning and empty CAG!" << endl;
+    }
+
+    // Determine the vertices to be removed
+    for (int vert_id : vertices()) {
+      if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+        vertices_to_remove.insert(this->graph[vert_id].name);
+      }
+    }
+
+    // Make a copy of current AnalysisGraph
+    // TODO: We have to make sure that we are making a deep copy.
+    //       Test so far does not show suspicious behavior
+    AnalysisGraph G_sub = *this;
+    G_sub.remove_nodes(vertices_to_remove);
+    G_sub.find_all_paths();
+
+    return G_sub;
   }
+
+  /**
+   * Returns a new AnaysisGraph related to the source concept and the target
+   * concetp provided, which is a subgraph of this graph.
+   * This subgraph contains all the simple directed paths of length less than
+   * or equal to the provided cutoff.
+   *
+   * @param source_concept: The concept where the influence starts.
+   * @param target_concept: The concept where the influence ends.
+   * @param cutoff        : Maximum length of a directed simple path from
+   *                        the source to target to be included in the
+   *                        subgraph.
+   */
+  AnalysisGraph get_subgraph_for_concept_pair(string source_concept,
+                                              string target_concept,
+                                              int cutoff) {
+
+    int src_id = get_vertex_id_for_concept(source_concept,
+                                           "get_subgraph_for_concept_pair()");
+    int tgt_id = get_vertex_id_for_concept(target_concept,
+                                           "get_subgraph_for_concept_pair()");
+
+    unordered_set<int> vertices_to_keep;
+    unordered_set<string> vertices_to_remove;
+
+    // All paths of length less than or equal to depth ending at vert_id
+    if (this->A_beta_factors[tgt_id][src_id]) {
+      vertices_to_keep =
+          this->A_beta_factors[tgt_id][src_id]
+              ->get_vertices_on_paths_shorter_than_or_equal_to(cutoff);
+
+      if (vertices_to_keep.size() == 0) {
+        cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
+        cerr << "WARNING:" << endl;
+        cerr << "\tThere are no paths of length <= " << cutoff
+             << " from source concept " << source_concept
+             << " --to-> target concept " << target_concept << endl;
+        cerr << "\tReturning and empty CAG!" << endl;
+      }
+    }
+    else {
+      cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
+      cerr << "WARNING:" << endl;
+      cerr << "\tThere are no paths from source concept " << source_concept
+           << " --to-> target concept " << target_concept << endl;
+      cerr << "\tReturning and empty CAG!" << endl;
+    }
+
+    // Determine the vertices to be removed
+    for (int vert_id : vertices()) {
+      if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+        vertices_to_remove.insert(this->graph[vert_id].name);
+      }
+    }
+
+    // Make a copy of current AnalysisGraph
+    // TODO: We have to make sure that we are making a deep copy.
+    //       Test so far does not show suspicious behavior
+    AnalysisGraph G_sub = *this;
+    G_sub.remove_nodes(vertices_to_remove);
+    G_sub.find_all_paths();
+
+    return G_sub;
+  }
+
+  auto add_node() { return boost::add_vertex(graph); }
 
   void remove_node(string concept) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
@@ -490,7 +634,13 @@ class AnalysisGraph {
       // Remove the vetex
       boost::remove_vertex(node_to_remove.mapped(), this->graph);
 
-      this->update_meta_data();
+      // Update the internal meta-data
+      for (int vert_id : vertices()) {
+        this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+      }
+
+      // Recalculate all the directed simple paths
+      this->find_all_paths();
     }
     else // indicator_old is not attached to this node
     {
@@ -503,12 +653,11 @@ class AnalysisGraph {
   //      Although just calling this->remove_node(concept) within the loop
   //          for( string concept : concept_s )
   //      is suffifient to implement this method, it is not very efficient.
-  //      It updates meta-datastructurs and re-calculates directed simple paths
-  //      for each vertex removed
+  //      It re-calculates directed simple paths for each vertex removed
   //
   //      Therefore, the code in this->remove_node() has been duplicated with
   //      slightly different flow to achive a more efficient execution.
-  void remove_nodes(vector<string> concepts) {
+  void remove_nodes(unordered_set<string> concepts) {
     vector<string> invalid_concept_s;
 
     for (string concept : concepts) {
@@ -521,8 +670,17 @@ class AnalysisGraph {
 
         // Remove the vetex
         boost::remove_vertex(node_to_remove.mapped(), this->graph);
+
+        // Since a node has been removed from the boost adjacency list graph
+        // datastructure, its internal vertex indexes changes.
+        // This makes AnalysisGraph name_to_vertex metadata structure out of
+        // sync with the boost graph. So we have to update it for each vertex
+        // removed.
+        for (int vert_id : vertices()) {
+          this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+        }
       }
-      else // indicator_old is not attached to this node
+      else // Concept is not in the CAG
       {
         invalid_concept_s.push_back(concept);
       }
@@ -530,8 +688,8 @@ class AnalysisGraph {
 
     if (invalid_concept_s.size() < concepts.size()) {
       // Some concepts have been removed
-      // Update the internal meta-data
-      this->update_meta_data();
+      // Recalculate all the directed simple paths
+      this->find_all_paths();
     }
 
     if (invalid_concept_s.size() > 0) {
@@ -586,6 +744,112 @@ class AnalysisGraph {
 
     // Remove the edge
     boost::remove_edge(src_id, tgt_id, this->graph);
+
+    // Recalculate all the directed simple paths
+    this->find_all_paths();
+  }
+
+  void remove_edges(vector<pair<string, string>> edges) {
+
+    vector<pair<int, int>> edge_id_s = vector<pair<int, int>>(edges.size());
+
+    set<string> invalid_src_s;
+    set<string> invalid_tgt_s;
+    set<pair<string, string>> invalid_edg_s;
+
+    std::transform(edges.begin(),
+                   edges.end(),
+                   edge_id_s.begin(),
+                   [this](pair<string, string> edg) {
+                     int src_id;
+                     int tgt_id;
+
+                     // Flag invalid source vertices
+                     try {
+                       src_id = this->name_to_vertex.at(edg.first);
+                     }
+                     catch (const out_of_range& oor) {
+                       src_id = -1;
+                     }
+
+                     // Flag invalid target vertices
+                     try {
+                       tgt_id = this->name_to_vertex.at(edg.second);
+                     }
+                     catch (const out_of_range& oor) {
+                       tgt_id = -1;
+                     }
+
+                     // Flag invalid edges
+                     if (src_id != -1 && tgt_id != -1) {
+                       pair<int, int> edg_id = make_pair(src_id, tgt_id);
+
+                       if (this->beta2cell.find(edg_id) ==
+                           this->beta2cell.end()) {
+                         src_id = -2;
+                       }
+                     }
+
+                     return make_pair(src_id, tgt_id);
+                   });
+
+    bool has_invalid_src_s = false;
+    bool has_invalid_tgt_s = false;
+    bool has_invalid_edg_s = false;
+
+    for (int e = 0; e < edge_id_s.size(); e++) {
+      bool valid_edge = true;
+
+      if (edge_id_s[e].first == -1) {
+        invalid_src_s.insert(edges[e].first);
+        valid_edge = false;
+        has_invalid_src_s = true;
+      }
+
+      if (edge_id_s[e].second == -1) {
+        invalid_tgt_s.insert(edges[e].second);
+        valid_edge = false;
+        has_invalid_tgt_s = true;
+      }
+
+      if (edge_id_s[e].first == -2) {
+        invalid_edg_s.insert(edges[e]);
+        valid_edge = false;
+        has_invalid_edg_s = true;
+      }
+
+      if (valid_edge) {
+        // Remove the edge
+        boost::remove_edge(
+            edge_id_s[e].first, edge_id_s[e].second, this->graph);
+      }
+    }
+
+    if (has_invalid_src_s || has_invalid_tgt_s || has_invalid_edg_s) {
+      cerr << "ERROR: AnalysisGraph::remove_edges" << endl;
+
+      if (has_invalid_src_s) {
+        cerr << "\tFollowing source vertexes are not in the CAG!" << endl;
+        for (string invalid_src : invalid_src_s) {
+          cerr << "\t\t" << invalid_src << endl;
+        }
+      }
+
+      if (has_invalid_tgt_s) {
+        cerr << "\tFollowing target vertexes are not in the CAG!" << endl;
+        for (string invalid_tgt : invalid_tgt_s) {
+          cerr << "\t\t" << invalid_tgt << endl;
+        }
+      }
+
+      if (has_invalid_edg_s) {
+        cerr << "\tFollowing edges are not in the CAG!" << endl;
+        for (pair<string, string> invalid_edg : invalid_edg_s) {
+          cerr << "\t\t" << invalid_edg.first << " --to-> "
+               << invalid_edg.second << endl;
+        }
+      }
+    }
 
     // Recalculate all the directed simple paths
     this->find_all_paths();
@@ -646,8 +910,11 @@ class AnalysisGraph {
 
   double get_beta(string source_vertex_name, string target_vertex_name) {
     // This is ∂target / ∂source
-    return this->A_original(2 * this->name_to_vertex[target_vertex_name],
-                            2 * this->name_to_vertex[source_vertex_name] + 1);
+    // return this->A_original(2 * this->name_to_vertex[target_vertex_name],
+    //                        2 * this->name_to_vertex[source_vertex_name] + 1);
+    return this->A_original(
+        2 * get_vertex_id_for_concept(target_vertex_name, "get_beta()"),
+        2 * get_vertex_id_for_concept(source_vertex_name, "get_beta()") + 1);
   }
 
   void construct_beta_pdfs() {
@@ -1946,7 +2213,7 @@ class AnalysisGraph {
     }
   }
 
-  auto print_nodes() {
+  void print_nodes() {
     print("Vertex IDs and their names in the CAG\n");
     print("Vertex ID : Name\n");
     print("--------- : ----\n");
