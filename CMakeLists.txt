@@ -8,12 +8,6 @@ set(Boost_NO_BOOST_CMAKE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Graphviz)
-if (${GRAPHVIZ_FOUND})
-  message("headers ${GRAPHVIZ_INCLUDE_DIRS}")
-  message("gvc ${GRAPHVIZ_GVC_LIBRARY}")
-  message("cgraph ${GRAPHVIZ_CGRAPH_LIBRARY}")
-  message("cdt ${GRAPHVIZ_CDT_LIBRARY}")
-endif()
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
@@ -25,7 +19,6 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-
 add_subdirectory(external/fmt)
 include_directories(external/fmt/include)
 
@@ -35,24 +28,26 @@ set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 add_subdirectory(external/pybind11)
 
-
 pybind11_add_module(kde lib/kde_wrapper.cpp)
 pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
 
 add_library(AnalysisGraphCpp lib/AnalysisGraph.cpp)
-target_link_libraries(AnalysisGraphCpp PRIVATE ${Boost_LIBRARIES} fmt::fmt "sqlite3" ${GRAPHVIZ_GVC_LIBRARY} ${GRAPHVIZ_CGRAPH_LIBRARY} ${GRAPHVIZ_CDT_LIBRARY} ) 
+target_link_libraries(AnalysisGraphCpp
+                      PRIVATE ${Boost_LIBRARIES}
+                              fmt::fmt
+                              "sqlite3"
+                              ${GRAPHVIZ_LIBS})
 
 target_link_libraries(kde PRIVATE ${Boost_LIBRARIES} fmt::fmt)
-target_link_libraries(AnalysisGraph PRIVATE ${Boost_LIBRARIES} fmt::fmt ${GRAPHVIZ_GVC_LIBRARY} ${GRAPHVIZ_CGRAPH_LIBRARY} ${GRAPHVIZ_CDT_LIBRARY})
+target_link_libraries(AnalysisGraph
+                      PRIVATE ${Boost_LIBRARIES} fmt::fmt ${GRAPHVIZ_LIBS})
 
 message("-- Using Eigen3 version 3.3 bundled with Delphi")
 include_directories(external/eigen)
 
-
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
-target_link_libraries (AnalysisGraph PRIVATE "sqlite3")
-
+target_link_libraries(AnalysisGraph PRIVATE "sqlite3")
 
 # Tests
 add_library(doctest INTERFACE)

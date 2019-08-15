@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <iomanip>
 #include <ostream>
 #include <sqlite3.h>
 #include <utility>
-#include <cstdio>
 
 #include "itertools.hpp"
 #include <boost/algorithm/string.hpp>
@@ -14,7 +14,7 @@
 #include <boost/graph/graphviz.hpp>
 #include <boost/progress.hpp>
 
-#include <gvc.h>
+#include "graphviz_interface.hpp"
 
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
@@ -46,21 +46,21 @@ typedef pair<tuple<string, int, string>, tuple<string, int, string>>
 AdjectiveResponseMap
 construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
   using utils::hasKey;
-  sqlite3 *db;
+  sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
   if (rc == 1)
     throw "Could not open db\n";
 
-  sqlite3_stmt *stmt;
-  const char *query = "select * from gradableAdjectiveData";
+  sqlite3_stmt* stmt;
+  const char* query = "select * from gradableAdjectiveData";
   rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 
   AdjectiveResponseMap adjective_response_map;
 
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     string adjective =
-        string(reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2)));
+        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
     if (hasKey(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
@@ -70,7 +70,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     }
   }
 
-  for (auto &[k, v] : adjective_response_map) {
+  for (auto& [k, v] : adjective_response_map) {
     v = KDE(v).resample(n_kernels);
   }
   sqlite3_finalize(stmt);
@@ -272,7 +272,7 @@ class AnalysisGraph {
    *
    * @return void
    */
-  void find_all_paths_between_util(int start, int end, vector<int> &path) {
+  void find_all_paths_between_util(int start, int end, vector<int>& path) {
     // Mark the current vertex visited
     this->graph[start].visited = true;
 
@@ -559,7 +559,7 @@ class AnalysisGraph {
     try {
       src_id = this->name_to_vertex.at(src);
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "AnalysisGraph::remove_edge" << endl;
       cerr << "\tSource vertex " << src << " is not in the CAG!" << endl;
       return;
@@ -568,7 +568,7 @@ class AnalysisGraph {
     try {
       tgt_id = this->name_to_vertex.at(tgt);
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "AnalysisGraph::remove_edge" << endl;
       cerr << "\tTarget vertex " << tgt << " is not in the CAG!" << endl;
       return;
@@ -819,7 +819,7 @@ class AnalysisGraph {
     }
 
     // Update the β factor dependent cells of this matrix
-    for (auto &[row, col] : this->beta_dependent_cells) {
+    for (auto& [row, col] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) =
           // this->A_beta_factors[row][col]->sample_from_prior(this->graph);
           this->A_beta_factors[row][col]->compute_cell(this->graph);
@@ -882,7 +882,7 @@ class AnalysisGraph {
     vector<vector<double>> observed_state(num_verts);
 
     for (int v = 0; v < num_verts; v++) {
-      vector<Indicator> &indicators = this->graph[v].indicators;
+      vector<Indicator>& indicators = this->graph[v].indicators;
 
       observed_state[v] = vector<double>(indicators.size(), 0.0);
 
@@ -959,10 +959,10 @@ class AnalysisGraph {
     this->set_default_initial_state();
 
     for (int v = 0; v < num_verts; v++) {
-      vector<Indicator> &indicators = this->graph[v].indicators;
+      vector<Indicator>& indicators = this->graph[v].indicators;
 
       for (int i = 0; i < indicators.size(); i++) {
-        Indicator &ind = indicators[i];
+        Indicator& ind = indicators[i];
 
         double ind_mean = ind.get_mean();
 
@@ -1167,7 +1167,7 @@ class AnalysisGraph {
         this->training_latent_state_sequence_s.begin(),
         this->training_latent_state_sequence_s.end(),
         this->prediction_initial_latent_state_s.begin(),
-        [&timestep](vector<Eigen::VectorXd> &ls) { return ls[timestep]; });
+        [&timestep](vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
   }
 
   /**
@@ -1212,7 +1212,7 @@ class AnalysisGraph {
         ObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
 
     for (int samp = 0; samp < this->res; samp++) {
-      vector<Eigen::VectorXd> &sample =
+      vector<Eigen::VectorXd>& sample =
           this->predicted_latent_state_sequence_s[samp];
 
       transform(sample.begin(),
@@ -1337,13 +1337,13 @@ class AnalysisGraph {
         this->pred_timesteps);
     this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
 
-    for (vector<Eigen::VectorXd> &latent_state_s :
+    for (vector<Eigen::VectorXd>& latent_state_s :
          this->predicted_latent_state_sequence_s) {
       latent_state_s.erase(latent_state_s.begin(),
                            latent_state_s.begin() + truncate);
     }
 
-    for (ObservedStateSequence &observed_state_s :
+    for (ObservedStateSequence& observed_state_s :
          this->predicted_observed_state_sequence_s) {
       observed_state_s.erase(observed_state_s.begin(),
                              observed_state_s.begin() + truncate);
@@ -1551,7 +1551,7 @@ class AnalysisGraph {
     vector<vector<double>> observed_state(num_verts);
 
     for (int v = 0; v < num_verts; v++) {
-      vector<Indicator> &indicators = this->graph[v].indicators;
+      vector<Indicator>& indicators = this->graph[v].indicators;
 
       observed_state[v] = vector<double>(indicators.size());
 
@@ -1597,8 +1597,8 @@ class AnalysisGraph {
 
     for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
          it++) {
-      int &row = it->second.first;
-      int &col = it->second.second;
+      int& row = it->second.first;
+      int& col = it->second.second;
 
       // Note that I am remembering row and col instead of 2*row and 2*col+1
       // row and col resembles an edge in the CAG: row -> col
@@ -1676,19 +1676,19 @@ class AnalysisGraph {
     this->set_latent_state_sequence();
 
     for (int ts = 0; ts < this->n_timesteps; ts++) {
-      const Eigen::VectorXd &latent_state = this->latent_state_sequence[ts];
+      const Eigen::VectorXd& latent_state = this->latent_state_sequence[ts];
 
       // Access
       // observed_state[ vertex ][ indicator ]
-      const vector<vector<double>> &observed_state =
+      const vector<vector<double>>& observed_state =
           this->observed_state_sequence[ts];
 
       for (int v : vertices()) {
-        const int &num_inds_for_v = observed_state[v].size();
+        const int& num_inds_for_v = observed_state[v].size();
 
         for (int i = 0; i < observed_state[v].size(); i++) {
-          const double &value = observed_state[v][i];
-          const Indicator &ind = graph[v].indicators[i];
+          const double& value = observed_state[v][i];
+          const Indicator& ind = graph[v].indicators[i];
 
           // Even indices of latent_state keeps track of the state of each
           // vertex
@@ -1706,7 +1706,7 @@ class AnalysisGraph {
     // using .value() (In the case of kde being missing, this
     // will throw an exception). We should follow a process
     // similar to Tran_Mat_Cell::sample_from_prior
-    KDE &kde = this->graph[this->previous_beta.first].kde.value();
+    KDE& kde = this->graph[this->previous_beta.first].kde.value();
 
     // We have to return: log( p( β_new )) - log( p( β_old ))
     return kde.logpdf(this->graph[this->previous_beta.first].beta) -
@@ -1765,7 +1765,7 @@ class AnalysisGraph {
                                                                   source);
       this->indicators_in_CAG.insert(indicator);
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "Error: AnalysisGraph::set_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicator: " << indicator << " with Source: " << source
@@ -1779,24 +1779,22 @@ class AnalysisGraph {
       this->graph[this->name_to_vertex.at(concept)].delete_indicator(indicator);
       this->indicators_in_CAG.erase(indicator);
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "Error: AnalysisGraph::delete_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
     }
-  
   }
 
   void delete_all_indicators(string concept) {
     try {
       this->graph[this->name_to_vertex.at(concept)].clear_indicators();
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "Error: AnalysisGraph::delete_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicators cannot be deleted" << endl;
     }
-    
   }
   /*
   // TODO: Demosntrate how to use the Node::get_indicator() method
@@ -1843,7 +1841,7 @@ class AnalysisGraph {
       this->indicators_in_CAG.insert(indicator_new);
       this->indicators_in_CAG.erase(indicator_old);
     }
-    catch (const out_of_range &oor) {
+    catch (const out_of_range& oor) {
       cerr << "Error: AnalysisGraph::replace_indicator()\n"
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicator: " << indicator_old << " cannot be replaced" << endl;
@@ -1869,13 +1867,13 @@ class AnalysisGraph {
    * node.
    */
   void map_concepts_to_indicators(int n = 1) {
-    sqlite3 *db;
+    sqlite3* db;
     int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
     if (rc) {
       print("Could not open db\n");
       return;
     }
-    sqlite3_stmt *stmt;
+    sqlite3_stmt* stmt;
     string query_base =
         "select Source, Indicator from concept_to_indicator_mapping ";
     string query;
@@ -1892,9 +1890,9 @@ class AnalysisGraph {
           rc = sqlite3_step(stmt);
           if (rc == SQLITE_ROW) {
             ind_source = string(
-                reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0)));
+                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
             ind_name = string(
-                reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1)));
+                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
           }
           else {
             ind_not_found = true;
@@ -1972,47 +1970,44 @@ class AnalysisGraph {
   }
 
   pair<Agraph_t*, GVC_t*> to_agraph() {
+    using delphi::gv::set_property, delphi::gv::add_node;
     Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
     GVC_t* gvc;
     gvc = gvContext();
 
     // Set global properties
-    agattr(G, AGNODE, const_cast<char*>("shape"), const_cast<char*>("rectangle"));
-    agattr(G, AGNODE, const_cast<char*>("style"), const_cast<char*>("rounded"));
-    agattr(G, AGNODE, const_cast<char*>("fontname"), const_cast<char*>("Helvetica"));
+    set_property(G, AGNODE, "shape", "rectangle");
+    set_property(G, AGNODE, "style", "rounded");
+    set_property(G, AGNODE, "color", "maroon");
+    set_property(G, AGNODE, "fontname", "Helvetica");
 
     Agnode_t* src;
     Agnode_t* trgt;
     Agedge_t* edge;
 
     // Add CAG links
-    for (auto e : edges() ) {
-      char* source_name = const_cast<char*>(this->graph[source(e, graph)].name.c_str());
-      char* target_name = const_cast<char*>(this->graph[target(e, graph)].name.c_str());
+    for (auto e : edges()) {
+      string source_name = this->graph[source(e, graph)].name;
+      string target_name = this->graph[target(e, graph)].name;
 
-      src = agnode(G, source_name, 1);
-      agsafeset(src, const_cast<char*>("label"), source_name, const_cast<char*>(""));
-      agsafeset(src, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
+      src = add_node(G, source_name);
+      set_property(src, "label", source_name);
 
-      trgt = agnode(G, target_name, 1);
-      agsafeset(trgt, const_cast<char*>("label"), target_name, const_cast<char*>(""));
-      agsafeset(trgt, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
+      trgt = add_node(G, target_name);
+      set_property(trgt, "label", target_name);
 
       edge = agedge(G, src, trgt, 0, true);
     }
 
     // Add concepts, indicators, and link them.
-    for (auto v : vertices()){
-
-      char* concept_name = const_cast<char*>(this->graph[v].name.c_str());
+    for (auto v : vertices()) {
+      string concept_name = this->graph[v].name;
       for (auto indicator : this->graph[v].indicators) {
-        char* ind_name = const_cast<char*>(indicator.name.c_str());
-
-        src = agnode(G, concept_name, 1);
-        trgt = agnode(G, ind_name, 1);
-        agsafeset(trgt, const_cast<char*>("label"), ind_name, const_cast<char*>(""));
-        agset(trgt, const_cast<char*>("style"), const_cast<char*>("rounded,filled"));
-        agsafeset(trgt, const_cast<char*>("fillcolor"), const_cast<char*>("lightblue"), const_cast<char*>(""));
+        src = add_node(G, concept_name);
+        trgt = add_node(G, indicator.name);
+        set_property(trgt, "label", indicator.name);
+        set_property(trgt, "style", "rounded,filled");
+        set_property(trgt, "fillcolor", "lightblue");
 
         edge = agedge(G, src, trgt, 0, true);
       }
@@ -2024,7 +2019,7 @@ class AnalysisGraph {
   string to_dot() {
     auto [G, gvc] = this->to_agraph();
     stringstream buffer;
-    streambuf* old=cout.rdbuf(buffer.rdbuf());
+    streambuf* old = cout.rdbuf(buffer.rdbuf());
     gvRender(gvc, G, "dot", stdout);
     agclose(G);
     gvFreeContext(gvc);
