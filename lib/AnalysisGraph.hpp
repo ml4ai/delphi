@@ -33,6 +33,16 @@ struct Event {
 struct Statement {
   Event subject;
   Event object;
+
+  Statement() :
+    subject(Event("", 0, "" )),
+    object(Event("", 0, ""))
+    {}
+
+  Statement(Event sub, Event obj) :
+    subject(sub),
+    object(obj)
+    {}
 };
 
 struct Edge {

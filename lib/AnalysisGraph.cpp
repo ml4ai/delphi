@@ -378,6 +378,24 @@ class AnalysisGraph {
     return vert_id;
   }
 
+  int get_degree(int vertex_id) {
+    return boost::in_degree(vertex_id, this->graph) +
+           boost::out_degree(vertex_id, this->graph);
+  }
+
+  void remove_node(int node_id) {
+    // Delete all the edges incident to this node
+    boost::clear_vertex(node_id, this->graph);
+
+    // Remove the vetex
+    boost::remove_vertex(node_id, this->graph);
+
+    // Update the internal meta-data
+    for (int vert_id : vertices()) {
+      this->name_to_vertex[this->graph[vert_id].name] = vert_id;
+    }
+  }
+
   public:
   ~AnalysisGraph() {}
 
@@ -621,6 +639,40 @@ class AnalysisGraph {
     return G_sub;
   }
 
+  void prune(int cutoff = 2) {
+    int num_verts = boost::num_vertices(graph);
+    int src_degree = -1;
+    int tgt_degree = -1;
+
+    for (int tgt = 0; tgt < num_verts; ++tgt) {
+      for (int src = 0; src < num_verts; ++src) {
+        if (this->A_beta_factors[tgt][src] &&
+            this->A_beta_factors[tgt][src]
+                ->has_multiple_paths_longer_than_or_equal_to(cutoff)) {
+          // src_degree = this->get_degree(src);
+          // tgt_degree = this->get_degree(tgt);
+
+          // if (src_degree != 1 && tgt_degree != 1) {
+          // This check will always be true.
+          // If there is a direct edge src --> tgt and
+          // if there are multiple paths, then the degree
+          // will always be > 1
+          pair<int, int> edge = make_pair(src, tgt);
+
+          // edge ≡ β
+          if (this->beta2cell.find(edge) != this->beta2cell.end()) {
+            // There is a direct edge src --> tgt
+            // Remove that edge
+            boost::remove_edge(src, tgt, this->graph);
+          }
+          //}
+        }
+      }
+    }
+    // Recalculate all the directed simple paths
+    this->find_all_paths();
+  }
+
   auto add_node() { return boost::add_vertex(graph); }
 
   void remove_node(string concept) {
@@ -628,16 +680,8 @@ class AnalysisGraph {
 
     if (node_to_remove) // Concept is in the CAG
     {
-      // Delete all the edges incident to this node
-      boost::clear_vertex(node_to_remove.mapped(), this->graph);
-
-      // Remove the vetex
-      boost::remove_vertex(node_to_remove.mapped(), this->graph);
-
-      // Update the internal meta-data
-      for (int vert_id : vertices()) {
-        this->name_to_vertex[this->graph[vert_id].name] = vert_id;
-      }
+      // Note: This is an overlaoded private method that takes in a vertex id
+      this->remove_node(node_to_remove.mapped());
 
       // Recalculate all the directed simple paths
       this->find_all_paths();
@@ -665,22 +709,9 @@ class AnalysisGraph {
 
       if (node_to_remove) // Concept is in the CAG
       {
-        // Delete all the edges incident to this node
-        boost::clear_vertex(node_to_remove.mapped(), this->graph);
-
-        // Remove the vetex
-        boost::remove_vertex(node_to_remove.mapped(), this->graph);
-
-        // Since a node has been removed from the boost adjacency list graph
-        // datastructure, its internal vertex indexes changes.
-        // This makes AnalysisGraph name_to_vertex metadata structure out of
-        // sync with the boost graph. So we have to update it for each vertex
-        // removed.
-        for (int vert_id : vertices()) {
-          this->name_to_vertex[this->graph[vert_id].name] = vert_id;
-        }
-      }
-      else // Concept is not in the CAG
+        // Note: This is an overlaoded private method that takes in a vertex id
+        this->remove_node(node_to_remove.mapped());
+      } else // Concept is not in the CAG
       {
         invalid_concept_s.push_back(concept);
       }
@@ -703,7 +734,7 @@ class AnalysisGraph {
     }
   }
 
-  auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
+  void add_edge(int i, int j) { boost::add_edge(i, j, this->graph); }
 
   // auto add_edge(string source, string target) {
   // boost::add_edge(
@@ -869,7 +900,7 @@ class AnalysisGraph {
   }
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
-  void merge_nodes(string n1, string n2, bool same_polarity = true) {
+  void merge_nodes_old(string n1, string n2, bool same_polarity = true) {
     for (auto predecessor : predecessors(n1)) {
       auto e =
           boost::edge(predecessor, this->name_to_vertex[n1], this->graph).first;
@@ -902,6 +933,99 @@ class AnalysisGraph {
       }
     }
     remove_node(n1);
+  }
+
+  /**
+   * Merges the CAG nodes for the two concepts concept_1 and concept_2
+   * with the option to specify relative polarity.
+   */
+  void merge_nodes(string concept_1, string concept_2,
+                   bool same_polarity = true) {
+    int vertex_remove = get_vertex_id_for_concept(concept_1, "merge_nodes()");
+    int vertex_keep = get_vertex_id_for_concept(concept_2, "merge_nodes()");
+
+    /*
+    int c1_id = get_vertex_id_for_concept(concept_1, "merge_nodes()");
+    int c2_id = get_vertex_id_for_concept(concept_2, "merge_nodes()");
+
+    // Choose the node with the higher degree to keep and the other to delete
+    int c1_degree = this->get_degree(c1_id);
+    int c2_degree = this->get_degree(c2_id);
+
+    int vertex_keep = c1_id;
+    int vertex_remove = c2_id;
+
+    if( c1_degree < c2_degree )
+    {
+      vertex_keep = c2_id;
+      vertex_remove = c1_id;
+    }
+    */
+
+    for (int predecessor : predecessors(vertex_remove)) {
+
+      // Get the edge descripter for
+      //                   predecessor --> vertex_remove
+      auto edg_remove =
+          boost::edge(predecessor, vertex_remove, this->graph).first;
+
+      if (!same_polarity) {
+        for (Statement stmt : this->graph[edg_remove].evidence) {
+          stmt.object.polarity = -stmt.object.polarity;
+        }
+      }
+
+      // Add the edge   predecessor --> vertex_keep
+      auto[edg_keep, is_new_edge] =
+          boost::add_edge(predecessor, vertex_keep, this->graph);
+
+      // Move all the evidence from vertex_delete to the
+      // newly created (or existing) edge
+      // predecessor --> vertex_keep
+      vector<Statement> &evidence_keep = this->graph[edg_keep].evidence;
+      vector<Statement> &evidence_move = this->graph[edg_remove].evidence;
+
+      evidence_keep.resize(evidence_keep.size() + evidence_move.size());
+
+      std::move(evidence_move.begin(), evidence_move.end(),
+                evidence_keep.end() - evidence_move.size());
+    }
+
+    for (int successor : successors(vertex_remove)) {
+
+      // Get the edge descripter for
+      //                   vertex_remove --> successor
+      auto edg_remove =
+          boost::edge(vertex_remove, successor, this->graph).first;
+
+      if (!same_polarity) {
+        for (Statement stmt : this->graph[edg_remove].evidence) {
+          stmt.object.polarity = -stmt.object.polarity;
+        }
+      }
+
+      // Add the edge   successor --> vertex_keep
+      auto[edg_keep, is_new_edge] =
+          boost::add_edge(vertex_keep, successor, this->graph);
+
+      // Move all the evidence from vertex_delete to the
+      // newly created (or existing) edge
+      // vertex_keep --> successor
+      vector<Statement> &evidence_keep = this->graph[edg_keep].evidence;
+      vector<Statement> &evidence_move = this->graph[edg_remove].evidence;
+
+      evidence_keep.resize(evidence_keep.size() + evidence_move.size());
+
+      std::move(evidence_move.begin(), evidence_move.end(),
+                evidence_keep.end() - evidence_move.size());
+    }
+
+    // Remove vertex_remove from the CAG
+    // Note: This is an overlaoded private method that takes in a vertex id
+    this->remove_node(vertex_remove);
+
+    // Recalculate all the directed simple paths
+    this->find_all_paths();
   }
 
   auto out_edges(int i) {

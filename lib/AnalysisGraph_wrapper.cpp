@@ -25,6 +25,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("get_subgraph_for_concept_pair",
            &AnalysisGraph::get_subgraph_for_concept_pair, "source_concept"_a,
            "target_concept"_a, "cutoff"_a = 1)
+      .def("prune", &AnalysisGraph::prune, "cutoff"_a = 2)
+      .def("merge_nodes", &AnalysisGraph::merge_nodes, "concept_1"_a,
+           "concept_2"_a, "same_polarity"_a = true)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
@@ -32,7 +35,9 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("to_png", &AnalysisGraph::to_png, "filename"_a = "CAG.png")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node)
-      .def("remove_node", &AnalysisGraph::remove_node, "concept"_a)
+      .def("remove_node",
+           (void (AnalysisGraph::*)(string)) & AnalysisGraph::remove_node,
+           "concept"_a)
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("remove_edge", &AnalysisGraph::remove_edge, "source"_a, "target"_a)
@@ -55,9 +60,10 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "indicator"_a, "source"_a)
       .def("replace_indicator", &AnalysisGraph::replace_indicator, "concept"_a,
            "indicator_old"_a, "indicator_new"_a, "source"_a)
-      .def("delete_indicator", &AnalysisGraph::delete_indicator, "concept"_a, 
-          "indicator"_a)
-      .def("delete_all_indicators", &AnalysisGraph::delete_all_indicators, "concept"_a)
+      .def("delete_indicator", &AnalysisGraph::delete_indicator, "concept"_a,
+           "indicator"_a)
+      .def("delete_all_indicators", &AnalysisGraph::delete_all_indicators,
+           "concept"_a)
       //.def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
       //     "indicator"_a, py::return_value_policy::automatic)
       .def("test_inference_with_synthetic_data",
