@@ -1971,7 +1971,7 @@ class AnalysisGraph {
     cout << endl;
   }
 
-  auto to_png(string filename = "CAG.png") {
+  void to_png(string filename = "CAG.png") {
     using boost::make_label_writer;
     using boost::write_graphviz;
 
@@ -1993,40 +1993,45 @@ class AnalysisGraph {
     Agnode_t* trgt;
     Agedge_t* edge;
 
-    // Add concepts, indicators, and link them.
-    for (auto v : vertices()){
-
-      char* concept_name = const_cast<char*>(this->graph[v].name.c_str());
-      char* ind_name = const_cast<char*>(this->graph[v].indicators.at(0).name.c_str());
-
-      src = agnode(G, concept_name, 1);
-      agsafeset(src, const_cast<char*>("label"), concept_name, const_cast<char*>(""));
-      agsafeset(src, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
-
-      trgt = agnode(G, ind_name, 1);
-      agsafeset(trgt, const_cast<char*>("label"), ind_name, const_cast<char*>(""));
-      agset(trgt, const_cast<char*>("style"), const_cast<char*>("rounded,filled"));
-      agsafeset(trgt, const_cast<char*>("fillcolor"), const_cast<char*>("lightblue"), const_cast<char*>(""));
-
-      edge = agedge(G, src, trgt, 0, true);
-    }
-
     // Add CAG links
     for (auto e : edges() ) {
       char* source_name = const_cast<char*>(this->graph[source(e, graph)].name.c_str());
       char* target_name = const_cast<char*>(this->graph[target(e, graph)].name.c_str());
 
       src = agnode(G, source_name, 1);
+      agsafeset(src, const_cast<char*>("label"), source_name, const_cast<char*>(""));
+      agsafeset(src, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
+
       trgt = agnode(G, target_name, 1);
+      agsafeset(trgt, const_cast<char*>("label"), target_name, const_cast<char*>(""));
+      agsafeset(trgt, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
 
       edge = agedge(G, src, trgt, 0, true);
     }
+
+    // Add concepts, indicators, and link them.
+    for (auto v : vertices()){
+
+      char* concept_name = const_cast<char*>(this->graph[v].name.c_str());
+      for (auto indicator : this->graph[v].indicators) {
+        char* ind_name = const_cast<char*>(indicator.name.c_str());
+
+        src = agnode(G, concept_name, 1);
+        trgt = agnode(G, ind_name, 1);
+        agsafeset(trgt, const_cast<char*>("label"), ind_name, const_cast<char*>(""));
+        agset(trgt, const_cast<char*>("style"), const_cast<char*>("rounded,filled"));
+        agsafeset(trgt, const_cast<char*>("fillcolor"), const_cast<char*>("lightblue"), const_cast<char*>(""));
+
+        edge = agedge(G, src, trgt, 0, true);
+      }
+    }
+
 
     gvLayout(gvc, G, "dot");
     gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
     gvFreeLayout(gvc, G);
     agclose(G);
-    return (gvFreeContext(gvc));
+    gvFreeContext(gvc);
   }
 
   auto print_indicators() {
