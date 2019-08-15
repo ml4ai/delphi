@@ -32,6 +32,7 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
+      .def("to_png", &AnalysisGraph::to_png, "filename"_a = "CAG.png")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node)
       .def("remove_node",
