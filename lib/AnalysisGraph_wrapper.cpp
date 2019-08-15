@@ -26,13 +26,17 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            &AnalysisGraph::get_subgraph_for_concept_pair, "source_concept"_a,
            "target_concept"_a, "cutoff"_a = 1)
       .def("prune", &AnalysisGraph::prune, "cutoff"_a = 2)
+      .def("merge_nodes", &AnalysisGraph::merge_nodes, "concept_1"_a,
+           "concept_2"_a, "same_polarity"_a = true)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node)
-      .def("remove_node", &AnalysisGraph::remove_node, "concept"_a)
+      .def("remove_node",
+           (void (AnalysisGraph::*)(string)) & AnalysisGraph::remove_node,
+           "concept"_a)
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge", &AnalysisGraph::add_edge)
       .def("remove_edge", &AnalysisGraph::remove_edge, "source"_a, "target"_a)

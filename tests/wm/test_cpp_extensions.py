@@ -365,3 +365,42 @@ def test_prune():
 
     print( '\nAfter pruning' )
     G.print_all_paths()
+
+def test_merge():
+    causal_fragments = [ 
+            (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/events/human/human_migration"), ("small", 1, "UN/events/human/conflict")),
+            (("small", 1, "UN/events/human/human_migration"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/events/human/conflict") , ("small", 1, "UN/entities/natural/crop_technology/product")),
+            (("large", -1, "UN/entities/human/food/food_security") , ("small", 1, "UN/entities/natural/crop_technology/product")),
+            (("small", 1, "UN/events/human/economic_crisis"), ("small", 1, "UN/events/human/conflict")),
+            (("small", 1, "UN/events/weather/precipitation"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/entities/human/financial/economic/inflation"), ("small", 1, "UN/events/human/conflict")),
+            ( ("large", -1, "UN/entities/human/food/food_security"), ("small", 1, "UN/entities/human/financial/economic/inflation")),
+            ]
+
+    '''
+    ("large", -1, "UN/entities/human/food/food_security")
+    ("small", 1, "UN/events/human/conflict")
+    ("small", 1, "UN/events/human/human_migration")
+    ("small", 1, "UN/entities/natural/crop_technology/product")
+    ("small", 1, "UN/events/human/economic_crisis")
+    ("small", 1, "UN/events/weather/precipitation")
+    ("small", 1, "UN/entities/human/financial/economic/inflation")
+    '''
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+
+    print( '\nBefore merging' )
+    G.print_all_paths()
+
+    G.print_nodes()
+
+    print('\nAfter mergning')
+    #G.merge_nodes( "UN/events/human/conflict", "UN/entities/human/food/food_security")
+    G.merge_nodes( "UN/entities/human/food/food_security", "UN/events/human/conflict")
+
+    G.print_all_paths()
+
+    G.print_nodes()
