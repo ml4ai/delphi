@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <iomanip>
 #include <ostream>
 #include <sqlite3.h>
 #include <utility>
-#include <cstdio>
 
 #include "itertools.hpp"
 #include <boost/algorithm/string.hpp>
@@ -18,6 +18,8 @@
 
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
+#include "graph.hpp"
+#include "graphviz_interface.hpp"
 #include "rng.hpp"
 #include "tran_mat_cell.hpp"
 #include "utils.hpp"
@@ -88,21 +90,23 @@ class AnalysisGraph {
   AnalysisGraph() {}
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
-  auto vertices() { return make_iterator_range(boost::vertices(graph)); }
 
-  auto successors(int i) {
-    return make_iterator_range(boost::adjacent_vertices(i, graph));
-  }
+  auto vertices() { return delphi::graph::vertices(this->graph); }
+
+  auto successors(int i) { return delphi::graph::successors(this->graph, i); }
+
   auto successors(string node_name) {
-    return make_iterator_range(
-        boost::adjacent_vertices(this->name_to_vertex.at(node_name), graph));
+    return delphi::graph::successors(this->graph,
+                                     this->name_to_vertex.at(node_name));
   }
+
+  size_t size() { return delphi::graph::size(this->graph); }
 
   // Allocate a num_verts x num_verts 2D array (vector of vectors)
   void allocate_A_beta_factors() {
     this->A_beta_factors.clear();
 
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = this->size();
 
     for (int vert = 0; vert < num_verts; ++vert) {
       this->A_beta_factors.push_back(
@@ -111,7 +115,7 @@ class AnalysisGraph {
   }
 
   void print_A_beta_factors() {
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = this->size();
 
     for (int row = 0; row < num_verts; ++row) {
       for (int col = 0; col < num_verts; ++col) {
@@ -327,7 +331,7 @@ class AnalysisGraph {
     // Then,
     //    indexes 2*v keeps track of the state of each variable v
     //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-    int num_verts = boost::num_vertices(graph);
+    int num_verts = this->size();
     int num_els = num_verts * 2;
 
     this->s0_original = Eigen::VectorXd(num_els);
@@ -467,7 +471,7 @@ class AnalysisGraph {
     return ag;
   }
 
-  auto add_node() { return boost::add_vertex(graph); }
+  auto add_node() { return delphi::graph::add_node(this->graph); }
 
   void update_meta_data() {
     // Update the internal meta-data
@@ -545,7 +549,7 @@ class AnalysisGraph {
     }
   }
 
-  auto add_edge(int i, int j) { boost::add_edge(i, j, graph); }
+  void add_edge(int i, int j) { delphi::graph::add_edge(this->graph, i, j); }
 
   // auto add_edge(string source, string target) {
   // boost::add_edge(
@@ -1784,7 +1788,6 @@ class AnalysisGraph {
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
     }
-  
   }
 
   void delete_all_indicators(string concept) {
@@ -1796,7 +1799,6 @@ class AnalysisGraph {
            << "\tConcept: " << concept << " is not in the CAG\n";
       cerr << "\tIndicators cannot be deleted" << endl;
     }
-    
   }
   /*
   // TODO: Demosntrate how to use the Node::get_indicator() method
@@ -1971,48 +1973,50 @@ class AnalysisGraph {
     cout << endl;
   }
 
-  pair<Agraph_t*, GVC_t*> to_agraph() {
-    Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
-    GVC_t* gvc;
+  /** This (and other methods involving Graphviz as a library) are NOT
+   * thread-safe.
+   */
+  pair<Agraph_t *, GVC_t *> to_agraph() {
+    using delphi::gv::set_property, delphi::gv::add_node;
+
+    Agraph_t *G = agopen(const_cast<char *>("G"), Agdirected, NULL);
+    GVC_t *gvc;
     gvc = gvContext();
 
     // Set global properties
-    agattr(G, AGNODE, const_cast<char*>("shape"), const_cast<char*>("rectangle"));
-    agattr(G, AGNODE, const_cast<char*>("style"), const_cast<char*>("rounded"));
-    agattr(G, AGNODE, const_cast<char*>("fontname"), const_cast<char*>("Helvetica"));
+    set_property(G, AGNODE, "shape", "rectangle");
+    set_property(G, AGNODE, "style", "rounded");
+    set_property(G, AGNODE, "color", "maroon");
 
-    Agnode_t* src;
-    Agnode_t* trgt;
-    Agedge_t* edge;
+    Agnode_t *src;
+    Agnode_t *trgt;
+    Agedge_t *edge;
 
     // Add CAG links
-    for (auto e : edges() ) {
-      char* source_name = const_cast<char*>(this->graph[source(e, graph)].name.c_str());
-      char* target_name = const_cast<char*>(this->graph[target(e, graph)].name.c_str());
+    for (auto e : edges()) {
+      string source_name = this->graph[source(e, graph)].name;
+      string target_name = this->graph[target(e, graph)].name;
 
-      src = agnode(G, source_name, 1);
-      agsafeset(src, const_cast<char*>("label"), source_name, const_cast<char*>(""));
-      agsafeset(src, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
+      src = add_node(G, source_name);
+      set_property(src, "label", source_name);
 
-      trgt = agnode(G, target_name, 1);
-      agsafeset(trgt, const_cast<char*>("label"), target_name, const_cast<char*>(""));
-      agsafeset(trgt, const_cast<char*>("color"), const_cast<char*>("maroon"), const_cast<char*>(""));
+      trgt = add_node(G, target_name);
+      set_property(trgt, "label", target_name);
 
       edge = agedge(G, src, trgt, 0, true);
     }
 
     // Add concepts, indicators, and link them.
-    for (auto v : vertices()){
+    for (auto v : vertices()) {
 
-      char* concept_name = const_cast<char*>(this->graph[v].name.c_str());
+      string concept_name = this->graph[v].name;
       for (auto indicator : this->graph[v].indicators) {
-        char* ind_name = const_cast<char*>(indicator.name.c_str());
 
-        src = agnode(G, concept_name, 1);
-        trgt = agnode(G, ind_name, 1);
-        agsafeset(trgt, const_cast<char*>("label"), ind_name, const_cast<char*>(""));
-        agset(trgt, const_cast<char*>("style"), const_cast<char*>("rounded,filled"));
-        agsafeset(trgt, const_cast<char*>("fillcolor"), const_cast<char*>("lightblue"), const_cast<char*>(""));
+        src = add_node(G, concept_name);
+        trgt = add_node(G, indicator.name);
+        set_property(trgt, "label", indicator.name);
+        set_property(trgt, "style", "rounded,filled");
+        set_property(trgt, "fillcolor", "lightblue");
 
         edge = agedge(G, src, trgt, 0, true);
       }
@@ -2024,7 +2028,7 @@ class AnalysisGraph {
   string to_dot() {
     auto [G, gvc] = this->to_agraph();
     stringstream buffer;
-    streambuf* old=cout.rdbuf(buffer.rdbuf());
+    streambuf *old = cout.rdbuf(buffer.rdbuf());
     gvRender(gvc, G, "dot", stdout);
     agclose(G);
     gvFreeContext(gvc);
@@ -2033,7 +2037,7 @@ class AnalysisGraph {
 
   void to_png(string filename = "CAG.png") {
     auto [G, gvc] = this->to_agraph();
-    gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
+    gvRenderFilename(gvc, G, "png", const_cast<char *>(filename.c_str()));
     gvFreeLayout(gvc, G);
     agclose(G);
     gvFreeContext(gvc);
