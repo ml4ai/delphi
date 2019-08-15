@@ -165,6 +165,7 @@ def test_remove_edge():
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
     G.print_all_paths()
+    G.to_png()
 
 def test_remove_edges():
     causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
