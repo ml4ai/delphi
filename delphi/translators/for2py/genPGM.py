@@ -10,11 +10,11 @@ from functools import reduce
 import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
+from delphi.translators.for2py.get_comments import get_comments
 from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
-import os
 import uuid
 
 ###########################################################################
@@ -25,6 +25,7 @@ import uuid
 
 # The BINOPS dictionary holds operators for all the arithmetic and
 # comparative functions
+# TODO Take this inside class
 BINOPS = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -37,6 +38,7 @@ BINOPS = {
 
 # The ANNOTATE_MAP dictionary is used to map Python ast data types into data
 # types for the lambdas
+# TODO Take this inside class
 ANNOTATE_MAP = {
     "real": "Real",
     "float": "real",
@@ -48,9 +50,11 @@ ANNOTATE_MAP = {
     "array": "[]",
     "list": "array",
     "bool": "bool",
+    "file_handle": "fh",
 }
 
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
+# TODO Take this inside class
 UNNECESSARY_TYPES = (
     ast.Mult,
     ast.Add,
@@ -64,9 +68,11 @@ UNNECESSARY_TYPES = (
 
 # Regular expression to match python statements that need to be bypassed in
 # the GrFN and lambda files. Currently contains I/O statements.
+# TODO Take this inside class
 BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
             r"^write_line$|^format_\d+_obj" \
-            r".*|^Format$|^list_output_formats$|^write_list_stream$"
+            r".*|^Format$|^list_output_formats$|^write_list_stream$|^file_\d" \
+            r"+\.write$"
 RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
 
 
@@ -82,6 +88,7 @@ class GrFNState:
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
         arrays: Optional[List] = {},
+
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -124,22 +131,37 @@ class GrFNState:
 class GrFNGenerator(object):
     def __init__(self,
                  annotated_assigned=[],
-                 elif_grfn=[],
                  function_definitions=[]
                  ):
         self.annotated_assigned = annotated_assigned
-        self.elif_grfn = elif_grfn
         self.function_definitions = function_definitions
         self.fortran_file = None
         self.exclude_list = []
+        self.loop_input = []
+        self.update_functions = {}
         self.mode_mapper = {}
-        self.alias_mapper = {}
         self.name_mapper = {}
-        self.function_names = {}
+        self.function_argument_map = {}
         self.arrays = {}
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
+        self.elif_condition_number = None
+        self.current_scope = None
+        self.loop_index = -1
+        self.parent_loop_state = None
 
+        self.gensym_tag_map = {
+            "container": 'c',
+            "variable": 'v',
+            "function": 'f',
+            "holder": 'h'  # TODO Change/Remove this
+        }
+        self.type_def_map = {
+            "real": "float",
+            "integer": "integer",
+            "string": "string",
+            "bool": "boolean",
+        }
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
             "ast.arguments": self.process_arguments,
@@ -166,6 +188,9 @@ class GrFNGenerator(object):
             "ast.Module": self.process_module,
             "ast.Attribute": self.process_attribute,
             "ast.AST": self.process_ast,
+            "ast.NameConstant": self._process_nameconstant,
+            "ast.Return": self.process_return_value,
+            "ast.While": self.process_while,
         }
 
     def gen_grfn(self, node, state, call_source):
@@ -173,14 +198,16 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-
-        # Look for code that is not inside any function. This will generally
-        # involve
+        # Look for code that is not inside any function.
         if state.function_name is None and not any(
             isinstance(node, t) for t in self.types
         ):
+            # If the node is of instance ast.Call, it is the starting point
+            # of the system.
             if isinstance(node, ast.Call):
-                return [{"start": node.func.id}]
+                start_function_name = self.generate_container_id_name(
+                    self.fortran_file, ["@global"], node.func.id)
+                return [{"start": start_function_name}]
             elif isinstance(node, ast.Expr):
                 return self.gen_grfn(node.value, state, "start")
             elif isinstance(node, ast.If):
@@ -202,7 +229,7 @@ class GrFNGenerator(object):
     def process_list(self, node, state, call_source):
         """
          If there are one or more ast nodes inside the `body` of a node,
-         there appear as a list. Process each node in the list and chain them
+         they appear as a list. Process each node in the list and chain them
          together into a single list of GrFN dictionaries.
         """
         return list(
@@ -224,7 +251,8 @@ class GrFNGenerator(object):
             function adds these along with the identifier_spec_grfn to the
             main GrFN JSON.
         """
-
+        return_value = []
+        return_list = []
         # Add the function name to the list that stores all the functions
         # defined in the program
         self.function_definitions.append(node.name)
@@ -234,11 +262,10 @@ class GrFNGenerator(object):
         local_variable_types = state.variable_types.copy()
         scope_path = state.scope_path.copy()
 
-        # If the scope_path is empty, add _TOP to the list to denote that
+        # If the scope_path is empty, add @global to the list to denote that
         # this is the outermost scope
         if len(scope_path) == 0:
-            scope_path.append("_TOP")
-        scope_path.append(node.name)
+            scope_path.append("@global")
 
         if node.decorator_list:
             # This is still a work-in-progress function since a complete
@@ -252,7 +279,7 @@ class GrFNGenerator(object):
                 function_name=node.name,
                 variable_types=local_variable_types,
             )
-            process_decorators(node.decorator_list, function_state)
+            self._process_decorators(node.decorator_list, function_state)
 
         # Check if the function contains arguments or not. This determines
         # whether the function is the outermost scope (does not contain
@@ -281,6 +308,7 @@ class GrFNGenerator(object):
                 next_definitions=local_next_definitions,
                 function_name=node.name,
                 variable_types=local_variable_types,
+                last_definition_default=0,
             )
         else:
             function_state = state.copy(
@@ -293,64 +321,104 @@ class GrFNGenerator(object):
 
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
+        # Keep a map of the arguments for each function. This will be used in
+        # `process_for` to identify arguments which are function arguments
+        # from those that are not
+        self.function_argument_map[node.name] = {
+            "name": "",
+            "updated_list": "",
+            "updated_indices": [],
+            "argument_list": ""
+        }
+        self.function_argument_map[node.name]["argument_list"] = argument_list
+        # Update the current scope so that for every identifier inside the
+        # body, the scope information is updated
+        self.current_scope = node.name
+        # Create the variable definition for the arguments
+        argument_variable_grfn = []
+        for argument in argument_list:
+            argument_variable_grfn.append(
+                self.generate_variable_definition(argument, function_state)
+            )
+
+        # Generate the `variable_identifier_name` for each container
+        # argument.
+        # TODO Currently only variables are handled as container arguments.
+        #  Create test cases of other containers as container arguments and
+        #  extend this functionality.
+        argument_list = [f"@variable::{x}::{function_state.last_definitions[x]}"
+                         for x in argument_list]
+
         # Enter the body of the function and recursively generate the GrFN of
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
+        # Get the `return_value` from the body. We want to append it separately.
+        # TODO There can be multiple return values. `return_value` should be
+        #  a list and you should append to it.
+        for body in body_grfn:
+            for function in body["functions"]:
+                if function.get("type") == "return":
+                    return_value = function["value"]
+
+        # TODO The return value cannot always be a `variable`. It can be
+        #  literals as well. Add that functionality here.
+        if return_value:
+            for value in return_value:
+                return_list.append(f"@variable::{value['var']['variable']}::"
+                                   f"{value['var']['index']}")
+
         # Get the function_reference_spec, function_assign_spec and
         # identifier_spec for the function
-        function_reference_grfn, function_assign_grfn, identifier_grfn = \
-            get_body_and_functions(body_grfn)
+        function_variable_grfn, function_assign_grfn, body_container_grfn = \
+            self._get_variables_and_functions(body_grfn)
+        # Combine the variable grfn of the arguments with that of the
+        # container body
+        container_variables = argument_variable_grfn + function_variable_grfn
+        # Find the list of updated identifiers
+        if argument_list:
+            updated_identifiers = self._find_updated(argument_variable_grfn,
+                                                     function_variable_grfn)
+        else:
+            updated_identifiers = []
+        self.function_argument_map[node.name]["updated_list"] = \
+            updated_identifiers
 
-        # This function removes all variables related to I/O and type from the
-        # variable list. This will be done until a specification for I/O is
-        # defined in GrFN
-        variables = remove_io_and_type_variables(
-                        list(local_last_definitions.keys()))
+        # Get a list of all argument names
+        argument_name_list = []
+        for item in argument_list:
+            argument_name_list.append(item.split("::")[1])
 
-        # Formulate the GrFN for variables depends on either it's
-        # a smple variable or an array. TODO: Addition may be required
-        # for list or/and map, etc.
-        variable_grfn = []
-        for var in variables:
-            var_grfn = {"name":var}
-            if var in local_variable_types:
-                var_grfn["index"] = local_last_definitions[var]
-                var_grfn["domain"] = local_variable_types[var]
-                var_grfn["mutatble"] = False
-            elif var in self.arrays:
-                var_grfn["index"] = self.arrays[var]["index"]
-                var_grfn["domain"] = {
-                        "name": "array",
-                        "type": "array",
-                        "dimensions": self.arrays[var]["dimensions"],
-                        "element_type": {
-                            "name": self.arrays[var]["elem_type"],
-                            "type": self.arrays[var]["elem_type"]
-                        }
-                }
-                var_grfn["mutatble"] = True
-            else:
-                assert (
-                        False
-                ), f"{var} is neither a simple variable nor an array,\
-                     which, currently is not handled."
-            variable_grfn.append(var_grfn)
+        # Now, find the indices of updated arguments
+        for arg in updated_identifiers:
+            updated_argument = arg.split("::")[1]
+            argument_index = argument_name_list.index(updated_argument)
+            self.function_argument_map[node.name]["updated_indices"].append(
+                argument_index)
 
+        # Create a gensym for the function container
+        container_gensym = self.generate_gensym("container")
+
+        container_id_name = self.generate_container_id_name(
+            self.fortran_file, scope_path, node.name)
+        self.function_argument_map[node.name]["name"] = container_id_name
         function_container_grfn = {
-            "name": node.name,
-            "type": "container",
-            "input": [
-                {"name": arg, "domain": local_variable_types[arg]} for arg in
-                argument_list
-            ],
-            "variables": variable_grfn,
-            "body": function_reference_grfn,
+            "name": container_id_name,
+            "source_refs": [],
+            "gensym": container_gensym,
+            "repeat": False,
+            "arguments": argument_list,
+            "updated": updated_identifiers,
+            "return_value": return_list,
+            "body": function_assign_grfn,
         }
 
-        function_assign_grfn.append(function_container_grfn)
+        function_container_grfn = [function_container_grfn] + \
+            body_container_grfn
 
-        pgm = {"functions": function_assign_grfn,
-               "identifiers": identifier_grfn}
+        # function_assign_grfn.append(function_container_grfn)
+        pgm = {"containers": function_container_grfn,
+               "variables": container_variables,
+               }
 
         return [pgm]
 
@@ -365,8 +433,7 @@ class GrFNGenerator(object):
             for arg in node.args
         ]
 
-    @staticmethod
-    def process_arg(node, state, call_source):
+    def process_arg(self, node, state, call_source):
         """
             This function processes a function argument.
         """
@@ -377,7 +444,8 @@ class GrFNGenerator(object):
         assert (
             node.annotation
         ), "Found argument without annotation. This should not happen."
-        state.variable_types[node.arg] = get_variable_type(node.annotation)
+        state.variable_types[node.arg] = self._get_variable_type(
+            node.annotation)
 
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
@@ -416,11 +484,10 @@ class GrFNGenerator(object):
             <function_assign_body_literal_spec> form.
 
         """
-        # TODO: According to new specification, the following structure
-        #  should be used: {"type": "literal, "value": {"dtype": <type>,
-        #  "value": <value>}}. Confirm with Clay.
         data_type = ANNOTATE_MAP.get(type(node.n).__name__)
         if data_type:
+            # TODO Change this format. Since the spec has changed,
+            #  this format is no longer required. Go for a simpler format.
             return [
                 {"type": "literal", "dtype": data_type, "value": node.n}
             ]
@@ -466,10 +533,46 @@ class GrFNGenerator(object):
         ]
 
     def process_for(self, node, state, *_):
+        """
+            This function handles the ast.For node of the AST.
+        """
+        # Update the scope
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
-            scope_path.append("_TOP")
+            scope_path.append("@global")
         scope_path.append("loop")
+
+        # Check: Currently For-Else on Python is not supported
+        if self.gen_grfn(node.orelse, state, "for"):
+            raise For2PyError("For/Else in for not supported.")
+
+        # Initialize intermediate variables
+        container_argument = []
+        container_repeat = True
+        container_return_value = ""
+        container_updated = []
+        function_output = ""
+        function_updated = []
+        function_input = []
+        loop_condition_inputs = []
+        loop_variables_grfn = []
+        loop_functions_grfn = []
+
+        # Increment the loop index universally across the program
+        if self.loop_index > -1:
+            self.loop_index += 1
+        else:
+            self.loop_index = 0
+
+        # Get the main function name (e.g. foo.loop$0.loop$1 then `foo`)
+        main_function_name = self.current_scope.split('.')[0]
+        # First, get the `container_id_name` of the loop container
+        container_id_name = self.generate_container_id_name(
+            self.fortran_file, self.current_scope, f"loop${self.loop_index}")
+
+        # Update the scope of the loop container so that everything inside
+        # the body of the loop will have the below scope
+        self.current_scope = f"{self.current_scope}.loop${self.loop_index}"
 
         state = state.copy(
             last_definitions=state.last_definitions.copy(),
@@ -482,538 +585,715 @@ class GrFNGenerator(object):
             scope_path=scope_path,
         )
 
-        if self.gen_grfn(node.orelse, state, "for"):
-            raise For2PyError("For/Else in for not supported.")
-
-        indexVar = self.gen_grfn(node.target, state, "for")
-        if len(indexVar) != 1 or "var" not in indexVar[0]:
+        index_variable = self.gen_grfn(node.target, state, "for")
+        # Check: Currently, only one variable is supported as a loop variable
+        if len(index_variable) != 1 or "var" not in index_variable[0]:
             raise For2PyError("Only one index variable is supported.")
-        indexName = indexVar[0]["var"]["variable"]
-        loopIter = self.gen_grfn(node.iter, state, "for")
-        if (
-                len(loopIter) != 1
-                or "call" not in loopIter[0]
-                or loopIter[0]["call"]["function"] != "range"
-        ):
-            raise For2PyError("Can only iterate over a range.")
+        index_name = index_variable[0]["var"]["variable"]
 
-        rangeCall = loopIter[0]["call"]
-        if (
-                len(rangeCall["inputs"]) != 2
-                or len(rangeCall["inputs"][0]) != 1
-                or len(rangeCall["inputs"][1]) != 1
-                or (
-                "type" in rangeCall["inputs"][0]
-                and rangeCall["inputs"][0]["type"] == "literal"
-        )
-                or (
-                "type" in rangeCall["inputs"][1]
-                and rangeCall["inputs"][1]["type"] == "literal"
-        )
-        ):
-            raise For2PyError("Can only iterate over a constant range.")
-
-        if len(rangeCall["inputs"]) == 2:
-            iterationRange = {
-                "start": rangeCall["inputs"][0][0],
-                "end": rangeCall["inputs"][1][0],
-            }
-        elif len(rangeCall["inputs"]) == 3:
-            iterationRange = {
-                "start": rangeCall["inputs"][0][0],
-                "end": rangeCall["inputs"][1][0],
-                "step": rangeCall["inputs"][2][0],
-            }
-
-        loopLastDef = {}
-        loopState = state.copy(
-            last_definitions=loopLastDef, next_definitions={},
+        # Define a new empty state that will be used for mapping the state of
+        # the operations within the for-loop container
+        loop_last_definition = {}
+        loop_state = state.copy(
+            last_definitions=loop_last_definition, next_definitions={},
             last_definition_default=-1
         )
 
-        loopState.last_definitions[indexName] = None
+        # We want the loop_state to have state information about variables
+        # defined one scope above its current parent scope. The below code
+        # allows us to do that
+        if self.parent_loop_state:
+            for var in self.parent_loop_state.last_definitions:
+                if var not in state.last_definitions:
+                    # state.last_definitions[var] = \
+                        # self.parent_loop_state.last_definitions[var]
+                    state.last_definitions[var] = -1
 
-        loop = self.gen_grfn(node.body, loopState, "for")
+        loop_iterator = self.gen_grfn(node.iter, state, "for")
+        # Check: Only the `range` function is supported as a loop iterator at
+        # this moment
+        if (
+            len(loop_iterator) != 1
+            or "call" not in loop_iterator[0]
+            or loop_iterator[0]["call"]["function"] != "range"
+        ):
+            raise For2PyError("Can only iterate over a range.")
 
-        loopBody, loopFns, iden_spec = get_body_and_functions(loop)
+        range_call = loop_iterator[0]["call"]
+        loop_condition_inputs.append(f"@variable::{index_name}::0")
+        for ip in range_call["inputs"]:
+            for var in ip:
+                if "var" in var:
+                    function_input.append(f"@variable::"
+                                          f"{var['var']['variable']}::"
+                                          f"{var['var']['index']}")
+                    container_argument.append(f"@variable::"
+                                              f"{var['var']['variable']}::-1")
+                    loop_condition_inputs.append(
+                        f"@variable::"
+                        f"{var['var']['variable']}::-1")
 
-        # If loopLastDef[x] == 0, this means that the variable was not
-        # declared before the loop and is being declared/defined within
-        # the loop. So we need to remove that from the variable_list
-        variable_list = [x for x in loopLastDef if (x != indexName and
-                                                    state.last_definitions[
-                                                        x] !=
-                                                    0)]
+        # Save the current state of the system so that it can used by a
+        # nested loop to get information about the variables declared in its
+        # outermost scopes.
+        self.parent_loop_state = state
 
-        variables = [
-            {"name": variable, "domain": state.variable_types[variable]}
-            for variable in variable_list
-        ]
+        # Define some condition and break variables in the loop state
+        loop_state.last_definitions[index_name] = 0
+        loop_state.last_definitions["IF_0"] = 0
+        loop_state.last_definitions["BK"] = 0
+        loop_state.variable_types["IF_0"] = "bool"
+        loop_state.variable_types["BK"] = "bool"
 
-        # Removing the indexing of the loop index variable from the loopName
-        # loopName = get_function_name(
-        #     f"{state.function_name}__loop_plate__{
-        #     indexName}", {}
-        # )
-
-        loopName = state.function_name + "__loop_plate__" + indexName
-
-        loopFn = {
-            "name": loopName,
-            "type": "loop_plate",
-            "input": variables,
-            "index_variable": indexName,
-            "index_iteration_range": iterationRange,
-            "body": loopBody,
-        }
-
-        id_specList = self.make_identifier_spec(
-            loopName, indexName, {}, state
+        # Now, create the `variable` spec, `function name` and `container
+        # wiring` for the loop index, check condition and break decisions.
+        index_variable_grfn = self.generate_variable_definition(index_name,
+                                                                loop_state)
+        index_function_name = self.generate_function_name(
+            "__assign__",
+            index_variable_grfn["name"]
         )
-        loopCall = {
-            "name": loopName,
-            "input": [
-                {
-                    "name": variable,
-                    "index": loopState.last_definitions[variable]
-                }
-                for variable in variable_list
-            ],
-            "output": {}
+        index_function = {
+            "function": index_function_name,
+            "input": [],
+            "output": f"@variable::{index_name}::0",
+            "updated": []
         }
 
-        pgm = {
-            "functions": loopFns + [loopFn],
-            "body": [loopCall],
-            "identifiers": [],
+        loop_check_variable = self.generate_variable_definition("IF_0",
+                                                                loop_state)
+        loop_check_function_name = self.generate_function_name(
+            "__condition__",
+            loop_check_variable["name"]
+        )
+        loop_condition_function = {
+            "function": loop_check_function_name,
+            "input": loop_condition_inputs,
+            "output": f"@variable::IF_0::0",
+            "updated": []
         }
 
+        loop_break_variable = self.generate_variable_definition("BK",
+                                                                loop_state)
+        loop_break_function_name = self.generate_function_name(
+            "__decision__",
+            loop_break_variable["name"]
+        )
+        loop_break_function = {
+            "function": loop_break_function_name,
+            "input": [f"@variable::IF_0::0"],
+            "output": f"@variable::BK::0",
+            "updated": []
+        }
 
-        for id_spec in id_specList:
-            pgm["identifiers"].append(id_spec)
+        # Parse through the body of the loop container
+        loop = self.gen_grfn(node.body, loop_state, "for")
+        # Separate the body grfn into `variables` and `functions` sub parts
+        body_variables_grfn, body_functions_grfn, body_container_grfn = \
+            self._get_variables_and_functions(loop)
 
-        return [pgm]
+        # Get a list of all variables that were used as inputs within the
+        # loop body (nested as well).
+        loop_body_inputs = []
+        for function in body_functions_grfn:
+            if function['function']['type'] == 'lambda':
+                for ip in function['input']:
+                    input_var = ip.split('::')[1]
+                    loop_body_inputs.append(input_var)
+            elif function['function']['type'] == 'container':
+                # The same code as above but separating it out just in case
+                # some extra checks are added in the future
+                for ip in function['input']:
+                    input_var = ip.split('::')[1]
+                    loop_body_inputs.append(input_var)
 
-    def process_if(self, node, state, call_source):
+        # Remove any duplicates since variables can be used multiple times in
+        # various assignments within the body
+        loop_body_inputs = list(set(loop_body_inputs))
+        # Remove the index name since it is not an input to the container
+        loop_body_inputs.remove(index_name)
+
+        # Now, we remove the variables which were defined inside the loop
+        # body itself and not taken as an input from outside the loop body
+        filtered_loop_body_inputs = []
+        for input_var in loop_body_inputs:
+            # We filter out those variables which have -1 index in `state` (
+            # which means it did not have a defined value above the loop
+            # body) and is not a function argument (since they have an index
+            # of -1 as well but have a defined value)
+            if not (state.last_definitions[input_var] == -1 and input_var not in
+                    self.function_argument_map[main_function_name][
+                        "argument_list"]
+                    ):
+                filtered_loop_body_inputs.append(input_var)
+
+        for item in filtered_loop_body_inputs:
+            function_input.append(f"@variable::{item}::"
+                                  f"{state.last_definitions[item]}")
+            container_argument.append(f"@variable::{item}::-1")
+
+        # TODO: Think about removing (or retaining) variables which even
+        #  though defined outside the loop, are defined again inside the loop
+        #  and then used by an operation after it.
+        #  E.g. x = 5
+        #       for ___ :
+        #           x = 2
+        #           for ___:
+        #               y = x + 2
+        #  Here, loop$1 will have `x` as an input but will loop$0 have `x` as
+        #  an input as well?
+        #  Currently, such variables are included in the `input`/`argument`
+        #  field.
+
+        # Now, we list out all variables that have been updated/defined
+        # inside the body of the loop
+        loop_body_outputs = []
+        for function in body_functions_grfn:
+            if function['function']['type'] == 'lambda':
+                output_var = function["output"].split('::')[1]
+                loop_body_outputs.append(output_var)
+            elif function['function']['type'] == 'container':
+                for ip in function['updated']:
+                    output_var = ip.split('::')[1]
+                    loop_body_outputs.append(output_var)
+
+        for item in loop_body_outputs:
+            # TODO the indexing variables in of function block and container
+            #  block will be different. Figure about the differences and
+            #  implement them.
+            function_updated.append(f"@variable::{item}::"
+                                    f"{state.last_definitions[item]+1}")
+            container_updated.append(f"@variable::{item}::"
+                                     f"{loop_state.last_definitions[item]}")
+
+        # TODO: For the `loop_body_outputs`, all variables that were
+        #  defined/updated inside the loop body are included. Sometimes,
+        #  some variables are defined inside the loop body, used within that
+        #  body and then not used or re-assigned to another value outside the
+        #  loop body. Do we include such variables in the updated list?
+        #  Another heuristic to think about is whether to keep only those
+        #  variables in the `updated` list which are in the `input` list.
+
+        loop_variables_grfn.append(index_variable_grfn)
+        loop_variables_grfn.append(loop_check_variable)
+        loop_variables_grfn.append(loop_break_variable)
+
+        loop_functions_grfn.append(index_function)
+        loop_functions_grfn.append(loop_condition_function)
+        loop_functions_grfn.append(loop_break_function)
+
+        loop_variables_grfn += body_variables_grfn
+        loop_functions_grfn += body_functions_grfn
+
+        # Finally, add the index increment variable and function grfn to the
+        # body grfn
+        loop_state.last_definitions[index_name] = 1
+        index_increment_grfn = self.generate_variable_definition(index_name,
+                                                                 loop_state)
+        index_increment_function_name = self.generate_function_name(
+            "__assign_",
+            index_increment_grfn["name"]
+        )
+        index_increment_function = {
+            "function": index_increment_function_name,
+            "input": [f"@variable::{index_name}::0"],
+            "output": f"@variable::{index_name}::1",
+            "updated": []
+        }
+        loop_variables_grfn.append(index_increment_grfn)
+        loop_functions_grfn.append(index_increment_function)
+
+        container_gensym = self.generate_gensym("container")
+
+        loop_container = {
+            "name": container_id_name,
+            "source_refs": [],
+            "gensym": container_gensym,
+            "repeat": container_repeat,
+            "arguments": container_argument,
+            "updated": container_updated,
+            "return_value": container_return_value,
+            "body": loop_functions_grfn,
+        }
+        loop_function = {
+            "function": {
+                "name": container_id_name,
+                "type": "container"
+            },
+            "input": function_input,
+            "output": function_output,
+            "updated": function_updated
+        }
+        loop_container = [loop_container] + body_container_grfn
+        loop_variables = body_variables_grfn + loop_variables_grfn
+        grfn = {
+            "containers": loop_container,
+            "variables": loop_variables,
+            "functions": [loop_function]
+        }
+
+        # Change the current scope back to its previous form.
+        self.current_scope = '.'.join(self.current_scope.split('.')[:-1])
+        return [grfn]
+
+    def process_while(self, node, state, *_):
+        """
+            This function handles the while loop. The functionality will be
+            very similar to that of the for loop described in `process_for`
+        """
+        # Update the scope
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
-            scope_path.append("_TOP")
-        scope_path.append("if")
+            scope_path.append("@global")
+        scope_path.append("loop")
 
-        state.scope_path = scope_path
+        # Initialize intermediate variables
+        container_argument = []
+        container_repeat = True
+        container_return_value = ""
+        container_updated = []
+        function_output = ""
+        function_updated = []
+        function_input = []
+        loop_condition_inputs = []
+        loop_variables_grfn = []
+        loop_functions_grfn = []
 
-        if call_source == "if":
-            pgm = {"functions": [], "body": [], "identifiers": []}
+        # Increment the loop index universally across the program
+        if self.loop_index > -1:
+            self.loop_index += 1
+        else:
+            self.loop_index = 0
 
-            condSrcs = self.gen_grfn(node.test, state, "if")
+        # Get the main function name (e.g. foo.loop$0.loop$1 then `foo`)
+        main_function_name = self.current_scope.split('.')[0]
+        # First, get the `container_id_name` of the loop container
+        container_id_name = self.generate_container_id_name(
+            self.fortran_file, self.current_scope,
+            f"loop${self.loop_index}")
 
-            startDefs = state.last_definitions.copy()
-            ifDefs = startDefs.copy()
-            elseDefs = startDefs.copy()
-            ifState = state.copy(last_definitions=ifDefs)
-            elseState = state.copy(last_definitions=elseDefs)
-            ifPgm = self.gen_grfn(node.body, ifState, "if")
-            elsePgm = self.gen_grfn(node.orelse, elseState, "if")
+        # Update the scope of the loop container so that everything inside
+        # the body of the loop will have the below scope
+        self.current_scope = f"{self.current_scope}.loop${self.loop_index}"
 
-            updatedDefs = [
-                var
-                for var in set(startDefs.keys())
-                    .union(ifDefs.keys())
-                    .union(elseDefs.keys())
-                if var not in startDefs
-                   or ifDefs[var] != startDefs[var]
-                   or elseDefs[var] != startDefs[var]
-            ]
-
-            pgm["functions"] += reduce(
-                (lambda x, y: x + y["functions"]), [[]] + ifPgm
-            ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
-
-            pgm["body"] += reduce(
-                (lambda x, y: x + y["body"]), [[]] + ifPgm
-            ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
-
-            self.elif_grfn = [
-                pgm,
-                condSrcs,
-                node.test,
-                node.lineno,
-                node,
-                updatedDefs,
-                ifDefs,
-                state,
-            ]
-            return []
-
-        pgm = {"functions": [], "body": [], "identifiers": []}
-
-        condSrcs = self.gen_grfn(node.test, state, "if")
-
-        # Making the index of IF_X_X start from 1 instead of 2
-        condNum = state.next_definitions.get("#cond",
-                                             state.last_definition_default
-                                             + 2)
-        state.next_definitions["#cond"] = condNum + 1
-
-        condName = f"IF_{condNum}"
-        state.variable_types[condName] = "bool"
-        state.last_definitions[condName] = 0
-        function_name = get_function_name(self.function_names,
-                                          f"{state.function_name}__condition__"
-                                          f"{condName}", {})
-
-        # The condName is of the form 'IF_1' and the index holds the
-        # ordering of the condName. This means that index should increment
-        # of every new 'IF' statement. Previously, it was set to set to 0.
-        # But, 'function_name' holds the current index of 'condName'
-        # So, extract the index from 'function_name'.
-        # condOutput = {"variable": condName, "index": 0}
-        condOutput = {"variable": condName, "index": int(function_name[-1])}
-
-        fn = {
-            "name": function_name,
-            "type": "condition",
-            "target": condName,
-            "reference": node.lineno,
-            "sources": [
-                {"name": src["var"]["variable"], "type": "variable"}
-                for src in condSrcs
-                if "var" in src
-            ],
-        }
-
-        id_specList = self.make_identifier_spec(
-            function_name,
-            condOutput,
-            [src["var"] for src in condSrcs if "var" in src],
-            state,
+        state = state.copy(
+            last_definitions=state.last_definitions.copy(),
+            next_definitions=state.next_definitions.copy(),
+            last_definition_default=state.last_definition_default,
+            function_name=state.function_name,
+            variable_types=state.variable_types.copy(),
+            lambda_strings=state.lambda_strings,
+            start=state.start.copy(),
+            scope_path=scope_path,
         )
 
-        for id_spec in id_specList:
-            pgm["identifiers"].append(id_spec)
+        loop_test = self.gen_grfn(node.test, state, "while")
 
-        body = {
-            "name": function_name,
-            "output": condOutput,
-            "input": [src["var"] for src in condSrcs if "var" in src],
+        # Define a new empty state that will be used for mapping the state of
+        # the operations within the for-loop container
+        loop_last_definition = {}
+        loop_state = state.copy(
+            last_definitions=loop_last_definition, next_definitions={},
+            last_definition_default=-1
+        )
+
+        # We want the loop_state to have state information about variables
+        # defined one scope above its current parent scope. The below code
+        # allows us to do that
+        if self.parent_loop_state:
+            for var in self.parent_loop_state.last_definitions:
+                if var not in state.last_definitions:
+                    # state.last_definitions[var] = \
+                        # self.parent_loop_state.last_definitions[var]
+                    state.last_definitions[var] = -1
+
+        # Now populate the IF and BK functions for the loop by identifying
+        # the loop conditionals
+        if len(loop_test) > 1 and len(loop_test[0]) == 1:
+            assert "boolean_operation" in loop_test[0][0], f"Invalid loop " \
+                                                           f"test in while " \
+                                                           f"loop {loop_test}"
+        else:
+            assert False, f"Invalid loop test in while loop {loop_test}"
+
+        for item in loop_test[1:]:
+            for var in item:
+                if 'var' in var:
+                    function_input.append(f"@variable::"
+                                          f"{var['var']['variable']}::"
+                                          f"{var['var']['index']}")
+                    container_argument.append(f"@variable::"
+                                              f"{var['var']['variable']}::-1")
+                    loop_condition_inputs.append(
+                        f"@variable::"
+                        f"{var['var']['variable']}::-1")
+
+        # Save the current state of the system so that it can used by a
+        # nested loop to get information about the variables declared in its
+        # outermost scopes.
+        self.parent_loop_state = state
+
+        # Define some condition and break variables in the loop state
+        loop_state.last_definitions["IF_0"] = 0
+        loop_state.last_definitions["BK"] = 0
+        loop_state.variable_types["IF_0"] = "bool"
+        loop_state.variable_types["BK"] = "bool"
+
+        # Now, create the `variable` spec, `function name` and `container
+        # wiring` for the check condition and break decisions.
+
+        loop_check_variable = self.generate_variable_definition("IF_0",
+                                                                loop_state)
+        loop_check_function_name = self.generate_function_name(
+            "__condition__",
+            loop_check_variable["name"]
+        )
+        loop_condition_function = {
+            "function": loop_check_function_name,
+            "input": loop_condition_inputs,
+            "output": f"@variable::IF_0::0",
+            "updated": []
         }
 
-        pgm["functions"].append(fn)
-        pgm["body"].append(body)
-        lambda_string = genFn(
+        loop_break_variable = self.generate_variable_definition("BK",
+                                                                loop_state)
+        loop_break_function_name = self.generate_function_name(
+            "__decision__",
+            loop_break_variable["name"]
+        )
+        loop_break_function = {
+            "function": loop_break_function_name,
+            "input": [f"@variable::IF_0::0"],
+            "output": f"@variable::BK::0",
+            "updated": []
+        }
+
+        # Parse through the body of the loop container
+        loop = self.gen_grfn(node.body, loop_state, "for")
+        # Separate the body grfn into `variables` and `functions` sub parts
+        body_variables_grfn, body_functions_grfn, body_container_grfn = \
+            self._get_variables_and_functions(loop)
+
+        # Get a list of all variables that were used as inputs within the
+        # loop body (nested as well).
+        loop_body_inputs = []
+        for function in body_functions_grfn:
+            if function['function']['type'] == 'lambda':
+                for ip in function['input']:
+                    input_var = ip.split('::')[1]
+                    loop_body_inputs.append(input_var)
+            elif function['function']['type'] == 'container':
+                # The same code as above but separating it out just in case
+                # some extra checks are added in the future
+                for ip in function['input']:
+                    input_var = ip.split('::')[1]
+                    loop_body_inputs.append(input_var)
+
+        # Remove any duplicates since variables can be used multiple times in
+        # various assignments within the body
+        loop_body_inputs = list(set(loop_body_inputs))
+
+        # Now, we remove the variables which were defined inside the loop
+        # body itself and not taken as an input from outside the loop body
+        filtered_loop_body_inputs = []
+        for input_var in loop_body_inputs:
+            # We filter out those variables which have -1 index in `state` (
+            # which means it did not have a defined value above the loop
+            # body) and is not a function argument (since they have an index
+            # of -1 as well but have a defined value)
+            if not (state.last_definitions[input_var] == -1 and input_var not in
+                    self.function_argument_map[main_function_name][
+                        "argument_list"]
+                    ):
+                filtered_loop_body_inputs.append(input_var)
+
+        for item in filtered_loop_body_inputs:
+            function_input.append(f"@variable::{item}::"
+                                  f"{state.last_definitions[item]}")
+            container_argument.append(f"@variable::{item}::-1")
+
+        # TODO: Think about removing (or retaining) variables which even
+        #  though defined outside the loop, are defined again inside the loop
+        #  and then used by an operation after it.
+        #  E.g. x = 5
+        #       for ___ :
+        #           x = 2
+        #           for ___:
+        #               y = x + 2
+        #  Here, loop$1 will have `x` as an input but will loop$0 have `x` as
+        #  an input as well?
+        #  Currently, such variables are included in the `input`/`argument`
+        #  field.
+
+        # Now, we list out all variables that have been updated/defined
+        # inside the body of the loop
+        loop_body_outputs = []
+        for function in body_functions_grfn:
+            if function['function']['type'] == 'lambda':
+                output_var = function["output"].split('::')[1]
+                loop_body_outputs.append(output_var)
+            elif function['function']['type'] == 'container':
+                for ip in function['updated']:
+                    output_var = ip.split('::')[1]
+                    loop_body_outputs.append(output_var)
+
+        for item in loop_body_outputs:
+            # TODO the indexing variables in of function block and container
+            #  block will be different. Figure about the differences and
+            #  implement them.
+            function_updated.append(f"@variable::{item}::"
+                                    f"{loop_state.last_definitions[item]}")
+            container_updated.append(f"@variable::{item}::"
+                                     f"{loop_state.last_definitions[item]}")
+
+        # TODO: For the `loop_body_outputs`, all variables that were
+        #  defined/updated inside the loop body are included. Sometimes,
+        #  some variables are defined inside the loop body, used within that
+        #  body and then not used or re-assigned to another value outside the
+        #  loop body. Do we include such variables in the updated list?
+        #  Another heuristic to think about is whether to keep only those
+        #  variables in the `updated` list which are in the `input` list.
+
+        loop_variables_grfn.append(loop_check_variable)
+        loop_variables_grfn.append(loop_break_variable)
+
+        loop_functions_grfn.append(loop_condition_function)
+        loop_functions_grfn.append(loop_break_function)
+
+        loop_variables_grfn += body_variables_grfn
+        loop_functions_grfn += body_functions_grfn
+
+        container_gensym = self.generate_gensym("container")
+
+        loop_container = {
+            "name": container_id_name,
+            "source_refs": [],
+            "gensym": container_gensym,
+            "repeat": container_repeat,
+            "arguments": container_argument,
+            "updated": container_updated,
+            "return_value": container_return_value,
+            "body": loop_functions_grfn,
+        }
+        loop_function = {
+            "function": {
+                "name": container_id_name,
+                "type": "container"
+            },
+            "input": function_input,
+            "output": function_output,
+            "updated": function_updated
+        }
+        loop_container = [loop_container] + body_container_grfn
+        loop_variables = body_variables_grfn + loop_variables_grfn
+        grfn = {
+            "containers": loop_container,
+            "variables": loop_variables,
+            "functions": [loop_function]
+        }
+        self.current_scope = '.'.join(self.current_scope.split('.')[:-1])
+
+        return [grfn]
+
+    def process_if(self, node, state, call_source):
+        """
+            This function handles the ast.IF node of the AST. It goes through
+            the IF body and generates the `decision` and `condition` type of
+            the `<function_assign_def>`.
+        """
+        scope_path = state.scope_path.copy()
+        if len(scope_path) == 0:
+            scope_path.append("@global")
+        state.scope_path = scope_path
+
+        grfn = {"functions": [], "variables": [], "containers": []}
+        # Get the GrFN schema of the test condition of the `IF` command
+        condition_sources = self.gen_grfn(node.test, state, "if")
+        # The index of the IF_x_x variable will start from 0
+        if state.last_definition_default in (-1, 0):
+            # default_if_index = state.last_definition_default + 1
+            default_if_index = 0
+        else:
+            assert False, f"Invalid value of last_definition_default:" \
+                f"{state.last_definition_default}"
+
+        if call_source != "if":
+            condition_number = state.next_definitions.get("#cond",
+                                                          default_if_index)
+            state.next_definitions["#cond"] = condition_number + 1
+            condition_name = f"IF_{condition_number}"
+            condition_index = self._get_last_definition(condition_name,
+                                                        state.last_definitions,
+                                                        0)
+        else:
+            condition_number = self.elif_condition_number
+            condition_name = f"IF_{condition_number}"
+            condition_index = self._get_next_definition(
+                condition_name,
+                state.last_definitions,
+                state.next_definitions,
+                0)
+
+        state.variable_types[condition_name] = "bool"
+        state.last_definitions[condition_name] = condition_index
+        variable_spec = self.generate_variable_definition(condition_name, state)
+        function_name = self.generate_function_name("__condition__",
+                                                    variable_spec["name"]
+                                                    )
+        # Getting the output variable
+        output_regex = re.compile(r'.*::(?P<output>.*?)::(?P<index>.*$)')
+        output_match = output_regex.match(variable_spec['name'])
+        if output_match:
+            output = output_match.group('output')
+            index = output_match.group('index')
+            output_variable = f"@variable::{output}::" \
+                              f"{index}"
+            condition_output = {"variable": output, "index": int(index)}
+        else:
+            assert False, f"Could not match output variable for " \
+                          f"{variable_spec['name']}"
+
+        fn = {
+            "function": function_name,
+            "input": [
+                f"@variable::{src['var']['variable']}::{src['var']['index']}"
+                for src in condition_sources
+                if 'var' in src
+            ],
+            "output": output_variable,
+            "updated": []
+        }
+        grfn["variables"].append(variable_spec)
+        grfn["functions"].append(fn)
+
+        # TODO Update this
+        lambda_string = self._generate_lambda_function(
             node.test,
-            function_name,
-            None,
-            [src["var"]["variable"] for src in condSrcs if "var" in src],
+            function_name["name"],
+            False,
+            [src["var"]['variable'] for src in condition_sources if
+             "var" in src],
             state,
         )
         state.lambda_strings.append(lambda_string)
-        startDefs = state.last_definitions.copy()
-        ifDefs = startDefs.copy()
-        elseDefs = startDefs.copy()
-        ifState = state.copy(last_definitions=ifDefs)
-        elseState = state.copy(last_definitions=elseDefs)
-        ifPgm = self.gen_grfn(node.body, ifState, "if")
-        elsePgm = self.gen_grfn(node.orelse, elseState, "if")
 
-        pgm["functions"] += reduce(
-            (lambda x, y: x + y["functions"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["functions"]), [[]] + elsePgm)
+        start_definitions = state.last_definitions.copy()
+        if_definitions = start_definitions.copy()
+        else_definitions = start_definitions.copy()
+        if_state = state.copy(last_definitions=if_definitions)
+        else_state = state.copy(last_definitions=else_definitions)
+        if_grfn = self.gen_grfn(node.body, if_state, "if")
+        # Note that `else_grfn` will be empty if the else block contains
+        # another `if-else` block
+        else_node_name = node.orelse.__repr__().split()[0][3:]
+        if else_node_name != "ast.If":
+            else_grfn = self.gen_grfn(node.orelse, else_state, "if")
+        else:
+            else_grfn = []
+            self.elif_condition_number = condition_number
 
-        pgm["body"] += reduce(
-            (lambda x, y: x + y["body"]), [[]] + ifPgm
-        ) + reduce((lambda x, y: x + y["body"]), [[]] + elsePgm)
+        for spec in if_grfn:
+            grfn["functions"] += spec["functions"]
+            grfn["variables"] += spec["variables"]
 
-        updatedDefs = [
+        for spec in else_grfn:
+            grfn["functions"] += spec["functions"]
+            grfn["variables"] += spec["variables"]
+
+        updated_definitions = [
             var
-            for var in set(startDefs.keys())
-                .union(ifDefs.keys())
-                .union(elseDefs.keys())
-            if var not in startDefs
-               or ifDefs[var] != startDefs[var]
-               or elseDefs[var] != startDefs[var]
+            for var in set(start_definitions.keys())
+            .union(if_definitions.keys())
+            .union(else_definitions.keys())
+            if var not in start_definitions
+            or if_definitions[var] != start_definitions[var]
+            or else_definitions[var] != start_definitions[var]
         ]
 
-        defVersions = {
-            key: [
+        # For every updated variable in the `if-else` block, get a list of
+        # all defined indices of that variable
+        defined_versions = {}
+        for key in updated_definitions:
+            defined_versions[key] = [
                 version
                 for version in [
-                    startDefs.get(key),
-                    ifDefs.get(key),
-                    elseDefs.get(key),
+                    start_definitions.get(key),
+                    if_definitions.get(key),
+                    else_definitions.get(key),
                 ]
                 if version is not None
             ]
-            for key in updatedDefs
-        }
 
-        for updatedDef in defVersions:
-            versions = defVersions[updatedDef]
+        # For every updated identifier, we need one __decision__ block. So
+        # iterate over all updated identifiers.
+        for updated_definition in defined_versions:
+            versions = defined_versions[updated_definition]
+            # For `__decision__` nodes, change the index of the inputs into 1
+            # (for True) and 0 (for False) instead of the old indices.
+            # So, a `decision` lambda function will have the false value
+            # first, the true value second, and then the conditional
+            # variable. The fixed version of the lambda will look like
+            # this:
+            # def SIR_Gillespie_SD__gillespie__loop_2__decision__n_S__1(
+            # n_S_0, n_S_1, IF_1):
+            #       return n_S_1 if IF_1 else n_S_0
+            # In the code below, change "index": 0 to "index": versions[-1]
+            # and "index": 1 to "index": versions[-2] to revert to the old form.
             inputs = (
                 [
-                    condOutput,
-                    {"variable": updatedDef, "index": versions[-1]},
-                    {"variable": updatedDef, "index": versions[-2]},
+                    {"variable": updated_definition, "index": 0},
+                    {"variable": updated_definition, "index": 1},
+                    condition_output,
                 ]
                 if len(versions) > 1
                 else [
-                    condOutput,
-                    {"variable": updatedDef, "index": versions[0]},
+                    {"variable": updated_definition, "index": versions[0]},
+                    condition_output,
                 ]
             )
-
             output = {
-                "variable": updatedDef,
-                "index": get_next_definition(
-                    updatedDef,
+                "variable": updated_definition,
+                "index": self._get_next_definition(
+                    updated_definition,
                     state.last_definitions,
                     state.next_definitions,
                     state.last_definition_default,
                 ),
             }
-
-            function_name = get_function_name(
-                self.function_names,
-                f"{state.function_name}__decision__{updatedDef}", output
-            )
-
+            variable_spec = self.generate_variable_definition(
+                updated_definition, state)
+            function_name = self.generate_function_name("__decision__",
+                                                        variable_spec['name'])
             fn = {
-                "name": function_name,
-                "type": "decision",
-                "target": updatedDef,
-                "reference": node.lineno,
-                "sources": [
-                    {
-                        "name": f"{var['variable']}_{var['index']}",
-                        "type": "variable",
-                    }
+                "function": function_name,
+                "input": [
+                    f"@variable::{var['variable']}::{var['index']}"
                     for var in inputs
                 ],
+                "output": f"@variable::{output['variable']}::{output['index']}",
+                "updated": []
             }
-
-            # Check for buggy __decision__ tag containing of only IF_ blocks
-            # More information required on how __decision__ tags are made
-            # This seems to be in development phase and documentation is
-            # missing from the GrFN spec as well. Actual removal (or not)
-            # of this tag depends on further information about this
-            if "IF_" in updatedDef:
-                count = 0
-                for var in inputs:
-                    if "IF_" in var["variable"]:
-                        count += 1
-                if count == len(inputs):
-                    continue
-
-            body = {"name": function_name, "output": output, "input":
-                inputs}
-
-            id_specList = self.make_identifier_spec(
-                function_name, output, inputs, state
-            )
-
-            for id_spec in id_specList:
-                pgm["identifiers"].append(id_spec)
-
-            lambda_string = genFn(
+            lambda_string = self._generate_lambda_function(
                 node,
-                function_name,
-                updatedDef,
+                function_name["name"],
+                True,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
                 state,
             )
             state.lambda_strings.append(lambda_string)
 
-            pgm["functions"].append(fn)
-            pgm["body"].append(body)
+            grfn["functions"].append(fn)
+            grfn["variables"].append(variable_spec)
 
-        # Previous ELIF Block is filled??
-        if len(self.elif_grfn) > 0:
+        if else_node_name == "ast.If":
+            # else_definitions = state.last_definitions.copy()
+            else_state = state.copy(last_definitions=state.last_definitions)
+            elseif_grfn = self.gen_grfn(node.orelse, else_state, "if")
+            for spec in elseif_grfn:
+                grfn["functions"] += spec["functions"]
+                grfn["variables"] += spec["variables"]
 
-            condSrcs = self.elif_grfn[1]
-
-            for item in self.elif_grfn[0]["functions"]:
-                pgm["functions"].append(item)
-
-            for item in self.elif_grfn[0]["body"]:
-                pgm["body"].append(item)
-
-            state.next_definitions["#cond"] = condNum + 1
-
-            condName = f"IF_{condNum}"
-            state.variable_types[condName] = "bool"
-            state.last_definitions[condName] = 0
-            function_name = get_function_name(
-                self.function_names,
-                f"{state.function_name}__condition__{condName}", {}
-            )
-            condOutput = {
-                "variable": condName,
-                "index": int(function_name[-1])
-            }
-
-            fn = {
-                "name": function_name,
-                "type": "condition",
-                "target": condName,
-                "reference": self.elif_grfn[3],
-                "sources": [
-                    {
-                        "name": src["var"]["variable"],
-                        "type": "variable",
-                    }
-                    for src in condSrcs
-                    if "var" in src
-                ],
-            }
-
-            id_specList = self.make_identifier_spec(
-                function_name,
-                condOutput,
-                [src["var"] for src in condSrcs if "var" in src],
-                state,
-            )
-
-            for id_spec in id_specList:
-                pgm["identifiers"].append(id_spec)
-
-            body = {
-                "name": function_name,
-                "output": condOutput,
-                "input": [
-                    src["var"] for src in condSrcs if "var" in src
-                ],
-            }
-            pgm["functions"].append(fn)
-            pgm["body"].append(body)
-
-            lambda_string = genFn(
-                self.elif_grfn[2],
-                function_name,
-                None,
-                [
-                    src["var"]["variable"]
-                    for src in condSrcs
-                    if "var" in src
-                ],
-                state,
-            )
-            state.lambda_strings.append(lambda_string)
-
-            startDefs = state.last_definitions.copy()
-            ifDefs = self.elif_grfn[6]
-            elseDefs = startDefs.copy()
-
-            updatedDefs = self.elif_grfn[5]
-
-            defVersions = {
-                key: [
-                    version
-                    for version in [
-                        startDefs.get(key),
-                        ifDefs.get(key),
-                        elseDefs.get(key),
-                    ]
-                    if version is not None
-                ]
-                for key in updatedDefs
-            }
-
-            for updatedDef in defVersions:
-                versions = defVersions[updatedDef]
-                inputs = (
-                    [
-                        condOutput,
-                        {
-                            "variable": updatedDef,
-                            "index": versions[-1],
-                        },
-                        {
-                            "variable": updatedDef,
-                            "index": versions[-2],
-                        },
-                    ]
-                    if len(versions) > 1
-                    else [
-                        condOutput,
-                        {"variable": updatedDef, "index": versions[0]},
-                    ]
-                )
-
-                output = {
-                    "variable": updatedDef,
-                    "index": get_next_definition(
-                        updatedDef,
-                        state.last_definitions,
-                        state.next_definitions,
-                        state.last_definition_default,
-                    ),
-                }
-                function_name = get_function_name(
-                    self.function_names,
-                    f"{state.function_name}__decision__{updatedDef}",
-                    output,
-                )
-                fn = {
-                    "name": function_name,
-                    "type": "decision",
-                    "target": updatedDef,
-                    "reference": self.elif_grfn[3],
-                    "sources": [
-                        {
-                            "name": f"{var['variable']}_{var['index']}",
-                            "type": "variable",
-                        }
-                        for var in inputs
-                    ],
-                }
-
-                # Check for buggy __decision__ tag containing of only
-                # IF_ blocks. More information required on how
-                # __decision__ tags are made.
-                # This seems to be in development phase and documentation is
-                # missing from the GrFN spec as well. Actual removal
-                # (or not) of this tag depends on further information
-                # about this
-
-                if "IF_" in updatedDef:
-                    count = 0
-                    for var in inputs:
-                        if "IF_" in var["variable"]:
-                            count += 1
-                    if count == len(inputs):
-                        continue
-
-                body = {
-                    "name": function_name,
-                    "output": output,
-                    "input": inputs,
-                }
-
-                id_specList = self.make_identifier_spec(
-                    function_name, output, inputs, state
-                )
-
-                for id_spec in id_specList:
-                    pgm["identifiers"].append(id_spec)
-
-                lambda_string = genFn(
-                    self.elif_grfn[4],
-                    function_name,
-                    updatedDef,
-                    [
-                        f"{src['variable']}_{src['index']}"
-                        for src in inputs
-                    ],
-                    state,
-                )
-                state.lambda_strings.append(lambda_string)
-
-                pgm["functions"].append(fn)
-                pgm["body"].append(body)
-
-            self.elif_grfn = []
-
-        return [pgm]
+        return [grfn]
 
     def process_unary_operation(self, node, state, *_):
         """
@@ -1099,123 +1379,61 @@ class GrFNGenerator(object):
             function, calling print(), etc.
         """
         expressions = self.gen_grfn(node.value, state, "expr")
+        grfn = {"functions": [], "variables": [], "containers": []}
 
-        grfn = {"functions": [], "body": [], "identifiers": []}
         for expr in expressions:
-            if "call" in expr:
-                call = expr["call"]
+            if "call" not in expr:
+                assert False, f"Unsupported expr: {expr}."
 
-                array_setter = False
-                # Array setter (.set_) handler
-                if ".set_" in call["function"]:
-                    array_setter = True
-                    array_idx = call["inputs"][0][0]
-                    target = call["function"][:-5]
-                    name = get_function_name(
-                            self.function_names,
-                            f"{state.function_name}__set__"
-                            f"{target}",
-                            {},
-                        )
-                    # 1-dimensional array
-                    if "var" in array_idx:
-                        variable = f"{target}_{array_idx['var']['variable']}"
-                        index = array_idx["var"]["index"]
-                    # multi-dimensional array
-                    elif "list" in array_idx:
-                        variable = f"{target}_"
-                        variable += "_".join(
-                                [x["var"]["variable"] for x in array_idx["list"]]
-                        )
-                        # Currently, we are manually setting index of multi-dimensional
-                        # array variable for GrFN default to 1.
-                        index = 1
+        for expr in expressions:
+            call = expr["call"]
+            function_name = call["function"]
+            io_match = self._check_io_variables(function_name)
+            if io_match:
+                return []
+            # Bypassing calls to `print` for now. Need further discussion and
+            # decisions to move forward with what we'll do with `print`
+            # statements.
+            if function_name == "print":
+                return []
+            container_id_name = self.function_argument_map[function_name][
+                "name"]
+            function = {
+                "function": {
+                    "name": container_id_name,
+                    "type": "container"
+                },
+                "input": [],
+                "output": [],
+                "updated": []
+            }
 
-                    body = {
-                        "name": name,
-                        "output": {
-                            "variable": variable,
-                            "index": index
-                        },
-                        "input": [],
-                    }
+            for arg in call["inputs"]:
+                if len(arg) == 1:
+                    # TODO: Only variables are represented in function
+                    #  arguments. But a function can have strings as
+                    #  arguments as well. Do we add that?
+                    if "var" in arg[0]:
+                        function["input"].append(
+                            f"@variable::"
+                            f"{arg[0]['var']['variable']}::"
+                            f"{arg[0]['var']['index']}")
                 else:
-                    body = {
-                        "function": call["function"],
-                        "output": {},
-                        "input": [],
-                    }
-                    # If the call is to the write() function of a file handle,
-                    # bypass this expression as I/O is not handled currently
-                    # TODO: Will need to be handled once I/O is handled
-                    if re.match(r"file_\d+\.write", body["function"]):
-                        return []
+                    raise For2PyError(
+                        "Only 1 input per argument supported right now."
+                    )
 
-                # Since the first index object (arg_idx == 0) of
-                # call["inputs"]is always an array index value when dealing with
-                # array's set_ and get_ functions, we want to keep a track of it
-                # by the argument index counter.
-                arg_idx = 0
-                for arg in call["inputs"]:
-                    # This is for collecting variables that holds
-                    # a value to be assigned (set) to array
-                    source_list = []
-                    if len(arg) == 1:
-                        # TODO: Only variables are represented in function
-                        #  arguments. But a function can have strings as
-                        #  arguments as well. Do we add that?
-                        if "var" in arg[0]:
-                            if (
-                                arg[0]["var"] not in body["input"]
-                                and (array_setter and arg_idx > 0)
-                            ):
-                                body["input"].append(arg[0]["var"])
-                            # For now, we only want to collect the variables
-                            # when the expression is an array setter expression.
-                            if array_setter:
-                                source_list.append(arg[0]["var"]["variable"])
-                            arg_idx += 1
-                        elif "call" in arg[0]:
-                            assert (
-                                    array_setter
-                            ), f"call in arg[0] is, currently, only for array. So, this assert\
-                                indicates that a new case was encountered. arg: {arg}."
-                            for var in arg[0]["call"]["inputs"][0]:
-                                if var["var"] not in body["input"]:
-                                    body["input"].append(var["var"])
-                                source_list.append(var["var"]["variable"])
-                        elif "list" in arg[0]:
-                            assert (
-                                    array_setter
-                            ), f"list in arg[0] is, currently, only for array. So, this assert\
-                                indicates that a new case was encountered. arg: {arg}."
-                            for var in arg[0]["list"]:
-                                body["input"].append(var)
-                                source_list.append(var["var"]["variable"])
-                        else:
-                            pass
-                        # We want to generate lambdas only for arrays (at least for now).       
-                        if array_setter:
-                            lambda_string = genFn(
-                                node.value, name, target, source_list, state
-                            )
-                            state.lambda_strings.append(lambda_string)
-                    else:
-                        if array_setter:
-                            for argm in arg:
-                                if "var" in argm:
-                                    body["input"].append(argm["var"])
-                                else:
-                                    assert (
-                                            "type" in argm
-                                    ), f"Only 'var' or 'type' are supported for array right now."
-                        else:
-                            raise For2PyError(
-                                "Only 1 input per argument supported right now."
-                        )
-                grfn["body"].append(body)
-            else:
-                raise For2PyError(f"Unsupported expr: {expr}.")
+            # Keep a track of all functions whose `update` might need to be
+            # later updated, along with their scope.
+            if len(function['input']) > 0:
+                # self.update_functions.append(function_name)
+                self.update_functions[function_name] = {
+                    "scope": self.current_scope,
+                    "state": state
+                }
+
+            grfn["functions"].append(function)
+
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -1242,11 +1460,10 @@ class GrFNGenerator(object):
             raise For2PyError("can't handle arrays right now.")
 
         val = self.gen_grfn(node.value, state, "subscript")
-
         if val:
             if val[0]["var"]["variable"] in self.annotated_assigned:
                 if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = get_next_definition(
+                    val[0]["var"]["index"] = self._get_next_definition(
                         val[0]["var"]["variable"],
                         state.last_definitions,
                         state.next_definitions,
@@ -1254,13 +1471,12 @@ class GrFNGenerator(object):
                     )
             elif val[0]["var"]["index"] == -1:
                 if isinstance(node.ctx, ast.Store):
-                    val[0]["var"]["index"] = get_next_definition(
+                    val[0]["var"]["index"] = self._get_next_definition(
                         val[0]["var"]["variable"],
                         state.last_definitions,
                         state.next_definitions,
                         state.last_definition_default,
                     )
-
                     self.annotated_assigned.append(val[0]["var"]["variable"])
             else:
                 self.annotated_assigned.append(val[0]["var"]["variable"])
@@ -1269,8 +1485,7 @@ class GrFNGenerator(object):
 
         return val
 
-    @staticmethod
-    def process_name(node, state, call_source):
+    def process_name(self, node, state, call_source):
         """
             This function handles the ast.Name node of the AST. This node
             represents any variable in the code.
@@ -1278,71 +1493,90 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-            last_definition = get_last_definition(node.id,
-                                                  state.last_definitions,
-                                                  state.last_definition_default)
-            # Only increment the index of the variable if it is on the RHS of
-            # the assignment/operation i.e. Store(). Also, we don't increment
-            # it when the operation is an annotated assignment (of the form
-            # max_rain: List[float] = [None])
+            last_definition = self._get_last_definition(
+                node.id,
+                state.last_definitions,
+                state.last_definition_default
+            )
             if (
                     isinstance(node.ctx, ast.Store)
                     and state.next_definitions.get(node.id)
-                    and call_source != "annassign"
+                    and call_source == "annassign"
             ):
-                last_definition = get_next_definition(
+                last_definition = self._get_next_definition(
                     node.id,
                     state.last_definitions,
                     state.next_definitions,
                     state.last_definition_default,
                 )
 
+            # TODO Change this structure. This is not required for the new
+            #  spec. It made sense for the old spec but now it is not required.
             return [{"var": {"variable": node.id, "index": last_definition}}]
 
     def process_annotated_assign(self, node, state, *_):
         """
             This function handles annotated assignment operations i.e.
             ast.AnnAssign. This tag appears when a variable has been assigned
-            with an annotation e.g. x: int = 5, y: List[float] = None, etc.
+            with an annotation e.g. x: int = 5, y: List[float] = [None], etc.
         """
-        # If the assignment value of a variable is of type List, retrieve the
-        # targets. As of now, the RHS will be a list only during initial
-        # variable definition i.e. day: List[int] = [None]. So, we only
-        # update our data structures that hold the variable type mapping
-        # and annotated variable mappings. Nothing will be added to the
-        # GrFN.
-        # TODO: Will this change once arrays/lists are implemented?
-        if isinstance(node.value, ast.List):
-            targets = self.gen_grfn(node.target, state, "annassign")
+        # Get the sources and targets of the annotated assignment
+        sources = self.gen_grfn(node.value, state, "annassign")
+        targets = self.gen_grfn(node.target, state, "annassign")
+
+        # If the source i.e. assigned value is `None` (e.g. day: List[int] =
+        # [None]), only update the data type of the targets and populate the
+        # `annotated_assigned` map. No further processing will be done.
+        if len(sources) == 1 and ('value' in sources[0].keys()) and not \
+                sources[0]['value']:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
-                    get_variable_type(node.annotation)
+                    self._get_variable_type(node.annotation)
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
             return []
 
-        sources = self.gen_grfn(node.value, state, "annassign")
-        targets = self.gen_grfn(node.target, state, "annassign")
+        grfn = {"functions": [], "variables": [], "containers": []}
 
-        grfn = {"functions": [], "body": [], "identifiers": []}
-
+        # Only a single target appears in the current version. The `for` loop
+        # seems unnecessary but will be required when multiple targets start
+        # appearing (e.g. a = b = 5).
         for target in targets:
-            state.variable_types[target["var"]["variable"]] = \
-                get_variable_type(node.annotation)
-            name = get_function_name(
-                self.function_names,
-                f"{state.function_name}__assign__"
-                f"{target['var']['variable']}",
-                {},
+            target_name = target["var"]["variable"]
+            # Preprocessing and removing certain Assigns which only pertain
+            # to the Python code and do not relate to the FORTRAN code in any
+            # way.
+            io_match = self._check_io_variables(target_name)
+            if io_match:
+                self.exclude_list.append(target_name)
+                return []
+            state.variable_types[target_name] = \
+                self._get_variable_type(node.annotation)
+            if target_name not in self.annotated_assigned:
+                self.annotated_assigned.append(target_name)
+            # Update the `next_definition` index of the target since it is
+            # not being explicitly done by `process_name`.
+            # TODO Change this functionality ground up by modifying
+            #  `process_name` and `process_subscript` to make it simpler.
+            if not state.next_definitions.get(target_name):
+                state.next_definitions[target_name] = target[
+                    "var"]["index"] + 1
+            
+            variable_spec = self.generate_variable_definition(target_name,
+                                                              state)
+            function_name = self.generate_function_name(
+                            "__assign__",
+                            variable_spec['name']
             )
-            fn = self.make_fn_dict(name, target, sources, node)
-            body = self.make_body_dict(name, target, sources, state)
+            # TODO Somewhere around here, the Float32 class problem will have
+            #  to be handled.
+            fn = self.make_fn_dict(function_name, target, sources)
 
             if len(sources) > 0:
-                lambda_string = genFn(
+                lambda_string = self._generate_lambda_function(
                     node,
-                    name,
-                    target["var"]["variable"],
+                    function_name["name"],
+                    True,
                     [
                         src["var"]["variable"]
                         for src in sources
@@ -1359,18 +1593,9 @@ class GrFNGenerator(object):
             # <fn> dictionary and return [] if found
             if len(fn) == 0:
                 return []
-            if not fn["sources"] and len(sources) == 1:
-                fn["body"] = {
-                    "type": "literal",
-                    "dtype": sources[0]["dtype"],
-                    "value": f"{sources[0]['value']}",
-                }
-
-            for id_spec in body[1]:
-                grfn["identifiers"].append(id_spec)
 
             grfn["functions"].append(fn)
-            grfn["body"].append(body[0])
+            grfn["variables"].append(variable_spec)
 
         return [grfn]
 
@@ -1378,58 +1603,9 @@ class GrFNGenerator(object):
         """
             This function handles an assignment operation (ast.Assign).
         """
-        # If the scope path is empty, this has to be the top of the program
-        # scope, so start the scope with a `_TOP` string to denote that the
-        # operation lies at the top of the scope.
-        if len(state.scope_path) == 0:
-            state.scope_path.append("_TOP")
-
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
-
-        array_assignment = False
-        # If current assignment is for Array declaration,
-        # we need to extract information (dimension, index, and type)
-        # of the array based on its dimension (single or multi-).
-        if (
-                "call" in sources[0]
-                and sources[0]["call"]["function"] == "Array"
-        ):
-            array_assignment = True
-            inputs = sources[0]["call"]["inputs"]
-            array_type = inputs[0][0]["var"]["variable"]
-            array_dimensions = []
-            # A multi-dimensional array handler
-            if "list" in inputs[1][0]["list"][0]:
-                for lists in inputs[1][0]["list"]:
-                    low_bound = int(lists["list"][0]["value"])
-                    upper_bound = int(lists["list"][1]["value"])
-                    array_dimensions.append(upper_bound-low_bound+1)
-            # 1-D array handler
-            else:
-                bounds = inputs[1][0]["list"]
-                if "type" in bounds[0]:
-                    low_bound = bounds[0]["value"]
-                else:
-                    low_bound = bounds[0]["var"]["variable"]
-
-                if "type" in bounds[1]:
-                    upper_bound = bounds[1]["value"]
-                else:
-                    upper_bound = bounds[1]["var"]["variable"]
-
-                if isinstance(low_bound, int) and isinstance(upper_bound, int):
-                    array_dimensions.append(upper_bound-low_bound+1)
-                elif isinstance(upper_bound, str):
-                    assert (
-                        isinstance(low_bound, int) and low_bound == 0
-                    ), "low_bound must be <integer> type and 0 (zero) for now."
-                    array_dimensions.append(upper_bound)
-                else:
-                    assert False, f"low_bound type: {type(low_bound)} is currently not handled."
-
-
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
         # python code does not appear in this way and only a single target
@@ -1442,12 +1618,24 @@ class GrFNGenerator(object):
             ],
         )
 
-        grfn = {"functions": [], "body": [], "identifiers": []}
-
+        grfn = {"functions": [], "variables": [], "containers": []}
         # Again as above, only a single target appears in current version.
-        # The for loop seems unnecessary but will be required when multiple
+        # The `for` loop seems unnecessary but will be required when multiple
         # targets start appearing.
         for target in targets:
+            # Bypass any assigns that have multiple targets.
+            # E.g. (i[0], x[0], j[0], y[0],) = ...
+            if "list" in target:
+                return []
+            target_name = target["var"]["variable"]
+            # Preprocessing and removing certain Assigns which only pertain
+            # to the Python code and do not relate to the FORTRAN code in any
+            # way.
+            io_match = self._check_io_variables(target_name)
+            if io_match:
+                self.exclude_list.append(target_name)
+                return []
+
             # If the target is a list of variables, the grfn notation for the
             # target will be a list of variable names i.e. "[a, b, c]"
             # TODO: This does not seem right. Discuss with Clay and Paul
@@ -1457,56 +1645,33 @@ class GrFNGenerator(object):
                     [x["var"]["variable"] for x in target["list"]]
                 )
                 target = {"var": {"variable": targets, "index": 1}}
-            
-            # If current assignment is for array assignment,
-            # then extract the variable name and store it to
-            # the self.arrays for later check
-            if array_assignment:
-                var_name = target["var"]["variable"]
-                array_info = {
-                    "index": target["var"]["index"],
-                    "dimensions": array_dimensions,
-                    "elem_type": array_type,
-                    "mutable": True,
-                }
-                self.arrays[var_name] = array_info
-                array_assignment = False
-                return []
-
-            # Check whether this is an alias assignment i.e. of the form
-            # y=x where y is now the alias of variable x
-            self.check_alias(target, sources)
-            name = get_function_name(
-                self.function_names,
-                f"{state.function_name}__assign__"
-                f"{target['var']['variable']}",
-                target,
-            )
-
-            fn = self.make_fn_dict(name, target, sources, node)
-
+            variable_spec = self.generate_variable_definition(target_name,
+                                                              state)
+            function_name = self.generate_function_name("__assign__",
+                                                        variable_spec['name']
+                                                        )
+            fn = self.make_fn_dict(function_name, target, sources)
             if len(fn) == 0:
                 return []
-            body = self.make_body_dict(name, target, sources, state)
-
             source_list = self.make_source_list_dict(sources)
-
-            lambda_string = genFn(
-                node, name, target["var"]["variable"], source_list, state
+            lambda_string = self._generate_lambda_function(
+                node, function_name["name"], True,
+                source_list, state
             )
-
             state.lambda_strings.append(lambda_string)
-            if not fn["sources"] and len(sources) == 1:
+
+            # TODO Get a use case to handle this for the new spec
+            if not fn["input"] and len(sources) == 1:
                 if sources[0].get("list"):
                     dtypes = set()
                     value = list()
                     for item in sources[0]["list"]:
-                        dtypes.add(item["dtype"])
-                        value.append(item["value"])
+                        dtypes.add(item['dtype'])
+                        value.append(item['value'])
                     dtype = list(dtypes)
                 elif sources[0].get("call") and \
-                        sources[0]["call"]["function"] == "Float32":
-                    dtype = sources[0]["call"]["inputs"][0][0]["dtype"]
+                        sources[0]["call"]['function'] == "Float32":
+                    dtype = sources[0]["call"]['inputs'][0][0]['dtype']
                     value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                 else:
                     dtype = sources[0]["dtype"]
@@ -1517,11 +1682,8 @@ class GrFNGenerator(object):
                     "value": value,
                 }
 
-            for id_spec in body[1]:
-                grfn["identifiers"].append(id_spec)
-
             grfn["functions"].append(fn)
-            grfn["body"].append(body[0])
+            grfn["variables"].append(variable_spec)
 
         return [grfn]
 
@@ -1555,9 +1717,22 @@ class GrFNGenerator(object):
                     node.func.value.value.id == "sys":
                 return []
             function_node = node.func
-            module = function_node.value.id
-            function_name = function_node.attr
-            function_name = module + "." + function_name
+
+            # The `function_node` can be a ast.Name (e.g. Format(format_10)
+            # where `format_10` will be an ast.Name or it can have another
+            # ast.Attribute (e.g. Format(main.file_10.readline())).
+            # Currently, only these two nodes have been detected, so test for
+            # these will be made.
+            if isinstance(function_node.value, ast.Name):
+                module = function_node.value.id
+                function_name = function_node.attr
+                function_name = module + "." + function_name
+            elif isinstance(function_node.value, ast.Attribute):
+                module = self.gen_grfn(function_node.value, state, "call")
+                function_name = function_node.attr
+                function_name = module + "." + function_name
+            else:
+                assert False, f"Invalid expression call {function_node}"
         else:
             function_name = node.func.id
 
@@ -1579,7 +1754,19 @@ class GrFNGenerator(object):
         for cur in node.body:
             grfn = self.gen_grfn(cur, state, "module")
             grfn_list += grfn
-        return [merge_dictionary(grfn_list)]
+        merged_grfn = [self._merge_dictionary(grfn_list)]
+
+        # We fill in the `updated` field of function calls by looking at the
+        # `updated` field of their container grfn
+        final_grfn = self.load_updated(merged_grfn)
+        return final_grfn
+
+    @staticmethod
+    def _process_nameconstant(node, *_):
+        # TODO Change this format according to the new spec
+        return [
+            {"type": "literal", "dtype": "string", "value": node.value}
+        ]
 
     def process_attribute(self, node, state, call_source):
         """
@@ -1590,6 +1777,13 @@ class GrFNGenerator(object):
             `node.attr`. The `node.id` stores the <function_name> which is
             being ignored.
         """
+        # If this node appears inside an ast.Call processing, then this is
+        # the case where a function call has been saved in the case of IO
+        # handling. E.g. format_10_obj.read_line(main.file_10.readline())).
+        # Here, main.file_10.readline is
+        if call_source == "call":
+            module = node.attr
+            return module
         # When a computations float value is extracted using the Float32
         # class's _val method, an ast.Attribute will be present
         if node.attr == "_val":
@@ -1597,11 +1791,31 @@ class GrFNGenerator(object):
         else:
             # TODO: This section of the code should be the same as
             #  `process_name`. Verify this.
-            last_definition = get_last_definition(node.attr,
-                                                  state.last_definitions,
-                                                  state.last_definition_default)
+            last_definition = self._get_last_definition(
+                node.attr,
+                state.last_definitions,
+                state.last_definition_default
+            )
 
+            # TODO Change the format according to the new spec
             return [{"var": {"variable": node.attr, "index": last_definition}}]
+
+    def process_return_value(self, node, state, *_):
+        """
+        This function handles the return value from a function.
+        """
+        grfn = {"functions": [], "variables": [], "containers": []}
+        if node.value:
+            val = self.gen_grfn(node.value, state, "return_value")
+        else:
+            val = None
+
+        return_dict = {
+            "type": "return",
+            "value": val
+        }
+        grfn["functions"].append(return_dict)
+        return [grfn]
 
     @staticmethod
     def process_ast(node, *_):
@@ -1625,208 +1839,26 @@ class GrFNGenerator(object):
             f"value: {str(node)}\n"
         )
 
-    # This function checks whether an assignment is an alias created. An alias
-    # is created when an assignment of the form y=x happens such that y is now
-    # an alias of x because it is an exact copy of x. If it is an alias
-    # assignment, the dictionary alias_mapper will get populated.
-    def check_alias(self, target, sources):
-        target_index = (
-            target["var"]["variable"] + "_" + str(target["var"]["index"])
-        )
-        if len(sources) == 1 and sources[0].get("var") is not None:
-            if self.alias_mapper.get(target_index):
-                self.alias_mapper[target_index].append(
-                    sources[0]["var"]["variable"]
-                    + "_"
-                    + str(sources[0]["var"]["index"])
-                )
-            else:
-                self.alias_mapper[target_index] = [
-                    sources[0]["var"]["variable"]
-                    + "_"
-                    + str(sources[0]["var"]["index"])
-                ]
+    @staticmethod
+    def _get_namespace(original_fortran_file) -> str:
+        """
+            This function returns the namespace for every identifier in the
+            system being analyzed.
+            Currently, this function is very barebone and just returns the
+            name of the system being evaluated. After more testing with
+            modules and imports, the namespace will expand into more than
+            just the system file name.
+        """
+        namespace_path_list = get_path(original_fortran_file, "namespace")
+        namespace_path = ".".join(namespace_path_list)
 
-    def make_iden_dict(self, name, targets, scope_path, holder):
-        # Check for aliases
-        if isinstance(targets, dict):
-            aliases = self.alias_mapper.get(
-                targets["variable"] + "_" + str(targets["index"]), "None"
-            )
-        elif isinstance(targets, str):
-            aliases = self.alias_mapper.get(targets, "None")
+        # TODO Hack: Currently only the last element of the
+        #  `namespace_path_list` is being returned as the `namespace_path` in
+        #  order to make it consistent with the handwritten SIR-Demo GrFN
+        #  JSON. Will need a more generic path for later instances.
+        namespace_path = namespace_path_list[-1]
 
-        # First, check whether the information is from a variable or a
-        # holder(assign, loop, if, etc). Assign the base_name accordingly
-
-        if holder == "body":
-            # If we are making the identifier specification of a body holder,
-            # the base_name will be the holder
-            if isinstance(targets, dict):
-                base_name = (
-                    name
-                    + "$"
-                    + targets["variable"]
-                    + "_"
-                    + str(targets["index"])
-                )
-            elif isinstance(targets, str):
-                base_name = name + "$" + targets
-            gensyms_tag = "h"
-
-        elif holder == "variable":
-            # The base name will just be the name of the identifier
-            base_name = targets
-            gensyms_tag = "v"
-
-        # The name space should get the entire directory scope of the fortran
-        # file under which it is defined. For PETASCE.for, all modules are
-        # defined in the same fortran file so the namespace will be the same
-        # for all identifiers
-
-        # TODO handle multiple file namespaces that handle multiple fortran
-        #  file namespacing
-
-        # TODO Is the namespace path for the python intermediates or the
-        #  original FORTRAN code? Currently, it captures the intermediate
-        #  python file's path
-        name_space = self.mode_mapper["file_name"][1].split("/")
-        name_space = ".".join(name_space)
-
-        # The scope captures the scope within the file where it exists. The
-        # context of modules can be implemented here.
-        if len(scope_path) == 0:
-            scope_path.append("_TOP")
-        elif scope_path[0] == "_TOP" and len(scope_path) > 1:
-            scope_path.remove("_TOP")
-        scope_path = ".".join(scope_path)
-
-        # TODO Source code reference: This is the line number in the Python
-        # (or FORTRAN?) file. According to meeting on the 21st Feb, 2019,
-        # this was the same as namespace. Exactly same though? Need clarity.
-
-        source_reference = name_space
-
-        iden_dict = {
-            "base_name": base_name,
-            "scope": scope_path,
-            "namespace": name_space,
-            "aliases": aliases,
-            "source_references": source_reference,
-            "gensyms": generate_gensym(gensyms_tag),
-        }
-
-        return iden_dict
-
-    # Create the identifier specification for each identifier
-    def make_identifier_spec(self, name, targets, sources, state):
-        scope_path = state.scope_path
-        for_id = 1
-        if_id = 1
-        identifier_list = []
-
-        for item, scope in enumerate(scope_path):
-            if scope == "loop":
-                scope_path[item] = scope + "$" + str(for_id)
-                for_id += 1
-            elif scope == "if":
-                scope_path[item] = scope + "$" + str(for_id)
-                if_id += 1
-
-        # Identify which kind of identifier it is
-        name_regex = r"(?P<scope>\w+)__(?P<type>\w+)__(?P<basename>\w+)"
-        match = re.match(name_regex, name)
-        if match:
-            if match.group("type") == "assign":
-                iden_dict = self.make_iden_dict(
-                    match.group("type"), targets, scope_path, "body"
-                )
-                identifier_list.append(iden_dict)
-                if len(sources) > 0:
-                    for item in sources:
-                        iden_dict = self.make_iden_dict(
-                            name,
-                            item["variable"] + "_" + str(item["index"]),
-                            scope_path,
-                            "variable",
-                        )
-                        identifier_list.append(iden_dict)
-            elif match.group("type") == "condition":
-                iden_dict = self.make_iden_dict(
-                    match.group("type"), targets, scope_path, "body"
-                )
-                identifier_list.append(iden_dict)
-                if len(sources) > 0:
-                    for item in sources:
-                        iden_dict = self.make_iden_dict(
-                            name,
-                            item["variable"] + "_" + str(item["index"]),
-                            scope_path,
-                            "variable",
-                        )
-                        identifier_list.append(iden_dict)
-            elif match.group("type") == "loop_plate":
-                iden_dict = self.make_iden_dict(
-                    match.group("type"), targets, scope_path, "body"
-                )
-                identifier_list.append(iden_dict)
-                if len(sources) > 0:
-                    for item in sources:
-                        iden_dict = self.make_iden_dict(
-                            name,
-                            item["variable"] + "_" + str(item["index"]),
-                            scope_path,
-                            "variable",
-                        )
-                        identifier_list.append(iden_dict)
-            elif match.group("type") == "decision":
-                iden_dict = self.make_iden_dict(
-                    match.group("type"), targets, scope_path, "body"
-                )
-                identifier_list.append(iden_dict)
-                if len(sources) > 0:
-                    for item in sources:
-                        iden_dict = self.make_iden_dict(
-                            name,
-                            item["variable"] + "_" + str(item["index"]),
-                            scope_path,
-                            "variable",
-                        )
-                        identifier_list.append(iden_dict)
-
-            return identifier_list
-
-    def make_body_dict(self, name, target, sources, state):
-        source_list = []
-        for src in sources:
-            if "var" in src:
-                source_list.append(src["var"])
-            if "call" in src:
-                source_list.extend(self.make_call_index_dict(src))
-
-        # Removing duplicates
-        unique_source = []
-        [unique_source.append(obj) for obj in source_list if obj not in
-         unique_source]
-        source_list = unique_source
-
-        id_spec = self.make_identifier_spec(
-            name, target["var"], source_list, state
-        )
-
-        body = {"name": name, "output": target["var"], "input": source_list}
-        return [body, id_spec]
-
-    def make_call_index_dict(self, source):
-        source_list = []
-        for item in source["call"]["inputs"]:
-            for ip in item:
-                if "var" in ip:
-                    source_list.append(ip["var"])
-                elif "call" in ip:
-                    source_list.extend(self.make_call_index_dict(ip))
-
-        return source_list
+        return namespace_path
 
     def make_source_list_dict(self, source_dictionary):
         source_list = []
@@ -1845,299 +1877,494 @@ class GrFNGenerator(object):
 
         return source_list
 
-    def make_fn_dict(self, name, target, sources, node):
+    def make_fn_dict(self, name, target, sources):
         source = []
         fn = {}
+        target_name = target["var"]["variable"]
 
-        # Preprocessing and removing certain Assigns which only pertain to the
-        # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match_target = RE_BYPASS_IO.match(target["var"]["variable"])
-
-        if bypass_match_target:
-            self.exclude_list.append(target["var"]["variable"])
-            return fn
-
+        target_string = f"@variable::{target_name}::{target['var']['index']}"
         for src in sources:
+            # Check for a write to a file
+            if re.match(r"\d+", target_name) and "list" in src:
+                return fn
             if "call" in src:
                 # Bypassing identifiers who have I/O constructs on their source
-                # fields too.s
+                # fields too.
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i'
                 #  in the long run
-                bypass_match_source = RE_BYPASS_IO.match(src["call"][
-                                                              "function"])
+                bypass_match_source = self._check_io_variables(
+                    src["call"]["function"]
+                )
                 if bypass_match_source:
                     if "var" in src:
                         self.exclude_list.append(src["var"]["variable"])
-                    self.exclude_list.append(target["var"]["variable"])
                     return fn
-                for source_ins in make_call_body_dict(src):
+                # TODO Finalize the spec for calls here of this form:
+                #  "@container::<container_type>[$[
+                #   <var_affected>|<code_given_name>]]" and add here.
+                for source_ins in self.make_call_body_dict(src):
                     source.append(source_ins)
-            if "var" in src:
-                variable = src["var"]["variable"]
-                source.append({"name": variable, "type": "variable"})
+            elif "var" in src:
+                source_string = f"@variable::{src['var']['variable']}::" \
+                                f"{src['var']['index']}"
+                source.append(source_string)
+            # The code below is commented out to not include any `literal`
+            # values in the input of `function` bodies. The spec does mention
+            # including `literals` so if needed, uncomment the code block below
 
-            # Removing duplicates
-            unique_source = []
-            [unique_source.append(obj) for obj in source if obj not in
-             unique_source]
-            source = unique_source
+            # elif "type" in src and src["type"] == "literal":
+            #     variable_type = self.type_def_map[src["dtype"]]
+            #     source_string = f"@literal::{variable_type}::{src['value']}"
+            #     source.append(source_string)
+            # else:
+            #     assert False, f"Unidentified source: {src}"
 
-            if re.match(r"\d+", target["var"]["variable"]) and "list" in src:
-                # This is a write to a file
-                return fn
-            fn = {
-                "name": name,
-                "type": "assign",
-                "target": target["var"]["variable"],
-                "sources": source,
-                "reference": node.lineno,
-            }
+        # Removing duplicates
+        unique_source = []
+        [unique_source.append(obj) for obj in source if obj not in
+         unique_source]
+        source = unique_source
+
+        fn = {
+            "function": name,
+            "input": source,
+            "output": target_string,
+            "updated": []
+        }
 
         return fn
 
+    @staticmethod
+    def _remove_io_variables(variable_list):
+        """
+            This function scans each variable from a list of currently defined
+            variables and removes those which are related to I/O such as format
+            variables, file handles, write lists and write_lines.
+        """
+        io_regex = re.compile(r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|"
+                              r"(write_line)")
+        io_match_list = [io_regex.match(var) for var in variable_list]
 
-def process_decorators(node, state):
-    """
-        Go through each decorator and extract relevant information.
-        Currently this function only checks for the static_vars decorator
-        for the SAVEd variables and updates variable_types with the data
-        type of each variable.
-    """
-    for decorator in node:
-        decorator_function_name = decorator.func.id
-        if decorator_function_name == "static_vars":
-            for arg in decorator.args[0].elts:
-                variable = arg.values[0].s
-                variable_type = arg.values[2].s
-                state.variable_types[variable] = ANNOTATE_MAP[variable_type]
+        return [var for var in variable_list if io_match_list[
+            variable_list.index(var)] is None]
 
-def genFn(node, function_name: str, returnVal: bool, inputs, state):
-    lambda_strings = []
-    argument_strings = []
+    def make_call_body_dict(self, source):
+        """
+            We are going to remove addition of functions such as "max", "exp",
+            "sin", etc to the source list. The following two lines when
+            commented helps us do that. If user-defined functions come up as
+            sources, some other approach might be required.
+        """
+        # TODO Try with user defined functions and see if the below two lines
+        #  need to be reworked
+        # name = source["call"]["function"]
+        # source_list.append({"name": name, "type": "function"})
 
-    # Sort the arguments in the function call as it is used in the operation
-    input_list = sorted(set(inputs), key=inputs.index)
+        source_list = []
+        for ip in source["call"]["inputs"]:
+            if isinstance(ip, list):
+                for item in ip:
+                    if "var" in item:
+                        variable = item["var"]["variable"]
+                        source_list.append(
+                            {"name": variable, "type": "variable"})
+                    elif item.get("dtype") == "string":
+                        # TODO Do repetitions in this like in the above check
+                        #  need to be removed?
+                        source_list.append(
+                            {"name": item["value"], "type": "variable"}
+                        )
+                    elif "call" in item:
+                        source_list.extend(self.make_call_body_dict(item))
 
-    # Add type annotations to the function arguments
-    for ip in input_list:
-        annotation = state.variable_types.get(ip)
-        if not annotation:
-            # variable_types does not contain annotations for variables for
-            # indexing
-            # such as 'abc_1', etc. Check if the such variables exist and
-            # assign appropriate annotations
-            key_match = lambda var, dicn: ([i for i in dicn if i in var])
-            annotation = state.variable_types[
-                    key_match(ip, state.variable_types)[0]
-            ]
-        annotation = ANNOTATE_MAP[annotation]
-        argument_strings.append(f"{ip}: {annotation}")
+        return source_list
 
-    lambda_strings.append(
-        f"def {function_name}({', '.join(argument_strings)}):\n    "
-    )
-    # If a `decision` tag comes up, override the call to genCode to manually
-    # enter the python script for the lambda file.
-    if "__decision__" in function_name:
-        code = f"{inputs[2]} if {inputs[0]} else {inputs[1]}"
-    else:
-        code = genCode(node, PrintState("\n    "))
+    @staticmethod
+    def _process_decorators(node, state):
+        """
+            Go through each decorator and extract relevant information.
+            Currently this function only checks for the static_vars decorator
+            for the SAVEd variables and updates variable_types with the data
+            type of each variable.
+        """
+        for decorator in node:
+            decorator_function_name = decorator.func.id
+            if decorator_function_name == "static_vars":
+                for arg in decorator.args[0].elts:
+                    variable = arg.values[0].s
+                    variable_type = arg.values[2].s
+                    state.variable_types[variable] = ANNOTATE_MAP[variable_type]
 
-    if returnVal:
-        lambda_strings.append(f"return {code}")
-    else:
-        lines = code.split("\n")
-        indent = re.search("[^ ]", lines[-1]).start()
-        lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
-        lambda_strings.append("\n".join(lines))
-    lambda_strings.append("\n\n")
-    return "".join(lambda_strings)
+    @staticmethod
+    def _merge_dictionary(dicts: Iterable[Dict]) -> Dict:
+        """
+            This function merges the entire dictionary created by `gen_grfn`
+            into another dictionary in a managed manner. The `dicts` argument is
+            a list of form [{}, {}, {}] where each {} dictionary is the grfn
+            specification of a function. It contains `functions` and
+            `identifiers` as its keys. Additionally, if the python code has a
+            starting point, that is also present in the last {} of `dicts`. The
+            function merges the values from the `functions` key of each {} in
+            `dicts` into a single key of the same name. Similarly, it does this
+            for every unique key in the `dicts` dictionaries.
+        """
+        fields = set(chain.from_iterable(d.keys() for d in dicts))
+        merged_dict = {field: [] for field in fields}
 
+        # Create a cross-product between each unique key and each grfn
+        # dictionary
+        for field, d in product(fields, dicts):
+            if field in d:
+                if isinstance(d[field], list):
+                    merged_dict[field] += d[field]
+                else:
+                    merged_dict[field].append(d[field])
 
-def merge_dictionary(dicts: Iterable[Dict]) -> Dict:
-    """
-        This function merges the entire dictionary created by `gen_grfn` into
-        another dictionary in a managed manner. The `dicts` argument is a
-        list of form [{}, {}, {}] where each {} dictionary is the grfn
-        specification of a function. It contains `functions` and
-        `identifiers` as its keys. Additionally, if the python code has a
-        starting point, that is also present in the last {} of `dicts`. The
-        function merges the values from the `functions` key of each {} in
-        `dicts` into a single key of the same name. Similarly, it does this
-        for every unique key in the `dicts` dictionaries.
-    """
-    fields = set(chain.from_iterable(d.keys() for d in dicts))
-    merged_dict = {field: [] for field in fields}
+        return merged_dict
 
-    # Create a cross-product between each unique key and each grfn dictionary
-    for field, d in product(fields, dicts):
-        if field in d:
-            if isinstance(d[field], list):
-                merged_dict[field] += d[field]
+    @staticmethod
+    def _get_last_definition(var, last_definitions, last_definition_default):
+        """
+            This function returns the last (current) definition (index) of a
+            variable.
+        """
+        index = last_definition_default
+
+        # Pre-processing and removing certain Assigns which only pertain to the
+        # Python code and do not relate to the FORTRAN code in any way.
+        bypass_match = RE_BYPASS_IO.match(var)
+
+        if not bypass_match:
+            if var in last_definitions:
+                index = last_definitions[var]
             else:
-                merged_dict[field].append(d[field])
-
-    return merged_dict
-
-
-def get_function_name(function_names, basename, target):
-    # First, check whether the basename is a 'decision' block. If it is, we
-    # need to get it's index from the index of its corresponding identifier's
-    # 'assign' block. We do not use the index of the 'decision' block as that
-    # will not correspond with that of the 'assign' block.  For example: for
-    # petpt__decision__albedo, its index will be the index of the latest
-    # petpt__assign__albedo + 1
-
-    if "__decision__" in basename:
-        part_match = re.match(
-            r"(?P<body>\S+)__decision__(?P<identifier>\S+)", basename
-        )
-        if part_match:
-            new_basename = (
-                part_match.group("body")
-                + "__assign__"
-                + part_match.group("identifier")
-            )
-    else:
-        new_basename = basename
-    fnId = function_names.get(new_basename, 0)
-    if len(target) > 0:
-        if target.get("var"):
-            function_id = target["var"]["index"]
-        elif target.get("variable"):
-            fnId = target["index"]
-    if fnId < 0:
-        fnId = function_names.get(new_basename, 0)
-    function_name = f"{basename}_{fnId}"
-    function_names[basename] = fnId + 1
-    return function_name
-
-
-def get_last_definition(var, last_definitions, last_definition_default):
-    """
-        This function returns the last (current) definition (index) of a
-        variable.
-    """
-    index = last_definition_default
-
-    # Pre-processing and removing certain Assigns which only pertain to the
-    # Python code and do not relate to the FORTRAN code in any way.
-    bypass_match = RE_BYPASS_IO.match(var)
-
-    if not bypass_match:
-        if var in last_definitions:
-            index = last_definitions[var]
+                last_definitions[var] = index
+            return index
         else:
-            last_definitions[var] = index
+            return 0
+
+    @staticmethod
+    def _get_next_definition(var, last_definitions, next_definitions,
+                             last_definition_default):
+        """
+            This function returns the next definition i.e. index of a variable.
+        """
+        # The dictionary `next_definitions` holds the next index of all current
+        # variables in scope. If the variable is not found (happens when it is
+        # assigned for the first time in a scope), its index will be one greater
+        # than the last definition default.
+        index = next_definitions.get(var, last_definition_default + 1)
+        # Update the next definition index of this variable by incrementing
+        # it by
+        # 1. This will be used the next time when this variable is referenced on
+        # the LHS side of an assignment.
+        next_definitions[var] = index + 1
+        # Also update the `last_definitions` dictionary which holds the current
+        # index of all variables in scope.
+        last_definitions[var] = index
         return index
-    else:
-        return 0
 
+    @staticmethod
+    def _get_variable_type(annotation_node):
+        """
+            This function returns the data type of a variable using the
+            annotation information used to define that variable
+        """
+        # If the variable has been wrapped in a list like x: List[int],
+        # `annotation_node` will be a Subscript node
+        if isinstance(annotation_node, ast.Subscript):
+            data_type = annotation_node.slice.value.id
+        else:
+            data_type = annotation_node.id
+        if ANNOTATE_MAP.get(data_type):
+            return ANNOTATE_MAP[data_type]
+        else:
+            sys.stderr.write(
+                "Unsupported type (only float, int, list, real, bool and str "
+                "supported as of now).\n"
+            )
 
-def get_next_definition(var, last_definitions, next_definitions,
-                        last_definition_default):
-    """
-        This function returns the next definition i.e. index of a variable.
-    """
-    # The dictionary `next_definitions` holds the next index of all current
-    # variables in scope. If the variable is not found (happens when it is
-    # assigned for the first time in a scope), its index will be one greater
-    # than the last definition default.
-    index = next_definitions.get(var, last_definition_default + 1)
-    # Update the next definition index of this variable by incrementing it by
-    # 1. This will be used the next time when this variable is referenced on
-    # the LHS side of an assignment.
-    next_definitions[var] = index + 1
-    # Also update the `last_definitions` dictionary which holds the current
-    # index of all variables in scope.
-    last_definitions[var] = index
-    return index
+    @staticmethod
+    def _get_variables_and_functions(grfn):
+        variables = list(chain.from_iterable(stmt["variables"] for stmt in
+                                             grfn))
+        fns = list(chain.from_iterable(stmt["functions"] for stmt in grfn))
+        containers = list(chain.from_iterable(stmt["containers"] for stmt in
+                                              grfn))
+        return variables, fns, containers
 
+    def generate_gensym(self, tag):
+        """
+            The gensym is used to uniquely identify any identifier in the
+            program. Python's uuid library is used to generate a unique 12 digit
+            HEX string. The uuid4() function of 'uuid' focuses on randomness.
+            Each and every bit of a UUID v4 is generated randomly and with no
+            inherent logic. To every gensym, we add a tag signifying the data
+            type it represents. 'v' is for variables and 'h' is for holders.
+        """
+        return f"{self.gensym_tag_map[tag]}_{uuid.uuid4().hex[:12]}"
 
-def get_variable_type(annotation_node):
-    """
-        This function returns the data type of a variable using the
-        annotation information used to define that variable
-    """
-    # If the variable has been wrapped in a list like x: List[int],
-    # `annotation_node` will be a Subscript node
-    if isinstance(annotation_node, ast.Subscript):
-        data_type = annotation_node.slice.value.id
-    else:
-        data_type = annotation_node.id
-    if ANNOTATE_MAP.get(data_type):
-        return ANNOTATE_MAP[data_type]
-    else:
-        sys.stderr.write(
-            "Unsupported type (only float, int, list, real, bool and str "
-            "supported as of now).\n"
+    @staticmethod
+    def _generate_lambda_function(node, function_name: str, return_value: bool,
+                                  inputs, state):
+        lambda_strings = []
+        argument_strings = []
+        # Sort the arguments in the function call as it is used in the operation
+        input_list = sorted(set(inputs), key=inputs.index)
+        # Add type annotations to the function arguments
+        for ip in input_list:
+            annotation = state.variable_types.get(ip)
+            if not annotation:
+                # `variable_types` does not contain annotations for variables
+                # for indexing such as 'abc_1', etc. Check if the such variables
+                # exist and assign appropriate annotations
+                key_match = lambda var, dicn: ([i for i in dicn if i in var])
+                annotation = state.variable_types[
+                    key_match(ip, state.variable_types)[0]
+                ]
+            annotation = ANNOTATE_MAP[annotation]
+            argument_strings.append(f"{ip}: {annotation}")
+
+        lambda_strings.append(
+            f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
+        # If a `decision` tag comes up, override the call to genCode to manually
+        # enter the python script for the lambda file.
+        if "__decision__" in function_name:
+            code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
+        else:
+            lambda_code_generator = genCode()
+            code = lambda_code_generator.generate_code(node,
+                                                       PrintState("\n    ")
+                                                       )
+        if return_value:
+            lambda_strings.append(f"return {code}")
+        else:
+            lines = code.split("\n")
+            indent = re.search("[^ ]", lines[-1]).start()
+            lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
+            lambda_strings.append("\n".join(lines))
+        lambda_strings.append("\n\n")
+        return "".join(lambda_strings)
 
+    def generate_container_id_name(self, namespace_file: str, scope_path: str,
+                                   container_basename: str) -> str:
+        namespace = self._get_namespace(namespace_file)
+        if isinstance(scope_path, list):
+            scope_path_string = '.'.join(scope_path)
+        elif isinstance(scope_path, str):
+            scope_path_string = scope_path
+        else:
+            assert False, f"Invalid scope_path type {scope_path}"
+        container_id = f"@container::{namespace}::{scope_path_string}::" \
+            f"{container_basename}"
 
-def get_body_and_functions(pgm):
-    body = list(chain.from_iterable(stmt["body"] for stmt in pgm))
-    fns = list(chain.from_iterable(stmt["functions"] for stmt in pgm))
-    iden_spec = list(chain.from_iterable(stmt["identifiers"] for stmt in pgm))
-    return body, fns, iden_spec
+        return container_id
 
+    def generate_variable_definition(self, variable, state):
+        """
+            This function generates the GrFN structure for a variable
+            definition, of the form:
+            variable: {
+                        name:
+                        source_refs:
+                        gensym:
+                        domain:
+                        domain_constraints:
+                        }
+        """
+        namespace = self._get_namespace(self.fortran_file)
+        variable_name = f"@variable::{namespace}::{self.current_scope}::" \
+            f"{variable}::{state.last_definitions[variable]}"
+        variable_gensym = self.generate_gensym("variable")
+        domain = self.get_domain_dictionary(variable, state)
 
-def generate_gensym(tag):
+        # TODO Change the domain constraint. How do you figure the domain
+        #  constraint out?
+        domain_constraint = "(and (> v -infty) (< v infty)))"
+
+        variable_definition = {
+            "name": variable_name,
+            "gensym": variable_gensym,
+            "source_refs": [],
+            "domain": domain,
+            "domain_constraint": domain_constraint,
+        }
+
+        return variable_definition
+
+    def get_domain_dictionary(self, variable, state):
+        variable_type = state.variable_types[variable]
+        domain_dictionary = {
+            "name": self.type_def_map[variable_type],
+            "type": "type"
+        }
+        return domain_dictionary
+
+    def generate_function_name(self, function_type, variable):
+        """
+            This function generates the name of the function inside the
+            container wiring within the body of a container.
+        """
+        variable_spec_regex = r'@.*?::(?P<namescope>.*?::.*?)::(' \
+                              r'?P<variable>.*?)::(?P<index>.*)'
+        variable_match = re.match(variable_spec_regex, variable)
+        if variable_match:
+            namespace_scope = variable_match.group("namescope")
+            variable_name = variable_match.group("variable")
+            variable_index = variable_match.group("index")
+
+            name = namespace_scope + function_type + variable_name + "::" + \
+                variable_index
+            name = self.replace_multiple(name, ['$', '-', ':'], '_')
+            name = name.replace('.', '__')
+            if any([x in function_type for x in ["assign", "condition",
+                                                 "decision"]]):
+                spec_type = "lambda"
+            else:
+                spec_type = "None"
+        else:
+            assert False, f"Cannot match regex for variable spec: {variable}"
+
+        return {"name": name, "type": spec_type}
+
+    def load_updated(self, grfn_dict):
+        """
+            This function parses through the GrFN once and finds the
+            container spec of functions whose `updated` fields needs to be
+            filled in that functions' function call spec.
+        """
+        for container in self.function_argument_map:
+            if container in self.update_functions:
+                for container_grfn in grfn_dict[0]['containers']:
+                    for body_function in container_grfn['body']:
+                        function_name = body_function['function']['name']
+                        if function_name.startswith('@container') and \
+                                function_name.split('::')[-1] == container:
+                            updated_variable = [body_function['input'][i] for
+                                                i in self.function_argument_map[
+                                                    container][
+                                                    'updated_indices']]
+                            for i in range(len(updated_variable)):
+                                old_index = int(updated_variable[i].split(
+                                    "::")[-1])
+                                new_index = old_index + 1
+                                updated_var_list = updated_variable[i].split(
+                                    "::")[:-1]
+                                updated_var_list.append(str(new_index))
+                                updated_variable[i] = '::'.join(
+                                    updated_var_list)
+                                self.current_scope = self.update_functions[
+                                    container]['scope']
+                                variable_name = updated_var_list[1]
+                                variable_spec = \
+                                    self.generate_variable_definition(
+                                        variable_name, self.update_functions[
+                                            container]['state']
+                                    )
+                                variable_name_list = variable_spec[
+                                                         'name'
+                                                     ].split("::")[:-1]
+                                variable_name_list.append(str(new_index))
+                                variable_spec['name'] = "::".join(
+                                    variable_name_list
+                                )
+                                grfn_dict[0]['variables'].append(variable_spec)
+                            body_function['updated'] = updated_variable
+
+        return grfn_dict
+
+    @staticmethod
+    def replace_multiple(main_string, to_be_replaced, new_string):
+        """
+            Replace a set of multiple sub strings with a new string in main
+            string.
+        """
+        # Iterate over the strings to be replaced
+        for elem in to_be_replaced:
+            # Check if string is in the main string
+            if elem in main_string:
+                # Replace the string
+                main_string = main_string.replace(elem, new_string)
+
+        return main_string
+
+    @staticmethod
+    def _find_updated(argument_list, body_variable_list):
+        """
+            This function finds and generates a list of updated identifiers
+            in a container.
+        """
+        # TODO After implementing everything, check if `argument_dict` and
+        #  `body_dict` will be the same as `function_state.last_definitions`
+        #  before and after getting `body_grfn`. If so, remove the creation
+        #  of `argument_dict` and `body_dict` and use the `last_definitions`
+        #  instead
+        argument_dict = {}
+        body_dict = {}
+        updated_list = []
+        variable_regex = re.compile(r'.*::(?P<variable>.*?)::(?P<index>.*$)')
+        # First, get mapping of argument variables and their indexes
+        for var in argument_list:
+            var_match = variable_regex.match(var["name"])
+            if var_match:
+                argument_dict[var_match.group('variable')] = var_match.group(
+                    'index')
+            else:
+                assert False, f"Error when parsing argument variable " \
+                              f"{var['name']}"
+        # Now, get mapping of body variables and their latest indexes
+        for var in body_variable_list:
+            var_match = variable_regex.match(var["name"])
+            if var_match:
+                body_dict[var_match.group('variable')] = \
+                    var_match.group('index')
+            else:
+                assert False, f"Error when parsing body variable " \
+                              f"{var['name']}"
+
+        # Now loop through every argument variable over the body variable to
+        # check if the indices mismatch which would indicate an updated variable
+        for argument in argument_dict:
+            if argument in body_dict:
+                updated_list.append(f"@variable::{argument}::"
+                                    f"{body_dict[argument]}")
+
+        return updated_list
+
+    @staticmethod
+    def _check_io_variables(variable_name):
+        """
+            This function scans the variable and checks if it is an io
+            variable. It returns the status of this check i.e. True or False.
+        """
+        io_match = RE_BYPASS_IO.match(variable_name)
+        return io_match
+
+def get_path(file_name: str, instance: str):
     """
-        The gensym is used to uniquely identify any identifier in the
-        program. Python's uuid library is used to generate a unique 12 digit
-        HEX string. The uuid4() function of 'uuid' focuses on randomness.
-        Each and every bit of a UUID v4 is generated randomly and with no
-        inherent logic. To every gensym, we add a tag signifying the data
-        type it represents. 'v' is for variables and 'h' is for holders.
+        This function returns the path of a file starting from the root of
+        the delphi repository. The returned path varies depending on whether
+        it is for a namespace or a source variable, which is denoted by the
+        `instance` argument variable. It is important to note that the path
+        refers to that of the original system being analyzed i.e. the Fortran
+        code and not the intermediate Python file which is used to generate
+        the AST.
     """
-    return uuid.uuid4().hex[:12] + "_" + tag
+    if instance == "source":
+        source_match = re.match(r'[./]*(.*)', file_name)
+        assert source_match, f"Original Fortran source file for {file_name} " \
+            f"not found."
+        return source_match.group(1)
+    elif instance == "namespace":
+        source_match = re.match(r'[./]*(.*)\.', file_name)
+        assert source_match, f"Namespace path for {file_name} not found."
+        return source_match.group(1).split("/")
+    else:
+        assert False, f"Error when trying to get the path of file {file_name}."
 
-
-def make_call_body_dict(source):
-    """
-    We are going to remove addition of functions such as "max", "exp", "sin",
-    etc to the source list. The following two lines when commented helps us do
-    that. If user-defined functions come up as sources, some other approach
-    might be required.
-    """
-    # TODO Try with user defined functions and see if the below two lines need
-    #  to be reworked
-    # name = source["call"]["function"]
-    # source_list.append({"name": name, "type": "function"})
-
-    source_list = []
-    for ip in source["call"]["inputs"]:
-        if isinstance(ip, list):
-            for item in ip:
-                if "var" in item:
-                    variable = item["var"]["variable"]
-                    source_list.append({"name": variable, "type": "variable"})
-                elif item.get("dtype") == "string":
-                    # TODO Do repetitions in this like in the above check need
-                    #  to be removed?
-                    source_list.append(
-                        {"name": item["value"], "type": "variable"}
-                    )
-                elif "call" in item:
-                    source_list.extend(make_call_body_dict(item))
-
-    return source_list
-
-
-def remove_io_and_type_variables(variable_list):
-    """
-        This function scans each variable from a list of currently defined
-        variables and removes those which are related to I/O such as format
-        variables, file handles, write lists and write_lines, and type.
-    """
-    io_regex = re.compile(r"(format_\d+_obj)|(file_\d+)|(write_list_\d+)|"
-                          r"(write_line)")
-    io_match_list = [io_regex.match(var) for var in variable_list]
-
-    return [var for var in variable_list if io_match_list[
-        variable_list.index(var)] is None and var not in ANNOTATE_MAP]
 
 def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     """
@@ -2192,25 +2419,6 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
-# Get the absolute path of the python files whose PGMs are being generated.
-# TODO: For now the path is started from the directory "for2py" but need further
-#  discussion on this
-def get_path(file_name: str, instance: str):
-    absolute_path = os.path.abspath(file_name)
-
-    if instance == "namespace":
-        path_match = re.match(r".*/(for2py/.*).py$", absolute_path)
-    elif instance == "source":
-        path_match = re.match(r".*/(for2py/.*$)", absolute_path)
-    else:
-        path_match = None
-
-    if path_match:
-        return path_match.group(1).split("/")
-    else:
-        return file_name
-
-
 def create_grfn_dict(
     lambda_file: str,
     asts: List,
@@ -2238,17 +2446,32 @@ def create_grfn_dict(
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
     if grfn.get("start"):
-        grfn["start"] = grfn["start"][0]
+        grfn["start"] = [grfn["start"][0]]
     else:
-        # TODO: If the PROGRAM module is not detected, the entry point will be
-        #  the last function in the `function_defs` list of functions
-        grfn["start"] = generator.function_definitions[-1]
+        grfn["start"] = None
 
-    grfn["source"] = [[get_path(file_name, "source")]]
+    # Add the placeholder to enter the grounding and link hypothesis information
+    grfn["grounding"] = []
+    # TODO Add a placeholder for `types`. This will have to be populated when
+    #  user defined types start appearing.
+    grfn["types"] = []
+    # Get the file path of the original Fortran code being analyzed
+    source_file = get_path(original_file, "source")
+
+    # TODO Hack: Currently only the file name is being displayed as the
+    #  source in order to match the handwritten SIR model GrFN JSON. Since
+    #  the directory of the `SIR-Gillespie-SD.f` file is the root, it works
+    #  for this case but will need to be generalized for other cases.
+    file_path_list = source_file.split("/")
+    grfn["source"] = [file_path_list[-1]]
+
+    # Get the source comments from the original Fortran source file.
+    source_comments = str(dict(get_comments(original_file)))
+    grfn["source_comments"] = source_comments
 
     # dateCreated stores the date and time on which the lambda and GrFN files
     # were created. It is stored in the YYYMMDD format
-    grfn["dateCreated"] = f"{datetime.today().strftime('%Y%m%d')}"
+    grfn["date_created"] = f"{datetime.utcnow().isoformat('T')}Z"
 
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
@@ -2267,6 +2490,7 @@ def generate_ast(filename: str):
     """
     return ast.parse(tokenize.open(filename).read())
 
+
 def get_asts_from_files(file_list: List[str], printast=False) -> List:
     """
         This function returns the AST of each python file in the
@@ -2279,6 +2503,53 @@ def get_asts_from_files(file_list: List[str], printast=False) -> List:
             # If the printAst flag is set, print the AST to console
             print(dump_ast(ast_list[-1]))
     return ast_list
+
+
+def get_system_name(pyfile_list: List[str]):
+    """
+    This function returns the name of the system under analysis. Generally,
+    the system is the one which is not prefixed by `m_` (which represents
+    modules).
+    """
+    system_name = None
+    path = None
+    for file in pyfile_list:
+        if not file.startswith("m_"):
+            system_name_match = re.match(r'.*/(.*)\.py', file)
+            assert system_name_match, f"System name for file {file} not found."
+            system_name = system_name_match.group(1)
+
+            path_match = re.match(r'(.*)/.*', file)
+            assert path_match, "Target path not found"
+            path = path_match.group(1)
+
+    if not (system_name or path):
+        assert False, f"Error when trying to find the system name of the " \
+            f"analyzed program."
+
+    return system_name, path
+
+
+def generate_system_def(python_list: List[str], component_list: List[str]):
+    """
+        This function generates the system definition for the system under
+        analysis and writes this to the main system file.
+    """
+    (system_name, path) = get_system_name(python_list)
+    system_filename = f"{path}/system.json"
+    grfn_components = []
+    for component in component_list:
+        grfn_components.append({
+            "file_path": component,
+            "imports": []
+        })
+    with open(system_filename, "w") as system_file:
+        system_def = {
+            "date_created": f"{datetime.utcnow().isoformat('T')}Z",
+            "name": system_name,
+            "components": grfn_components
+        }
+        system_file.write(json.dumps(system_def, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
@@ -2319,10 +2590,15 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
             lambda_file, [ast_string], python_list[index], module_mapper,
             original_file
         )
-
+        grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, indent=2))
+
+    # Finally, write the <systems.json> file which gives a mapping of all the
+    # GrFN files related to the system.
+    generate_system_def(python_list, grfn_filepath_list)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -2362,6 +2638,13 @@ if __name__ == "__main__":
         required=False,
         help="Print ASTs",
     )
+    parser.add_argument(
+        "-g",
+        "--original_file",
+        nargs=1,
+        required=True,
+        help="Filename of the original Fortran file",
+    )
     arguments = parser.parse_args(sys.argv[1:])
 
     # Read the outputFile which contains the name of all the python files
@@ -2375,6 +2658,8 @@ if __name__ == "__main__":
 
     grfn_suffix = arguments.grfn_suffix[0]
     lambda_suffix = arguments.lambda_suffix[0]
+    fortran_file = arguments.original_file[0]
     print_ast = arguments.print_ast
 
-    process_files(python_file_list, grfn_suffix, lambda_suffix, print_ast)
+    process_files(python_file_list, grfn_suffix, lambda_suffix, fortran_file,
+                  print_ast)

@@ -278,11 +278,13 @@ def generate_grfn(
         lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
         original_fortran_file, save_file=True
     )
-    for identifier in grfn_dictionary["identifiers"]:
-        del identifier["gensyms"]
+
+    if "identifiers" in grfn_dictionary:
+        for identifier in grfn_dictionary["identifiers"]:
+            del identifier["gensyms"]
 
     if not tester_call:
-        genPGM.process_files([python_file], "GrFN.json", "lambdas.py", False)
+        genPGM.process_files([python_file], "GrFN.json", "lambdas.py", original_fortran_file, False)
 
     return grfn_dictionary
 
@@ -540,13 +542,13 @@ def fortran_to_grfn(
             json_suffix,
             translated_python_file,
             mode_mapper_dict,
-            original_fortran,
+            original_fortran_file,
         )
     else:
         #  TODO: This is related to networks.py and subsequent GrFN
         #  generation. Change the python_src index from [0][0] to incorporate
         #  all modules after all GrFN features have been added
-        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran)
+        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran_file)
 
 
 if __name__ == "__main__":
