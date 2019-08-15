@@ -386,7 +386,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             lambdas_path,
             asts,
             json_filename,
-            {"file_name": f"{stem}.py"},  # HACK
+            {"file_name": f"{stem}.py"}, # HACK
             fortran_file,
         )
         lambdas = importlib.__import__(stem + "_lambdas")

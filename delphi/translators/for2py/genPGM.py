@@ -1100,6 +1100,9 @@ class GrFNGenerator(object):
         """
         expressions = self.gen_grfn(node.value, state, "expr")
 
+        # DEBUG
+        print ("expressions: ", expressions)
+
         grfn = {"functions": [], "body": [], "identifiers": []}
         for expr in expressions:
             if "call" in expr:
@@ -1151,7 +1154,14 @@ class GrFNGenerator(object):
                     if re.match(r"file_\d+\.write", body["function"]):
                         return []
 
+                # Since the first index object (arg_idx == 0) of
+                # call["inputs"]is always an array index value when dealing with
+                # array's set_ and get_ functions, we want to keep a track of it
+                # by the argument index counter.
+                arg_idx = 0
                 for arg in call["inputs"]:
+                    # DEBUG
+                    print ("arg: ", arg)
                     # This is for collecting variables that holds
                     # a value to be assigned (set) to array
                     source_list = []
@@ -1160,12 +1170,16 @@ class GrFNGenerator(object):
                         #  arguments. But a function can have strings as
                         #  arguments as well. Do we add that?
                         if "var" in arg[0]:
-                            if arg[0]["var"] not in body["input"]:
+                            if (
+                                arg[0]["var"] not in body["input"]
+                                and (array_setter and arg_idx > 0)
+                            ):
                                 body["input"].append(arg[0]["var"])
                             # For now, we only want to collect the variables
                             # when the expression is an array setter expression.
                             if array_setter:
                                 source_list.append(arg[0]["var"]["variable"])
+                            arg_idx += 1
                         elif "call" in arg[0]:
                             assert (
                                     array_setter
@@ -1192,8 +1206,11 @@ class GrFNGenerator(object):
                             )
                             state.lambda_strings.append(lambda_string)
                     else:
-                        raise For2PyError(
-                            "Only 1 input per argument supported right now."
+                        if array_setter:
+                            pass
+                        else:
+                            raise For2PyError(
+                                "Only 1 input per argument supported right now."
                         )
                 grfn["body"].append(body)
             else:
