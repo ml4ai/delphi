@@ -1,7 +1,7 @@
 {
   "functions": [],
   "types": [],
-  "variables" : [
+  "variables": [
     {
       "name": "@variable::SIR-Gillespie-SD::main::S0::0",
       "domain": "float",
@@ -1257,7 +1257,7 @@
       "repeat": false,
       "arguments": [],
       "updated": [],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -1265,7 +1265,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::S0::0",
+          "output": [
+            "@variable::S0::0"
+          ],
           "updated": []
         },
         {
@@ -1274,7 +1276,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::I0::0",
+          "output": [
+            "@variable::I0::0"
+          ],
           "updated": []
         },
         {
@@ -1283,7 +1287,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::R0::0",
+          "output": [
+            "@variable::R0::0"
+          ],
           "updated": []
         },
         {
@@ -1292,7 +1298,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "SIR-Gillespie-SD:main::Tmax::0",
+          "output": [
+            "SIR-Gillespie-SD:main::Tmax::0"
+          ],
           "updated": []
         },
         {
@@ -1303,7 +1311,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::MeanS::0",
+          "output": [
+            "@variable::MeanS::0"
+          ],
           "updated": []
         },
         {
@@ -1314,7 +1324,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::MeanI::0",
+          "output": [
+            "@variable::MeanI::0"
+          ],
           "updated": []
         },
         {
@@ -1325,7 +1337,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::MeanR::0",
+          "output": [
+            "@variable::MeanR::0"
+          ],
           "updated": []
         },
         {
@@ -1336,7 +1350,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::VarS::0",
+          "output": [
+            "@variable::VarS::0"
+          ],
           "updated": []
         },
         {
@@ -1347,7 +1363,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::VarI::0",
+          "output": [
+            "@variable::VarI::0"
+          ],
           "updated": []
         },
         {
@@ -1358,7 +1376,9 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::VarR::0",
+          "output": [
+            "@variable::VarR::0"
+          ],
           "updated": []
         },
         {
@@ -1385,7 +1405,7 @@
             "@variable::VarI::0",
             "@variable::VarR::0"
           ],
-          "output": null
+          "output": []
         }
       ]
     },
@@ -1403,8 +1423,15 @@
         "@variable::VarI::-1",
         "@variable::VarR::-1"
       ],
-      "updated": [],
-      "return_value": null,
+      "updated": [
+        "@variable::MeanS::1",
+        "@variable::MeanI::1",
+        "@variable::MeanR::1",
+        "@variable::VarS::1",
+        "@variable::VarI::1",
+        "@variable::VarR::1"
+      ],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -1412,7 +1439,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::Tmax::0",
+          "output": [
+            "@variable::Tmax::0"
+          ],
           "updated": []
         },
         {
@@ -1421,7 +1450,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::total_runs::0",
+          "output": [
+            "@variable::total_runs::0"
+          ],
           "updated": []
         },
         {
@@ -1430,7 +1461,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::gamma::0",
+          "output": [
+            "@variable::gamma::0"
+          ],
           "updated": []
         },
         {
@@ -1439,7 +1472,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::rho::0",
+          "output": [
+            "@variable::rho::0"
+          ],
           "updated": []
         },
         {
@@ -1451,7 +1486,9 @@
             "@variable::rho::0",
             "@variable::gamma::0"
           ],
-          "output": "@variable::beta::0",
+          "output": [
+            "@variable::beta::0"
+          ],
           "updated": []
         },
         {
@@ -1462,15 +1499,17 @@
           "input": [
             "@variable::Tmax::0"
           ],
-          "output": "@variable::samples::0",
+          "output": [
+            "@variable::samples::0"
+          ],
           "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::gillespie::gillespie.loop$0",
+            "name": "@container::SIR-Gillespie-SD::gillespie::loop$0",
             "type": "function_name"
           },
-          "output": null,
+          "output": [],
           "input": [
             "@variable::Tmax::0",
             "@variable::MeanS::-1",
@@ -1497,15 +1536,19 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::n_samples::0",
+          "output": [
+            "@variable::n_samples::0"
+          ],
           "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::gillespie::pyrand",
+            "name": "@container::SIR-Gillespie-SD::@global::pyrand",
             "type": "function_name"
           },
-          "output": "@variable::randval::0",
+          "output": [
+            "@variable::randval::0"
+          ],
           "input": [
             "@literal::boolean::true"
           ],
@@ -1516,22 +1559,22 @@
             "name": "@container::SIR-Gillespie-SD::gillespie::loop$1",
             "type": "function_name"
           },
-          "output": null,
+          "output": [],
           "input": [
-            "@variable::total_runs::0",
-            "@variable::S0::-1",
-            "@variable::I0::-1",
-            "@variable::R0::-1",
             "@variable::Tmax::0",
-            "@variable::beta::0",
-            "@variable::gamma::0",
-            "@variable::samples::1",
             "@variable::MeanS::0",
             "@variable::MeanI::0",
             "@variable::MeanR::0",
             "@variable::VarS::0",
             "@variable::VarI::0",
-            "@variable::VarR::0"
+            "@variable::VarR::0",
+            "@variable::samples::1",
+            "@variable::S0::-1",
+            "@variable::I0::-1",
+            "@variable::R0::-1",
+            "@variable::beta::0",
+            "@variable::gamma::0",
+            "@variable::total_runs::0"
           ],
           "updated": [
             "@variable::MeanS::1",
@@ -1558,17 +1601,8 @@
         "@variable::means::0",
         "@variable::vars::0"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
-        {
-          "function": {
-            "name": "SIR_Gillespie_SD__update_mean_var__assign__Tmax__0",
-            "type": "lambda_source"
-          },
-          "input": [],
-          "output": "@variable::Tmax::0",
-          "updated": []
-        },
         {
           "function": {
             "name": "SIR_Gillespie_SD__update_mean_var__assign__means_k__0",
@@ -1576,11 +1610,13 @@
           },
           "input": [
             "@variable::means::-1",
-            "@variabl::n::-1",
+            "@variable::n::-1",
             "@variable::k::-1",
             "@variable::runs::-1"
           ],
-          "output": "@variable::means_k::0",
+          "output": [
+            "@variable::means::0"
+          ],
           "updated": []
         },
         {
@@ -1590,12 +1626,14 @@
           },
           "input": [
             "@variable::vars::-1",
-            "@variable::means_k::0",
+            "@variable::means::0",
             "@variable::n::-1",
             "@variable::k::-1",
             "@variable::runs::-1"
           ],
-          "output": "@variable::vars_k::0",
+          "output": [
+            "@variable::vars::0"
+          ],
           "updated": []
         }
       ]
@@ -1607,7 +1645,9 @@
         "@variable::do_init::-1"
       ],
       "updated": [],
-      "return_value": "@variable::retval::2",
+      "return_value": [
+        "@variable::retval::2"
+      ],
       "body": [
         {
           "function": {
@@ -1617,7 +1657,9 @@
           "input": [
             "@variable::do_init::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -1626,7 +1668,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::retval::0",
+          "output": [
+            "@variable::retval::0"
+          ],
           "updated": []
         },
         {
@@ -1635,7 +1679,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::retval::1",
+          "output": [
+            "@variable::retval::1"
+          ],
           "updated": []
         },
         {
@@ -1648,7 +1694,9 @@
             "@variable::retval::1",
             "@variable::IF_0::0"
           ],
-          "output": "@variable::retval::2",
+          "output": [
+            "@variable::retval::2"
+          ],
           "updated": []
         }
       ]
@@ -1675,7 +1723,7 @@
         "@variable::VarR::0",
         "@variable::samples::0"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -1683,7 +1731,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::i::0",
+          "output": [
+            "@variable::i::0"
+          ],
           "updated": []
         },
         {
@@ -1695,7 +1745,9 @@
             "@variable::i::0",
             "@variable::Tmax::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -1706,7 +1758,9 @@
           "input": [
             "@variable::IF_0::0"
           ],
-          "output": "@variable::BK::0",
+          "output": [
+            "@variable::BK::0"
+          ],
           "updated": []
         },
         {
@@ -1718,7 +1772,9 @@
             "@variable::i::0",
             "@variable::MeanS::-1"
           ],
-          "output": "@variable::MeanS_i::0",
+          "output": [
+            "@variable::MeanS::0"
+          ],
           "updated": []
         },
         {
@@ -1730,7 +1786,9 @@
             "@variable::i::0",
             "@variable::MeanI::-1"
           ],
-          "output": "@variable::MeanI_i::0",
+          "output": [
+            "@variable::MeanI::0"
+          ],
           "updated": []
         },
         {
@@ -1742,7 +1800,9 @@
             "@variable::i::0",
             "@variable::MeanR::-1"
           ],
-          "output": "@variable::MeanR_i::0",
+          "output": [
+            "@variable::MeanR::0"
+          ],
           "updated": []
         },
         {
@@ -1754,7 +1814,9 @@
             "@variable::i::0",
             "@variable::VarS::-1"
           ],
-          "output": "@variable::VarS_i::0",
+          "output": [
+            "@variable::VarS::0"
+          ],
           "updated": []
         },
         {
@@ -1766,7 +1828,9 @@
             "@variable::i::0",
             "@variable::VarI::-1"
           ],
-          "output": "@variable::VarI_i::0",
+          "output": [
+            "@variable::VarI::0"
+          ],
           "updated": []
         },
         {
@@ -1778,7 +1842,9 @@
             "@variable::i::0",
             "@variable::VarR::-1"
           ],
-          "output": "@variable::VarR_i::0",
+          "output": [
+            "@variable::VarR::0"
+          ],
           "updated": []
         },
         {
@@ -1790,7 +1856,9 @@
             "@variable::i::0",
             "@variable::samples::-1"
           ],
-          "output": "@variable::samples_i::0",
+          "output": [
+            "@variable::samples::0"
+          ],
           "updated": []
         },
         {
@@ -1801,7 +1869,9 @@
           "input": [
             "@variable::i::0"
           ],
-          "output": "@variable::i::1",
+          "output": [
+            "@variable::i::1"
+          ],
           "updated": []
         }
       ]
@@ -1826,14 +1896,14 @@
         "@variable::total_runs::-1"
       ],
       "updated": [
-        "@variable::MeanS::-1",
-        "@variable::MeanI::-1",
-        "@variable::MeanR::-1",
-        "@variable::VarS::-1",
-        "@variable::VarI::-1",
-        "@variable::VarR::-1"
+        "@variable::MeanS::1",
+        "@variable::MeanI::1",
+        "@variable::MeanR::1",
+        "@variable::VarS::1",
+        "@variable::VarI::1",
+        "@variable::VarR::1"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -1841,7 +1911,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::runs::0",
+          "output": [
+            "@variable::runs::0"
+          ],
           "updated": []
         },
         {
@@ -1853,7 +1925,9 @@
             "@variable::runs::0",
             "@variable::total_runs::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -1864,7 +1938,9 @@
           "input": [
             "@variable::IF_0::0"
           ],
-          "output": "@variable::BK::0",
+          "output": [
+            "@variable::BK::0"
+          ],
           "updated": []
         },
         {
@@ -1873,7 +1949,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::t::0",
+          "output": [
+            "@variable::t::0"
+          ],
           "updated": []
         },
         {
@@ -1884,7 +1962,9 @@
           "input": [
             "@variable::S0::-1"
           ],
-          "output": "@variable::n_S::0",
+          "output": [
+            "@variable::n_S::0"
+          ],
           "updated": []
         },
         {
@@ -1895,7 +1975,9 @@
           "input": [
             "@variable::I0::-1"
           ],
-          "output": "@variable::n_I::0",
+          "output": [
+            "@variable::n_I::0"
+          ],
           "updated": []
         },
         {
@@ -1906,7 +1988,9 @@
           "input": [
             "@variable::R0::-1"
           ],
-          "output": "@variable::n_R::0",
+          "output": [
+            "@variable::n_R::0"
+          ],
           "updated": []
         },
         {
@@ -1915,7 +1999,9 @@
             "type": "lambda_source"
           },
           "input": [],
-          "output": "@variable::sample_idx::0",
+          "output": [
+            "@variable::sample_idx::0"
+          ],
           "updated": []
         },
         {
@@ -1931,15 +2017,17 @@
             "@variable::VarS::-1",
             "@variable::VarI::-1",
             "@variable::VarR::-1",
+            "@variable::samples::-1",
             "@variable::beta::-1",
             "@variable::gamma::-1",
             "@variable::t::0",
             "@variable::n_S::0",
             "@variable::n_I::0",
             "@variable::n_R::0",
-            "@variable::sample_idx::0"
+            "@variable::sample_idx::0",
+            "@variable::runs::0"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanS::0",
             "@variable::MeanI::0",
@@ -1947,6 +2035,7 @@
             "@variable::VarS::0",
             "@variable::VarI::0",
             "@variable::VarR::0",
+            "@variable::t::1",
             "@variable::n_S::1",
             "@variable::n_I::1",
             "@variable::n_R::1",
@@ -1960,7 +2049,6 @@
           },
           "input": [
             "@variable::Tmax::-1",
-            "@variable::runs::0",
             "@variable::MeanS::0",
             "@variable::MeanI::0",
             "@variable::MeanR::0",
@@ -1968,12 +2056,14 @@
             "@variable::VarI::0",
             "@variable::VarR::0",
             "@variable::samples::-1",
-            "@variable::sample_idx::1",
+            "@variable::t::1",
             "@variable::n_S::1",
             "@variable::n_I::1",
-            "@variable::n_R::1"
+            "@variable::n_R::1",
+            "@variable::sample_idx::1",
+            "@variable::runs::0"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanS::1",
             "@variable::MeanI::1",
@@ -1992,7 +2082,9 @@
           "input": [
             "@variable::runs::0"
           ],
-          "output": "@variable::runs::1",
+          "output": [
+            "@variable::runs::1"
+          ],
           "updated": []
         }
       ]
@@ -2015,7 +2107,8 @@
         "@variable::n_S::-1",
         "@variable::n_I::-1",
         "@variable::n_R::-1",
-        "@variable::sample_idx::-1"
+        "@variable::sample_idx::-1",
+        "@variable::runs::-1"
       ],
       "updated": [
         "@variable::t::0",
@@ -2030,7 +2123,7 @@
         "@variable::n_I::3",
         "@variable::n_R::1"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -2042,7 +2135,9 @@
             "@variable::Tmax::-1",
             "@variable::n_I::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -2053,7 +2148,9 @@
           "input": [
             "@variable::IF_0::0"
           ],
-          "output": "@variable::BK::0",
+          "output": [
+            "@variable::BK::0"
+          ],
           "updated": []
         },
         {
@@ -2067,7 +2164,9 @@
             "@variable::n_I::-1",
             "@variable::n_R::-1"
           ],
-          "output": "@variable::rateInfect::0",
+          "output": [
+            "@variable::rateInfect::0"
+          ],
           "updated": []
         },
         {
@@ -2079,7 +2178,9 @@
             "@variable::gamma::-1",
             "@variable::n_I::-1"
           ],
-          "output": "@variable::rateRecover::0",
+          "output": [
+            "@variable::rateRecover::0"
+          ],
           "updated": []
         },
         {
@@ -2091,7 +2192,9 @@
             "@variable::rateInfect::0",
             "@variable::rateRecover::0"
           ],
-          "output": "@variable::totalRates::0",
+          "output": [
+            "@variable::totalRates::0"
+          ],
           "updated": []
         },
         {
@@ -2102,7 +2205,9 @@
           "input": [
             "@literal::boolean::false"
           ],
-          "output": "@variable::randval::0",
+          "output": [
+            "@variable::randval::0"
+          ],
           "updated": []
         },
         {
@@ -2114,7 +2219,9 @@
             "@variable::randval::0",
             "@variable::totalRates::0"
           ],
-          "output": "@variable::dt::0",
+          "output": [
+            "@variable::dt::0"
+          ],
           "updated": []
         },
         {
@@ -2126,7 +2233,9 @@
             "@variable::t::-1",
             "@variable::dt::0"
           ],
-          "output": "@variable::t::0",
+          "output": [
+            "@variable::t::0"
+          ],
           "updated": []
         },
         {
@@ -2135,22 +2244,22 @@
             "type": "function_name"
           },
           "input": [
-            "@variable::sample_idx::-1",
-            "@variable::t::0",
             "@variable::Tmax::-1",
-            "@variable::samples::-1",
             "@variable::MeanS::-1",
             "@variable::MeanI::-1",
             "@variable::MeanR::-1",
             "@variable::VarS::-1",
             "@variable::VarI::-1",
             "@variable::VarR::-1",
+            "@variable::samples::-1",
+            "@variable::t::0",
             "@variable::n_S::-1",
             "@variable::n_I::-1",
             "@variable::n_R::-1",
-            "@variable::runs::-1"
+            "@variable::runs::-1",
+            "@variable::sample_idx::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanS::0",
             "@variable::MeanI::0",
@@ -2169,7 +2278,9 @@
           "input": [
             "@literal::boolean::false"
           ],
-          "output": "@variable::randval::1",
+          "output": [
+            "@variable::randval::1"
+          ],
           "updated": []
         },
         {
@@ -2182,7 +2293,9 @@
             "@variable::rateInfect::0",
             "@variable::totalRates::0"
           ],
-          "output": "@variable::IF_1::0",
+          "output": [
+            "@variable::IF_1::0"
+          ],
           "updated": []
         },
         {
@@ -2193,7 +2306,9 @@
           "input": [
             "@variable::n_S::-1"
           ],
-          "output": "@variable::n_S::0",
+          "output": [
+            "@variable::n_S::0"
+          ],
           "updated": []
         },
         {
@@ -2204,7 +2319,9 @@
           "input": [
             "@variable::n_I::-1"
           ],
-          "output": "@variable::n_I::0",
+          "output": [
+            "@variable::n_I::0"
+          ],
           "updated": []
         },
         {
@@ -2217,7 +2334,9 @@
             "@variable::n_S::0",
             "@variable::IF_1::0"
           ],
-          "output": "@variable::n_S::1",
+          "output": [
+            "@variable::n_S::1"
+          ],
           "updated": []
         },
         {
@@ -2230,7 +2349,9 @@
             "@variable::n_I::0",
             "@variable::IF_1::0"
           ],
-          "output": "@variable::n_I::1",
+          "output": [
+            "@variable::n_I::1"
+          ],
           "updated": []
         },
         {
@@ -2241,7 +2362,9 @@
           "input": [
             "@variable::n_I::-1"
           ],
-          "output": "@variable::n_I::2",
+          "output": [
+            "@variable::n_I::2"
+          ],
           "updated": []
         },
         {
@@ -2252,7 +2375,9 @@
           "input": [
             "@variable::n_R::-1"
           ],
-          "output": "@variable::n_R::0",
+          "output": [
+            "@variable::n_R::0"
+          ],
           "updated": []
         },
         {
@@ -2265,7 +2390,9 @@
             "@variable::n_I::2",
             "@variable::IF_1::0"
           ],
-          "output": "@variable::n_I::3",
+          "output": [
+            "@variable::n_I::3"
+          ],
           "updated": []
         },
         {
@@ -2278,7 +2405,9 @@
             "@variable::n_R::0",
             "@variable::IF_1::0"
           ],
-          "output": "@variable::n_R::1",
+          "output": [
+            "@variable::n_R::1"
+          ],
           "updated": []
         }
       ]
@@ -2311,7 +2440,7 @@
         "@variable::VarR::0",
         "@variable::sample_idx::0"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -2324,7 +2453,9 @@
             "@variable::t::-1",
             "@variable::samples::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -2335,7 +2466,9 @@
           "input": [
             "@variable::IF_0::0"
           ],
-          "output": "@variable::BK::0",
+          "output": [
+            "@variable::BK::0"
+          ],
           "updated": []
         },
         {
@@ -2347,7 +2480,9 @@
             "@variable::samples::-1",
             "@variable::sample_idx::-1"
           ],
-          "output": "@variable::sample::0",
+          "output": [
+            "@variable::sample::0"
+          ],
           "updated": []
         },
         {
@@ -2362,7 +2497,7 @@
             "@variable::n_S::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanS::0",
             "@variable::VarS::0"
@@ -2380,7 +2515,7 @@
             "@variable::n_I::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanI::0",
             "@variable::VarI::0"
@@ -2398,7 +2533,7 @@
             "@variable::n_R::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanR::0",
             "@variable::VarR::0"
@@ -2412,7 +2547,9 @@
           "input": [
             "@variable::sample_idx::-1"
           ],
-          "output": "@variable::sample_idx::0",
+          "output": [
+            "@variable::sample_idx::0"
+          ],
           "updated": []
         }
       ]
@@ -2433,8 +2570,8 @@
         "@variable::n_S::-1",
         "@variable::n_I::-1",
         "@variable::n_R::-1",
-        "@variable::runs::-1",
-        "@variable::sample_idx::-1"
+        "@variable::sample_idx::-1",
+        "@variable::runs::-1"
       ],
       "updated": [
         "@variable::MeanS::0",
@@ -2445,7 +2582,7 @@
         "@variable::VarR::0",
         "@variable::sample_idx::0"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -2456,7 +2593,9 @@
             "@variable::sample_idx::-1",
             "@variable::Tmax::-1"
           ],
-          "output": "@variable::IF_0::0",
+          "output": [
+            "@variable::IF_0::0"
+          ],
           "updated": []
         },
         {
@@ -2467,7 +2606,9 @@
           "input": [
             "@variable::IF_0::0"
           ],
-          "output": "@variable::BK::0",
+          "output": [
+            "@variable::BK::0"
+          ],
           "updated": []
         },
         {
@@ -2479,7 +2620,9 @@
             "@variable::samples::-1",
             "@variable::sample_idx::-1"
           ],
-          "output": "@variable::sample::0",
+          "output": [
+            "@variable::sample::0"
+          ],
           "updated": []
         },
         {
@@ -2494,7 +2637,7 @@
             "@variable::n_S::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanS::0",
             "@variable::VarS::0"
@@ -2512,7 +2655,7 @@
             "@variable::n_I::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanI::0",
             "@variable::VarI::0"
@@ -2530,7 +2673,7 @@
             "@variable::n_R::-1",
             "@variable::runs::-1"
           ],
-          "output": null,
+          "output": [],
           "updated": [
             "@variable::MeanR::0",
             "@variable::VarR::0"
@@ -2544,7 +2687,9 @@
           "input": [
             "@variable::sample_idx::-1"
           ],
-          "output": "@variable::sample_idx::0",
+          "output": [
+            "@variable::sample_idx::0"
+          ],
           "updated": []
         }
       ]
