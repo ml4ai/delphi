@@ -619,14 +619,30 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   return make_pair(G, gvc);
 }
 
+/** Output the graph in DOT format */
 string AnalysisGraph::to_dot() {
   auto [G, gvc] = this->to_agraph();
-  stringstream buffer;
-  streambuf* old = cout.rdbuf(buffer.rdbuf());
+
+  stringstream sstream;
+  stringbuf* sstream_buffer;
+  streambuf* original_cout_buffer;
+
+  // Back up original cout buffer
+  original_cout_buffer = cout.rdbuf();
+  sstream_buffer = sstream.rdbuf();
+
+  // Redirect cout to sstream
+  cout.rdbuf(sstream_buffer);
+
   gvRender(gvc, G, "dot", stdout);
   agclose(G);
   gvFreeContext(gvc);
-  return buffer.str();
+
+  // Restore cout's original buffer
+  cout.rdbuf(original_cout_buffer);
+
+  // Return the string with the graph in DOT format
+  return sstream.str();
 }
 
 void AnalysisGraph::to_png(string filename) {

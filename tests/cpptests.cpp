@@ -26,6 +26,7 @@ TEST_CASE("Testing model training") {
                       "New asylum seeking applicants",
                       "UNHCR");
   G.to_png();
+  cout << G.to_dot() << endl;
 
   G.train_model(2015, 1, 2015, 12, 100, 900);
 
