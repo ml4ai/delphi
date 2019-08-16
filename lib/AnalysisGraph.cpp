@@ -199,37 +199,39 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
       auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
       if (!subj.is_null() and !obj.is_null()) {
 
-        string subj_str = subj.dump();
-        string obj_str = obj.dump();
+        string subj_str = subj.get<std::string>();
+        string obj_str = obj.get<std::string>();
 
-        // Add the nodes to the graph if they are not in it already
-        for (string name : {subj_str, obj_str}) {
-          if (nameMap.find(name) == nameMap.end()) {
-            int v = boost::add_vertex(G);
-            nameMap[name] = v;
-            G[v].name = name;
+        if(subj_str.compare(obj_str) != 0) { // Guard against self loops
+          // Add the nodes to the graph if they are not in it already
+          for (string name : {subj_str, obj_str}) {
+            if (nameMap.find(name) == nameMap.end()) {
+              int v = boost::add_vertex(G);
+              nameMap[name] = v;
+              G[v].name = name;
+            }
           }
-        }
 
-        // Add the edge to the graph if it is not in it already
-        auto [e, exists] =
+          // Add the edge to the graph if it is not in it already
+          auto [e, exists] =
             boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
-        for (auto evidence : stmt["evidence"]) {
-          auto annotations = evidence["annotations"];
-          auto subj_adjectives = annotations["subj_adjectives"];
-          auto obj_adjectives = annotations["obj_adjectives"];
-          auto subj_adjective =
+          for (auto evidence : stmt["evidence"]) {
+            auto annotations = evidence["annotations"];
+            auto subj_adjectives = annotations["subj_adjectives"];
+            auto obj_adjectives = annotations["obj_adjectives"];
+            auto subj_adjective =
               (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-                  ? subj_adjectives[0]
-                  : "None";
-          auto obj_adjective =
+              ? subj_adjectives[0]
+              : "None";
+            auto obj_adjective =
               (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
-          auto subj_polarity = annotations["subj_polarity"];
-          auto obj_polarity = annotations["obj_polarity"];
+            auto subj_polarity = annotations["subj_polarity"];
+            auto obj_polarity = annotations["obj_polarity"];
 
-          Event subject{subj_adjective, subj_polarity, ""};
-          Event object{obj_adjective, obj_polarity, ""};
-          G[e].evidence.push_back(Statement{subject, object});
+            Event subject{subj_adjective, subj_polarity, ""};
+            Event object{obj_adjective, obj_polarity, ""};
+            G[e].evidence.push_back(Statement{subject, object});
+          }
         }
       }
     }
@@ -675,20 +677,22 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
     string subj_name = subject.concept_name;
     string obj_name = object.concept_name;
 
-    // Add the nodes to the graph if they are not in it already
-    for (string name : {subj_name, obj_name}) {
-      if (nameMap.find(name) == nameMap.end()) {
-        int v = boost::add_vertex(G);
-        nameMap[name] = v;
-        G[v].name = name;
+    if(subj_name.compare(obj_name) != 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      for (string name : {subj_name, obj_name}) {
+        if (nameMap.find(name) == nameMap.end()) {
+          int v = boost::add_vertex(G);
+          nameMap[name] = v;
+          G[v].name = name;
+        }
       }
-    }
 
-    // Add the edge to the graph if it is not in it already
-    auto [e, exists] =
+      // Add the edge to the graph if it is not in it already
+      auto [e, exists] =
         boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
-    G[e].evidence.push_back(Statement{subject, object});
+      G[e].evidence.push_back(Statement{subject, object});
+    }
   }
   AnalysisGraph ag = AnalysisGraph(G, nameMap);
   ag.initialize_random_number_generator();
@@ -1001,16 +1005,23 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
   string subj_name = subject.concept_name;
   string obj_name = object.concept_name;
 
-  // Add the nodes to the graph if they are not in it already
-  this->add_node(subj_name);
-  this->add_node(obj_name);
+  if(subj_name.compare(obj_name) != 0) { // Guard against self loops
+    // Add the nodes to the graph if they are not in it already
+    this->add_node(subj_name);
+    this->add_node(obj_name);
 
-  // Add the edge to the graph if it is not in it already
-  auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
-                                     this->name_to_vertex[obj_name],
-                                     this->graph);
+    // Add the edge to the graph if it is not in it already
+    auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
+        this->name_to_vertex[obj_name],
+        this->graph);
 
-  this->graph[e].evidence.push_back(Statement{subject, object});
+    this->graph[e].evidence.push_back(Statement{subject, object});
+  }
+  else {
+    cerr << "AnalysisGraph::add_edge\n"
+         << "\tWARNING: Prevented adding a self loop for the concept "
+         << subj_name << endl;
+  }
 }
 
 void AnalysisGraph::change_polarity_of_edge(string source_concept,
