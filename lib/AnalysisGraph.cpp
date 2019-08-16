@@ -417,13 +417,13 @@ class AnalysisGraph {
 
     for (auto stmt : json_data) {
       if (stmt["type"] == "Influence" and
-          stmt["belief"] > belief_score_cutoff) {
+          stmt["belief"] >= belief_score_cutoff) {
         auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
         auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
         if (!subj.is_null() and !obj.is_null()) {
 
-          string subj_str = subj.dump();
-          string obj_str = obj.dump();
+          string subj_str = subj.get<std::string>();
+          string obj_str = obj.get<std::string>();
 
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
@@ -449,6 +449,12 @@ class AnalysisGraph {
                 (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
             auto subj_polarity = annotations["subj_polarity"];
             auto obj_polarity = annotations["obj_polarity"];
+            if(subj_polarity.is_null()){
+              subj_polarity = 1;
+            }
+            if(obj_polarity.is_null()){
+              obj_polarity = 1;
+            }
 
             Event subject{subj_adjective, subj_polarity, ""};
             Event object{obj_adjective, obj_polarity, ""};
