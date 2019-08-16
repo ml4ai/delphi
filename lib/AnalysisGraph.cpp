@@ -514,16 +514,16 @@ class AnalysisGraph {
    * @param concept: The concept where the subgraph is about.
    * @param depth  : The maximum number of hops from the concept provided
    *                 to be included in the subgraph.
-   * #param reverse: Sets the direction of the causal influence flow to
+   * #param inward: Sets the direction of the causal influence flow to
    *                 examine.
-   *                 False - (default) A subgraph with all the paths ending
+   *                 false  - (default) A subgraph rooted at the concept provided.
+   *                 true - A subgraph with all the paths ending
    *                         at the concept provided.
-   *                 True  - A subgraph rooted at the concept provided.
    *
    */
   AnalysisGraph get_subgraph_for_concept(string concept,
                                          int depth = 1,
-                                         bool reverse = false) {
+                                         bool inward = false) {
 
     int vert_id =
         get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
@@ -533,7 +533,7 @@ class AnalysisGraph {
     unordered_set<int> vertices_to_keep = unordered_set<int>();
     unordered_set<string> vertices_to_remove;
 
-    if (reverse) {
+    if (inward) {
       // All paths of length less than or equal to depth ending at vert_id
       for (int col = 0; col < num_verts; ++col) {
         if (this->A_beta_factors[vert_id][col]) {
