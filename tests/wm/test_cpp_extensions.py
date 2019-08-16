@@ -4,7 +4,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from tqdm import trange
 
-from delphi.cpp.AnalysisGraph import AnalysisGraph, Indicator
+from delphi.cpp.DelphiPython import AnalysisGraph, Indicator
 
 
 def test_cpp_extensions():
@@ -20,20 +20,29 @@ def test_cpp_extensions():
 
 def test_simple_path_construction():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
-    G.add_node()
-    G.add_node()
-    #G.add_node()
-    #G.add_node()
+    G.add_node('c0')
+    G.add_node('c1')
+    G.add_node('c2')
+    #G.add_node('c3')
+    #G.add_node('c4')
 
     print( 'Nodes of the graph:' )
     G.print_nodes()
 
+    G.add_edge((("", 1, "c0"), ("", 1, "c1")))
+    G.add_edge((("", 1, "c1"), ("", 1, "c2")))
+    #G.add_edge((("", 1, "c1"), ("", 1, "c3")))
+    #G.add_edge((("", 1, "c2"), ("", 1, "c3")))
+    G.add_edge((("", 1, "c0"), ("", 1, "c2")))
+    G.add_edge((("", 1, "c3"), ("", 1, "c1")))# Creates a loop 1 -> 2 -> 3 -> 1
+    '''
     G.add_edge(0,1)
     G.add_edge(1,2)
     #G.add_edge(1,3)
     #G.add_edge(2,3)
     G.add_edge(0,2)
     G.add_edge(3,1) # Creates a loop 1 -> 2 -> 3 -> 1
+    '''
 
     print( 'Edges of the graph:' )
     G.print_edges()

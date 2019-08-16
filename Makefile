@@ -1,3 +1,5 @@
+all: extensions
+
 docs:
 	cd docs; make html
 
