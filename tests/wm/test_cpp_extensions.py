@@ -4,7 +4,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from tqdm import trange
 
-from delphi.cpp.AnalysisGraph import AnalysisGraph, Indicator
+from delphi.cpp.DelphiPython import AnalysisGraph, Indicator
 
 
 def test_cpp_extensions():

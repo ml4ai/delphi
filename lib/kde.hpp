@@ -1,16 +1,10 @@
 #pragma once
 
-#include <random>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/range/adaptors.hpp>
-#include <boost/range/algorithm/for_each.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/range/numeric.hpp>
 #include "rng.hpp"
 #include "utils.hpp"
-
 
 /**
  * Returns a randomly selected element of a vector.
@@ -42,25 +36,12 @@ public:
   KDE () {};
   std::vector<double> dataset;
   double bw; // bandwidth
+  KDE(std::vector<double>);
   
   // TODO: Made this public just to initialize β.
   // Not sure this is the correct way to do it.
   double mu;
 
-  KDE(std::vector<double> v) : dataset(v) {
-    using boost::adaptors::transformed;
-    using boost::lambda::_1;
-    using utils::mean;
-
-    // Compute the bandwidth using Silverman's rule
-    mu = mean(v);
-    auto X = v | transformed(_1 - mu);
-
-    // Compute standard deviation of the sample.
-    size_t N = v.size();
-    double stdev = sqrt(inner_product(X, X, 0.0) / (N - 1));
-    bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
-  }
 
   std::vector<double> resample(int n_samples);
   double pdf(double x);

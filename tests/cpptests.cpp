@@ -1,8 +1,9 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "AnalysisGraph.cpp"
+#include "AnalysisGraph.hpp"
 #include "doctest.h"
-#include "rng.hpp"
+#include <fmt/core.h>
 
+using namespace std;
 vector<CausalFragment> causal_fragments = {
     {{"large", -1, "UN/entities/human/financial/economic/inflation"},
      {"small", 1, "UN/events/human/human_migration"}},
@@ -25,6 +26,7 @@ TEST_CASE("Testing model training") {
                       "New asylum seeking applicants",
                       "UNHCR");
   G.to_png();
+  cout << G.to_dot() << endl;
 
   G.train_model(2015, 1, 2015, 12, 100, 900);
 

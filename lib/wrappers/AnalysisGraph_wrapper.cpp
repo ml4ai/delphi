@@ -2,12 +2,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "AnalysisGraph.cpp"
+#include "AnalysisGraph.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
+using namespace std;
 
-PYBIND11_MODULE(AnalysisGraph, m) {
+PYBIND11_MODULE(DelphiPython, m) {
   py::enum_<InitialBeta>(m, "InitialBeta")
       .value("ZERO", InitialBeta::ZERO)
       .value("ONE", InitialBeta::ONE)
@@ -162,4 +163,25 @@ PYBIND11_MODULE(AnalysisGraph, m) {
       .def_static("rng", &RNG::rng)
       .def("set_seed", &RNG::set_seed, "seed"_a)
       .def("get_seed", &RNG::get_seed);
+
+  py::class_<KDE>(m, "KDE")
+      .def(py::init<vector<double>>())
+      .def("resample", &KDE::resample)
+      .def("pdf",
+           py::overload_cast<double>(&KDE::pdf),
+           "Evaluate pdf for a single value")
+      .def("pdf",
+           py::overload_cast<vector<double>>(&KDE::pdf),
+           "Evaluate pdf for a list of values")
+      .def("logpdf", &KDE::logpdf)
+      .def_readwrite("dataset", &KDE::dataset)
+      .def(py::pickle([](KDE &kde) { return py::make_tuple(kde.dataset); },
+                      [](py::tuple t) {
+                        if (t.size() != 1)
+                          throw std::runtime_error("Invalid state!");
+
+                        KDE kde(t[0].cast<vector<double>>());
+                        return kde;
+                      }));
+
 }

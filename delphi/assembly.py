@@ -27,7 +27,7 @@ def constructConditionalPDF(
     """ Construct a conditional probability density function for a particular
     AnalysisGraph edge. """
 
-    from .cpp.kde import KDE
+    from .cpp.DelphiPython import KDE
     adjective_response_dict = {}
     all_θs = []
 

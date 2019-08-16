@@ -1,4 +1,4 @@
-from delphi.cpp.AnalysisGraph import AnalysisGraph, InitialBeta
+from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta
 import pytest
 from matplotlib import pyplot as plt
 from tqdm import trange
