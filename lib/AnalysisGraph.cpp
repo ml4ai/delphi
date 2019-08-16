@@ -249,8 +249,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 }
 
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      int depth = 1,
-                                                       bool inward = false) {
+                                                      int depth,
+                                                      bool inward) {
 
   int vert_id =
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
