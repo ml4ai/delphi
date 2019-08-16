@@ -238,6 +238,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   ag.initialize_random_number_generator();
   return ag;
 }
+
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       int depth,
                                                       bool reverse) {
