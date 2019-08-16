@@ -70,7 +70,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     }
   }
 
-  for (auto& [k, v] : adjective_response_map) {
+  for (auto & [ k, v ] : adjective_response_map) {
     v = KDE(v).resample(n_kernels);
   }
   sqlite3_finalize(stmt);
@@ -435,7 +435,7 @@ class AnalysisGraph {
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] =
+          auto[e, exists] =
               boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
@@ -491,7 +491,7 @@ class AnalysisGraph {
       }
 
       // Add the edge to the graph if it is not in it already
-      auto [e, exists] =
+      auto[e, exists] =
           boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
       G[e].evidence.push_back(Statement{subject, object});
@@ -673,7 +673,19 @@ class AnalysisGraph {
     this->find_all_paths();
   }
 
-  auto add_node() { return boost::add_vertex(graph); }
+  // auto add_node() { return boost::add_vertex(graph); }
+
+  void add_node(string concept) {
+    if (this->name_to_vertex.find(concept) == this->name_to_vertex.end()) {
+      int v = boost::add_vertex(this->graph);
+      this->name_to_vertex[concept] = v;
+      this->graph[v].name = concept;
+    }
+    else {
+      fmt::print("AnalysisGraph::add_node()\n\tconcept {} already exists!\n",
+                 concept);
+    }
+  }
 
   void remove_node(string concept) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
@@ -711,7 +723,8 @@ class AnalysisGraph {
       {
         // Note: This is an overlaoded private method that takes in a vertex id
         this->remove_node(node_to_remove.mapped());
-      } else // Concept is not in the CAG
+      }
+      else // Concept is not in the CAG
       {
         invalid_concept_s.push_back(concept);
       }
@@ -734,12 +747,26 @@ class AnalysisGraph {
     }
   }
 
-  void add_edge(int i, int j) { boost::add_edge(i, j, this->graph); }
+  // void add_edge(int i, int j) { boost::add_edge(i, j, this->graph); }
 
-  // auto add_edge(string source, string target) {
-  // boost::add_edge(
-  // this->name_to_vertex[source], this->name_to_vertex[target], graph);
-  //}
+  void add_edge(CausalFragment causal_fragment) {
+    Event subject = Event(causal_fragment.first);
+    Event object = Event(causal_fragment.second);
+
+    string subj_name = subject.concept_name;
+    string obj_name = object.concept_name;
+
+    // Add the nodes to the graph if they are not in it already
+    this->add_node(subj_name);
+    this->add_node(obj_name);
+
+    // Add the edge to the graph if it is not in it already
+    auto[e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
+                                      this->name_to_vertex[obj_name],
+                                      this->graph);
+
+    this->graph[e].evidence.push_back(Statement{subject, object});
+  }
 
   void remove_edge(string src, string tgt) {
     int src_id = -1;
@@ -910,7 +937,7 @@ class AnalysisGraph {
         }
       }
 
-      auto [edge, is_new_edge] =
+      auto[edge, is_new_edge] =
           boost::add_edge(predecessor, this->name_to_vertex[n2], this->graph);
       for (auto s : this->graph[e].evidence) {
         this->graph[edge].evidence.push_back(s);
@@ -926,7 +953,7 @@ class AnalysisGraph {
         }
       }
 
-      auto [edge, is_new_edge] =
+      auto[edge, is_new_edge] =
           boost::add_edge(this->name_to_vertex[n2], successor, this->graph);
       for (auto stmt : this->graph[e].evidence) {
         this->graph[edge].evidence.push_back(stmt);
@@ -939,8 +966,8 @@ class AnalysisGraph {
    * Merges the CAG nodes for the two concepts concept_1 and concept_2
    * with the option to specify relative polarity.
    */
-  void merge_nodes(string concept_1, string concept_2,
-                   bool same_polarity = true) {
+  void
+  merge_nodes(string concept_1, string concept_2, bool same_polarity = true) {
     int vertex_remove = get_vertex_id_for_concept(concept_1, "merge_nodes()");
     int vertex_keep = get_vertex_id_for_concept(concept_2, "merge_nodes()");
 
@@ -982,12 +1009,13 @@ class AnalysisGraph {
       // Move all the evidence from vertex_delete to the
       // newly created (or existing) edge
       // predecessor --> vertex_keep
-      vector<Statement> &evidence_keep = this->graph[edg_keep].evidence;
-      vector<Statement> &evidence_move = this->graph[edg_remove].evidence;
+      vector<Statement>& evidence_keep = this->graph[edg_keep].evidence;
+      vector<Statement>& evidence_move = this->graph[edg_remove].evidence;
 
       evidence_keep.resize(evidence_keep.size() + evidence_move.size());
 
-      std::move(evidence_move.begin(), evidence_move.end(),
+      std::move(evidence_move.begin(),
+                evidence_move.end(),
                 evidence_keep.end() - evidence_move.size());
     }
 
@@ -1011,12 +1039,13 @@ class AnalysisGraph {
       // Move all the evidence from vertex_delete to the
       // newly created (or existing) edge
       // vertex_keep --> successor
-      vector<Statement> &evidence_keep = this->graph[edg_keep].evidence;
-      vector<Statement> &evidence_move = this->graph[edg_remove].evidence;
+      vector<Statement>& evidence_keep = this->graph[edg_keep].evidence;
+      vector<Statement>& evidence_move = this->graph[edg_remove].evidence;
 
       evidence_keep.resize(evidence_keep.size() + evidence_move.size());
 
-      std::move(evidence_move.begin(), evidence_move.end(),
+      std::move(evidence_move.begin(),
+                evidence_move.end(),
                 evidence_keep.end() - evidence_move.size());
     }
 
@@ -1049,7 +1078,7 @@ class AnalysisGraph {
     double sigma_Y = 1.0;
     auto adjective_response_map = construct_adjective_response_map();
     vector<double> marginalized_responses;
-    for (auto [adjective, responses] : adjective_response_map) {
+    for (auto[adjective, responses] : adjective_response_map) {
       for (auto response : responses) {
         marginalized_responses.push_back(response);
       }
@@ -1077,7 +1106,7 @@ class AnalysisGraph {
             [&](auto x) { return x * object.polarity; },
             get(adjective_response_map, obj_adjective, marginalized_responses));
 
-        for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
+        for (auto[x, y] : iter::product(subj_responses, obj_responses)) {
           all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
         }
       }
@@ -1210,7 +1239,7 @@ class AnalysisGraph {
     }
 
     // Update the β factor dependent cells of this matrix
-    for (auto& [row, col] : this->beta_dependent_cells) {
+    for (auto & [ row, col ] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) =
           // this->A_beta_factors[row][col]->sample_from_prior(this->graph);
           this->A_beta_factors[row][col]->compute_cell(this->graph);
@@ -1766,8 +1795,8 @@ class AnalysisGraph {
 
     for (int samp = 0; samp < this->res; samp++) {
       for (int ts = 0; ts < this->pred_timesteps; ts++) {
-        for (auto [vert_name, vert_id] : this->name_to_vertex) {
-          for (auto [ind_name, ind_id] : this->graph[vert_id].indicator_names) {
+        for (auto[vert_name, vert_id] : this->name_to_vertex) {
+          for (auto[ind_name, ind_id] : this->graph[vert_id].indicator_names) {
             result[samp][ts][vert_name][ind_name] =
                 this->predicted_observed_state_sequence_s[samp][ts][vert_id]
                                                          [ind_id];
@@ -1804,8 +1833,8 @@ class AnalysisGraph {
     // TODO: We can make this more efficient by making indicators_in_CAG
     // a map from indicator names to vertices they are attached to.
     // This is just a quick and dirty implementation
-    for (auto [v_name, v_id] : this->name_to_vertex) {
-      for (auto [i_name, i_id] : this->graph[v_id].indicator_names) {
+    for (auto[v_name, v_id] : this->name_to_vertex) {
+      for (auto[i_name, i_id] : this->graph[v_id].indicator_names) {
         if (indicator.compare(i_name) == 0) {
           vert_id = v_id;
           ind_id = i_id;
@@ -2318,7 +2347,7 @@ class AnalysisGraph {
                     map<string, string> units = {}) {
     double stdev;
     for (int v : this->vertices()) {
-      for (auto [name, i] : this->graph[v].indicator_names) {
+      for (auto[name, i] : this->graph[v].indicator_names) {
         if (units.find(name) != units.end()) {
           this->graph[v].indicators[i].set_unit(units[name]);
           this->graph[v].indicators[i].set_mean(
@@ -2354,7 +2383,7 @@ class AnalysisGraph {
   }
 
   void print_name_to_vertex() {
-    for (auto [name, vert] : this->name_to_vertex) {
+    for (auto[name, vert] : this->name_to_vertex) {
       cout << name << " -> " << vert << endl;
     }
     cout << endl;
@@ -2408,7 +2437,7 @@ class AnalysisGraph {
   }
 
   string to_dot() {
-    auto [G, gvc] = this->to_agraph();
+    auto[G, gvc] = this->to_agraph();
     stringstream buffer;
     streambuf* old = cout.rdbuf(buffer.rdbuf());
     gvRender(gvc, G, "dot", stdout);
@@ -2418,7 +2447,7 @@ class AnalysisGraph {
   }
 
   void to_png(string filename = "CAG.png") {
-    auto [G, gvc] = this->to_agraph();
+    auto[G, gvc] = this->to_agraph();
     gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
     gvFreeLayout(gvc, G);
     agclose(G);
@@ -2428,7 +2457,7 @@ class AnalysisGraph {
   auto print_indicators() {
     for (int v : this->vertices()) {
       cout << "node " << v << ": " << this->graph[v].name << ":" << endl;
-      for (auto [name, vert] : this->graph[v].indicator_names) {
+      for (auto[name, vert] : this->graph[v].indicator_names) {
         cout << "\t"
              << "indicator " << vert << ": " << name << endl;
       }
