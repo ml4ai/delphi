@@ -51,6 +51,12 @@ PYBIND11_MODULE(AnalysisGraph, m) {
            "concept"_a)
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge", &AnalysisGraph::add_edge, "causal_fragment"_a)
+      .def("change_polarity_of_edge",
+           &AnalysisGraph::change_polarity_of_edge,
+           "source_concept"_a,
+           "source_polarity"_a,
+           "target_concept"_a,
+           "target_polarity"_a)
       .def("remove_edge", &AnalysisGraph::remove_edge, "source"_a, "target"_a)
       .def("remove_edges", &AnalysisGraph::remove_edges, "edges"_a)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)

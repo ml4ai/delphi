@@ -913,6 +913,27 @@ class AnalysisGraph {
     this->find_all_paths();
   }
 
+  void change_polarity_of_edge(string source_concept,
+                               int source_polarity,
+                               string target_concept,
+                               int target_polarity) {
+    int src_id = this->get_vertex_id_for_concept(source_concept,
+                                                 "change_polarity_of_edge");
+    int tgt_id = this->get_vertex_id_for_concept(target_concept,
+                                                 "change_polarity_of_edge");
+
+    pair<int, int> edg = make_pair(src_id, tgt_id);
+
+    // edge ≡ β
+    if (this->beta2cell.find(edg) != this->beta2cell.end()) {
+      // There is a edge from src_concept to tgt_concept
+      // get that edge object
+      auto e = boost::edge(src_id, tgt_id, this->graph).first;
+
+      this->graph[e].change_polarity(source_polarity, target_polarity);
+    }
+  }
+
   auto edges() { return make_iterator_range(boost::edges(graph)); }
 
   /** Number of nodes in the graph */

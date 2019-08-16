@@ -12,7 +12,7 @@ struct IndicatorNotFoundException : public std::exception {
 
   IndicatorNotFoundException(std::string msg) : msg(msg) {}
 
-  const char *what() const throw() { return this->msg.c_str(); }
+  const char* what() const throw() { return this->msg.c_str(); }
 };
 
 struct Event {
@@ -34,15 +34,9 @@ struct Statement {
   Event subject;
   Event object;
 
-  Statement() :
-    subject(Event("", 0, "" )),
-    object(Event("", 0, ""))
-    {}
+  Statement() : subject(Event("", 0, "")), object(Event("", 0, "")) {}
 
-  Statement(Event sub, Event obj) :
-    subject(sub),
-    object(obj)
-    {}
+  Statement(Event sub, Event obj) : subject(sub), object(obj) {}
 };
 
 struct Edge {
@@ -59,6 +53,13 @@ struct Edge {
   // TODO: Need to decide how to initialize this or
   // decide whethr this is the correct way to do this.
   double beta = 1.0;
+
+  void change_polarity(int subject_polarity, int object_polarity) {
+    for (Statement stmt : evidence) {
+      stmt.subject.polarity = subject_polarity;
+      stmt.object.polarity = object_polarity;
+    }
+  }
 };
 
 struct Node {
@@ -89,32 +90,30 @@ struct Node {
     indicators.push_back(Indicator(indicator, source));
   }
 
-
   void delete_indicator(std::string indicator) {
     if (indicator_names.find(indicator) != indicator_names.end()) {
       int ind_index = indicator_names[indicator];
       indicator_names.clear();
       indicators.erase(indicators.begin() + ind_index);
-      //The values of the map object have to align with the vecter indexes.
+      // The values of the map object have to align with the vecter indexes.
       for (int i = 0; i < indicators.size(); i++) {
         indicator_names[indicators[i].get_name()] = i;
       }
     }
     else {
-      std::cout << "There is no indicator  " << indicator << "attached to " << name << std::endl;  
+      std::cout << "There is no indicator  " << indicator << "attached to "
+                << name << std::endl;
     }
   }
-
 
   Indicator get_indicator(std::string indicator) {
     try {
       return indicators[indicator_names.at(indicator)];
     }
-    catch (const std::out_of_range &oor) {
+    catch (const std::out_of_range& oor) {
       throw IndicatorNotFoundException(indicator);
     }
   }
-  
 
   void replace_indicator(std::string indicator_old,
                          std::string indicator_new,
