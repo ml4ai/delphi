@@ -248,20 +248,6 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return ag;
 }
 
- /**
-   * Returns a new AnaysisGraph related to the concept provided,
-   * which is a subgraph of this graph.
-   *
-   * @param concept: The concept where the subgraph is about.
-   * @param depth  : The maximum number of hops from the concept provided
-   *                 to be included in the subgraph.
-   * #param inward: Sets the direction of the causal influence flow to
-   *                 examine.
-   *                 false  - (default) A subgraph rooted at the concept provided.
-   *                 true - A subgraph with all the paths ending
-   *                         at the concept provided.
-   *
-   */
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       int depth = 1,
                                                        bool inward = false) {

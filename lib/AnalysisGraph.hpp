@@ -241,16 +241,16 @@ class AnalysisGraph {
    * @param concept: The concept where the subgraph is about.
    * @param depth  : The maximum number of hops from the concept provided
    *                 to be included in the subgraph.
-   * #param reverse: Sets the direction of the causal influence flow to
+   * #param inward : Sets the direction of the causal influence flow to
    *                 examine.
-   *                 False - (default) A subgraph with all the paths ending
+   *                 False - (default) A subgraph rooted at the concept provided.
+   *                 True  - A subgraph with all the paths ending
    *                         at the concept provided.
-   *                 True  - A subgraph rooted at the concept provided.
    *
    */
   AnalysisGraph get_subgraph_for_concept(std::string concept,
                                          int depth = 1,
-                                         bool reverse = false);
+                                         bool inward = false);
 
   /**
    * Returns a new AnaysisGraph related to the source concept and the target
