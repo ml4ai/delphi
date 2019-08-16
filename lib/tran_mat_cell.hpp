@@ -214,7 +214,7 @@ public:
 
     if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin();
+        for (std::vector<int>::iterator vert = path.begin();
              vert < path.end() && vert <= path.begin() + length; vert++) {
           std::cout << *vert << " -> ";
         }
@@ -222,7 +222,7 @@ public:
       }
     } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert =
+        std::vector<int>::iterator vert =
             path.size() <= length ? path.begin() : path.end() - length - 1;
         for (; vert < path.end(); vert++) {
           std::cout << *vert << " -> ";
@@ -239,7 +239,7 @@ public:
 
     if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin();
+        for (std::vector<int>::iterator vert = path.begin();
              vert < path.end() && vert <= path.begin() + hops; vert++) {
           // std::cout << *vert << " -> ";
           vertices_within_hops.insert(*vert);
@@ -248,7 +248,7 @@ public:
       }
     } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert =
+        std::vector<int>::iterator vert =
             path.size() <= hops ? path.begin() : path.end() - hops - 1;
         for (; vert < path.end(); vert++) {
           // std::cout << *vert << " -> ";
@@ -268,7 +268,7 @@ public:
 
     for (std::vector<int> path : this->paths) {
       if (path.size() <= hops + 1) {
-        for (vector<int>::iterator vert = path.begin(); vert < path.end();
+        for (std::vector<int>::iterator vert = path.begin(); vert < path.end();
              vert++) {
           // std::cout << *vert << " -> ";
           vertices_on_shorter_paths.insert(*vert);

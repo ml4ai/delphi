@@ -44,27 +44,22 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
   return transformed_vector;
 }
 
-nlohmann::json load_json(string filename) {
-  ifstream i(filename);
-  nlohmann::json j;
-  i >> j;
-  return j;
-}
+nlohmann::json load_json(string filename);
 
 /**
  * Returns the square of a number.
  */
-double sqr(double x) { return x * x; }
+double sqr(double x);
 
 /**
  * Returns the sum of a vector of doubles.
  */
-double sum(std::vector<double> v) { return boost::accumulate(v, 0.0); }
+double sum(std::vector<double> v);
 
 
 /**
  * Returns the arithmetic mean of a vector of doubles.
  */
-double mean(std::vector<double> v) { return sum(v) / v.size(); }
+double mean(std::vector<double> v);
 
 } // namespace utils
