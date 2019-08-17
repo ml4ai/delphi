@@ -197,7 +197,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   unordered_map<string, int> nameMap = {};
 
   for (auto stmt : json_data) {
-    if (stmt["type"] == "Influence" and stmt["belief"] > belief_score_cutoff) {
+    if (stmt["type"] == "Influence" and stmt["belief"] >= belief_score_cutoff) {
       auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
       auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
       auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
