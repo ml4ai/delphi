@@ -187,7 +187,8 @@ void AnalysisGraph::remove_node(int node_id) {
 }
 
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
-                                            double belief_score_cutoff) {
+                                            double belief_score_cutoff,
+                                            double grounding_score_cutoff) {
   using utils::load_json;
   auto json_data = load_json(filename);
 
@@ -199,8 +200,12 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
     if (stmt["type"] == "Influence" and stmt["belief"] > belief_score_cutoff) {
       auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
       auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
+      auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
+      auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
       if (!subj.is_null() and !obj.is_null()) {
-
+        if ((subj_ground < grounding_score_cutoff) or (obj_ground < grounding_score_cutoff)){
+          continue;
+        }
         string subj_str = subj.get<std::string>();
         string obj_str = obj.get<std::string>();
 

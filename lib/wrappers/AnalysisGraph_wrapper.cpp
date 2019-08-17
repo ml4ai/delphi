@@ -20,7 +20,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("from_json_file",
                   &AnalysisGraph::from_json_file,
                   "filename"_a,
-                  "belief_score_cutoff"_a = 0.9)
+                  "belief_score_cutoff"_a = 0.9,
+                  "grounding_score_cutoff"_a = 0.0)
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
@@ -28,7 +29,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
            "depth"_a = 1,
-           "reverse"_a = false)
+           "inward"_a = false)
       .def("get_subgraph_for_concept_pair",
            &AnalysisGraph::get_subgraph_for_concept_pair,
            "source_concept"_a,
