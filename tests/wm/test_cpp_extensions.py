@@ -250,7 +250,29 @@ def test_subgraph():
     G.print_name_to_vertex()
 
     hops = 3
-    node = 'n40'
+    node = 'n4'
+    print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
+    try:
+        G_sub = G.get_subgraph_for_concept( node, hops, False )
+    except IndexError:
+        print('Concept {} is not in the CAG!'.format(node))
+        return
+
+    print( '\n\nTwo Graphs' )
+    print( 'The original' )
+    G.print_nodes()
+    G.print_name_to_vertex()
+    #G.print_all_paths()
+    print()
+
+
+    print( 'The subgraph' )
+    G_sub.print_nodes()
+    G_sub.print_name_to_vertex()
+    #G_sub.print_all_paths()
+
+    print( '\nSubgraph of {} hops ending at node {} graph'.format( hops, node ) )
+    G_sub = G.get_subgraph_for_concept( node, hops, True )
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )

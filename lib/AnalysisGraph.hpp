@@ -173,7 +173,8 @@ class AnalysisGraph {
    * Uses find_all_paths_between_util() as a helper to recursively find the
    * paths
    */
-  void find_all_paths_between(int start, int end);
+  std::unordered_set<int>
+  find_all_paths_between(int start, int end, int cutoff);
 
   /**
    * Recursively finds all the simple paths starting at the start vertex and
@@ -187,7 +188,11 @@ class AnalysisGraph {
    *
    * @return void
    */
-  void find_all_paths_between_util(int start, int end, std::vector<int>& path);
+  void find_all_paths_between_util(int start,
+                                   int end,
+                                   std::vector<int>& path,
+                                   std::unordered_set<int>& vertices_to_keep,
+                                   int cutoff);
 
   /*
    ==========================================================================
@@ -248,9 +253,13 @@ class AnalysisGraph {
    *                 False - (default) A subgraph rooted at the concept provided. 
    *                 True  - A subgraph with all the paths ending at the concept provided.
    */
-  void get_subgraph_for_concept(std::string concept,
+  void get_subgraph_for_concept_old(std::string concept,
                                 int depth = 1,
                                 bool inward = false);
+
+  AnalysisGraph get_subgraph_for_concept_old(std::string concept,
+                                             int depth = 1,
+                                             bool inward = false);
 
   /**
    * Returns a new AnaysisGraph related to the source concept and the target
@@ -339,6 +348,9 @@ class AnalysisGraph {
 
   void construct_beta_pdfs();
 
+  AnalysisGraph
+  find_all_paths_for_concept(std::string concept, int depth, bool reverse);
+
   /*
    * Find all the simple paths between all the paris of nodes of the graph
    */
@@ -425,7 +437,7 @@ class AnalysisGraph {
     }
 
     // Update the β factor dependent cells of this matrix
-    for (auto& [row, col] : this->beta_dependent_cells) {
+    for (auto & [ row, col ] : this->beta_dependent_cells) {
       this->A_original(row * 2, col * 2 + 1) =
           // this->A_beta_factors[row][col]->sample_from_prior(this->graph);
           this->A_beta_factors[row][col]->compute_cell(this->graph);
@@ -905,8 +917,8 @@ class AnalysisGraph {
 
     for (int samp = 0; samp < this->res; samp++) {
       for (int ts = 0; ts < this->pred_timesteps; ts++) {
-        for (auto [vert_name, vert_id] : this->name_to_vertex) {
-          for (auto [ind_name, ind_id] : this->graph[vert_id].indicator_names) {
+        for (auto[vert_name, vert_id] : this->name_to_vertex) {
+          for (auto[ind_name, ind_id] : this->graph[vert_id].indicator_names) {
             result[samp][ts][vert_name][ind_name] =
                 this->predicted_observed_state_sequence_s[samp][ts][vert_id]
                                                          [ind_id];
@@ -944,8 +956,8 @@ class AnalysisGraph {
     // TODO: We can make this more efficient by making indicators_in_CAG
     // a map from indicator names to vertices they are attached to.
     // This is just a quick and dirty implementation
-    for (auto [v_name, v_id] : this->name_to_vertex) {
-      for (auto [i_name, i_id] : this->graph[v_id].indicator_names) {
+    for (auto[v_name, v_id] : this->name_to_vertex) {
+      for (auto[i_name, i_id] : this->graph[v_id].indicator_names) {
         if (indicator.compare(i_name) == 0) {
           vert_id = v_id;
           ind_id = i_id;
