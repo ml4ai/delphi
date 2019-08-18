@@ -59,6 +59,7 @@ class genCode:
             "ast.BoolOp": self.process_boolean_operation,
             "ast.Attribute": self._process_attribute,
             "ast.AST": self.process_ast,
+            "ast.Tuple": self.process_tuple,
         }
 
     def generate_code(self, node, state):
@@ -129,6 +130,19 @@ class genCode:
             else "[{0}]".format(", ".join(elements))
         )
         return code_string
+
+    def process_tuple(self, node, state):
+        elements = [self.generate_code(elmt, state) for elmt in node.elts]
+        # This tuple handler is a very specific method
+        # for handling an array declaration lambda.
+        code_string = (
+            str(elements[0])
+            if len(elements) == 1
+            else "{0}".format(" + ".join(elements))
+        )
+        code_string += " + 1"
+        return code_string
+
 
     @staticmethod
     def _process_str(node, *_):
@@ -284,13 +298,16 @@ class genCode:
             function_name = module + "." + function_name
         else:
             function_name = node.func.id
-        code_string = f"{function_name}("
 
-        if len(node.args) > 0:
-            code_string += ", ".join([self.generate_code(arg, state) for arg in
-                                     node.args])
+        if function_name is not "Array":
+            code_string = f"{function_name}("
+            if len(node.args) > 0:
+                code_string += ", ".join([self.generate_code(arg, state) for arg in
+                                         node.args])
+            code_string += ")"
+        else:
+            code_string = self.generate_code(node.args[1], state)
 
-        code_string += ")"
         return code_string
 
     def process_import(self, node, state):

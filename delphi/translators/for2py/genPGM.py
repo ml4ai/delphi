@@ -87,7 +87,8 @@ class GrFNState:
         variable_types: Optional[Dict] = {},
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
-        arrays: Optional[List] = {},
+        arrays: Optional[Dict] = {},
+        array_vars: Optional[List] = []
 
     ):
         self.lambda_strings = lambda_strings
@@ -99,6 +100,7 @@ class GrFNState:
         self.start = start
         self.scope_path = scope_path
         self.arrays = arrays
+        self.array_vars = array_vars
 
     def copy(
         self,
@@ -110,7 +112,8 @@ class GrFNState:
         variable_types: Optional[Dict] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
-        arrays: Optional[List] = None,
+        arrays: Optional[Dict] = None,
+        array_vars: Optional[Dict] = None,
     ):
         return GrFNState(
             self.lambda_strings if lambda_strings is None else lambda_strings,
@@ -143,6 +146,7 @@ class GrFNGenerator(object):
         self.name_mapper = {}
         self.function_argument_map = {}
         self.arrays = {}
+        self.array_vars = []
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
@@ -352,6 +356,7 @@ class GrFNGenerator(object):
         # Enter the body of the function and recursively generate the GrFN of
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
+
         # Get the `return_value` from the body. We want to append it separately.
         # TODO There can be multiple return values. `return_value` should be
         #  a list and you should append to it.
@@ -1606,6 +1611,48 @@ class GrFNGenerator(object):
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
+
+        array_assignment = False
+        # If current assignment is for Array declaration,
+        # we need to extract information (dimension, index, and type)
+        # of the array based on its dimension (single or multi-).
+        if (
+                "call" in sources[0]
+                and sources[0]["call"]["function"] == "Array"
+        ):
+            array_assignment = True
+            inputs = sources[0]["call"]["inputs"]
+            array_type = inputs[0][0]["var"]["variable"]
+            array_dimensions = []
+            # A multi-dimensional array handler
+            if "list" in inputs[1][0]["list"][0]:
+                for lists in inputs[1][0]["list"]:
+                    low_bound = int(lists["list"][0]["value"])
+                    upper_bound = int(lists["list"][1]["value"])
+                    array_dimensions.append(upper_bound-low_bound+1)
+            # 1-D array handler
+            else:
+                bounds = inputs[1][0]["list"]
+                if "type" in bounds[0]:
+                    low_bound = bounds[0]["value"]
+                else:
+                    low_bound = bounds[0]["var"]["variable"]
+
+                if "type" in bounds[1]:
+                    upper_bound = bounds[1]["value"]
+                else:
+                    upper_bound = bounds[1]["var"]["variable"]
+
+                if isinstance(low_bound, int) and isinstance(upper_bound, int):
+                    array_dimensions.append(upper_bound-low_bound+1)
+                elif isinstance(upper_bound, str):
+                    assert (
+                        isinstance(low_bound, int) and low_bound == 0
+                    ), "low_bound must be <integer> type and 0 (zero) for now."
+                    array_dimensions.append(upper_bound)
+                else:
+                    assert False, f"low_bound type: {type(low_bound)} is currently not handled."
+
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
         # python code does not appear in this way and only a single target
@@ -1645,8 +1692,20 @@ class GrFNGenerator(object):
                     [x["var"]["variable"] for x in target["list"]]
                 )
                 target = {"var": {"variable": targets, "index": 1}}
+
+            if array_assignment:
+                var_name = target["var"]["variable"]
+                array_info = {
+                    "index": target["var"]["index"],
+                    "dimensions": array_dimensions,
+                    "elem_type": array_type,
+                    "mutable": True,
+                }
+                self.arrays[var_name] = array_info
+
             variable_spec = self.generate_variable_definition(target_name,
                                                               state)
+
             function_name = self.generate_function_name("__assign__",
                                                         variable_spec['name']
                                                         )
@@ -1661,7 +1720,11 @@ class GrFNGenerator(object):
             state.lambda_strings.append(lambda_string)
 
             # TODO Get a use case to handle this for the new spec
-            if not fn["input"] and len(sources) == 1:
+            if (
+                not fn["input"]
+                and len(sources) == 1
+                and sources[0]["call"]["function"] is not "Array"
+            ):
                 if sources[0].get("list"):
                     dtypes = set()
                     value = list()
@@ -1675,7 +1738,7 @@ class GrFNGenerator(object):
                     value = f"{sources[0]['call']['inputs'][0][0]['value']}"
                 else:
                     dtype = sources[0]["dtype"]
-                    value = f"{sources[0]['value']}"
+                    value = sources[0]["value"]
                 fn["body"] = {
                     "type": "literal",
                     "dtype": dtype,
@@ -1864,10 +1927,15 @@ class GrFNGenerator(object):
         source_list = []
         for src in source_dictionary:
             if "var" in src:
-                source_list.append(src["var"]["variable"])
+                if src["var"]["variable"] not in ANNOTATE_MAP:
+                    source_list.append(src["var"]["variable"])
             elif "call" in src:
                 for ip in src["call"]["inputs"]:
                     source_list.extend(self.make_source_list_dict(ip))
+            elif "list" in src:
+                for ip in src["list"]:
+                    if "var" in ip:
+                        source_list.append(ip["var"]["variable"])
 
         # Removing duplicates
         unique_source = []
@@ -1888,6 +1956,14 @@ class GrFNGenerator(object):
             if re.match(r"\d+", target_name) and "list" in src:
                 return fn
             if "call" in src:
+                # Remove first index of an array function as it's
+                # really a type name not the variable for input.
+                if src["call"]["function"] is "Array":
+                    # DEBUG
+                    print ("SOURCES-1: ", sources)
+                    del src["call"]["inputs"][0]
+                    # DEBUG
+                    print ("SOURCES-2: ", sources)
                 # Bypassing identifiers who have I/O constructs on their source
                 # fields too.
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
@@ -2196,11 +2272,14 @@ class GrFNGenerator(object):
         return variable_definition
 
     def get_domain_dictionary(self, variable, state):
-        variable_type = state.variable_types[variable]
-        domain_dictionary = {
-            "name": self.type_def_map[variable_type],
-            "type": "type"
-        }
+        if variable in self.arrays:
+            domain_dictionary = self.arrays[variable]
+        else:
+            variable_type = state.variable_types[variable]
+            domain_dictionary = {
+                "name": self.type_def_map[variable_type],
+                "type": "type"
+            }
         return domain_dictionary
 
     def generate_function_name(self, function_type, variable):
