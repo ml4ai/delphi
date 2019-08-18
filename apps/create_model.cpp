@@ -1,3 +1,5 @@
+// Usage: ./create_model <path_to_JSON_file>
+
 #include "AnalysisGraph.hpp"
 
 using namespace std;
