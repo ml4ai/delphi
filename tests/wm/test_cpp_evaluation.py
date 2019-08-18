@@ -33,6 +33,7 @@ def test_cpp_extensions():
     # InitialBeta.HALF
     # InitialBeta.MEAN
     # InitialBeta.RANDOM - A random value between [-1, 1]
+    G.construct_beta_pdfs()
     G.train_model(2015, 1, 2015, 12, 1000, 10000, initial_beta=InitialBeta.ZERO)
     preds = G.generate_prediction(2015, 1, 2016, 12)
     print(len(preds[0]))
