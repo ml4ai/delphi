@@ -204,8 +204,6 @@ class AnalysisGraph {
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-  void initialize_random_number_generator();
-
   int get_vertex_id_for_concept(std::string concept, std::string caller);
 
   int get_degree(int vertex_id);
@@ -235,6 +233,9 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
+  // TODO Change the name of this function to something better, like
+  // restrict_to_subgraph_for_concept, update docstring
+
   /**
    * Returns a new AnaysisGraph related to the concept provided,
    * which is a subgraph of this graph.
@@ -244,14 +245,12 @@ class AnalysisGraph {
    *                 to be included in the subgraph.
    * #param inward : Sets the direction of the causal influence flow to
    *                 examine.
-   *                 False - (default) A subgraph rooted at the concept provided.
-   *                 True  - A subgraph with all the paths ending
-   *                         at the concept provided.
-   *
+   *                 False - (default) A subgraph rooted at the concept provided. 
+   *                 True  - A subgraph with all the paths ending at the concept provided.
    */
-  AnalysisGraph get_subgraph_for_concept(std::string concept,
-                                         int depth = 1,
-                                         bool inward = false);
+  void get_subgraph_for_concept(std::string concept,
+                                int depth = 1,
+                                bool inward = false);
 
   /**
    * Returns a new AnaysisGraph related to the source concept and the target
@@ -583,6 +582,8 @@ class AnalysisGraph {
       }
     }
   }
+
+  void initialize_random_number_generator();
 
   void set_random_initial_latent_state() {
     int num_verts = boost::num_vertices(this->graph);
@@ -974,7 +975,7 @@ class AnalysisGraph {
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   // ObservedStateSequence synthetic_observed_state_sequence;
-  bool syntheitc_data_experiment = false;
+  bool synthetic_data_experiment = false;
 
   void generate_synthetic_latent_state_sequence_from_likelihood() {
     int num_verts = boost::num_vertices(this->graph);
@@ -1024,7 +1025,7 @@ class AnalysisGraph {
       std::map<std::string, std::string> units = {},
       InitialBeta initial_beta = InitialBeta::HALF) {
 
-    syntheitc_data_experiment = true;
+    synthetic_data_experiment = true;
 
     this->n_timesteps = this->calculate_num_timesteps(
         start_year, start_month, end_year, end_month);
@@ -1057,7 +1058,7 @@ class AnalysisGraph {
                           this->generate_prediction(
                               start_year, start_month, end_year, end_month));
 
-    syntheitc_data_experiment = false;
+    synthetic_data_experiment = false;
   }
 
   // TODO: Need testing

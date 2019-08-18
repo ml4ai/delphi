@@ -1,21 +1,24 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
+#include "tqdm.hpp"
 #include <boost/range/algorithm/for_each.hpp>
 #include <cmath>
 #include <sqlite3.h>
 
 using namespace std;
+using fmt::print;
+using tq::tqdm;
 
 auto AnalysisGraph::vertices() {
   return boost::make_iterator_range(boost::vertices(this->graph));
 }
+
 auto AnalysisGraph::successors(int i) {
   return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
 auto AnalysisGraph::successors(string node_name) {
-  return boost::make_iterator_range(boost::adjacent_vertices(
-      this->name_to_vertex.at(node_name), this->graph));
+  return this->successors(this->name_to_vertex.at(node_name));
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
@@ -83,6 +86,7 @@ void AnalysisGraph::print_A_beta_factors() {
     }
   }
 }
+
 void AnalysisGraph::find_all_paths_between(int start, int end) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
@@ -138,6 +142,7 @@ void AnalysisGraph::find_all_paths_between_util(int start,
   path.pop_back();
   this->graph[start].visited = false;
 };
+
 void AnalysisGraph::set_default_initial_state() {
   // Let vertices of the CAG be v = 0, 1, 2, 3, ...
   // Then,
@@ -172,6 +177,7 @@ int AnalysisGraph::get_degree(int vertex_id) {
   return boost::in_degree(vertex_id, this->graph) +
          boost::out_degree(vertex_id, this->graph);
 }
+
 void AnalysisGraph::remove_node(int node_id) {
   // Delete all the edges incident to this node
   boost::clear_vertex(node_id, this->graph);
@@ -183,7 +189,6 @@ void AnalysisGraph::remove_node(int node_id) {
   for (int vert_id : vertices()) {
     this->name_to_vertex[this->graph[vert_id].name] = vert_id;
   }
-
 }
 
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
@@ -203,7 +208,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
       auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
       auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
       if (!subj.is_null() and !obj.is_null()) {
-        if ((subj_ground < grounding_score_cutoff) or (obj_ground < grounding_score_cutoff)){
+        if ((subj_ground < grounding_score_cutoff) or
+            (obj_ground < grounding_score_cutoff)) {
           continue;
         }
         string subj_str = subj.get<std::string>();
@@ -234,10 +240,10 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
           auto subj_polarity = annotations["subj_polarity"];
           auto obj_polarity = annotations["obj_polarity"];
 
-          if(subj_polarity.is_null()){
+          if (subj_polarity.is_null()) {
             subj_polarity = 1;
           }
-          if(obj_polarity.is_null()){
+          if (obj_polarity.is_null()) {
             obj_polarity = 1;
           }
 
@@ -249,69 +255,38 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
     }
   }
   AnalysisGraph ag = AnalysisGraph(G, nameMap);
-  ag.initialize_random_number_generator();
   return ag;
 }
 
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      int depth,
-                                                      bool inward) {
+// TODO Change the name of this function to something better, like
+// restrict_to_subgraph_for_concept.
+void AnalysisGraph::get_subgraph_for_concept(string concept,
+                                             int depth,
+                                             bool inward) {
 
-  int vert_id =
-      get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+  unordered_set<string> nodeset = {concept};
 
-  int num_verts = boost::num_vertices(graph);
-
-  unordered_set<int> vertices_to_keep = unordered_set<int>();
-  unordered_set<string> vertices_to_remove;
-
-  if (inward) {
-    // All paths of length less than or equal to depth ending at vert_id
-    for (int col = 0; col < num_verts; ++col) {
-      if (this->A_beta_factors[vert_id][col]) {
-        unordered_set<int> vwh =
-            this->A_beta_factors[vert_id][col]->get_vertices_within_hops(depth,
-                                                                         false);
-
-        vertices_to_keep.insert(vwh.begin(), vwh.end());
+  for (int _ = 0; _ < depth; _++) {
+    for (string n : nodeset) {
+      if (inward) {
+        for_each(this->successors(n), [&](auto s) { nodeset.insert(this->graph[s].name); });
       }
-    }
-  }
-  else {
-    // All paths of length less than or equal to depth beginning at vert_id
-    for (int row = 0; row < num_verts; ++row) {
-      if (this->A_beta_factors[row][vert_id]) {
-        unordered_set<int> vwh =
-            this->A_beta_factors[row][vert_id]->get_vertices_within_hops(depth,
-                                                                         true);
-
-        vertices_to_keep.insert(vwh.begin(), vwh.end());
+      else {
+        for_each(this->predecessors(n), [&](auto p) { nodeset.insert(this->graph[p].name); });
       }
     }
   }
 
-  if (vertices_to_keep.size() == 0) {
-    cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
-    cerr << "WARNING:" << endl;
-    cerr << "\tReturning and empty CAG!" << endl;
-  }
+  unordered_set<string> nodes_to_remove = {};
 
-  // Determine the vertices to be removed
-  for (int vert_id : vertices()) {
-    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
-      vertices_to_remove.insert(this->graph[vert_id].name);
+  for (int n : this->vertices()) {
+    if (nodeset.count(this->graph[n].name) == 0) {
+      nodes_to_remove.insert(this->graph[n].name);
     }
   }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  G_sub.remove_nodes(vertices_to_remove);
-  G_sub.find_all_paths();
-
-  return G_sub;
+  this->remove_nodes(nodes_to_remove);
 }
+
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
 
@@ -358,10 +333,10 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   //       Test so far does not show suspicious behavior
   AnalysisGraph G_sub = *this;
   G_sub.remove_nodes(vertices_to_remove);
-  G_sub.find_all_paths();
 
   return G_sub;
 }
+
 void AnalysisGraph::prune(int cutoff) {
   int num_verts = boost::num_vertices(this->graph);
   int src_degree = -1;
@@ -393,8 +368,8 @@ void AnalysisGraph::prune(int cutoff) {
     }
   }
   // Recalculate all the directed simple paths
-  this->find_all_paths();
 }
+
 void AnalysisGraph::remove_node(string concept) {
   auto node_to_remove = this->name_to_vertex.extract(concept);
 
@@ -404,7 +379,6 @@ void AnalysisGraph::remove_node(string concept) {
     this->remove_node(node_to_remove.mapped());
 
     // Recalculate all the directed simple paths
-    this->find_all_paths();
   }
   else // indicator_old is not attached to this node
   {
@@ -412,6 +386,7 @@ void AnalysisGraph::remove_node(string concept) {
     cerr << "\tConcept: " << concept << " not present in the CAG!\n" << endl;
   }
 }
+
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
   vector<string> invalid_concept_s;
 
@@ -429,12 +404,6 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
     }
   }
 
-  if (invalid_concept_s.size() < concepts.size()) {
-    // Some concepts have been removed
-    // Recalculate all the directed simple paths
-    this->find_all_paths();
-  }
-
   if (invalid_concept_s.size() > 0) {
     // There were some invalid concepts
     cerr << "AnalysisGraph::remove_vertex()" << endl;
@@ -445,6 +414,7 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
     cerr << endl;
   }
 }
+
 void AnalysisGraph::remove_edge(string src, string tgt) {
   int src_id = -1;
   int tgt_id = -1;
@@ -479,10 +449,8 @@ void AnalysisGraph::remove_edge(string src, string tgt) {
 
   // Remove the edge
   boost::remove_edge(src_id, tgt_id, this->graph);
-
-  // Recalculate all the directed simple paths
-  this->find_all_paths();
 }
+
 void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
   vector<pair<int, int>> edge_id_s = vector<pair<int, int>>(edges.size());
@@ -582,9 +550,6 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
       }
     }
   }
-
-  // Recalculate all the directed simple paths
-  this->find_all_paths();
 }
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   using delphi::gv::set_property, delphi::gv::add_node;
@@ -708,8 +673,9 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   ag.initialize_random_number_generator();
   return ag;
 }
+
 void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
-  for (auto predecessor : predecessors(n1)) {
+  for (auto predecessor : this->predecessors(n1)) {
     auto e =
         boost::edge(predecessor, this->name_to_vertex[n1], this->graph).first;
     if (!same_polarity) {
@@ -767,7 +733,7 @@ void AnalysisGraph::merge_nodes(string concept_1,
   }
   */
 
-  for (int predecessor : predecessors(vertex_remove)) {
+  for (int predecessor : this->predecessors(vertex_remove)) {
 
     // Get the edge descripter for
     //                   predecessor --> vertex_remove
@@ -829,14 +795,12 @@ void AnalysisGraph::merge_nodes(string concept_1,
   // Remove vertex_remove from the CAG
   // Note: This is an overlaoded private method that takes in a vertex id
   this->remove_node(vertex_remove);
-
-  // Recalculate all the directed simple paths
-  this->find_all_paths();
 }
+
 void AnalysisGraph::print_nodes() {
-  fmt::print("Vertex IDs and their names in the CAG\n");
-  fmt::print("Vertex ID : Name\n");
-  fmt::print("--------- : ----\n");
+  print("Vertex IDs and their names in the CAG\n");
+  print("Vertex ID : Name\n");
+  print("--------- : ----\n");
   boost::for_each(vertices(), [&](auto v) {
     cout << v << "         : " << this->graph[v].name << endl;
   });
@@ -845,7 +809,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
-    fmt::print("Could not open db\n");
+    print("Could not open db\n");
     return;
   }
   sqlite3_stmt* stmt;
@@ -920,6 +884,7 @@ void AnalysisGraph::set_log_likelihood() {
     }
   }
 }
+
 void AnalysisGraph::find_all_paths() {
   auto verts = vertices();
 
@@ -1003,8 +968,7 @@ void AnalysisGraph::add_node(string concept) {
     this->graph[v].name = concept;
   }
   else {
-    fmt::print("AnalysisGraph::add_node()\n\tconcept {} already exists!\n",
-               concept);
+    print("AnalysisGraph::add_node()\n\tconcept {} already exists!\n", concept);
   }
 }
 
