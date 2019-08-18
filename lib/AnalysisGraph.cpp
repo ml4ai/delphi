@@ -342,6 +342,7 @@ void AnalysisGraph::prune(int cutoff) {
   int src_degree = -1;
   int tgt_degree = -1;
 
+  this->find_all_paths();
   for (int tgt = 0; tgt < num_verts; ++tgt) {
     for (int src = 0; src < num_verts; ++src) {
       if (this->A_beta_factors[tgt][src] &&
