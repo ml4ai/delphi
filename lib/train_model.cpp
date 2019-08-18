@@ -12,6 +12,8 @@ void AnalysisGraph::train_model(int start_year,
                                 string state,
                                 map<string, string> units,
                                 InitialBeta initial_beta) {
+  this->find_all_paths();
+
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
   this->res = res;

@@ -250,7 +250,7 @@ def test_subgraph():
     G.print_name_to_vertex()
 
     hops = 3
-    node = 'n40'
+    node = 'n4'
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
     try:
         G_sub = G.get_subgraph_for_concept( node, hops, False )

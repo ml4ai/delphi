@@ -30,8 +30,8 @@ void AnalysisGraph::initialize_random_number_generator() {
   // Normal distrubution used to perturb β
   this->norm_dist = normal_distribution<double>(0.0, 1.0);
 
-  this->construct_beta_pdfs();
-  this->find_all_paths();
+  // this->construct_beta_pdfs();
+  // this->find_all_paths();
 }
 
 void AnalysisGraph::parameterize(string country,
@@ -41,7 +41,7 @@ void AnalysisGraph::parameterize(string country,
                                  map<string, string> units) {
   double stdev;
   for (int v : this->vertices()) {
-    for (auto [name, i] : this->graph[v].indicator_names) {
+    for (auto[name, i] : this->graph[v].indicator_names) {
       if (units.find(name) != units.end()) {
         this->graph[v].indicators[i].set_unit(units[name]);
         this->graph[v].indicators[i].set_mean(
@@ -83,18 +83,29 @@ void AnalysisGraph::print_A_beta_factors() {
     }
   }
 }
-void AnalysisGraph::find_all_paths_between(int start, int end) {
+
+unordered_set<int>
+AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
 
   // Create a vector of ints to store paths.
   vector<int> path;
 
-  this->find_all_paths_between_util(start, end, path);
+  // The set of vertices to be kept on the subgraph
+  unordered_set<int> vertices_to_keep;
+
+  this->find_all_paths_between_util(start, end, path, vertices_to_keep, cutoff);
+
+  return vertices_to_keep;
 }
-void AnalysisGraph::find_all_paths_between_util(int start,
-                                                int end,
-                                                vector<int>& path) {
+
+void AnalysisGraph::find_all_paths_between_util(
+    int start,
+    int end,
+    vector<int>& path,
+    unordered_set<int>& vertices_to_keep,
+    int cutoff) {
   // Mark the current vertex visited
   this->graph[start].visited = true;
 
@@ -119,17 +130,23 @@ void AnalysisGraph::find_all_paths_between_util(int start,
 
     beta_dependent_cells.insert(this_cell);
 
-    for (int v = 0; v < path.size() - 1; v++) {
+    int v = 0;
+    for (; v < path.size() - 1; v++) {
       this->beta2cell.insert(
           make_pair(make_pair(path[v], path[v + 1]), this_cell));
+      vertices_to_keep.insert(path[v]);
     }
+
+    // Insert the last vertex of this path
+    vertices_to_keep.insert(path[v]);
   }
-  else {
+  else if (path.size() < cutoff) {
     // Current vertex is not the destination
     // Recursively process all the vertices adjacent to the current vertex
     for_each(successors(start), [&](int v) {
       if (!this->graph[v].visited) {
-        this->find_all_paths_between_util(v, end, path);
+        this->find_all_paths_between_util(
+            v, end, path, vertices_to_keep, cutoff);
       }
     });
   }
@@ -202,7 +219,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
         string subj_str = subj.get<std::string>();
         string obj_str = obj.get<std::string>();
 
-        if(subj_str.compare(obj_str) != 0) { // Guard against self loops
+        if (subj_str.compare(obj_str) != 0) { // Guard against self loops
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
             if (nameMap.find(name) == nameMap.end()) {
@@ -213,18 +230,18 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] =
-            boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          auto[e, exists] =
+              boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
             auto obj_adjectives = annotations["obj_adjectives"];
             auto subj_adjective =
-              (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-              ? subj_adjectives[0]
-              : "None";
+                (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                    ? subj_adjectives[0]
+                    : "None";
             auto obj_adjective =
-              (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
             auto subj_polarity = annotations["subj_polarity"];
             auto obj_polarity = annotations["obj_polarity"];
 
@@ -241,9 +258,9 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return ag;
 }
 
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      int depth,
-                                                      bool reverse) {
+AnalysisGraph AnalysisGraph::get_subgraph_for_concept_old(string concept,
+                                                          int depth,
+                                                          bool reverse) {
 
   int vert_id =
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
@@ -300,6 +317,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
   return G_sub;
 }
+
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
 
@@ -623,7 +641,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
 
 /** Output the graph in DOT format */
 string AnalysisGraph::to_dot() {
-  auto [G, gvc] = this->to_agraph();
+  auto[G, gvc] = this->to_agraph();
 
   stringstream sstream;
   stringbuf* sstream_buffer;
@@ -648,7 +666,7 @@ string AnalysisGraph::to_dot() {
 }
 
 void AnalysisGraph::to_png(string filename) {
-  auto [G, gvc] = this->to_agraph();
+  auto[G, gvc] = this->to_agraph();
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);
   agclose(G);
@@ -657,7 +675,7 @@ void AnalysisGraph::to_png(string filename) {
 void AnalysisGraph::print_indicators() {
   for (int v : this->vertices()) {
     cout << "node " << v << ": " << this->graph[v].name << ":" << endl;
-    for (auto [name, vert] : this->graph[v].indicator_names) {
+    for (auto[name, vert] : this->graph[v].indicator_names) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
@@ -677,7 +695,7 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
     string subj_name = subject.concept_name;
     string obj_name = object.concept_name;
 
-    if(subj_name.compare(obj_name) != 0) { // Guard against self loops
+    if (subj_name.compare(obj_name) != 0) { // Guard against self loops
       // Add the nodes to the graph if they are not in it already
       for (string name : {subj_name, obj_name}) {
         if (nameMap.find(name) == nameMap.end()) {
@@ -688,8 +706,8 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
       }
 
       // Add the edge to the graph if it is not in it already
-      auto [e, exists] =
-        boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
+      auto[e, exists] =
+          boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
 
       G[e].evidence.push_back(Statement{subject, object});
     }
@@ -708,7 +726,7 @@ void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
       }
     }
 
-    auto [edge, is_new_edge] =
+    auto[edge, is_new_edge] =
         boost::add_edge(predecessor, this->name_to_vertex[n2], this->graph);
     for (auto s : this->graph[e].evidence) {
       this->graph[edge].evidence.push_back(s);
@@ -724,7 +742,7 @@ void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
       }
     }
 
-    auto [edge, is_new_edge] =
+    auto[edge, is_new_edge] =
         boost::add_edge(this->name_to_vertex[n2], successor, this->graph);
     for (auto stmt : this->graph[e].evidence) {
       this->graph[edge].evidence.push_back(stmt);
@@ -771,7 +789,7 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   predecessor --> vertex_keep
-    auto [edg_keep, is_new_edge] =
+    auto[edg_keep, is_new_edge] =
         boost::add_edge(predecessor, vertex_keep, this->graph);
 
     // Move all the evidence from vertex_delete to the
@@ -800,7 +818,7 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   successor --> vertex_keep
-    auto [edg_keep, is_new_edge] =
+    auto[edg_keep, is_new_edge] =
         boost::add_edge(vertex_keep, successor, this->graph);
 
     // Move all the evidence from vertex_delete to the
@@ -910,6 +928,76 @@ void AnalysisGraph::set_log_likelihood() {
     }
   }
 }
+
+AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
+                                                      int depth,
+                                                      bool reverse) {
+
+  int vert_id =
+      get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+
+  int num_verts = boost::num_vertices(this->graph);
+
+  unordered_set<int> vertices_to_keep = unordered_set<int>();
+  unordered_set<string> vertices_to_remove;
+
+  // auto verts = vertices();
+
+  // Allocate the 2D array that keeps track of the cells of the transition
+  // matrix (A_original) that are dependent on βs.
+  // This function can be called anytime after creating the CAG.
+  this->allocate_A_beta_factors();
+
+  // Clear the multimap that keeps track of cells in the transition
+  // matrix that are dependent on each β.
+  this->beta2cell.clear();
+
+  // Clear the set of all the β dependent cells
+  this->beta_dependent_cells.clear();
+
+  if (reverse) {
+    // All paths of length less than or equal to depth ending at vert_id
+    for (int start = 0; start < num_verts; ++start) {
+      if (start != vert_id) {
+        unordered_set<int> vwh =
+            this->find_all_paths_between(start, vert_id, depth);
+
+        vertices_to_keep.insert(vwh.begin(), vwh.end());
+      }
+    }
+  }
+  else {
+    // All paths of length less than or equal to depth beginning at vert_id
+    for (int end = 0; end < num_verts; ++end) {
+      if (vert_id != end) {
+        this->find_all_paths_between(vert_id, end, depth);
+      }
+    }
+  }
+
+  if (vertices_to_keep.size() == 0) {
+    cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
+    cerr << "WARNING:" << endl;
+    cerr << "\tReturning and empty CAG!" << endl;
+  }
+
+  // Determine the vertices to be removed
+  for (int vert_id : vertices()) {
+    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+      vertices_to_remove.insert(this->graph[vert_id].name);
+    }
+  }
+
+  // Make a copy of current AnalysisGraph
+  // TODO: We have to make sure that we are making a deep copy.
+  //       Test so far does not show suspicious behavior
+  AnalysisGraph G_sub = *this;
+  G_sub.remove_nodes(vertices_to_remove);
+  G_sub.find_all_paths();
+
+  return G_sub;
+}
+
 void AnalysisGraph::find_all_paths() {
   auto verts = vertices();
 
@@ -953,7 +1041,7 @@ void AnalysisGraph::print_edges() {
 }
 
 void AnalysisGraph::print_name_to_vertex() {
-  for (auto [name, vert] : this->name_to_vertex) {
+  for (auto[name, vert] : this->name_to_vertex) {
     cout << name << " -> " << vert << endl;
   }
   cout << endl;
@@ -1005,15 +1093,15 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
   string subj_name = subject.concept_name;
   string obj_name = object.concept_name;
 
-  if(subj_name.compare(obj_name) != 0) { // Guard against self loops
+  if (subj_name.compare(obj_name) != 0) { // Guard against self loops
     // Add the nodes to the graph if they are not in it already
     this->add_node(subj_name);
     this->add_node(obj_name);
 
     // Add the edge to the graph if it is not in it already
-    auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
-        this->name_to_vertex[obj_name],
-        this->graph);
+    auto[e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
+                                      this->name_to_vertex[obj_name],
+                                      this->graph);
 
     this->graph[e].evidence.push_back(Statement{subject, object});
   }
