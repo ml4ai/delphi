@@ -3,8 +3,7 @@
 namespace utils {
   nlohmann::json load_json(string filename) {
     ifstream i(filename);
-    nlohmann::json j;
-    i >> j;
+    nlohmann::json j = nlohmann::json::parse(i);
     return j;
   }
 
