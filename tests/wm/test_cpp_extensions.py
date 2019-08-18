@@ -251,41 +251,14 @@ def test_subgraph():
 
     hops = 3
     node = 'n40'
+
+    print( '\n\nTwo Graphs' )
+    print( 'The original' )
+    G.print_nodes()
+    G.print_name_to_vertex()
+
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
-    try:
-        G_sub = G.get_subgraph_for_concept( node, hops, False )
-    except IndexError:
-        print('Concept {} is not in the CAG!'.format(node))
-        return
-
-    print( '\n\nTwo Graphs' )
-    print( 'The original' )
-    G.print_nodes()
-    G.print_name_to_vertex()
-    #G.print_all_paths()
-    print()
-
-
-    print( 'The subgraph' )
-    G_sub.print_nodes()
-    G_sub.print_name_to_vertex()
-    #G_sub.print_all_paths()
-
-    print( '\nSubgraph of {} hops ending at node {} graph'.format( hops, node ) )
-    G_sub = G.get_subgraph_for_concept( node, hops, True )
-
-    print( '\n\nTwo Graphs' )
-    print( 'The original' )
-    G.print_nodes()
-    G.print_name_to_vertex()
-    #G.print_all_paths()
-    print()
-
-
-    print( 'The subgraph' )
-    G_sub.print_nodes()
-    G_sub.print_name_to_vertex()
-    #G_sub.print_all_paths()
+    G.get_subgraph_for_concept( node, hops, False )
 
 def test_subgraph_between():
     causal_fragments = [  # Center node is n4
@@ -297,8 +270,6 @@ def test_subgraph_between():
             (("small", 1, "n5"), ("large", -1, "n6")),
             (("small", 1, "n6"), ("large", -1, "n7")),
             (("small", 1, "n7"), ("large", -1, "n8")),
-            #(("small", 1, "n8"), ("large", -1, "n9")),
-            #(("small", 1, "n9"), ("large", -1, "n0")),
             (("small", 1, "n0"), ("large", -1, "n9")),
             (("small", 1, "n9"), ("large", -1, "n2")),
             (("small", 1, "n2"), ("large", -1, "n10")),
@@ -341,14 +312,12 @@ def test_subgraph_between():
     print( 'The original' )
     G.print_nodes()
     G.print_name_to_vertex()
-    #G.print_all_paths()
     print()
 
 
     print( 'The subgraph' )
     G_sub.print_nodes()
     G_sub.print_name_to_vertex()
-    #G_sub.print_all_paths()
 
 def test_prune():
     causal_fragments = [  # Center node is n4

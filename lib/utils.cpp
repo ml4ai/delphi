@@ -1,4 +1,8 @@
 #include "utils.hpp"
+#include <fstream>
+#include <boost/range/numeric.hpp>
+
+using namespace std;
 
 namespace utils {
   nlohmann::json load_json(string filename) {
