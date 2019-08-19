@@ -257,7 +257,7 @@ class AnalysisGraph {
                                 int depth = 1,
                                 bool inward = false);
 
-  AnalysisGraph get_subgraph_for_concept_old(std::string concept,
+  AnalysisGraph get_subgraph_for_concept(std::string concept,
                                              int depth = 1,
                                              bool inward = false);
 
