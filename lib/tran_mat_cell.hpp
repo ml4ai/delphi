@@ -96,16 +96,9 @@ public:
 
       for (int v = 0; v < this->paths[p].size() - 1; v++) {
         auto edg = boost::edge(paths[p][v], paths[p][v + 1], CAG);
-        if(edg.second) {
-          const double &beta = CAG[edg.first].beta;
+        const double &beta = CAG[edg.first].beta;
 
-          this->products[p] *= beta; //+= 1;
-          std::cout << "Multiplying: " << CAG[paths[p][v]].name << " --> " << CAG[paths[p][v + 1]].name << std::endl;;
-        }
-        else {
-          std::cout << "****Error - Somethign odd is happening\n";
-          std::cout << CAG[paths[p][v]].name << " --> " << CAG[paths[p][v + 1]].name << std::endl;;
-        }
+        this->products[p] *= beta; //+= 1;
       }
     }
 

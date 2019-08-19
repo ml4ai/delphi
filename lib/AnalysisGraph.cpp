@@ -50,11 +50,17 @@ void AnalysisGraph::parameterize(string country,
         this->graph[v].indicators[i].set_stdev(stdev);
       }
       else {
+  try {
         this->graph[v].indicators[i].set_default_unit();
         this->graph[v].indicators[i].set_mean(
             get_data_value(name, country, state, year, month));
         stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
         this->graph[v].indicators[i].set_stdev(stdev);
+  } catch ( std::logic_error & le ) {
+    cout << "\nLogic error happened\n";
+    cout << this->graph[v].name << endl;
+    cout << i << " - " << name << endl;
+  }
       }
     }
   }
@@ -1220,12 +1226,10 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
-    cout << "\nComputing: " << this->graph[col].name << " -->--> " << this->graph[row].name << endl;
     this->A_beta_factors[row][col]->print_paths();
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
-  cout << "\n\nDONE\n\n";
 }
 
 int AnalysisGraph::calculate_num_timesteps(int start_year,

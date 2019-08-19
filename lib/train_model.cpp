@@ -23,11 +23,7 @@ void AnalysisGraph::train_model(int start_year,
   this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
-
-  cout << "****before parameterize***\n";
   this->parameterize(country, state, start_year, start_month, units);
-
-  cout << "****After parameterize***\n";
 
   this->init_training_year = start_year;
   this->init_training_month = start_month;
