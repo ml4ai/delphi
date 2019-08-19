@@ -329,7 +329,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
       cerr << "\tThere are no paths of length <= " << cutoff
            << " from source concept " << source_concept
            << " --to-> target concept " << target_concept << endl;
-      cerr << "\tReturning and empty CAG!" << endl;
+      cerr << "\tReturning an empty CAG!" << endl;
     }
   }
   else {
@@ -337,7 +337,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     cerr << "WARNING:" << endl;
     cerr << "\tThere are no paths from source concept " << source_concept
          << " --to-> target concept " << target_concept << endl;
-    cerr << "\tReturning and empty CAG!" << endl;
+    cerr << "\tReturning an empty CAG!" << endl;
   }
 
   // Determine the vertices to be removed
@@ -956,7 +956,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   if (vertices_to_keep.size() == 0) {
     cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
     cerr << "WARNING:" << endl;
-    cerr << "\tReturning and empty CAG!" << endl;
+    cerr << "\tReturning an empty CAG!" << endl;
   }
 
   // Determine the vertices to be removed
