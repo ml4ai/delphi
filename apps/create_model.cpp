@@ -5,7 +5,20 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  auto G = AnalysisGraph::from_json_file(argv[1], 0.9, 0.0);
+  RNG *R = RNG::rng();
+  R->set_seed(87);
+  //auto G = AnalysisGraph::from_json_file(argv[1], 0.9, 0.0);
+  vector<CausalFragment> causal_fragments = {
+    {{"large", -1, "UN/events/human/conflict"},
+     {"small", 1, "UN/events/human/physical_insecurity"}},
+    {{"large", 1, "UN/events/human/conflict"},
+     {"small", -1, "UN/events/human/human_migration"}},
+    {{"large", 1, "UN/events/human/physical_insecurity"},
+     {"small", 1, "UN/events/human/human_migration"}},
+    {{"large", -1, "UN/entities/human/population"},
+     {"small", 1, "UN/events/human/human_migration"}},
+  };
+  AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
   G = G.get_subgraph_for_concept("UN/events/human/human_migration", 2, true);
   G.print_nodes();
   G.print_all_paths();
