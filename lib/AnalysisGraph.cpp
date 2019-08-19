@@ -225,8 +225,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
             (obj_ground < grounding_score_cutoff)) {
           continue;
         }
-        string subj_str = subj.get<std::string>();
-        string obj_str = obj.get<std::string>();
+        string subj_str = subj.get<string>();
+        string obj_str = obj.get<string>();
 
         if (subj_str.compare(obj_str) != 0) { // Guard against self loops
           // Add the nodes to the graph if they are not in it already
@@ -973,7 +973,6 @@ void AnalysisGraph::set_log_likelihood() {
   }
 }
 
-
 void AnalysisGraph::find_all_paths() {
   auto verts = vertices();
 
@@ -1111,7 +1110,7 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
 void AnalysisGraph::print_all_paths() {
   int num_verts = boost::num_vertices(graph);
 
-  std::cout << "All the simple paths of:" << std::endl;
+  cout << "All the simple paths of:" << endl;
 
   for (int row = 0; row < num_verts; ++row) {
     for (int col = 0; col < num_verts; ++col) {
@@ -1125,24 +1124,23 @@ void AnalysisGraph::print_all_paths() {
 // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
 // print all the transition matrix cells that are dependent on it.
 void AnalysisGraph::print_cells_affected_by_beta(int source, int target) {
-  typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator
-      MMAPIterator;
+  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
-  std::pair<int, int> beta = std::make_pair(source, target);
+  pair<int, int> beta = make_pair(source, target);
 
-  std::pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
 
-  std::cout << std::endl
-            << "Cells of A afected by beta_(" << source << ", " << target << ")"
-            << std::endl;
+  cout << endl
+       << "Cells of A afected by beta_(" << source << ", " << target << ")"
+       << endl;
 
   for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
        it++) {
-    std::cout << "(" << it->second.first * 2 << ", "
-              << it->second.second * 2 + 1 << ") ";
+    cout << "(" << it->second.first * 2 << ", " << it->second.second * 2 + 1
+         << ") ";
   }
-  std::cout << std::endl;
+  cout << endl;
 }
 
 // Sample elements of the stochastic transition matrix from the
@@ -1203,8 +1201,8 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           int start_month,
                                                           int end_year,
                                                           int end_month,
-                                                          std::string country,
-                                                          std::string state) {
+                                                          string country,
+                                                          string state) {
   this->observed_state_sequence.clear();
 
   // Access
@@ -1235,7 +1233,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence(
   this->set_default_initial_state();
 
   for (int v = 0; v < num_verts; v++) {
-    std::vector<Indicator>& indicators = this->graph[v].indicators;
+    vector<Indicator>& indicators = this->graph[v].indicators;
 
     for (int i = 0; i < indicators.size(); i++) {
       Indicator& ind = indicators[i];
@@ -1249,7 +1247,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence(
       double ind_value = this->observed_state_sequence[timestep][v][i];
 
       // TODO: If ind_mean is very close to zero, this could overflow
-      // Even indexes of the latent state std::vector represent variables
+      // Even indexes of the latent state vector represent variables
       this->s0_original(2 * v) = ind_value / ind_mean;
 
       if (timestep == this->n_timesteps - 1) {
@@ -1322,14 +1320,12 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
 
 void AnalysisGraph::set_initial_latent_states_for_prediction(int timestep) {
   this->prediction_initial_latent_state_s.clear();
-  this->prediction_initial_latent_state_s =
-      std::vector<Eigen::VectorXd>(this->res);
+  this->prediction_initial_latent_state_s = vector<Eigen::VectorXd>(this->res);
 
-  transform(
-      this->training_latent_state_sequence_s.begin(),
-      this->training_latent_state_sequence_s.end(),
-      this->prediction_initial_latent_state_s.begin(),
-      [&timestep](std::vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
+  transform(this->training_latent_state_sequence_s.begin(),
+            this->training_latent_state_sequence_s.end(),
+            this->prediction_initial_latent_state_s.begin(),
+            [&timestep](vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
 }
 
 void AnalysisGraph::sample_predicted_latent_state_sequence_s_from_likelihood(
@@ -1340,11 +1336,10 @@ void AnalysisGraph::sample_predicted_latent_state_sequence_s_from_likelihood(
 
   // Allocate memory for prediction_latent_state_sequence_s
   this->predicted_latent_state_sequence_s.clear();
-  this->predicted_latent_state_sequence_s =
-      std::vector<std::vector<Eigen::VectorXd>>(
-          this->res,
-          std::vector<Eigen::VectorXd>(this->n_timesteps,
-                                       Eigen::VectorXd(num_verts * 2)));
+  this->predicted_latent_state_sequence_s = vector<vector<Eigen::VectorXd>>(
+      this->res,
+      vector<Eigen::VectorXd>(this->n_timesteps,
+                              Eigen::VectorXd(num_verts * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
     this->predicted_latent_state_sequence_s[samp][0] =
@@ -1362,14 +1357,12 @@ void AnalysisGraph::
     generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s() {
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequence_s.clear();
-  this->predicted_observed_state_sequence_s =
-      std::vector<ObservedStateSequence>(
-          this->res,
-          ObservedStateSequence(this->n_timesteps,
-                                std::vector<std::vector<double>>()));
+  this->predicted_observed_state_sequence_s = vector<ObservedStateSequence>(
+      this->res,
+      ObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
-    std::vector<Eigen::VectorXd>& sample =
+    vector<Eigen::VectorXd>& sample =
         this->predicted_latent_state_sequence_s[samp];
 
     transform(sample.begin(),
@@ -1381,487 +1374,463 @@ void AnalysisGraph::
   }
 }
 
-  std::pair<std::vector<std::string>,
-            std::vector<std::vector<
-                std::unordered_map<std::string,
-                                   std::unordered_map<std::string, double>>>>>
-  AnalysisGraph::generate_prediction(int start_year,
-                      int start_month,
-                      int end_year,
-                      int end_month) {
-    if (!this->trained) {
-      fmt::print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
-                 "Try calling <CAG>.train_model(...) first!");
-      throw "Model not yet trained";
-    }
+pair<vector<string>,
+     vector<vector<unordered_map<string, unordered_map<string, double>>>>>
+AnalysisGraph::generate_prediction(int start_year,
+                                   int start_month,
+                                   int end_year,
+                                   int end_month) {
+  if (!this->trained) {
+    fmt::print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
+               "Try calling <CAG>.train_model(...) first!");
+    throw "Model not yet trained";
+  }
 
-    if (start_year < this->init_training_year ||
-        (start_year == this->init_training_year &&
-         start_month < this->init_training_month)) {
-      fmt::print("The initial prediction date can't be before the\n"
-                 "inital training date. Defaulting initial prediction date\n"
-                 "to initial training date.");
-      start_year = this->init_training_year;
-      start_month = this->init_training_month;
-    }
+  if (start_year < this->init_training_year ||
+      (start_year == this->init_training_year &&
+       start_month < this->init_training_month)) {
+    fmt::print("The initial prediction date can't be before the\n"
+               "inital training date. Defaulting initial prediction date\n"
+               "to initial training date.");
+    start_year = this->init_training_year;
+    start_month = this->init_training_month;
+  }
 
+  /*
+   *              total_timesteps
+   *   ____________________________________________
+   *  |                                            |
+   *  v                                            v
+   * start trainig                                 end prediction
+   *  |--------------------------------------------|
+   *  :           |--------------------------------|
+   *  :         start prediction                   :
+   *  ^           ^                                ^
+   *  |___________|________________________________|
+   *      diff              pred_timesteps
+   */
+  int total_timesteps = this->calculate_num_timesteps(
+      this->init_training_year, this->init_training_month, end_year, end_month);
+
+  this->pred_timesteps = this->calculate_num_timesteps(
+      start_year, start_month, end_year, end_month);
+
+  int diff_timesteps = total_timesteps - this->pred_timesteps;
+  int truncate = 0;
+
+  int year = start_year;
+  int month = start_month;
+
+  this->pred_range.clear();
+  this->pred_range = vector<string>(this->pred_timesteps);
+
+  for (int ts = 0; ts < this->pred_timesteps; ts++) {
+    this->pred_range[ts] = to_string(year) + "-" + to_string(month);
+
+    if (month == 12) {
+      year++;
+      month = 1;
+    }
+    else {
+      month++;
+    }
+  }
+
+  int pred_init_timestep = diff_timesteps;
+
+  if (diff_timesteps >= this->n_timesteps) {
     /*
      *              total_timesteps
      *   ____________________________________________
      *  |                                            |
      *  v                                            v
-     * start trainig                                 end prediction
-     *  |--------------------------------------------|
-     *  :           |--------------------------------|
-     *  :         start prediction                   :
-     *  ^           ^                                ^
-     *  |___________|________________________________|
-     *      diff              pred_timesteps
+     *tr_st           tr_ed     pr_st              pr_ed
+     *  |---------------|---------|------------------|
+     *  ^               ^         ^                  ^
+     *  |_______________|_________|__________________|
+     *  :  n_timesteps   truncate :   pred_timesteps
+     *  ^                         ^
+     *  |_________________________|
+     *            diff
      */
-    int total_timesteps =
-        this->calculate_num_timesteps(this->init_training_year,
-                                      this->init_training_month,
-                                      end_year,
-                                      end_month);
+    pred_init_timestep = this->n_timesteps - 1;
+    truncate = diff_timesteps - this->n_timesteps;
+    this->pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
+  }
 
-    this->pred_timesteps = this->calculate_num_timesteps(
-        start_year, start_month, end_year, end_month);
+  this->set_initial_latent_states_for_prediction(pred_init_timestep);
 
-    int diff_timesteps = total_timesteps - this->pred_timesteps;
-    int truncate = 0;
+  this->sample_predicted_latent_state_sequence_s_from_likelihood(
+      this->pred_timesteps);
+  this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
 
-    int year = start_year;
-    int month = start_month;
+  for (vector<Eigen::VectorXd>& latent_state_s :
+       this->predicted_latent_state_sequence_s) {
+    latent_state_s.erase(latent_state_s.begin(),
+                         latent_state_s.begin() + truncate);
+  }
 
-    this->pred_range.clear();
-    this->pred_range = std::vector<std::string>(this->pred_timesteps);
+  for (ObservedStateSequence& observed_state_s :
+       this->predicted_observed_state_sequence_s) {
+    observed_state_s.erase(observed_state_s.begin(),
+                           observed_state_s.begin() + truncate);
+  }
 
+  this->pred_timesteps -= truncate;
+  return make_pair(this->pred_range, this->format_prediction_result());
+}
+
+vector<vector<unordered_map<string, unordered_map<string, double>>>>
+AnalysisGraph::format_prediction_result() {
+  // Access
+  // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
+  vector<vector<unordered_map<string, unordered_map<string, double>>>> result =
+      vector<vector<unordered_map<string, unordered_map<string, double>>>>(
+          this->res,
+          vector<unordered_map<string, unordered_map<string, double>>>(
+              this->pred_timesteps));
+
+  for (int samp = 0; samp < this->res; samp++) {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
-      this->pred_range[ts] = std::to_string(year) + "-" + std::to_string(month);
-
-      if (month == 12) {
-        year++;
-        month = 1;
-      }
-      else {
-        month++;
-      }
-    }
-
-    int pred_init_timestep = diff_timesteps;
-
-    if (diff_timesteps >= this->n_timesteps) {
-      /*
-       *              total_timesteps
-       *   ____________________________________________
-       *  |                                            |
-       *  v                                            v
-       *tr_st           tr_ed     pr_st              pr_ed
-       *  |---------------|---------|------------------|
-       *  ^               ^         ^                  ^
-       *  |_______________|_________|__________________|
-       *  :  n_timesteps   truncate :   pred_timesteps
-       *  ^                         ^
-       *  |_________________________|
-       *            diff
-       */
-      pred_init_timestep = this->n_timesteps - 1;
-      truncate = diff_timesteps - this->n_timesteps;
-      this->pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
-    }
-
-    this->set_initial_latent_states_for_prediction(pred_init_timestep);
-
-    this->sample_predicted_latent_state_sequence_s_from_likelihood(
-        this->pred_timesteps);
-    this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
-
-    for (std::vector<Eigen::VectorXd>& latent_state_s :
-         this->predicted_latent_state_sequence_s) {
-      latent_state_s.erase(latent_state_s.begin(),
-                           latent_state_s.begin() + truncate);
-    }
-
-    for (ObservedStateSequence& observed_state_s :
-         this->predicted_observed_state_sequence_s) {
-      observed_state_s.erase(observed_state_s.begin(),
-                             observed_state_s.begin() + truncate);
-    }
-
-    this->pred_timesteps -= truncate;
-    return std::make_pair(this->pred_range, this->format_prediction_result());
-  }
-
-  std::vector<std::vector<
-      std::unordered_map<std::string, std::unordered_map<std::string, double>>>>
-  AnalysisGraph::format_prediction_result() {
-    // Access
-    // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
-    std::vector<std::vector<
-        std::unordered_map<std::string,
-                           std::unordered_map<std::string, double>>>>
-        result = std::vector<std::vector<
-            std::unordered_map<std::string,
-                               std::unordered_map<std::string, double>>>>(
-            this->res,
-            std::vector<
-                std::unordered_map<std::string,
-                                   std::unordered_map<std::string, double>>>(
-                this->pred_timesteps));
-
-    for (int samp = 0; samp < this->res; samp++) {
-      for (int ts = 0; ts < this->pred_timesteps; ts++) {
-        for (auto[vert_name, vert_id] : this->name_to_vertex) {
-          for (auto[ind_name, ind_id] : this->graph[vert_id].indicator_names) {
-            result[samp][ts][vert_name][ind_name] =
-                this->predicted_observed_state_sequence_s[samp][ts][vert_id]
-                                                         [ind_id];
-          }
+      for (auto [vert_name, vert_id] : this->name_to_vertex) {
+        for (auto [ind_name, ind_id] : this->graph[vert_id].indicator_names) {
+          result[samp][ts][vert_name][ind_name] =
+              this->predicted_observed_state_sequence_s[samp][ts][vert_id]
+                                                       [ind_id];
         }
       }
     }
-
-    return result;
   }
 
-  std::vector<std::vector<double>> AnalysisGraph::prediction_to_array(std::string indicator) {
-    int vert_id = -1;
-    int ind_id = -1;
+  return result;
+}
 
-    std::vector<std::vector<double>> result = std::vector<std::vector<double>>(
-        this->res, std::vector<double>(this->pred_timesteps));
+vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
+  int vert_id = -1;
+  int ind_id = -1;
 
-    // Find the vertex id the indicator is attached to and
-    // the indicator id of it.
-    // TODO: We can make this more efficient by making indicators_in_CAG
-    // a map from indicator names to vertices they are attached to.
-    // This is just a quick and dirty implementation
-    for (auto[v_name, v_id] : this->name_to_vertex) {
-      for (auto[i_name, i_id] : this->graph[v_id].indicator_names) {
-        if (indicator.compare(i_name) == 0) {
-          vert_id = v_id;
-          ind_id = i_id;
-          goto indicator_found;
-        }
+  vector<vector<double>> result =
+      vector<vector<double>>(this->res, vector<double>(this->pred_timesteps));
+
+  // Find the vertex id the indicator is attached to and
+  // the indicator id of it.
+  // TODO: We can make this more efficient by making indicators_in_CAG
+  // a map from indicator names to vertices they are attached to.
+  // This is just a quick and dirty implementation
+  for (auto [v_name, v_id] : this->name_to_vertex) {
+    for (auto [i_name, i_id] : this->graph[v_id].indicator_names) {
+      if (indicator.compare(i_name) == 0) {
+        vert_id = v_id;
+        ind_id = i_id;
+        goto indicator_found;
       }
     }
-    // Program will reach hear only if the indicator is not found
-    fmt::print("AnalysisGraph::prediction_to_array - indicator {} not found!\n",
-               indicator);
-    throw IndicatorNotFoundException(fmt::format(
-        "AnalysisGraph::prediction_to_array - indicator \"{}\" not found!\n",
-        indicator));
-
-  indicator_found:
-
-    for (int samp = 0; samp < this->res; samp++) {
-      for (int ts = 0; ts < this->pred_timesteps; ts++) {
-        result[samp][ts] =
-            this->predicted_observed_state_sequence_s[samp][ts][vert_id]
-                                                     [ind_id];
-      }
-    }
-
-    return result;
   }
+  // Program will reach hear only if the indicator is not found
+  fmt::print("AnalysisGraph::prediction_to_array - indicator {} not found!\n",
+             indicator);
+  throw IndicatorNotFoundException(fmt::format(
+      "AnalysisGraph::prediction_to_array - indicator \"{}\" not found!\n",
+      indicator));
 
-  void AnalysisGraph::generate_synthetic_latent_state_sequence_from_likelihood() {
-    int num_verts = boost::num_vertices(this->graph);
+indicator_found:
 
-    // Allocate memory for synthetic_latent_state_sequence
-    this->synthetic_latent_state_sequence.clear();
-    this->synthetic_latent_state_sequence = std::vector<Eigen::VectorXd>(
-        this->n_timesteps, Eigen::VectorXd(num_verts * 2));
-
-    this->synthetic_latent_state_sequence[0] = this->s0_original;
-
-    for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->synthetic_latent_state_sequence[ts] =
-          this->A_original * this->synthetic_latent_state_sequence[ts - 1];
+  for (int samp = 0; samp < this->res; samp++) {
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+      result[samp][ts] =
+          this->predicted_observed_state_sequence_s[samp][ts][vert_id][ind_id];
     }
   }
 
-  void
-  AnalysisGraph::generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
-    // Allocate memory for observed_state_sequences
-    this->observed_state_sequence.clear();
-    this->observed_state_sequence = ObservedStateSequence(
-        this->n_timesteps, std::vector<std::vector<double>>());
+  return result;
+}
 
-    transform(this->synthetic_latent_state_sequence.begin(),
-              this->synthetic_latent_state_sequence.end(),
-              this->observed_state_sequence.begin(),
-              [this](Eigen::VectorXd latent_state) {
-                return this->sample_observed_state(latent_state);
+void AnalysisGraph::generate_synthetic_latent_state_sequence_from_likelihood() {
+  int num_verts = boost::num_vertices(this->graph);
+
+  // Allocate memory for synthetic_latent_state_sequence
+  this->synthetic_latent_state_sequence.clear();
+  this->synthetic_latent_state_sequence = vector<Eigen::VectorXd>(
+      this->n_timesteps, Eigen::VectorXd(num_verts * 2));
+
+  this->synthetic_latent_state_sequence[0] = this->s0_original;
+
+  for (int ts = 1; ts < this->n_timesteps; ts++) {
+    this->synthetic_latent_state_sequence[ts] =
+        this->A_original * this->synthetic_latent_state_sequence[ts - 1];
+  }
+}
+
+void AnalysisGraph::
+    generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
+  // Allocate memory for observed_state_sequences
+  this->observed_state_sequence.clear();
+  this->observed_state_sequence =
+      ObservedStateSequence(this->n_timesteps, vector<vector<double>>());
+
+  transform(this->synthetic_latent_state_sequence.begin(),
+            this->synthetic_latent_state_sequence.end(),
+            this->observed_state_sequence.begin(),
+            [this](Eigen::VectorXd latent_state) {
+              return this->sample_observed_state(latent_state);
+            });
+}
+
+pair<ObservedStateSequence,
+     pair<vector<string>,
+          vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
+AnalysisGraph::test_inference_with_synthetic_data(int start_year,
+                                                  int start_month,
+                                                  int end_year,
+                                                  int end_month,
+                                                  int res,
+                                                  int burn,
+                                                  string country,
+                                                  string state,
+                                                  map<string, string> units,
+                                                  InitialBeta initial_beta) {
+
+  synthetic_data_experiment = true;
+
+  this->n_timesteps = this->calculate_num_timesteps(
+      start_year, start_month, end_year, end_month);
+  this->init_betas_to(initial_beta);
+  this->sample_initial_transition_matrix_from_prior();
+  cout << this->A_original << endl;
+  this->parameterize(country, state, start_year, start_month, units);
+
+  // Initialize the latent state vector at time 0
+  this->set_random_initial_latent_state();
+  this->generate_synthetic_latent_state_sequence_from_likelihood();
+  this->generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
+
+  for (vector<vector<double>> obs : this->observed_state_sequence) {
+    fmt::print("({}, {})\n", obs[0][0], obs[1][0]);
+  }
+
+  this->train_model(start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    res,
+                    burn,
+                    country,
+                    state,
+                    units,
+                    InitialBeta::ZERO);
+
+  return make_pair(
+      this->observed_state_sequence,
+      this->generate_prediction(start_year, start_month, end_year, end_month));
+
+  synthetic_data_experiment = false;
+}
+
+vector<vector<double>>
+AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
+  int num_verts = boost::num_vertices(this->graph);
+
+  assert(num_verts == latent_state.size() / 2);
+
+  vector<vector<double>> observed_state(num_verts);
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = this->graph[v].indicators;
+
+    observed_state[v] = vector<double>(indicators.size());
+
+    // Sample observed value of each indicator around the mean of the
+    // indicator
+    // scaled by the value of the latent state that caused this observation.
+    // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
+    //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
+    transform(indicators.begin(),
+              indicators.end(),
+              observed_state[v].begin(),
+              [&](Indicator ind) {
+                normal_distribution<double> gaussian(
+                    ind.mean * latent_state[2 * v], ind.stdev);
+
+                return gaussian(this->rand_num_generator);
               });
   }
 
-  std::pair<ObservedStateSequence,
-            std::pair<std::vector<std::string>,
-                      std::vector<std::vector<std::unordered_map<
-                          std::string,
-                          std::unordered_map<std::string, double>>>>>>
-  AnalysisGraph::test_inference_with_synthetic_data(
-      int start_year,
-      int start_month,
-      int end_year,
-      int end_month,
-      int res,
-      int burn,
-      std::string country,
-      std::string state,
-      std::map<std::string, std::string> units,
-      InitialBeta initial_beta) {
+  return observed_state;
+}
 
-    synthetic_data_experiment = true;
+void AnalysisGraph::update_transition_matrix_cells(
+    boost::graph_traits<DiGraph>::edge_descriptor e) {
+  pair<int, int> beta =
+      make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
-    this->n_timesteps = this->calculate_num_timesteps(
-        start_year, start_month, end_year, end_month);
-    this->init_betas_to(initial_beta);
-    this->sample_initial_transition_matrix_from_prior();
-    std::cout << this->A_original << std::endl;
-    this->parameterize(country, state, start_year, start_month, units);
+  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
-    // Initialize the latent state std::vector at time 0
-    this->set_random_initial_latent_state();
-    this->generate_synthetic_latent_state_sequence_from_likelihood();
-    this->generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
+  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+      this->beta2cell.equal_range(beta);
 
-    for (std::vector<std::vector<double>> obs : this->observed_state_sequence) {
-      fmt::print("({}, {})\n", obs[0][0], obs[1][0]);
-    }
+  // TODO: I am introducing this to implement calculate_Δ_log_prior
+  // Remember the cells of A that got changed and their previous values
+  // this->A_cells_changed.clear();
 
-    this->train_model(start_year,
-                      start_month,
-                      end_year,
-                      end_month,
-                      res,
-                      burn,
-                      country,
-                      state,
-                      units,
-                      InitialBeta::ZERO);
+  for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+       it++) {
+    int& row = it->second.first;
+    int& col = it->second.second;
 
-    return std::make_pair(this->observed_state_sequence,
-                          this->generate_prediction(
-                              start_year, start_month, end_year, end_month));
+    // Note that I am remembering row and col instead of 2*row and 2*col+1
+    // row and col resembles an edge in the CAG: row -> col
+    // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
+    // this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col
+    // * 2 + 1 )));
 
-    synthetic_data_experiment = false;
+    this->A_original(row * 2, col * 2 + 1) =
+        this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
+}
 
-  std::vector<std::vector<double>>
-  AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
-    int num_verts = boost::num_vertices(this->graph);
+void AnalysisGraph::sample_from_proposal() {
+  // Randomly pick an edge ≡ β
+  boost::iterator_range edge_it = this->edges();
 
-    assert(num_verts == latent_state.size() / 2);
+  vector<boost::graph_traits<DiGraph>::edge_descriptor> e(1);
+  sample(
+      edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
-    std::vector<std::vector<double>> observed_state(num_verts);
+  // Remember the previous β
+  this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
 
-    for (int v = 0; v < num_verts; v++) {
-      std::vector<Indicator>& indicators = this->graph[v].indicators;
+  // Perturb the β
+  // TODO: Check whether this perturbation is accurate
+  graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
-      observed_state[v] = std::vector<double>(indicators.size());
+  this->update_transition_matrix_cells(e[0]);
+}
 
-      // Sample observed value of each indicator around the mean of the
-      // indicator
-      // scaled by the value of the latent state that caused this observation.
-      // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
-      //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
-      transform(indicators.begin(),
-                indicators.end(),
-                observed_state[v].begin(),
-                [&](Indicator ind) {
-                  std::normal_distribution<double> gaussian(
-                      ind.mean * latent_state[2 * v], ind.stdev);
+void AnalysisGraph::set_latent_state_sequence() {
+  int num_verts = boost::num_vertices(this->graph);
 
-                  return gaussian(this->rand_num_generator);
-                });
-    }
+  // Allocate memory for latent_state_sequence
+  this->latent_state_sequence.clear();
+  this->latent_state_sequence = vector<Eigen::VectorXd>(this->n_timesteps);
 
-    return observed_state;
+  this->latent_state_sequence[0] = this->s0_original;
+
+  for (int ts = 1; ts < this->n_timesteps; ts++) {
+    this->latent_state_sequence[ts] =
+        this->A_original * this->latent_state_sequence[ts - 1];
   }
+}
 
-  void AnalysisGraph::update_transition_matrix_cells(
-      boost::graph_traits<DiGraph>::edge_descriptor e) {
-    std::pair<int, int> beta = std::make_pair(boost::source(e, this->graph),
-                                              boost::target(e, this->graph));
+double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
+  double var = pow(sd, 2);
+  double log_denom = -0.5 * log(2 * M_PI) - log(sd);
+  double log_nume = pow(x - mean, 2) / (2 * var);
 
-    typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator
-        MMAPIterator;
+  return log_denom - log_nume;
+}
 
-    std::pair<MMAPIterator, MMAPIterator> beta_dept_cells =
-        this->beta2cell.equal_range(beta);
+double AnalysisGraph::calculate_delta_log_prior() {
+  // If kde of an edge is truely optional ≡ there are some
+  // edges without a kde assigned, we should not access it
+  // using .value() (In the case of kde being missing, this
+  // will throw an exception). We should follow a process
+  // similar to Tran_Mat_Cell::sample_from_prior
+  KDE& kde = this->graph[this->previous_beta.first].kde.value();
 
-    // TODO: I am introducing this to implement calculate_Δ_log_prior
-    // Remember the cells of A that got changed and their previous values
-    // this->A_cells_changed.clear();
+  // We have to return: log( p( β_new )) - log( p( β_old ))
+  return kde.logpdf(this->graph[this->previous_beta.first].beta) -
+         kde.logpdf(this->previous_beta.second);
+}
 
-    for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
-         it++) {
-      int& row = it->second.first;
-      int& col = it->second.second;
+void AnalysisGraph::revert_back_to_previous_state() {
+  this->log_likelihood = this->previous_log_likelihood;
 
-      // Note that I am remembering row and col instead of 2*row and 2*col+1
-      // row and col resembles an edge in the CAG: row -> col
-      // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
-      // this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col
-      // * 2 + 1 )));
+  this->graph[this->previous_beta.first].beta = this->previous_beta.second;
 
-      this->A_original(row * 2, col * 2 + 1) =
-          this->A_beta_factors[row][col]->compute_cell(this->graph);
-    }
+  // Reset the transition matrix cells that were changed
+  // TODO: Can we change the transition matrix only when the sample is
+  // accpeted?
+  this->update_transition_matrix_cells(this->previous_beta.first);
+}
+
+void AnalysisGraph::sample_from_posterior() {
+  // Sample a new transition matrix from the proposal distribution
+  this->sample_from_proposal();
+
+  double delta_log_prior = this->calculate_delta_log_prior();
+
+  this->set_log_likelihood();
+  double delta_log_likelihood =
+      this->log_likelihood - this->previous_log_likelihood;
+
+  double delta_log_joint_probability = delta_log_prior + delta_log_likelihood;
+
+  double acceptance_probability = min(1.0, exp(delta_log_joint_probability));
+
+  if (acceptance_probability < uni_dist(this->rand_num_generator)) {
+    // Reject the sample
+    this->revert_back_to_previous_state();
   }
-
-  void AnalysisGraph::sample_from_proposal() {
-    // Randomly pick an edge ≡ β
-    boost::iterator_range edge_it = this->edges();
-
-    std::vector<boost::graph_traits<DiGraph>::edge_descriptor> e(1);
-    sample(
-        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
-
-    // Remember the previous β
-    this->previous_beta = std::make_pair(e[0], this->graph[e[0]].beta);
-
-    // Perturb the β
-    // TODO: Check whether this perturbation is accurate
-    graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
-
-    this->update_transition_matrix_cells(e[0]);
+}
+void AnalysisGraph::set_indicator(string concept,
+                                  string indicator,
+                                  string source) {
+  if (this->indicators_in_CAG.find(indicator) !=
+      this->indicators_in_CAG.end()) {
+    fmt::print("{0} already exists in Casual Analysis Graph, Indicator {0} was "
+               "not added to Concept {1}.",
+               indicator,
+               concept);
+    return;
   }
-
-  void AnalysisGraph::set_latent_state_sequence() {
-    int num_verts = boost::num_vertices(this->graph);
-
-    // Allocate memory for latent_state_sequence
-    this->latent_state_sequence.clear();
-    this->latent_state_sequence =
-        std::vector<Eigen::VectorXd>(this->n_timesteps);
-
-    this->latent_state_sequence[0] = this->s0_original;
-
-    for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->latent_state_sequence[ts] =
-          this->A_original * this->latent_state_sequence[ts - 1];
-    }
+  try {
+    this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
+                                                                source);
+    this->indicators_in_CAG.insert(indicator);
   }
-
-  double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
-    double var = pow(sd, 2);
-    double log_denom = -0.5 * log(2 * M_PI) - log(sd);
-    double log_nume = pow(x - mean, 2) / (2 * var);
-
-    return log_denom - log_nume;
+  catch (const out_of_range& oor) {
+    cerr << "Error: AnalysisGraph::set_indicator()\n"
+         << "\tConcept: " << concept << " is not in the CAG\n";
+    cerr << "\tIndicator: " << indicator << " with Source: " << source << endl;
+    cerr << "\tCannot be added\n";
   }
+}
 
-  double AnalysisGraph::calculate_delta_log_prior() {
-    // If kde of an edge is truely optional ≡ there are some
-    // edges without a kde assigned, we should not access it
-    // using .value() (In the case of kde being missing, this
-    // will throw an exception). We should follow a process
-    // similar to Tran_Mat_Cell::sample_from_prior
-    KDE& kde = this->graph[this->previous_beta.first].kde.value();
-
-    // We have to return: log( p( β_new )) - log( p( β_old ))
-    return kde.logpdf(this->graph[this->previous_beta.first].beta) -
-           kde.logpdf(this->previous_beta.second);
+void AnalysisGraph::delete_indicator(string concept, string indicator) {
+  try {
+    this->graph[this->name_to_vertex.at(concept)].delete_indicator(indicator);
+    this->indicators_in_CAG.erase(indicator);
   }
-
-  void AnalysisGraph::revert_back_to_previous_state() {
-    this->log_likelihood = this->previous_log_likelihood;
-
-    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
-
-    // Reset the transition matrix cells that were changed
-    // TODO: Can we change the transition matrix only when the sample is
-    // accpeted?
-    this->update_transition_matrix_cells(this->previous_beta.first);
+  catch (const out_of_range& oor) {
+    cerr << "Error: AnalysisGraph::delete_indicator()\n"
+         << "\tConcept: " << concept << " is not in the CAG\n";
+    cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
   }
+}
 
-  void AnalysisGraph::sample_from_posterior() {
-    // Sample a new transition matrix from the proposal distribution
-    this->sample_from_proposal();
-
-    double delta_log_prior = this->calculate_delta_log_prior();
-
-    this->set_log_likelihood();
-    double delta_log_likelihood =
-        this->log_likelihood - this->previous_log_likelihood;
-
-    double delta_log_joint_probability = delta_log_prior + delta_log_likelihood;
-
-    double acceptance_probability =
-        std::min(1.0, exp(delta_log_joint_probability));
-
-    if (acceptance_probability < uni_dist(this->rand_num_generator)) {
-      // Reject the sample
-      this->revert_back_to_previous_state();
-    }
+void AnalysisGraph::delete_all_indicators(string concept) {
+  try {
+    this->graph[this->name_to_vertex.at(concept)].clear_indicators();
   }
-  void AnalysisGraph::set_indicator(std::string concept,
-                     std::string indicator,
-                     std::string source) {
-    if (this->indicators_in_CAG.find(indicator) !=
-        this->indicators_in_CAG.end()) {
-      fmt::print(
-          "{0} already exists in Casual Analysis Graph, Indicator {0} was "
-          "not added to Concept {1}.",
-          indicator,
-          concept);
-      return;
-    }
-    try {
-      this->graph[this->name_to_vertex.at(concept)].add_indicator(indicator,
-                                                                  source);
-      this->indicators_in_CAG.insert(indicator);
-    }
-    catch (const std::out_of_range& oor) {
-      std::cerr << "Error: AnalysisGraph::set_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicator: " << indicator << " with Source: " << source
-                << std::endl;
-      std::cerr << "\tCannot be added\n";
-    }
+  catch (const out_of_range& oor) {
+    cerr << "Error: AnalysisGraph::delete_indicator()\n"
+         << "\tConcept: " << concept << " is not in the CAG\n";
+    cerr << "\tIndicators cannot be deleted" << endl;
   }
+}
 
-  void AnalysisGraph::delete_indicator(std::string concept, std::string indicator) {
-    try {
-      this->graph[this->name_to_vertex.at(concept)].delete_indicator(indicator);
-      this->indicators_in_CAG.erase(indicator);
-    }
-    catch (const std::out_of_range& oor) {
-      std::cerr << "Error: AnalysisGraph::delete_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicator: " << indicator << " cannot be deleted"
-                << std::endl;
-    }
+void AnalysisGraph::replace_indicator(string concept,
+                                      string indicator_old,
+                                      string indicator_new,
+                                      string source) {
+
+  if (this->indicators_in_CAG.find(indicator_new) !=
+      this->indicators_in_CAG.end()) {
+    fmt::print("{0} already exists in Casual Analysis Graph, Indicator {0} did "
+               "not replace Indicator {1} for Concept {2}.",
+               indicator_new,
+               indicator_old,
+               concept);
+    return;
   }
-
-  void AnalysisGraph::delete_all_indicators(std::string concept) {
-    try {
-      this->graph[this->name_to_vertex.at(concept)].clear_indicators();
-    }
-    catch (const std::out_of_range& oor) {
-      std::cerr << "Error: AnalysisGraph::delete_indicator()\n"
-                << "\tConcept: " << concept << " is not in the CAG\n";
-      std::cerr << "\tIndicators cannot be deleted" << std::endl;
-    }
-  }
-
-  void AnalysisGraph::replace_indicator(std::string concept,
-                         std::string indicator_old,
-                         std::string indicator_new,
-                         std::string source) {
-
-    if (this->indicators_in_CAG.find(indicator_new) !=
-        this->indicators_in_CAG.end()) {
-      fmt::print(
-          "{0} already exists in Casual Analysis Graph, Indicator {0} did "
-          "not replace Indicator {1} for Concept {2}.",
-          indicator_new,
-          indicator_old,
-          concept);
-      return;
-    }
-
-  }
+}
