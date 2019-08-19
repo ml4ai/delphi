@@ -42,25 +42,27 @@ void AnalysisGraph::parameterize(string country,
   double stdev;
   for (int v : this->vertices()) {
     for (auto [name, i] : this->graph[v].indicator_names) {
-      if (units.find(name) != units.end()) {
-        this->graph[v].indicators[i].set_unit(units[name]);
-        this->graph[v].indicators[i].set_mean(
-            get_data_value(name, country, state, year, month, units[name]));
-        stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
-        this->graph[v].indicators[i].set_stdev(stdev);
-      }
-      else {
-  try {
-        this->graph[v].indicators[i].set_default_unit();
-        this->graph[v].indicators[i].set_mean(
-            get_data_value(name, country, state, year, month));
-        stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
-        this->graph[v].indicators[i].set_stdev(stdev);
-  } catch ( std::logic_error & le ) {
-    cout << "\nLogic error happened\n";
-    cout << this->graph[v].name << endl;
-    cout << i << " - " << name << endl;
-  }
+      try {
+        if (units.find(name) != units.end()) {
+          this->graph[v].indicators[i].set_unit(units[name]);
+          this->graph[v].indicators[i].set_mean(
+              get_data_value(name, country, state, year, month, units[name]));
+          stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
+          this->graph[v].indicators[i].set_stdev(stdev);
+        }
+        else {
+          this->graph[v].indicators[i].set_default_unit();
+          this->graph[v].indicators[i].set_mean(
+              get_data_value(name, country, state, year, month));
+          stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
+          this->graph[v].indicators[i].set_stdev(stdev);
+        }
+      } catch ( std::logic_error & le ) {
+        cerr << "ERROR: AnalysisGraph::parameterize()\n";
+        cerr << "\tReading data for:\n";
+        cerr << "\t\tConcept: " << this->graph[v].name << endl;
+        cerr << "\t\tIndicator: " << name << endl;
+        rethrow_exception(current_exception());
       }
     }
   }
