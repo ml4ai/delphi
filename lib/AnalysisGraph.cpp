@@ -313,9 +313,10 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
             if (obj_polarity.is_null()) {
               obj_polarity = 1;
             }
-
-            Event subject{subj_adjective, subj_polarity, ""};
-            Event object{obj_adjective, obj_polarity, ""};
+            string subj_adj_str = subj_adjective.get<std::string>();
+            string obj_adj_str = subj_adjective.get<std::string>();
+            Event subject{subj_adj_str, subj_polarity, ""};
+            Event object{obj_adj_str, obj_polarity, ""};
             G[e].evidence.push_back(Statement{subject, object});
           }
         }
