@@ -215,14 +215,14 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   unordered_map<string, int> nameMap = {};
 
   for (auto stmt : json_data) {
-    if (stmt["type"] == "Influence" and stmt["belief"] >= belief_score_cutoff) {
+    auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
+    auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
+    bool grounding_check = (subj_ground >= grounding_score_cutoff) and (obj_ground >= grounding_score_cutoff);
+    if (stmt["type"] == "Influence" and grounding_check) {
       auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
       auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
-      auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
-      auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
       if (!subj.is_null() and !obj.is_null()) {
-        if ((subj_ground < grounding_score_cutoff) or
-            (obj_ground < grounding_score_cutoff)) {
+        if (stmt["belief"] < belief_score_cutoff) {
           continue;
         }
         string subj_str = subj.get<string>();
