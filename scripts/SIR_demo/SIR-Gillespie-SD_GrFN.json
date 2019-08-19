@@ -429,7 +429,7 @@
       "mutable": false
     },
     {
-      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$0::BK::0",
+      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$0::EXIT::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
       "mutable": false
@@ -579,7 +579,7 @@
       "mutable": false
     },
     {
-      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$1::BK::0",
+      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$1::EXIT::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
       "mutable": false
@@ -819,7 +819,7 @@
       "mutable": false
     },
     {
-      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$2::BK::0",
+      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$2::EXIT::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
       "mutable": false
@@ -1053,7 +1053,7 @@
       "mutable": false
     },
     {
-      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$3::BK::0",
+      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$3::EXIT::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
       "mutable": false
@@ -1197,7 +1197,7 @@
       "mutable": false
     },
     {
-      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$4::BK::0",
+      "name": "@variable::SIR-Gillespie-SD::gillespie.loop$4::EXIT::0",
       "domain": "float",
       "domain_constraints": "(and (> v -infty) (< v infty)))",
       "mutable": false
@@ -1752,14 +1752,14 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__loop_0__decision__BK__0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_0__decision__EXIT__0",
             "type": "lambda_source"
           },
           "input": [
             "@variable::IF_0::0"
           ],
           "output": [
-            "@variable::BK::0"
+            "@variable::EXIT::0"
           ],
           "updated": []
         },
@@ -1932,14 +1932,14 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__loop_1__decision__BK__0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_1__decision__EXIT__0",
             "type": "lambda_source"
           },
           "input": [
             "@variable::IF_0::0"
           ],
           "output": [
-            "@variable::BK::0"
+            "@variable::EXIT::0"
           ],
           "updated": []
         },
@@ -2142,14 +2142,14 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__BK__0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_2__decision__EXIT__0",
             "type": "lambda_source"
           },
           "input": [
             "@variable::IF_0::0"
           ],
           "output": [
-            "@variable::BK::0"
+            "@variable::EXIT::0"
           ],
           "updated": []
         },
@@ -2460,14 +2460,14 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__loop_3__decision__BK__0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__decision__EXIT__0",
             "type": "lambda_source"
           },
           "input": [
             "@variable::IF_0::0"
           ],
           "output": [
-            "@variable::BK::0"
+            "@variable::EXIT::0"
           ],
           "updated": []
         },
@@ -2600,14 +2600,14 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD__gillespie__loop_4__decision__BK__0",
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__decision__EXIT__0",
             "type": "lambda_source"
           },
           "input": [
             "@variable::IF_0::0"
           ],
           "output": [
-            "@variable::BK::0"
+            "@variable::EXIT::0"
           ],
           "updated": []
         },

@@ -9,7 +9,7 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 
 print('Running demo_generate_grfn.py')
 data_dir = "scripts/SIR_Demo/"
-sys.path.insert(0, "scripts/SIR_Demo/")
+sys.path.insert(0, data_dir)
 model_file = "SIR-Gillespie-SD"
 json_file = f"{model_file}_GrFN.json"
 lambdas = importlib.__import__(f"{model_file}_lambdas")

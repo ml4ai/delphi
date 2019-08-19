@@ -107,7 +107,7 @@ def SIR_Gillespie_SD__gillespie__loop_0__condition__IF_0__0(i, Tmax):
     return 0 <= i < Tmax
 
 
-def SIR_Gillespie_SD__gillespie__loop_0__decision__BK__0(IF_0_0):
+def SIR_Gillespie_SD__gillespie__loop_0__decision__EXIT__0(IF_0_0):
     return IF_0_0
 
 
@@ -158,7 +158,7 @@ def SIR_Gillespie_SD__gillespie__loop_1__condition__IF_0__0(runs, total_runs):
     return 0 <= runs < total_runs-1
 
 
-def SIR_Gillespie_SD__gillespie__loop_1__decision__BK__0(IF_0_0):
+def SIR_Gillespie_SD__gillespie__loop_1__decision__EXIT__0(IF_0_0):
     return IF_0_0
 
 
@@ -190,7 +190,7 @@ def SIR_Gillespie_SD__gillespie__loop_2__condition__IF_0__0(t, Tmax, n_I):
     return t <= Tmax and n_I > 0
 
 
-def SIR_Gillespie_SD__gillespie__loop_2__decision__BK__0(IF_0_0):
+def SIR_Gillespie_SD__gillespie__loop_2__decision__EXIT__0(IF_0_0):
     return IF_0_0
 
 
@@ -254,7 +254,7 @@ def SIR_Gillespie_SD__gillespie__loop_3__condition__IF_0__0(sample_idx, Tmax, t,
     return sample_idx < Tmax and t > samples(sample_idx)
 
 
-def SIR_Gillespie_SD__gillespie__loop_3__decision__BK__0(IF_0_0):
+def SIR_Gillespie_SD__gillespie__loop_3__decision__EXIT__0(IF_0_0):
     return IF_0_0
 
 
@@ -270,7 +270,7 @@ def SIR_Gillespie_SD__gillespie__loop_4__condition__IF_0__0(sample_idx, Tmax):
     return sample_idx < Tmax
 
 
-def SIR_Gillespie_SD__gillespie__loop_4__decision__BK__0(IF_0_0):
+def SIR_Gillespie_SD__gillespie__loop_4__decision__EXIT__0(IF_0_0):
     return IF_0_0
 
 

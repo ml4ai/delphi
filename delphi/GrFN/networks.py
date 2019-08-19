@@ -257,12 +257,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def make_variable_name(parent: str, basename: str, index: str):
             return f"{parent}::{basename}::{index}"
 
-        def add_variable_node(parent: str, basename: str, index: str):
+        def add_variable_node(parent: str, basename: str, index: str, is_exit: bool = False):
             full_var_name = make_variable_name(parent, basename, index)
             G.add_node(
                 full_var_name,
                 type="variable",
-                color="maroon",
+                color="crimson",
+                fontcolor="white" if is_exit else "black",
+                fillcolor="crimson" if is_exit else "white",
+                style="filled" if is_exit else "",
                 parent=parent,
                 label=f"{basename}::{index}",
                 basename=basename,
@@ -281,7 +284,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
             for output in stmt["output"]:
                 (_, var_name, idx) = output.split("::")
-                node_name = add_variable_node(scope.name, var_name, idx)
+                node_name = add_variable_node(scope.name, var_name, idx, is_exit=var_name == "EXIT")
                 G.add_edge(lambda_node_name, node_name)
 
             ordered_inputs = list()
@@ -313,7 +316,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 occurrences[container_name] = 0
 
             new_container = functions[container_name]
-            container_color = "blue" if new_container["repeat"] else "green"
+            container_color = "navyblue" if new_container["repeat"] else "forestgreen"
             new_scope = ScopeNode(new_container, occurrences[container_name], parent=scope)
             scope_tree.add_node(new_scope.name, color=container_color)
             scope_tree.add_edge(scope.name, new_scope.name)
@@ -399,7 +402,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         root = data["start"]
         occurrences[root] = 0
         cur_scope = ScopeNode(functions[root], occurrences[root])
-        scope_tree.add_node(cur_scope.name, color="green")
+        scope_tree.add_node(cur_scope.name, color="forestgreen")
         process_container(cur_scope, [], root)
         return cls(G, scope_tree)
 
@@ -641,7 +644,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         )
         A.node_attr.update({"fontname": "Menlo"})
 
-        def build_tree(cluster_name, root_graph):
+        def build_tree(cluster_name, node_attrs, root_graph):
             subgraph_nodes = [
                 node_name
                 for node_name, node_data in self.nodes(data=True)
@@ -653,13 +656,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 name=f"cluster_{cluster_name}",
                 label=cluster_name,
                 style="bold, rounded",
-                rankdir="LR"
+                rankdir="LR",
+                color=node_attrs[cluster_name]["color"]
             )
             for n in self.scope_tree.successors(cluster_name):
-                build_tree(n, subgraph)
+                build_tree(n, node_attrs, subgraph)
 
         root = [n for n, d in self.scope_tree.in_degree() if d == 0][0]
-        build_tree(root, A)
+        node_data = {n: d for n, d in self.scope_tree.nodes(data=True)}
+        build_tree(root, node_data, A)
         return A
 
     def to_CAG_agraph(self):

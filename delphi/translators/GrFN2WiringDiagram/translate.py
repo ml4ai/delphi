@@ -1,4 +1,5 @@
 import sys
+import importlib
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
 
@@ -6,8 +7,11 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 def main():
     data_dir = "scripts/SIR_Demo/"
     sys.path.insert(0, data_dir)
+    model_file = "SIR-Gillespie-SD"
+    json_file = f"{model_file}_GrFN.json"
+    lambdas = importlib.__import__(f"{model_file}_lambdas")
 
-    grfn = GroundedFunctionNetwork.from_fortran_file(f"{data_dir}SIR-simple.f")
+    grfn = GroundedFunctionNetwork.from_json_and_lambdas(json_file, lambdas)
     to_wiring_diagram(grfn, "SIR-simple.jl")
     agraph = grfn.to_agraph()
     agraph.draw('SIR-gillespie.pdf', prog='dot')
