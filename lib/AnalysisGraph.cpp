@@ -217,7 +217,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   for (auto stmt : json_data) {
     auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
     auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
-    bool grounding_check = (subj_ground >= grounding_score_cutoff) and (obj_ground >= grounding_score_cutoff);
+    bool grounding_check = (subj_ground >= grounding_score_cutoff) and
+                           (obj_ground >= grounding_score_cutoff);
     if (stmt["type"] == "Influence" and grounding_check) {
       auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
       auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
@@ -1832,5 +1833,17 @@ void AnalysisGraph::replace_indicator(string concept,
                indicator_old,
                concept);
     return;
+  }
+  try {
+    this->graph[this->name_to_vertex.at(concept)].replace_indicator(
+        indicator_old, indicator_new, source);
+    this->indicators_in_CAG.insert(indicator_new);
+    this->indicators_in_CAG.erase(indicator_old);
+  }
+  catch (const std::out_of_range& oor) {
+    std::cerr << "Error: AnalysisGraph::replace_indicator()\n"
+              << "\tConcept: " << concept << " is not in the CAG\n";
+    std::cerr << "\tIndicator: " << indicator_old << " cannot be replaced"
+              << std::endl;
   }
 }
