@@ -89,6 +89,7 @@ def test_remove_node():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -117,6 +118,7 @@ def test_remove_nodes():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -138,6 +140,7 @@ def test_remove_edge():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -182,6 +185,7 @@ def test_remove_edges():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -236,6 +240,7 @@ def test_subgraph():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -310,6 +315,7 @@ def test_subgraph_between():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -356,6 +362,7 @@ def test_prune():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     print( '\nBefore pruning' )
     G.print_all_paths()
@@ -392,6 +399,7 @@ def test_merge():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     print( '\nBefore merging' )
     G.print_all_paths()
