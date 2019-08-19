@@ -682,7 +682,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 "shape": "rectangle",
                 "color": "#650021",
                 "style": "rounded",
-                "fontname": "Gill Sans",
+                "fontname": "Menlo",
             }
         )
         A.edge_attr.update({"color": "#650021", "arrowsize": 0.5})
