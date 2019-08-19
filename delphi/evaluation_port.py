@@ -1,10 +1,12 @@
-from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
+from typing  import Dict, Optional, Union, Callable, Tuple, List, Iterable
 import pandas as pd
 from scipy import stats
 from .db import engine
 import numpy as np
 import seaborn as sns
 import warnings
+import matplotlib.patches as mpatches
+
 
 
 class Error(Exception):
@@ -353,11 +355,23 @@ def mean_pred_to_df(
         return mean_df
 
 
+def calculate_prediction_rmse(
+        preds: Tuple[List[str], List[List[Dict[str, Dict[str, float]]]]],
+        indicator: str,
+        **kwargs,
+) -> float:
+    df=mean_pred_to_df(preds,indicator,0.95,True,**kwargs)
+    df.drop(df.columns[[0,1,2,3,5,6]], axis=1, inplace=True)
+    sqr_residuals = df['Error'].values**2
+    return np.sqrt(sqr_residuals.mean())
+
+
 def pred_plot(
     preds: Tuple[List[str], List[List[Dict[str, Dict[str, float]]]]],
     indicator: str,
     ci: float = 0.95,
     plot_type: str = "Prediction",
+    show_rmse: bool = False,
     save_as: Optional[str] = None,
     **kwargs,
 ) -> None:
@@ -404,13 +418,19 @@ def pred_plot(
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
         ax = sns.lineplot(data=df_compare, sort=False)
         ax.fill_between(
-            x=df_compare.index,
-            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+            x=df_compare.index.astype(str),
+            y1=df[f"{indicator}(Upper Confidence Bound)"].values.astype(float),
+            y2=df[f"{indicator}(Lower Confidence Bound)"].values.astype(float),
             alpha=0.5,
         )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+        ax.set_xticklabels(df.index.astype(str), rotation=45, ha="right", fontsize=8)
         ax.set_title(f"Predictions vs. True values for {indicator}")
+        if show_rmse:
+            rmse = round(calculate_prediction_rmse(preds,indicator,**kwargs),4)
+            rmse_str = f"Root Mean Squared Error: {rmse}"
+            handles, labels = ax.get_legend_handles_labels()
+            handles.append(mpatches.Patch(color='none',label=rmse_str))
+            ax.legend(handles=handles)
     elif plot_type == "Error":
         df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
         df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
@@ -425,6 +445,12 @@ def pred_plot(
         ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
         ax.axhline(color="r")
         ax.set_title(f"Prediction Error for {indicator}")
+        if show_rmse:
+            rmse = round(calculate_prediction_rmse(preds,indicator,**kwargs),4)
+            rmse_str = f"Root Mean Squared Error: {rmse}"
+            handles, labels = ax.get_legend_handles_labels()
+            handles.append(mpatches.Patch(color='none',label=rmse_str))
+            ax.legend(handles=handles)
     elif plot_type == "Test":
         test_data = kwargs.get("test_data")
         assert(test_data is not None)
