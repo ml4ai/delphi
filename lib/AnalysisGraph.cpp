@@ -274,6 +274,72 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return ag;
 }
 
+AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
+                                                      int depth,
+                                                      bool inward) {
+
+  int vert_id =
+      get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+
+  int num_verts = boost::num_vertices(this->graph);
+
+  unordered_set<int> vertices_to_keep = unordered_set<int>();
+  unordered_set<string> vertices_to_remove;
+
+  // Allocate the 2D array that keeps track of the cells of the transition
+  // matrix (A_original) that are dependent on βs.
+  // This function can be called anytime after creating the CAG.
+  this->allocate_A_beta_factors();
+
+  // Clear the multimap that keeps track of cells in the transition
+  // matrix that are dependent on each β.
+  this->beta2cell.clear();
+
+  // Clear the set of all the β dependent cells
+  this->beta_dependent_cells.clear();
+
+  if (inward) {
+    // All paths of length less than or equal to depth ending at vert_id
+    for (int start = 0; start < num_verts; ++start) {
+      if (start != vert_id) {
+        unordered_set<int> vwh =
+            this->find_all_paths_between(start, vert_id, depth);
+
+        vertices_to_keep.insert(vwh.begin(), vwh.end());
+      }
+    }
+  }
+  else {
+    // All paths of length less than or equal to depth beginning at vert_id
+    for (int end = 0; end < num_verts; ++end) {
+      if (vert_id != end) {
+        this->find_all_paths_between(vert_id, end, depth);
+      }
+    }
+  }
+
+  if (vertices_to_keep.size() == 0) {
+    cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
+    cerr << "WARNING: Returning an empty CAG!" << endl;
+  }
+
+  // Determine the vertices to be removed
+  for (int vert_id : vertices()) {
+    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+      vertices_to_remove.insert(this->graph[vert_id].name);
+    }
+  }
+
+  // Make a copy of current AnalysisGraph
+  // TODO: We have to make sure that we are making a deep copy.
+  //       Test so far does not show suspicious behavior
+  AnalysisGraph G_sub = *this;
+  G_sub.remove_nodes(vertices_to_remove);
+  G_sub.find_all_paths();
+
+  return G_sub;
+}
+
 // TODO Change the name of this function to something better, like
 // restrict_to_subgraph_for_concept.
 void AnalysisGraph::get_subgraph_for_concept_old(string concept,
@@ -875,6 +941,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
   }
   sqlite3_close(db);
 }
+
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
@@ -906,74 +973,6 @@ void AnalysisGraph::set_log_likelihood() {
   }
 }
 
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      int depth,
-                                                      bool inward) {
-
-  int vert_id =
-      get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
-
-  int num_verts = boost::num_vertices(this->graph);
-
-  unordered_set<int> vertices_to_keep = unordered_set<int>();
-  unordered_set<string> vertices_to_remove;
-
-  // auto verts = vertices();
-
-  // Allocate the 2D array that keeps track of the cells of the transition
-  // matrix (A_original) that are dependent on βs.
-  // This function can be called anytime after creating the CAG.
-  this->allocate_A_beta_factors();
-
-  // Clear the multimap that keeps track of cells in the transition
-  // matrix that are dependent on each β.
-  this->beta2cell.clear();
-
-  // Clear the set of all the β dependent cells
-  this->beta_dependent_cells.clear();
-
-  if (inward) {
-    // All paths of length less than or equal to depth ending at vert_id
-    for (int start = 0; start < num_verts; ++start) {
-      if (start != vert_id) {
-        unordered_set<int> vwh =
-            this->find_all_paths_between(start, vert_id, depth);
-
-        vertices_to_keep.insert(vwh.begin(), vwh.end());
-      }
-    }
-  }
-  else {
-    // All paths of length less than or equal to depth beginning at vert_id
-    for (int end = 0; end < num_verts; ++end) {
-      if (vert_id != end) {
-        this->find_all_paths_between(vert_id, end, depth);
-      }
-    }
-  }
-
-  if (vertices_to_keep.size() == 0) {
-    cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
-    cerr << "WARNING:" << endl;
-    cerr << "\tReturning an empty CAG!" << endl;
-  }
-
-  // Determine the vertices to be removed
-  for (int vert_id : vertices()) {
-    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
-      vertices_to_remove.insert(this->graph[vert_id].name);
-    }
-  }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  G_sub.remove_nodes(vertices_to_remove);
-  G_sub.find_all_paths();
-
-  return G_sub;
-}
 
 void AnalysisGraph::find_all_paths() {
   auto verts = vertices();
