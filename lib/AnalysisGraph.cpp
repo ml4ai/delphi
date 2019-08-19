@@ -85,6 +85,62 @@ void AnalysisGraph::print_A_beta_factors() {
 }
 
 unordered_set<int>
+AnalysisGraph::get_subgraph_between(int start, int end, int cutoff = -1) {
+  // Mark all the vertices are not visited
+  boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
+
+  // Create a vector of ints to store paths.
+  vector<int> path;
+
+  // The set of vertices to be kept on the subgraph
+  unordered_set<int> vertices_to_keep;
+
+  this->get_subgraph_between_util(start, end, path, vertices_to_keep, cutoff);
+
+  return vertices_to_keep;
+}
+
+
+void AnalysisGraph::get_subgraph_between_util(
+    int start,
+    int end,
+    vector<int>& path,
+    unordered_set<int>& vertices_to_keep,
+    int cutoff) {
+  // Mark the current vertex visited
+  this->graph[start].visited = true;
+
+  // Add this vertex to the path
+  path.push_back(start);
+
+  // If current vertex is the destination vertex, then
+  //   we have found one path.
+  if (start == end) {
+    int v = 0;
+    for (; v < path.size() - 1; v++) {
+      vertices_to_keep.insert(path[v]);
+    }
+
+    // Insert the last vertex of this path
+    vertices_to_keep.insert(path[v]);
+  }
+  else if (path.size() < cutoff) {
+    // Current vertex is not the destination
+    // Recursively process all the vertices adjacent to the current vertex
+    for_each(successors(start), [&](int v) {
+      if (!this->graph[v].visited) {
+        this->get_subgraph_between_util(
+            v, end, path, vertices_to_keep, cutoff);
+      }
+    });
+  }
+
+  // Remove current vertex from the path and make it unvisited
+  path.pop_back();
+  this->graph[start].visited = false;
+};
+
+unordered_set<int>
 AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
@@ -129,6 +185,7 @@ void AnalysisGraph::find_all_paths_between_util(
     pair<int, int> this_cell = make_pair(path.back(), path[0]);
 
     beta_dependent_cells.insert(this_cell);
+    fmt::print("***{} -->--> {}\n", this->graph[path[0]].name, this->graph[path.back()].name);
 
     int v = 0;
     for (; v < path.size() - 1; v++) {
@@ -278,7 +335,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       int depth,
                                                       bool inward) {
-
+  fmt::print("\n\nGetting Subgraph\n\n");
   int vert_id =
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
 
@@ -287,24 +344,12 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   unordered_set<int> vertices_to_keep = unordered_set<int>();
   unordered_set<string> vertices_to_remove;
 
-  // Allocate the 2D array that keeps track of the cells of the transition
-  // matrix (A_original) that are dependent on βs.
-  // This function can be called anytime after creating the CAG.
-  this->allocate_A_beta_factors();
-
-  // Clear the multimap that keeps track of cells in the transition
-  // matrix that are dependent on each β.
-  this->beta2cell.clear();
-
-  // Clear the set of all the β dependent cells
-  this->beta_dependent_cells.clear();
-
   if (inward) {
     // All paths of length less than or equal to depth ending at vert_id
     for (int start = 0; start < num_verts; ++start) {
       if (start != vert_id) {
         unordered_set<int> vwh =
-            this->find_all_paths_between(start, vert_id, depth);
+            this->get_subgraph_between(start, vert_id, depth);
 
         vertices_to_keep.insert(vwh.begin(), vwh.end());
       }
@@ -314,7 +359,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
     // All paths of length less than or equal to depth beginning at vert_id
     for (int end = 0; end < num_verts; ++end) {
       if (vert_id != end) {
-        this->find_all_paths_between(vert_id, end, depth);
+        this->get_subgraph_between(vert_id, end, depth);
       }
     }
   }
@@ -1175,10 +1220,12 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
+    cout << "\nComputing: " << this->graph[col].name << " -->--> " << this->graph[row].name << endl;
+    this->A_beta_factors[row][col]->print_paths();
     this->A_original(row * 2, col * 2 + 1) =
-        // this->A_beta_factors[row][col]->sample_from_prior(this->graph);
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
+  cout << "\n\nDONE\n\n";
 }
 
 int AnalysisGraph::calculate_num_timesteps(int start_year,

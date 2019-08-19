@@ -95,9 +95,17 @@ public:
       this->products[p] = 1; // 0;
 
       for (int v = 0; v < this->paths[p].size() - 1; v++) {
-        const double &beta = CAG[boost::edge(v, v + 1, CAG).first].beta;
+        auto edg = boost::edge(paths[p][v], paths[p][v + 1], CAG);
+        if(edg.second) {
+          const double &beta = CAG[edg.first].beta;
 
-        this->products[p] *= beta; //+= 1;
+          this->products[p] *= beta; //+= 1;
+          std::cout << "Multiplying: " << CAG[paths[p][v]].name << " --> " << CAG[paths[p][v + 1]].name << std::endl;;
+        }
+        else {
+          std::cout << "****Error - Somethign odd is happening\n";
+          std::cout << CAG[paths[p][v]].name << " --> " << CAG[paths[p][v + 1]].name << std::endl;;
+        }
       }
     }
 

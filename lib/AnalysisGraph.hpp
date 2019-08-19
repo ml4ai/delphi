@@ -167,6 +167,15 @@ class AnalysisGraph {
   AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
       : graph(G), name_to_vertex(name_to_vertex){};
 
+  std::unordered_set<int>
+  get_subgraph_between(int start, int end, int cutoff);
+
+  void get_subgraph_between_util(int start,
+                                   int end,
+                                   std::vector<int>& path,
+                                   std::unordered_set<int>& vertices_to_keep,
+                                   int cutoff);
+
   /**
    * Finds all the simple paths starting at the start vertex and
    * ending at the end vertex.
