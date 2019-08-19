@@ -182,8 +182,7 @@ class AnalysisGraph {
    * Uses find_all_paths_between_util() as a helper to recursively find the
    * paths
    */
-  std::unordered_set<int>
-  find_all_paths_between(int start, int end, int cutoff);
+  void find_all_paths_between(int start, int end, int cutoff);
 
   /**
    * Recursively finds all the simple paths starting at the start vertex and
@@ -200,7 +199,6 @@ class AnalysisGraph {
   void find_all_paths_between_util(int start,
                                    int end,
                                    std::vector<int>& path,
-                                   std::unordered_set<int>& vertices_to_keep,
                                    int cutoff);
 
   /*

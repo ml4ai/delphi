@@ -146,27 +146,20 @@ void AnalysisGraph::get_subgraph_between_util(
   this->graph[start].visited = false;
 };
 
-unordered_set<int>
-AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
+void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
 
   // Create a vector of ints to store paths.
   vector<int> path;
 
-  // The set of vertices to be kept on the subgraph
-  unordered_set<int> vertices_to_keep;
-
-  this->find_all_paths_between_util(start, end, path, vertices_to_keep, cutoff);
-
-  return vertices_to_keep;
+  this->find_all_paths_between_util(start, end, path, cutoff);
 }
 
 void AnalysisGraph::find_all_paths_between_util(
     int start,
     int end,
     vector<int>& path,
-    unordered_set<int>& vertices_to_keep,
     int cutoff) {
   // Mark the current vertex visited
   this->graph[start].visited = true;
@@ -191,17 +184,11 @@ void AnalysisGraph::find_all_paths_between_util(
     pair<int, int> this_cell = make_pair(path.back(), path[0]);
 
     beta_dependent_cells.insert(this_cell);
-    fmt::print("***{} -->--> {}\n", this->graph[path[0]].name, this->graph[path.back()].name);
 
-    int v = 0;
-    for (; v < path.size() - 1; v++) {
+    for (int v = 0; v < path.size() - 1; v++) {
       this->beta2cell.insert(
           make_pair(make_pair(path[v], path[v + 1]), this_cell));
-      vertices_to_keep.insert(path[v]);
     }
-
-    // Insert the last vertex of this path
-    vertices_to_keep.insert(path[v]);
   }
   else if (path.size() < cutoff) {
     // Current vertex is not the destination
@@ -209,7 +196,7 @@ void AnalysisGraph::find_all_paths_between_util(
     for_each(successors(start), [&](int v) {
       if (!this->graph[v].visited) {
         this->find_all_paths_between_util(
-            v, end, path, vertices_to_keep, cutoff);
+            v, end, path, cutoff);
       }
     });
   }
