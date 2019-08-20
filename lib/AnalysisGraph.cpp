@@ -1157,7 +1157,6 @@ void AnalysisGraph::print_all_paths() {
   for (int row = 0; row < num_verts; ++row) {
     for (int col = 0; col < num_verts; ++col) {
       if (this->A_beta_factors[row][col]) {
-        this->A_beta_factors[row][col]->print_paths();
       }
     }
   }
@@ -1216,7 +1215,6 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
-    this->A_beta_factors[row][col]->print_paths();
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
