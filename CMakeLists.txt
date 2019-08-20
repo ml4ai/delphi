@@ -9,7 +9,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 
-
 find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
@@ -23,7 +22,9 @@ include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
 add_subdirectory(external/fmt)
+add_subdirectory(external/spdlog)
 include_directories(external/fmt/include)
+include_directories(external/spdlog/include)
 
 find_package(PythonInterp REQUIRED)
 
@@ -43,10 +44,9 @@ add_library(Delphi ${SRC_FILES})
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
+                              spdlog::spdlog
                               "sqlite3"
-                              ${GRAPHVIZ_LIBS}
-                              )
-
+                              ${GRAPHVIZ_LIBS})
 
 # Tests
 add_library(doctest INTERFACE)

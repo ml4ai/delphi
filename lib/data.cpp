@@ -1,6 +1,7 @@
 #include "data.hpp"
 #include <sqlite3.h>
 
+
 double get_data_value(std::string indicator,
                       std::string country,
                       std::string state,
@@ -11,12 +12,13 @@ double get_data_value(std::string indicator,
   using namespace std;
   using fmt::print;
   using namespace fmt::literals;
+  using spdlog::debug, spdlog::error;
 
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
   if (rc) {
-    print("Could not open db");
+    spdlog::error("Could not open db");
     return 0.0;
   }
 
@@ -35,7 +37,7 @@ double get_data_value(std::string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for country {}. Averaging data over all "
+      debug("Could not find data for country {}. Averaging data over all "
             "countries for given axes (Default Setting)\n",
             country);
     }
@@ -49,7 +51,7 @@ double get_data_value(std::string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for state {}. Averaging data over all "
+      debug("Could not find data for state {}. Averaging data over all "
             "states for given axes (Default Setting)\n",
             state);
     }
@@ -64,7 +66,7 @@ double get_data_value(std::string indicator,
       sqlite3_finalize(stmt);
     }
     else {
-      print("Could not find data for unit {}. Using first unit in "
+      debug("Could not find data for unit {}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
       sqlite3_finalize(stmt);
@@ -138,7 +140,7 @@ double get_data_value(std::string indicator,
   }
 
   else {
-    print("No data found for {0},{1}. Averaging over all months for {1} "
+    debug("No data found for {0},{1}. Averaging over all months for {1} "
           "(Default Setting)\n",
           month,
           year);
@@ -159,7 +161,7 @@ double get_data_value(std::string indicator,
     return mean(vals);
   }
   else {
-    print("No data found for {}. Averaging over all years (Default Setting)\n",
+    debug("No data found for {}. Averaging over all years (Default Setting)\n",
           year);
     sqlite3_finalize(stmt);
   }
@@ -179,8 +181,7 @@ double get_data_value(std::string indicator,
 
   sqlite3_finalize(stmt);
   sqlite3_close(db);
-  cerr << "Error: data::get_data_value()\n"
-       << "\tIndicator: No data exists for " << indicator << endl;
+  spdlog::error("data::get_data_value()\n\tIndicator: No data exists for {}");
   // Should define an exception to throw in this situation
   return 0.0;
 }
