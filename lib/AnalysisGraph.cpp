@@ -687,7 +687,11 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   set_property(G, AGNODE, "shape", "rectangle");
   set_property(G, AGNODE, "style", "rounded");
   set_property(G, AGNODE, "color", "maroon");
+#if defined __APPLE__
+  set_property(G, AGNODE, "fontname", "Gill Sans");
+#else
   set_property(G, AGNODE, "fontname", "Helvetica");
+#endif
 
   Agnode_t* src;
   Agnode_t* trgt;
