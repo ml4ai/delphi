@@ -1,4 +1,4 @@
-all: extensions
+all: test docs
 
 docs:
 	cd docs; make html
