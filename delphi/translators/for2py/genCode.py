@@ -135,12 +135,13 @@ class genCode:
         elements = [self.generate_code(elmt, state) for elmt in node.elts]
         # This tuple handler is a very specific method
         # for handling an array declaration lambda.
-        code_string = (
+        code_string = "[0] * ("
+        code_string += (
             str(elements[0])
             if len(elements) == 1
             else "{0}".format(" + ".join(elements))
         )
-        code_string += " + 1"
+        code_string += " + 1)"
         return code_string
 
 
@@ -182,6 +183,8 @@ class genCode:
             self.generate_code(node.op, state),
             self.generate_code(node.right, state),
         )
+        # DEBUG
+        print ("genCode - code_string: ", code_string)
         return code_string
 
     @staticmethod
@@ -300,11 +303,19 @@ class genCode:
             function_name = node.func.id
 
         if function_name is not "Array":
-            code_string = f"{function_name}("
-            if len(node.args) > 0:
-                code_string += ", ".join([self.generate_code(arg, state) for arg in
-                                         node.args])
-            code_string += ")"
+            if ".set_" in function_name:
+                # Remove the first argument of <.set_>
+                # function of array as it is not needed
+                del node.args[0]
+                code_string = ""
+                for arg in node.args:
+                    code_string += self.generate_code(arg, state) 
+            else:
+                code_string = f"{function_name}("
+                if len(node.args) > 0:
+                    code_string += ", ".join([self.generate_code(arg, state) for arg in
+                                             node.args])
+                code_string += ")"
         else:
             code_string = self.generate_code(node.args[1], state)
 

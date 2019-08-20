@@ -1401,12 +1401,33 @@ class GrFNGenerator(object):
             # statements.
             if function_name == "print":
                 return []
-            container_id_name = self.function_argument_map[function_name][
-                "name"]
+            # A handler for array <.set_> function
+            if ".set_" in function_name:
+                array_name = function_name.replace(".set_", "")
+                if "var" in call["inputs"][0][0]:
+                    index = call["inputs"][0][0]["var"]["variable"]
+                else:
+                    index = call["inputs"][0][0]["value"]
+                array_name = f"{array_name}_{index}"
+                namespace = self._get_namespace(self.fortran_file)
+                namespace = self.replace_multiple(namespace, ['$', '-', ':'], '_')
+                cur_scope = self.current_scope
+                if len(cur_scope) == 0:
+                    scope_path = "global"
+                container_id_name = f"{namespace}__{cur_scope}__assign__{array_name}__0"
+                # ty: type
+                ty = "lambda_source"
+                del call["inputs"][0]
+            else:
+                container_id_name = self.function_argument_map[function_name][
+                    "name"]
+                # ty: type
+                ty = "container"
+
             function = {
                 "function": {
                     "name": container_id_name,
-                    "type": "container"
+                    "type": ty
                 },
                 "input": [],
                 "output": [],
@@ -1423,6 +1444,24 @@ class GrFNGenerator(object):
                             f"@variable::"
                             f"{arg[0]['var']['variable']}::"
                             f"{arg[0]['var']['index']}")
+                    elif "call" in arg[0]:
+                        argument_list = []
+                        # For array setter value handler
+                        for var in arg[0]["call"]["inputs"][0]:
+                            if "var" in var:
+                                function["input"].append(
+                                        f"@variable::"
+                                        f"{var['var']['variable']}::"
+                                        f"{var['var']['index']}")
+                                argument_list.append(var['var']['variable'])
+                        lambda_string = self._generate_lambda_function(
+                            node,
+                            container_id_name,
+                            True,
+                            argument_list,
+                            state,
+                        )
+                        state.lambda_strings.append(lambda_string)
                 else:
                     raise For2PyError(
                         "Only 1 input per argument supported right now."
@@ -1705,7 +1744,6 @@ class GrFNGenerator(object):
 
             variable_spec = self.generate_variable_definition(target_name,
                                                               state)
-
             function_name = self.generate_function_name("__assign__",
                                                         variable_spec['name']
                                                         )
@@ -1723,7 +1761,6 @@ class GrFNGenerator(object):
             if (
                 not fn["input"]
                 and len(sources) == 1
-                and sources[0]["call"]["function"] is not "Array"
             ):
                 if sources[0].get("list"):
                     dtypes = set()
@@ -1949,7 +1986,7 @@ class GrFNGenerator(object):
         source = []
         fn = {}
         target_name = target["var"]["variable"]
-
+        
         target_string = f"@variable::{target_name}::{target['var']['index']}"
         for src in sources:
             # Check for a write to a file
@@ -1959,11 +1996,7 @@ class GrFNGenerator(object):
                 # Remove first index of an array function as it's
                 # really a type name not the variable for input.
                 if src["call"]["function"] is "Array":
-                    # DEBUG
-                    print ("SOURCES-1: ", sources)
                     del src["call"]["inputs"][0]
-                    # DEBUG
-                    print ("SOURCES-2: ", sources)
                 # Bypassing identifiers who have I/O constructs on their source
                 # fields too.
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
@@ -2054,6 +2087,13 @@ class GrFNGenerator(object):
                         )
                     elif "call" in item:
                         source_list.extend(self.make_call_body_dict(item))
+                    elif "list" in item:
+                        # Handles a case where array declaration size
+                        # was given with a variable value.
+                        for value in item["list"]:
+                            if "var" in value:
+                                variable = f"@variable::{value['var']['variable']}::0"
+                                source_list.append(variable)
 
         return source_list
 
