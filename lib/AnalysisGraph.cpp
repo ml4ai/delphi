@@ -687,6 +687,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   set_property(G, AGNODE, "shape", "rectangle");
   set_property(G, AGNODE, "style", "rounded");
   set_property(G, AGNODE, "color", "maroon");
+
 #if defined __APPLE__
   set_property(G, AGNODE, "fontname", "Gill Sans");
 #else
@@ -717,7 +718,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
     for (auto indicator : this->graph[v].indicators) {
       src = add_node(G, concept_name);
       trgt = add_node(G, indicator.name);
-      set_property(trgt, "label", indicator.name);
+      set_property(trgt, "label", indicator.name+"\nSource: "+indicator.source);
       set_property(trgt, "style", "rounded,filled");
       set_property(trgt, "fillcolor", "lightblue");
 
