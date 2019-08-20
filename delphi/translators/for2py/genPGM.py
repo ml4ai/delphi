@@ -88,8 +88,8 @@ class GrFNState:
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
         arrays: Optional[Dict] = {},
-        array_vars: Optional[List] = []
-
+        array_vars: Optional[List] = [],
+        array_assign_name: Optional=None
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -101,6 +101,7 @@ class GrFNState:
         self.scope_path = scope_path
         self.arrays = arrays
         self.array_vars = array_vars
+        self.array_assign_name = array_assign_name
 
     def copy(
         self,
@@ -114,6 +115,7 @@ class GrFNState:
         scope_path: Optional[List] = None,
         arrays: Optional[Dict] = None,
         array_vars: Optional[Dict] = None,
+        array_assign_name: Optional = None,
     ):
         return GrFNState(
             self.lambda_strings if lambda_strings is None else lambda_strings,
@@ -128,6 +130,8 @@ class GrFNState:
             self.start if start is None else start,
             self.scope_path if scope_path is None else scope_path,
             self.arrays if arrays is None else arrays,
+            self.array_vars if array_vars is None else array_vars,
+            self.array_assign_name if array_assign_name is None else array_assign_name,
         )
 
 
@@ -147,6 +151,7 @@ class GrFNGenerator(object):
         self.function_argument_map = {}
         self.arrays = {}
         self.array_vars = []
+        self.array_assign_name = None
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
@@ -1176,6 +1181,7 @@ class GrFNGenerator(object):
             node.test,
             function_name["name"],
             False,
+            False,
             [src["var"]['variable'] for src in condition_sources if
              "var" in src],
             state,
@@ -1281,6 +1287,7 @@ class GrFNGenerator(object):
             lambda_string = self._generate_lambda_function(
                 node,
                 function_name["name"],
+                False,
                 True,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
                 state,
@@ -1406,8 +1413,12 @@ class GrFNGenerator(object):
                 array_name = function_name.replace(".set_", "")
                 if "var" in call["inputs"][0][0]:
                     index = call["inputs"][0][0]["var"]["variable"]
+                    # An array name with index holder for later usage
+                    # dueing lambda string generation.
+                    state.array_assign_name = f"{array_name}[{index}]"
                 else:
                     index = call["inputs"][0][0]["value"]
+
                 array_name = f"{array_name}_{index}"
                 namespace = self._get_namespace(self.fortran_file)
                 namespace = self.replace_multiple(namespace, ['$', '-', ':'], '_')
@@ -1457,6 +1468,7 @@ class GrFNGenerator(object):
                         lambda_string = self._generate_lambda_function(
                             node,
                             container_id_name,
+                            True,
                             True,
                             argument_list,
                             state,
@@ -1620,6 +1632,7 @@ class GrFNGenerator(object):
                 lambda_string = self._generate_lambda_function(
                     node,
                     function_name["name"],
+                    False,
                     True,
                     [
                         src["var"]["variable"]
@@ -1752,7 +1765,7 @@ class GrFNGenerator(object):
                 return []
             source_list = self.make_source_list_dict(sources)
             lambda_string = self._generate_lambda_function(
-                node, function_name["name"], True,
+                node, function_name["name"], False, True,
                 source_list, state
             )
             state.lambda_strings.append(lambda_string)
@@ -2224,7 +2237,9 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _generate_lambda_function(node, function_name: str, return_value: bool,
-                                  inputs, state):
+                                  array_assign: bool, inputs, state):
+        # DEBUG
+        print ("function_name: ", function_name)
         lambda_strings = []
         argument_strings = []
         # Sort the arguments in the function call as it is used in the operation
@@ -2256,7 +2271,12 @@ class GrFNGenerator(object):
                                                        PrintState("\n    ")
                                                        )
         if return_value:
-            lambda_strings.append(f"return {code}")
+            if array_assign:
+                lambda_strings.append(f"{state.array_assign_name} = {code}\n")
+                lambda_strings.append(f"    return {state.array_assign_name}")
+                state.array_assign_name = None
+            else:
+                lambda_strings.append(f"return {code}")
         else:
             lines = code.split("\n")
             indent = re.search("[^ ]", lines[-1]).start()
