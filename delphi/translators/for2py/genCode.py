@@ -141,7 +141,7 @@ class genCode:
             if len(elements) == 1
             else "{0}".format(" + ".join(elements))
         )
-        code_string += " + 1)"
+        code_string += ")"
         return code_string
 
 

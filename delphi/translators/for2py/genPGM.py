@@ -450,8 +450,6 @@ class GrFNGenerator(object):
         # representation in order to mimic the pass-by-reference property of
         # Fortran. So, arguments have `annotations` which hold the type() of
         # A the variable i.e. x[Int], y[Float], etc.
-        # DEBUG
-        print ("    node.arg: ", node.arg)
         assert (
             node.annotation
         ), "Found argument without annotation. This should not happen."
@@ -1443,11 +1441,7 @@ class GrFNGenerator(object):
                 "output": [],
                 "updated": []
             }
-            # DEBUG
-            print ("call['inputs']: ", call["inputs"])
             for arg in call["inputs"]:
-                # DEBUG
-                print ("arg: ", arg)
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
                     #  arguments. But a function can have strings as
@@ -1463,12 +1457,7 @@ class GrFNGenerator(object):
                                                         name, container_id_name,
                                                         state)
                 else:
-                    # DEBUG
-                    print ("    arg: ", arg)
-                    print ("    len(arg): ", len(arg))
                     if "call" in arg[0]:
-                        # DEBUG
-                        print ("self.arrays[name]: ", self.arrays[name])
                         if name in self.arrays:
                             # If array type is <float> the argument holder
                             # has a different structure that it does not hold
@@ -2249,8 +2238,6 @@ class GrFNGenerator(object):
     @staticmethod
     def _generate_lambda_function(node, function_name: str, return_value: bool,
                                   array_assign: bool, inputs, state):
-        # DEBUG
-        print ("state.variable_types: ", state.variable_types)
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
