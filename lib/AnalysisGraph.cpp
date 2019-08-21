@@ -4,6 +4,7 @@
 #include <boost/range/algorithm/for_each.hpp>
 #include <cmath>
 #include <sqlite3.h>
+#include <type_traits>
 
 using namespace std;
 using fmt::print;
@@ -13,13 +14,15 @@ auto AnalysisGraph::vertices() {
   return boost::make_iterator_range(boost::vertices(this->graph));
 }
 
-auto AnalysisGraph::successors(int i) {
+NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
   return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
+/*
 auto AnalysisGraph::successors(string node_name) {
   return this->successors(this->name_to_vertex.at(node_name));
 }
+*/
 
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
@@ -106,7 +109,8 @@ void AnalysisGraph::print_A_beta_factors() {
 void AnalysisGraph::get_subgraph_rooted_at(
     int vert,
     unordered_set<int>& vertices_to_keep,
-    int cutoff) {
+    int cutoff,
+    NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int) ) {
 
   // Mark the current vertex visited
   this->graph[vert].visited = true;
@@ -119,10 +123,13 @@ void AnalysisGraph::get_subgraph_rooted_at(
     for_each(successors(vert), [&](int v) {
       if (!this->graph[v].visited) {
         this->get_subgraph_rooted_at(
-            v, vertices_to_keep, cutoff);
+            v, vertices_to_keep, cutoff, neighbors);
       }
     });
   }
+
+  // Mark the current vertex unvisited
+  this->graph[vert].visited = false;
 };
 
 // TODO: I am creating two methods:
@@ -156,6 +163,9 @@ void AnalysisGraph::get_subgraph_sinked_at(
       }
     });
   }
+
+  // Mark the current vertex unvisited
+  this->graph[vert].visited = false;
 };
 
 void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
@@ -359,7 +369,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
   else {
     // All paths of length less than or equal to depth beginning at vert_id
-    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth);
+    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth, &AnalysisGraph::successors);
   }
 
   if (vertices_to_keep.size() == 0) {
@@ -384,6 +394,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   return G_sub;
 }
 
+/*
 // TODO Change the name of this function to something better, like
 // restrict_to_subgraph_for_concept.
 void AnalysisGraph::get_subgraph_for_concept_old(string concept,
@@ -414,6 +425,7 @@ void AnalysisGraph::get_subgraph_for_concept_old(string concept,
   }
   this->remove_nodes(nodes_to_remove);
 }
+*/
 
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
@@ -810,6 +822,7 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return ag;
 }
 
+/*
 void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
   for (auto predecessor : this->predecessors(n1)) {
     auto e =
@@ -844,6 +857,7 @@ void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
   }
   remove_node(n1);
 }
+*/
 
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,

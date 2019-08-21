@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 
 #include <boost/graph/graph_traits.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -37,9 +38,9 @@ class AnalysisGraph {
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices();
 
-  auto successors(int i);
+  NEIGHBOR_ITERATOR successors(int i);
 
-  auto successors(std::string node_name);
+  //auto successors(std::string node_name);
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
@@ -167,8 +168,14 @@ class AnalysisGraph {
   AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
       : graph(G), name_to_vertex(name_to_vertex){};
 
-  void get_subgraph_rooted_at(int vert, std::unordered_set<int>& vertices_to_keep, int cutoff);
-  void get_subgraph_sinked_at(int vert, std::unordered_set<int>& vertices_to_keep, int cutoff);
+  void get_subgraph_rooted_at(int vert,
+                              std::unordered_set<int>& vertices_to_keep,
+                              int cutoff,
+                              NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int) );
+
+  void get_subgraph_sinked_at(int vert,
+                              std::unordered_set<int>& vertices_to_keep,
+                              int cutoff);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -251,16 +258,18 @@ class AnalysisGraph {
    *                 to be included in the subgraph.
    * #param inward : Sets the direction of the causal influence flow to
    *                 examine.
-   *                 False - (default) A subgraph rooted at the concept provided. 
-   *                 True  - A subgraph with all the paths ending at the concept provided.
+   *                 False - (default) A subgraph rooted at the concept
+   * provided.
+   *                 True  - A subgraph with all the paths ending at the concept
+   * provided.
    */
   void get_subgraph_for_concept_old(std::string concept,
-                                int depth = 1,
-                                bool inward = false);
+                                    int depth = 1,
+                                    bool inward = false);
 
   AnalysisGraph get_subgraph_for_concept(std::string concept,
-                                             bool inward = false,
-                                             int depth = -1);
+                                         bool inward = false,
+                                         int depth = -1);
 
   /**
    * Returns a new AnaysisGraph related to the source concept and the target
@@ -317,13 +326,15 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
 
+  /*
   auto predecessors(std::string node_name) {
     return predecessors(this->name_to_vertex[node_name]);
   }
+  */
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
-  void
-  merge_nodes_old(std::string n1, std::string n2, bool same_polarity = true);
+  //void
+  //merge_nodes_old(std::string n1, std::string n2, bool same_polarity = true);
 
   /**
    * Merges the CAG nodes for the two concepts concept_1 and concept_2
@@ -670,9 +681,8 @@ class AnalysisGraph {
   // Manipulation
   // ==========================================================================
 
-  void set_indicator(std::string concept,
-                     std::string indicator,
-                     std::string source);
+  void
+  set_indicator(std::string concept, std::string indicator, std::string source);
 
   void delete_indicator(std::string concept, std::string indicator);
 
