@@ -40,8 +40,6 @@ class AnalysisGraph {
 
   NEIGHBOR_ITERATOR successors(int i);
 
-  //auto successors(std::string node_name);
-
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
 
@@ -308,11 +306,6 @@ class AnalysisGraph {
   //      slightly different flow to achive a more efficient execution.
   void remove_nodes(std::unordered_set<std::string> concepts);
 
-  // auto add_edge(std::string source, std::string target) {
-  // boost::add_edge(
-  // this->name_to_vertex[source], this->name_to_vertex[target], graph);
-  //}
-
   void remove_edge(std::string src, std::string tgt);
 
   void remove_edges(std::vector<std::pair<std::string, std::string>> edges);
@@ -325,12 +318,6 @@ class AnalysisGraph {
   auto predecessors(int i) {
     return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
   }
-
-  /*
-  auto predecessors(std::string node_name) {
-    return predecessors(this->name_to_vertex[node_name]);
-  }
-  */
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
   //void

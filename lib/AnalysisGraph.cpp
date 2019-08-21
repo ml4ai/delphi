@@ -18,12 +18,6 @@ NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
   return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
-/*
-auto AnalysisGraph::successors(string node_name) {
-  return this->successors(this->name_to_vertex.at(node_name));
-}
-*/
-
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
   // All the places we need random numbers, share this generator
@@ -393,39 +387,6 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
   return G_sub;
 }
-
-/*
-// TODO Change the name of this function to something better, like
-// restrict_to_subgraph_for_concept.
-void AnalysisGraph::get_subgraph_for_concept_old(string concept,
-                                                 int depth,
-                                                 bool inward) {
-
-  unordered_set<string> nodeset = {concept};
-
-  for (int _ = 0; _ < depth; _++) {
-    for (string n : nodeset) {
-      if (inward) {
-        for_each(this->successors(n),
-                 [&](auto s) { nodeset.insert(this->graph[s].name); });
-      }
-      else {
-        for_each(this->predecessors(n),
-                 [&](auto p) { nodeset.insert(this->graph[p].name); });
-      }
-    }
-  }
-
-  unordered_set<string> nodes_to_remove = {};
-
-  for (int n : this->vertices()) {
-    if (nodeset.count(this->graph[n].name) == 0) {
-      nodes_to_remove.insert(this->graph[n].name);
-    }
-  }
-  this->remove_nodes(nodes_to_remove);
-}
-*/
 
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
@@ -821,43 +782,6 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   ag.initialize_random_number_generator();
   return ag;
 }
-
-/*
-void AnalysisGraph::merge_nodes_old(string n1, string n2, bool same_polarity) {
-  for (auto predecessor : this->predecessors(n1)) {
-    auto e =
-        boost::edge(predecessor, this->name_to_vertex[n1], this->graph).first;
-    if (!same_polarity) {
-      for (Statement stmt : this->graph[e].evidence) {
-        stmt.object.polarity = -stmt.object.polarity;
-      }
-    }
-
-    auto [edge, is_new_edge] =
-        boost::add_edge(predecessor, this->name_to_vertex[n2], this->graph);
-    for (auto s : this->graph[e].evidence) {
-      this->graph[edge].evidence.push_back(s);
-    }
-  }
-
-  for (auto successor : successors(n1)) {
-    auto e =
-        boost::edge(this->name_to_vertex[n1], successor, this->graph).first;
-    if (!same_polarity) {
-      for (Statement stmt : this->graph[e].evidence) {
-        stmt.subject.polarity = -stmt.subject.polarity;
-      }
-    }
-
-    auto [edge, is_new_edge] =
-        boost::add_edge(this->name_to_vertex[n2], successor, this->graph);
-    for (auto stmt : this->graph[e].evidence) {
-      this->graph[edge].evidence.push_back(stmt);
-    }
-  }
-  remove_node(n1);
-}
-*/
 
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
