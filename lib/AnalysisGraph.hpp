@@ -167,14 +167,8 @@ class AnalysisGraph {
   AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
       : graph(G), name_to_vertex(name_to_vertex){};
 
-  std::unordered_set<int>
-  get_subgraph_between(int start, int end, int cutoff);
-
-  void get_subgraph_between_util(int start,
-                                   int end,
-                                   std::vector<int>& path,
-                                   std::unordered_set<int>& vertices_to_keep,
-                                   int cutoff);
+  void get_subgraph_rooted_at(int vert, std::unordered_set<int>& vertices_to_keep, int cutoff);
+  void get_subgraph_sinked_at(int vert, std::unordered_set<int>& vertices_to_keep, int cutoff);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -265,8 +259,8 @@ class AnalysisGraph {
                                 bool inward = false);
 
   AnalysisGraph get_subgraph_for_concept(std::string concept,
-                                             int depth = 1,
-                                             bool inward = false);
+                                             bool inward = false,
+                                             int depth = -1);
 
   /**
    * Returns a new AnaysisGraph related to the source concept and the target

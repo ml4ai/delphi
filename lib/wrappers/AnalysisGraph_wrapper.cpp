@@ -28,8 +28,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
-           "depth"_a = 1,
-           "inward"_a = false)
+           "inward"_a = false,
+           "depth"_a = -1)
       .def("get_subgraph_for_concept_pair",
            &AnalysisGraph::get_subgraph_for_concept_pair,
            "source_concept"_a,
