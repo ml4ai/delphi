@@ -25,6 +25,7 @@ void AnalysisGraph::train_model(int start_year,
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, start_year, start_month, units);
 
+  this->training_range = make_pair(make_pair(start_year,start_month),make_pair(end_year,end_month));
   this->init_training_year = start_year;
   this->init_training_month = start_month;
 

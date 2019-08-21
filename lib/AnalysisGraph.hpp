@@ -97,6 +97,7 @@ class AnalysisGraph {
 
   int n_timesteps;
   int pred_timesteps;
+  std::pair<std::pair<int,int>,std::pair<int,int>> training_range;
 
   // Accumulates the transition matrices for accepted samples
   // Access: [ sample number ]
@@ -540,7 +541,8 @@ class AnalysisGraph {
    * predicted values. Access it as: [ sample number ][ time point ][ vertex
    * name ][ indicator name ]
    */
-  std::pair<std::vector<std::string>,
+  std::tuple<std::pair<std::pair<int,int>,std::pair<int,int>>,
+            std::vector<std::string>,
             std::vector<std::vector<
                 std::unordered_map<std::string,
                                    std::unordered_map<std::string, double>>>>>
@@ -588,7 +590,7 @@ class AnalysisGraph {
   generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
   std::pair<ObservedStateSequence,
-            std::pair<std::vector<std::string>,
+            std::tuple<std::pair<std::pair<int,int>,std::pair<int,int>>,std::vector<std::string>,
                       std::vector<std::vector<std::unordered_map<
                           std::string,
                           std::unordered_map<std::string, double>>>>>>

@@ -1360,7 +1360,7 @@ void AnalysisGraph::
   }
 }
 
-pair<vector<string>,
+tuple<pair<pair<int,int>,pair<int,int>>,vector<string>,
      vector<vector<unordered_map<string, unordered_map<string, double>>>>>
 AnalysisGraph::generate_prediction(int start_year,
                                    int start_month,
@@ -1463,7 +1463,7 @@ AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->pred_timesteps -= truncate;
-  return make_pair(this->pred_range, this->format_prediction_result());
+  return make_tuple(this->training_range, this->pred_range, this->format_prediction_result());
 }
 
 vector<vector<unordered_map<string, unordered_map<string, double>>>>
@@ -1563,8 +1563,8 @@ void AnalysisGraph::
 }
 
 pair<ObservedStateSequence,
-     pair<vector<string>,
-          vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
+     tuple<pair<pair<int,int>,pair<int,int>>,
+     vector<string>, vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
 AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int start_month,
                                                   int end_year,
