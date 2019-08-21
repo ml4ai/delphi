@@ -11,7 +11,6 @@ import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
 from delphi.translators.for2py.get_comments import get_comments
-from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -40,7 +39,7 @@ BINOPS = {
 # types for the lambdas
 # TODO Take this inside class
 ANNOTATE_MAP = {
-    "real": "Real",
+    "real": "real",
     "float": "real",
     "Real": "real",
     "integer": "int",
@@ -88,7 +87,7 @@ class GrFNState:
         start: Optional[Dict] = {},
         scope_path: Optional[List] = [],
         arrays: Optional[Dict] = {},
-        array_vars: Optional[List] = [],
+        array_types: Optional[Dict] = {},
         array_assign_name: Optional=None
     ):
         self.lambda_strings = lambda_strings
@@ -100,7 +99,7 @@ class GrFNState:
         self.start = start
         self.scope_path = scope_path
         self.arrays = arrays
-        self.array_vars = array_vars
+        self.array_types = array_types
         self.array_assign_name = array_assign_name
 
     def copy(
@@ -114,7 +113,7 @@ class GrFNState:
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
         arrays: Optional[Dict] = None,
-        array_vars: Optional[Dict] = None,
+        array_types: Optional[Dict] = None,
         array_assign_name: Optional = None,
     ):
         return GrFNState(
@@ -130,7 +129,7 @@ class GrFNState:
             self.start if start is None else start,
             self.scope_path if scope_path is None else scope_path,
             self.arrays if arrays is None else arrays,
-            self.array_vars if array_vars is None else array_vars,
+            self.array_types if array_types is None else array_types,
             self.array_assign_name if array_assign_name is None else array_assign_name,
         )
 
@@ -150,7 +149,7 @@ class GrFNGenerator(object):
         self.name_mapper = {}
         self.function_argument_map = {}
         self.arrays = {}
-        self.array_vars = []
+        self.array_types = {}
         self.array_assign_name = None
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
@@ -450,7 +449,9 @@ class GrFNGenerator(object):
         # Variables are declared as List() objects in the intermediate Python
         # representation in order to mimic the pass-by-reference property of
         # Fortran. So, arguments have `annotations` which hold the type() of
-        # the variable i.e. x[Int], y[Float], etc.
+        # A the variable i.e. x[Int], y[Float], etc.
+        # DEBUG
+        print ("    node.arg: ", node.arg)
         assert (
             node.annotation
         ), "Found argument without annotation. This should not happen."
@@ -1442,8 +1443,11 @@ class GrFNGenerator(object):
                 "output": [],
                 "updated": []
             }
-
+            # DEBUG
+            print ("call['inputs']: ", call["inputs"])
             for arg in call["inputs"]:
+                # DEBUG
+                print ("arg: ", arg)
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
                     #  arguments. But a function can have strings as
@@ -1454,51 +1458,36 @@ class GrFNGenerator(object):
                             f"{arg[0]['var']['variable']}::"
                             f"{arg[0]['var']['index']}")
                     elif "call" in arg[0]:
-                        argument_list = []
-                        input_list = []
-                        # For array setter value handler
-                        for var in arg[0]["call"]["inputs"][0]:
-                            # If an input is a simple variable
-                            if "var" in var:
-                                var_name = var['var']['variable']
-                                if var_name not in argument_list:
-                                    function["input"].append(
-                                            f"@variable::"
-                                            f"{var_name}::-1")
-                                    argument_list.append(var_name)
-                                else:
-                                    # It's not an error, so just pass it.
-                                    pass
-                            # If an input is an array (for now).
-                            elif "call" in var:
-                                ref_call = var["call"]
-                                if ".get_" in ref_call["function"]:
-                                    get_array_name = ref_call["function"].replace(".get_", "")
-                                    if get_array_name not in argument_list:
-                                        function["input"].append(
-                                            f"@variable::"
-                                            f"{get_array_name}::-1")
-                                        argument_list.append(get_array_name)
-                                    else:
-                                        # It's not an error, so just pass it.
-                                        pass
-                        # Generate lambda function for array[index]
-                        lambda_string = self._generate_lambda_function(
-                            node,
-                            container_id_name,
-                            True,
-                            True,
-                            argument_list,
-                            state,
-                        )
-                        state.lambda_strings.append(lambda_string)
-                        function["output"].append(
-                                f"@variable::"
-                                f"{name}::0")
+                        function = self.generate_array_setter(
+                                                        node, function, arg, 
+                                                        name, container_id_name,
+                                                        state)
                 else:
-                    raise For2PyError(
-                        "Only 1 input per argument supported right now."
-                    )
+                    # DEBUG
+                    print ("    arg: ", arg)
+                    print ("    len(arg): ", len(arg))
+                    if "call" in arg[0]:
+                        # DEBUG
+                        print ("self.arrays[name]: ", self.arrays[name])
+                        if name in self.arrays:
+                            # If array type is <float> the argument holder
+                            # has a different structure that it does not hold
+                            # function info. like when an array is 'int' type
+                            # [{'call': {'function': '_type_', 'inputs': [...]]
+                            # which causes an error. Thus, the code below fixes
+                            # by correctly structuring it.
+                            array_type = self.arrays[name]['elem_type']
+                            fixed_arg = [{'call': {
+                                                    'function': array_type,
+                                                    'inputs':[arg]}}]
+                            function = self.generate_array_setter(
+                                                            node, function, fixed_arg, 
+                                                            name, container_id_name,
+                                                            state)
+                    else:
+                        raise For2PyError(
+                            "Only 1 input per argument supported right now."
+                        )
 
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
@@ -1511,8 +1500,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(function)
 
-        # DEBUG
-        print ("grfn: ", grfn)
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -1777,6 +1764,7 @@ class GrFNGenerator(object):
                     "mutable": True,
                 }
                 self.arrays[var_name] = array_info
+                state.array_types[var_name] = array_type
 
             variable_spec = self.generate_variable_definition(target_name,
                                                               state)
@@ -2261,14 +2249,23 @@ class GrFNGenerator(object):
     @staticmethod
     def _generate_lambda_function(node, function_name: str, return_value: bool,
                                   array_assign: bool, inputs, state):
+        # DEBUG
+        print ("state.variable_types: ", state.variable_types)
+        lambda_for_var = True
         lambda_strings = []
         argument_strings = []
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
         for ip in input_list:
-            annotation = state.variable_types.get(ip)
-            if not annotation:
+            if ip in state.variable_types:
+                annotation = state.variable_types.get(ip)
+            elif ip in state.array_types:
+                lambda_for_var = False
+            if (
+                lambda_for_var
+                and not annotation
+            ):
                 # `variable_types` does not contain annotations for variables
                 # for indexing such as 'abc_1', etc. Check if the such variables
                 # exist and assign appropriate annotations
@@ -2276,8 +2273,15 @@ class GrFNGenerator(object):
                 annotation = state.variable_types[
                     key_match(ip, state.variable_types)[0]
                 ]
-            annotation = ANNOTATE_MAP[annotation]
-            argument_strings.append(f"{ip}: {annotation}")
+            # function argument requires annotation only when
+            # it's dealing with simple variable (at least for now).
+            if lambda_for_var:
+                annotation = ANNOTATE_MAP[annotation]
+                argument_strings.append(f"{ip}: {annotation}")
+            # Currently, this is for array specific else case.
+            else:
+                argument_strings.append(ip)
+                lambda_for_var = True
 
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
@@ -2435,6 +2439,65 @@ class GrFNGenerator(object):
                             body_function['updated'] = updated_variable
 
         return grfn_dict
+
+    def generate_array_setter (self, node, function, arg, name, container_id_name, state):
+        """
+            This function is for handling array setter (ex. means.set_(...)).
+            
+            Args:
+                function (list): A list holding the information of the function
+                for JSON and lambda function generation.
+                arg (list): A list holding the arguments of call['inputs'].
+                name (str): A name of the array.
+                container_id_name (str): A name of function container. It's an
+                array name with other appended info. in this function.
+
+            Returns:
+                (list) function: A completed list of function.
+        """
+        argument_list = []
+        input_list = []
+        # For array setter value handler
+        for var in arg[0]["call"]["inputs"][0]:
+            # If an input is a simple variable
+            if "var" in var:
+                var_name = var['var']['variable']
+                if var_name not in argument_list:
+                    function["input"].append(
+                            f"@variable::"
+                            f"{var_name}::-1")
+                    argument_list.append(var_name)
+                else:
+                    # It's not an error, so just pass it.
+                    pass
+            # If an input is an array (for now).
+            elif "call" in var:
+                ref_call = var["call"]
+                if ".get_" in ref_call["function"]:
+                    get_array_name = ref_call["function"].replace(".get_", "")
+                    if get_array_name not in argument_list:
+                        function["input"].append(
+                            f"@variable::"
+                            f"{get_array_name}::-1")
+                        argument_list.append(get_array_name)
+                    else:
+                        # It's not an error, so just pass it.
+                        pass
+        # Generate lambda function for array[index]
+        lambda_string = self._generate_lambda_function(
+            node,
+            container_id_name,
+            True,
+            True,
+            argument_list,
+            state,
+        )
+        state.lambda_strings.append(lambda_string)
+        function["output"].append(
+                f"@variable::"
+                f"{name}::0")
+
+        return function
 
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
