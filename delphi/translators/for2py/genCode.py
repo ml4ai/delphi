@@ -70,6 +70,9 @@ class genCode:
         """
         node_name = node.__repr__().split()[0][2:]
 
+        # DEBUG
+        print ("node_name: ", node_name)
+
         if isinstance(node, list):
             for cur in node:
                 self.lambda_string += f"{self.generate_code(cur,state)}" \
@@ -178,13 +181,15 @@ class genCode:
         return code_string
 
     def process_binary_operation(self, node, state):
+        # DEBUG
+        print ("**node.right: ", node.right)
         code_string = "({0}{1}{2})".format(
             self.generate_code(node.left, state),
             self.generate_code(node.op, state),
             self.generate_code(node.right, state),
         )
         # DEBUG
-        print ("genCode - code_string: ", code_string)
+        print ("binOP - code_string: ", code_string)
         return code_string
 
     @staticmethod
@@ -271,17 +276,19 @@ class genCode:
             return code_string
 
     def process_subscript(self, node, state):
-        if not isinstance(node.slice.value, ast.Num):
-            raise For2PyError("can't handle arrays in genCode right now.")
         # typical:
         # lambda_string = '{0}{1}'.format(genCode(node.value, state), genCode(
         # node.slice,
         # state))
         code_string = self.generate_code(node.value, state)
+        # DEBUG
+        print ("process_subscript - code_string: ", code_string)
         return code_string
 
     @staticmethod
     def _process_name(node, *_):
+        # DEBUG
+        print ("node.id: ", node.id)
         code_string = node.id
         return code_string
 
@@ -310,12 +317,24 @@ class genCode:
                 code_string = ""
                 for arg in node.args:
                     code_string += self.generate_code(arg, state) 
+            elif ".get_" in function_name:
+                code_string = function_name.replace(".get_", "[")
+                for arg in node.args:
+                    code_string += self.generate_code(arg, state)
+                code_string += "]"
+                # DEBUG
+                print ("    node.args: ", node.args)
             else:
                 code_string = f"{function_name}("
+                # DEBUG
+                print ("function_name: ", function_name)
+                print ("node.args: ", node.args)
                 if len(node.args) > 0:
                     code_string += ", ".join([self.generate_code(arg, state) for arg in
                                              node.args])
                 code_string += ")"
+                # DEBUG
+                print ("process_call - code_string: ", code_string)
         else:
             code_string = self.generate_code(node.args[1], state)
 

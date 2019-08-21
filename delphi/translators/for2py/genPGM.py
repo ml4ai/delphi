@@ -1396,7 +1396,6 @@ class GrFNGenerator(object):
         for expr in expressions:
             if "call" not in expr:
                 assert False, f"Unsupported expr: {expr}."
-
         for expr in expressions:
             call = expr["call"]
             function_name = call["function"]
@@ -1410,16 +1409,16 @@ class GrFNGenerator(object):
                 return []
             # A handler for array <.set_> function
             if ".set_" in function_name:
-                array_name = function_name.replace(".set_", "")
+                name = function_name.replace(".set_", "")
                 if "var" in call["inputs"][0][0]:
                     index = call["inputs"][0][0]["var"]["variable"]
                     # An array name with index holder for later usage
                     # dueing lambda string generation.
-                    state.array_assign_name = f"{array_name}[{index}]"
+                    state.array_assign_name = f"{name}[{index}]"
                 else:
                     index = call["inputs"][0][0]["value"]
 
-                array_name = f"{array_name}_{index}"
+                array_name = f"{name}_{index}"
                 namespace = self._get_namespace(self.fortran_file)
                 namespace = self.replace_multiple(namespace, ['$', '-', ':'], '_')
                 cur_scope = self.current_scope
@@ -1428,7 +1427,6 @@ class GrFNGenerator(object):
                 container_id_name = f"{namespace}__{cur_scope}__assign__{array_name}__0"
                 # ty: type
                 ty = "lambda_source"
-                del call["inputs"][0]
             else:
                 container_id_name = self.function_argument_map[function_name][
                     "name"]
@@ -1457,14 +1455,34 @@ class GrFNGenerator(object):
                             f"{arg[0]['var']['index']}")
                     elif "call" in arg[0]:
                         argument_list = []
+                        input_list = []
                         # For array setter value handler
                         for var in arg[0]["call"]["inputs"][0]:
+                            # If an input is a simple variable
                             if "var" in var:
-                                function["input"].append(
-                                        f"@variable::"
-                                        f"{var['var']['variable']}::"
-                                        f"{var['var']['index']}")
-                                argument_list.append(var['var']['variable'])
+                                var_name = var['var']['variable']
+                                if var_name not in argument_list:
+                                    function["input"].append(
+                                            f"@variable::"
+                                            f"{var_name}::-1")
+                                    argument_list.append(var_name)
+                                else:
+                                    # It's not an error, so just pass it.
+                                    pass
+                            # If an input is an array (for now).
+                            elif "call" in var:
+                                ref_call = var["call"]
+                                if ".get_" in ref_call["function"]:
+                                    get_array_name = ref_call["function"].replace(".get_", "")
+                                    if get_array_name not in argument_list:
+                                        function["input"].append(
+                                            f"@variable::"
+                                            f"{get_array_name}::-1")
+                                        argument_list.append(get_array_name)
+                                    else:
+                                        # It's not an error, so just pass it.
+                                        pass
+                        # Generate lambda function for array[index]
                         lambda_string = self._generate_lambda_function(
                             node,
                             container_id_name,
@@ -1474,6 +1492,9 @@ class GrFNGenerator(object):
                             state,
                         )
                         state.lambda_strings.append(lambda_string)
+                        function["output"].append(
+                                f"@variable::"
+                                f"{name}::0")
                 else:
                     raise For2PyError(
                         "Only 1 input per argument supported right now."
@@ -1490,6 +1511,8 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(function)
 
+        # DEBUG
+        print ("grfn: ", grfn)
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -2238,8 +2261,6 @@ class GrFNGenerator(object):
     @staticmethod
     def _generate_lambda_function(node, function_name: str, return_value: bool,
                                   array_assign: bool, inputs, state):
-        # DEBUG
-        print ("function_name: ", function_name)
         lambda_strings = []
         argument_strings = []
         # Sort the arguments in the function call as it is used in the operation
