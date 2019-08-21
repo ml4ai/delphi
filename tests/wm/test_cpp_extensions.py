@@ -258,7 +258,7 @@ def test_subgraph():
     node = 'n4'
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
     try:
-        G_sub = G.get_subgraph_for_concept( node, hops, False )
+        G_sub = G.get_subgraph_for_concept( node, False, hops )
     except IndexError:
         print('Concept {} is not in the CAG!'.format(node))
         return
@@ -277,7 +277,7 @@ def test_subgraph():
     #G_sub.print_all_paths()
 
     print( '\nSubgraph of {} hops ending at node {} graph'.format( hops, node ) )
-    G_sub = G.get_subgraph_for_concept( node, hops, True )
+    G_sub = G.get_subgraph_for_concept( node, True, hops )
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
@@ -285,7 +285,7 @@ def test_subgraph():
     G.print_name_to_vertex()
 
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
-    G.get_subgraph_for_concept( node, hops, False )
+    G.get_subgraph_for_concept( node, False, hops )
 
 def test_subgraph_between():
     causal_fragments = [  # Center node is n4
@@ -413,3 +413,61 @@ def test_merge():
     G.print_all_paths()
 
     G.print_nodes()
+
+def test_debug():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n0"), ("large", -1, "n2")),
+            (("small", 1, "n0"), ("large", -1, "n3")),
+            (("small", 1, "n2"), ("large", -1, "n1")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n1")),
+            #(("small", 1, "n4"), ("large", -1, "n2")),
+            #(("small", 1, "n2"), ("large", -1, "n3")),
+            ]
+
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n1"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n3")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n5")),
+            (("small", 1, "n5"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n7")),
+            (("small", 1, "n7"), ("large", -1, "n8")),
+            (("small", 1, "n0"), ("large", -1, "n9")),
+            (("small", 1, "n9"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n10")),
+            (("small", 1, "n10"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n11")),
+            (("small", 1, "n11"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n12")),
+            (("small", 1, "n12"), ("large", -1, "n8")),
+            (("small", 1, "n13"), ("large", -1, "n14")),
+            (("small", 1, "n14"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n15")),
+            (("small", 1, "n15"), ("large", -1, "n16")),
+            (("small", 1, "n5"), ("large", -1, "n3")), # Creates a loop
+            ]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
+    G.print_nodes()
+
+    print( '\nBefore pruning' )
+    G.print_all_paths()
+
+    hops = 3
+    node = 'n4'
+    print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
+    try:
+        G_sub = G.get_subgraph_for_concept( node, False, hops )
+    except IndexError:
+        print('Concept {} is not in the CAG!'.format(node))
+        return
+
+    G_sub.find_all_paths()
+    G_sub.print_nodes()
+    #G_sub.print_all_paths()

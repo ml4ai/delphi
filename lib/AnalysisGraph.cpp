@@ -92,60 +92,70 @@ void AnalysisGraph::print_A_beta_factors() {
   }
 }
 
-unordered_set<int>
-AnalysisGraph::get_subgraph_between(int start, int end, int cutoff = -1) {
-  // Mark all the vertices are not visited
-  boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
-
-  // Create a vector of ints to store paths.
-  vector<int> path;
-
-  // The set of vertices to be kept on the subgraph
-  unordered_set<int> vertices_to_keep;
-
-  this->get_subgraph_between_util(start, end, path, vertices_to_keep, cutoff);
-
-  return vertices_to_keep;
-}
-
-
-void AnalysisGraph::get_subgraph_between_util(
-    int start,
-    int end,
-    vector<int>& path,
+// TODO: I am creating two methods:
+//    get_subgraph_rooted_at
+//    get_subgraph_sinked_at
+// to avoid a repeated if condition
+// The only difference between these two functions is that one calls
+// successors() method and the other calls predecesors() method.
+// I tried to pass the necessary function as a function pointer.
+// However, since I was unable to figure out the return type of
+// successors() and predecessors() I could not complete it.
+// If we can figure the return type, we can combine these two
+// methods into one
+void AnalysisGraph::get_subgraph_rooted_at(
+    int vert,
     unordered_set<int>& vertices_to_keep,
     int cutoff) {
+
   // Mark the current vertex visited
-  this->graph[start].visited = true;
+  this->graph[vert].visited = true;
+  vertices_to_keep.insert(vert);
 
-  // Add this vertex to the path
-  path.push_back(start);
+  if (cutoff != 0) {
+    cutoff--;
 
-  // If current vertex is the destination vertex, then
-  //   we have found one path.
-  if (start == end) {
-    int v = 0;
-    for (; v < path.size() - 1; v++) {
-      vertices_to_keep.insert(path[v]);
-    }
-
-    // Insert the last vertex of this path
-    vertices_to_keep.insert(path[v]);
-  }
-  else if (path.size() < cutoff) {
-    // Current vertex is not the destination
     // Recursively process all the vertices adjacent to the current vertex
-    for_each(successors(start), [&](int v) {
+    for_each(successors(vert), [&](int v) {
       if (!this->graph[v].visited) {
-        this->get_subgraph_between_util(
-            v, end, path, vertices_to_keep, cutoff);
+        this->get_subgraph_rooted_at(
+            v, vertices_to_keep, cutoff);
       }
     });
   }
+};
 
-  // Remove current vertex from the path and make it unvisited
-  path.pop_back();
-  this->graph[start].visited = false;
+// TODO: I am creating two methods:
+//    get_subgraph_rooted_at
+//    get_subgraph_sinked_at
+// to avoid a repeated if condition
+// The only difference between these two functions is that one calls
+// successors() method and the other calls predecesors() method.
+// I tried to pass the necessary function as a function pointer.
+// However, since I was unable to figure out the return type of
+// successors() and predecessors() I could not complete it.
+// If we can figure the return type, we can combine these two
+// methods into one
+void AnalysisGraph::get_subgraph_sinked_at(
+    int vert,
+    unordered_set<int>& vertices_to_keep,
+    int cutoff) {
+
+  // Mark the current vertex visited
+  this->graph[vert].visited = true;
+  vertices_to_keep.insert(vert);
+
+  if (cutoff != 0) {
+    cutoff--;
+
+    // Recursively process all the vertices adjacent to the current vertex
+    for_each(predecessors(vert), [&](int v) {
+      if (!this->graph[v].visited) {
+        this->get_subgraph_sinked_at(
+            v, vertices_to_keep, cutoff);
+      }
+    });
+  }
 };
 
 void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
@@ -192,7 +202,8 @@ void AnalysisGraph::find_all_paths_between_util(
           make_pair(make_pair(path[v], path[v + 1]), this_cell));
     }
   }
-  else if (path.size() < cutoff) {
+  else if (cutoff != 0) {
+    cutoff--;
     // Current vertex is not the destination
     // Recursively process all the vertices adjacent to the current vertex
     for_each(successors(start), [&](int v) {
@@ -329,10 +340,13 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 }
 
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      int depth,
-                                                      bool inward) {
+                                                      bool inward,
+                                                      int depth) {
   int vert_id =
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+
+  // Mark all the vertices are not visited
+  boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
 
   int num_verts = boost::num_vertices(this->graph);
 
@@ -341,22 +355,11 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
   if (inward) {
     // All paths of length less than or equal to depth ending at vert_id
-    for (int start = 0; start < num_verts; ++start) {
-      if (start != vert_id) {
-        unordered_set<int> vwh =
-            this->get_subgraph_between(start, vert_id, depth);
-
-        vertices_to_keep.insert(vwh.begin(), vwh.end());
-      }
-    }
+    this->get_subgraph_sinked_at(vert_id, vertices_to_keep, depth);
   }
   else {
     // All paths of length less than or equal to depth beginning at vert_id
-    for (int end = 0; end < num_verts; ++end) {
-      if (vert_id != end) {
-        this->get_subgraph_between(vert_id, end, depth);
-      }
-    }
+    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth);
   }
 
   if (vertices_to_keep.size() == 0) {
@@ -376,7 +379,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   //       Test so far does not show suspicious behavior
   AnalysisGraph G_sub = *this;
   G_sub.remove_nodes(vertices_to_remove);
-  G_sub.find_all_paths();
+  //G_sub.find_all_paths();
 
   return G_sub;
 }
@@ -1161,6 +1164,7 @@ void AnalysisGraph::print_all_paths() {
   for (int row = 0; row < num_verts; ++row) {
     for (int col = 0; col < num_verts; ++col) {
       if (this->A_beta_factors[row][col]) {
+        this->A_beta_factors[row][col]->print_paths();
       }
     }
   }
