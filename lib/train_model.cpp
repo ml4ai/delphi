@@ -1,7 +1,9 @@
 #include "AnalysisGraph.hpp"
-#include <boost/progress.hpp>
+#include <tqdm.hpp>
 
 using namespace std;
+using tq::trange;
+
 void AnalysisGraph::train_model(int start_year,
                                 int start_month,
                                 int end_year,
@@ -12,17 +14,22 @@ void AnalysisGraph::train_model(int start_year,
                                 string state,
                                 map<string, string> units,
                                 InitialBeta initial_beta) {
+
+  this->find_all_paths();
+
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
   this->res = res;
+  this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, start_year, start_month, units);
 
+  this->training_range = make_pair(make_pair(start_year,start_month),make_pair(end_year,end_month));
   this->init_training_year = start_year;
   this->init_training_month = start_month;
 
-  if (!syntheitc_data_experiment) {
+  if (!synthetic_data_experiment) {
     this->set_observed_state_sequence_from_data(
         start_year, start_month, end_year, end_month, country, state);
   }
@@ -60,20 +67,15 @@ void AnalysisGraph::train_model(int start_year,
   this->training_latent_state_sequence_s =
       vector<vector<Eigen::VectorXd>>(this->res);
 
-  boost::progress_display progress_bar(burn + this->res);
-  boost::progress_timer t;
-
-  for (int _ = 0; _ < burn; _++) {
+  for (int i : trange(burn)) {
     this->sample_from_posterior();
-    ++progress_bar;
   }
 
-  for (int samp = 0; samp < this->res; samp++) {
+  for (int i : trange(this->res)) {
     this->sample_from_posterior();
     // this->training_sampled_transition_matrix_sequence[samp] =
-    this->transition_matrix_collection[samp] = this->A_original;
-    this->training_latent_state_sequence_s[samp] = this->latent_state_sequence;
-    ++progress_bar;
+    this->transition_matrix_collection[i] = this->A_original;
+    this->training_latent_state_sequence_s[i] = this->latent_state_sequence;
   }
 
   this->trained = true;
