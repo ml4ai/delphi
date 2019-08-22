@@ -34,6 +34,10 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {}
+  Node &operator[] (int);
+  Node &operator[] (std::string);
+  Edge& edge(int, int);
+
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices();
