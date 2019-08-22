@@ -46,20 +46,21 @@ void AnalysisGraph::parameterize(string country,
   double stdev;
   for (int v : this->vertices()) {
     for (auto [name, i] : (*this)[v].indicator_names) {
+      auto indicator = (*this)[v].indicators[i];
       try {
         if (units.find(name) != units.end()) {
-          (*this)[v].indicators[i].set_unit(units[name]);
-          (*this)[v].indicators[i].set_mean(
+          indicator.set_unit(units[name]);
+          indicator.set_mean(
               get_data_value(name, country, state, year, month, units[name]));
-          stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          stdev = 0.1 * abs(indicator.get_mean());
+          indicator.set_stdev(stdev);
         }
         else {
-          (*this)[v].indicators[i].set_default_unit();
-          (*this)[v].indicators[i].set_mean(
+          indicator.set_default_unit();
+          indicator.set_mean(
               get_data_value(name, country, state, year, month));
-          stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          stdev = 0.1 * abs(indicator.get_mean());
+          indicator.set_stdev(stdev);
         }
       }
       catch (logic_error& le) {
