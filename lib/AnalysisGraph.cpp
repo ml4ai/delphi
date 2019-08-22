@@ -54,7 +54,8 @@ void AnalysisGraph::parameterize(string country,
           stdev = 0.1 * abs(this->graph[v].indicators[i].get_mean());
           this->graph[v].indicators[i].set_stdev(stdev);
         }
-      } catch ( std::logic_error & le ) {
+      }
+      catch (std::logic_error& le) {
         cerr << "ERROR: AnalysisGraph::parameterize()\n";
         cerr << "\tReading data for:\n";
         cerr << "\t\tConcept: " << this->graph[v].name << endl;
@@ -104,7 +105,7 @@ void AnalysisGraph::get_subgraph_rooted_at(
     int vert,
     unordered_set<int>& vertices_to_keep,
     int cutoff,
-    NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int) ) {
+    NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int)) {
 
   // Mark the current vertex visited
   this->graph[vert].visited = true;
@@ -116,8 +117,7 @@ void AnalysisGraph::get_subgraph_rooted_at(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(successors(vert), [&](int v) {
       if (!this->graph[v].visited) {
-        this->get_subgraph_rooted_at(
-            v, vertices_to_keep, cutoff, neighbors);
+        this->get_subgraph_rooted_at(v, vertices_to_keep, cutoff, neighbors);
       }
     });
   }
@@ -137,10 +137,9 @@ void AnalysisGraph::get_subgraph_rooted_at(
 // successors() and predecessors() I could not complete it.
 // If we can figure the return type, we can combine these two
 // methods into one
-void AnalysisGraph::get_subgraph_sinked_at(
-    int vert,
-    unordered_set<int>& vertices_to_keep,
-    int cutoff) {
+void AnalysisGraph::get_subgraph_sinked_at(int vert,
+                                           unordered_set<int>& vertices_to_keep,
+                                           int cutoff) {
 
   // Mark the current vertex visited
   this->graph[vert].visited = true;
@@ -152,8 +151,7 @@ void AnalysisGraph::get_subgraph_sinked_at(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(predecessors(vert), [&](int v) {
       if (!this->graph[v].visited) {
-        this->get_subgraph_sinked_at(
-            v, vertices_to_keep, cutoff);
+        this->get_subgraph_sinked_at(v, vertices_to_keep, cutoff);
       }
     });
   }
@@ -162,12 +160,11 @@ void AnalysisGraph::get_subgraph_sinked_at(
   this->graph[vert].visited = false;
 };
 
-void AnalysisGraph::get_subgraph_between(
-    int start,
-    int end,
-    vector<int>& path,
-    unordered_set<int>& vertices_to_keep,
-    int cutoff) {
+void AnalysisGraph::get_subgraph_between(int start,
+                                         int end,
+                                         vector<int>& path,
+                                         unordered_set<int>& vertices_to_keep,
+                                         int cutoff) {
 
   // Mark the current vertex visited
   this->graph[start].visited = true;
@@ -188,8 +185,7 @@ void AnalysisGraph::get_subgraph_between(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(successors(start), [&](int v) {
       if (!this->graph[v].visited) {
-        this->get_subgraph_between(
-            v, end, path, vertices_to_keep, cutoff);
+        this->get_subgraph_between(v, end, path, vertices_to_keep, cutoff);
       }
     });
   }
@@ -199,7 +195,9 @@ void AnalysisGraph::get_subgraph_between(
   this->graph[start].visited = false;
 };
 
-void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
+void AnalysisGraph::find_all_paths_between(int start,
+                                           int end,
+                                           int cutoff = -1) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
 
@@ -209,11 +207,10 @@ void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) 
   this->find_all_paths_between_util(start, end, path, cutoff);
 }
 
-void AnalysisGraph::find_all_paths_between_util(
-    int start,
-    int end,
-    vector<int>& path,
-    int cutoff) {
+void AnalysisGraph::find_all_paths_between_util(int start,
+                                                int end,
+                                                vector<int>& path,
+                                                int cutoff) {
   // Mark the current vertex visited
   this->graph[start].visited = true;
 
@@ -249,8 +246,7 @@ void AnalysisGraph::find_all_paths_between_util(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(successors(start), [&](int v) {
       if (!this->graph[v].visited) {
-        this->find_all_paths_between_util(
-            v, end, path, cutoff);
+        this->find_all_paths_between_util(v, end, path, cutoff);
       }
     });
   }
@@ -411,7 +407,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
   else {
     // All paths of length less than or equal to depth beginning at vert_id
-    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth, &AnalysisGraph::successors);
+    this->get_subgraph_rooted_at(
+        vert_id, vertices_to_keep, depth, &AnalysisGraph::successors);
   }
 
   if (vertices_to_keep.size() == 0) {
@@ -457,8 +454,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
     cerr << "WARNING:" << endl;
     cerr << "\tThere are no paths of length <= " << cutoff
-      << " from source concept " << source_concept
-      << " --to-> target concept " << target_concept << endl;
+         << " from source concept " << source_concept
+         << " --to-> target concept " << target_concept << endl;
     cerr << "\tReturning an empty CAG!" << endl;
   }
 
@@ -735,7 +732,8 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
     for (auto indicator : this->graph[v].indicators) {
       src = add_node(G, concept_name);
       trgt = add_node(G, indicator.name);
-      set_property(trgt, "label", indicator.name+"\nSource: "+indicator.source);
+      set_property(
+          trgt, "label", indicator.name + "\nSource: " + indicator.source);
       set_property(trgt, "style", "rounded,filled");
       set_property(trgt, "fillcolor", "lightblue");
 
@@ -1138,7 +1136,8 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
 void AnalysisGraph::print_all_paths() {
   int num_verts = boost::num_vertices(graph);
 
-  if(this->A_beta_factors.size() != num_verts || this->A_beta_factors[0].size() != num_verts) {
+  if (this->A_beta_factors.size() != num_verts ||
+      this->A_beta_factors[0].size() != num_verts) {
     this->find_all_paths();
   }
 
@@ -1405,8 +1404,9 @@ void AnalysisGraph::
   }
 }
 
-tuple<pair<pair<int,int>,pair<int,int>>,vector<string>,
-     vector<vector<unordered_map<string, unordered_map<string, double>>>>>
+tuple<pair<pair<int, int>, pair<int, int>>,
+      vector<string>,
+      vector<vector<unordered_map<string, unordered_map<string, double>>>>>
 AnalysisGraph::generate_prediction(int start_year,
                                    int start_month,
                                    int end_year,
@@ -1508,7 +1508,8 @@ AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->pred_timesteps -= truncate;
-  return make_tuple(this->training_range, this->pred_range, this->format_prediction_result());
+  return make_tuple(
+      this->training_range, this->pred_range, this->format_prediction_result());
 }
 
 vector<vector<unordered_map<string, unordered_map<string, double>>>>
@@ -1607,9 +1608,11 @@ void AnalysisGraph::
             });
 }
 
-pair<ObservedStateSequence,
-     tuple<pair<pair<int,int>,pair<int,int>>,
-     vector<string>, vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
+pair<
+    ObservedStateSequence,
+    tuple<pair<pair<int, int>, pair<int, int>>,
+          vector<string>,
+          vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
 AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int start_month,
                                                   int end_year,
