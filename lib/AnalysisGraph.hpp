@@ -34,7 +34,6 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {}
-  Node &operator[] (int);
   Node &operator[] (std::string);
   Edge& edge(int, int);
 
@@ -51,6 +50,7 @@ class AnalysisGraph {
 
   private:
 
+  Node &operator[] (int);
   void clear_state(); 
 
   // Maps each concept name to the vertex id of the
