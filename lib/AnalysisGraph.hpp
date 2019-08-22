@@ -46,6 +46,9 @@ class AnalysisGraph {
   void print_A_beta_factors();
 
   private:
+
+  void clear_state(); 
+
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
   // concept name --> CAV vertex id
@@ -167,14 +170,21 @@ class AnalysisGraph {
   AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
       : graph(G), name_to_vertex(name_to_vertex){};
 
-  void get_subgraph_rooted_at(int vert,
-                              std::unordered_set<int>& vertices_to_keep,
-                              int cutoff,
-                              NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int) );
+  void
+  get_subgraph_rooted_at(int vert,
+                         std::unordered_set<int>& vertices_to_keep,
+                         int cutoff,
+                         NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int));
 
   void get_subgraph_sinked_at(int vert,
                               std::unordered_set<int>& vertices_to_keep,
                               int cutoff);
+
+  void get_subgraph_between(int start,
+                            int end,
+                            std::vector<int>& path,
+                            std::unordered_set<int>& vertices_to_keep,
+                            int cutoff);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -262,10 +272,6 @@ class AnalysisGraph {
    *                 True  - A subgraph with all the paths ending at the concept
    * provided.
    */
-  void get_subgraph_for_concept_old(std::string concept,
-                                    int depth = 1,
-                                    bool inward = false);
-
   AnalysisGraph get_subgraph_for_concept(std::string concept,
                                          bool inward = false,
                                          int depth = -1);
@@ -284,7 +290,7 @@ class AnalysisGraph {
    */
   AnalysisGraph get_subgraph_for_concept_pair(std::string source_concept,
                                               std::string target_concept,
-                                              int cutoff);
+                                              int cutoff = -1);
 
   void prune(int cutoff = 2);
 
@@ -321,8 +327,8 @@ class AnalysisGraph {
   }
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
-  //void
-  //merge_nodes_old(std::string n1, std::string n2, bool same_polarity = true);
+  // void
+  // merge_nodes_old(std::string n1, std::string n2, bool same_polarity = true);
 
   /**
    * Merges the CAG nodes for the two concepts concept_1 and concept_2

@@ -162,6 +162,43 @@ void AnalysisGraph::get_subgraph_sinked_at(
   this->graph[vert].visited = false;
 };
 
+void AnalysisGraph::get_subgraph_between(
+    int start,
+    int end,
+    vector<int>& path,
+    unordered_set<int>& vertices_to_keep,
+    int cutoff) {
+
+  // Mark the current vertex visited
+  this->graph[start].visited = true;
+
+  // Add this vertex to the path
+  path.push_back(start);
+
+  // If current vertex is the destination vertex, then
+  //   we have found one path.
+  //   Add this cell to the Tran_Mat_Object that is tracking
+  //   this transition matrix cell.
+  if (start == end) {
+    vertices_to_keep.insert(path.begin(), path.end());
+  }
+  else if (cutoff != 0) {
+    cutoff--;
+
+    // Recursively process all the vertices adjacent to the current vertex
+    for_each(successors(start), [&](int v) {
+      if (!this->graph[v].visited) {
+        this->get_subgraph_between(
+            v, end, path, vertices_to_keep, cutoff);
+      }
+    });
+  }
+
+  // Remove current vertex from the path and make it unvisited
+  path.pop_back();
+  this->graph[start].visited = false;
+};
+
 void AnalysisGraph::find_all_paths_between(int start, int end, int cutoff = -1) {
   // Mark all the vertices are not visited
   boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
@@ -343,6 +380,17 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return ag;
 }
 
+void AnalysisGraph::clear_state() {
+  this->A_beta_factors.clear();
+
+  // Clear the multimap that keeps track of cells in the transition
+  // matrix that are dependent on each β.
+  this->beta2cell.clear();
+
+  // Clear the set of all the β dependent cells
+  this->beta_dependent_cells.clear();
+}
+
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       bool inward,
                                                       int depth) {
@@ -383,7 +431,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   //       Test so far does not show suspicious behavior
   AnalysisGraph G_sub = *this;
   G_sub.remove_nodes(vertices_to_remove);
-  //G_sub.find_all_paths();
+  G_sub.clear_state();
 
   return G_sub;
 }
@@ -398,27 +446,19 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   unordered_set<int> vertices_to_keep;
   unordered_set<string> vertices_to_remove;
+  vector<int> path;
 
-  // All paths of length less than or equal to depth ending at vert_id
-  if (this->A_beta_factors[tgt_id][src_id]) {
-    vertices_to_keep =
-        this->A_beta_factors[tgt_id][src_id]
-            ->get_vertices_on_paths_shorter_than_or_equal_to(cutoff);
+  // Mark all the vertices are not visited
+  boost::for_each(vertices(), [&](int v) { this->graph[v].visited = false; });
 
-    if (vertices_to_keep.size() == 0) {
-      cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
-      cerr << "WARNING:" << endl;
-      cerr << "\tThere are no paths of length <= " << cutoff
-           << " from source concept " << source_concept
-           << " --to-> target concept " << target_concept << endl;
-      cerr << "\tReturning an empty CAG!" << endl;
-    }
-  }
-  else {
+  this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
+
+  if (vertices_to_keep.size() == 0) {
     cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
     cerr << "WARNING:" << endl;
-    cerr << "\tThere are no paths from source concept " << source_concept
-         << " --to-> target concept " << target_concept << endl;
+    cerr << "\tThere are no paths of length <= " << cutoff
+      << " from source concept " << source_concept
+      << " --to-> target concept " << target_concept << endl;
     cerr << "\tReturning an empty CAG!" << endl;
   }
 
@@ -434,6 +474,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   //       Test so far does not show suspicious behavior
   AnalysisGraph G_sub = *this;
   G_sub.remove_nodes(vertices_to_remove);
+  G_sub.clear_state();
 
   return G_sub;
 }
@@ -1096,6 +1137,10 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
 
 void AnalysisGraph::print_all_paths() {
   int num_verts = boost::num_vertices(graph);
+
+  if(this->A_beta_factors.size() != num_verts || this->A_beta_factors[0].size() != num_verts) {
+    this->find_all_paths();
+  }
 
   cout << "All the simple paths of:" << endl;
 
