@@ -293,23 +293,18 @@ def test_subgraph_between():
             (("small", 1, "n1"), ("large", -1, "n2")),
             (("small", 1, "n2"), ("large", -1, "n3")),
             (("small", 1, "n3"), ("large", -1, "n4")),
-            (("small", 1, "n4"), ("large", -1, "n5")),
+            (("small", 1, "n0"), ("large", -1, "n5")),
             (("small", 1, "n5"), ("large", -1, "n6")),
-            (("small", 1, "n6"), ("large", -1, "n7")),
-            (("small", 1, "n7"), ("large", -1, "n8")),
-            (("small", 1, "n0"), ("large", -1, "n9")),
-            (("small", 1, "n9"), ("large", -1, "n2")),
-            (("small", 1, "n2"), ("large", -1, "n10")),
-            (("small", 1, "n10"), ("large", -1, "n4")),
-            (("small", 1, "n4"), ("large", -1, "n11")),
-            (("small", 1, "n11"), ("large", -1, "n6")),
-            (("small", 1, "n6"), ("large", -1, "n12")),
-            (("small", 1, "n12"), ("large", -1, "n8")),
-            (("small", 1, "n13"), ("large", -1, "n14")),
-            (("small", 1, "n14"), ("large", -1, "n4")),
-            (("small", 1, "n4"), ("large", -1, "n15")),
-            (("small", 1, "n15"), ("large", -1, "n16")),
-            (("small", 1, "n5"), ("large", -1, "n3")), # Creates a loop
+            (("small", 1, "n6"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n7")),
+            (("small", 1, "n7"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n8")),
+            (("small", 1, "n8"), ("large", -1, "n9")),
+            (("small", 1, "n10"), ("large", -1, "n0")),
+            (("small", 1, "n4"), ("large", -1, "n12")),
+            (("small", 1, "n12"), ("large", -1, "n13")),
+            (("small", 1, "n13"), ("large", -1, "n4")),
             ]
 
     print('\n\n\n\n')
@@ -324,14 +319,16 @@ def test_subgraph_between():
 
     G.print_nodes()
     G.print_name_to_vertex()
+    #G.print_all_paths()
 
-    cutoff = 12
+    cutoff = 3 
     src = 'n0'
-    tgt = 'n8'
+    tgt = 'n4'
 
     print( '\nSubgraph with inbetween hops less than or equal {} between source node {} and target node {}'.format( cutoff, src, tgt ) )
     try:
         G_sub = G.get_subgraph_for_concept_pair( src, tgt, cutoff )
+        #G_sub.find_all_paths()
     except IndexError:
         print("Incorrect source or target concept")
         return
@@ -346,6 +343,7 @@ def test_subgraph_between():
     print( 'The subgraph' )
     G_sub.print_nodes()
     G_sub.print_name_to_vertex()
+    #G_sub.print_all_paths()
 
 def test_prune():
     causal_fragments = [  # Center node is n4

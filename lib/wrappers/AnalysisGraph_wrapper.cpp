@@ -34,7 +34,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::get_subgraph_for_concept_pair,
            "source_concept"_a,
            "target_concept"_a,
-           "cutoff"_a = 1)
+           "cutoff"_a = -1)
       .def("prune", &AnalysisGraph::prune, "cutoff"_a = 2)
       .def("merge_nodes",
            &AnalysisGraph::merge_nodes,
