@@ -841,8 +841,6 @@ void AnalysisGraph::merge_nodes(string concept_1,
 
   for (int predecessor : this->predecessors(vertex_to_remove)) {
 
-    // Get the edge descriptor for
-    //                   predecessor --> vertex_to_remove
     Edge edge_to_remove = this->edge(predecessor, vertex_to_remove);
 
     if (!same_polarity) {
@@ -852,12 +850,12 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   predecessor --> vertex_to_keep
-    Edge edge_to_keep = this->edge(predecessor, vertex_to_keep);
+    auto edge_to_keep = boost::add_edge(predecessor, vertex_to_keep, this->graph).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // predecessor --> vertex_to_keep
-    vector<Statement>& evidence_keep = edge_to_keep.evidence;
+    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
     vector<Statement>& evidence_move = edge_to_remove.evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
@@ -880,12 +878,12 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   successor --> vertex_to_keep
-    auto edge_to_keep = this->edge(vertex_to_keep, successor);
+    auto edge_to_keep = boost::add_edge(vertex_to_keep, successor, this->graph).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // vertex_to_keep --> successor
-    vector<Statement>& evidence_keep = edge_to_keep.evidence;
+    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
     vector<Statement>& evidence_move = edge_to_remove.evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
