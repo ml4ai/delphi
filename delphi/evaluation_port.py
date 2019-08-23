@@ -66,6 +66,7 @@ def get_data_value(
     indicator: str,
     country: Optional[str] = "South Sudan",
     state: Optional[str] = None,
+    county: Optional[str] = None
     year: Optional[int] = None,
     month: Optional[int] = None,
     unit: Optional[str] = None,
@@ -114,17 +115,35 @@ def get_data_value(
             query_parts["country"] = f"and `Country` is 'South Sudan'"
         else:
             query_parts["country"] = f"and `Country` is '{country}'"
+    else:
+        query_parts["country"] = f"and `Country` is 'None'"
     if state is not None:
         check_q = query_parts["base"] + f"and `State` is '{state}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected State not found for {indicator}! Using default settings (Aggregration over all States)"
+                f"Selected State not found for {indicator}! Using default ",
+                "settings (Getting data at Country level only instead of State ",
+                "level)!"
             )
-            query_parts["state"] = ""
+            query_parts["state"] = f"and `State` is 'None'"
         else:
             query_parts["state"] = f"and `State` is '{state}'"
-
+    else:
+        query_parts["state"] = f"and `State` is 'None'"
+    if county is not None:
+        check_q = query_parts["base"] + f"and `County` is '{county}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                f"Selected County not found for {indicator}! Using default ",
+                "settings (Attempting to get data at state level instead)!"
+            )
+            query_parts["county"] = f"and `County` is 'None'"
+        else:
+            query_parts["county"] = f"and `County` is '{county}'"
+    else:
+        query_parts["county"] = f"and `County` is 'None'"
     if unit is not None:
         check_q = query_parts["base"] + f" and `Unit` is '{unit}'"
         check_r = list(engine.execute(check_q))
@@ -216,6 +235,7 @@ def data_to_df(
     """
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
+    county = kwargs.get("county")
     unit = kwargs.get("unit")
 
     n_timesteps = calculate_timestep(
