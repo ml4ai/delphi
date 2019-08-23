@@ -66,7 +66,7 @@ def get_data_value(
     indicator: str,
     country: Optional[str] = "South Sudan",
     state: Optional[str] = None,
-    county: Optional[str] = None
+    county: Optional[str] = None,
     year: Optional[int] = None,
     month: Optional[int] = None,
     unit: Optional[str] = None,
@@ -117,33 +117,38 @@ def get_data_value(
             query_parts["country"] = f"and `Country` is '{country}'"
     else:
         query_parts["country"] = f"and `Country` is 'None'"
+
     if state is not None:
         check_q = query_parts["base"] + f"and `State` is '{state}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
-            warnings.warn(
+            warnings.warn((
                 f"Selected State not found for {indicator}! Using default ",
                 "settings (Getting data at Country level only instead of State ",
                 "level)!"
+                )
             )
             query_parts["state"] = f"and `State` is 'None'"
         else:
             query_parts["state"] = f"and `State` is '{state}'"
     else:
         query_parts["state"] = f"and `State` is 'None'"
+
     if county is not None:
         check_q = query_parts["base"] + f"and `County` is '{county}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
-            warnings.warn(
+            warnings.warn((
                 f"Selected County not found for {indicator}! Using default ",
                 "settings (Attempting to get data at state level instead)!"
+                )
             )
             query_parts["county"] = f"and `County` is 'None'"
         else:
             query_parts["county"] = f"and `County` is '{county}'"
     else:
         query_parts["county"] = f"and `County` is 'None'"
+
     if unit is not None:
         check_q = query_parts["base"] + f" and `Unit` is '{unit}'"
         check_r = list(engine.execute(check_q))
@@ -246,7 +251,7 @@ def data_to_df(
     month = start_month
     date = []
     for j in range(n_timesteps + 1):
-        vals[j] = get_data_value(indicator, country, state, year, month, unit)
+        vals[j] = get_data_value(indicator, country, state, county, year, month, unit)
         date.append(f"{year}-{month}")
 
         if month == 12:
@@ -450,11 +455,30 @@ def pred_plot(
 
     if plot_type == "Comparison":
         if show_training_data:
-            training_range, _, _ = preds
+            training_range, pred_range, _ = preds
+
+            start_year = training_range[0][0]
+            start_month = training_range[0][1]
+            end_year = int(pred_range[-1][0:4])
+            end_month = int(pred_range[-1][5:7])
+
+            timesteps = calculate_timestep(start_year,start_month,end_year,end_month)
+            year = start_year
+            month = start_month
+            date = []
+            for j in range(timesteps + 1):
+                date.append(f"{year}-{month}")
+
+                if month == 12:
+                    year = year + 1
+                    month = 1
+                else:
+                    month = month + 1
+
             training_data = data_to_df(
                 indicator,
-                training_range[0][0],
-                training_range[0][1],
+                start_year,
+                start_month,
                 training_range[1][0],
                 training_range[1][1],
                 **kwargs,
@@ -478,7 +502,7 @@ def pred_plot(
                 alpha=0.5,
             )
             ax.set_xticklabels(
-                df_compare.index.astype(str),
+                date,
                 rotation=45,
                 ha="right",
                 fontsize=8,
