@@ -580,7 +580,7 @@ def clean_UNHCR_data():
     df.loc[0:6, "Destination state"] = "Gambella"
     df.loc[9:14, "Destination state"] = "Gambella"
 
-    df["Source"] = "UNHCR"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)
