@@ -378,10 +378,8 @@ def get_original_file(original_fortran_filepath):
         the original fortran file.
 
     Returns:
-        str {
-            'original_fortran_file': A fortran file name with extension.
-            'base': A fortran file without extension.
-        }
+        str: 'original_fortran_file'. A fortran file name with extension,
+        str: 'base'. A fortran file without extension.
     """
     original_fortran_file = np.basename(original_fortran_filepath)
     base = os.path.splitext(original_fortran_file)[0]
