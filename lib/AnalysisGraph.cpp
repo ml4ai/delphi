@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
 #include "tqdm.hpp"
+#include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <cmath>
 #include <sqlite3.h>
@@ -10,6 +11,8 @@ using namespace std;
 using fmt::print, fmt::format;
 using tq::tqdm;
 using boost::make_iterator_range;
+using boost::adaptors::transformed;
+using boost::for_each;
 
 Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
 
@@ -23,6 +26,10 @@ auto AnalysisGraph::vertices() {
 
 NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
+}
+
+auto AnalysisGraph::nodes() {
+  return this->vertices() | transformed([&](auto i) { return (*this)[i]; });
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
@@ -45,28 +52,29 @@ void AnalysisGraph::parameterize(string country,
                                  int month,
                                  map<string, string> units) {
   double stdev;
-  for (int v : this->vertices()) {
-    for (auto [name, i] : (*this)[v].indicator_names) {
+  for (Node node : this->nodes()) {
+    for (auto [name, i] : node.indicator_names) {
+      auto indicator = node.indicators[i];
       try {
         if (units.find(name) != units.end()) {
-          (*this)[v].indicators[i].set_unit(units[name]);
-          (*this)[v].indicators[i].set_mean(
+          indicator.set_unit(units[name]);
+          indicators.set_mean(
               get_data_value(name, country, state, county, year, month, units[name]));
-          stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          stdev = 0.1 * abs(indicator.get_mean());
+          indicator.set_stdev(stdev);
         }
         else {
-          (*this)[v].indicators[i].set_default_unit();
-          (*this)[v].indicators[i].set_mean(
+          indicator.set_default_unit();
+          indicator.set_mean(
               get_data_value(name, country, state, county, year, month));
-          stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          stdev = 0.1 * abs(indicator.get_mean());
+          indicator.set_stdev(stdev);
         }
       }
       catch (logic_error& le) {
         cerr << "ERROR: AnalysisGraph::parameterize()\n";
         cerr << "\tReading data for:\n";
-        cerr << "\t\tConcept: " << (*this)[v].name << endl;
+        cerr << "\t\tConcept: " << node.name << endl;
         cerr << "\t\tIndicator: " << name << endl;
         rethrow_exception(current_exception());
       }
@@ -207,7 +215,7 @@ void AnalysisGraph::find_all_paths_between(int start,
                                            int end,
                                            int cutoff = -1) {
   // Mark all the vertices are not visited
-  boost::for_each(this->vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(this->nodes(), [&](Node node) { node.visited = false; });
 
   // Create a vector of ints to store paths.
   vector<int> path;
@@ -402,7 +410,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
 
   // Mark all the vertices are not visited
-  boost::for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
 
   int num_verts = boost::num_vertices(this->graph);
 
@@ -454,7 +462,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   vector<int> path;
 
   // Mark all the vertices are not visited
-  boost::for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
 
   this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
 
@@ -786,9 +794,9 @@ void AnalysisGraph::to_png(string filename) {
   gvFreeContext(gvc);
 }
 void AnalysisGraph::print_indicators() {
-  for (int v : this->vertices()) {
-    cout << "node " << v << ": " << (*this)[v].name << ":" << endl;
-    for (auto [name, vert] : (*this)[v].indicator_names) {
+  for (Node node : this->nodes()) {
+    cout << node.name << ":" << endl;
+    for (auto [name, vert] : node.indicator_names) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
@@ -851,7 +859,8 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   predecessor --> vertex_to_keep
-    auto edge_to_keep = boost::add_edge(predecessor, vertex_to_keep, this->graph).first;
+    auto edge_to_keep =
+        boost::add_edge(predecessor, vertex_to_keep, this->graph).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
@@ -879,7 +888,8 @@ void AnalysisGraph::merge_nodes(string concept_1,
     }
 
     // Add the edge   successor --> vertex_to_keep
-    auto edge_to_keep = boost::add_edge(vertex_to_keep, successor, this->graph).first;
+    auto edge_to_keep =
+        boost::add_edge(vertex_to_keep, successor, this->graph).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
@@ -903,10 +913,11 @@ void AnalysisGraph::print_nodes() {
   print("Vertex IDs and their names in the CAG\n");
   print("Vertex ID : Name\n");
   print("--------- : ----\n");
-  boost::for_each(this->vertices(), [&](auto v) {
-    cout << v << "         : " << (*this)[v].name << endl;
+  for_each(this->vertices(), [&](int v) {
+    cout << v << "         " << this->graph[v].name << endl;
   });
 }
+
 void AnalysisGraph::map_concepts_to_indicators(int n) {
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -918,10 +929,10 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
   string query_base =
       "select Source, Indicator from concept_to_indicator_mapping ";
   string query;
-  for (int v : this->vertices()) {
-    query = query_base + "where `Concept` like " + "'" + (*this)[v].name + "'";
+  for (Node node : this->nodes()) {
+    query = query_base + "where `Concept` like " + "'" + node.name + "'";
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    (*this)[v].clear_indicators();
+    node.clear_indicators();
     bool ind_not_found = false;
     for (int c = 0; c < n; c = c + 1) {
       string ind_source;
@@ -942,12 +953,12 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
                this->indicators_in_CAG.end());
 
       if (!ind_not_found) {
-        (*this)[v].add_indicator(ind_name, ind_source);
+        node.add_indicator(ind_name, ind_source);
         this->indicators_in_CAG.insert(ind_name);
       }
       else {
         cout << "No more indicators were found, only " << c
-             << "indicators attached to " << (*this)[v].name << endl;
+             << "indicators attached to " << node.name << endl;
         break;
       }
     }
@@ -975,7 +986,7 @@ void AnalysisGraph::set_log_likelihood() {
 
       for (int i = 0; i < observed_state[v].size(); i++) {
         const double& value = observed_state[v][i];
-        const Indicator& ind = graph[v].indicators[i];
+        const Indicator& ind = this->graph[v].indicators[i];
 
         // Even indices of latent_state keeps track of the state of each
         // vertex
@@ -1002,8 +1013,8 @@ void AnalysisGraph::find_all_paths() {
   // Clear the set of all the β dependent cells
   this->beta_dependent_cells.clear();
 
-  boost::for_each(verts, [&](int start) {
-    boost::for_each(verts, [&](int end) {
+  for_each(verts, [&](int start) {
+    for_each(verts, [&](int end) {
       if (start != end) {
         this->find_all_paths_between(start, end);
       }
@@ -1023,7 +1034,7 @@ void AnalysisGraph::find_all_paths() {
 }
 
 void AnalysisGraph::print_edges() {
-  boost::for_each(edges(), [&](auto e) {
+  for_each(edges(), [&](auto e) {
     cout << "(" << boost::source(e, this->graph) << ", "
          << boost::target(e, this->graph) << ")" << endl;
   });
