@@ -5,6 +5,7 @@
 double get_data_value(std::string indicator,
                       std::string country,
                       std::string state,
+                      std::string county,
                       int year,
                       int month,
                       std::string unit) {
@@ -37,11 +38,15 @@ double get_data_value(std::string indicator,
       query = check_q;
     }
     else {
+      query = "{} and `Country` is 'None'"_format(query);
       debug("Could not find data for country {}. Averaging data over all "
             "countries for given axes (Default Setting)\n",
             country);
     }
     sqlite3_finalize(stmt);
+  }
+  else {
+    query = "{} and `Country` is 'None'"_format(query); 
   }
 
   if (!state.empty()) {
@@ -51,11 +56,33 @@ double get_data_value(std::string indicator,
       query = check_q;
     }
     else {
-      debug("Could not find data for state {}. Averaging data over all "
-            "states for given axes (Default Setting)\n",
+      query = "{} and `State` is 'None'"_format(query);
+      debug("Could not find data for state {}. Only obtaining data "
+            "of the country level (Default Setting)\n",
             state);
     }
     sqlite3_finalize(stmt);
+  }
+  else {
+    query = "{} and `State` is 'None'"_format(query);
+  }
+
+  if (!county.empty()) {
+    check_q = "{0} and `County` is '{1}'"_format(query, county);
+    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
+    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+      query = check_q;
+    }
+    else {
+      query = "{} and `County` is 'None'"_format(query);
+      debug("Could not find data for county {}. Only obtaining data "
+            "of the state level (Default Setting)\n",
+            county);
+    }
+    sqlite3_finalize(stmt);
+  }
+  else {
+    query = "{} and `County` is 'None'"_format(query);
   }
 
   if (!unit.empty()) {

@@ -110,6 +110,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "burn"_a = 900,
            "country"_a = "South Sudan",
            "state"_a = "",
+           "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::HALF)
       .def("train_model",
@@ -122,6 +123,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "burn"_a = 10000,
            "country"_a = "South Sudan",
            "state"_a = "",
+           "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::ZERO)
       .def("generate_prediction",
