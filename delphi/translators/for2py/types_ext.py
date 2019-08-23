@@ -6,18 +6,20 @@ possible butterfly effect in numerical operations involving large floating
 point calculations.
 
 Usage:
-    To convert a float variable into Float32 type, do the following ::
-        target = Float32(float_variable)
-        OR
-        target = Float32(5.0)
-where <target> is now a Float32 object.
+    To convert a float variable into Float32 type, do the following
+    target = Float32(float_variable)
+    OR
+    target = Float32(5.0)
+    where <target> is now a Float32 object.
+
 Now, any arithmetic/logical operation involving <float_variable> will involve
 single-point calculations.
+
 Example Usage:
-        eps = Float32(1.0)
-        while eps + 1.0 > 1.0:
-            eps /= 2.0
-        eps *= 2.0
+    eps = Float32(1.0)
+    while eps + 1.0 > 1.0:
+        eps /= 2.0
+    eps *= 2.0
 
 Authors:
     Saumya Debray
