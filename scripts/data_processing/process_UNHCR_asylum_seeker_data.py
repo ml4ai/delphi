@@ -51,7 +51,7 @@ def clean_UNHCR_data():
     # individuals could be easily compromised. In my cleaning, I have decided to
     # round-down from the median value between 1-4. Thus all * are being changed
     # to 2.
-    df = df.replace("*", 2)
+    df = df.replace("*", "")
 
     # Values are originally inferred as strings from the raw data because of the
     #'*'.

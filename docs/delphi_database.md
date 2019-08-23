@@ -8,6 +8,9 @@ curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
 
 (Last updated on 8/19/2019)
 
+All data in the database was cleaned and processed by our python scripts found
+in our repository in the scripts directory.
+
 ## Indicator data table
 
 This table contains time series data for possible indicators (also known as
@@ -30,12 +33,12 @@ filled with a surrogate value indicating missing information for that field.
 
 The subsititute values for missing information are as follows:
 
--Country: "None" (string type)
--County: "None" (string type)
--State: "None" (string type)
--Source: "None" (string type)
--Month: 0 (int type)
--Year: -1 (int type)
+- Country: "None" (string type)
+- County: "None" (string type)
+- State: "None" (string type)
+- Source: "None" (string type)
+- Month: 0 (int type)
+- Year: -1 (int type)
 
 ## Gradable Adjectives data table
 
@@ -47,10 +50,20 @@ various statistics and information collected by the CLULAB.
 For more details on the collection and usage of this data table, see this
 [document](http://vision.cs.arizona.edu/adarsh/Arizona_Text_to_Model_Procedure.pdf) starting on page 10.
 
-## Concept to indicator mappings
+## Concept to indicator mappings table
 
 TODO.
 
-## DSSAT data
+## DSSAT data table
 
 TODO.
+
+## Raw Data
+
+We also have all our raw data available here
+```
+curl -O http://vanga.sista.arizona.edu/delphi_data/raw.zip
+```
+
+If you prefer to process and clean the data differently than us or would like
+to see how the raw data and cleaned data differ.
