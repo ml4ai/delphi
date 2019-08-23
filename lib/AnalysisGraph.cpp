@@ -58,7 +58,7 @@ void AnalysisGraph::parameterize(string country,
       try {
         if (units.find(name) != units.end()) {
           indicator.set_unit(units[name]);
-          indicators.set_mean(
+          indicator.set_mean(
               get_data_value(name, country, state, county, year, month, units[name]));
           stdev = 0.1 * abs(indicator.get_mean());
           indicator.set_stdev(stdev);
