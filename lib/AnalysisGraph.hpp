@@ -420,6 +420,7 @@ class AnalysisGraph {
    * @param month   : Month of the time point data is extracted
    * @param country : Country where the data is about
    * @param state   : State where the data is about
+   * @param county  : County where the data is about
    *
    * @return        : Observed state std::vector for the specified location
    *                  on the specified time point.
@@ -429,7 +430,8 @@ class AnalysisGraph {
   get_observed_state_from_data(int year,
                                int month,
                                std::string country = "South Sudan",
-                               std::string state = "");
+                               std::string state = "",
+                               std::string county = "");
 
   /**
    * Set the observed state sequence for a given time range from data.
@@ -444,6 +446,7 @@ class AnalysisGraph {
    * @param end_month   : End month of the sequenec of data
    * @param country     : Country where the data is about
    * @param state       : State where the data is about
+   * @param county      : County where the data is about
    *
    */
   void
@@ -452,7 +455,8 @@ class AnalysisGraph {
                                         int end_year,
                                         int end_month,
                                         std::string country = "South Sudan",
-                                        std::string state = "");
+                                        std::string state = "",
+                                        std::string county = "");
 
   /**
    * Utility function that sets an initial latent state from observed data.
@@ -488,6 +492,7 @@ class AnalysisGraph {
    *                      samples after throwing away this many samples.
    * @param country     : Country where the data is about
    * @param state       : State where the data is about
+   * @param county      : county where the data is about
    * @param units       : Units for each indicator. Maps
    *                      indicator name --> unit
    * @param initial_beta: Criteria to initialize β
@@ -501,6 +506,7 @@ class AnalysisGraph {
                    int burn = 10000,
                    std::string country = "South Sudan",
                    std::string state = "",
+                   std::string county = "",
                    std::map<std::string, std::string> units = {},
                    InitialBeta initial_beta = InitialBeta::ZERO);
 
@@ -613,6 +619,7 @@ class AnalysisGraph {
       int burn = 900,
       std::string country = "South Sudan",
       std::string state = "",
+      std::string county = "",
       std::map<std::string, std::string> units = {},
       InitialBeta initial_beta = InitialBeta::HALF);
 
@@ -742,6 +749,7 @@ class AnalysisGraph {
    */
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
+                    std::string county = "",
                     int year = 2012,
                     int month = 1,
                     std::map<std::string, std::string> units = {});

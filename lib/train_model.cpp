@@ -12,6 +12,7 @@ void AnalysisGraph::train_model(int start_year,
                                 int burn,
                                 string country,
                                 string state,
+                                string county,
                                 map<string, string> units,
                                 InitialBeta initial_beta) {
 
@@ -23,7 +24,7 @@ void AnalysisGraph::train_model(int start_year,
   this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
-  this->parameterize(country, state, start_year, start_month, units);
+  this->parameterize(country, state, county, start_year, start_month, units);
 
   this->training_range = make_pair(make_pair(start_year,start_month),make_pair(end_year,end_month));
   this->init_training_year = start_year;
@@ -31,7 +32,7 @@ void AnalysisGraph::train_model(int start_year,
 
   if (!synthetic_data_experiment) {
     this->set_observed_state_sequence_from_data(
-        start_year, start_month, end_year, end_month, country, state);
+        start_year, start_month, end_year, end_month, country, state, county);
   }
 
   this->set_initial_latent_state_from_observed_state_sequence();

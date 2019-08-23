@@ -40,6 +40,7 @@ void AnalysisGraph::initialize_random_number_generator() {
 
 void AnalysisGraph::parameterize(string country,
                                  string state,
+                                 string county,
                                  int year,
                                  int month,
                                  map<string, string> units) {
@@ -50,14 +51,14 @@ void AnalysisGraph::parameterize(string country,
         if (units.find(name) != units.end()) {
           (*this)[v].indicators[i].set_unit(units[name]);
           (*this)[v].indicators[i].set_mean(
-              get_data_value(name, country, state, year, month, units[name]));
+              get_data_value(name, country, state, county, year, month, units[name]));
           stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
           (*this)[v].indicators[i].set_stdev(stdev);
         }
         else {
           (*this)[v].indicators[i].set_default_unit();
           (*this)[v].indicators[i].set_mean(
-              get_data_value(name, country, state, year, month));
+              get_data_value(name, country, state, county, year, month));
           stdev = 0.1 * abs((*this)[v].indicators[i].get_mean());
           (*this)[v].indicators[i].set_stdev(stdev);
         }
@@ -1036,7 +1037,7 @@ void AnalysisGraph::print_name_to_vertex() {
 }
 
 vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
-    int year, int month, string country, string state) {
+    int year, int month, string country, string state, string county) {
   int num_verts = boost::num_vertices(this->graph);
 
   // Access
@@ -1055,7 +1056,7 @@ vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
         [&](Indicator ind) {
           // get_data_value() is defined in data.hpp
           return get_data_value(
-              ind.get_name(), country, state, year, month, ind.get_unit());
+              ind.get_name(), country, state, county, year, month, ind.get_unit());
         });
   }
 
@@ -1219,7 +1220,8 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           int end_year,
                                                           int end_month,
                                                           string country,
-                                                          string state) {
+                                                          string state,
+                                                          string county) {
   this->observed_state_sequence.clear();
 
   // Access
@@ -1231,7 +1233,7 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
 
   for (int ts = 0; ts < this->n_timesteps; ts++) {
     this->observed_state_sequence[ts] =
-        get_observed_state_from_data(year, month, country, state);
+        get_observed_state_from_data(year, month, country, state, county);
 
     if (month == 12) {
       year++;
@@ -1608,6 +1610,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int burn,
                                                   string country,
                                                   string state,
+                                                  string county,
                                                   map<string, string> units,
                                                   InitialBeta initial_beta) {
 
@@ -1618,7 +1621,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
   cout << this->A_original << endl;
-  this->parameterize(country, state, start_year, start_month, units);
+  this->parameterize(country, state, county, start_year, start_month, units);
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();
@@ -1637,6 +1640,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                     burn,
                     country,
                     state,
+                    county,
                     units,
                     InitialBeta::ZERO);
 
