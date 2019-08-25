@@ -40,7 +40,27 @@ include_directories(external/eigen)
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
 
-add_library(Delphi ${SRC_FILES})
+add_library(Delphi 
+  lib/AnalysisGraph.cpp
+  lib/AnalysisGraph.hpp
+  lib/construct_beta_pdfs.cpp
+  lib/data.cpp
+  lib/data.hpp
+  lib/DiGraph.hpp
+  lib/graphviz_interface.cpp
+  lib/graphviz_interface.hpp
+  lib/kde.cpp
+  lib/kde.hpp
+  lib/random_variables.cpp
+  lib/random_variables.hpp
+  lib/rng.cpp
+  lib/rng.hpp
+  lib/train_model.cpp
+  lib/tran_mat_cell.hpp
+  lib/utils.cpp
+  lib/utils.hpp
+)
+
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt

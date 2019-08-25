@@ -28,6 +28,60 @@ NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
+auto AnalysisGraph::nodes() {
+  using boost::adaptors::transformed;
+  return this->vertices() | transformed([&](int v) -> auto& {return (*this)[v];});
+}
+
+void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
+  sqlite3* db;
+  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
+  if (rc) {
+    print("Could not open db\n");
+    return;
+  }
+  sqlite3_stmt* stmt;
+  string query_base =
+      "select Source, Indicator from concept_to_indicator_mapping ";
+  string query;
+  for (auto& node : this->nodes()) {
+    query = query_base + "where `Concept` like " + "'" + node.name + "'";
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    node.clear_indicators();
+    bool ind_not_found = false;
+    for (int i = 0; i < n_indicators; i++) {
+      string ind_source;
+      string ind_name;
+      do {
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+          ind_source = string(
+              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+          ind_name = string(
+              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+        }
+        else {
+          ind_not_found = true;
+          break;
+        }
+      } while (this->indicators_in_CAG.find(ind_name) !=
+               this->indicators_in_CAG.end());
+
+      if (!ind_not_found) {
+        node.add_indicator(ind_name, ind_source);
+        this->indicators_in_CAG.insert(ind_name);
+      }
+      else {
+        cout << "No more indicators were found, only " << i
+             << "indicators attached to " << node.name << endl;
+        break;
+      }
+    }
+    sqlite3_finalize(stmt);
+  }
+  sqlite3_close(db);
+}
+
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
   // All the places we need random numbers, share this generator
@@ -161,7 +215,7 @@ void AnalysisGraph::get_subgraph_sinked_at(int vert,
     cutoff--;
 
     // Recursively process all the vertices adjacent to the current vertex
-    for_each(predecessors(vert), [&](int v) {
+    for_each(this->predecessors(vert), [&](int v) {
       if (!(*this)[v].visited) {
         this->get_subgraph_sinked_at(v, vertices_to_keep, cutoff);
       }
@@ -195,7 +249,7 @@ void AnalysisGraph::get_subgraph_between(int start,
     cutoff--;
 
     // Recursively process all the vertices adjacent to the current vertex
-    for_each(successors(start), [&](int v) {
+    for_each(this->successors(start), [&](int v) {
       if (!(*this)[v].visited) {
         this->get_subgraph_between(v, end, path, vertices_to_keep, cutoff);
       }
@@ -725,7 +779,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   Agedge_t* edge;
 
   // Add CAG links
-  for (auto e : edges()) {
+  for (auto e : this->edges()) {
     string source_name = this->graph[boost::source(e, this->graph)].name;
     string target_name = this->graph[boost::target(e, this->graph)].name;
 
@@ -739,9 +793,9 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   }
 
   // Add concepts, indicators, and link them.
-  for (auto v : vertices()) {
-    string concept_name = (*this)[v].name;
-    for (auto indicator : (*this)[v].indicators) {
+  for (auto& node : this->nodes()) {
+    string concept_name = node.name;
+    for (auto indicator : node.indicators) {
       src = add_node(G, concept_name);
       trgt = add_node(G, indicator.name);
       set_property(
@@ -789,6 +843,7 @@ void AnalysisGraph::to_png(string filename) {
   agclose(G);
   gvFreeContext(gvc);
 }
+
 void AnalysisGraph::print_indicators() {
   for (int v : this->vertices()) {
     cout << v << ":" << (*this)[v].name << endl;
@@ -914,54 +969,6 @@ void AnalysisGraph::print_nodes() {
   });
 }
 
-void AnalysisGraph::map_concepts_to_indicators(int n) {
-  sqlite3* db;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc) {
-    print("Could not open db\n");
-    return;
-  }
-  sqlite3_stmt* stmt;
-  string query_base =
-      "select Source, Indicator from concept_to_indicator_mapping ";
-  string query;
-  for (int v : this->vertices()) {
-    query = query_base + "where `Concept` like " + "'" + (*this)[v].name + "'";
-    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    (*this)[v].clear_indicators();
-    bool ind_not_found = false;
-    for (int c = 0; c < n; c = c + 1) {
-      string ind_source;
-      string ind_name;
-      do {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-          ind_source = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-          ind_name = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-        }
-        else {
-          ind_not_found = true;
-          break;
-        }
-      } while (this->indicators_in_CAG.find(ind_name) !=
-               this->indicators_in_CAG.end());
-
-      if (!ind_not_found) {
-        (*this)[v].add_indicator(ind_name, ind_source);
-        this->indicators_in_CAG.insert(ind_name);
-      }
-      else {
-        cout << "No more indicators were found, only " << c
-             << "indicators attached to " << (*this)[v].name << endl;
-        break;
-      }
-    }
-    sqlite3_finalize(stmt);
-  }
-  sqlite3_close(db);
-}
 
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;

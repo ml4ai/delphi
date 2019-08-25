@@ -20,12 +20,12 @@ TEST_CASE("Testing model training") {
   AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
 
   G.map_concepts_to_indicators();
+  G.to_png();
 
   G.replace_indicator("UN/events/human/human_migration",
                       "Net migration",
                       "New asylum seeking applicants",
                       "UNHCR");
-  G.to_png();
 
   G.construct_beta_pdfs();
   G.train_model(2015, 1, 2015, 12, 100, 900);
