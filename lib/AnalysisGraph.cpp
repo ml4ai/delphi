@@ -30,7 +30,8 @@ NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
 
 auto AnalysisGraph::nodes() {
   using boost::adaptors::transformed;
-  return this->vertices() | transformed([&](int v) -> auto& {return (*this)[v];});
+  return this->vertices() |
+         transformed([&](int v) -> auto& { return (*this)[v]; });
 }
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
@@ -108,8 +109,8 @@ void AnalysisGraph::parameterize(string country,
       try {
         if (units.find(name) != units.end()) {
           (*this)[v].indicators[i].set_unit(units[name]);
-          (*this)[v].indicators[i].set_mean(
-              get_data_value(name, country, state, county, year, month, units[name]));
+          (*this)[v].indicators[i].set_mean(get_data_value(
+              name, country, state, county, year, month, units[name]));
           stdev = 0.1 * abs(indicator.get_mean());
           (*this)[v].indicators[i].set_stdev(stdev);
         }
@@ -969,7 +970,6 @@ void AnalysisGraph::print_nodes() {
   });
 }
 
-
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
@@ -1063,15 +1063,19 @@ vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
 
     observed_state[v] = vector<double>(indicators.size(), 0.0);
 
-    transform(
-        indicators.begin(),
-        indicators.end(),
-        observed_state[v].begin(),
-        [&](Indicator ind) {
-          // get_data_value() is defined in data.hpp
-          return get_data_value(
-              ind.get_name(), country, state, county, year, month, ind.get_unit());
-        });
+    transform(indicators.begin(),
+              indicators.end(),
+              observed_state[v].begin(),
+              [&](Indicator ind) {
+                // get_data_value() is defined in data.hpp
+                return get_data_value(ind.get_name(),
+                                      country,
+                                      state,
+                                      county,
+                                      year,
+                                      month,
+                                      ind.get_unit());
+              });
   }
 
   return observed_state;
