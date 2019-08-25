@@ -13,7 +13,7 @@ Example:
         <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
-             file along with other non-source code information.
+file along with other non-source code information.
 python_file: The Python file on which to write the resulting Python script.
 """
 
@@ -776,7 +776,6 @@ class PythonCodeGenerator(object):
                     subscripts = ", ".join(subs_strs)
                     assg_str = f"{lhs['name']}.set_(({subscripts}), "
                 else:
-                    # handling derived types might go here
                     assert False
             else:
                 # target is a scalar variable

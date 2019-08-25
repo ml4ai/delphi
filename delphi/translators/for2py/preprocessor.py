@@ -3,11 +3,14 @@ This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
 problematic for the OpenFortranParser front end. It can also be run as a script,
 as seen below.
+
 Example:
     To invoke this script, do: ::
         ./preprocessor.py <infile> <outfile>
+
 where `infile` is the name of the input file, and `outfile` is the name of the
 file to which the preprocessed code will be written.
+
 Author:
     Saumya Debray
 """
