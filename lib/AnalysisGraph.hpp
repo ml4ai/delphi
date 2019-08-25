@@ -41,9 +41,6 @@ class AnalysisGraph {
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices();
 
-  // This returns an iterator over Node objects in the graph.
-  auto nodes();
-
   NEIGHBOR_ITERATOR successors(int i);
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
