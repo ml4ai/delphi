@@ -16,6 +16,7 @@ using boost::for_each;
 using namespace fmt::literals;
 using spdlog::error;
 using spdlog::warn;
+using spdlog::debug;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
@@ -130,7 +131,7 @@ void AnalysisGraph::parameterize(string country,
         }
       }
       catch (logic_error& le) {
-        error("ERROR: AnalysisGraph::parameterize()\n"
+        error("AnalysisGraph::parameterize()\n"
               "\tReading data for:\n"
               "\t\tConcept: {0}\n"
               "\t\tIndicator: {1}\n",
@@ -343,7 +344,7 @@ int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
   }
   catch (const out_of_range& oor) {
     error("AnalysisGraph::{0}\n"
-          "ERROR: The concept {1} is not in the CAG!",
+          "The concept {1} is not in the CAG!",
           caller,
           concept);
     rethrow_exception(current_exception());
@@ -423,8 +424,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
             string subj_adj_str = subj_adjective.get<string>();
             string obj_adj_str = subj_adjective.get<string>();
             auto causal_fragment =
-                CausalFragment({subj_adj_str, subj_polarity, ""},
-                               {obj_adj_str, obj_polarity, ""});
+                CausalFragment({subj_adj_str, subj_polarity, subj_str},
+                               {obj_adj_str, obj_polarity, obj_str});
             G.add_edge(causal_fragment);
           }
         }
@@ -453,7 +454,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
 
   // Mark all the vertices are not visited
-  for_each(this->vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(this->nodes(), [](auto& node) { node.visited = false; });
 
   int num_verts = boost::num_vertices(this->graph);
 
@@ -727,7 +728,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
   }
 
   if (has_invalid_sources || has_invalid_targets || has_invalid_edges) {
-    error("ERROR: AnalysisGraph::remove_edges");
+    error("AnalysisGraph::remove_edges");
 
     if (has_invalid_sources) {
       cerr << "\tFollowing source vertexes are not in the CAG!" << endl;
@@ -1096,13 +1097,13 @@ vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
 }
 
 void AnalysisGraph::add_node(string concept) {
-  if (utils::hasKey(this->name_to_vertex, concept)) {
+  if (!utils::hasKey(this->name_to_vertex, concept)) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
   }
   else {
-    print("AnalysisGraph::add_node()\n\tconcept {} already exists!\n", concept);
+    debug("AnalysisGraph::add_node()\n\tconcept {} already exists!\n", concept);
   }
 }
 
@@ -1126,7 +1127,7 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     this->graph[e].evidence.push_back(Statement{subject, object});
   }
   else {
-    warn("AnalysisGraph::add_edge\n"
+    debug("AnalysisGraph::add_edge\n"
          "\tWARNING: Prevented adding a self loop for the concept {}",
          subj_name);
   }
