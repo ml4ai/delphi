@@ -1323,33 +1323,34 @@ void AnalysisGraph::set_random_initial_latent_state() {
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
+  using boost::graph_traits;
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
   // If we embed the switch withn the for loop, there will be less code
   // but we will evaluate the switch for each iteration through the loop
   case InitialBeta::ZERO:
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
       graph[e].beta = 0;
     }
     break;
   case InitialBeta::ONE:
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
       graph[e].beta = 1.0;
     }
     break;
   case InitialBeta::HALF:
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
       graph[e].beta = 0.5;
     }
     break;
   case InitialBeta::MEAN:
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
       graph[e].beta = graph[e].kde.value().mu;
     }
     break;
   case InitialBeta::RANDOM:
-    for (boost::graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
       // Sustracting 1 moves the range to [-1, 1]
@@ -1360,12 +1361,12 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
 }
 
 void AnalysisGraph::set_initial_latent_states_for_prediction(int timestep) {
-  this->prediction_initial_latent_state_s.clear();
-  this->prediction_initial_latent_state_s = vector<Eigen::VectorXd>(this->res);
+  this->prediction_initial_latent_states.clear();
+  this->prediction_initial_latent_states = vector<Eigen::VectorXd>(this->res);
 
   transform(this->training_latent_state_sequences.begin(),
             this->training_latent_state_sequences.end(),
-            this->prediction_initial_latent_state_s.begin(),
+            this->prediction_initial_latent_states.begin(),
             [&timestep](vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
 }
 
@@ -1383,7 +1384,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(int timesteps) {
 
   for (int samp = 0; samp < this->res; samp++) {
     this->predicted_latent_state_sequences[samp][0] =
-        this->prediction_initial_latent_state_s[samp];
+        this->prediction_initial_latent_states[samp];
 
     for (int ts = 1; ts < this->n_timesteps; ts++) {
       this->predicted_latent_state_sequences[samp][ts] =
@@ -1501,16 +1502,16 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   this->sample_predicted_latent_state_sequences(this->pred_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
-  for (vector<Eigen::VectorXd>& latent_state_s :
+  for (vector<Eigen::VectorXd>& latent_states :
        this->predicted_latent_state_sequences) {
-    latent_state_s.erase(latent_state_s.begin(),
-                         latent_state_s.begin() + truncate);
+    latent_states.erase(latent_states.begin(),
+                        latent_states.begin() + truncate);
   }
 
-  for (ObservedStateSequence& observed_state_s :
+  for (ObservedStateSequence& observed_states :
        this->predicted_observed_state_sequences) {
-    observed_state_s.erase(observed_state_s.begin(),
-                           observed_state_s.begin() + truncate);
+    observed_states.erase(observed_states.begin(),
+                          observed_states.begin() + truncate);
   }
 
   this->pred_timesteps -= truncate;
@@ -1545,7 +1546,8 @@ vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
   int vert_id = -1;
   int ind_id = -1;
 
-  auto result = vector<vector<double>>(this->res, vector<double>(this->pred_timesteps));
+  auto result =
+      vector<vector<double>>(this->res, vector<double>(this->pred_timesteps));
 
   // Find the vertex id the indicator is attached to and
   // the indicator id of it.
@@ -1696,7 +1698,6 @@ void AnalysisGraph::update_transition_matrix_cells(
     boost::graph_traits<DiGraph>::edge_descriptor e) {
   pair<int, int> beta =
       make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
-
 
   pair<MMAPIterator, MMAPIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);

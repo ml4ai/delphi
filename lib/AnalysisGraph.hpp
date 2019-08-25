@@ -126,10 +126,10 @@ class AnalysisGraph {
 
   // This is a column of the
   // this->training_latent_state_sequences
-  // prediction_initial_latent_state_s.size() = this->res
+  // prediction_initial_latent_states.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
   // from this->training_latent_state_sequences, we can get rid of this
-  std::vector<Eigen::VectorXd> prediction_initial_latent_state_s;
+  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
   std::vector<std::string> pred_range;
 
   // Access this as
