@@ -103,29 +103,29 @@ void AnalysisGraph::parameterize(string country,
                                  int month,
                                  map<string, string> units) {
   double stdev;
-  for (int v : this->vertices()) {
-    for (auto [name, i] : (*this)[v].indicator_names) {
-      auto indicator = (*this)[v].indicators[i];
+  for (auto& node : this->nodes()) {
+    for (auto [name, i] : node.indicator_names) {
+      auto indicator = node.indicators[i];
       try {
         if (units.find(name) != units.end()) {
-          (*this)[v].indicators[i].set_unit(units[name]);
-          (*this)[v].indicators[i].set_mean(get_data_value(
+          node.indicators[i].set_unit(units[name]);
+          node.indicators[i].set_mean(get_data_value(
               name, country, state, county, year, month, units[name]));
           stdev = 0.1 * abs(indicator.get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          node.indicators[i].set_stdev(stdev);
         }
         else {
-          (*this)[v].indicators[i].set_default_unit();
-          (*this)[v].indicators[i].set_mean(
+          node.indicators[i].set_default_unit();
+          node.indicators[i].set_mean(
               get_data_value(name, country, state, county, year, month));
           stdev = 0.1 * abs(indicator.get_mean());
-          (*this)[v].indicators[i].set_stdev(stdev);
+          node.indicators[i].set_stdev(stdev);
         }
       }
       catch (logic_error& le) {
         cerr << "ERROR: AnalysisGraph::parameterize()\n";
         cerr << "\tReading data for:\n";
-        cerr << "\t\tConcept: " << (*this)[v].name << endl;
+        cerr << "\t\tConcept: " << node.name << endl;
         cerr << "\t\tIndicator: " << name << endl;
         rethrow_exception(current_exception());
       }
@@ -461,7 +461,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
       get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
 
   // Mark all the vertices are not visited
-  for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(this->vertices(), [&](int v) { (*this)[v].visited = false; });
 
   int num_verts = boost::num_vertices(this->graph);
 
@@ -484,7 +484,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
 
   // Determine the vertices to be removed
-  for (int vert_id : vertices()) {
+  for (int vert_id : this->vertices()) {
     if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
@@ -513,7 +513,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   vector<int> path;
 
   // Mark all the vertices are not visited
-  for_each(vertices(), [&](int v) { (*this)[v].visited = false; });
+  for_each(this->vertices(), [&](int v) { (*this)[v].visited = false; });
 
   this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
 
@@ -527,7 +527,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   }
 
   // Determine the vertices to be removed
-  for (int vert_id : vertices()) {
+  for (int vert_id : this->vertices()) {
     if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
