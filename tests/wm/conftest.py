@@ -108,4 +108,6 @@ def G_eval():
 def G_unit():
     G = AnalysisGraph.from_statements([s3])
     G.map_concepts_to_indicators()
+    G.res = 200
+    G.sample_from_prior()
     yield G
