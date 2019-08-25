@@ -14,6 +14,8 @@ using boost::make_iterator_range;
 using boost::adaptors::transformed;
 using boost::for_each;
 
+typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+
 Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
 
 Node& AnalysisGraph::operator[](string node_name) {
@@ -1412,13 +1414,10 @@ void AnalysisGraph::
   }
 }
 
-tuple<pair<pair<int, int>, pair<int, int>>,
-      vector<string>,
-      vector<vector<unordered_map<string, unordered_map<string, double>>>>>
-AnalysisGraph::generate_prediction(int start_year,
-                                   int start_month,
-                                   int end_year,
-                                   int end_month) {
+Prediction AnalysisGraph::generate_prediction(int start_year,
+                                              int start_month,
+                                              int end_year,
+                                              int end_month) {
   if (!this->trained) {
     print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
           "Try calling <CAG>.train_model(...) first!");
@@ -1519,15 +1518,13 @@ AnalysisGraph::generate_prediction(int start_year,
       this->training_range, this->pred_range, this->format_prediction_result());
 }
 
-vector<vector<unordered_map<string, unordered_map<string, double>>>>
-AnalysisGraph::format_prediction_result() {
+FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   // Access
   // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
-  vector<vector<unordered_map<string, unordered_map<string, double>>>> result =
-      vector<vector<unordered_map<string, unordered_map<string, double>>>>(
-          this->res,
-          vector<unordered_map<string, unordered_map<string, double>>>(
-              this->pred_timesteps));
+  auto result = FormattedPredictionResult(
+      this->res,
+      vector<unordered_map<string, unordered_map<string, double>>>(
+          this->pred_timesteps));
 
   for (int samp = 0; samp < this->res; samp++) {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
@@ -1548,8 +1545,7 @@ vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
   int vert_id = -1;
   int ind_id = -1;
 
-  vector<vector<double>> result =
-      vector<vector<double>>(this->res, vector<double>(this->pred_timesteps));
+  auto result = vector<vector<double>>(this->res, vector<double>(this->pred_timesteps));
 
   // Find the vertex id the indicator is attached to and
   // the indicator id of it.
@@ -1615,11 +1611,7 @@ void AnalysisGraph::
             });
 }
 
-pair<
-    ObservedStateSequence,
-    tuple<pair<pair<int, int>, pair<int, int>>,
-          vector<string>,
-          vector<vector<unordered_map<string, unordered_map<string, double>>>>>>
+pair<ObservedStateSequence, Prediction>
 AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int start_month,
                                                   int end_year,
@@ -1638,7 +1630,6 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
       start_year, start_month, end_year, end_month);
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
-  cout << this->A_original << endl;
   this->parameterize(country, state, county, start_year, start_month, units);
 
   // Initialize the latent state vector at time 0
@@ -1706,7 +1697,6 @@ void AnalysisGraph::update_transition_matrix_cells(
   pair<int, int> beta =
       make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
-  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
   pair<MMAPIterator, MMAPIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
@@ -1868,7 +1858,7 @@ void AnalysisGraph::replace_indicator(string concept,
 
   if (this->indicators_in_CAG.find(indicator_new) !=
       this->indicators_in_CAG.end()) {
-    print("{0} already exists in Casual Analysis Graph, Indicator {0} did "
+    print("{0} already exists in Causal Analysis Graph, Indicator {0} did "
           "not replace Indicator {1} for Concept {2}.",
           indicator_new,
           indicator_old,
