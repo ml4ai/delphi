@@ -28,10 +28,6 @@ NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
-auto AnalysisGraph::nodes() {
-  return this->vertices() | transformed([&](auto i) { return (*this)[i]; });
-}
-
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
   // All the places we need random numbers, share this generator
@@ -52,29 +48,29 @@ void AnalysisGraph::parameterize(string country,
                                  int month,
                                  map<string, string> units) {
   double stdev;
-  for (Node node : this->nodes()) {
-    for (auto [name, i] : node.indicator_names) {
-      auto indicator = node.indicators[i];
+  for (int v : this->vertices()) {
+    for (auto [name, i] : (*this)[v].indicator_names) {
+      auto indicator = (*this)[v].indicators[i];
       try {
         if (units.find(name) != units.end()) {
-          indicator.set_unit(units[name]);
-          indicator.set_mean(
+          (*this)[v].indicators[i].set_unit(units[name]);
+          (*this)[v].indicators[i].set_mean(
               get_data_value(name, country, state, county, year, month, units[name]));
           stdev = 0.1 * abs(indicator.get_mean());
-          indicator.set_stdev(stdev);
+          (*this)[v].indicators[i].set_stdev(stdev);
         }
         else {
-          indicator.set_default_unit();
-          indicator.set_mean(
+          (*this)[v].indicators[i].set_default_unit();
+          (*this)[v].indicators[i].set_mean(
               get_data_value(name, country, state, county, year, month));
           stdev = 0.1 * abs(indicator.get_mean());
-          indicator.set_stdev(stdev);
+          (*this)[v].indicators[i].set_stdev(stdev);
         }
       }
       catch (logic_error& le) {
         cerr << "ERROR: AnalysisGraph::parameterize()\n";
         cerr << "\tReading data for:\n";
-        cerr << "\t\tConcept: " << node.name << endl;
+        cerr << "\t\tConcept: " << (*this)[v].name << endl;
         cerr << "\t\tIndicator: " << name << endl;
         rethrow_exception(current_exception());
       }
@@ -215,7 +211,7 @@ void AnalysisGraph::find_all_paths_between(int start,
                                            int end,
                                            int cutoff = -1) {
   // Mark all the vertices are not visited
-  for_each(this->nodes(), [&](Node node) { node.visited = false; });
+  for_each(this->vertices(), [&](int v) { (*this)[v].visited = false; });
 
   // Create a vector of ints to store paths.
   vector<int> path;
@@ -794,9 +790,9 @@ void AnalysisGraph::to_png(string filename) {
   gvFreeContext(gvc);
 }
 void AnalysisGraph::print_indicators() {
-  for (Node node : this->nodes()) {
-    cout << node.name << ":" << endl;
-    for (auto [name, vert] : node.indicator_names) {
+  for (int v : this->vertices()) {
+    cout << v << ":" << (*this)[v].name << endl;
+    for (auto [name, vert] : (*this)[v].indicator_names) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
@@ -929,10 +925,10 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
   string query_base =
       "select Source, Indicator from concept_to_indicator_mapping ";
   string query;
-  for (Node node : this->nodes()) {
-    query = query_base + "where `Concept` like " + "'" + node.name + "'";
+  for (int v : this->vertices()) {
+    query = query_base + "where `Concept` like " + "'" + (*this)[v].name + "'";
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    node.clear_indicators();
+    (*this)[v].clear_indicators();
     bool ind_not_found = false;
     for (int c = 0; c < n; c = c + 1) {
       string ind_source;
@@ -953,12 +949,12 @@ void AnalysisGraph::map_concepts_to_indicators(int n) {
                this->indicators_in_CAG.end());
 
       if (!ind_not_found) {
-        node.add_indicator(ind_name, ind_source);
+        (*this)[v].add_indicator(ind_name, ind_source);
         this->indicators_in_CAG.insert(ind_name);
       }
       else {
         cout << "No more indicators were found, only " << c
-             << "indicators attached to " << node.name << endl;
+             << "indicators attached to " << (*this)[v].name << endl;
         break;
       }
     }
