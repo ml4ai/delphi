@@ -144,19 +144,6 @@ void AnalysisGraph::allocate_A_beta_factors() {
   }
 }
 
-void AnalysisGraph::print_A_beta_factors() {
-  int num_verts = boost::num_vertices(this->graph);
-
-  for (int row = 0; row < num_verts; ++row) {
-    for (int col = 0; col < num_verts; ++col) {
-      cout << endl << "Printing cell: (" << row << ", " << col << ") " << endl;
-      if (this->A_beta_factors[row][col]) {
-        this->A_beta_factors[row][col]->print_beta2product();
-      }
-    }
-  }
-}
-
 // TODO: I am creating two methods:
 //    get_subgraph_rooted_at
 //    get_subgraph_sinked_at
@@ -338,6 +325,7 @@ void AnalysisGraph::set_default_initial_state() {
     this->s0_original(i) = 1.0;
   }
 }
+
 int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
   int vert_id = -1;
 
@@ -353,6 +341,7 @@ int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
 
   return vert_id;
 }
+
 int AnalysisGraph::get_degree(int vertex_id) {
   return boost::in_degree(vertex_id, this->graph) +
          boost::out_degree(vertex_id, this->graph);
@@ -845,16 +834,6 @@ void AnalysisGraph::to_png(string filename) {
   gvFreeContext(gvc);
 }
 
-void AnalysisGraph::print_indicators() {
-  for (int v : this->vertices()) {
-    cout << v << ":" << (*this)[v].name << endl;
-    for (auto [name, vert] : (*this)[v].indicator_names) {
-      cout << "\t"
-           << "indicator " << vert << ": " << name << endl;
-    }
-  }
-}
-
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   DiGraph G;
@@ -961,15 +940,6 @@ void AnalysisGraph::merge_nodes(string concept_1,
   this->remove_node(vertex_to_remove);
 }
 
-void AnalysisGraph::print_nodes() {
-  print("Vertex IDs and their names in the CAG\n");
-  print("Vertex ID : Name\n");
-  print("--------- : ----\n");
-  for_each(this->vertices(), [&](int v) {
-    cout << v << "         " << this->graph[v].name << endl;
-  });
-}
-
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
@@ -1036,6 +1006,15 @@ void AnalysisGraph::find_all_paths() {
   }
 }
 
+void AnalysisGraph::print_nodes() {
+  print("Vertex IDs and their names in the CAG\n");
+  print("Vertex ID : Name\n");
+  print("--------- : ----\n");
+  for_each(this->vertices(), [&](int v) {
+    cout << v << "         " << this->graph[v].name << endl;
+  });
+}
+
 void AnalysisGraph::print_edges() {
   for_each(edges(), [&](auto e) {
     cout << "(" << boost::source(e, this->graph) << ", "
@@ -1043,11 +1022,53 @@ void AnalysisGraph::print_edges() {
   });
 }
 
+void AnalysisGraph::print_indicators() {
+  for (int v : this->vertices()) {
+    cout << v << ":" << (*this)[v].name << endl;
+    for (auto [name, vert] : (*this)[v].indicator_names) {
+      cout << "\t"
+           << "indicator " << vert << ": " << name << endl;
+    }
+  }
+}
+
+void AnalysisGraph::print_all_paths() {
+  int num_verts = boost::num_vertices(this->graph);
+
+  if (this->A_beta_factors.size() != num_verts ||
+      this->A_beta_factors[0].size() != num_verts) {
+    this->find_all_paths();
+  }
+
+  cout << "All the simple paths of:" << endl;
+
+  for (int row = 0; row < num_verts; ++row) {
+    for (int col = 0; col < num_verts; ++col) {
+      if (this->A_beta_factors[row][col]) {
+        this->A_beta_factors[row][col]->print_paths();
+      }
+    }
+  }
+}
+
 void AnalysisGraph::print_name_to_vertex() {
   for (auto [name, vert] : this->name_to_vertex) {
     cout << name << " -> " << vert << endl;
   }
   cout << endl;
+}
+
+void AnalysisGraph::print_A_beta_factors() {
+  int num_verts = boost::num_vertices(this->graph);
+
+  for (int row = 0; row < num_verts; ++row) {
+    for (int col = 0; col < num_verts; ++col) {
+      cout << endl << "Printing cell: (" << row << ", " << col << ") " << endl;
+      if (this->A_beta_factors[row][col]) {
+        this->A_beta_factors[row][col]->print_beta2product();
+      }
+    }
+  }
 }
 
 vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
@@ -1136,25 +1157,6 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
     auto e = boost::edge(src_id, tgt_id, this->graph).first;
 
     this->graph[e].change_polarity(source_polarity, target_polarity);
-  }
-}
-
-void AnalysisGraph::print_all_paths() {
-  int num_verts = boost::num_vertices(this->graph);
-
-  if (this->A_beta_factors.size() != num_verts ||
-      this->A_beta_factors[0].size() != num_verts) {
-    this->find_all_paths();
-  }
-
-  cout << "All the simple paths of:" << endl;
-
-  for (int row = 0; row < num_verts; ++row) {
-    for (int col = 0; col < num_verts; ++col) {
-      if (this->A_beta_factors[row][col]) {
-        this->A_beta_factors[row][col]->print_paths();
-      }
-    }
   }
 }
 
