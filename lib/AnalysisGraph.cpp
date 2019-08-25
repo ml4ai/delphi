@@ -373,10 +373,9 @@ void AnalysisGraph::remove_node(int node_id) {
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,
                                             double grounding_score_cutoff) {
-  using utils::load_json;
-  auto json_data = load_json(filename);
+  auto json_data = utils::load_json(filename);
 
-  DiGraph G;
+  AnalysisGraph G;
 
   unordered_map<string, int> name_to_vertex = {};
 
@@ -398,16 +397,10 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
         if (subj_str.compare(obj_str) != 0) { // Guard against self loops
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
-            if (name_to_vertex.find(name) == name_to_vertex.end()) {
-              int v = boost::add_vertex(G);
-              name_to_vertex[name] = v;
-              G[v].name = name;
-            }
+            G.add_node(name);
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] = boost::add_edge(
-              name_to_vertex[subj_str], name_to_vertex[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
@@ -429,17 +422,17 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
             }
             string subj_adj_str = subj_adjective.get<string>();
             string obj_adj_str = subj_adjective.get<string>();
-            Event subject{subj_adj_str, subj_polarity, ""};
-            Event object{obj_adj_str, obj_polarity, ""};
-            G[e].evidence.push_back(Statement{subject, object});
+            auto causal_fragment =
+                CausalFragment({subj_adj_str, subj_polarity, ""},
+                               {obj_adj_str, obj_polarity, ""});
+            G.add_edge(causal_fragment);
           }
         }
       }
     }
   }
-  AnalysisGraph ag = AnalysisGraph(G, name_to_vertex);
-  ag.initialize_random_number_generator();
-  return ag;
+  G.initialize_random_number_generator();
+  return G;
 }
 
 void AnalysisGraph::clear_state() {
@@ -848,9 +841,7 @@ void AnalysisGraph::to_png(string filename) {
 
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
-  DiGraph G;
-
-  unordered_map<string, int> name_to_vertex = {};
+  AnalysisGraph G;
 
   for (CausalFragment cf : causal_fragments) {
     Event subject = Event(cf.first);
@@ -862,23 +853,13 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
     if (subj_name.compare(obj_name) != 0) { // Guard against self loops
       // Add the nodes to the graph if they are not in it already
       for (string name : {subj_name, obj_name}) {
-        if (name_to_vertex.find(name) == name_to_vertex.end()) {
-          int v = boost::add_vertex(G);
-          name_to_vertex[name] = v;
-          G[v].name = name;
-        }
+        G.add_node(name);
       }
-
-      // Add the edge to the graph if it is not in it already
-      auto [e, exists] = boost::add_edge(
-          name_to_vertex[subj_name], name_to_vertex[obj_name], G);
-
-      G[e].evidence.push_back(Statement{subject, object});
+      G.add_edge(cf);
     }
   }
-  AnalysisGraph ag = AnalysisGraph(G, name_to_vertex);
-  ag.initialize_random_number_generator();
-  return ag;
+  G.initialize_random_number_generator();
+  return G;
 }
 
 Edge& AnalysisGraph::edge(int i, int j) {
@@ -1115,7 +1096,7 @@ vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
 }
 
 void AnalysisGraph::add_node(string concept) {
-  if (this->name_to_vertex.find(concept) == this->name_to_vertex.end()) {
+  if (utils::hasKey(this->name_to_vertex, concept)) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
@@ -1145,9 +1126,9 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     this->graph[e].evidence.push_back(Statement{subject, object});
   }
   else {
-    cerr << "AnalysisGraph::add_edge\n"
-         << "\tWARNING: Prevented adding a self loop for the concept "
-         << subj_name << endl;
+    warn("AnalysisGraph::add_edge\n"
+         "\tWARNING: Prevented adding a self loop for the concept {}",
+         subj_name);
   }
 }
 

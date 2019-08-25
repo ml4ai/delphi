@@ -180,9 +180,6 @@ class AnalysisGraph {
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
 
-  AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
-      : graph(G), name_to_vertex(name_to_vertex){};
-
   void
   get_subgraph_rooted_at(int vert,
                          std::unordered_set<int>& vertices_to_keep,
