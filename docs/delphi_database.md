@@ -1,7 +1,10 @@
 # The Delphi Database
 
 Our ever growing database contains the various tables of data needed to create
-and train our delphi models. As mentioned on our [Installation](https://ml4ai.github.io/delphi/installation.html) page, the database can be downloaded from here
+and train our delphi models. As mentioned on our
+[Installation](https://ml4ai.github.io/delphi/installation.html) page, the
+database can be downloaded using the following command:
+
 ```
 curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
 ```
@@ -9,7 +12,8 @@ curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
 (Last updated on 8/19/2019)
 
 All data in the database was cleaned and processed by our python scripts found
-in our repository in the scripts directory.
+in our repository in the [scripts/data_processing
+directory](https://github.com/ml4ai/delphi/tree/master/scripts/data_processing).
 
 ## Indicator data table
 
@@ -52,15 +56,24 @@ For more details on the collection and usage of this data table, see this
 
 ## Concept to indicator mappings table
 
-TODO.
+For modeling purposes, we need to connect the participating entities in causal
+relations to quantitative data. To do this, we construct a mapping between the
+ontology that the entities are grounded to and the list of variables for which
+we have obtained and processed quantitative data. The mapping is 
+constructed using word embedding similarities (see the
+[OntologyMapper](https://github.com/clulab/eidos/blob/master/src/main/scala/org/clulab/wm/eidos/apps/OntologyMapper.scala) tool for
+more details).
 
 ## DSSAT data table
 
-TODO.
+The DSSAT data table contains monthly historical and forecast monthly rainfall,
+along with daily simulated crop yield, for two states in South Sudan - Northern
+Bahr el Ghazal and Unity.
 
 ## Raw Data
 
-We also have all our raw data available here
+The raw data tables can be downloaded with the following command:
+
 ```
 curl -O http://vanga.sista.arizona.edu/delphi_data/raw.zip
 ```
