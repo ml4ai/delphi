@@ -64,8 +64,8 @@ void AnalysisGraph::train_model(int start_year,
   // Accumulates the latent states for accepted samples
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
-  this->training_latent_state_sequence_s.clear();
-  this->training_latent_state_sequence_s =
+  this->training_latent_state_sequences.clear();
+  this->training_latent_state_sequences =
       vector<vector<Eigen::VectorXd>>(this->res);
 
   for (int i : trange(burn)) {
@@ -76,7 +76,7 @@ void AnalysisGraph::train_model(int start_year,
     this->sample_from_posterior();
     // this->training_sampled_transition_matrix_sequence[samp] =
     this->transition_matrix_collection[i] = this->A_original;
-    this->training_latent_state_sequence_s[i] = this->latent_state_sequence;
+    this->training_latent_state_sequences[i] = this->latent_state_sequence;
   }
 
   this->trained = true;

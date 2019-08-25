@@ -1361,52 +1361,51 @@ void AnalysisGraph::set_initial_latent_states_for_prediction(int timestep) {
   this->prediction_initial_latent_state_s.clear();
   this->prediction_initial_latent_state_s = vector<Eigen::VectorXd>(this->res);
 
-  transform(this->training_latent_state_sequence_s.begin(),
-            this->training_latent_state_sequence_s.end(),
+  transform(this->training_latent_state_sequences.begin(),
+            this->training_latent_state_sequences.end(),
             this->prediction_initial_latent_state_s.begin(),
             [&timestep](vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
 }
 
-void AnalysisGraph::sample_predicted_latent_state_sequence_s_from_likelihood(
-    int timesteps) {
+void AnalysisGraph::sample_predicted_latent_state_sequences(int timesteps) {
   this->n_timesteps = timesteps;
 
   int num_verts = boost::num_vertices(this->graph);
 
-  // Allocate memory for prediction_latent_state_sequence_s
-  this->predicted_latent_state_sequence_s.clear();
-  this->predicted_latent_state_sequence_s = vector<vector<Eigen::VectorXd>>(
+  // Allocate memory for prediction_latent_state_sequences
+  this->predicted_latent_state_sequences.clear();
+  this->predicted_latent_state_sequences = vector<vector<Eigen::VectorXd>>(
       this->res,
       vector<Eigen::VectorXd>(this->n_timesteps,
                               Eigen::VectorXd(num_verts * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
-    this->predicted_latent_state_sequence_s[samp][0] =
+    this->predicted_latent_state_sequences[samp][0] =
         this->prediction_initial_latent_state_s[samp];
 
     for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->predicted_latent_state_sequence_s[samp][ts] =
+      this->predicted_latent_state_sequences[samp][ts] =
           this->transition_matrix_collection[samp] *
-          this->predicted_latent_state_sequence_s[samp][ts - 1];
+          this->predicted_latent_state_sequences[samp][ts - 1];
     }
   }
 }
 
 void AnalysisGraph::
-    generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s() {
+    generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
   // Allocate memory for observed_state_sequences
-  this->predicted_observed_state_sequence_s.clear();
-  this->predicted_observed_state_sequence_s = vector<ObservedStateSequence>(
+  this->predicted_observed_state_sequences.clear();
+  this->predicted_observed_state_sequences = vector<ObservedStateSequence>(
       this->res,
       ObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
     vector<Eigen::VectorXd>& sample =
-        this->predicted_latent_state_sequence_s[samp];
+        this->predicted_latent_state_sequences[samp];
 
     transform(sample.begin(),
               sample.end(),
-              this->predicted_observed_state_sequence_s[samp].begin(),
+              this->predicted_observed_state_sequences[samp].begin(),
               [this](Eigen::VectorXd latent_state) {
                 return this->sample_observed_state(latent_state);
               });
@@ -1500,18 +1499,17 @@ AnalysisGraph::generate_prediction(int start_year,
 
   this->set_initial_latent_states_for_prediction(pred_init_timestep);
 
-  this->sample_predicted_latent_state_sequence_s_from_likelihood(
-      this->pred_timesteps);
-  this->generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
+  this->sample_predicted_latent_state_sequences(this->pred_timesteps);
+  this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   for (vector<Eigen::VectorXd>& latent_state_s :
-       this->predicted_latent_state_sequence_s) {
+       this->predicted_latent_state_sequences) {
     latent_state_s.erase(latent_state_s.begin(),
                          latent_state_s.begin() + truncate);
   }
 
   for (ObservedStateSequence& observed_state_s :
-       this->predicted_observed_state_sequence_s) {
+       this->predicted_observed_state_sequences) {
     observed_state_s.erase(observed_state_s.begin(),
                            observed_state_s.begin() + truncate);
   }
@@ -1536,8 +1534,8 @@ AnalysisGraph::format_prediction_result() {
       for (auto [vert_name, vert_id] : this->name_to_vertex) {
         for (auto [ind_name, ind_id] : (*this)[vert_id].indicator_names) {
           result[samp][ts][vert_name][ind_name] =
-              this->predicted_observed_state_sequence_s[samp][ts][vert_id]
-                                                       [ind_id];
+              this->predicted_observed_state_sequences[samp][ts][vert_id]
+                                                      [ind_id];
         }
       }
     }
@@ -1579,14 +1577,14 @@ indicator_found:
   for (int samp = 0; samp < this->res; samp++) {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
       result[samp][ts] =
-          this->predicted_observed_state_sequence_s[samp][ts][vert_id][ind_id];
+          this->predicted_observed_state_sequences[samp][ts][vert_id][ind_id];
     }
   }
 
   return result;
 }
 
-void AnalysisGraph::generate_synthetic_latent_state_sequence_from_likelihood() {
+void AnalysisGraph::generate_synthetic_latent_state_sequence() {
   int num_verts = boost::num_vertices(this->graph);
 
   // Allocate memory for synthetic_latent_state_sequence
@@ -1645,7 +1643,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();
-  this->generate_synthetic_latent_state_sequence_from_likelihood();
+  this->generate_synthetic_latent_state_sequence();
   this->generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
   for (vector<vector<double>> obs : this->observed_state_sequence) {

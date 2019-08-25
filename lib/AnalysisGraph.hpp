@@ -114,24 +114,24 @@ class AnalysisGraph {
   // Accumulates the latent states for accepted samples
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> training_latent_state_sequence_s;
+  std::vector<std::vector<Eigen::VectorXd>> training_latent_state_sequences;
 
   // This is a column of the
-  // this->training_latent_state_sequence_s
+  // this->training_latent_state_sequences
   // prediction_initial_latent_state_s.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
-  // from this->training_latent_state_sequence_s, we can get rid of this
+  // from this->training_latent_state_sequences, we can get rid of this
   std::vector<Eigen::VectorXd> prediction_initial_latent_state_s;
   std::vector<std::string> pred_range;
 
   // Access this as
-  // prediction_latent_state_sequence_s[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequence_s;
+  // prediction_latent_state_sequences[ sample ][ time step ]
+  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequences;
 
   // Access this as
-  // prediction_observed_state_sequence_s
+  // prediction_observed_state_sequences
   //                            [ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<ObservedStateSequence> predicted_observed_state_sequence_s;
+  std::vector<ObservedStateSequence> predicted_observed_state_sequences;
 
   // Sampling resolution. Default is 200
   int res = 200;
@@ -530,13 +530,13 @@ class AnalysisGraph {
    *
    * @param timesteps: The number of timesteps for the sequences.
    */
-  void sample_predicted_latent_state_sequence_s_from_likelihood(int timesteps);
+  void sample_predicted_latent_state_sequences(int timesteps);
 
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
    */
   void
-  generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
+  generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   /**
    * Given a trained model, generate this->res number of
@@ -601,7 +601,7 @@ class AnalysisGraph {
   // ObservedStateSequence synthetic_observed_state_sequence;
   bool synthetic_data_experiment = false;
 
-  void generate_synthetic_latent_state_sequence_from_likelihood();
+  void generate_synthetic_latent_state_sequence();
 
   void
   generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
