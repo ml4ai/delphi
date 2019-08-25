@@ -1,19 +1,23 @@
+all: test docs
+
 docs:
 	cd docs; make html
 
 extensions: 
-	cd delphi/cpp; cmake .; make -j
+	mkdir -p build && \
+	cd build  && cmake .. &&  cmake --build . -- -j && \
+	cp *.so ../delphi/cpp
 
 test: extensions
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
-	  --doctest-module\
+	  --doctest-modules\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/cpp/pybind11\
-	  --ignore=delphi/cpp/nlohmann\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests
+	./build/cpptests
 
 pypi_upload:
 	rm -rf dist

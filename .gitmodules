@@ -1,3 +1,0 @@
-[submodule "delphi/cpp/pybind11"]
-	path = delphi/cpp/pybind11
-	url = https://github.com/pybind/pybind11

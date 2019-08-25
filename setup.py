@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 import re
 import sys
 import platform
-import subprocess
+from subprocess import check_call, check_output
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -15,16 +15,17 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 class CMakeExtension(Extension):
-    def __init__(self, name, sourcedir=""):
+    def __init__(self, name, sourcedir="", builddir=""):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+        self.builddir=builddir
 
 
 class CMakeBuild(build_ext):
     def run(self):
         # Check if a compatible version of CMake is installed
         try:
-            out = subprocess.check_output(["cmake", "--version"])
+            out = check_output(["cmake", "--version"])
         except OSError:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: "
@@ -42,8 +43,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        subprocess.check_call(["cmake", "."], cwd=ext.sourcedir)
-        subprocess.check_call(["cmake", "--build", "."], cwd=ext.sourcedir)
+        os.makedirs(ext.builddir, exist_ok=True)
+        check_call(["make","extensions"])
 
 
 setup(
@@ -62,7 +63,7 @@ setup(
     ],
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    ext_modules=[CMakeExtension("extension", "delphi/cpp")],
+    ext_modules=[CMakeExtension("extension", "lib/", "build")],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     install_requires=[
@@ -115,7 +116,6 @@ setup(
             "sphinx-rtd-theme",
             "sphinxcontrib-bibtex",
             "sphinxcontrib-trio",
-            "sphinx-autodoc-typehints",
             "recommonmark",
             "breathe",
             "exhale",

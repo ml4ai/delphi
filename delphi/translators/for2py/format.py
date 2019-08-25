@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-"""
-File: format.py
+"""File: format.py
+
 Purpose: Process a string (obtained from a data file) according to
          a Fortran FORMAT.
 
@@ -242,7 +242,7 @@ class Format:
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1 :]))
-                xtract_rexp = "(.{" + sz + "})"  # r.e. for extraction
+                xtract_rexp = "(.{," + sz + "})"  # r.e. for extraction
                 leading_sp = " *"
                 optional_sign = "-?"
                 rexp0 = "\d+(\.\d+)?"
@@ -278,18 +278,16 @@ class Format:
     def gen_output_fmt_1(self, fmt):
         """given a single format specifier, get_output_fmt_1() constructs and returns
         a list of tuples for matching against that specifier.
-        Each element of this list is a tuple
 
-               (gen_fmt, cvt_fmt, sz)
+        Each element of this list is a tuple
+            (gen_fmt, cvt_fmt, sz)
 
         where:
-
            gen_fmt is the Python format specifier for assembling this value into
-               the string constructed for output;
+           the string constructed for output;
            cvt_fmt is the Python format specifier for converting this value into
-               a string that will be assembled into the output string; and
+           a string that will be assembled into the output string; and
            sz is the width of this field.
-
         """
 
         # first, remove any surrounding space

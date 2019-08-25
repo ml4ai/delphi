@@ -1,7 +1,7 @@
 """
     File: for2py_arrays.py
     Purpose: Code to handle array manipulation in the Python code generated
-        by for2py.
+    by for2py.
 
     Usage: see the document "for2py: Handling Fortran Arrays"
 """
