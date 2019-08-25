@@ -112,23 +112,21 @@ void AnalysisGraph::parameterize(string country,
                                  map<string, string> units) {
   double stdev;
   for (auto& node : this->nodes()) {
-    for (auto [name, i] : node.indicator_names) {
-      auto indicator = node.indicators[i];
+    for (auto& [name, i] : node.indicator_names) {
+      auto& indicator = node.indicators[i];
       try {
         if (units.find(name) != units.end()) {
-          node.indicators[i].set_unit(units[name]);
-          node.indicators[i].set_mean(get_data_value(
+          indicator.set_unit(units[name]);
+          indicator.set_mean(get_data_value(
               name, country, state, county, year, month, units[name]));
-          stdev = 0.1 * abs(indicator.get_mean());
-          node.indicators[i].set_stdev(stdev);
         }
         else {
-          node.indicators[i].set_default_unit();
-          node.indicators[i].set_mean(
+          indicator.set_default_unit();
+          indicator.set_mean(
               get_data_value(name, country, state, county, year, month));
-          stdev = 0.1 * abs(indicator.get_mean());
-          node.indicators[i].set_stdev(stdev);
         }
+          stdev = 0.1 * abs(indicator.get_mean());
+          indicator.set_stdev(stdev);
       }
       catch (logic_error& le) {
         error("AnalysisGraph::parameterize()\n"

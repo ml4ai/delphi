@@ -1,7 +1,6 @@
 #include "data.hpp"
 #include <sqlite3.h>
 
-
 double get_data_value(std::string indicator,
                       std::string country,
                       std::string state,
@@ -13,7 +12,7 @@ double get_data_value(std::string indicator,
   using namespace std;
   using fmt::print;
   using namespace fmt::literals;
-  using spdlog::debug, spdlog::error;
+  using spdlog::debug, spdlog::error, spdlog::info;
 
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -46,7 +45,7 @@ double get_data_value(std::string indicator,
     sqlite3_finalize(stmt);
   }
   else {
-    query = "{} and `Country` is 'None'"_format(query); 
+    query = "{} and `Country` is 'None'"_format(query);
   }
 
   if (!state.empty()) {
@@ -112,9 +111,9 @@ double get_data_value(std::string indicator,
         sqlite3_finalize(stmt);
       }
       else {
-        cerr << "Error: data::get_data_value()\n"
-             << "\tIndicator: No data exists for indicator " << indicator
-             << endl;
+        error("data::get_data_value()\n"
+              "\tIndicator: No data exists for indicator {}",
+              indicator);
 
         // Should define an exception to throw in this situation
         sqlite3_finalize(stmt);
@@ -137,8 +136,9 @@ double get_data_value(std::string indicator,
       sqlite3_finalize(stmt);
     }
     else {
-      cerr << "Error: data::get_data_value()\n"
-           << "\tIndicator: No data exists for " << indicator << endl;
+      error("data::get_data_value()\n"
+            "\tIndicator: No data exists for {}",
+            indicator);
 
       // Should define an exception to throw in this situation
       sqlite3_finalize(stmt);
@@ -167,7 +167,7 @@ double get_data_value(std::string indicator,
   }
 
   else {
-    debug("No data found for {0},{1}. Averaging over all months for {1} "
+    info("No data found for {0}, {1}. Averaging over all months for {1} "
           "(Default Setting)\n",
           month,
           year);
@@ -208,7 +208,7 @@ double get_data_value(std::string indicator,
 
   sqlite3_finalize(stmt);
   sqlite3_close(db);
-  spdlog::error("data::get_data_value()\n\tIndicator: No data exists for {}");
+  error("data::get_data_value()\n\tIndicator: No data exists for {}");
   // Should define an exception to throw in this situation
   return 0.0;
 }
