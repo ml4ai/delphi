@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-#include "random_variables.hpp"
 #include "kde.hpp"
+#include "random_variables.hpp"
 #include <boost/graph/adjacency_list.hpp>
+#include <string>
 
 class IndicatorNotFoundException : public std::exception {
   public:
@@ -11,7 +11,7 @@ class IndicatorNotFoundException : public std::exception {
 
   IndicatorNotFoundException(std::string msg) : msg(msg) {}
 
-  const char *what() const throw() { return this->msg.c_str(); }
+  const char* what() const throw() { return this->msg.c_str(); }
 };
 
 class Node {
@@ -43,32 +43,30 @@ class Node {
     indicators.push_back(Indicator(indicator, source));
   }
 
-
   void delete_indicator(std::string indicator) {
     if (indicator_names.find(indicator) != indicator_names.end()) {
       int ind_index = indicator_names[indicator];
       indicator_names.clear();
       indicators.erase(indicators.begin() + ind_index);
-      //The values of the map object have to align with the vecter indexes.
+      // The values of the map object have to align with the vecter indexes.
       for (int i = 0; i < indicators.size(); i++) {
         indicator_names[indicators[i].get_name()] = i;
       }
     }
     else {
-      std::cout << "There is no indicator  " << indicator << "attached to " << name << std::endl;  
+      std::cout << "There is no indicator  " << indicator << "attached to "
+                << name << std::endl;
     }
   }
-
 
   Indicator get_indicator(std::string indicator) {
     try {
       return indicators[indicator_names.at(indicator)];
     }
-    catch (const std::out_of_range &oor) {
+    catch (const std::out_of_range& oor) {
       throw IndicatorNotFoundException(indicator);
     }
   }
-  
 
   void replace_indicator(std::string indicator_old,
                          std::string indicator_new,
@@ -121,15 +119,9 @@ class Statement {
   Event subject;
   Event object;
 
-  Statement() :
-    subject(Event("", 0, "" )),
-    object(Event("", 0, ""))
-    {}
+  Statement() : subject(Event("", 0, "")), object(Event("", 0, "")) {}
 
-  Statement(Event sub, Event obj) :
-    subject(sub),
-    object(obj)
-    {}
+  Statement(Event sub, Event obj) : subject(sub), object(obj) {}
 };
 
 class Edge {
@@ -168,5 +160,17 @@ typedef boost::adjacency_list<boost::setS,
                               GraphData>
     DiGraph;
 
-typedef boost::iterator_range<boost::adjacency_iterator<DiGraph, long unsigned int, boost::detail::out_edge_iter<std::_Rb_tree_const_iterator<boost::detail::stored_edge_iter<long unsigned int, std::_List_iterator<boost::list_edge<long unsigned int, Edge> >, Edge> >, long unsigned int, boost::detail::edge_desc_impl<boost::bidirectional_tag, long unsigned int>, long int>, long int> >
+typedef boost::iterator_range<boost::adjacency_iterator<
+    DiGraph,
+    long unsigned int,
+    boost::detail::out_edge_iter<
+        std::_Rb_tree_const_iterator<boost::detail::stored_edge_iter<
+            long unsigned int,
+            std::_List_iterator<boost::list_edge<long unsigned int, Edge>>,
+            Edge>>,
+        long unsigned int,
+        boost::detail::edge_desc_impl<boost::bidirectional_tag,
+                                      long unsigned int>,
+        long int>,
+    long int>>
     NEIGHBOR_ITERATOR;
