@@ -64,7 +64,7 @@ class AnalysisGraph {
 
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
-  // concept name --> CAV vertex id
+  // concept name --> CAG vertex id
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.

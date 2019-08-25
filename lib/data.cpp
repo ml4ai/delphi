@@ -19,7 +19,7 @@ double get_data_value(std::string indicator,
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
   if (rc) {
-    spdlog::error("Could not open db");
+    error("Could not open db");
     return 0.0;
   }
 

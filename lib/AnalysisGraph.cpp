@@ -13,6 +13,9 @@ using tq::tqdm;
 using boost::make_iterator_range;
 using boost::adaptors::transformed;
 using boost::for_each;
+using namespace fmt::literals;
+using spdlog::error;
+using spdlog::warn;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
@@ -40,8 +43,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
-    print("Could not open db\n");
-    return;
+    throw("Could not open db. Do you have the DELPHI_DB "
+          "environment correctly set to point to the Delphi database?");
   }
   sqlite3_stmt* stmt;
   string query_base =
@@ -75,8 +78,10 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
         this->indicators_in_CAG.insert(ind_name);
       }
       else {
-        cout << "No more indicators were found, only " << i
-             << "indicators attached to " << node.name << endl;
+        print("No more indicators were found, only {0} indicators attached to "
+              "{1}",
+              i,
+              node.name);
         break;
       }
     }
@@ -125,10 +130,12 @@ void AnalysisGraph::parameterize(string country,
         }
       }
       catch (logic_error& le) {
-        cerr << "ERROR: AnalysisGraph::parameterize()\n";
-        cerr << "\tReading data for:\n";
-        cerr << "\t\tConcept: " << node.name << endl;
-        cerr << "\t\tIndicator: " << name << endl;
+        error("ERROR: AnalysisGraph::parameterize()\n"
+              "\tReading data for:\n"
+              "\t\tConcept: {0}\n"
+              "\t\tIndicator: {1}\n",
+              node.name,
+              name);
         rethrow_exception(current_exception());
       }
     }
@@ -335,9 +342,10 @@ int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
     vert_id = this->name_to_vertex.at(concept);
   }
   catch (const out_of_range& oor) {
-    cerr << "AnalysisGraph::" << caller << endl;
-    cerr << "ERROR:" << endl;
-    cerr << "\tThe concept " << concept << " is not in the CAG!" << endl;
+    error("AnalysisGraph::{0}\n"
+          "ERROR: The concept {1} is not in the CAG!",
+          caller,
+          concept);
     rethrow_exception(current_exception());
   }
 
@@ -370,7 +378,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 
   DiGraph G;
 
-  unordered_map<string, int> nameMap = {};
+  unordered_map<string, int> name_to_vertex = {};
 
   for (auto stmt : json_data) {
     auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
@@ -390,16 +398,16 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
         if (subj_str.compare(obj_str) != 0) { // Guard against self loops
           // Add the nodes to the graph if they are not in it already
           for (string name : {subj_str, obj_str}) {
-            if (nameMap.find(name) == nameMap.end()) {
+            if (name_to_vertex.find(name) == name_to_vertex.end()) {
               int v = boost::add_vertex(G);
-              nameMap[name] = v;
+              name_to_vertex[name] = v;
               G[v].name = name;
             }
           }
 
           // Add the edge to the graph if it is not in it already
-          auto [e, exists] =
-              boost::add_edge(nameMap[subj_str], nameMap[obj_str], G);
+          auto [e, exists] = boost::add_edge(
+              name_to_vertex[subj_str], name_to_vertex[obj_str], G);
           for (auto evidence : stmt["evidence"]) {
             auto annotations = evidence["annotations"];
             auto subj_adjectives = annotations["subj_adjectives"];
@@ -429,7 +437,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
       }
     }
   }
-  AnalysisGraph ag = AnalysisGraph(G, nameMap);
+  AnalysisGraph ag = AnalysisGraph(G, name_to_vertex);
   ag.initialize_random_number_generator();
   return ag;
 }
@@ -470,8 +478,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
 
   if (vertices_to_keep.size() == 0) {
-    cerr << "AnalysisGraph::get_subgraph_for_concept()" << endl;
-    cerr << "WARNING: Returning an empty CAG!" << endl;
+    warn("AnalysisGraph::get_subgraph_for_concept()\n"
+         "WARNING: Returning an empty CAG!\n");
   }
 
   // Determine the vertices to be removed
@@ -509,12 +517,13 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
 
   if (vertices_to_keep.size() == 0) {
-    cerr << "AnalysisGraph::get_subgraph_for_concept_pair()" << endl;
-    cerr << "WARNING:" << endl;
-    cerr << "\tThere are no paths of length <= " << cutoff
-         << " from source concept " << source_concept
-         << " --to-> target concept " << target_concept << endl;
-    cerr << "\tReturning an empty CAG!" << endl;
+    warn("AnalysisGraph::get_subgraph_for_concept_pair(): "
+         "There are no paths of length <= {0} from "
+         "source concept {1} --to-> target concept {2}. "
+         "Returning an empty CAG!",
+         cutoff,
+         source_concept,
+         target_concept);
   }
 
   // Determine the vertices to be removed
@@ -580,13 +589,14 @@ void AnalysisGraph::remove_node(string concept) {
   }
   else // indicator_old is not attached to this node
   {
-    cerr << "AnalysisGraph::remove_vertex()" << endl;
-    cerr << "\tConcept: " << concept << " not present in the CAG!\n" << endl;
+    warn("AnalysisGraph::remove_vertex(): "
+         "\tConcept: {} not present in the CAG!\n",
+         concept);
   }
 }
 
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
-  vector<string> invalid_concept_s;
+  vector<string> invalid_concepts;
 
   for (string concept : concepts) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
@@ -598,18 +608,17 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
     }
     else // Concept is not in the CAG
     {
-      invalid_concept_s.push_back(concept);
+      invalid_concepts.push_back(concept);
     }
   }
 
-  if (invalid_concept_s.size() > 0) {
+  if (invalid_concepts.size() > 0) {
     // There were some invalid concepts
-    cerr << "AnalysisGraph::remove_vertex()" << endl;
-    cerr << "\tFollowing concepts were not present in the CAG!" << endl;
-    for (string invalid_concept : invalid_concept_s) {
+    error("AnalysisGraph::remove_vertex()\n"
+          "\tThe following concepts were not present in the CAG!\n");
+    for (string invalid_concept : invalid_concepts) {
       cerr << "\t\t" << invalid_concept << endl;
     }
-    cerr << endl;
   }
 }
 
@@ -621,8 +630,8 @@ void AnalysisGraph::remove_edge(string src, string tgt) {
     src_id = this->name_to_vertex.at(src);
   }
   catch (const out_of_range& oor) {
-    cerr << "AnalysisGraph::remove_edge" << endl;
-    cerr << "\tSource vertex " << src << " is not in the CAG!" << endl;
+    error("AnalysisGraph::remove_edge: Source vertex {} is not in the CAG!",
+          src);
     return;
   }
 
@@ -630,8 +639,9 @@ void AnalysisGraph::remove_edge(string src, string tgt) {
     tgt_id = this->name_to_vertex.at(tgt);
   }
   catch (const out_of_range& oor) {
-    cerr << "AnalysisGraph::remove_edge" << endl;
-    cerr << "\tTarget vertex " << tgt << " is not in the CAG!" << endl;
+    error("AnalysisGraph::remove_edge: \n"
+          "\tTarget vertex {} is not in the CAG!",
+          tgt);
     return;
   }
 
@@ -651,22 +661,22 @@ void AnalysisGraph::remove_edge(string src, string tgt) {
 
 void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
-  vector<pair<int, int>> edge_id_s = vector<pair<int, int>>(edges.size());
+  vector<pair<int, int>> edge_ids = vector<pair<int, int>>(edges.size());
 
-  set<string> invalid_src_s;
-  set<string> invalid_tgt_s;
-  set<pair<string, string>> invalid_edg_s;
+  set<string> invalid_sources;
+  set<string> invalid_targets;
+  set<pair<string, string>> invalid_edges;
 
   transform(edges.begin(),
             edges.end(),
-            edge_id_s.begin(),
-            [this](pair<string, string> edg) {
+            edge_ids.begin(),
+            [this](pair<string, string> edge) {
               int src_id;
               int tgt_id;
 
               // Flag invalid source vertices
               try {
-                src_id = this->name_to_vertex.at(edg.first);
+                src_id = this->name_to_vertex.at(edge.first);
               }
               catch (const out_of_range& oor) {
                 src_id = -1;
@@ -674,7 +684,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
               // Flag invalid target vertices
               try {
-                tgt_id = this->name_to_vertex.at(edg.second);
+                tgt_id = this->name_to_vertex.at(edge.second);
               }
               catch (const out_of_range& oor) {
                 tgt_id = -1;
@@ -682,9 +692,9 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
               // Flag invalid edges
               if (src_id != -1 && tgt_id != -1) {
-                pair<int, int> edg_id = make_pair(src_id, tgt_id);
+                pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                if (this->beta2cell.find(edg_id) == this->beta2cell.end()) {
+                if (this->beta2cell.find(edge_id) == this->beta2cell.end()) {
                   src_id = -2;
                 }
               }
@@ -692,59 +702,59 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
               return make_pair(src_id, tgt_id);
             });
 
-  bool has_invalid_src_s = false;
-  bool has_invalid_tgt_s = false;
-  bool has_invalid_edg_s = false;
+  bool has_invalid_sources = false;
+  bool has_invalid_targets = false;
+  bool has_invalid_edges = false;
 
-  for (int e = 0; e < edge_id_s.size(); e++) {
+  for (int e = 0; e < edge_ids.size(); e++) {
     bool valid_edge = true;
 
-    if (edge_id_s[e].first == -1) {
-      invalid_src_s.insert(edges[e].first);
+    if (edge_ids[e].first == -1) {
+      invalid_sources.insert(edges[e].first);
       valid_edge = false;
-      has_invalid_src_s = true;
+      has_invalid_sources = true;
     }
 
-    if (edge_id_s[e].second == -1) {
-      invalid_tgt_s.insert(edges[e].second);
+    if (edge_ids[e].second == -1) {
+      invalid_targets.insert(edges[e].second);
       valid_edge = false;
-      has_invalid_tgt_s = true;
+      has_invalid_targets = true;
     }
 
-    if (edge_id_s[e].first == -2) {
-      invalid_edg_s.insert(edges[e]);
+    if (edge_ids[e].first == -2) {
+      invalid_edges.insert(edges[e]);
       valid_edge = false;
-      has_invalid_edg_s = true;
+      has_invalid_edges = true;
     }
 
     if (valid_edge) {
       // Remove the edge
-      boost::remove_edge(edge_id_s[e].first, edge_id_s[e].second, this->graph);
+      boost::remove_edge(edge_ids[e].first, edge_ids[e].second, this->graph);
     }
   }
 
-  if (has_invalid_src_s || has_invalid_tgt_s || has_invalid_edg_s) {
-    cerr << "ERROR: AnalysisGraph::remove_edges" << endl;
+  if (has_invalid_sources || has_invalid_targets || has_invalid_edges) {
+    error("ERROR: AnalysisGraph::remove_edges");
 
-    if (has_invalid_src_s) {
+    if (has_invalid_sources) {
       cerr << "\tFollowing source vertexes are not in the CAG!" << endl;
-      for (string invalid_src : invalid_src_s) {
+      for (string invalid_src : invalid_sources) {
         cerr << "\t\t" << invalid_src << endl;
       }
     }
 
-    if (has_invalid_tgt_s) {
+    if (has_invalid_targets) {
       cerr << "\tFollowing target vertexes are not in the CAG!" << endl;
-      for (string invalid_tgt : invalid_tgt_s) {
+      for (string invalid_tgt : invalid_targets) {
         cerr << "\t\t" << invalid_tgt << endl;
       }
     }
 
-    if (has_invalid_edg_s) {
+    if (has_invalid_edges) {
       cerr << "\tFollowing edges are not in the CAG!" << endl;
-      for (pair<string, string> invalid_edg : invalid_edg_s) {
-        cerr << "\t\t" << invalid_edg.first << " --to-> " << invalid_edg.second
-             << endl;
+      for (pair<string, string> invalid_edge : invalid_edges) {
+        cerr << "\t\t" << invalid_edge.first << " --to-> "
+             << invalid_edge.second << endl;
       }
     }
   }
@@ -840,7 +850,7 @@ AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   DiGraph G;
 
-  unordered_map<string, int> nameMap = {};
+  unordered_map<string, int> name_to_vertex = {};
 
   for (CausalFragment cf : causal_fragments) {
     Event subject = Event(cf.first);
@@ -852,21 +862,21 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
     if (subj_name.compare(obj_name) != 0) { // Guard against self loops
       // Add the nodes to the graph if they are not in it already
       for (string name : {subj_name, obj_name}) {
-        if (nameMap.find(name) == nameMap.end()) {
+        if (name_to_vertex.find(name) == name_to_vertex.end()) {
           int v = boost::add_vertex(G);
-          nameMap[name] = v;
+          name_to_vertex[name] = v;
           G[v].name = name;
         }
       }
 
       // Add the edge to the graph if it is not in it already
-      auto [e, exists] =
-          boost::add_edge(nameMap[subj_name], nameMap[obj_name], G);
+      auto [e, exists] = boost::add_edge(
+          name_to_vertex[subj_name], name_to_vertex[obj_name], G);
 
       G[e].evidence.push_back(Statement{subject, object});
     }
   }
-  AnalysisGraph ag = AnalysisGraph(G, nameMap);
+  AnalysisGraph ag = AnalysisGraph(G, name_to_vertex);
   ag.initialize_random_number_generator();
   return ag;
 }
@@ -1822,10 +1832,13 @@ void AnalysisGraph::set_indicator(string concept,
     this->indicators_in_CAG.insert(indicator);
   }
   catch (const out_of_range& oor) {
-    cerr << "Error: AnalysisGraph::set_indicator()\n"
-         << "\tConcept: " << concept << " is not in the CAG\n";
-    cerr << "\tIndicator: " << indicator << " with Source: " << source << endl;
-    cerr << "\tCannot be added\n";
+    error("Error: AnalysisGraph::set_indicator()\n"
+          "\tConcept: {0} is not in the CAG\n"
+          "\tIndicator: {1} with Source: {2}"
+          "\tCannot be added\n",
+          concept,
+          indicator,
+          source);
   }
 }
 
@@ -1835,9 +1848,11 @@ void AnalysisGraph::delete_indicator(string concept, string indicator) {
     this->indicators_in_CAG.erase(indicator);
   }
   catch (const out_of_range& oor) {
-    cerr << "Error: AnalysisGraph::delete_indicator()\n"
-         << "\tConcept: " << concept << " is not in the CAG\n";
-    cerr << "\tIndicator: " << indicator << " cannot be deleted" << endl;
+    error("Error: AnalysisGraph::delete_indicator()\n"
+          "\tConcept: {0} is not in the CAG\n"
+          "\tIndicator: {1} cannot be deleted",
+          concept,
+          indicator);
   }
 }
 
@@ -1846,9 +1861,10 @@ void AnalysisGraph::delete_all_indicators(string concept) {
     (*this)[concept].clear_indicators();
   }
   catch (const out_of_range& oor) {
-    cerr << "Error: AnalysisGraph::delete_indicator()\n"
-         << "\tConcept: " << concept << " is not in the CAG\n";
-    cerr << "\tIndicators cannot be deleted" << endl;
+    error("Error: AnalysisGraph::delete_indicator()\n"
+          "\tConcept: {} is not in the CAG\n"
+          "\tIndicators cannot be deleted",
+          concept);
   }
 }
 
@@ -1872,8 +1888,10 @@ void AnalysisGraph::replace_indicator(string concept,
     this->indicators_in_CAG.erase(indicator_old);
   }
   catch (const out_of_range& oor) {
-    cerr << "Error: AnalysisGraph::replace_indicator()\n"
-         << "\tConcept: " << concept << " is not in the CAG\n";
-    cerr << "\tIndicator: " << indicator_old << " cannot be replaced" << endl;
+    error("Error: AnalysisGraph::replace_indicator()\n"
+          "\tConcept: {0} is not in the CAG\n"
+          "\tIndicator: {1} cannot be replaced",
+          concept,
+          indicator_old);
   }
 }
