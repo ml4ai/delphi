@@ -6,18 +6,20 @@ possible butterfly effect in numerical operations involving large floating
 point calculations.
 
 Usage:
-    To convert a float variable into Float32 type, do the following ::
-        target = Float32(float_variable)
-        OR
-        target = Float32(5.0)
-where <target> is now a Float32 object.
+    To convert a float variable into Float32 type, do the following
+    target = Float32(float_variable)
+    OR
+    target = Float32(5.0)
+    where <target> is now a Float32 object.
+
 Now, any arithmetic/logical operation involving <float_variable> will involve
 single-point calculations.
+
 Example Usage:
-        eps = Float32(1.0)
-        while eps + 1.0 > 1.0:
-            eps /= 2.0
-        eps *= 2.0
+    eps = Float32(1.0)
+    while eps + 1.0 > 1.0:
+    ____eps /= 2.0
+    eps *= 2.0
 
 Authors:
     Saumya Debray
@@ -47,133 +49,107 @@ class Float32(Real):
         self._val = float32(val)
 
     def __add__(self, other):
-        """ Addition
-        """
+        """ Addition """
         return Float32(self._val+self.__value(other))
 
     def __radd__(self, other):
-        """ Reverse Addition
-        """
+        """ Reverse Addition """
         return Float32(self._val+self.__value(other))
 
     def __truediv__(self, other):
-        """ True Division
-        """
+        """ True Division """
         return Float32(self._val/self.__value(other))
 
     def __rtruediv__(self, other):
-        """ Reverse True Division
-        """
+        """ Reverse True Division """
         return Float32(self.__value(other)/self._val)
 
     def __floordiv__(self, other):
-        """ Floor Division
-        """
+        """ Floor Division """
         return self._val//self.__value(other)
 
     def __rfloordiv__(self, other):
-        """ Reverse Floor Division
-        """
+        """ Reverse Floor Division """
         return self.__value(other)//self._val
 
     def __mul__(self, other):
-        """ Multiplication
-        """
+        """ Multiplication """
         return Float32(self._val*self.__value(other))
 
     def __rmul__(self, other):
-        """ Reverse sMultiplication
-        """
+        """ Reverse sMultiplication """
         return Float32(self._val*self.__value(other))
 
     def __sub__(self, other):
-        """ Subtraction
-        """
+        """ Subtraction """
         return Float32(self._val-self.__value(other))
 
     def __rsub__(self, other):
-        """ Reverse Subtraction
-        """
+        """ Reverse Subtraction """
         return Float32(self.__value(other)-self._val)
 
     def __eq__(self, other):
-        """ Logical Equality
-        """
+        """ Logical Equality """
         return self._val == self.__value(other)
 
     def __gt__(self, other):
-        """ Logical greater than
-        """
+        """ Logical greater than """
         return self._val > self.__value(other)
 
     def __ge__(self, other):
-        """ Logical greater than or equals to
-        """
+        """ Logical greater than or equals to """
         return self._val >= self.__value(other)
 
     def __lt__(self, other):
-        """ Logical less than
-        """
+        """ Logical less than """
         return self._val < self.__value(other)
 
     def __le__(self, other):
-        """ Logical less than or equals to
-        """
+        """ Logical less than or equals to """
         return self._val <= self.__value(other)
 
     def __ne__(self, other):
-        """ Logical not equal to
-        """
+        """ Logical not equal to """
         return self._val != self.__value(other)
 
     def __str__(self):
-        """ Float-to-string conversion
-        """
+        """ Float-to-string conversion """
         return str(self._val)
 
     def __abs__(self):
-        """ Absolute value conversion
-        """
+        """ Absolute value conversion """
         return abs(self._val)
 
     def __neg__(self):
-        """ Value negation
-        """
+        """ Value negation """
         return -self._val
 
     def __mod__(self, other):
-        """ Modulo operation
-        """
+        """ Modulo operation """
         return Float32(self._val % self.__value(other))
 
     def __rmod__(self, other):
-        """ Reverse Modulo operation
-        """
+        """ Reverse Modulo operation """
         return Float32(self.__value(other) % self._val)
 
     def __and__(self, other):
-        """ Bitwise 'and' of two variables
-        """
+        """ Bitwise 'and' of two variables """
         return Float32(self._val and self.__value(other))
 
     def __or__(self, other):
-        """ Bitwise 'or' of two variables
-        """
+        """ Bitwise 'or' of two variables """
         return Float32(self._val or self.__value(other))
 
     def __pos__(self):
-        """ Return positive value
-        """
+        """ Return positive value """
         return +self._val
 
     def __pow__(self, other):
-        """ Power operation
-        """
+        """ Power operation """
         return Float32(self._val ** self.__value(other))
 
     def __rpow__(self, other):
-        """ Reverse Power operation
-        """
+        """ Reverse Power operation """
         return Float32(self.__value(other) ** self._val)
 
     # ==========================================================================

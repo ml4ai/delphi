@@ -6,8 +6,6 @@ from indra.statements import Influence
 import pandas as pd
 import numpy as np
 import warnings
-from scipy.stats import gaussian_kde
-from .cpp.kde import KDE
 from .db import engine
 
 
@@ -25,10 +23,11 @@ def filter_statements(sts: List[Influence]) -> List[Influence]:
 
 def constructConditionalPDF(
     gb, rs: np.ndarray, e: Tuple[str, str, Dict]
-) -> gaussian_kde:
+):
     """ Construct a conditional probability density function for a particular
     AnalysisGraph edge. """
 
+    from .cpp.DelphiPython import KDE
     adjective_response_dict = {}
     all_θs = []
 

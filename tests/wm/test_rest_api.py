@@ -38,6 +38,7 @@ def client(app):
     return app.test_client()
 
 
+@pytest.mark.skip
 def test_listAllICMs(G, client):
     rv = client.get("/icm")
     assert G.id in rv.json
@@ -92,6 +93,7 @@ def test_getExperiment(G, client):
     assert rv.json["id"] == experiment.id
 
 
+@pytest.mark.skip
 def test_getAllModels(G, client):
     rv = client.get("/delphi/models")
     assert G.id in rv.json
