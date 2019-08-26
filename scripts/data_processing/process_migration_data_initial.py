@@ -106,7 +106,7 @@ def clean_reachjongleijan_data():
     df.loc[
         df["Variable"] == "Incoming Migrants", "Destination country"
     ] = "South Sudan"
-    df["Source"] = "ReachJongleiJan"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
     df.rename(columns={"Value count": "Value"}, inplace=True)
     df = df.reindex(
@@ -223,7 +223,7 @@ def clean_54660_data():
     df["Destination state"] = "Gambella"
 
     df.loc[[5, 6, 12], "Destination state"] = "None"
-    df["Source"] = "54660"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)
@@ -318,7 +318,7 @@ def clean_62801_data():
     df.loc[15, "Source county"] = "Pochala"
     df.loc[[3, 5, 6, 7], "Destination state"] = "None"
 
-    df["Source"] = "62801"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)
@@ -408,7 +408,7 @@ def clean_62803_data():
     df.loc[8, "Source county"] = "Pochala"
     df.loc[3:6, "Destination state"] = "None"
 
-    df["Source"] = "62803"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)
@@ -488,7 +488,7 @@ def clean_63604_data():
     df.loc[2, "Destination state"] = "Beneshangul Gumuz"
     df.loc[3, "Destination state"] = "Gambella"
 
-    df["Source"] = "63604"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)
@@ -580,7 +580,7 @@ def clean_UNHCR_data():
     df.loc[0:6, "Destination state"] = "Gambella"
     df.loc[9:14, "Destination state"] = "Gambella"
 
-    df["Source"] = "UNHCR"
+    df["Source"] = "Migration Curation Experiment"
     df.drop(df.columns[[0, 1, 2, 4]], axis=1, inplace=True)
 
     df.rename(columns={"Value count": "Value"}, inplace=True)

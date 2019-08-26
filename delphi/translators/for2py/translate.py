@@ -313,6 +313,7 @@ class XML_to_JSON_translator(object):
 
     def process_type(self, root, state) -> List[Dict]:
         """ This function handles <type> declaration.
+
         There may be two different cases of <type>.
             (1) Simple variable type declaration
             (2) Derived type declaration
