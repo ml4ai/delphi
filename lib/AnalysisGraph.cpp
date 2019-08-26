@@ -125,8 +125,8 @@ void AnalysisGraph::parameterize(string country,
           indicator.set_mean(
               get_data_value(name, country, state, county, year, month));
         }
-          stdev = 0.1 * abs(indicator.get_mean());
-          indicator.set_stdev(stdev);
+        stdev = 0.1 * abs(indicator.get_mean());
+        indicator.set_stdev(stdev);
       }
       catch (logic_error& le) {
         error("AnalysisGraph::parameterize()\n"
@@ -1126,8 +1126,8 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
   }
   else {
     debug("AnalysisGraph::add_edge\n"
-         "\tWARNING: Prevented adding a self loop for the concept {}",
-         subj_name);
+          "\tWARNING: Prevented adding a self loop for the concept {}",
+          subj_name);
   }
 }
 
@@ -1554,8 +1554,6 @@ vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
     }
   }
   // Program will reach here only if the indicator is not found
-  print("AnalysisGraph::prediction_to_array - indicator {} not found!\n",
-        indicator);
   throw IndicatorNotFoundException(format(
       "AnalysisGraph::prediction_to_array - indicator \"{}\" not found!\n",
       indicator));
@@ -1856,11 +1854,11 @@ void AnalysisGraph::replace_indicator(string concept,
 
   if (this->indicators_in_CAG.find(indicator_new) !=
       this->indicators_in_CAG.end()) {
-    print("{0} already exists in Causal Analysis Graph, Indicator {0} did "
-          "not replace Indicator {1} for Concept {2}.",
-          indicator_new,
-          indicator_old,
-          concept);
+    warn("{0} already exists in Causal Analysis Graph, Indicator {0} did "
+         "not replace Indicator {1} for Concept {2}.",
+         indicator_new,
+         indicator_old,
+         concept);
     return;
   }
   try {
@@ -1869,7 +1867,7 @@ void AnalysisGraph::replace_indicator(string concept,
     this->indicators_in_CAG.erase(indicator_old);
   }
   catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::replace_indicator()\n"
+    error("AnalysisGraph::replace_indicator()\n"
           "\tConcept: {0} is not in the CAG\n"
           "\tIndicator: {1} cannot be replaced",
           concept,
