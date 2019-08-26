@@ -8,7 +8,6 @@ using namespace std;
 int main(int argc, char* argv[]) {
   RNG *R = RNG::rng();
   R->set_seed(87);
-  spdlog::info("Test message");
   spdlog::set_level(spdlog::level::debug);
   auto G = AnalysisGraph::from_json_file(argv[1], 0.9, 0.0);
   G = G.get_subgraph_for_concept("UN/events/human/human_migration", true, 2);

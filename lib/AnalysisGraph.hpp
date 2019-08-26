@@ -11,7 +11,7 @@
 #include "tran_mat_cell.hpp"
 #include <fmt/format.h>
 
-const size_t DEFAULT_N_SAMPLES = 100;
+const size_t DEFAULT_N_SAMPLES = 200;
 
 enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
@@ -24,6 +24,15 @@ typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
     CausalFragment;
 
+typedef std::vector<std::vector<
+    std::unordered_map<std::string, std::unordered_map<std::string, double>>>>
+    FormattedPredictionResult;
+
+typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
+                   std::vector<std::string>,
+                   FormattedPredictionResult>
+    Prediction;
+
 AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 
 /**
@@ -34,8 +43,9 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {}
-  Node &operator[] (std::string);
+  Node& operator[](std::string);
   Edge& edge(int, int);
+  auto nodes();
 
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
@@ -49,13 +59,12 @@ class AnalysisGraph {
   void print_A_beta_factors();
 
   private:
-
-  Node &operator[] (int);
-  void clear_state(); 
+  Node& operator[](int);
+  void clear_state();
 
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
-  // concept name --> CAV vertex id
+  // concept name --> CAG vertex id
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
@@ -104,7 +113,7 @@ class AnalysisGraph {
 
   int n_timesteps;
   int pred_timesteps;
-  std::pair<std::pair<int,int>,std::pair<int,int>> training_range;
+  std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
 
   // Accumulates the transition matrices for accepted samples
   // Access: [ sample number ]
@@ -113,27 +122,27 @@ class AnalysisGraph {
   // Accumulates the latent states for accepted samples
   // Access this as
   // latent_state_sequences[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> training_latent_state_sequence_s;
+  std::vector<std::vector<Eigen::VectorXd>> training_latent_state_sequences;
 
   // This is a column of the
-  // this->training_latent_state_sequence_s
-  // prediction_initial_latent_state_s.size() = this->res
+  // this->training_latent_state_sequences
+  // prediction_initial_latent_states.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
-  // from this->training_latent_state_sequence_s, we can get rid of this
-  std::vector<Eigen::VectorXd> prediction_initial_latent_state_s;
+  // from this->training_latent_state_sequences, we can get rid of this
+  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
   std::vector<std::string> pred_range;
 
   // Access this as
-  // prediction_latent_state_sequence_s[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequence_s;
+  // prediction_latent_state_sequences[ sample ][ time step ]
+  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequences;
 
   // Access this as
-  // prediction_observed_state_sequence_s
+  // prediction_observed_state_sequences
   //                            [ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<ObservedStateSequence> predicted_observed_state_sequence_s;
+  std::vector<ObservedStateSequence> predicted_observed_state_sequences;
 
   // Sampling resolution. Default is 200
-  int res = 200;
+  int res = DEFAULT_N_SAMPLES;
 
   // Training start
   int init_training_year;
@@ -170,9 +179,6 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
-
-  AnalysisGraph(DiGraph G, std::unordered_map<std::string, int> name_to_vertex)
-      : graph(G), name_to_vertex(name_to_vertex){};
 
   void
   get_subgraph_rooted_at(int vert,
@@ -529,13 +535,13 @@ class AnalysisGraph {
    *
    * @param timesteps: The number of timesteps for the sequences.
    */
-  void sample_predicted_latent_state_sequence_s_from_likelihood(int timesteps);
+  void sample_predicted_latent_state_sequences(int timesteps);
 
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
    */
   void
-  generate_predicted_observed_state_sequence_s_from_predicted_latent_state_sequence_s();
+  generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   /**
    * Given a trained model, generate this->res number of
@@ -557,15 +563,10 @@ class AnalysisGraph {
    * predicted values. Access it as: [ sample number ][ time point ][ vertex
    * name ][ indicator name ]
    */
-  std::tuple<std::pair<std::pair<int,int>,std::pair<int,int>>,
-            std::vector<std::string>,
-            std::vector<std::vector<
-                std::unordered_map<std::string,
-                                   std::unordered_map<std::string, double>>>>>
-  generate_prediction(int start_year,
-                      int start_month,
-                      int end_year,
-                      int end_month);
+  Prediction generate_prediction(int start_year,
+                                 int start_month,
+                                 int end_year,
+                                 int end_month);
 
   /**
    * Format the prediction result into a format python callers favor.
@@ -576,9 +577,8 @@ class AnalysisGraph {
    *         Access it as:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
-  std::vector<std::vector<
-      std::unordered_map<std::string, std::unordered_map<std::string, double>>>>
-  format_prediction_result();
+
+  FormattedPredictionResult format_prediction_result();
 
   /**
    * this->generate_prediction() must be called before callign this method.
@@ -600,16 +600,12 @@ class AnalysisGraph {
   // ObservedStateSequence synthetic_observed_state_sequence;
   bool synthetic_data_experiment = false;
 
-  void generate_synthetic_latent_state_sequence_from_likelihood();
+  void generate_synthetic_latent_state_sequence();
 
   void
   generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
-  std::pair<ObservedStateSequence,
-            std::tuple<std::pair<std::pair<int,int>,std::pair<int,int>>,std::vector<std::string>,
-                      std::vector<std::vector<std::unordered_map<
-                          std::string,
-                          std::unordered_map<std::string, double>>>>>>
+  std::pair<ObservedStateSequence, Prediction>
   test_inference_with_synthetic_data(
       int start_year = 2015,
       int start_month = 1,
