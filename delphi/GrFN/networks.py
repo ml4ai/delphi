@@ -36,11 +36,6 @@ forestgreen = "#228b22"
 class ComputationalGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.outputs = [
-            n
-            for n, d in self.out_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
 
     def build_call_graph(self):
         G = nx.DiGraph()
@@ -51,7 +46,6 @@ class ComputationalGraph(nx.DiGraph):
                         predecessor_variable
                     ):
                         G.add_edge(predecessor_function, name)
-
         return G
 
     def build_function_sets(self):
@@ -155,6 +149,7 @@ class ComputationalGraph(nx.DiGraph):
 
         return G
 
+
 class GroundedFunctionNetwork(ComputationalGraph):
     """
     Representation of a GrFN model as a DiGraph with a set of input nodes and
@@ -169,8 +164,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
     node.
     """
 
-    def __init__(self, G, scope_tree):
+    def __init__(self, G, scope_tree, outputs):
         super().__init__(G)
+        self.outputs = outputs
         self.scope_tree = scope_tree
         self.inputs = [
             n
@@ -254,6 +250,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def identity(x):
             return x
 
+        def make_identifier(scope: str, var: str):
+            (_, name, idx) = var.split("::")
+            return make_variable_name(scope, name, idx)
+
         def make_variable_name(parent: str, basename: str, index: str):
             return f"{parent}::{basename}::{index}"
 
@@ -304,6 +304,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 type="function",
                 lambda_fn=getattr(lambdas, lambda_name),
                 func_inputs=ordered_inputs,
+                visited=False,
                 shape="rectangle",
                 parent=scope.name,
                 label=stmt_type[0].upper(),
@@ -377,7 +378,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
             occurrences[container_name] += 1
 
         def process_container(scope, input_vals, cname):
-            input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+            if len(scope.arguments) == len(input_vals):
+                input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+            elif len(scope.arguments) > 0:
+                input_vars = {a: (scope.name,) + tuple(a.split("::")[1:]) for a in scope.arguments}
 
             for stmt in scope.body:
                 func_def = stmt["function"]
@@ -403,8 +407,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
         occurrences[root] = 0
         cur_scope = ScopeNode(functions[root], occurrences[root])
         scope_tree.add_node(cur_scope.name, color="forestgreen")
-        process_container(cur_scope, [], root)
-        return cls(G, scope_tree)
+        returns, updates = process_container(cur_scope, [], root)
+        return cls(G, scope_tree, returns+updates)
 
     @classmethod
     def from_python_file(
@@ -484,7 +488,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             if self.nodes[n]["type"] == "variable":
                 self.nodes[n]["value"] = None
             elif self.nodes[n]["type"] == "function":
-                self.nodes[n]["func_visited"] = False
+                self.nodes[n]["visited"] = False
 
     def sobol_analysis(
         self, num_samples, prob_def, use_torch=False, var_types=None

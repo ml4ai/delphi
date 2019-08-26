@@ -1,4 +1,5 @@
 import math
+import random
 
 
 def SIR_Gillespie_SD__main__assign__S0__0():
@@ -65,10 +66,6 @@ def SIR_Gillespie_SD__gillespie__assign__samples__0(Tmax):
     return [0] * Tmax
 
 
-def SIR_Gillespie_SD__gillespie__assign__n_samples__0():
-    return 0
-
-
 def SIR_Gillespie_SD__update_mean_var__assign__Tmax__0():
     return 100
 
@@ -81,22 +78,6 @@ def SIR_Gillespie_SD__update_mean_var__assign__means_k__0(means, n, k, runs):
 def SIR_Gillespie_SD__update_mean_var__assign__vars_k__0(vars, means, n, k, runs):
     vars[k] = vars[k] + runs/(runs+1) * (n-means[k])*(n-means[k])
     return vars[k]
-
-
-def SIR_Gillespie_SD__pyrand__condition__IF_0__0(do_init):
-    return do_init == True
-
-
-def SIR_Gillespie_SD__pyrand__assign__retval__0():
-    return 0.0
-
-
-def SIR_Gillespie_SD__pyrand__assign__retval__1():
-    return "TODO: data from file here"
-
-
-def SIR_Gillespie_SD__pyrand__decision__retval__2(retval_0, retval_1, IF_0):
-    return retval_1 if IF_0 else retval_0
 
 
 def SIR_Gillespie_SD__gillespie__loop_0__assign__i__0():
@@ -206,16 +187,16 @@ def SIR_Gillespie_SD__gillespie__loop_2__assign__totalRates__0(rateInfect, rateR
     return rateInfect + rateRecover
 
 
-def SIR_Gillespie_SD__gillespie__loop_2__assign__dt__0(randval, totalRates):
-    return -math.log(1.0-randval)/totalRates
+def SIR_Gillespie_SD__gillespie__loop_2__assign__dt__0(totalRates):
+    return -math.log(1.0-random())/totalRates
 
 
 def SIR_Gillespie_SD__gillespie__loop_2__assign__t__0(t, dt):
     return t + dt
 
 
-def SIR_Gillespie_SD__gillespie__loop_2__condition__IF_1__0(randval, rateInfect, totalRates):
-    return randval < (rateInfect/totalRates)
+def SIR_Gillespie_SD__gillespie__loop_2__condition__IF_1__0(rateInfect, totalRates):
+    return random() < (rateInfect/totalRates)
 
 
 def SIR_Gillespie_SD__gillespie__loop_2__assign__n_S__0(n_S):

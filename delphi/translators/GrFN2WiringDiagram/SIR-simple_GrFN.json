@@ -73,15 +73,14 @@
         "@variable::R::-1",
         "@variable::beta::-1",
         "@variable::gamma::-1",
-        "@variable::dt::-1",
-        "@variable::infected::0"
+        "@variable::dt::-1"
       ],
       "updated": [
-        "@variable::SIR-simple::sir::S::0",
-        "@variable::SIR-simple::sir::I::0",
-        "@variable::SIR-simple::sir::R::0"
+        "@variable::S::0",
+        "@variable::I::0",
+        "@variable::R::0"
       ],
-      "return_value": null,
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -92,10 +91,10 @@
             "@variable::beta::-1",
             "@variable::S::-1",
             "@variable::I::-1",
-            "@variable:R::-1",
+            "@variable::R::-1",
             "@variable::dt::-1"
           ],
-          "output": "@variable::infected::0",
+          "output": ["@variable::infected::0"],
           "updated": []
         },
         {
@@ -108,7 +107,7 @@
             "@variable::I::-1",
             "@variable::dt::-1"
           ],
-          "output": "@variable::recovered::0",
+          "output": ["@variable::recovered::0"],
           "updated": []
         },
         {
@@ -120,7 +119,7 @@
             "@variable::S::-1",
             "@variable::infected::0"
           ],
-          "output": "@variable::S::0",
+          "output": ["@variable::S::0"],
           "updated": []
         },
         {
@@ -133,7 +132,7 @@
             "@variable::infected::0",
             "@variable::recovered::0"
           ],
-          "output": "@variable::I::0",
+          "output": ["@variable::I::0"],
           "updated": []
         },
         {
@@ -145,7 +144,7 @@
             "@variable::R::-1",
             "@variable::recovered::0"
           ],
-          "output": "@variable::R::0",
+          "output": ["@variable::R::0"],
           "updated": []
         }
       ]
