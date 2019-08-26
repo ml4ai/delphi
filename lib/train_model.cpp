@@ -1,8 +1,10 @@
 #include "AnalysisGraph.hpp"
+#include "spdlog/spdlog.h"
 #include <tqdm.hpp>
 
 using namespace std;
 using tq::trange;
+using spdlog::debug;
 
 void AnalysisGraph::train_model(int start_year,
                                 int start_month,
@@ -26,7 +28,7 @@ void AnalysisGraph::train_model(int start_year,
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, county, start_year, start_month, units);
 
-  this->training_range = make_pair(make_pair(start_year,start_month),make_pair(end_year,end_month));
+  this->training_range = make_pair(make_pair(start_year,start_month), make_pair(end_year,end_month));
   this->init_training_year = start_year;
   this->init_training_month = start_month;
 
@@ -47,7 +49,7 @@ void AnalysisGraph::train_model(int start_year,
   //
   // generate_prediction()      uses
   // sample_from_likelihood. It uses
-  // transition_mateix_collection
+  // transition_matrix_collection
   // So to keep things simple for the moment
   // I had to fall back to
   // transition_matrix_collection
@@ -74,12 +76,10 @@ void AnalysisGraph::train_model(int start_year,
 
   for (int i : trange(this->res)) {
     this->sample_from_posterior();
-    // this->training_sampled_transition_matrix_sequence[samp] =
     this->transition_matrix_collection[i] = this->A_original;
     this->training_latent_state_sequences[i] = this->latent_state_sequence;
   }
 
   this->trained = true;
-  fmt::print("\n");
   return;
 }

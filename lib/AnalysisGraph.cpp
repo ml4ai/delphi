@@ -1796,6 +1796,7 @@ void AnalysisGraph::sample_from_posterior() {
     this->revert_back_to_previous_state();
   }
 }
+
 void AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
