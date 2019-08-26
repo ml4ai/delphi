@@ -1789,7 +1789,7 @@ void AnalysisGraph::sample_from_posterior() {
 
   double acceptance_probability = min(1.0, exp(delta_log_joint_probability));
 
-  if (acceptance_probability < uni_dist(this->rand_num_generator)) {
+  if (acceptance_probability < this->uni_dist(this->rand_num_generator)) {
     // Reject the sample
     this->revert_back_to_previous_state();
   }
