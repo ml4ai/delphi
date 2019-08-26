@@ -445,8 +445,6 @@ def fortran_to_grfn(
     # on the user input or the default path "tmp".
     if temp_dir is None:
         temp_dir = current_dir + "/" + temp_out_dir
-    else:
-        temp_dir = current_dir + "/" + temp_dir
 
     # If "tmp" directory does not exist already,
     # simply create one.
