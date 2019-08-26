@@ -306,7 +306,7 @@ void AnalysisGraph::find_all_paths_between_util(int start,
     cutoff--;
     // Current vertex is not the destination
     // Recursively process all the vertices adjacent to the current vertex
-    for_each(successors(start), [&](int v) {
+    for_each(this->successors(start), [&](int v) {
       if (!(*this)[v].visited) {
         this->find_all_paths_between_util(v, end, path, cutoff);
       }
