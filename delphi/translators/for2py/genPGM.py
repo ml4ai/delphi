@@ -1476,6 +1476,15 @@ class GrFNGenerator(object):
                 "output": None,
                 "updated": []
             }
+
+            # Array itself needs to be added
+            # as an input, so check that it's
+            # and array. If yes, then add it manually.
+            if array_set:
+                function["input"].append(
+                        f"@variable::"
+                        f"{name}::-1")
+
             argument_list = []
             array_index = 0
             for arg in call["inputs"]:
