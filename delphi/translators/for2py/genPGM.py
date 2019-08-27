@@ -207,8 +207,6 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-        # DEBUG
-        print ("node: ", node)
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
             isinstance(node, t) for t in self.types
@@ -1052,8 +1050,6 @@ class GrFNGenerator(object):
         loop_body_outputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
-                # DEBUG
-                print ("function: ", function["output"])
                 output_var = function["output"].split('::')[1]
                 loop_body_outputs.append(output_var)
             elif function['function']['type'] == 'container':
@@ -1407,9 +1403,6 @@ class GrFNGenerator(object):
             function, calling print(), etc.
         """
         expressions = self.gen_grfn(node.value, state, "expr")
-        # DEBUG
-        print ("expressions: ", expressions)
-        print ("state.variable_types: ", state.variable_types)
         grfn = {"functions": [], "variables": [], "containers": []}
 
         for expr in expressions:
@@ -1449,21 +1442,14 @@ class GrFNGenerator(object):
                 container_id_name = f"{namespace}__{cur_scope}__assign_" \
                                     f"_{array_name}__0"
                 """
-                # DEBUG
-                print ("call: ", call)
                 arr_index = call["inputs"][0][0]["var"]["variable"]
                 state.array_assign_name = f"{name}[{arr_index}]"
                 variable_spec = self.generate_variable_definition(name, state)
-                # DEBUG
-                print ("variable_spec: ", variable_spec['name'])
                 assign_function = self.generate_function_name("__assign__",
                                                               variable_spec['name'],
                                                               arr_index)
                 container_id_name = assign_function["name"]
                 function_type = assign_function["type"]
-
-                # DEBUG
-                print ("container_id_name: ", container_id_name)
             else:
                 container_id_name = self.function_argument_map[function_name][
                     "name"]
@@ -1570,8 +1556,6 @@ class GrFNGenerator(object):
                 }
 
             grfn["functions"].append(function)
-        # DEBUG
-        print ("grfn: ", grfn)
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -1699,8 +1683,6 @@ class GrFNGenerator(object):
             if not state.next_definitions.get(target_name):
                 state.next_definitions[target_name] = target[
                     "var"]["index"] + 1
-            # DEBUG
-            print ("target_name: ", target_name)
             variable_spec = self.generate_variable_definition(target_name,
                                                               state)
             function_name = self.generate_function_name(
@@ -1814,8 +1796,6 @@ class GrFNGenerator(object):
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
-            # DEBUG
-            print ("target_name: ", target_name)
             variable_spec = self.generate_variable_definition(target_name,
                                                               state)
 
@@ -1823,8 +1803,6 @@ class GrFNGenerator(object):
                                                         variable_spec['name'],
                                                         None
                                                         )
-            # DEBUG
-            print ("    **function_name: ", function_name)
             fn = self.make_fn_dict(function_name, target, sources)
 
             if len(fn) == 0:
@@ -2330,8 +2308,6 @@ class GrFNGenerator(object):
             code = lambda_code_generator.generate_code(node,
                                                        PrintState("\n    ")
                                                        )
-            # DEBUG
-            print ("code: ", code)
         if return_value:
             if array_assign:
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
@@ -2374,8 +2350,6 @@ class GrFNGenerator(object):
                         }
         """
         namespace = self._get_namespace(self.fortran_file)
-        # DEBUG
-        print ("    --state.last_definitions: ", state.last_definitions)
         if variable in state.last_definitions:
             index = state.last_definitions[variable]
         elif variable in self.arrays:
@@ -2416,9 +2390,6 @@ class GrFNGenerator(object):
             This function generates the name of the function inside the
             container wiring within the body of a container.
         """
-        # DEBUG
-        print ("variable: ", variable)
-        print ("arr_index: ", arr_index)
         variable_spec_regex = r'@.*?::(?P<namescope>.*?::.*?)::(' \
                               r'?P<variable>.*?)::(?P<index>.*)'
         variable_match = re.match(variable_spec_regex, variable)
