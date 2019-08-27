@@ -707,6 +707,8 @@ class GrFNGenerator(object):
 
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
+        # print(body_functions_grfn)
+        # print(body_variables_grfn)
         loop_body_inputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
@@ -724,6 +726,8 @@ class GrFNGenerator(object):
         # various assignments within the body
         loop_body_inputs = list(set(loop_body_inputs))
         # Remove the index name since it is not an input to the container
+        # print(index_name)
+        # print(loop_body_inputs)
         loop_body_inputs.remove(index_name)
 
         # Now, we remove the variables which were defined inside the loop
@@ -1411,10 +1415,12 @@ class GrFNGenerator(object):
                 return []
             # A handler for array <.set_> function
             if ".set_" in function_name:
+                print(call)
                 array_set = True
                 name = function_name.replace(".set_", "")
                 if "var" in call["inputs"][0][0]:
                     index = call["inputs"][0][0]["var"]["variable"]
+                    print(index)
                     # An array name with index holder for later usage
                     # dueing lambda string generation.
                     state.array_assign_name = f"{name}[{index}]"
@@ -1423,23 +1429,24 @@ class GrFNGenerator(object):
 
                 array_name = f"{name}_{index}"
                 namespace = self._get_namespace(self.fortran_file)
-                namespace = self.replace_multiple(namespace, ['$', '-', ':'], '_')
+                namespace = self.replace_multiple(namespace, ['$', '-', ':'],
+                                                  '_')
                 cur_scope = self.current_scope
                 if len(cur_scope) == 0:
                     scope_path = "global"
-                container_id_name = f"{namespace}__{cur_scope}__assign__{array_name}__0"
-                # ty: type
-                ty = "lambda_source"
+                container_id_name = f"{namespace}__{cur_scope}__assign_" \
+                                    f"_{array_name}__0"
+                function_type = "lambda"
             else:
                 container_id_name = self.function_argument_map[function_name][
                     "name"]
                 # ty: type
-                ty = "container"
+                function_type = "container"
 
             function = {
                 "function": {
                     "name": container_id_name,
-                    "type": ty
+                    "type": function_type
                 },
                 "input": [],
                 "output": None,
@@ -1523,7 +1530,7 @@ class GrFNGenerator(object):
                 }
 
             grfn["functions"].append(function)
-
+        print(grfn)
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -2209,11 +2216,13 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _get_variables_and_functions(grfn):
+        # print(grfn)
         variables = list(chain.from_iterable(stmt["variables"] for stmt in
                                              grfn))
         fns = list(chain.from_iterable(stmt["functions"] for stmt in grfn))
         containers = list(chain.from_iterable(stmt["containers"] for stmt in
                                               grfn))
+        # print('variable: ', variables)
         return variables, fns, containers
 
     def generate_gensym(self, tag):
