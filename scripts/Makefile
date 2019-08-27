@@ -27,7 +27,7 @@ DB_EXIST := data/delphi.db
 
 
 $(RAW_ZIP):
-	curl http://vision.cs.arizona.edu/adarsh/$@ -o $@
+	curl http://vanga.sista.arizona.edu/delphi_data/$@ -o $@
 	
 $(RAW): $(RAW_ZIP)
 	unzip $< -d data

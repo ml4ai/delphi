@@ -1674,37 +1674,10 @@ class GrFNGenerator(object):
                 and sources[0]["call"]["function"] == "Array"
         ):
             array_assignment = True
+            array_dimensions = []
             inputs = sources[0]["call"]["inputs"]
             array_type = inputs[0][0]["var"]["variable"]
-            array_dimensions = []
-            # A multi-dimensional array handler
-            if "list" in inputs[1][0]["list"][0]:
-                for lists in inputs[1][0]["list"]:
-                    low_bound = int(lists["list"][0]["value"])
-                    upper_bound = int(lists["list"][1]["value"])
-                    array_dimensions.append(upper_bound-low_bound+1)
-            # 1-D array handler
-            else:
-                bounds = inputs[1][0]["list"]
-                if "type" in bounds[0]:
-                    low_bound = bounds[0]["value"]
-                else:
-                    low_bound = bounds[0]["var"]["variable"]
-
-                if "type" in bounds[1]:
-                    upper_bound = bounds[1]["value"]
-                else:
-                    upper_bound = bounds[1]["var"]["variable"]
-
-                if isinstance(low_bound, int) and isinstance(upper_bound, int):
-                    array_dimensions.append(upper_bound-low_bound+1)
-                elif isinstance(upper_bound, str):
-                    assert (
-                        isinstance(low_bound, int) and low_bound == 0
-                    ), "low_bound must be <integer> type and 0 (zero) for now."
-                    array_dimensions.append(upper_bound)
-                else:
-                    assert False, f"low_bound type: {type(low_bound)} is currently not handled."
+            self.get_array_dimension(sources, array_dimensions, inputs)
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2398,6 +2371,50 @@ class GrFNGenerator(object):
                             body_function['updated'] = updated_variable
 
         return grfn_dict
+
+    def get_array_dimension (self, sources, array_dimensions, inputs):
+        """This function is for extracting bounds of an array.
+
+            Args:
+                sources (list): A list holding GrFN element of
+                array function. For example, Array (int, [[(0, 10)]).
+                array_dimensions (list): An empty list that will be
+                populated by current function with the dimension info.
+                inputs (list): A list that holds inputs dictionary
+                extracted from sources.
+
+            Returns:
+                None.
+        """
+        # A multi-dimensional array handler
+        if "list" in inputs[1][0]["list"][0]:
+            for lists in inputs[1][0]["list"]:
+                low_bound = int(lists["list"][0]["value"])
+                upper_bound = int(lists["list"][1]["value"])
+                array_dimensions.append(upper_bound-low_bound+1)
+        # 1-D array handler
+        else:
+            bounds = inputs[1][0]["list"]
+            # Get lower bound of the array
+            if "type" in bounds[0]:
+                low_bound = bounds[0]["value"]
+            else:
+                low_bound = bounds[0]["var"]["variable"]
+            # Get upper bound of the array
+            if "type" in bounds[1]:
+                upper_bound = bounds[1]["value"]
+            else:
+                upper_bound = bounds[1]["var"]["variable"]
+
+            if isinstance(low_bound, int) and isinstance(upper_bound, int):
+                array_dimensions.append(upper_bound-low_bound+1)
+            elif isinstance(upper_bound, str):
+                assert (
+                    isinstance(low_bound, int) and low_bound == 0
+                ), "low_bound must be <integer> type and 0 (zero) for now."
+                array_dimensions.append(upper_bound)
+            else:
+                assert False, f"low_bound type: {type(low_bound)} is currently not handled."
 
     def generate_array_setter (self, node, function, arg, name, container_id_name, state):
         """

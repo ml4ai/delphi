@@ -95,7 +95,8 @@ public:
       this->products[p] = 1; // 0;
 
       for (int v = 0; v < this->paths[p].size() - 1; v++) {
-        const double &beta = CAG[boost::edge(v, v + 1, CAG).first].beta;
+        auto edg = boost::edge(paths[p][v], paths[p][v + 1], CAG);
+        const double &beta = CAG[edg.first].beta;
 
         this->products[p] *= beta; //+= 1;
       }
@@ -214,7 +215,7 @@ public:
 
     if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin();
+        for (std::vector<int>::iterator vert = path.begin();
              vert < path.end() && vert <= path.begin() + length; vert++) {
           std::cout << *vert << " -> ";
         }
@@ -222,7 +223,7 @@ public:
       }
     } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert =
+        std::vector<int>::iterator vert =
             path.size() <= length ? path.begin() : path.end() - length - 1;
         for (; vert < path.end(); vert++) {
           std::cout << *vert << " -> ";
@@ -239,7 +240,7 @@ public:
 
     if (from_beginning) {
       for (std::vector<int> path : this->paths) {
-        for (vector<int>::iterator vert = path.begin();
+        for (std::vector<int>::iterator vert = path.begin();
              vert < path.end() && vert <= path.begin() + hops; vert++) {
           // std::cout << *vert << " -> ";
           vertices_within_hops.insert(*vert);
@@ -248,7 +249,7 @@ public:
       }
     } else {
       for (std::vector<int> path : this->paths) {
-        vector<int>::iterator vert =
+        std::vector<int>::iterator vert =
             path.size() <= hops ? path.begin() : path.end() - hops - 1;
         for (; vert < path.end(); vert++) {
           // std::cout << *vert << " -> ";
@@ -268,15 +269,33 @@ public:
 
     for (std::vector<int> path : this->paths) {
       if (path.size() <= hops + 1) {
-        for (vector<int>::iterator vert = path.begin(); vert < path.end();
+        for (std::vector<int>::iterator vert = path.begin(); vert < path.end();
              vert++) {
-          //std::cout << *vert << " -> ";
+          // std::cout << *vert << " -> ";
           vertices_on_shorter_paths.insert(*vert);
         }
-        //std::cout << std::endl;
+        // std::cout << std::endl;
       }
     }
 
     return vertices_on_shorter_paths;
+  }
+
+  bool has_multiple_paths_longer_than_or_equal_to(int length) {
+    int longer_path_count = 0;
+
+    for (std::vector<int> path : this->paths) {
+      // Note: A path records the sequence of nodes in the path
+      //       e.g.: a -> b -> c-> d
+      //       Therefore, the length of this path is
+      //       path.size() - 1
+      //       So, path.size() > length =>
+      //           length of path >= length
+      if (path.size() > length) {
+        longer_path_count++;
+      }
+    }
+
+    return longer_path_count > 1;
   }
 };

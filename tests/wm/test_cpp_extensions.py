@@ -4,7 +4,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from tqdm import trange
 
-from delphi.cpp.AnalysisGraph import AnalysisGraph, Indicator
+from delphi.cpp.DelphiPython import AnalysisGraph, Indicator
 
 
 def test_cpp_extensions():
@@ -20,20 +20,29 @@ def test_cpp_extensions():
 
 def test_simple_path_construction():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
-    G.add_node()
-    G.add_node()
-    #G.add_node()
-    #G.add_node()
+    G.add_node('c0')
+    G.add_node('c1')
+    G.add_node('c2')
+    #G.add_node('c3')
+    #G.add_node('c4')
 
     print( 'Nodes of the graph:' )
     G.print_nodes()
 
+    G.add_edge((("", 1, "c0"), ("", 1, "c1")))
+    G.add_edge((("", 1, "c1"), ("", 1, "c2")))
+    #G.add_edge((("", 1, "c1"), ("", 1, "c3")))
+    #G.add_edge((("", 1, "c2"), ("", 1, "c3")))
+    G.add_edge((("", 1, "c0"), ("", 1, "c2")))
+    G.add_edge((("", 1, "c3"), ("", 1, "c1")))# Creates a loop 1 -> 2 -> 3 -> 1
+    '''
     G.add_edge(0,1)
     G.add_edge(1,2)
     #G.add_edge(1,3)
     #G.add_edge(2,3)
     G.add_edge(0,2)
     G.add_edge(3,1) # Creates a loop 1 -> 2 -> 3 -> 1
+    '''
 
     print( 'Edges of the graph:' )
     G.print_edges()
@@ -80,6 +89,7 @@ def test_remove_node():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -108,6 +118,7 @@ def test_remove_nodes():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -129,6 +140,7 @@ def test_remove_edge():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -165,6 +177,7 @@ def test_remove_edge():
     print( '\nName to vertex ID map entries' )
     G.print_name_to_vertex()
     G.print_all_paths()
+    G.to_png()
 
 def test_remove_edges():
     causal_fragments = [ (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security"))]
@@ -172,6 +185,7 @@ def test_remove_edges():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -226,6 +240,7 @@ def test_subgraph():
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
 
     G.print_nodes()
 
@@ -240,10 +255,10 @@ def test_subgraph():
     G.print_name_to_vertex()
 
     hops = 3
-    node = 'n40'
+    node = 'n4'
     print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
     try:
-        G_sub = G.get_subgraph_for_concept( node, hops, False )
+        G_sub = G.get_subgraph_for_concept( node, False, hops )
     except IndexError:
         print('Concept {} is not in the CAG!'.format(node))
         return
@@ -262,13 +277,66 @@ def test_subgraph():
     #G_sub.print_all_paths()
 
     print( '\nSubgraph of {} hops ending at node {} graph'.format( hops, node ) )
-    G_sub = G.get_subgraph_for_concept( node, hops, True )
+    G_sub = G.get_subgraph_for_concept( node, True, hops )
 
     print( '\n\nTwo Graphs' )
     print( 'The original' )
     G.print_nodes()
     G.print_name_to_vertex()
+
+    print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
+    G.get_subgraph_for_concept( node, False, hops )
+
+def test_subgraph_between():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n1"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n3")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n5")),
+            (("small", 1, "n5"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n7")),
+            (("small", 1, "n7"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n4")),
+            (("small", 1, "n0"), ("large", -1, "n8")),
+            (("small", 1, "n8"), ("large", -1, "n9")),
+            (("small", 1, "n10"), ("large", -1, "n0")),
+            (("small", 1, "n4"), ("large", -1, "n12")),
+            (("small", 1, "n12"), ("large", -1, "n13")),
+            (("small", 1, "n13"), ("large", -1, "n4")),
+            ]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
+
+    G.print_nodes()
+
+    print( '\nName to vertex ID map entries' )
+    G.print_name_to_vertex()
+
+    G.print_nodes()
+    G.print_name_to_vertex()
     #G.print_all_paths()
+
+    cutoff = 3 
+    src = 'n0'
+    tgt = 'n4'
+
+    print( '\nSubgraph with inbetween hops less than or equal {} between source node {} and target node {}'.format( cutoff, src, tgt ) )
+    try:
+        G_sub = G.get_subgraph_for_concept_pair( src, tgt, cutoff )
+        #G_sub.find_all_paths()
+    except IndexError:
+        print("Incorrect source or target concept")
+        return
+
+    print( '\n\nTwo Graphs' )
+    print( 'The original' )
+    G.print_nodes()
+    G.print_name_to_vertex()
     print()
 
 
@@ -277,7 +345,85 @@ def test_subgraph():
     G_sub.print_name_to_vertex()
     #G_sub.print_all_paths()
 
-def test_subgraph_between():
+def test_prune():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n0"), ("large", -1, "n2")),
+            (("small", 1, "n0"), ("large", -1, "n3")),
+            (("small", 1, "n2"), ("large", -1, "n1")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n1")),
+            #(("small", 1, "n4"), ("large", -1, "n2")),
+            #(("small", 1, "n2"), ("large", -1, "n3")),
+            ]
+
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
+
+    print( '\nBefore pruning' )
+    G.print_all_paths()
+
+    cutoff = 2
+
+    G.prune( cutoff )
+
+    print( '\nAfter pruning' )
+    G.print_all_paths()
+
+def test_merge():
+    causal_fragments = [ 
+            (("small", 1, "UN/events/human/conflict"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/events/human/human_migration"), ("small", 1, "UN/events/human/conflict")),
+            (("small", 1, "UN/events/human/human_migration"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/events/human/conflict") , ("small", 1, "UN/entities/natural/crop_technology/product")),
+            (("large", -1, "UN/entities/human/food/food_security") , ("small", 1, "UN/entities/natural/crop_technology/product")),
+            (("small", 1, "UN/events/human/economic_crisis"), ("small", 1, "UN/events/human/conflict")),
+            (("small", 1, "UN/events/weather/precipitation"), ("large", -1, "UN/entities/human/food/food_security")),
+            (("small", 1, "UN/entities/human/financial/economic/inflation"), ("small", 1, "UN/events/human/conflict")),
+            ( ("large", -1, "UN/entities/human/food/food_security"), ("small", 1, "UN/entities/human/financial/economic/inflation")),
+            ]
+
+    '''
+    ("large", -1, "UN/entities/human/food/food_security")
+    ("small", 1, "UN/events/human/conflict")
+    ("small", 1, "UN/events/human/human_migration")
+    ("small", 1, "UN/entities/natural/crop_technology/product")
+    ("small", 1, "UN/events/human/economic_crisis")
+    ("small", 1, "UN/events/weather/precipitation")
+    ("small", 1, "UN/entities/human/financial/economic/inflation")
+    '''
+    print('\n\n\n\n')
+    print( '\nCreating CAG' )
+    G = AnalysisGraph.from_causal_fragments( causal_fragments )
+    G.find_all_paths()
+
+    print( '\nBefore merging' )
+    G.print_all_paths()
+
+    G.print_nodes()
+
+    print('\nAfter mergning')
+    #G.merge_nodes( "UN/events/human/conflict", "UN/entities/human/food/food_security")
+    G.merge_nodes( "UN/entities/human/food/food_security", "UN/events/human/conflict")
+
+    G.print_all_paths()
+
+    G.print_nodes()
+
+def test_debug():
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n0"), ("large", -1, "n2")),
+            (("small", 1, "n0"), ("large", -1, "n3")),
+            (("small", 1, "n2"), ("large", -1, "n1")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n1")),
+            #(("small", 1, "n4"), ("large", -1, "n2")),
+            #(("small", 1, "n2"), ("large", -1, "n3")),
+            ]
+
     causal_fragments = [  # Center node is n4
             (("small", 1, "n0"), ("large", -1, "n1")),
             (("small", 1, "n1"), ("large", -1, "n2")),
@@ -287,8 +433,6 @@ def test_subgraph_between():
             (("small", 1, "n5"), ("large", -1, "n6")),
             (("small", 1, "n6"), ("large", -1, "n7")),
             (("small", 1, "n7"), ("large", -1, "n8")),
-            #(("small", 1, "n8"), ("large", -1, "n9")),
-            #(("small", 1, "n9"), ("large", -1, "n0")),
             (("small", 1, "n0"), ("large", -1, "n9")),
             (("small", 1, "n9"), ("large", -1, "n2")),
             (("small", 1, "n2"), ("large", -1, "n10")),
@@ -304,38 +448,36 @@ def test_subgraph_between():
             (("small", 1, "n5"), ("large", -1, "n3")), # Creates a loop
             ]
 
+    causal_fragments = [  # Center node is n4
+            (("small", 1, "n0"), ("large", -1, "n1")),
+            (("small", 1, "n1"), ("large", -1, "n2")),
+            (("small", 1, "n2"), ("large", -1, "n3")),
+            (("small", 1, "n3"), ("large", -1, "n4")),
+            (("small", 1, "n4"), ("large", -1, "n5")),
+            (("small", 1, "n5"), ("large", -1, "n6")),
+            (("small", 1, "n6"), ("large", -1, "n7")),
+            (("small", 1, "n7"), ("large", -1, "n8")),
+            (("small", 1, "n0"), ("large", -1, "n3")),
+            ]
+
     print('\n\n\n\n')
     print( '\nCreating CAG' )
     G = AnalysisGraph.from_causal_fragments( causal_fragments )
-
+    G.find_all_paths()
     G.print_nodes()
 
-    print( '\nName to vertex ID map entries' )
-    G.print_name_to_vertex()
+    print( '\nBefore pruning' )
+    G.print_all_paths()
 
-    G.print_nodes()
-    G.print_name_to_vertex()
-
-    cutoff = 12
-    src = 'n0'
-    tgt = 'n8'
-
-    print( '\nSubgraph with inbetween hops less than or equal {} between source node {} and target node {}'.format( cutoff, src, tgt ) )
+    hops = 3
+    node = 'n0'
+    print( '\nSubgraph of {} hops beginning at node {} graph'.format( hops, node ) )
     try:
-        G_sub = G.get_subgraph_for_concept_pair( src, tgt, cutoff )
+        G_sub = G.get_subgraph_for_concept( node, False, hops )
     except IndexError:
-        print("Incorrect source or target concept")
+        print('Concept {} is not in the CAG!'.format(node))
         return
 
-    print( '\n\nTwo Graphs' )
-    print( 'The original' )
-    G.print_nodes()
-    G.print_name_to_vertex()
-    #G.print_all_paths()
-    print()
-
-
-    print( 'The subgraph' )
+    G_sub.find_all_paths()
     G_sub.print_nodes()
-    G_sub.print_name_to_vertex()
     #G_sub.print_all_paths()
