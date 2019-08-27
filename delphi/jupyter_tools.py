@@ -272,14 +272,3 @@ def perform_intervention(G, n0, partial_t_n0, n1, xlim=(0, 1)):
     ax.hist(vals[n1], density=True, bins=30)
     print(f"Standard deviation, σ = {np.std(vals[n1]):.2f}")
     plt.tight_layout()
-
-def display(G):
-    from pygraphviz import AGraph
-    from IPython.core.display import Image
-
-    temporary_image_filename = "tmp.png"
-    try:
-        G.to_png(temporary_image_filename)
-        return Image(temporary_image_filename)
-    finally:
-        os.remove(temporary_image_filename)

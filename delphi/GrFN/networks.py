@@ -804,7 +804,6 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     ) -> Union[float, Iterable]:
         """Executes the FIB over a particular set of inputs and returns the
         result.
-
         Args:
             inputs: Input set where keys are the names of input nodes in the
               GrFN and each key points to a set of input values (or just one).

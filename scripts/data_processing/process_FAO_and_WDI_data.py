@@ -205,31 +205,6 @@ def combine_data():
         "data/south_sudan_data_UNHCR.tsv", index_col=False, sep="\t"
     )
 
-    migration1_df = pd.read_csv(
-        "data/south_sudan_ReachJongleiJan_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-    migration2_df = pd.read_csv(
-        "data/south_sudan_54660_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-    migration3_df = pd.read_csv(
-        "data/south_sudan_62801_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-    migration4_df = pd.read_csv(
-        "data/south_sudan_62803_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-    migration5_df = pd.read_csv(
-        "data/south_sudan_63604_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-    migration6_df = pd.read_csv(
-        "data/south_sudan_UNHCR_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -238,12 +213,6 @@ def combine_data():
             climis_unicef_ieconomics_df,
             dssat_df,
             unhcr_df,
-            migration1_df,
-            migration2_df,
-            migration3_df,
-            migration4_df,
-            migration5_df,
-            migration6_df,
         ],
         sort=True,
     ).dropna(subset=["Value"])

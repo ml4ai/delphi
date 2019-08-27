@@ -103,7 +103,6 @@ Delphi is also part of the
   AnalysisGraph_API
   GrFN_API
   grfn_spec
-  delphi_database
   CONTRIBUTING
   cpp_api/library_root
 

@@ -21,4 +21,4 @@ help:
 
 apidocs:
 	rm -rf generated/
-	sphinx-apidoc -o . ../delphi ../delphi/cpp/* -f
+	sphinx-apidoc -o . ../delphi -f

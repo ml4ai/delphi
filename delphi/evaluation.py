@@ -510,9 +510,9 @@ def train_model(
     if start_month is None:
         start_month = 1
 
-   # set_mean_for_data(
-   #     G, start_year, start_month, end_year, end_month, **kwargs
-   # )
+    set_mean_for_data(
+        G, start_year, start_month, end_year, end_month, **kwargs
+    )
 
     G.init_training_year = start_year
     G.init_training_month = start_month
@@ -643,12 +643,12 @@ def pred_to_array(G, indicator: str) -> np.ndarray:
     """
 
     time_range = len(G.pred_range)
-    pred = np.zeros((G.res,time_range))
+    pred = np.zeros((time_range, G.res))
     for i in range(G.res):
         for j in range(time_range):
             for _, inds in G.observed_state_sequences[i][j].items():
                 if indicator in inds.keys():
-                    pred[i][j] = float(inds[indicator])
+                    pred[j][i] = float(inds[indicator])
     return pred
 
 
@@ -685,7 +685,7 @@ def mean_pred_to_df(
     """
 
     pred = pred_to_array(G, indicator)
-    pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred.T, ci)[:, 0]
+    pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred, ci)[:, 0]
     pred_mean = np.zeros((len(G.pred_range), 3))
     for i, (mean, interval) in enumerate(pred_stats):
         pred_mean[i, 0] = mean
