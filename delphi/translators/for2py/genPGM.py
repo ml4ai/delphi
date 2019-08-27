@@ -707,8 +707,6 @@ class GrFNGenerator(object):
 
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
-        # print(body_functions_grfn)
-        # print(body_variables_grfn)
         loop_body_inputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
@@ -725,10 +723,9 @@ class GrFNGenerator(object):
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
         loop_body_inputs = list(set(loop_body_inputs))
-        # Remove the index name since it is not an input to the container
-        # print(index_name)
-        # print(loop_body_inputs)
-        loop_body_inputs.remove(index_name)
+        # If the index name is a part of the loop bpdy, remove it since it is
+        # not an input to the container
+        if index_name in loop_body_inputs: loop_body_inputs.remove(index_name)
 
         # Now, we remove the variables which were defined inside the loop
         # body itself and not taken as an input from outside the loop body
@@ -1415,12 +1412,10 @@ class GrFNGenerator(object):
                 return []
             # A handler for array <.set_> function
             if ".set_" in function_name:
-                print(call)
                 array_set = True
                 name = function_name.replace(".set_", "")
                 if "var" in call["inputs"][0][0]:
                     index = call["inputs"][0][0]["var"]["variable"]
-                    print(index)
                     # An array name with index holder for later usage
                     # dueing lambda string generation.
                     state.array_assign_name = f"{name}[{index}]"
@@ -1530,7 +1525,6 @@ class GrFNGenerator(object):
                 }
 
             grfn["functions"].append(function)
-        print(grfn)
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -1788,7 +1782,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
-
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2216,13 +2209,11 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _get_variables_and_functions(grfn):
-        # print(grfn)
         variables = list(chain.from_iterable(stmt["variables"] for stmt in
                                              grfn))
         fns = list(chain.from_iterable(stmt["functions"] for stmt in grfn))
         containers = list(chain.from_iterable(stmt["containers"] for stmt in
                                               grfn))
-        # print('variable: ', variables)
         return variables, fns, containers
 
     def generate_gensym(self, tag):
