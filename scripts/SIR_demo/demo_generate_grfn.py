@@ -22,18 +22,26 @@ agraph.draw('SIR-gillespie_alt.pdf', prog='dot')
 
 
 CAG = grfn.to_CAG()
-solver_start_nodes = ["i", "sample_idx", "runs", "Tmax"]
-solver_nodes = list()
+model_nodes = [
+    "S0",
+    "I0",
+    "R0",
+    "gamma",
+    "rho",
+    "beta",
+    "n_S",
+    "n_I",
+    "n_R",
+    "t",
+    "dt",
+    "rateInfect",
+    "rateRecover",
+    "totalRates"
+]
+
 all_nodes = list(CAG.nodes())
-for node in all_nodes:
-    if node in solver_start_nodes:
-        solver_nodes.append(node)
-    else:
-        for st_node in solver_start_nodes:
-            if node in CAG.successors(st_node):
-                solver_nodes.append(node)
-solver_nodes = list(set(solver_nodes))
-model_nodes = list(set(all_nodes) - set(solver_nodes))
+print(all_nodes)
+solver_nodes = list(set(all_nodes) - set(model_nodes))
 
 A = nx.nx_agraph.to_agraph(CAG)
 A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
