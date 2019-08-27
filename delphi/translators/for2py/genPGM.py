@@ -1398,6 +1398,7 @@ class GrFNGenerator(object):
             if "call" not in expr:
                 assert False, f"Unsupported expr: {expr}."
         for expr in expressions:
+            array_set = False
             call = expr["call"]
             function_name = call["function"]
             io_match = self._check_io_variables(function_name)
@@ -1410,6 +1411,7 @@ class GrFNGenerator(object):
                 return []
             # A handler for array <.set_> function
             if ".set_" in function_name:
+                array_set = True
                 name = function_name.replace(".set_", "")
                 if "var" in call["inputs"][0][0]:
                     index = call["inputs"][0][0]["var"]["variable"]
@@ -1443,6 +1445,7 @@ class GrFNGenerator(object):
                 "output": None,
                 "updated": []
             }
+            argument_list = []
             for arg in call["inputs"]:
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
@@ -1453,11 +1456,27 @@ class GrFNGenerator(object):
                             f"@variable::"
                             f"{arg[0]['var']['variable']}::"
                             f"{arg[0]['var']['index']}")
+                        if array_set:
+                            argument_list.append(arg[0]['var']['variable'])
                     elif "call" in arg[0]:
                         function = self.generate_array_setter(
                                                         node, function, arg, 
                                                         name, container_id_name,
                                                         state)
+                    elif (
+                            "type" in arg[0]
+                            and array_set
+                    ):
+                        # Generate lambda function for array[index]
+                        lambda_string = self._generate_lambda_function(
+                            node,
+                            container_id_name,
+                            True,
+                            True,
+                            argument_list,
+                            state,
+                        )
+                        state.lambda_strings.append(lambda_string)
                 else:
                     if "call" in arg[0]:
                         if name in self.arrays:
@@ -2448,6 +2467,7 @@ class GrFNGenerator(object):
         """
         argument_list = []
         input_list = []
+        function["output"] = []
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
             # If an input is a simple variable
