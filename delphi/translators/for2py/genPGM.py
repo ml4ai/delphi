@@ -1446,18 +1446,32 @@ class GrFNGenerator(object):
                 "updated": []
             }
             argument_list = []
+            array_index = 0
             for arg in call["inputs"]:
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
                     #  arguments. But a function can have strings as
                     #  arguments as well. Do we add that?
                     if "var" in arg[0]:
-                        function["input"].append(
-                            f"@variable::"
-                            f"{arg[0]['var']['variable']}::"
-                            f"{arg[0]['var']['index']}")
+                        if arg[0]['var']['variable'] not in argument_list:
+                            function["input"].append(
+                                f"@variable::"
+                                f"{arg[0]['var']['variable']}::"
+                                f"{arg[0]['var']['index']}")
                         if array_set:
                             argument_list.append(arg[0]['var']['variable'])
+                            if array_index > 0:
+                                # Generate lambda function for array[index]
+                                lambda_string = self._generate_lambda_function(
+                                    node,
+                                    container_id_name,
+                                    True,
+                                    True,
+                                    argument_list,
+                                    state,
+                                )
+                                state.lambda_strings.append(lambda_string)
+                            array_index += 1
                     elif "call" in arg[0]:
                         function = self.generate_array_setter(
                                                         node, function, arg, 
