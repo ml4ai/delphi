@@ -1734,6 +1734,7 @@ class GrFNGenerator(object):
                                                         variable_spec['name']
                                                         )
             fn = self.make_fn_dict(function_name, target, sources)
+
             if len(fn) == 0:
                 return []
             source_list = self.make_source_list_dict(sources)
@@ -1974,6 +1975,7 @@ class GrFNGenerator(object):
         target_name = target["var"]["variable"]
         
         target_string = f"@variable::{target_name}::{target['var']['index']}"
+
         for src in sources:
             # Check for a write to a file
             if re.match(r"\d+", target_name) and "list" in src:
@@ -1983,6 +1985,17 @@ class GrFNGenerator(object):
                 # really a type name not the variable for input.
                 if src["call"]["function"] is "Array":
                     del src["call"]["inputs"][0]
+                # If a RHS of an assignment is an array getter,
+                # for example, meani.get_((runs[0])), we only need
+                # the array name (meani in this case) and append
+                # to source.
+                if ".get_" in src["call"]["function"]:
+                    get_array_name = src["call"]["function"].replace(".get_", "")
+                    name = f"@variable::{get_array_name}::-1"
+                    source.append({
+                                    "name": get_array_name,
+                                    "type": "variable"})
+
                 # Bypassing identifiers who have I/O constructs on their source
                 # fields too.
                 # Example: (i[0],) = format_10_obj.read_line(file_10.readline())
@@ -2001,6 +2014,7 @@ class GrFNGenerator(object):
                 #   <var_affected>|<code_given_name>]]" and add here.
                 for source_ins in self.make_call_body_dict(src):
                     source.append(source_ins)
+
             elif "var" in src:
                 source_string = f"@variable::{src['var']['variable']}::" \
                                 f"{src['var']['index']}"
@@ -2218,9 +2232,8 @@ class GrFNGenerator(object):
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
         for ip in input_list:
-            if ip in state.variable_types:
-                annotation = state.variable_types.get(ip)
-            elif ip in state.array_types:
+            annotation = state.variable_types.get(ip)
+            if ip in state.array_types:
                 lambda_for_var = False
             if (
                 lambda_for_var
@@ -2423,12 +2436,14 @@ class GrFNGenerator(object):
         # 1-D array handler
         else:
             bounds = inputs[1][0]["list"]
-            # Get lower bound of the array
+            # Get lower bound of an array
             if "type" in bounds[0]:
+                # When an index is a scalar value
                 low_bound = bounds[0]["value"]
             else:
+                # When an index is a variable
                 low_bound = bounds[0]["var"]["variable"]
-            # Get upper bound of the array
+            # Get upper bound of an array
             if "type" in bounds[1]:
                 upper_bound = bounds[1]["value"]
             else:
