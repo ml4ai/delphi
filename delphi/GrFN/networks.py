@@ -173,7 +173,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
-        self.output_node = self.outputs[-1]
+        # self.output_node = self.outputs[-1]
         self.call_graph = self.build_call_graph()
         self.function_sets = self.build_function_sets()
 
