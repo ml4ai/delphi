@@ -11,6 +11,7 @@ import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
 from delphi.translators.for2py.get_comments import get_comments
+from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from itertools import chain, product
 import operator
@@ -261,9 +262,6 @@ class GrFNGenerator(object):
         """
         return_value = []
         return_list = []
-        # Add the function name to the list that stores all the functions
-        # defined in the program
-        self.function_definitions.append(node.name)
 
         local_last_definitions = state.last_definitions.copy()
         local_next_definitions = state.next_definitions.copy()
@@ -375,6 +373,8 @@ class GrFNGenerator(object):
             for value in return_value:
                 return_list.append(f"@variable::{value['var']['variable']}::"
                                    f"{value['var']['index']}")
+        else:
+            return_list = None
 
         # Get the function_reference_spec, function_assign_spec and
         # identifier_spec for the function
@@ -410,6 +410,10 @@ class GrFNGenerator(object):
         container_id_name = self.generate_container_id_name(
             self.fortran_file, scope_path, node.name)
         self.function_argument_map[node.name]["name"] = container_id_name
+        # Add the function name to the list that stores all the functions
+        # defined in the program
+        self.function_definitions.append(container_id_name)
+
         function_container_grfn = {
             "name": container_id_name,
             "source_refs": [],
@@ -918,14 +922,12 @@ class GrFNGenerator(object):
 
         # Now populate the IF and BK functions for the loop by identifying
         # the loop conditionals
-        if len(loop_test) > 1 and len(loop_test[0]) == 1:
-            assert "boolean_operation" in loop_test[0][0], f"Invalid loop " \
-                                                           f"test in while " \
-                                                           f"loop {loop_test}"
-        else:
-            assert False, f"Invalid loop test in while loop {loop_test}"
+        # TODO Add a test to check for loop validity in this area. Need to
+        #  test with more types of while loops to finalize on a test condition
 
-        for item in loop_test[1:]:
+        for item in loop_test:
+            if not isinstance(item, list):
+                item = [item]
             for var in item:
                 if 'var' in var:
                     function_input.append(f"@variable::"
@@ -1438,7 +1440,7 @@ class GrFNGenerator(object):
                     "type": ty
                 },
                 "input": [],
-                "output": [],
+                "output": None,
                 "updated": []
             }
             for arg in call["inputs"]:
@@ -1770,31 +1772,6 @@ class GrFNGenerator(object):
             )
             state.lambda_strings.append(lambda_string)
 
-            # TODO Get a use case to handle this for the new spec
-            if (
-                not fn["input"]
-                and len(sources) == 1
-            ):
-                if sources[0].get("list"):
-                    dtypes = set()
-                    value = list()
-                    for item in sources[0]["list"]:
-                        dtypes.add(item['dtype'])
-                        value.append(item['value'])
-                    dtype = list(dtypes)
-                elif sources[0].get("call") and \
-                        sources[0]["call"]['function'] == "Float32":
-                    dtype = sources[0]["call"]['inputs'][0][0]['dtype']
-                    value = f"{sources[0]['call']['inputs'][0][0]['value']}"
-                else:
-                    dtype = sources[0]["dtype"]
-                    value = sources[0]["value"]
-                fn["body"] = {
-                    "type": "literal",
-                    "dtype": dtype,
-                    "value": value,
-                }
-
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
 
@@ -2024,8 +2001,8 @@ class GrFNGenerator(object):
                         self.exclude_list.append(src["var"]["variable"])
                     return fn
                 # TODO Finalize the spec for calls here of this form:
-                #  "@container::<container_type>[$[
-                #   <var_affected>|<code_given_name>]]" and add here.
+                #  "@container::<namespace_path_string>::<scope_path_string>::
+                #   <container_base_name>" and add here.
                 for source_ins in self.make_call_body_dict(src):
                     source.append(source_ins)
             elif "var" in src:
@@ -2089,15 +2066,10 @@ class GrFNGenerator(object):
             if isinstance(ip, list):
                 for item in ip:
                     if "var" in item:
-                        variable = item["var"]["variable"]
-                        source_list.append(
-                            {"name": variable, "type": "variable"})
-                    elif item.get("dtype") == "string":
-                        # TODO Do repetitions in this like in the above check
-                        #  need to be removed?
-                        source_list.append(
-                            {"name": item["value"], "type": "variable"}
-                        )
+                        source_string = f"@variable::" \
+                                        f"{item['var']['variable']}::" \
+                                        f"{item['var']['index']}"
+                        source_list.append(source_string)
                     elif "call" in item:
                         source_list.extend(self.make_call_body_dict(item))
                     elif "list" in item:
@@ -2553,6 +2525,7 @@ class GrFNGenerator(object):
         io_match = RE_BYPASS_IO.match(variable_name)
         return io_match
 
+
 def get_path(file_name: str, instance: str):
     """
         This function returns the path of a file starting from the root of
@@ -2658,7 +2631,11 @@ def create_grfn_dict(
     if grfn.get("start"):
         grfn["start"] = [grfn["start"][0]]
     else:
-        grfn["start"] = None
+        # TODO: The `grfn_spec` mentions this to be null (None) but it looks
+        #  like `networks.py` requires a certain function. Finalize after
+        #  `networks.py` is completed.
+        # grfn["start"] = None
+        grfn["start"] = [generator.function_definitions[-1]]
 
     # Add the placeholder to enter the grounding and link hypothesis information
     grfn["grounding"] = []
