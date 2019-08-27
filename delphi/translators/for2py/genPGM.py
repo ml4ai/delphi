@@ -1052,6 +1052,8 @@ class GrFNGenerator(object):
         loop_body_outputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
+                # DEBUG
+                print ("function: ", function["output"])
                 output_var = function["output"].split('::')[1]
                 loop_body_outputs.append(output_var)
             elif function['function']['type'] == 'container':
@@ -1450,6 +1452,7 @@ class GrFNGenerator(object):
                 # DEBUG
                 print ("call: ", call)
                 arr_index = call["inputs"][0][0]["var"]["variable"]
+                state.array_assign_name = f"{name}[{arr_index}]"
                 variable_spec = self.generate_variable_definition(name, state)
                 # DEBUG
                 print ("variable_spec: ", variable_spec['name'])
@@ -1486,8 +1489,9 @@ class GrFNGenerator(object):
                         f"{name}::-1")
 
             argument_list = []
-            array_index = 0
+            list_index = 0
             for arg in call["inputs"]:
+                generate_lambda_for_arr = False
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
                     #  arguments. But a function can have strings as
@@ -1498,30 +1502,31 @@ class GrFNGenerator(object):
                                 f"@variable::"
                                 f"{arg[0]['var']['variable']}::"
                                 f"{arg[0]['var']['index']}")
+                        # This is a case where a variable gets assigned to
+                        # an array. For example, arr(i) = var.
                         if array_set:
                             argument_list.append(arg[0]['var']['variable'])
-                            if array_index > 0:
-                                # Generate lambda function for array[index]
-                                lambda_string = self._generate_lambda_function(
-                                    node,
-                                    container_id_name,
-                                    True,
-                                    True,
-                                    argument_list,
-                                    state,
-                                )
-                                state.lambda_strings.append(lambda_string)
-                            array_index += 1
+                            # If list_index is 0, it means that the current loop
+                            # is dealing with the array index (i in arr(i)), which
+                            # we do not wish to generate a lambda function for.
+                            # list_index > 0 are the RHS values for array assignment.
+                            if list_index > 0:
+                                generate_lambda_for_arr = True
+                            list_index += 1
+                    # This is a case where either an expression or an array
+                    # gets assigned to an array. For example, arr(i) = __expression__
+                    # or arr(i) = arr2(i).
                     elif "call" in arg[0]:
                         function = self.generate_array_setter(
                                                         node, function, arg, 
                                                         name, container_id_name,
                                                         state)
-                    elif (
-                            "type" in arg[0]
-                            and array_set
-                    ):
-                        # Generate lambda function for array[index]
+                    # This is a case where a literal gets assigned to an array.
+                    # For example, arr(i) = 100.
+                    elif "type" in arg[0] and array_set:
+                        generate_lambda_for_arr = True
+
+                    if generate_lambda_for_arr:
                         lambda_string = self._generate_lambda_function(
                             node,
                             container_id_name,
@@ -1531,6 +1536,8 @@ class GrFNGenerator(object):
                             state,
                         )
                         state.lambda_strings.append(lambda_string)
+                        function["output"] = [f"@variable::{name}::0"]
+
                 else:
                     if "call" in arg[0]:
                         if name in self.arrays:
@@ -2323,6 +2330,8 @@ class GrFNGenerator(object):
             code = lambda_code_generator.generate_code(node,
                                                        PrintState("\n    ")
                                                        )
+            # DEBUG
+            print ("code: ", code)
         if return_value:
             if array_assign:
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
