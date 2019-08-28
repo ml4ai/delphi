@@ -278,11 +278,15 @@ def generate_grfn(
         lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
         original_fortran_file, save_file=True
     )
-    for identifier in grfn_dict["identifiers"]:
-        del identifier["gensyms"]
+
+    if "identifiers" in grfn_dictionary:
+        for identifier in grfn_dictionary["identifiers"]:
+            del identifier["gensyms"]
+
+    if not tester_call:
+        genPGM.process_files([python_file], "GrFN.json", "lambdas.py", original_fortran_file, False)
 
     return grfn_dictionary
-
 
 def parse_args():
     """
@@ -485,9 +489,7 @@ def fortran_to_grfn(
         with open(fortran_file_path, "r") as f:
             input_lines = f.readlines()
     except IOError:
-        sys.stderr.write(f"Fortran file: {fortran_file_path} Not "
-                         f"Found")
-        sys.exit(1)
+        assert False, f"Fortran file: {original_fortran_file_path} Not Found"
 
     # Pre-process the read in fortran file
     if not tester_call:
@@ -515,7 +517,7 @@ def fortran_to_grfn(
         # Generate separate list of modules file
         mode_mapper_tree = rectified_tree
         generator = mod_index_generator.ModuleGenerator()
-        mode_mapper_dictionary = generator.analyze(mode_mapper_tree)
+        mode_mapper_dict = generator.analyze(mode_mapper_tree)
     else:
         # This is a HACK derived from `networks.py`
         mode_mapper_dictionary = {"file_name": f"{base}.py"}
@@ -535,19 +537,18 @@ def fortran_to_grfn(
 
     if not network_test:
         return (
-            [src[0] for src in python_source],
+            python_source,
             lambdas_suffix,
             json_suffix,
             translated_python_file,
-            original_fortran,
-            mode_mapper_dictionary,
+            mode_mapper_dict,
+            original_fortran_file,
         )
     else:
-        # TODO: This is related to networks.py and subsequent GrFN
+        #  TODO: This is related to networks.py and subsequent GrFN
         #  generation. Change the python_src index from [0][0] to incorporate
         #  all modules after all GrFN features have been added
-        return (python_source[0][0], lambdas_suffix, json_suffix, base,
-                original_fortran)
+        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran_file)
 
 
 if __name__ == "__main__":
@@ -562,6 +563,6 @@ if __name__ == "__main__":
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
-        python_src[0], python_file, lambdas_file, mode_mapper_dict,
+        python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
         original_fortran_file_path, False
     )

@@ -187,6 +187,8 @@ class RectifyOFPXML:
         # If goto is conditional and under else
         # that is a case of conditional without operator
         self.goto_under_else = False
+        # When handling function, collect names
+        self.args_for_function = []
 
     #################################################################
     #                                                               #
@@ -508,6 +510,20 @@ class RectifyOFPXML:
                                 child, cur_elem, current, parent, traverse
                         )
 
+                        if (
+                                parent.tag == "function"
+                                and cur_elem.tag == "names"
+                        ):
+                            current.remove(cur_elem)
+                            count = len(self.args_for_function)
+                            cur_elem = ET.SubElement(
+                                                current, "arguments",
+                                                {"count": str(count)})
+                            for arg in self.args_for_function:
+                                argument = ET.SubElement(
+                                                cur_elem, "argument",
+                                                {"name": arg})
+                     
                     if cur_elem.tag in target_tags:
                         temp_elem_holder.append(cur_elem)
                         if cur_elem.tag == "equiv-operand__equiv-op":
@@ -1280,6 +1296,8 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                if grandparent.tag == "function":
+                    self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds subelements,
                 # call the XML tree parser with created
                 # new <name> element
