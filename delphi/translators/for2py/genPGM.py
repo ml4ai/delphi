@@ -2531,9 +2531,15 @@ class GrFNGenerator(object):
             if "var" in var:
                 var_name = var['var']['variable']
                 if var_name not in argument_list:
+                    input_index = self._get_last_definition(
+                        var_name,
+                        state.last_definitions,
+                        state.last_definition_default
+                    )
                     function["input"].append(
                             f"@variable::"
-                            f"{var_name}::-1")
+                            f"{var_name}::"
+                            f"{input_index}")
                     argument_list.append(var_name)
                 else:
                     # It's not an error, so just pass it.
@@ -2546,9 +2552,15 @@ class GrFNGenerator(object):
                     if get_array_name not in argument_list:
                         argument_list.append(get_array_name)
                         if get_array_name != name:
+                            ip_index = self._get_last_definition(
+                                get_array_name,
+                                state.last_definitions,
+                                state.last_definition_default
+                            )
                             function["input"].append(
                                 f"@variable::"
-                                f"{get_array_name}::-1")
+                                f"{get_array_name}::"
+                                f"{ip_index}")
                     else:
                         # It's not an error, so just pass it.
                         pass
