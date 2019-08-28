@@ -374,7 +374,7 @@ class GrFNGenerator(object):
                 return_list.append(f"@variable::{value['var']['variable']}::"
                                    f"{value['var']['index']}")
         else:
-            return_list = None
+            return_list = []
 
         # Get the function_reference_spec, function_assign_spec and
         # identifier_spec for the function
@@ -654,9 +654,9 @@ class GrFNGenerator(object):
         # Define some condition and break variables in the loop state
         loop_state.last_definitions[index_name] = 0
         loop_state.last_definitions["IF_0"] = 0
-        loop_state.last_definitions["BK"] = 0
+        loop_state.last_definitions["EXIT"] = 0
         loop_state.variable_types["IF_0"] = "bool"
-        loop_state.variable_types["BK"] = "bool"
+        loop_state.variable_types["EXIT"] = "bool"
 
         # Now, create the `variable` spec, `function name` and `container
         # wiring` for the loop index, check condition and break decisions.
@@ -690,8 +690,7 @@ class GrFNGenerator(object):
             "updated": []
         }
 
-        loop_break_variable = self.generate_variable_definition("BK",
-                                                                None,
+        loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
@@ -701,7 +700,7 @@ class GrFNGenerator(object):
         loop_break_function = {
             "function": loop_break_function_name,
             "input": [f"@variable::IF_0::0"],
-            "output": [f"@variable::BK::0"],
+            "output": [f"@variable::EXIT::0"],
             "updated": []
         }
 
@@ -916,7 +915,7 @@ class GrFNGenerator(object):
         loop_test = self.gen_grfn(node.test, state, "while")
 
         # Define a new empty state that will be used for mapping the state of
-        # the operations within the for-loop container
+        # the operations within the loop container
         loop_last_definition = {}
         loop_state = state.copy(
             last_definitions=loop_last_definition, next_definitions={},
@@ -933,7 +932,7 @@ class GrFNGenerator(object):
                     #     self.parent_loop_state.last_definitions[var]
                     state.last_definitions[var] = -1
 
-        # Now populate the IF and BK functions for the loop by identifying
+        # Now populate the IF and EXIT functions for the loop by identifying
         # the loop conditionals
         # TODO Add a test to check for loop validity in this area. Need to
         #  test with more types of while loops to finalize on a test condition
@@ -951,6 +950,21 @@ class GrFNGenerator(object):
                     loop_condition_inputs.append(
                         f"@variable::"
                         f"{var['var']['variable']}::-1")
+                elif 'call' in var:
+                    # TODO: Very specifically for arrays. Will probably break
+                    #  for other calls
+                    self._get_call_inputs(var['call'],
+                                          function_input,
+                                          container_argument,
+                                          loop_condition_inputs,
+                                          state
+                                          )
+
+        function_input = self._remove_duplicate_from_list(function_input)
+        container_argument = self._remove_duplicate_from_list(
+            container_argument)
+        loop_condition_inputs = self._remove_duplicate_from_list(
+            loop_condition_inputs)
 
         # Save the current state of the system so that it can used by a
         # nested loop to get information about the variables declared in its
@@ -959,9 +973,9 @@ class GrFNGenerator(object):
 
         # Define some condition and break variables in the loop state
         loop_state.last_definitions["IF_0"] = 0
-        loop_state.last_definitions["BK"] = 0
+        loop_state.last_definitions["EXIT"] = 0
         loop_state.variable_types["IF_0"] = "bool"
-        loop_state.variable_types["BK"] = "bool"
+        loop_state.variable_types["EXIT"] = "bool"
 
         # Now, create the `variable` spec, `function name` and `container
         # wiring` for the check condition and break decisions.
@@ -981,8 +995,7 @@ class GrFNGenerator(object):
             "updated": []
         }
 
-        loop_break_variable = self.generate_variable_definition("BK",
-                                                                None,
+        loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
@@ -992,7 +1005,7 @@ class GrFNGenerator(object):
         loop_break_function = {
             "function": loop_break_function_name,
             "input": [f"@variable::IF_0::0"],
-            "output": [f"@variable::BK::0"],
+            "output": [f"@variable::EXIT::0"],
             "updated": []
         }
         # Parse through the body of the loop container
@@ -1004,6 +1017,7 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
+        print(body_functions_grfn)
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -1067,6 +1081,8 @@ class GrFNGenerator(object):
                     output_var = ip.split('::')[1]
                     loop_body_outputs.append(output_var)
 
+        # print('body_functions_grfn: ', body_functions_grfn)
+        print('loop_body_outputs: ', loop_body_outputs)
         for item in loop_body_outputs:
             # TODO the indexing variables in of function block and container
             #  block will be different. Figure about the differences and
@@ -1075,7 +1091,6 @@ class GrFNGenerator(object):
                                     f"{loop_state.last_definitions[item]}")
             container_updated.append(f"@variable::{item}::"
                                      f"{loop_state.last_definitions[item]}")
-
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
         #  some variables are defined inside the loop body, used within that
@@ -1123,6 +1138,7 @@ class GrFNGenerator(object):
         }
         self.current_scope = '.'.join(self.current_scope.split('.')[:-1])
 
+        print('\n')
         return [grfn]
 
     def process_if(self, node, state, call_source):
@@ -1213,7 +1229,6 @@ class GrFNGenerator(object):
         if_state = state.copy(last_definitions=if_definitions)
         else_state = state.copy(last_definitions=else_definitions)
         if_grfn = self.gen_grfn(node.body, if_state, "if")
-        # print('If GrFN: ', if_grfn)
         # Note that `else_grfn` will be empty if the else block contains
         # another `if-else` block
         else_node_name = node.orelse.__repr__().split()[0][3:]
@@ -1254,7 +1269,6 @@ class GrFNGenerator(object):
                 ]
                 if version is not None
             ]
-        # print('defined versions: ', defined_versions)
         # For every updated identifier, we need one __decision__ block. So
         # iterate over all updated identifiers.
         for updated_definition in defined_versions:
@@ -1434,6 +1448,17 @@ class GrFNGenerator(object):
             if ".set_" in function_name:
                 array_set = True
                 function_name = function_name.replace(".set_", "")
+                input_index = self._get_last_definition(
+                    function_name,
+                    state.last_definitions,
+                    state.last_definition_default
+                )
+                output_index = self._get_next_definition(
+                    function_name,
+                    state.last_definitions,
+                    state.next_definitions,
+                    state.last_definition_default
+                )
                 arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
@@ -1466,7 +1491,7 @@ class GrFNGenerator(object):
                     "type": function_type
                 },
                 "input": [],
-                "output": None,
+                "output": [],
                 "updated": []
             }
 
@@ -1474,17 +1499,6 @@ class GrFNGenerator(object):
             # as an input, so check that it's
             # and array. If yes, then add it manually.
             if array_set:
-                input_index = self._get_last_definition(
-                    function_name,
-                    state.last_definitions,
-                    state.last_definition_default
-                )
-                output_index = self._get_next_definition(
-                    function_name,
-                    state.last_definitions,
-                    state.next_definitions,
-                    state.last_definition_default
-                )
                 function["input"].append(
                         f"@variable::"
                         f"{function_name}::{input_index}")
@@ -1562,6 +1576,54 @@ class GrFNGenerator(object):
                             "Only 1 input per argument supported right now."
                         )
 
+            # Below is a separate loop just for filling in inputs for arrays
+            if array_set:
+                for arg in call["inputs"]:
+                    for ip in arg:
+                        if 'var' in ip:
+                            function["input"].append(
+                                f"@variable::"
+                                f"{ip['var']['variable']}::"
+                                f"{ip['var']['index']}")
+                        elif 'call' in ip:
+                            function_call = ip['call']
+                            function_name = function_call['function']
+                            if '.get_' in function_name:
+                                function_name = function_name.replace(
+                                    ".get_", "")
+                                # In some cases, the target array itself will
+                                # be an input as well. Don't add such arrays
+                                # again.
+                                if not True in [function_name in i for i in
+                                                function["input"]]:
+                                    function["input"].append(
+                                        f"@variable::"
+                                        f"{function_name}::"
+                                        f"{state.last_definitions[function_name]}")
+                            for call_input in function_call['inputs']:
+                                # TODO: This is of a recursive nature. Make
+                                #  this a loop. Works for SIR for now.
+                                for var in call_input:
+                                    if 'var' in var:
+                                        function["input"].append(
+                                            f"@variable::"
+                                            f"{var['var']['variable']}::"
+                                            f"{var['var']['index']}")
+
+                function["input"] = self._remove_duplicate_from_list(
+                    function["input"]
+                )
+
+            # This is sort of a hack for SIR to get the updated fields filled
+            # in beforehand. For a generalized approach, look at
+            # `process_module`.
+            if function["function"]["type"] == "container":
+                for functions in self.function_argument_map:
+                    if self.function_argument_map[functions]["name"] == \
+                            function["function"]["name"]:
+                        function["updated"] = self.function_argument_map[
+                            functions]["updated_list"]
+
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
             if len(function['input']) > 0:
@@ -1570,7 +1632,6 @@ class GrFNGenerator(object):
                     "scope": self.current_scope,
                     "state": state
                 }
-
             grfn["functions"].append(function)
         return [grfn]
 
@@ -1681,6 +1742,13 @@ class GrFNGenerator(object):
         # appearing (e.g. a = b = 5).
         for target in targets:
             target_name = target["var"]["variable"]
+            # Because we use the `last_definition_default` to be -1 for
+            # functions with arguments, in these functions the annotated
+            # assigns at the top of the function will get the -1 index which
+            # is incorrect.
+            if target["var"]["index"] == -1:
+                target["var"]["index"] = 0
+                state.last_definitions[target_name] = 0
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
@@ -2672,6 +2740,53 @@ class GrFNGenerator(object):
         """
         io_match = RE_BYPASS_IO.match(variable_name)
         return io_match
+
+    @staticmethod
+    def _get_call_inputs(call_function, function_input, container_argument,
+                         loop_condition_inputs, state):
+        """
+            This function parses a call function (such as when reading an
+            array) and loads all respective input variables from it.
+        """
+        # First check if the call is from an array call. We only update the
+        # lists if it is an array operation (such as samples.get_((x[0]))
+        if ".get_" in call_function['function']:
+            array_name = call_function['function'].replace(".get_", "")
+            array_index = state.last_definitions.get(
+                array_name,
+                state.last_definition_default
+            )
+            function_input.append(f"@variable::"
+                                  f"{array_name}::"
+                                  f"{array_index}")
+            container_argument.append(f"@variable::"
+                                      f"{array_name}::-1")
+            loop_condition_inputs.append(
+                f"@variable::"
+                f"{array_name}::-1")
+            for inputs in call_function['inputs']:
+                if not isinstance(inputs, list):
+                    inputs = [inputs]
+                for var in inputs:
+                    if 'var' in var:
+                        function_input.append(f"@variable::"
+                                              f"{var['var']['variable']}::"
+                                              f"{var['var']['index']}")
+                        container_argument.append(
+                            f"@variable::{var['var']['variable']}::-1"
+                        )
+                        loop_condition_inputs.append(
+                            f"@variable::"
+                            f"{var['var']['variable']}::-1")
+        else:
+            pass
+
+    @staticmethod
+    def _remove_duplicate_from_list(input_list):
+        """
+            This helper function removes any duplicates from a list
+        """
+        return list(set(input_list))
 
 
 def get_path(file_name: str, instance: str):
