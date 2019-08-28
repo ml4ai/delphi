@@ -2518,7 +2518,6 @@ class GrFNGenerator(object):
         """
         argument_list = []
         input_list = []
-        function["output"] = []
 
         # Array index is always one of
         # the lambda function argument
@@ -2560,9 +2559,6 @@ class GrFNGenerator(object):
             state,
         )
         state.lambda_strings.append(lambda_string)
-        function["output"].append(
-                f"@variable::"
-                f"{name}::0")
 
         return function
 
