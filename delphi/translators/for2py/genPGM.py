@@ -1424,24 +1424,6 @@ class GrFNGenerator(object):
             if ".set_" in function_name:
                 array_set = True
                 name = function_name.replace(".set_", "")
-                """
-                if "var" in call["inputs"][0][0]:
-                    index = call["inputs"][0][0]["var"]["variable"]
-                    # An array name with index holder for later usage
-                    # dueing lambda string generation.
-                    state.array_assign_name = f"{name}[{index}]"
-                else:
-                    index = call["inputs"][0][0]["value"]
-
-                array_name = f"{name}_{index}"
-                namespace = self._get_namespace(self.fortran_file)
-                namespace = self.replace_multiple(namespace, ['$', '-', ':'], '_')
-                cur_scope = self.current_scope
-                if len(cur_scope) == 0:
-                    scope_path = "global"
-                container_id_name = f"{namespace}__{cur_scope}__assign_" \
-                                    f"_{array_name}__0"
-                """
                 arr_index = call["inputs"][0][0]["var"]["variable"]
                 state.array_assign_name = f"{name}[{arr_index}]"
                 variable_spec = self.generate_variable_definition(name, state)
@@ -1506,7 +1488,7 @@ class GrFNGenerator(object):
                         function = self.generate_array_setter(
                                                         node, function, arg, 
                                                         name, container_id_name,
-                                                        state)
+                                                        arr_index, state)
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
@@ -1522,6 +1504,9 @@ class GrFNGenerator(object):
                             state,
                         )
                         state.lambda_strings.append(lambda_string)
+                        # DEBUG
+                        print ("state.last_definition: ", state.last_definitions)
+                        last_index = state.last_definitions[name]
                         function["output"] = [f"@variable::{name}::0"]
 
                 else:
@@ -1540,7 +1525,7 @@ class GrFNGenerator(object):
                             function = self.generate_array_setter(
                                                             node, function, fixed_arg, 
                                                             name, container_id_name,
-                                                            state)
+                                                            arr_index, state)
                     else:
                         raise For2PyError(
                             "Only 1 input per argument supported right now."
@@ -1720,7 +1705,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
-
         return [grfn]
 
     def process_assign(self, node, state, *_):
@@ -2036,10 +2020,8 @@ class GrFNGenerator(object):
                 # to source.
                 if ".get_" in src["call"]["function"]:
                     get_array_name = src["call"]["function"].replace(".get_", "")
-                    name = f"@variable::{get_array_name}::-1"
-                    source.append({
-                                    "name": get_array_name,
-                                    "type": "variable"})
+                    var_arr_name = f"@variable::{get_array_name}::-1"
+                    source.append(var_arr_name)
 
                 # Bypassing identifiers who have I/O constructs on their source
                 # fields too.
@@ -2506,7 +2488,10 @@ class GrFNGenerator(object):
             else:
                 assert False, f"low_bound type: {type(low_bound)} is currently not handled."
 
-    def generate_array_setter (self, node, function, arg, name, container_id_name, state):
+    def generate_array_setter (
+                                self, node, function, arg, name, 
+                                container_id_name, arr_index, state
+    ):
         """
             This function is for handling array setter (ex. means.set_(...)).
             
@@ -2517,6 +2502,7 @@ class GrFNGenerator(object):
                 name (str): A name of the array.
                 container_id_name (str): A name of function container. It's an
                 array name with other appended info. in this function.
+                arr_index (str): Index of a target array.
 
             Returns:
                 (list) function: A completed list of function.
@@ -2524,6 +2510,10 @@ class GrFNGenerator(object):
         argument_list = []
         input_list = []
         function["output"] = []
+
+        # Array index is always one of
+        # the lambda function argument
+        argument_list.append(arr_index)
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
             # If an input is a simple variable
@@ -2543,10 +2533,11 @@ class GrFNGenerator(object):
                 if ".get_" in ref_call["function"]:
                     get_array_name = ref_call["function"].replace(".get_", "")
                     if get_array_name not in argument_list:
-                        function["input"].append(
-                            f"@variable::"
-                            f"{get_array_name}::-1")
                         argument_list.append(get_array_name)
+                        if get_array_name != name:
+                            function["input"].append(
+                                f"@variable::"
+                                f"{get_array_name}::-1")
                     else:
                         # It's not an error, so just pass it.
                         pass
