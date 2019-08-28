@@ -1,22 +1,22 @@
 C     Fortranification of AMIDOL's SIR-Gillespie.py
 
 ********************************************************************************
-C       subroutine print_output(L)
-C       implicit none
-C       integer, parameter :: Tmax = 100
-C       double precision, dimension(0:Tmax) :: L
-C       integer i
+C      subroutine print_output(L)
+C      implicit none
+C      integer, parameter :: Tmax = 100
+C      double precision, dimension(0:Tmax) :: L
+C      integer i
 C
-C       do i = 0, 19
-C          write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
-C       end do
-C       write (*, 11)
+C      do i = 0, 19
+C         write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
+C      end do
+C      write (*, 11)
 C
-C  10   format (5(F10.4,X))
-C  11   format('----------')
+C 10   format (5(F10.4,X))
+C 11   format('----------')
 C
-C       return
-C       end subroutine print_output
+C      return
+C      end subroutine print_output
 
 ********************************************************************************
 *                                                                              *
@@ -39,16 +39,16 @@ C       end subroutine print_output
       end function pyrand
 
 ********************************************************************************
-C      subroutine update_mean_var(means, vars, k, n, runs)
-C      integer, parameter :: Tmax = 100
-C      double precision, dimension(0:Tmax) :: means, vars
-C      integer k, n, runs
-C
-C      means(k) = means(k) + (n - means(k))/(runs+1)
-C      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))
-C
-C      return
-C      end subroutine update_mean_var
+      subroutine update_mean_var(means, vars, k, n, runs)
+      integer, parameter :: Tmax = 100
+      double precision, dimension(0:Tmax) :: means, vars
+      integer k, n, runs
+
+      means(k) = means(k) + (n - means(k))/(runs+1)
+      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))
+
+      return
+      end subroutine update_mean_var
 
 ********************************************************************************
 C     Variables:
@@ -83,7 +83,8 @@ C     t             Initial time for the simulation
 C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
-      subroutine gillespie(S0, I0, R0)
+      subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI,
+     &                     VarR)
 
       integer, parameter :: Tmax = 100
       integer S0, I0, R0
@@ -97,7 +98,7 @@ C     dt       next inter-event time
       integer, dimension(0:Tmax) :: samples
       double precision pyrand
 
-      integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, samp, runs1
+      integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, sample
       double precision t, randval
       double precision rateInfect, rateRecover, totalRates, dt
 
@@ -139,21 +140,10 @@ C     dt       next inter-event time
             ! Calculate all measures up to the current time t using
             ! Welford's one pass algorithm
             do while (sample_idx < Tmax .and. t > samples(sample_idx))
-               samp = samples(sample_idx)
-
-               runs1 = runs+1
-               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
-               VarS(samp) = VarS(samp) + runs/(runs1) * 
-     &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
-
-               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
-               VarI(samp) = VarI(samp) + runs/(runs1) *
-     &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
-
-               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
-               VarR(samp) = VarR(samp) + runs/(runs1) * 
-     &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
-
+               sample = samples(sample_idx)
+               call update_mean_var(MeanS, VarS, sample, n_S, runs)
+               call update_mean_var(MeanI, VarI, sample, n_I, runs)
+               call update_mean_var(MeanR, VarR, sample, n_R, runs)
                sample_idx = sample_idx+1
             end do
 
@@ -175,21 +165,10 @@ C     dt       next inter-event time
 
          ! After all events have been processed, clean up by evaluating all remaining measures.
          do while (sample_idx < Tmax)
-               samp = samples(sample_idx)
-
-               runs1 = runs+1
-               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
-               VarS(samp) = VarS(samp) + runs/(runs1) *
-     &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
-
-               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
-               VarI(samp) = VarI(samp) + runs/(runs1) *
-     &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
-
-               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
-               VarR(samp) = VarR(samp) + runs/(runs1) *
-     &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
-
+            sample = samples(sample_idx)
+            call update_mean_var(MeanS, VarS, sample, n_S, runs)
+            call update_mean_var(MeanI, VarI, sample, n_I, runs)
+            call update_mean_var(MeanR, VarR, sample, n_R, runs)
             sample_idx = sample_idx + 1
          end do
       end do
@@ -198,12 +177,14 @@ C     dt       next inter-event time
 
       program main
       integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
+      double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
+      double precision, dimension(0:Tmax) :: VarS, VarI, VarR
 
-      call gillespie(S0, I0, R0)
+      call gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, VarR)
 
-C       call print_output(MeanS)
-C       call print_output(MeanI)
-C       call print_output(MeanR)
+!      call print_output(MeanS)
+!      call print_output(MeanI)
+!      call print_output(MeanR)
 
 !      do i = 0, Tmax
 !         VarS(i) = VarS(i)/total_runs
@@ -216,4 +197,3 @@ C       call print_output(MeanR)
 !      call print_output(VarR)
 !
       end program main
-

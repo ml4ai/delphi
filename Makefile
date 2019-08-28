@@ -1,12 +1,11 @@
-all: test docs
-
 docs:
 	cd docs; make html
 
 extensions: 
-	mkdir -p build && \
-	cd build  && cmake .. &&  cmake --build . -- -j && \
-	cp *.so ../delphi/cpp
+	mkdir -p build
+	cd build; conan install .. --build missing
+	cd build; cmake ..; cmake --build . -- -j
+	cp build/lib/* delphi/cpp
 
 test: extensions
 	time pytest \

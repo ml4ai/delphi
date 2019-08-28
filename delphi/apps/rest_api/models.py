@@ -64,7 +64,6 @@ class Serializable(object):
 
 
 class DelphiModel(db.Model, Serializable):
-    """ Delphi AnalysisGraph Model """
     __tablename__ = "delphimodel"
     id = db.Column(db.String, primary_key=True)
     icm_metadata = db.relationship(

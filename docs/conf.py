@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx.ext.githubpages",
     "breathe",
     "exhale",
@@ -233,8 +234,5 @@ exhale_args = {
     "doxygenStripFromPath":  "..",
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    """
-    INPUT = ../lib
-    WARN_IF_UNDOCUMENTED = NO
-    QUIET=YES"""
+    "exhaleDoxygenStdin":    "INPUT = ../lib"
 }
