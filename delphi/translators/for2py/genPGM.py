@@ -1769,11 +1769,12 @@ class GrFNGenerator(object):
         # Get the sources and targets of the annotated assignment
         sources = self.gen_grfn(node.value, state, "annassign")
         targets = self.gen_grfn(node.target, state, "annassign")
+
         # If the source i.e. assigned value is `None` (e.g. day: List[int] =
         # [None]), only update the data type of the targets and populate the
         # `annotated_assigned` map. No further processing will be done.
-        if len(sources) == 1 and ('value' in sources[0].keys()) and \
-                sources[0]['value'] is None:
+        if len(sources) == 1 and ('value' in sources[0].keys()) and not \
+                sources[0]['value']:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
                     self._get_variable_type(node.annotation)
@@ -2957,7 +2958,7 @@ def create_grfn_dict(
 
     # TODO Hack: Currently only the file name is being displayed as the
     #  source in order to match the handwritten SIR model GrFN JSON. Since
-    #  the directory of the `SIR-Gillespie-SD_inline.f` file is the root, it works
+    #  the directory of the `SIR-Gillespie-SD.f` file is the root, it works
     #  for this case but will need to be generalized for other cases.
     file_path_list = source_file.split("/")
     grfn["source"] = [file_path_list[-1]]
@@ -2977,8 +2978,23 @@ def create_grfn_dict(
     if save_file:
         json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
+    remove_grfn_variables_dups(grfn)
+
     return grfn
 
+def remove_grfn_variables_dups(grfn):
+    """
+        This function removes the duplicate variables
+        from the GrFN variable list.
+    """
+    encountered_grfn = []
+    temp_grfn_var_holder = grfn["variables"]
+    grfn["variables"] = []
+    for gf in temp_grfn_var_holder:
+        name = gf["name"]
+        if name not in encountered_grfn:
+            encountered_grfn.append(name)
+            grfn["variables"].append(gf)
 
 def generate_ast(filename: str):
     """
