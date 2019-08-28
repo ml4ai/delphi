@@ -326,11 +326,11 @@ void AnalysisGraph::set_default_initial_state() {
   int num_verts = boost::num_vertices(this->graph);
   int num_els = num_verts * 2;
 
-  this->s0_original = Eigen::VectorXd(num_els);
-  this->s0_original.setZero();
+  this->s0 = Eigen::VectorXd(num_els);
+  this->s0.setZero();
 
   for (int i = 0; i < num_els; i += 2) {
-    this->s0_original(i) = 1.0;
+    this->s0(i) = 1.0;
   }
 }
 
@@ -936,10 +936,8 @@ void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
 
-  this->set_latent_state_sequence();
-
   for (int ts = 0; ts < this->n_timesteps; ts++) {
-    const Eigen::VectorXd& latent_state = this->latent_state_sequence[ts];
+    this->set_current_latent_state(ts);
 
     // Access
     // observed_state[ vertex ][ indicator ]
@@ -956,7 +954,7 @@ void AnalysisGraph::set_log_likelihood() {
         // Even indices of latent_state keeps track of the state of each
         // vertex
         double log_likelihood_component =
-            this->log_normpdf(value, latent_state[2 * v] * ind.mean, ind.stdev);
+            this->log_normpdf(value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
         this->log_likelihood += log_likelihood_component;
       }
     }
@@ -1257,8 +1255,7 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
   }
 }
 
-void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence(
-    int timestep) {
+void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
   int num_verts = boost::num_vertices(this->graph);
 
   this->set_default_initial_state();
@@ -1275,39 +1272,28 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence(
         ind_mean = this->norm_dist(this->rand_num_generator);
       }
 
-      double ind_value = this->observed_state_sequence[timestep][v][i];
+      double ind_value = this->observed_state_sequence[0][v][i];
 
       // TODO: If ind_mean is very close to zero, this could overflow
       // Even indexes of the latent state vector represent variables
-      this->s0_original(2 * v) = ind_value / ind_mean;
+      this->s0(2 * v) = ind_value / ind_mean;
 
-      if (timestep == this->n_timesteps - 1) {
-        double prev_ind_value =
-            this->observed_state_sequence[timestep - 1][v][i];
-        double prev_state_value = prev_ind_value / ind_mean;
-        double diff = this->s0_original(2 * v) - prev_state_value;
-        // TODO: Why this is different from else branch?
-        this->s0_original(2 * v + 1) =
-            this->norm_dist(this->rand_num_generator) + diff;
-      }
-      else {
-        double next_ind_value =
-            this->observed_state_sequence[timestep + 1][v][i];
-        double next_state_value = next_ind_value / ind_mean;
-        double diff = next_state_value - this->s0_original(2 * v);
-        // TODO: Why this is different from if branch?
-        this->s0_original(2 * v + 1) = diff;
-      }
+      double next_ind_value =
+          this->observed_state_sequence[1][v][i];
+      double next_state_value = next_ind_value / ind_mean;
+      double diff = next_state_value - this->s0(2 * v);
+      this->s0(2 * v + 1) = diff;
     }
   }
 }
+
 void AnalysisGraph::set_random_initial_latent_state() {
   int num_verts = boost::num_vertices(this->graph);
 
   this->set_default_initial_state();
 
   for (int v = 0; v < num_verts; v++) {
-    this->s0_original(2 * v + 1) =
+    this->s0(2 * v + 1) =
         0.1 * this->uni_dist(this->rand_num_generator);
   }
 }
@@ -1350,18 +1336,8 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   }
 }
 
-void AnalysisGraph::set_initial_latent_states_for_prediction(int timestep) {
-  this->prediction_initial_latent_states.clear();
-  this->prediction_initial_latent_states = vector<Eigen::VectorXd>(this->res);
-
-  transform(this->training_latent_state_sequences.begin(),
-            this->training_latent_state_sequences.end(),
-            this->prediction_initial_latent_states.begin(),
-            [&timestep](vector<Eigen::VectorXd>& ls) { return ls[timestep]; });
-}
-
-void AnalysisGraph::sample_predicted_latent_state_sequences(int timesteps) {
-  this->n_timesteps = timesteps;
+void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps) {
+  this->n_timesteps = prediction_timesteps;
 
   int num_verts = boost::num_vertices(this->graph);
 
@@ -1373,13 +1349,11 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(int timesteps) {
                               Eigen::VectorXd(num_verts * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
-    this->predicted_latent_state_sequences[samp][0] =
-        this->prediction_initial_latent_states[samp];
-
-    for (int ts = 1; ts < this->n_timesteps; ts++) {
-      this->predicted_latent_state_sequences[samp][ts] =
-          this->transition_matrix_collection[samp] *
-          this->predicted_latent_state_sequences[samp][ts - 1];
+    int pred_step = initial_prediction_step;
+    for (int ts = 0; ts < this->n_timesteps; ts++) {
+      Eigen::MatrixXd A_t = this->transition_matrix_collection[samp] * pred_step; 
+      this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
+      pred_step++;
     }
   }
 }
@@ -1415,14 +1389,14 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     throw "Model not yet trained";
   }
 
-  if (start_year < this->init_training_year ||
-      (start_year == this->init_training_year &&
-       start_month < this->init_training_month)) {
+  if (start_year < this->training_range[0][0] ||
+      (start_year == this->training_range[0][0] &&
+       start_month < this->training_range[0][1])) {
     print("The initial prediction date can't be before the\n"
           "inital training date. Defaulting initial prediction date\n"
           "to initial training date.");
-    start_year = this->init_training_year;
-    start_month = this->init_training_month;
+    start_year = this->training_range[0][0];
+    start_month = this->training_range[0][0];
   }
 
   /*
@@ -1439,13 +1413,13 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *      diff              pred_timesteps
    */
   int total_timesteps = this->calculate_num_timesteps(
-      this->init_training_year, this->init_training_month, end_year, end_month);
+      this->training_range[0][0], this->training_range[0][1], end_year, end_month);
 
   this->pred_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
+  
 
-  int diff_timesteps = total_timesteps - this->pred_timesteps;
-  int truncate = 0;
+  int pred_init_timestep = total_timesteps - pred_timesteps;
 
   int year = start_year;
   int month = start_month;
@@ -1465,46 +1439,9 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     }
   }
 
-  int pred_init_timestep = diff_timesteps;
-
-  if (diff_timesteps >= this->n_timesteps) {
-    /*
-     *              total_timesteps
-     *   ____________________________________________
-     *  |                                            |
-     *  v                                            v
-     *tr_st           tr_ed     pr_st              pr_ed
-     *  |---------------|---------|------------------|
-     *  ^               ^         ^                  ^
-     *  |_______________|_________|__________________|
-     *  :  n_timesteps   truncate :   pred_timesteps
-     *  ^                         ^
-     *  |_________________________|
-     *            diff
-     */
-    pred_init_timestep = this->n_timesteps - 1;
-    truncate = diff_timesteps - this->n_timesteps;
-    this->pred_timesteps += truncate; // = total_timesteps - this->n_timesteps
-  }
-
-  this->set_initial_latent_states_for_prediction(pred_init_timestep);
-
-  this->sample_predicted_latent_state_sequences(this->pred_timesteps);
+  this->sample_predicted_latent_state_sequences(this->pred_timesteps, pred_init_timestep, total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
-  for (vector<Eigen::VectorXd>& latent_states :
-       this->predicted_latent_state_sequences) {
-    latent_states.erase(latent_states.begin(),
-                        latent_states.begin() + truncate);
-  }
-
-  for (ObservedStateSequence& observed_states :
-       this->predicted_observed_state_sequences) {
-    observed_states.erase(observed_states.begin(),
-                          observed_states.begin() + truncate);
-  }
-
-  this->pred_timesteps -= truncate;
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());
 }
@@ -1578,7 +1515,7 @@ void AnalysisGraph::generate_synthetic_latent_state_sequence() {
   this->synthetic_latent_state_sequence = vector<Eigen::VectorXd>(
       this->n_timesteps, Eigen::VectorXd(num_verts * 2));
 
-  this->synthetic_latent_state_sequence[0] = this->s0_original;
+  this->synthetic_latent_state_sequence[0] = this->s0;
 
   for (int ts = 1; ts < this->n_timesteps; ts++) {
     this->synthetic_latent_state_sequence[ts] =
@@ -1728,19 +1665,10 @@ void AnalysisGraph::sample_from_proposal() {
   this->update_transition_matrix_cells(e[0]);
 }
 
-void AnalysisGraph::set_latent_state_sequence() {
-  int num_verts = boost::num_vertices(this->graph);
+void AnalysisGraph::set_current_latent_state(int ts) {
+  Eigen::MatrixXd A_t = this->A_original * ts;
+  this->current_latent_state = A_t.exp() * this->s0;
 
-  // Allocate memory for latent_state_sequence
-  this->latent_state_sequence.clear();
-  this->latent_state_sequence = vector<Eigen::VectorXd>(this->n_timesteps);
-
-  this->latent_state_sequence[0] = this->s0_original;
-
-  for (int ts = 1; ts < this->n_timesteps; ts++) {
-    this->latent_state_sequence[ts] =
-        this->A_original * this->latent_state_sequence[ts - 1];
-  }
 }
 
 double AnalysisGraph::log_normpdf(double x, double mean, double sd) {

@@ -29,8 +29,6 @@ void AnalysisGraph::train_model(int start_year,
   this->parameterize(country, state, county, start_year, start_month, units);
 
   this->training_range = make_pair(make_pair(start_year,start_month), make_pair(end_year,end_month));
-  this->init_training_year = start_year;
-  this->init_training_month = start_month;
 
   if (!synthetic_data_experiment) {
     this->set_observed_state_sequence_from_data(
@@ -63,13 +61,6 @@ void AnalysisGraph::train_model(int start_year,
   this->transition_matrix_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
-  // Accumulates the latent states for accepted samples
-  // Access this as
-  // latent_state_sequences[ sample ][ time step ]
-  this->training_latent_state_sequences.clear();
-  this->training_latent_state_sequences =
-      vector<vector<Eigen::VectorXd>>(this->res);
-
   for (int i : trange(burn)) {
     this->sample_from_posterior();
   }
@@ -77,7 +68,6 @@ void AnalysisGraph::train_model(int start_year,
   for (int i : trange(this->res)) {
     this->sample_from_posterior();
     this->transition_matrix_collection[i] = this->A_original;
-    this->training_latent_state_sequences[i] = this->latent_state_sequence;
   }
 
   this->trained = true;
