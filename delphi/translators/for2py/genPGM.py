@@ -564,7 +564,7 @@ class GrFNGenerator(object):
         container_repeat = True
         container_return_value = ""
         container_updated = []
-        function_output = ""
+        function_output = []
         function_updated = []
         function_input = []
         loop_condition_inputs = []
@@ -670,7 +670,7 @@ class GrFNGenerator(object):
         index_function = {
             "function": index_function_name,
             "input": [],
-            "output": f"@variable::{index_name}::0",
+            "output": [f"@variable::{index_name}::0"],
             "updated": []
         }
 
@@ -684,7 +684,7 @@ class GrFNGenerator(object):
         loop_condition_function = {
             "function": loop_check_function_name,
             "input": loop_condition_inputs,
-            "output": f"@variable::IF_0::0",
+            "output": [f"@variable::IF_0::0"],
             "updated": []
         }
 
@@ -698,7 +698,7 @@ class GrFNGenerator(object):
         loop_break_function = {
             "function": loop_break_function_name,
             "input": [f"@variable::IF_0::0"],
-            "output": f"@variable::BK::0",
+            "output": [f"@variable::BK::0"],
             "updated": []
         }
 
@@ -710,8 +710,6 @@ class GrFNGenerator(object):
 
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
-        # print(body_functions_grfn)
-        # print(body_variables_grfn)
         loop_body_inputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
@@ -728,10 +726,9 @@ class GrFNGenerator(object):
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
         loop_body_inputs = list(set(loop_body_inputs))
-        # Remove the index name since it is not an input to the container
-        # print(index_name)
-        # print(loop_body_inputs)
-        loop_body_inputs.remove(index_name)
+        # If the index name is a part of the loop bpdy, remove it since it is
+        # not an input to the container
+        if index_name in loop_body_inputs: loop_body_inputs.remove(index_name)
 
         # Now, we remove the variables which were defined inside the loop
         # body itself and not taken as an input from outside the loop body
@@ -818,7 +815,7 @@ class GrFNGenerator(object):
         index_increment_function = {
             "function": index_increment_function_name,
             "input": [f"@variable::{index_name}::0"],
-            "output": f"@variable::{index_name}::1",
+            "output": [f"@variable::{index_name}::1"],
             "updated": []
         }
         loop_variables_grfn.append(index_increment_grfn)
@@ -873,7 +870,7 @@ class GrFNGenerator(object):
         container_repeat = True
         container_return_value = ""
         container_updated = []
-        function_output = ""
+        function_output = []
         function_updated = []
         function_input = []
         loop_condition_inputs = []
@@ -971,7 +968,7 @@ class GrFNGenerator(object):
         loop_condition_function = {
             "function": loop_check_function_name,
             "input": loop_condition_inputs,
-            "output": f"@variable::IF_0::0",
+            "output": [f"@variable::IF_0::0"],
             "updated": []
         }
 
@@ -985,7 +982,7 @@ class GrFNGenerator(object):
         loop_break_function = {
             "function": loop_break_function_name,
             "input": [f"@variable::IF_0::0"],
-            "output": f"@variable::BK::0",
+            "output": [f"@variable::BK::0"],
             "updated": []
         }
         # Parse through the body of the loop container
@@ -1050,7 +1047,10 @@ class GrFNGenerator(object):
         loop_body_outputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
-                output_var = function["output"].split('::')[1]
+                # TODO Currently, we only deal with a single output variable.
+                #  Modify the line above to not look at only [0] but loop
+                #  through the output to incorporate multiple outputs
+                output_var = function["output"][0].split('::')[1]
                 loop_body_outputs.append(output_var)
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
@@ -1181,7 +1181,7 @@ class GrFNGenerator(object):
                 for src in condition_sources
                 if 'var' in src
             ],
-            "output": output_variable,
+            "output": [output_variable],
             "updated": []
         }
         grfn["variables"].append(variable_spec)
@@ -1293,7 +1293,8 @@ class GrFNGenerator(object):
                     f"@variable::{var['variable']}::{var['index']}"
                     for var in inputs
                 ],
-                "output": f"@variable::{output['variable']}::{output['index']}",
+                "output": [f"@variable::{output['variable']}:"
+                           f":{output['index']}"],
                 "updated": []
             }
             lambda_string = self._generate_lambda_function(
@@ -1423,10 +1424,11 @@ class GrFNGenerator(object):
             # A handler for array <.set_> function
             if ".set_" in function_name:
                 array_set = True
-                name = function_name.replace(".set_", "")
+                function_name = function_name.replace(".set_", "")
                 arr_index = call["inputs"][0][0]["var"]["variable"]
-                state.array_assign_name = f"{name}[{arr_index}]"
-                variable_spec = self.generate_variable_definition(name, state)
+                state.array_assign_name = f"{function_name}[{arr_index}]"
+                variable_spec = self.generate_variable_definition(
+                    function_name, state)
                 assign_function = self.generate_function_name("__assign__",
                                                               variable_spec['name'],
                                                               arr_index)
@@ -1452,9 +1454,22 @@ class GrFNGenerator(object):
             # as an input, so check that it's
             # and array. If yes, then add it manually.
             if array_set:
+                input_index = self._get_last_definition(
+                    function_name,
+                    state.last_definitions,
+                    state.last_definition_default
+                )
+                output_index = self._get_next_definition(
+                    function_name,
+                    state.last_definitions,
+                    state.next_definitions,
+                    state.last_definition_default
+                )
                 function["input"].append(
                         f"@variable::"
-                        f"{name}::-1")
+                        f"{function_name}::{input_index}")
+                function["output"] = [f"@variable::"
+                                      f"{function_name}::{output_index}"]
 
             argument_list = []
             list_index = 0
@@ -1487,7 +1502,7 @@ class GrFNGenerator(object):
                     elif "call" in arg[0]:
                         function = self.generate_array_setter(
                                                         node, function, arg, 
-                                                        name, container_id_name,
+                                                        function_name, container_id_name,
                                                         arr_index, state)
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
@@ -1504,27 +1519,22 @@ class GrFNGenerator(object):
                             state,
                         )
                         state.lambda_strings.append(lambda_string)
-                        # DEBUG
-                        print ("state.last_definition: ", state.last_definitions)
-                        last_index = state.last_definitions[name]
-                        function["output"] = [f"@variable::{name}::0"]
-
                 else:
                     if "call" in arg[0]:
-                        if name in self.arrays:
+                        if function_name in self.arrays:
                             # If array type is <float> the argument holder
                             # has a different structure that it does not hold
                             # function info. like when an array is 'int' type
                             # [{'call': {'function': '_type_', 'inputs': [...]]
                             # which causes an error. Thus, the code below fixes
                             # by correctly structuring it.
-                            array_type = self.arrays[name]['elem_type']
+                            array_type = self.arrays[function_name]['elem_type']
                             fixed_arg = [{'call': {
                                                     'function': array_type,
                                                     'inputs':[arg]}}]
                             function = self.generate_array_setter(
                                                             node, function, fixed_arg, 
-                                                            name, container_id_name,
+                                                            function_name, container_id_name,
                                                             arr_index, state)
                     else:
                         raise For2PyError(
@@ -1800,7 +1810,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
-
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2066,7 +2075,7 @@ class GrFNGenerator(object):
         fn = {
             "function": name,
             "input": source,
-            "output": target_string,
+            "output": [target_string],
             "updated": []
         }
 
