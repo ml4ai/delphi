@@ -2957,7 +2957,7 @@ def create_grfn_dict(
 
     # TODO Hack: Currently only the file name is being displayed as the
     #  source in order to match the handwritten SIR model GrFN JSON. Since
-    #  the directory of the `SIR-Gillespie-SD.f` file is the root, it works
+    #  the directory of the `SIR-Gillespie-SD_inline.f` file is the root, it works
     #  for this case but will need to be generalized for other cases.
     file_path_list = source_file.split("/")
     grfn["source"] = [file_path_list[-1]]
