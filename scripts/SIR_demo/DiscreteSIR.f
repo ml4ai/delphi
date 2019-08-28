@@ -1,10 +1,10 @@
-C     Fortranification of Paul's DiscreteSIR.py 
-      
+C     Fortranification of Paul's DiscreteSIR.py
+
       program DiscreteSIR
       implicit none
-      
+
       call simulate()
-      
+
       stop
       end program DiscreteSIR
 
@@ -52,12 +52,12 @@ C  *****************************************************************************
       I = u(1)
       R = u(2)
       Y = u(3)
-      
+
       beta = params(0)
       gamma = params(1)
       iota = params(2)
       N = params(3)
-      delta_t = params(4)      
+      delta_t = params(4)
 
       lambda = beta * (I + iota) / N
       ifrac = 1.0 - exp(-lambda * delta_t)
@@ -115,7 +115,7 @@ C  *****************************************************************************
          write (*, 10) S(j)
       end do
  10   format(F8.2)
-      
+
       end subroutine simulate
 
 C  ******************************************************************************

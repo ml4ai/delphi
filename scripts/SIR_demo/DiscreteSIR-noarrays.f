@@ -1,10 +1,10 @@
 C     Fortranification of Paul's DiscreteSIR.py 
-      
+
       program DiscreteSIR
       implicit none
-      
+
       call simulate()
-      
+
       stop
       end program DiscreteSIR
 
@@ -53,7 +53,7 @@ C  *****************************************************************************
       I = u_1
       R = u_2
       Y = u_3
-      
+
       beta = params_0
       gamma = params_1
       iota = params_2
@@ -100,11 +100,11 @@ C  *****************************************************************************
       u0_1  = 1.0
       u0_2  = 0.0
       u0_3  = 0.0
-      
-      S = u0_0 
-      I = u0_1 
-      R = u0_2 
-      Y = u0_3 
+
+      S = u0_0
+      I = u0_1
+      R = u0_2
+      Y = u0_3
 
       u_0 = u0_0
       u_1 = u0_1
@@ -114,15 +114,12 @@ C  *****************************************************************************
       do j = 1, tl
          call sir(u_0, u_1, u_2, u_3,
      &             params_0, params_1, params_2, params_3, params_4)
-         S = u_0 
-         I = u_1 
-         R = u_2 
-         Y = u_3 
+         S = u_0
+         I = u_1
+         R = u_2
+         Y = u_3
 !         write (*,*) S
       end do
-
- 10   format(4(X,F4.0))
-      write(*, 10) S, I, R, Y
 
       end subroutine simulate
 
@@ -147,11 +144,11 @@ C  *****************************************************************************
 
       end function pyrand
 
-      
+
       subroutine print_output(tl, S, I, R, Y)
       integer tl
       double precision, dimension(0:tl) :: S, I, R, Y
-      
+
  10   format("[", 3(X,F4.0), " ...", 3(X,F4.0), "]")
       write (*, 10) S(1), S(2), S(3), S(tl-2), S(tl-1), S(tl)
       write (*, 10) I(1), I(2), I(3), I(tl-2), I(tl-1), I(tl)

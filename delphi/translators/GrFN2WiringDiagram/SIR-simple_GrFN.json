@@ -1,0 +1,158 @@
+{
+  "functions": [],
+  "types": [],
+  "variables": [
+    {
+      "name": "@variable::SIR-simple::sir::S::-1",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(I+R)))) (and (> v -(I+R)) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::I::-1",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(S+R)))) (and (> v -(S+R)) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::R::-1",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(I+S)))) (and (> v -(I+S)) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::beta::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::gamma::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::dt::-1",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::recovered::0",
+      "domain": "float",
+      "domain_constraints": "(and (> v -infty) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::S::0",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(I+R)))) (and (> v -(I+R)) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::I::0",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(S+R)))) (and (> v -(S+R)) (< v infty)))",
+      "mutable": false
+    },
+    {
+      "name": "@variable::SIR-simple::sir::R::0",
+      "domain": "float",
+      "domain_constraints": "(and (and (> v -infty) (< v -(I+S)))) (and (> v -(I+S)) (< v infty)))",
+      "mutable": false
+    }
+  ],
+  "containers": [
+    {
+      "name": "@container::SIR-simple::@global::sir",
+      "repeat": false,
+      "arguments": [
+        "@variable::S::-1",
+        "@variable::I::-1",
+        "@variable::R::-1",
+        "@variable::beta::-1",
+        "@variable::gamma::-1",
+        "@variable::dt::-1"
+      ],
+      "updated": [
+        "@variable::S::0",
+        "@variable::I::0",
+        "@variable::R::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__infected__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::beta::-1",
+            "@variable::S::-1",
+            "@variable::I::-1",
+            "@variable::R::-1",
+            "@variable::dt::-1"
+          ],
+          "output": ["@variable::infected::0"],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__recovered__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::gamma::-1",
+            "@variable::I::-1",
+            "@variable::dt::-1"
+          ],
+          "output": ["@variable::recovered::0"],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__S__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::S::-1",
+            "@variable::infected::0"
+          ],
+          "output": ["@variable::S::0"],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__I__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::I::-1",
+            "@variable::infected::0",
+            "@variable::recovered::0"
+          ],
+          "output": ["@variable::I::0"],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__R__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::R::-1",
+            "@variable::recovered::0"
+          ],
+          "output": ["@variable::R::0"],
+          "updated": []
+        }
+      ]
+    }
+  ],
+  "start": "@container::SIR-simple::@global::sir",
+  "source": [
+    "SIR-simple.f"
+  ],
+  "dateCreated": "20190809"
+}
