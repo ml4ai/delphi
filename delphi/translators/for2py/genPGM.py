@@ -691,6 +691,7 @@ class GrFNGenerator(object):
         }
 
         loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                None,
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
@@ -1022,6 +1023,7 @@ class GrFNGenerator(object):
         }
 
         loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                None,
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
