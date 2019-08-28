@@ -97,7 +97,7 @@ C     dt       next inter-event time
       integer, dimension(0:Tmax) :: samples
       double precision pyrand
 
-      integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, sample
+      integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, samp, runs1
       double precision t, randval
       double precision rateInfect, rateRecover, totalRates, dt
 
@@ -139,16 +139,20 @@ C     dt       next inter-event time
             ! Calculate all measures up to the current time t using
             ! Welford's one pass algorithm
             do while (sample_idx < Tmax .and. t > samples(sample_idx))
-               sample = samples(sample_idx)
+               samp = samples(sample_idx)
 
-               MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample))/(runs+1)
-               VarS(sample) = VarS(sample) + runs/(runs+1) * (n_S-MeanS(sample))*(n_S-MeanS(sample))
+               runs1 = runs+1
+               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
+               VarS(samp) = VarS(samp) + runs/(runs1) * 
+     &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
 
-               MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample))/(runs+1)
-               VarI(sample) = VarI(sample) + runs/(runs+1) * (n_I-MeanI(sample))*(n_I-MeanI(sample))
+               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
+               VarI(samp) = VarI(samp) + runs/(runs1) *
+     &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
 
-               MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample))/(runs+1)
-               VarR(sample) = VarR(sample) + runs/(runs+1) * (n_R-MeanR(sample))*(n_R-MeanR(sample))
+               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
+               VarR(samp) = VarR(samp) + runs/(runs1) * 
+     &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
 
                sample_idx = sample_idx+1
             end do
@@ -171,15 +175,20 @@ C     dt       next inter-event time
 
          ! After all events have been processed, clean up by evaluating all remaining measures.
          do while (sample_idx < Tmax)
-            sample = samples(sample_idx)
-            MeanS(sample) = MeanS(sample) + (n_S - MeanS(sample))/(runs+1)
-            VarS(sample) = VarS(sample) + runs/(runs+1) * (n_S-MeanS(sample))*(n_S-MeanS(sample))
+               samp = samples(sample_idx)
 
-            MeanI(sample) = MeanI(sample) + (n_I - MeanI(sample))/(runs+1)
-            VarI(sample) = VarI(sample) + runs/(runs+1) * (n_I-MeanI(sample))*(n_I-MeanI(sample))
+               runs1 = runs+1
+               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
+               VarS(samp) = VarS(samp) + runs/(runs1) *
+     &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
 
-            MeanR(sample) = MeanR(sample) + (n_R - MeanR(sample))/(runs+1)
-            VarR(sample) = VarR(sample) + runs/(runs+1) * (n_R-MeanR(sample))*(n_R-MeanR(sample))
+               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
+               VarI(samp) = VarI(samp) + runs/(runs1) *
+     &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
+
+               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
+               VarR(samp) = VarR(samp) + runs/(runs1) *
+     &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
 
             sample_idx = sample_idx + 1
          end do
