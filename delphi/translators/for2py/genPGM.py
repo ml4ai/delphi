@@ -344,7 +344,7 @@ class GrFNGenerator(object):
         argument_variable_grfn = []
         for argument in argument_list:
             argument_variable_grfn.append(
-                self.generate_variable_definition(argument, function_state)
+                self.generate_variable_definition(argument, None, function_state)
             )
 
         # Generate the `variable_identifier_name` for each container
@@ -661,6 +661,7 @@ class GrFNGenerator(object):
         # Now, create the `variable` spec, `function name` and `container
         # wiring` for the loop index, check condition and break decisions.
         index_variable_grfn = self.generate_variable_definition(index_name,
+                                                                None,
                                                                 loop_state)
         index_function_name = self.generate_function_name(
             "__assign__",
@@ -675,6 +676,7 @@ class GrFNGenerator(object):
         }
 
         loop_check_variable = self.generate_variable_definition("IF_0",
+                                                                None,
                                                                 loop_state)
         loop_check_function_name = self.generate_function_name(
             "__condition__",
@@ -689,6 +691,7 @@ class GrFNGenerator(object):
         }
 
         loop_break_variable = self.generate_variable_definition("BK",
+                                                                None,
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
@@ -810,6 +813,7 @@ class GrFNGenerator(object):
         # body grfn
         loop_state.last_definitions[index_name] = 1
         index_increment_grfn = self.generate_variable_definition(index_name,
+                                                                 None,
                                                                  loop_state)
         index_increment_function_name = self.generate_function_name(
             "__assign_",
@@ -963,6 +967,7 @@ class GrFNGenerator(object):
         # wiring` for the check condition and break decisions.
 
         loop_check_variable = self.generate_variable_definition("IF_0",
+                                                                None,
                                                                 loop_state)
         loop_check_function_name = self.generate_function_name(
             "__condition__",
@@ -977,6 +982,7 @@ class GrFNGenerator(object):
         }
 
         loop_break_variable = self.generate_variable_definition("BK",
+                                                                None,
                                                                 loop_state)
         loop_break_function_name = self.generate_function_name(
             "__decision__",
@@ -1160,7 +1166,7 @@ class GrFNGenerator(object):
 
         state.variable_types[condition_name] = "bool"
         state.last_definitions[condition_name] = condition_index
-        variable_spec = self.generate_variable_definition(condition_name, state)
+        variable_spec = self.generate_variable_definition(condition_name, None, state)
         function_name = self.generate_function_name("__condition__",
                                                     variable_spec["name"],
                                                     None
@@ -1286,7 +1292,7 @@ class GrFNGenerator(object):
                 ),
             }
             variable_spec = self.generate_variable_definition(
-                updated_definition, state)
+                updated_definition, None, state)
             function_name = self.generate_function_name("__decision__",
                                                         variable_spec['name'],
                                                         None)
@@ -1429,9 +1435,18 @@ class GrFNGenerator(object):
                 array_set = True
                 function_name = function_name.replace(".set_", "")
                 arr_index = call["inputs"][0][0]["var"]["variable"]
-                state.array_assign_name = f"{function_name}[{arr_index}]"
+                # Create a new variable spec for indexed array. Ex.
+                # arr(i) will be arr_i. This will be added as a new
+                # variable in GrFN.
                 variable_spec = self.generate_variable_definition(
-                    function_name, state)
+                    function_name, arr_index, state)
+                grfn["variables"].append(variable_spec)
+                state.array_assign_name = f"{function_name}[{arr_index}]"
+                # We want to have a new variable spec for the original
+                # array (arr(i), for example) and generate the function
+                # name with it.
+                variable_spec = self.generate_variable_definition(
+                    function_name, None, state)
                 assign_function = self.generate_function_name(
                     "__assign__",
                     variable_spec['name'],
@@ -1685,6 +1700,7 @@ class GrFNGenerator(object):
                 state.next_definitions[target_name] = target[
                     "var"]["index"] + 1
             variable_spec = self.generate_variable_definition(target_name,
+                                                              None,
                                                               state)
             function_name = self.generate_function_name(
                             "__assign__",
@@ -1797,6 +1813,7 @@ class GrFNGenerator(object):
                 state.array_types[var_name] = array_type
 
             variable_spec = self.generate_variable_definition(target_name,
+                                                              None,
                                                               state)
 
             function_name = self.generate_function_name("__assign__",
@@ -2338,7 +2355,7 @@ class GrFNGenerator(object):
 
         return container_id
 
-    def generate_variable_definition(self, variable, state):
+    def generate_variable_definition(self, variable, arr_index, state):
         """
             This function generates the GrFN structure for a variable
             definition, of the form:
@@ -2356,10 +2373,14 @@ class GrFNGenerator(object):
         elif variable in self.arrays:
             index = 0
 
+        domain = self.get_domain_dictionary(variable, state)
+        variable_gensym = self.generate_gensym("variable")
+
+        if arr_index is not None:
+            variable = f"{variable}_{arr_index}"
+
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
             f"{variable}::{index}"
-        variable_gensym = self.generate_gensym("variable")
-        domain = self.get_domain_dictionary(variable, state)
 
         # TODO Change the domain constraint. How do you figure the domain
         #  constraint out?
@@ -2446,7 +2467,7 @@ class GrFNGenerator(object):
                                 variable_name = updated_var_list[1]
                                 variable_spec = \
                                     self.generate_variable_definition(
-                                        variable_name, self.update_functions[
+                                        variable_name, None, self.update_functions[
                                             container]['state']
                                     )
                                 variable_name_list = variable_spec[
