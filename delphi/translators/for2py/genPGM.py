@@ -619,7 +619,7 @@ class GrFNGenerator(object):
             for var in self.parent_loop_state.last_definitions:
                 if var not in state.last_definitions:
                     # state.last_definitions[var] = \
-                        # self.parent_loop_state.last_definitions[var]
+                    #     self.parent_loop_state.last_definitions[var]
                     state.last_definitions[var] = -1
 
         loop_iterator = self.gen_grfn(node.iter, state, "for")
@@ -726,9 +726,10 @@ class GrFNGenerator(object):
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
         loop_body_inputs = list(set(loop_body_inputs))
-        # If the index name is a part of the loop bpdy, remove it since it is
+        # If the index name is a part of the loop body, remove it since it is
         # not an input to the container
-        if index_name in loop_body_inputs: loop_body_inputs.remove(index_name)
+        if index_name in loop_body_inputs:
+            loop_body_inputs.remove(index_name)
 
         # Now, we remove the variables which were defined inside the loop
         # body itself and not taken as an input from outside the loop body
@@ -925,7 +926,7 @@ class GrFNGenerator(object):
             for var in self.parent_loop_state.last_definitions:
                 if var not in state.last_definitions:
                     # state.last_definitions[var] = \
-                        # self.parent_loop_state.last_definitions[var]
+                    #     self.parent_loop_state.last_definitions[var]
                     state.last_definitions[var] = -1
 
         # Now populate the IF and BK functions for the loop by identifying
@@ -1170,8 +1171,7 @@ class GrFNGenerator(object):
         if output_match:
             output = output_match.group('output')
             index = output_match.group('index')
-            output_variable = f"@variable::{output}::" \
-                              f"{index}"
+            output_variable = f"@variable::{output}::{index}"
             condition_output = {"variable": output, "index": int(index)}
         else:
             assert False, f"Could not match output variable for " \
@@ -1190,7 +1190,6 @@ class GrFNGenerator(object):
         grfn["variables"].append(variable_spec)
         grfn["functions"].append(fn)
 
-        # TODO Update this
         lambda_string = self._generate_lambda_function(
             node.test,
             function_name["name"],
@@ -1208,6 +1207,7 @@ class GrFNGenerator(object):
         if_state = state.copy(last_definitions=if_definitions)
         else_state = state.copy(last_definitions=else_definitions)
         if_grfn = self.gen_grfn(node.body, if_state, "if")
+        # print('If GrFN: ', if_grfn)
         # Note that `else_grfn` will be empty if the else block contains
         # another `if-else` block
         else_node_name = node.orelse.__repr__().split()[0][3:]
@@ -1248,7 +1248,7 @@ class GrFNGenerator(object):
                 ]
                 if version is not None
             ]
-
+        # print('defined versions: ', defined_versions)
         # For every updated identifier, we need one __decision__ block. So
         # iterate over all updated identifiers.
         for updated_definition in defined_versions:
@@ -1432,9 +1432,11 @@ class GrFNGenerator(object):
                 state.array_assign_name = f"{function_name}[{arr_index}]"
                 variable_spec = self.generate_variable_definition(
                     function_name, state)
-                assign_function = self.generate_function_name("__assign__",
-                                                              variable_spec['name'],
-                                                              arr_index)
+                assign_function = self.generate_function_name(
+                    "__assign__",
+                    variable_spec['name'],
+                    arr_index
+                )
                 container_id_name = assign_function["name"]
                 function_type = assign_function["type"]
             else:
@@ -1492,21 +1494,22 @@ class GrFNGenerator(object):
                         # an array. For example, arr(i) = var.
                         if array_set:
                             argument_list.append(arg[0]['var']['variable'])
-                            # If list_index is 0, it means that the current loop
-                            # is dealing with the array index (i in arr(i)), which
-                            # we do not wish to generate a lambda function for.
-                            # list_index > 0 are the RHS values for array assignment.
+                            # If list_index is 0, it means that the current
+                            # loop is dealing with the array index (i in arr(
+                            # i)), which we do not wish to generate a lambda
+                            # function for. list_index > 0 are the RHS values
+                            # for array assignment.
                             if list_index > 0:
                                 generate_lambda_for_arr = True
                             list_index += 1
                     # This is a case where either an expression or an array
-                    # gets assigned to an array. For example, arr(i) = __expression__
-                    # or arr(i) = arr2(i).
+                    # gets assigned to an array. For example, arr(i) =
+                    # __expression__ or arr(i) = arr2(i).
                     elif "call" in arg[0]:
                         function = self.generate_array_setter(
-                                                        node, function, arg, 
-                                                        function_name, container_id_name,
-                                                        arr_index, state)
+                            node, function, arg,
+                            function_name, container_id_name,
+                            arr_index, state)
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
@@ -1534,11 +1537,11 @@ class GrFNGenerator(object):
                             array_type = self.arrays[function_name]['elem_type']
                             fixed_arg = [{'call': {
                                                     'function': array_type,
-                                                    'inputs':[arg]}}]
+                                                    'inputs': [arg]}}]
                             function = self.generate_array_setter(
-                                                            node, function, fixed_arg, 
-                                                            function_name, container_id_name,
-                                                            arr_index, state)
+                                node, function, fixed_arg,
+                                function_name, container_id_name,
+                                arr_index, state)
                     else:
                         raise For2PyError(
                             "Only 1 input per argument supported right now."
@@ -1740,7 +1743,7 @@ class GrFNGenerator(object):
             array_dimensions = []
             inputs = sources[0]["call"]["inputs"]
             array_type = inputs[0][0]["var"]["variable"]
-            self.get_array_dimension(sources, array_dimensions, inputs)
+            self._get_array_dimension(sources, array_dimensions, inputs)
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2031,7 +2034,10 @@ class GrFNGenerator(object):
                 # the array name (meani in this case) and append
                 # to source.
                 if ".get_" in src["call"]["function"]:
-                    get_array_name = src["call"]["function"].replace(".get_", "")
+                    get_array_name = src["call"]["function"].replace(
+                        ".get_",
+                        ""
+                    )
                     var_arr_name = f"@variable::{get_array_name}::-1"
                     source.append(var_arr_name)
 
@@ -2126,7 +2132,8 @@ class GrFNGenerator(object):
                         # was given with a variable value.
                         for value in item["list"]:
                             if "var" in value:
-                                variable = f"@variable::{value['var']['variable']}::0"
+                                variable = f"@variable:" \
+                                           f":{value['var']['variable']}::0"
                                 source_list.append(variable)
 
         return source_list
@@ -2454,7 +2461,8 @@ class GrFNGenerator(object):
 
         return grfn_dict
 
-    def get_array_dimension (self, sources, array_dimensions, inputs):
+    @staticmethod
+    def _get_array_dimension(sources, array_dimensions, inputs):
         """This function is for extracting bounds of an array.
 
             Args:
@@ -2500,14 +2508,14 @@ class GrFNGenerator(object):
             else:
                 assert False, f"low_bound type: {type(low_bound)} is currently not handled."
 
-    def generate_array_setter (
-                                self, node, function, arg, name, 
-                                container_id_name, arr_index, state
-    ):
+    def generate_array_setter(self, node, function, arg, name,
+                              container_id_name, arr_index, state
+                              ):
         """
             This function is for handling array setter (ex. means.set_(...)).
             
             Args:
+                node: The node referring to the array
                 function (list): A list holding the information of the function
                 for JSON and lambda function generation.
                 arg (list): A list holding the arguments of call['inputs'].
@@ -2515,12 +2523,12 @@ class GrFNGenerator(object):
                 container_id_name (str): A name of function container. It's an
                 array name with other appended info. in this function.
                 arr_index (str): Index of a target array.
+                state: The current state of the system
 
             Returns:
                 (list) function: A completed list of function.
         """
-        argument_list = []
-        input_list = []
+        argument_list = list()
 
         # Array index is always one of
         # the lambda function argument
