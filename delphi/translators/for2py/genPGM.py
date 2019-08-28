@@ -731,6 +731,8 @@ class GrFNGenerator(object):
         if index_name in loop_body_inputs:
             loop_body_inputs.remove(index_name)
 
+        # TODO: Not doing this right now. Refine this code and do it then.
+        """
         # Now, we remove the variables which were defined inside the loop
         # body itself and not taken as an input from outside the loop body
         filtered_loop_body_inputs = []
@@ -739,16 +741,28 @@ class GrFNGenerator(object):
             # which means it did not have a defined value above the loop
             # body) and is not a function argument (since they have an index
             # of -1 as well but have a defined value)
-            if not (state.last_definitions[input_var] == -1 and input_var not in
+            if not (state.last_definitions[input_var] == -1 and input_var 
+            not in
                     self.function_argument_map[main_function_name][
                         "argument_list"]
                     ):
                 filtered_loop_body_inputs.append(input_var)
 
-        for item in filtered_loop_body_inputs:
-            function_input.append(f"@variable::{item}::"
-                                  f"{state.last_definitions[item]}")
-            container_argument.append(f"@variable::{item}::-1")
+        """
+
+        # for item in filtered_loop_body_inputs:
+        for item in loop_body_inputs:
+            # TODO Hack for now, this should be filtered off from the code
+            #  block above
+            if 'IF' not in item:
+                function_input.append(f"@variable::{item}::"
+                                      f"{state.last_definitions[item]}")
+                container_argument.append(f"@variable::{item}::-1")
+
+        function_input = self._remove_duplicate_from_list(function_input)
+        container_argument = self._remove_duplicate_from_list(
+            container_argument
+        )
 
         # TODO: Think about removing (or retaining) variables which even
         #  though defined outside the loop, are defined again inside the loop
@@ -765,27 +779,39 @@ class GrFNGenerator(object):
 
         # Now, we list out all variables that have been updated/defined
         # inside the body of the loop
-        loop_body_outputs = []
+        # TODO: This is different from the code in `process_while`.
+        loop_body_outputs = {}
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 # TODO Currently, we only deal with a single output variable.
                 #  Modify the line above to not look at only [0] but loop
                 #  through the output to incorporate multiple outputs
-                output_var = function["output"][0].split('::')[1]
-                loop_body_outputs.append(output_var)
+                output = function["output"][0].split('::')
+                output_var = output[1]
+                output_index = output[2]
+                loop_body_outputs[output_var] = output_index
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
-                    output_var = ip.split('::')[1]
-                    loop_body_outputs.append(output_var)
+                    output = ip.split('::')
+                    output_var = output[1]
+                    output_index = output[2]
+                    loop_body_outputs[output_var] = output_index
 
         for item in loop_body_outputs:
             # TODO the indexing variables in of function block and container
             #  block will be different. Figure about the differences and
             #  implement them.
-            function_updated.append(f"@variable::{item}::"
-                                    f"{state.last_definitions[item]+1}")
-            container_updated.append(f"@variable::{item}::"
-                                     f"{loop_state.last_definitions[item]}")
+            # TODO: Hack, this IF check should not even appear in
+            #  loop_body_outputs
+            if 'IF' not in item:
+                function_updated.append(
+                    f"@variable::{item}::"
+                    f"{state.last_definitions[item]+1}"
+                )
+                container_updated.append(
+                    f"@variable::{item}::"
+                    f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
+                )
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -1013,7 +1039,6 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
-        print(body_functions_grfn)
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -1030,6 +1055,8 @@ class GrFNGenerator(object):
         # various assignments within the body
         loop_body_inputs = list(set(loop_body_inputs))
 
+        # TODO: Not doing this right now. Refine this code and do it then.
+        """
         # Now, we remove the variables which were defined inside the loop
         # body itself and not taken as an input from outside the loop body
         filtered_loop_body_inputs = []
@@ -1044,11 +1071,21 @@ class GrFNGenerator(object):
                     ):
                 filtered_loop_body_inputs.append(input_var)
 
-        for item in filtered_loop_body_inputs:
-            function_input.append(f"@variable::{item}::"
-                                  f"{state.last_definitions[item]}")
-            container_argument.append(f"@variable::{item}::-1")
+        """
 
+        # for item in filtered_loop_body_inputs:
+        for item in loop_body_inputs:
+            # TODO Hack for now, this should be filtered off from the code
+            #  block above
+            if 'IF' not in item:
+                function_input.append(f"@variable::{item}::"
+                                      f"{state.last_definitions[item]}")
+                container_argument.append(f"@variable::{item}::-1")
+
+        function_input = self._remove_duplicate_from_list(function_input)
+        container_argument = self._remove_duplicate_from_list(
+            container_argument
+        )
         # TODO: Think about removing (or retaining) variables which even
         #  though defined outside the loop, are defined again inside the loop
         #  and then used by an operation after it.
@@ -1064,29 +1101,38 @@ class GrFNGenerator(object):
 
         # Now, we list out all variables that have been updated/defined
         # inside the body of the loop
-        loop_body_outputs = []
+        loop_body_outputs = {}
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 # TODO Currently, we only deal with a single output variable.
                 #  Modify the line above to not look at only [0] but loop
                 #  through the output to incorporate multiple outputs
-                output_var = function["output"][0].split('::')[1]
-                loop_body_outputs.append(output_var)
+                output = function["output"][0].split('::')
+                output_var = output[1]
+                output_index = output[2]
+                loop_body_outputs[output_var] = output_index
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
-                    output_var = ip.split('::')[1]
-                    loop_body_outputs.append(output_var)
+                    output = ip.split('::')
+                    output_var = output[1]
+                    output_index = output[2]
+                    loop_body_outputs[output_var] = output_index
 
-        # print('body_functions_grfn: ', body_functions_grfn)
-        print('loop_body_outputs: ', loop_body_outputs)
         for item in loop_body_outputs:
             # TODO the indexing variables in of function block and container
             #  block will be different. Figure about the differences and
             #  implement them.
-            function_updated.append(f"@variable::{item}::"
-                                    f"{loop_state.last_definitions[item]}")
-            container_updated.append(f"@variable::{item}::"
-                                     f"{loop_state.last_definitions[item]}")
+            # TODO: Hack, this IF check should not even appear in
+            #  loop_body_outputs
+            if 'IF' not in item:
+                function_updated.append(
+                    f"@variable::{item}::"
+                    f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
+                )
+                container_updated.append(
+                    f"@variable::{item}::"
+                    f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
+                )
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
         #  some variables are defined inside the loop body, used within that
@@ -1134,7 +1180,6 @@ class GrFNGenerator(object):
         }
         self.current_scope = '.'.join(self.current_scope.split('.')[:-1])
 
-        print('\n')
         return [grfn]
 
     def process_if(self, node, state, call_source):
@@ -1958,6 +2003,7 @@ class GrFNGenerator(object):
             grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
 
+        return merged_grfn
         # We fill in the `updated` field of function calls by looking at the
         # `updated` field of their container grfn
         final_grfn = self.load_updated(merged_grfn)
