@@ -767,7 +767,10 @@ class GrFNGenerator(object):
         loop_body_outputs = []
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
-                output_var = function["output"].split('::')[1]
+                # TODO Currently, we only deal with a single output variable.
+                #  Modify the line above to not look at only [0] but loop
+                #  through the output to incorporate multiple outputs
+                output_var = function["output"][0].split('::')[1]
                 loop_body_outputs.append(output_var)
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
