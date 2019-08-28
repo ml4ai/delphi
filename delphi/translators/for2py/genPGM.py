@@ -1769,12 +1769,11 @@ class GrFNGenerator(object):
         # Get the sources and targets of the annotated assignment
         sources = self.gen_grfn(node.value, state, "annassign")
         targets = self.gen_grfn(node.target, state, "annassign")
-
         # If the source i.e. assigned value is `None` (e.g. day: List[int] =
         # [None]), only update the data type of the targets and populate the
         # `annotated_assigned` map. No further processing will be done.
-        if len(sources) == 1 and ('value' in sources[0].keys()) and not \
-                sources[0]['value']:
+        if len(sources) == 1 and ('value' in sources[0].keys()) and \
+                sources[0]['value'] is None:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
                     self._get_variable_type(node.annotation)
