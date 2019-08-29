@@ -514,14 +514,10 @@ def fortran_to_grfn(
         ofp_xml, rectified_xml_file, tester_call
     )
 
-    if not network_test:
-        # Generate separate list of modules file
-        mode_mapper_tree = rectified_tree
-        generator = mod_index_generator.ModuleGenerator()
-        mode_mapper_dict = generator.analyze(mode_mapper_tree)
-    else:
-        # This is a HACK derived from `networks.py`
-        mode_mapper_dictionary = {"file_name": f"{base}.py"}
+    # Generate separate list of modules file
+    mode_mapper_tree = rectified_tree
+    generator = mod_index_generator.ModuleGenerator()
+    mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
     # Creates a pickle file
     output_dict = generate_outputdict(
@@ -549,7 +545,7 @@ def fortran_to_grfn(
         #  TODO: This is related to networks.py and subsequent GrFN
         #  generation. Change the python_src index from [0][0] to incorporate
         #  all modules after all GrFN features have been added
-        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran_file)
+        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran_file, mode_mapper_dict[0])
 
 
 if __name__ == "__main__":
