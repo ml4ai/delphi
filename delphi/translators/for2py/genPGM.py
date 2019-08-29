@@ -566,7 +566,7 @@ class GrFNGenerator(object):
         # Initialize intermediate variables
         container_argument = []
         container_repeat = True
-        container_return_value = ""
+        container_return_value = []
         container_updated = []
         function_output = []
         function_updated = []
@@ -649,6 +649,20 @@ class GrFNGenerator(object):
                     loop_condition_inputs.append(
                         f"@variable::"
                         f"{var['var']['variable']}::-1")
+                elif 'call' in var:
+                    # TODO: Very specifically for arrays. Will probably break
+                    #  for other calls
+                    self._get_call_inputs(var['call'],
+                                          function_input,
+                                          container_argument,
+                                          loop_condition_inputs,
+                                          state
+                                          )
+        function_input = self._remove_duplicate_from_list(function_input)
+        container_argument = self._remove_duplicate_from_list(
+            container_argument)
+        loop_condition_inputs = self._remove_duplicate_from_list(
+            loop_condition_inputs)
 
         # Save the current state of the system so that it can used by a
         # nested loop to get information about the variables declared in its
@@ -906,7 +920,7 @@ class GrFNGenerator(object):
         # Initialize intermediate variables
         container_argument = []
         container_repeat = True
-        container_return_value = ""
+        container_return_value = []
         container_updated = []
         function_output = []
         function_updated = []
@@ -1059,7 +1073,11 @@ class GrFNGenerator(object):
                 # some extra checks are added in the future
                 for ip in function['input']:
                     input_var = ip.split('::')[1]
-                    loop_body_inputs.append(input_var)
+                    # TODO Hack for bypassing `boolean` types. Will be
+                    #  removed once the `literal` as an input question is
+                    #  answered.
+                    if input_var != "boolean":
+                        loop_body_inputs.append(input_var)
 
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
@@ -1863,6 +1881,7 @@ class GrFNGenerator(object):
             This function handles an assignment operation (ast.Assign).
         """
         io_source = False
+        is_function_call = False
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
@@ -1943,24 +1962,42 @@ class GrFNGenerator(object):
             variable_spec = self.generate_variable_definition(target_name,
                                                               None,
                                                               state)
-            function_name = self.generate_function_name("__assign__",
-                                                        variable_spec['name'],
-                                                        None)
-            fn = self.make_fn_dict(function_name, target, sources)
-
-            if len(fn) == 0:
-                return []
-            source_list = self.make_source_list_dict(sources)
 
             # TODO Hack to not print lambda function for IO assigns. Need a
             #  proper method to handle IO moving on
             for src in sources:
                 if 'call' in src:
-                    bypass_match_source = self._check_io_variables(
-                        src["call"]["function"]
-                    )
-                    if bypass_match_source:
+                    if self._check_io_variables(src["call"]["function"]):
                         io_source = True
+                    function = src['call']['function']
+                    # Check if the source is a function call by comparing its
+                    # value with the list of functions in our program (
+                    # obtained from the mode mapper)
+                    for program_functions in self.mode_mapper["subprograms"]:
+                        if function in self.mode_mapper["subprograms"][
+                                program_functions]:
+                            is_function_call = True
+
+            if is_function_call:
+                container_name = self.generate_container_id_name(
+                    self.fortran_file,
+                    ["@global"],
+                    function)
+                function_name = {
+                    "name": container_name,
+                    "type": "container"
+                }
+            else:
+                function_name = self.generate_function_name(
+                    "__assign__",
+                    variable_spec['name'],
+                    None
+                )
+
+            fn = self.make_fn_dict(function_name, target, sources)
+            if len(fn) == 0:
+                return []
+            source_list = self.make_source_list_dict(sources)
 
             if not io_source:
                 lambda_string = self._generate_lambda_function(
@@ -2052,8 +2089,12 @@ class GrFNGenerator(object):
     @staticmethod
     def _process_nameconstant(node, *_):
         # TODO Change this format according to the new spec
+        if isinstance(node.value, bool):
+            dtype = "boolean"
+        else:
+            dtype = "string"
         return [
-            {"type": "literal", "dtype": "string", "value": node.value}
+            {"type": "literal", "dtype": dtype, "value": node.value}
         ]
 
     def process_attribute(self, node, state, call_source):
@@ -2291,6 +2332,14 @@ class GrFNGenerator(object):
                                         f"{item['var']['variable']}::" \
                                         f"{item['var']['index']}"
                         source_list.append(source_string)
+                    # TODO Adding boolean literals as an input to an assign
+                    #  function but not integer literals?
+                    elif 'type' in item and item['type'] == 'literal' and \
+                            item['dtype'] == 'boolean':
+                        source_string = f"@literal::" \
+                                        f"{item['dtype']}::" \
+                                        f"{item['value']}"
+                        source_list.append(source_string)
                     elif "call" in item:
                         source_list.extend(self.make_call_body_dict(item))
                     elif "list" in item:
@@ -2490,7 +2539,7 @@ class GrFNGenerator(object):
         lambda_strings.append("\n\n")
         return "".join(lambda_strings)
 
-    def generate_container_id_name(self, namespace_file: str, scope_path: str,
+    def generate_container_id_name(self, namespace_file: str, scope_path,
                                    container_basename: str) -> str:
         namespace = self._get_namespace(namespace_file)
         if isinstance(scope_path, list):
@@ -3085,8 +3134,8 @@ def generate_system_def(python_list: List[str], component_list: List[str]):
         system_file.write(json.dumps(system_def, indent=2))
 
 
-def process_files(python_list: List[str], grfn_tail: str, lambda_tail:
-str, original_file: str, print_ast_flag=False):
+def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
+                  original_file: str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN 
         and generates each file's AST along with starting the GrFN generation
