@@ -3141,6 +3141,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         and generates each file's AST along with starting the GrFN generation
         process. 
     """
+
     module_mapper = {}
     grfn_filepath_list = []
     ast_list = get_asts_from_files(python_list, print_ast_flag)
