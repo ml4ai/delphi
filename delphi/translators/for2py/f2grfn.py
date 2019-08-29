@@ -246,7 +246,7 @@ def generate_python_src(output_dictionary, python_file_name, output_file,
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file_suffix,
-        mode_mapper_dictionary, original_fortran_file, tester_call
+    mode_mapper_dictionary, original_fortran_file, tester_call
 ):
     """
         This function generates GrFN dictionary object and file.
@@ -273,20 +273,24 @@ def generate_grfn(
             "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
             "<genPGM.py>"
         )
-    asts = [ast.parse(python_source_string)]
-    grfn_dictionary = genPGM.create_grfn_dict(
-        lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
-        original_fortran_file, save_file=True
-    )
-
-    if "identifiers" in grfn_dictionary:
-        for identifier in grfn_dictionary["identifiers"]:
-            del identifier["gensyms"]
-
-    if not tester_call:
-        genPGM.process_files([python_file], "GrFN.json", "lambdas.py", original_fortran_file, False)
-
-    return grfn_dictionary
+        # Since process_files function invokes create_grfn_dict
+        # function, we only have to call process_files in case
+        # of non-test mode.
+        genPGM.process_files(
+                [python_filename], "GrFN.json", 
+                "lambdas.py", original_fortran_file,
+                False
+        )
+    else:
+        asts = [ast.parse(python_source_string)]
+        grfn_dictionary = genPGM.create_grfn_dict(
+            lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
+            original_fortran_file, save_file=True
+        )
+        if "identifiers" in grfn_dictionary:
+            for identifier in grfn_dictionary["identifiers"]:
+                del identifier["gensyms"]
+        return grfn_dictionary
 
 def parse_args():
     """
