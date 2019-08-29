@@ -12,6 +12,5 @@ from numbers import Real
 
 x: List[int] = [1234]
 
-def myadd(y):
-    y: List[int]
+def myadd(y: List[int]):
     return x[0] + y[0]
