@@ -382,7 +382,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def get_original_file(original_fortran_filepath):
+def get_file_base(original_fortran_filepath):
     """
         This function splits and extracts only the basename
         from the full path, then returns the tuple of
@@ -393,15 +393,12 @@ def get_original_file(original_fortran_filepath):
             the original fortran file.
 
         Returns:
-            str {
-                'original_fortran_file': A fortran file name with extension.
-                'base': A fortran file without extension.
-            }
+            str: base, a fortran file without extension.
     """
     original_fortran_file = np.basename(original_fortran_filepath)
     base = os.path.splitext(original_fortran_file)[0]
 
-    return original_fortran_file, base
+    return base
 
 
 def fortran_to_grfn(
@@ -445,17 +442,17 @@ def fortran_to_grfn(
     # the path to the file via command line argument
     if not tester_call:
         (
-            fortran_file_path,
+            original_fortran_file,
             temp_out_dir
         ) = parse_args()
     # Else, for2py function gets invoked by the test
     # programs, it will be passed with an argument
     # of original fortran file path
     else:
-        fortran_file_path = original_fortran
+        original_fortran_file = original_fortran
         temp_out_dir = "tmp"
 
-    (original_fortran_file, base) = get_original_file(fortran_file_path)
+    base = get_file_base(original_fortran_file)
 
     # temp_dir is None means that the output file was
     # not set by the program that calls this function.
@@ -490,10 +487,10 @@ def fortran_to_grfn(
 
     # Open and read original fortran file
     try:
-        with open(fortran_file_path, "r") as f:
+        with open(original_fortran_file, "r") as f:
             input_lines = f.readlines()
     except IOError:
-        assert False, f"Fortran file: {original_fortran_file_path} Not Found"
+        assert False, f"Fortran file: {original_original_fortran_file} Not Found"
 
     # Pre-process the read in fortran file
     if not tester_call:
@@ -562,11 +559,11 @@ if __name__ == "__main__":
         json_file,
         python_file,
         mode_mapper_dict,
-        original_fortran_file_path
+        original_fortran_file
     ) = fortran_to_grfn()
 
     # Generate GrFN file
     grfn_dict = generate_grfn(
         python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
-        original_fortran_file_path, False
+        original_fortran_file, False
     )
