@@ -386,9 +386,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for stmt in scope.body:
                 func_def = stmt["function"]
                 func_type = func_def["type"]
-                if func_type == "lambda_source":
+                if func_type == "lambda":
                     process_wiring_statement(stmt, scope, input_vars, cname)
-                elif func_type == "function_name":
+                elif func_type == "container":
                     process_call_statement(stmt, scope, input_vars, cname)
                 else:
                     raise ValueError(f"Undefined function type: {func_type}")
@@ -403,7 +403,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 updated_list.append(make_variable_name(scope.name, basename, idx))
             return return_list, updated_list
 
-        root = data["start"]
+        root = data["start"][0]
         occurrences[root] = 0
         cur_scope = ScopeNode(functions[root], occurrences[root])
         scope_tree.add_node(cur_scope.name, color="forestgreen")
