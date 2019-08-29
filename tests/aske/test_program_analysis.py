@@ -124,6 +124,12 @@ def continuation_lines_f90_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/continuation_line/continuation-lines-02.f90"))[0]
 
+
+@pytest.fixture
+def SIR_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/SIR-Gillespie-SD_inline.f"))[0]
+
     
 #########################################################
 #                                                       #
@@ -221,3 +227,9 @@ def test_continue_line_f90_pythonIR_generation(
     with open(f"{DATA_DIR}/continuation_line/continuation-lines-02.py", "r") as f:
         python_src = f.read()
     assert continuation_lines_f90_python_IR_test[0] == python_src
+
+
+def test_SIR_pythonIR_generation(SIR_python_IR_test):
+    with open(f"{DATA_DIR}/SIR-Gillespie-SD_inline.py", "r") as f:
+        python_src = f.read()
+    assert SIR_python_IR_test[0] == python_src
