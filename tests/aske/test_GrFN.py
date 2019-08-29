@@ -11,17 +11,35 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
 
+
 @pytest.fixture
 def crop_yield_grfn():
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
+
 
 @pytest.fixture
 def petpt_grfn():
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
 
+
 @pytest.fixture
 def petasce_grfn():
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
+
+
+@pytest.fixture
+def sir_simple_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
+
+
+@pytest.fixture
+def sir_gillespie_inline_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_inline.f")
+
+
+@pytest.fixture
+def sir_gillespie_ms_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-MS.f")
 
 
 def test_petpt_creation_and_execution(petpt_grfn):
@@ -62,6 +80,30 @@ def test_petasce_creation(petasce_grfn):
 def test_crop_yield_creation(crop_yield_grfn):
     A = crop_yield_grfn.to_agraph()
     assert isinstance(crop_yield_grfn, GroundedFunctionNetwork)
+
+
+def test_sir_simple_creation(sir_simple_grfn):
+    assert isinstance(sir_simple_grfn, GroundedFunctionNetwork)
+    G = sir_simple_grfn.to_agraph()
+    G.draw('SIR-simple--GrFN.pdf', prog='dot')
+    CAG = sir_simple_grfn.to_CAG()
+    CAG.draw('SIR-simple--CAG.pdf', prog='dot')
+
+
+def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
+    assert isinstance(sir_gillespie_inline_grfn, GroundedFunctionNetwork)
+    G = sir_gillespie_inline_grfn.to_agraph()
+    G.draw('SIR-Gillespie_inline--GrFN.pdf', prog='dot')
+    CAG = sir_gillespie_inline_grfn.to_CAG()
+    CAG.draw('SIR-Gillespie_inline--CAG.pdf', prog='dot')
+
+
+def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
+    assert isinstance(sir_gillespie_ms_grfn, GroundedFunctionNetwork)
+    G = sir_gillespie_ms_grfn.to_agraph()
+    G.draw('SIR-Gillespie_ms--GrFN.pdf', prog='dot')
+    CAG = sir_gillespie_ms_grfn.to_CAG()
+    CAG.draw('SIR-Gillespie_ms--CAG.pdf', prog='dot')
 
 
 @pytest.mark.skip
