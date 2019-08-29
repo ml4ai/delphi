@@ -1923,6 +1923,14 @@ class GrFNGenerator(object):
 
             if array_assignment:
                 var_name = target["var"]["variable"]
+                # Just like the same reason as the variables
+                # declared with annotation within function (not
+                # function arguments) need to have index of zero.
+                # Thus, these 3 lines of code fixes the index to
+                # correct value from -1 to 0.
+                if target["var"]["index"] == -1:
+                    target["var"]["index"] = 0
+                    state.last_definitions[target_name] = 0
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
@@ -1935,11 +1943,9 @@ class GrFNGenerator(object):
             variable_spec = self.generate_variable_definition(target_name,
                                                               None,
                                                               state)
-
             function_name = self.generate_function_name("__assign__",
                                                         variable_spec['name'],
-                                                        None
-                                                        )
+                                                        None)
             fn = self.make_fn_dict(function_name, target, sources)
 
             if len(fn) == 0:
