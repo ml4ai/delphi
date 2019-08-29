@@ -800,7 +800,6 @@ class GrFNGenerator(object):
 
         # Now, we list out all variables that have been updated/defined
         # inside the body of the loop
-        # TODO: This is different from the code in `process_while`.
         loop_body_outputs = {}
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
@@ -1114,6 +1113,7 @@ class GrFNGenerator(object):
         container_argument = self._remove_duplicate_from_list(
             container_argument
         )
+
         # TODO: Think about removing (or retaining) variables which even
         #  though defined outside the loop, are defined again inside the loop
         #  and then used by an operation after it.
