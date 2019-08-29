@@ -427,7 +427,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
         json_filename: str,
         stem: str,
         fortran_file: str,
-        save_file: bool = False,
+        mode_mapper_dict: dict,
+        save_file: bool = False
     ):
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
@@ -435,9 +436,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
             lambdas_path,
             asts,
             json_filename,
-            {"file_name": f"{stem}.py"}, # HACK
+            mode_mapper_dict,
             fortran_file,
         )
+
+        # {"file_name": f"{stem}.py"}, # HACK
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
@@ -454,10 +457,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 json_filename,
                 stem,
                 fortran_filename,
+                mode_mapper_dict,
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
-                                fortran_file)
+                                fortran_file, mode_mapper_dict)
 
         return G
 
