@@ -40,7 +40,7 @@ BINOPS = {
 # types for the lambdas
 # TODO Take this inside class
 ANNOTATE_MAP = {
-    "real": "real",
+    "real": "Real",
     "float": "real",
     "Real": "real",
     "integer": "int",
