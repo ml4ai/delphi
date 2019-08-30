@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -97,13 +98,12 @@ class AnalysisGraph {
 
   double t = 0.0;
   double delta_t = 1.0;
-  std::vector<Eigen::VectorXd> s0;
 
   // Latent state that is evolved by sampling.
   // Since s0 is used to represent a sequence of latent states,
   // I named this s0_original. Once things are refactored, we might be able to
   // convert this to s0
-  Eigen::VectorXd s0_original;
+  Eigen::VectorXd s0;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -114,15 +114,6 @@ class AnalysisGraph {
   int n_timesteps;
   int pred_timesteps;
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
-
-  // Accumulates the transition matrices for accepted samples
-  // Access: [ sample number ]
-  // std::vector<Eigen::MatrixXd> training_sampled_transition_matrix_sequence;
-
-  // Accumulates the latent states for accepted samples
-  // Access this as
-  // latent_state_sequences[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> training_latent_state_sequences;
 
   // This is a column of the
   // this->training_latent_state_sequences
@@ -144,22 +135,14 @@ class AnalysisGraph {
   // Sampling resolution. Default is 200
   int res = DEFAULT_N_SAMPLES;
 
-  // Training start
-  int init_training_year;
-  int init_training_month;
-
   // Keep track whether the model is trained.
   // Used to check whether there is a trained model before calling
   // generate_prediction()
   bool trained = false;
 
   // Access this as
-  // latent_state_sequences[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> latent_state_sequences;
-
-  // Access this as
-  // latent_state_sequence[ time step ]
-  std::vector<Eigen::VectorXd> latent_state_sequence;
+  // current_latent_state
+  Eigen::VectorXd current_latent_state;
 
   // Access this as
   // observed_state_sequences[ sample ][ time step ][ vertex ][ indicator ]
@@ -473,7 +456,7 @@ class AnalysisGraph {
    *                  than the first time step. Not currently used.
    *                  0 <= timestep < this->n_timesteps
    */
-  void set_initial_latent_state_from_observed_state_sequence(int timestep = 0);
+  void set_initial_latent_state_from_observed_state_sequence();
 
   void initialize_random_number_generator();
 
@@ -517,25 +500,16 @@ class AnalysisGraph {
                    InitialBeta initial_beta = InitialBeta::ZERO);
 
   /**
-   * Utility function that sets initial latent states for predictions.
-   * During model training a latent state sequence is inferred for each sampled
-   * transition matrix, these are then used as the initial states for
-   * predictions.
-   *
-   * @param timestep: Optional setting for setting the initial state to be other
-                      than the first time step. Ensures that the correct
-                      initial state is used.
-                      0 <= timestep < this->n_timesteps
-   */
-  void set_initial_latent_states_for_prediction(int timestep);
-
-  /**
    * Sample a collection of observed state sequences from the likelihood
    * model given a collection of transition matrices.
    *
-   * @param timesteps: The number of timesteps for the sequences.
+   * @param prediction_timesteps: The number of timesteps for the prediction sequences.
+   * @param initial_prediction_step: The initial prediction timestep relative
+   *                                 to training timesteps. 
+   * @param total_timesteps: Total number of timesteps from the initial
+   *                         training date to the end prediction date.
    */
-  void sample_predicted_latent_state_sequences(int timesteps);
+  void sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps);
 
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
@@ -664,7 +638,7 @@ class AnalysisGraph {
   // this cell
   void sample_from_proposal();
 
-  void set_latent_state_sequence();
+  void set_current_latent_state(int ts);
 
   double log_normpdf(double x, double mean, double sd);
 

@@ -490,7 +490,7 @@ def pred_plot(
                 sort=False,
             )
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_compare, sort=False)
+            ax = sns.lineplot(data=df_compare, sort=False, markers=["o","o"])
             ax.fill_between(
                 x=df.index.astype(str),
                 y1=df[f"{indicator}(Upper Confidence Bound)"].values.astype(
@@ -524,7 +524,7 @@ def pred_plot(
             df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
             df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_compare, sort=False)
+            ax = sns.lineplot(data=df_compare, sort=False, markers=["o","o"])
             ax.fill_between(
                 x=df_compare.index.astype(str),
                 y1=df[f"{indicator}(Upper Confidence Bound)"].values.astype(
@@ -555,7 +555,7 @@ def pred_plot(
         df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
         df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_error, sort=False)
+        ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
         ax.fill_between(
             x=df_error.index,
             y1=df["Upper Error Bound"].values,
@@ -595,7 +595,7 @@ def pred_plot(
         df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
         df_pred = df.drop(df.columns[[1, 2]], axis=1)
         sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_pred, sort=False)
+        ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
         ax.fill_between(
             x=df_pred.index,
             y1=df[f"{indicator}(Upper Confidence Bound)"].values,
