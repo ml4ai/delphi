@@ -1351,7 +1351,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_times
   for (int samp = 0; samp < this->res; samp++) {
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
-      Eigen::MatrixXd A_t = this->transition_matrix_collection[samp] * pred_step; 
+      const Eigen::MatrixXd& A_t = pred_step*this->transition_matrix_collection[samp]; 
       this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
       pred_step++;
     }
@@ -1389,14 +1389,14 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     throw "Model not yet trained";
   }
 
-  if (start_year < this->training_range[0][0] ||
-      (start_year == this->training_range[0][0] &&
-       start_month < this->training_range[0][1])) {
+  if (start_year < this->training_range.first.first ||
+      (start_year == this->training_range.first.first &&
+       start_month < this->training_range.first.second)) {
     print("The initial prediction date can't be before the\n"
           "inital training date. Defaulting initial prediction date\n"
           "to initial training date.");
-    start_year = this->training_range[0][0];
-    start_month = this->training_range[0][0];
+    start_year = this->training_range.first.first;
+    start_month = this->training_range.first.first;
   }
 
   /*
@@ -1413,7 +1413,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *      diff              pred_timesteps
    */
   int total_timesteps = this->calculate_num_timesteps(
-      this->training_range[0][0], this->training_range[0][1], end_year, end_month);
+      this->training_range.first.first, this->training_range.first.second, end_year, end_month);
 
   this->pred_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
@@ -1666,7 +1666,7 @@ void AnalysisGraph::sample_from_proposal() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  Eigen::MatrixXd A_t = this->A_original * ts;
+  const Eigen::MatrixXd& A_t = ts*this->A_original;
   this->current_latent_state = A_t.exp() * this->s0;
 
 }

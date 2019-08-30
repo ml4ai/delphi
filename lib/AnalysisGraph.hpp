@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
+#include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/iterator_range.hpp>
