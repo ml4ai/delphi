@@ -117,6 +117,7 @@ INTRINSICS_MAP = {
     "tan": ("tan", "FUNC", "math"),
     "tanh": ("tanh", "FUNC", "math"),
     "xor": ("^", "INFIXOP", None),
+    "rand": ("random", "FUNC", None),
 }
 
 
@@ -1522,7 +1523,8 @@ def create_python_source_list(outputDict: Dict):
         "from dataclasses import dataclass",
         "from delphi.translators.for2py.types_ext import Float32",
         "import delphi.translators.for2py.math_ext as math",
-        "from numbers import Real\n",
+        "from numbers import Real",
+        "from random import random\n",
     ]
 
     for module in module_index_dict:
