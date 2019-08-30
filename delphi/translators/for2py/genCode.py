@@ -60,6 +60,7 @@ class genCode:
             "ast.Attribute": self._process_attribute,
             "ast.AST": self.process_ast,
             "ast.Tuple": self.process_tuple,
+            "ast.NameConstant": self.process_name_constant,
         }
 
     def generate_code(self, node, state):
@@ -115,6 +116,10 @@ class genCode:
 
     def process_index(self, node, state):
         code_string = "[{0}]".format(self.generate_code(node.value, state))
+        return code_string
+
+    def process_name_constant(self, node, state):
+        code_string = str(node.value)
         return code_string
 
     @staticmethod
