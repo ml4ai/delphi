@@ -1473,10 +1473,14 @@ class GrFNGenerator(object):
             #       return n_S_1 if IF_1 else n_S_0
             # In the code below, change "index": 0 to "index": versions[-1]
             # and "index": 1 to "index": versions[-2] to revert to the old form.
+            # Edit: Now, we are changing this only for the lambda functions.
+            # See the change a few lines below.
             inputs = (
                 [
-                    {"variable": updated_definition, "index": 0},
-                    {"variable": updated_definition, "index": 1},
+                    # {"variable": updated_definition, "index": 0},
+                    # {"variable": updated_definition, "index": 1},
+                    {"variable": updated_definition, "index": versions[-1]},
+                    {"variable": updated_definition, "index": versions[-2]},
                     condition_output,
                 ]
                 if len(versions) > 1
@@ -1509,6 +1513,12 @@ class GrFNGenerator(object):
                            f":{output['index']}"],
                 "updated": []
             }
+            if len(versions) > 1:
+                inputs = [
+                    {"variable": updated_definition, "index": 0},
+                    {"variable": updated_definition, "index": 1},
+                    condition_output,
+                ]
             lambda_string = self._generate_lambda_function(
                 node,
                 function_name["name"],
