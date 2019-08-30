@@ -66,20 +66,6 @@ def SIR_Gillespie_SD__gillespie__assign__samples__0(Tmax):
     return [0] * Tmax
 
 
-def SIR_Gillespie_SD__update_mean_var__assign__Tmax__0():
-    return 100
-
-
-def SIR_Gillespie_SD__update_mean_var__assign__means_k__0(means, n, k, runs):
-    means[k] = means[k] + (n - means[k])/(runs+1)
-    return means[k]
-
-
-def SIR_Gillespie_SD__update_mean_var__assign__vars_k__0(vars, means, n, k, runs):
-    vars[k] = vars[k] + runs/(runs+1) * (n-means[k])*(n-means[k])
-    return vars[k]
-
-
 def SIR_Gillespie_SD__gillespie__loop_0__assign__i__0():
     return 0
 
@@ -239,6 +225,40 @@ def SIR_Gillespie_SD__gillespie__loop_3__assign__sample__0(samples, sample_idx):
     return samples[sample_idx]
 
 
+def SIR_Gillespie_SD__gillespie__loop_3__assign__runs1__0(runs):
+    return runs + 1
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__MeanS__0(MeanS, n_S, samp, runs1):
+    MeanS[samp] = MeanS[samp] + (n_S - MeanS[samp])/(runs1+1)
+    return MeanS[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__VarS__0(VarS, MeanS, n_S, samp, runs1):
+    VarS[samp] = VarS[samp] + runs1/(runs1+1) * (n_S-MeanS[samp])*(n_S-MeanS[samp])
+    return VarS[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__MeanI__0(MeanI, n_I, samp, runs1):
+    MeanI[samp] = MeanI[samp] + (n_I - MeanI[samp])/(runs1+1)
+    return MeanI[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__VarI__0(VarI, MeanI, n_I, samp, runs1):
+    VarI[samp] = VarI[samp] + runs1/(runs1+1) * (n_I-MeanI[samp])*(n_I-MeanI[samp])
+    return VarI[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__MeanR__0(MeanR, n_R, samp, runs1):
+    MeanR[samp] = MeanR[samp] + (n_R - MeanR[samp])/(runs1+1)
+    return MeanR[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_3__assign__VarR__0(VarR, MeanR, n_R, samp, runs1):
+    VarR[samp] = VarR[samp] + runs1/(runs1+1) * (n_R-MeanR[samp])*(n_R-MeanR[samp])
+    return VarR[samp]
+
+
 def SIR_Gillespie_SD__gillespie__loop_3__assign__sample_idx__0(sample_idx):
     return sample_idx + 1
 
@@ -253,6 +273,40 @@ def SIR_Gillespie_SD__gillespie__loop_4__decision__EXIT__0(IF_0_0):
 
 def SIR_Gillespie_SD__gillespie__loop_4__assign__sample__0(samples, sample_idx):
     return samples[sample_idx]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__runs1__0(runs):
+    return runs + 1
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__MeanS__0(MeanS, n_S, samp, runs1):
+    MeanS[samp] = MeanS[samp] + (n_S - MeanS[samp])/(runs1+1)
+    return MeanS[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__VarS__0(VarS, MeanS, n_S, samp, runs1):
+    VarS[samp] = VarS[samp] + runs1/(runs1+1) * (n_S-MeanS[samp])*(n_S-MeanS[samp])
+    return VarS[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__MeanI__0(MeanI, n_I, samp, runs1):
+    MeanI[samp] = MeanI[samp] + (n_I - MeanI[samp])/(runs1+1)
+    return MeanI[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__VarI__0(VarI, MeanI, n_I, samp, runs1):
+    VarI[samp] = VarI[samp] + runs1/(runs1+1) * (n_I-MeanI[samp])*(n_I-MeanI[samp])
+    return VarI[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__MeanR__0(MeanR, n_R, samp, runs1):
+    MeanR[samp] = MeanR[samp] + (n_R - MeanR[samp])/(runs1+1)
+    return MeanR[samp]
+
+
+def SIR_Gillespie_SD__gillespie__loop_4__assign__VarR__0(VarR, MeanR, n_R, samp, runs1):
+    VarR[samp] = VarR[samp] + runs1/(runs1+1) * (n_R-MeanR[samp])*(n_R-MeanR[samp])
+    return VarR[samp]
 
 
 def SIR_Gillespie_SD__gillespie__loop_4__assign__sample_idx__0(sample_idx):
