@@ -18,11 +18,18 @@ def main():
     agraph = grfn.to_agraph()
     agraph.draw('SIR-simple.pdf', prog='dot')
     to_wiring_diagram(grfn, lambdas, "SIR-simple")
-    # translate_lambdas(grfn, lambdas, "SIR-simple__functions.jl")
 
 
 def sanitize_name(name):
     return name.replace("-->", "__").replace("::", "__").replace("-1", "neg1").replace("-", "_").replace("@", "").replace("$", "_").replace(".", "_")
+
+
+def define_variables(vars):
+    names = [sanitize_name(n) for n in vars]
+    symbols = [":" + n for n in names]
+    names_str = ", ".join(names)
+    symbols_str = ", ".join(symbols)
+    return f"{names_str} = Ob(FreeSymmetricMonoidalCategory, {symbols_str})"
 
 
 def translate_GrFN(out_node, G, homs):
@@ -57,8 +64,7 @@ def translate_GrFN(out_node, G, homs):
 
 
 def py2jl(py_code):
-    jl_code = py_code.replace("def", "function").replace(":", "")
-    return jl_code + "end"
+    return py_code.replace("def", "function").replace(":", "") + "end"
 
 
 def bfs_translate_GrFN(nodes, G, lambdas, outfile, stmts, homs):
@@ -95,50 +101,55 @@ def translate_lambdas(G, lambdas, filename):
 
 
 def to_wiring_diagram(G, lambdas, filename):
-    wiring_file = open(f"{filename}__wiring.jl", "w")
-    funcs_file = open(f"{filename}__functions.jl", "w")
-
-    wiring_file.write("\n".join([
-        "using Catlab",
-        "using Catlab.WiringDiagrams",
-        "using Catlab.Doctrines",
-        "import Catlab.Doctrines.⊗",
-        "import Base: ∘",
-        "",
-        f'include("{filename}__functions.jl")',
-        "⊗(a::WiringDiagram, b::WiringDiagram) = otimes(a, b)",
-        "∘(a::WiringDiagram, b::WiringDiagram) = compose(b, a)",
-        "⊚(a,b) = b ∘ a"
-    ]))
-    wiring_file.write("\n\n")
-
-    input_nodes = [n for n, d in G.node(data=True) if d["type"] == "variable"]
-    input_names = [sanitize_name(n) for n in input_nodes]
-    input_symbols = [":" + n for n in input_names]
-    names_str = ", ".join(input_names)
-    symbols_str = ", ".join(input_symbols)
-    input_def = f"{names_str} = Ob(FreeSymmetricMonoidalCategory, {symbols_str})"
-    wiring_file.write(f"{input_def}\n\n")
-
-    stmts, funcs, diagrams = list(), list(), dict()
+    stmts, funcs = list(), list()
+    var_defs = list()
+    all_vars = list()
     for i, func_set in enumerate(G.function_sets):
+        variable_nodes = list()
         for j, name in enumerate(func_set):
+            inputs = list(G.predecessors(name))
+
+            # Add variables for MonoidalCategory definition
+            for var_node in inputs:
+                if not (var_node in variable_nodes or var_node in all_vars):
+                    variable_nodes.append(var_node)
+
+            # Translate the lambda function code
             func_name = G.nodes[name]["lambda_fn"].__name__
             funcs.append(py2jl(inspect.getsource(getattr(lambdas, func_name))))
 
-            inputs = list(G.predecessors(name))
             input_str = f"{' ⊗ '.join([sanitize_name(i) for i in inputs])}"
             out_name = sanitize_name(list(G.successors(name))[0])
 
-            stmts.append(f"w_{i}_{j} = Hom({func_name}, {input_str}, {out_name})")
-            diagrams[out_name] = f"w_{i}_{j}"
+            stmts.append(f"WD_{out_name} = Hom({func_name}, {input_str}, {out_name})")
+        var_def = define_variables(variable_nodes)
+        all_vars.extend(variable_nodes)
+        var_defs.append(var_def)
 
-    funcs_file.write("\n\n".join(funcs))
-    wiring_file.write("\n\n".join(stmts))
-    diagram_name = filename.replace("-", "_")
-    wiring_file.write(f"\n\n{diagram_name} = WiringDiagram({', '.join(homs)})")
-    funcs_file.close()
-    wiring_file.close()
+    with open(f"{filename}__functions.jl", "w") as func_file:
+        func_file.write("\n\n".join(funcs))
+
+    with open(f"{filename}__wiring.jl", "w") as wiring_file:
+        wiring_file.write("\n\n".join([
+            "using Catlab",
+            "using Catlab.WiringDiagrams",
+            "using Catlab.Doctrines",
+            "import Catlab.Doctrines: ⊗, id",
+            "import Base: ∘",
+            f'include("{filename}__functions.jl")',
+            "⊗(a::WiringDiagram, b::WiringDiagram) = otimes(a, b)",
+            "∘(a::WiringDiagram, b::WiringDiagram) = compose(b, a)",
+            "⊚(a,b) = b ∘ a"
+        ]))
+        wiring_file.write("\n\n\n")
+        wiring_file.write("\n\n".join(var_defs))
+
+    # funcs_file.write("\n\n".join(funcs))
+    # wiring_file.write("\n\n".join(stmts))
+    # diagram_name = filename.replace("-", "_")
+    # wiring_file.write(f"\n\n{diagram_name} = WiringDiagram({', '.join(homs)})")
+    # funcs_file.close()
+    # wiring_file.close()
 
 
 if __name__ == '__main__':
