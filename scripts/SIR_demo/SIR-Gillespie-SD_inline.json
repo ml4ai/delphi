@@ -2297,63 +2297,121 @@
             "@variable::sample_idx::-1"
           ],
           "output": [
-            "@variable::sample::0"
+            "@variable::samp::0"
           ],
           "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__runs1__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::runs::-1"
+          ],
+          "output": [
+            "@variable::runs1::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__MeanS__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanS::-1",
-            "@variable::VarS::-1",
-            "@variable::sample::0",
             "@variable::n_S::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
-            "@variable::MeanS::0",
-            "@variable::VarS::0"
-          ]
+          "output": [
+            "@variable::MeanS::0"
+          ],
+          "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__VarS__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarS::-1",
+            "@variable::MeanS::0",
+            "@variable::n_S::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::VarS::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__MeanI__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanI::-1",
-            "@variable::VarI::-1",
-            "@variable::sample::0",
             "@variable::n_I::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
-            "@variable::MeanI::0",
-            "@variable::VarI::0"
-          ]
+          "output": [
+            "@variable::MeanI::0"
+          ],
+          "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__VarI__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarI::-1",
+            "@variable::MeanI::0",
+            "@variable::n_I::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::VarI::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__MeanR__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanR::-1",
-            "@variable::VarR::-1",
-            "@variable::sample::0",
             "@variable::n_R::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
+          "output": [
+            "@variable::MeanR::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_3__assign__VarR__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarR::-1",
             "@variable::MeanR::0",
+            "@variable::n_R::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
             "@variable::VarR::0"
-          ]
+          ],
+          "updated": []
         },
         {
           "function": {
@@ -2437,63 +2495,121 @@
             "@variable::sample_idx::-1"
           ],
           "output": [
-            "@variable::sample::0"
+            "@variable::samp::0"
           ],
           "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__runs1__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::runs::-1"
+          ],
+          "output": [
+            "@variable::runs1::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__MeanS__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanS::-1",
-            "@variable::VarS::-1",
-            "@variable::sample::0",
             "@variable::n_S::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
-            "@variable::MeanS::0",
-            "@variable::VarS::0"
-          ]
+          "output": [
+            "@variable::MeanS::0"
+          ],
+          "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__VarS__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarS::-1",
+            "@variable::MeanS::0",
+            "@variable::n_S::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::VarS::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__MeanI__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanI::-1",
-            "@variable::VarI::-1",
-            "@variable::sample::0",
             "@variable::n_I::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
-            "@variable::MeanI::0",
-            "@variable::VarI::0"
-          ]
+          "output": [
+            "@variable::MeanI::0"
+          ],
+          "updated": []
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD::@global::update_mean_var",
-            "type": "function_name"
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__VarI__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarI::-1",
+            "@variable::MeanI::0",
+            "@variable::n_I::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::VarI::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__MeanR__0",
+            "type": "lambda_source"
           },
           "input": [
             "@variable::MeanR::-1",
-            "@variable::VarR::-1",
-            "@variable::sample::0",
             "@variable::n_R::-1",
-            "@variable::runs::-1"
+            "@variable::samp::0",
+            "@variable::runs1::0"
           ],
-          "output": [],
-          "updated": [
+          "output": [
+            "@variable::MeanR::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD__gillespie__loop_4__assign__VarR__0",
+            "type": "lambda_source"
+          },
+          "input": [
+            "@variable::VarR::-1",
             "@variable::MeanR::0",
+            "@variable::n_R::-1",
+            "@variable::samp::0",
+            "@variable::runs1::0"
+          ],
+          "output": [
             "@variable::VarR::0"
-          ]
+          ],
+          "updated": []
         },
         {
           "function": {

@@ -1,54 +1,6 @@
 C     Fortranification of AMIDOL's SIR-Gillespie.py
 
 ********************************************************************************
-C       subroutine print_output(L)
-C       implicit none
-C       integer, parameter :: Tmax = 100
-C       double precision, dimension(0:Tmax) :: L
-C       integer i
-C
-C       do i = 0, 19
-C          write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)
-C       end do
-C       write (*, 11)
-C
-C  10   format (5(F10.4,X))
-C  11   format('----------')
-C
-C       return
-C       end subroutine print_output
-
-********************************************************************************
-*                                                                              *
-*                Pretend to be Python's random-number generator                *
-*                                                                              *
-********************************************************************************
-      double precision function pyrand(do_init)
-      logical do_init
-      double precision retval
-
-      if (do_init .eqv. .TRUE.) then        ! initialize
-         open (2, file = 'PY_RANDOM_GILLESPIE')
-         retval = 0.0
-      else
-         read (2, 10) retval
- 10      format(F20.18)
-      end if
-
-      pyrand = retval
-      end function pyrand
-
-********************************************************************************
-C      subroutine update_mean_var(means, vars, k, n, runs)
-C      integer, parameter :: Tmax = 100
-C      double precision, dimension(0:Tmax) :: means, vars
-C      integer k, n, runs
-C
-C      means(k) = means(k) + (n - means(k))/(runs+1)
-C      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))
-C
-C      return
-C      end subroutine update_mean_var
 
 ********************************************************************************
 C     Variables:
