@@ -1,23 +1,19 @@
-function assg__rec(γ, I, δt)
-    return (γ*I) * δt
-end
-
-function assg__inf(β, S, I, R, δt)
-    return (-(β*S*I) / (S+I+R)) * δt
-end
-
-function assg__I1(I, infected, recovered)
-    return I + infected - recovered
-end
-
-function assg__R1(R, recovered)
+function SIR_simple__sir__assign__R__0(R, recovered)
     return R + recovered
 end
 
-function assg__S1(S, infected)
+function SIR_simple__sir__assign__S__0(S, infected)
     return S - infected
 end
 
-function ID(x)
-    return x
+function SIR_simple__sir__assign__I__0(I, infected, recovered)
+    return I + infected - recovered
+end
+
+function SIR_simple__sir__assign__infected__0(beta, S, I, R, dt)
+    return (-(beta*S*I) / (S + I + R)) * dt
+end
+
+function SIR_simple__sir__assign__recovered__0(gamma, I, dt)
+    return (gamma*I) * dt
 end
