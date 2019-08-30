@@ -13,6 +13,7 @@ from delphi.translators.for2py.mod_index_generator import get_index
 from delphi.translators.for2py.get_comments import get_comments
 from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
+from collections import OrderedDict
 from itertools import chain, product
 import operator
 import uuid
@@ -815,7 +816,7 @@ class GrFNGenerator(object):
 
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
-        loop_body_inputs = list(set(loop_body_inputs))
+        loop_body_inputs = self._remove_duplicate_from_list(loop_body_inputs)
         # If the index name is a part of the loop body, remove it since it is
         # not an input to the container
         if index_name in loop_body_inputs:
@@ -1198,7 +1199,7 @@ class GrFNGenerator(object):
 
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
-        loop_body_inputs = list(set(loop_body_inputs))
+        loop_body_inputs = self._remove_duplicate_from_list(loop_body_inputs)
 
         # TODO: Not doing this right now. Refine this code and do it then.
         """
@@ -3090,7 +3091,8 @@ class GrFNGenerator(object):
         """
             This helper function removes any duplicates from a list
         """
-        return list(set(input_list))
+        # return list(set(input_list))
+        return list(OrderedDict.fromkeys(input_list))
 
 
 def get_path(file_name: str, instance: str):
