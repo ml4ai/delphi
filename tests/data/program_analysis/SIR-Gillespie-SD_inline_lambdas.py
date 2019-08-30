@@ -129,8 +129,8 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__raterecover__0(g
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__totalrates__0(rateinfect: Real, raterecover: Real):
     return (rateinfect+raterecover)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__dt__0(totalrates: Real):
-    return -((math.log((1.0-random()))/totalrates))
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__dt__0(randval: Real, totalrates: Real):
+    return -((math.log((1.0-randval))/totalrates))
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__t__0(t: Real, dt: Real):
     return (t+dt)
@@ -174,8 +174,8 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__assign__varr_sam
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__assign__sample_idx__0(sample_idx: int):
     return (sample_idx+1)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__condition__IF_0__0(rateinfect: Real, totalrates: Real):
-    return (random() < (rateinfect/totalrates))
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__condition__IF_0__0(randval: Real, rateinfect: Real, totalrates: Real):
+    return (randval < (rateinfect/totalrates))
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_s__0(n_s: int):
     return (n_s-1)
@@ -189,11 +189,11 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_i__1(n_i: int)
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_r__0(n_r: int):
     return (n_r+1)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
-    return n_s_1 if IF_0_0 else n_s_0
-
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_i__2(n_i_0: int, n_i_1: int, IF_0_0: bool):
     return n_i_1 if IF_0_0 else n_i_0
+
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
+    return n_s_1 if IF_0_0 else n_s_0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_r__1(n_r_0: int, n_r_1: int, IF_0_0: bool):
     return n_r_1 if IF_0_0 else n_r_0
