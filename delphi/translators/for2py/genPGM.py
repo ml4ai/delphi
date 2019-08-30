@@ -572,6 +572,7 @@ class GrFNGenerator(object):
         function_updated = []
         function_input = []
         loop_condition_inputs = []
+        loop_condition_inputs_lambda = []
         loop_variables_grfn = []
         loop_functions_grfn = []
 
@@ -638,6 +639,7 @@ class GrFNGenerator(object):
 
         range_call = loop_iterator[0]["call"]
         loop_condition_inputs.append(f"@variable::{index_name}::0")
+        loop_condition_inputs_lambda.append(index_name)
         for ip in range_call["inputs"]:
             for var in ip:
                 if "var" in var:
@@ -649,6 +651,7 @@ class GrFNGenerator(object):
                     loop_condition_inputs.append(
                         f"@variable::"
                         f"{var['var']['variable']}::-1")
+                    loop_condition_inputs_lambda.append(var['var']['variable'])
                 elif 'call' in var:
                     # TODO: Very specifically for arrays. Will probably break
                     #  for other calls
@@ -656,6 +659,7 @@ class GrFNGenerator(object):
                                           function_input,
                                           container_argument,
                                           loop_condition_inputs,
+                                          loop_condition_inputs_lambda,
                                           state
                                           )
         function_input = self._remove_duplicate_from_list(function_input)
@@ -663,6 +667,8 @@ class GrFNGenerator(object):
             container_argument)
         loop_condition_inputs = self._remove_duplicate_from_list(
             loop_condition_inputs)
+        loop_condition_inputs_lambda = self._remove_duplicate_from_list(
+            loop_condition_inputs_lambda)
 
         # Save the current state of the system so that it can used by a
         # nested loop to get information about the variables declared in its
@@ -722,6 +728,69 @@ class GrFNGenerator(object):
             "output": [f"@variable::EXIT::0"],
             "updated": []
         }
+
+        # Create the lambda function for the index variable initiations and
+        # other loop checks. This has to be done through a custom lambda
+        # function operation since the structure of genCode does not conform
+        # with the way this lambda function will be created.
+        # TODO Add code to support a step other than +1 as well
+        assert len(range_call["inputs"]) == 2, f"Only two elements in range " \
+                                               f"function supported as of now."
+        loop_start = range_call["inputs"][0]
+        loop_end = range_call["inputs"][1]
+
+        # TODO Add a separate function to get the variables/literals of a
+        #  more complex form. The one below is for the basic case.
+        if 'var' in loop_start[0]:
+            loop_start_name = loop_start[0]['var']['variable']
+        elif 'type' in loop_start[0] and loop_start[0]['type'] == 'literal':
+            loop_start_name = loop_start[0]['value']
+        else:
+            assert False, "Error in getting loop start name"
+
+        if 'var' in loop_end[0]:
+            loop_end_name = loop_end[0]['var']['variable']
+        elif 'type' in loop_end[0] and loop_end[0]['type'] == 'literal':
+            loop_end_name = loop_end[0]['value']
+        else:
+            assert False, "Error in getting loop end name"
+
+        # First, lambda function for loop index initiation
+        index_initiation_lambda = self._generate_lambda_function(
+            loop_start_name,
+            index_function_name["name"],
+            True,
+            False,
+            [],
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(index_initiation_lambda)
+
+        # Second, lambda function for IF_0_0 test
+        loop_test_string = f"0 <= {index_name} < {loop_end_name}"
+        loop_continuation_test_lambda = self._generate_lambda_function(
+            loop_test_string,
+            loop_check_function_name["name"],
+            True,
+            False,
+            loop_condition_inputs_lambda,
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_continuation_test_lambda)
+
+        # Third, lambda function for EXIT code
+        loop_exit_test_lambda = self._generate_lambda_function(
+            "IF_0_0",
+            loop_break_function_name["name"],
+            True,
+            False,
+            ["IF_0_0"],
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_exit_test_lambda)
 
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
@@ -869,6 +938,19 @@ class GrFNGenerator(object):
             "output": [f"@variable::{index_name}::1"],
             "updated": []
         }
+
+        # Finally, lambda function for loop index increment
+        index_increment_lambda = self._generate_lambda_function(
+            f"{index_name} + 1",
+            index_increment_function_name["name"],
+            True,
+            False,
+            [index_name],
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(index_increment_lambda)
+
         loop_variables_grfn.append(index_increment_grfn)
         loop_functions_grfn.append(index_increment_function)
 
@@ -925,6 +1007,7 @@ class GrFNGenerator(object):
         function_updated = []
         function_input = []
         loop_condition_inputs = []
+        loop_condition_inputs_lambda = []
         loop_variables_grfn = []
         loop_functions_grfn = []
 
@@ -994,6 +1077,7 @@ class GrFNGenerator(object):
                     loop_condition_inputs.append(
                         f"@variable::"
                         f"{var['var']['variable']}::-1")
+                    loop_condition_inputs_lambda.append(var['var']['variable'])
                 elif 'call' in var:
                     # TODO: Very specifically for arrays. Will probably break
                     #  for other calls
@@ -1001,6 +1085,7 @@ class GrFNGenerator(object):
                                           function_input,
                                           container_argument,
                                           loop_condition_inputs,
+                                          loop_condition_inputs_lambda,
                                           state
                                           )
 
@@ -1009,6 +1094,8 @@ class GrFNGenerator(object):
             container_argument)
         loop_condition_inputs = self._remove_duplicate_from_list(
             loop_condition_inputs)
+        loop_condition_inputs_lambda = self._remove_duplicate_from_list(
+            loop_condition_inputs_lambda)
 
         # Save the current state of the system so that it can used by a
         # nested loop to get information about the variables declared in its
@@ -1053,6 +1140,37 @@ class GrFNGenerator(object):
             "output": [f"@variable::EXIT::0"],
             "updated": []
         }
+
+        # Create the lambda function for the index variable initiations and
+        # other loop checks. This has to be done through a custom lambda
+        # function operation since the structure of genCode does not conform
+        # with the way this lambda function will be created.
+        # TODO Add a separate function to get the variables/literals of a
+        #  more complex form. The one below is for the basic case.
+
+        # Second, lambda function for IF_0_0 test
+        loop_continuation_test_lambda = self._generate_lambda_function(
+            node.test,
+            loop_check_function_name["name"],
+            True,
+            False,
+            loop_condition_inputs_lambda,
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_continuation_test_lambda)
+
+        # Third, lambda function for EXIT code
+        loop_exit_test_lambda = self._generate_lambda_function(
+            "IF_0_0",
+            loop_break_function_name["name"],
+            True,
+            False,
+            ["IF_0_0"],
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_exit_test_lambda)
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
         # Separate the body grfn into `variables` and `functions` sub parts
@@ -1290,6 +1408,7 @@ class GrFNGenerator(object):
             [src["var"]['variable'] for src in condition_sources if
              "var" in src],
             state,
+            False
         )
         state.lambda_strings.append(lambda_string)
 
@@ -1397,6 +1516,7 @@ class GrFNGenerator(object):
                 True,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
                 state,
+                False
             )
             state.lambda_strings.append(lambda_string)
 
@@ -1622,6 +1742,7 @@ class GrFNGenerator(object):
                             True,
                             argument_list,
                             state,
+                            False
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
@@ -1861,6 +1982,7 @@ class GrFNGenerator(object):
                         if "var" in src
                     ],
                     state,
+                    False
                 )
                 state.lambda_strings.append(lambda_string)
 
@@ -2004,7 +2126,7 @@ class GrFNGenerator(object):
             ):
                 lambda_string = self._generate_lambda_function(
                     node, function_name["name"], False, True,
-                    source_list, state
+                    source_list, state, False
                 )
                 state.lambda_strings.append(lambda_string)
 
@@ -2482,10 +2604,31 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _generate_lambda_function(node, function_name: str, return_value: bool,
-                                  array_assign: bool, inputs, state):
+                                  array_assign: bool, inputs, state,
+                                  is_custom: bool):
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
+        # If a custom lambda function is encountered, create its function
+        # instead
+        if is_custom:
+            lambda_strings.append(
+                f"def {function_name}({', '.join(inputs)}):\n    "
+            )
+            if return_value:
+                if isinstance(node, str):
+                    lambda_strings.append(f"return {node}")
+                else:
+                    lambda_code_generator = genCode()
+                    code = lambda_code_generator.generate_code(
+                        node,
+                        PrintState("\n    ")
+                    )
+                    lambda_strings.append(f"return {code}")
+            else:
+                assert False, f"Should always return"
+            lambda_strings.append("\n\n")
+            return "".join(lambda_strings)
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
@@ -2802,6 +2945,7 @@ class GrFNGenerator(object):
             True,
             argument_list,
             state,
+            False
         )
         state.lambda_strings.append(lambda_string)
 
@@ -2876,7 +3020,8 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _get_call_inputs(call_function, function_input, container_argument,
-                         loop_condition_inputs, state):
+                         loop_condition_inputs,
+                         loop_condition_inputs_lambda, state):
         """
             This function parses a call function (such as when reading an
             array) and loads all respective input variables from it.
@@ -2897,6 +3042,7 @@ class GrFNGenerator(object):
             loop_condition_inputs.append(
                 f"@variable::"
                 f"{array_name}::-1")
+            loop_condition_inputs_lambda.append(array_name)
             for inputs in call_function['inputs']:
                 if not isinstance(inputs, list):
                     inputs = [inputs]
@@ -2911,6 +3057,9 @@ class GrFNGenerator(object):
                         loop_condition_inputs.append(
                             f"@variable::"
                             f"{var['var']['variable']}::-1")
+                        loop_condition_inputs_lambda.append(
+                            var['var']['variable']
+                        )
         else:
             pass
 
