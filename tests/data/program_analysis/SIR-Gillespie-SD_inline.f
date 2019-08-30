@@ -114,9 +114,6 @@ C     dt       next inter-event time
       end do
 
       n_samples = 0
-
-      randval = pyrand(.true.)    ! initialize the random-number sequence
-
       do runs = 0, total_runs-1
          t = 0.0    ! Restart the event clock
 
@@ -131,8 +128,7 @@ C     dt       next inter-event time
             rateRecover = gamma * n_I
             totalRates = rateInfect + rateRecover
 
-            randval = pyrand(.false.)
-            dt = -log(1.0-randval)/totalRates  ! next inter-event time
+            dt = -log(1.0-rand())/totalRates  ! next inter-event time
 
             t = t + dt          !  Advance the system clock
 
@@ -143,7 +139,7 @@ C     dt       next inter-event time
 
                runs1 = runs+1
                MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
-               VarS(samp) = VarS(samp) + runs/(runs1) * 
+               VarS(samp) = VarS(samp) + runs/(runs1) *
      &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
 
                MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
@@ -151,7 +147,7 @@ C     dt       next inter-event time
      &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
 
                MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
-               VarR(samp) = VarR(samp) + runs/(runs1) * 
+               VarR(samp) = VarR(samp) + runs/(runs1) *
      &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
 
                sample_idx = sample_idx+1
@@ -159,8 +155,7 @@ C     dt       next inter-event time
 
             ! Determine which event fired.  With probability rateInfect/totalRates
             ! the next event is infection.
-            randval = pyrand(.false.)
-            if (randval < (rateInfect/totalRates)) then
+            if (rand() < (rateInfect/totalRates)) then
                 ! Delta for infection
                 n_S = n_S - 1
                 n_I = n_I + 1
@@ -216,4 +211,3 @@ C       call print_output(MeanR)
 !      call print_output(VarR)
 !
       end program main
-

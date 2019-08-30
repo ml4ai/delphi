@@ -121,7 +121,7 @@ class ComputationalGraph(nx.DiGraph):
                     self.nodes[output_node]["value"] = res
 
         # Return the output
-        return self.nodes[self.output_node]["value"]
+        return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
         """ Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.
@@ -268,6 +268,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 style="filled" if is_exit else "",
                 parent=parent,
                 label=f"{basename}::{index}",
+                cag_label=f"{basename}",
                 basename=basename,
                 padding=15,
                 value=None,
@@ -438,6 +439,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             json_filename,
             mode_mapper_dict,
             fortran_file,
+            save_file=True
         )
 
         # {"file_name": f"{stem}.py"}, # HACK
@@ -452,12 +454,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
             tmpdir = Path(fortran_file).parent
 
         (
-                pySrc,
-                lambdas_path,
-                json_filename,
-                stem,
-                fortran_filename,
-                mode_mapper_dict,
+            pySrc,
+            lambdas_path,
+            json_filename,
+            stem,
+            fortran_filename,
+            mode_mapper_dict,
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
         G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
@@ -683,8 +685,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         """
         CAG = self.to_CAG()
+        for name, data in CAG.nodes(data=True):
+            CAG.nodes[name]["label"] = data["cag_label"]
         A = nx.nx_agraph.to_agraph(CAG)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
         A.node_attr.update(
             {
                 "shape": "rectangle",
