@@ -48,6 +48,7 @@ C                       to improve performance.
       subroutine model(S, I, R, gamma, rho,
      &                 totalRates)
       integer S, I, R
+      double precision :: gamma, rho
 
       double precision, parameter :: beta = rho * gamma !
       double precision rateInfect, rateRecover, totalRates
@@ -102,6 +103,7 @@ C     VarR     Measures of Variance for R
      &                  MeanS, MeanI, MeanR,
      &                  VarS, VarI, VarR)
         integer S, I, R
+        double precision :: gamma, rho
         double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
         double precision, dimension(0:Tmax) :: VarS, VarI, VarR
 
