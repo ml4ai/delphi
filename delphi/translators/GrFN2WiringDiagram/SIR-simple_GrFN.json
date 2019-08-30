@@ -85,7 +85,7 @@
         {
           "function": {
             "name": "SIR_simple__sir__assign__infected__0",
-            "type": "lambda_source"
+            "type": "lambda"
           },
           "input": [
             "@variable::beta::-1",
@@ -100,7 +100,7 @@
         {
           "function": {
             "name": "SIR_simple__sir__assign__recovered__0",
-            "type": "lambda_source"
+            "type": "lambda"
           },
           "input": [
             "@variable::gamma::-1",
@@ -113,7 +113,7 @@
         {
           "function": {
             "name": "SIR_simple__sir__assign__S__0",
-            "type": "lambda_source"
+            "type": "lambda"
           },
           "input": [
             "@variable::S::-1",
@@ -125,7 +125,7 @@
         {
           "function": {
             "name": "SIR_simple__sir__assign__I__0",
-            "type": "lambda_source"
+            "type": "lambda"
           },
           "input": [
             "@variable::I::-1",
@@ -138,7 +138,7 @@
         {
           "function": {
             "name": "SIR_simple__sir__assign__R__0",
-            "type": "lambda_source"
+            "type": "lambda"
           },
           "input": [
             "@variable::R::-1",
@@ -150,7 +150,9 @@
       ]
     }
   ],
-  "start": "@container::SIR-simple::@global::sir",
+  "start": [
+    "@container::SIR-simple::@global::sir"
+  ],
   "source": [
     "SIR-simple.f"
   ],

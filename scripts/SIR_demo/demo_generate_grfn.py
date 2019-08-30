@@ -1,6 +1,4 @@
 import sys
-import importlib
-import networkx as nx
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
 
@@ -8,17 +6,13 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 #
 # -----------------------------------------------------------------------------
 
-print('Running demo_generate_grfn.py')
-data_dir = "scripts/SIR_Demo/"
-sys.path.insert(0, data_dir)
-# model_file = "SIR-Gillespie-SD__alt"
-# json_file = f"{model_file}_GrFN.json"
-# lambdas = importlib.__import__(f"{model_file}_lambdas")
+filename = sys.argv[1]
+print(f"Translating: {filename}")
+sys.path.insert(0, "scripts/SIR_Demo/")
 
-grfn = GroundedFunctionNetwork.from_fortran_file("SIR-simple.f")
-# grfn = GroundedFunctionNetwork.from_json_and_lambdas(json_file, lambdas)
+grfn = GroundedFunctionNetwork.from_fortran_file(filename)
 agraph = grfn.to_agraph()
-agraph.draw('SIR-gillespie_inline.pdf', prog='dot')
+agraph.draw(f"{filename}--GrFN.pdf", prog='dot')
 
 
 # CAG = grfn.to_CAG()
