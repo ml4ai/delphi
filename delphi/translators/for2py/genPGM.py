@@ -1993,13 +1993,15 @@ class GrFNGenerator(object):
                     variable_spec['name'],
                     None
                 )
-
             fn = self.make_fn_dict(function_name, target, sources)
             if len(fn) == 0:
                 return []
             source_list = self.make_source_list_dict(sources)
 
-            if not io_source:
+            if (
+                not io_source
+                and not is_function_call
+            ):
                 lambda_string = self._generate_lambda_function(
                     node, function_name["name"], False, True,
                     source_list, state
@@ -2511,7 +2513,6 @@ class GrFNGenerator(object):
             else:
                 argument_strings.append(ip)
                 lambda_for_var = True
-
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
