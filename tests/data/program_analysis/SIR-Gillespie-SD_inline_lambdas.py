@@ -2,15 +2,6 @@ from numbers import Real
 from random import random
 import delphi.translators.for2py.math_ext as math
 
-def SIR_Gillespie_SD_inline__pyrand__condition__IF_0__0(do_init: bool):
-    return (do_init == True)
-
-def SIR_Gillespie_SD_inline__pyrand__assign__retval__0():
-    return 0.0
-
-def SIR_Gillespie_SD_inline__pyrand__decision__retval__2(retval_0: Real, retval_1: Real, IF_0_0: bool):
-    return retval_1 if IF_0_0 else retval_0
-
 def SIR_Gillespie_SD_inline__gillespie__assign__tmax__0():
     return 100
 
@@ -129,13 +120,13 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__raterecover__0(g
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__totalrates__0(rateinfect: Real, raterecover: Real):
     return (rateinfect+raterecover)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__dt__0(randval: Real, totalrates: Real):
-    return -((math.log((1.0-randval))/totalrates))
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__dt__0(totalrates: Real):
+    return -((math.log((1.0-random()))/totalrates))
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__t__0(t: Real, dt: Real):
     return (t+dt)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__condition__IF_0__0(t, sample_idx, samples, tmax):
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__condition__IF_0__0(samples, t, sample_idx, tmax):
     return ((sample_idx < tmax) and (t > samples[sample_idx]))
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__decision__EXIT__0(IF_0_0):
@@ -174,8 +165,8 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__assign__varr_sam
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__loop_3__assign__sample_idx__0(sample_idx: int):
     return (sample_idx+1)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__condition__IF_0__0(randval: Real, rateinfect: Real, totalrates: Real):
-    return (randval < (rateinfect/totalrates))
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__condition__IF_0__0(rateinfect: Real, totalrates: Real):
+    return (random() < (rateinfect/totalrates))
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_s__0(n_s: int):
     return (n_s-1)
@@ -192,11 +183,11 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_r__0(n_r: int)
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_i__2(n_i_0: int, n_i_1: int, IF_0_0: bool):
     return n_i_1 if IF_0_0 else n_i_0
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
-    return n_s_1 if IF_0_0 else n_s_0
-
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_r__1(n_r_0: int, n_r_1: int, IF_0_0: bool):
     return n_r_1 if IF_0_0 else n_r_0
+
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
+    return n_s_1 if IF_0_0 else n_s_0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_4__condition__IF_0__0(sample_idx, tmax):
     return (sample_idx < tmax)
