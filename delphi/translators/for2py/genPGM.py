@@ -755,7 +755,6 @@ class GrFNGenerator(object):
             loop_end_name = loop_end[0]['value']
         else:
             assert False, "Error in getting loop end name"
-
         # First, lambda function for loop index initiation
         index_initiation_lambda = self._generate_lambda_function(
             loop_start_name,
@@ -2652,6 +2651,8 @@ class GrFNGenerator(object):
             )
             if return_value:
                 if isinstance(node, str):
+                    lambda_strings.append(f"return {node}")
+                elif isinstance(node, int):
                     lambda_strings.append(f"return {node}")
                 else:
                     lambda_code_generator = genCode()
