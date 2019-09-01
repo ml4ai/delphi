@@ -26,8 +26,8 @@ C                       to improve performance.
      &                 totalRates)
       integer S, I, R
 
+      double precision rateInfect, rateRecover, totalRates, gamma, rho
       double precision, parameter :: beta = rho * gamma !
-      double precision rateInfect, rateRecover, totalRates
 
       rateInfect = beta * S * I / (S + I + R)
       rateRecover = gamma * I
@@ -78,12 +78,13 @@ C     VarR     Measures of Variance for R
       subroutine solver(S, I, R, gamma, rho)
         integer S, I, R
         integer, parameter :: Tmax = 100, total_runs = 1000
+        double precision gamma, rho
         double precision, parameter :: beta = rho * gamma !
         double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
         double precision, dimension(0:Tmax) :: VarS, VarI, VarR
         integer, dimension(0:Tmax) :: samples
 
-        integer i, runs, sample_idx, sample, n_S, n_I, n_R
+        integer i, runs, runs1, sample_idx, samp, n_S, n_I, n_R
         double precision totalRates, dt, t
 
         do i = 0, Tmax    ! Initialize the mean and variance arrays
@@ -116,7 +117,7 @@ C     VarR     Measures of Variance for R
               ! Calculate all measures up to the current time t using
               ! Welford's one pass algorithm
               do while (sample_idx < Tmax .and. t > samples(sample_idx))
-                 sample = samples(sample_idx)
+                 samp = samples(sample_idx)
                  runs1 = runs+1
                  MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
                  VarS(samp) = VarS(samp) + runs/(runs1) *
@@ -135,7 +136,7 @@ C     VarR     Measures of Variance for R
 
            ! After all events have been processed, clean up by evaluating all remaining measures.
            do while (sample_idx < Tmax)
-              sample = samples(sample_idx)
+              samp = samples(sample_idx)
               runs1 = runs+1
               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
               VarS(samp) = VarS(samp) + runs/(runs1) *
