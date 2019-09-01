@@ -2580,6 +2580,9 @@ class GrFNGenerator(object):
         # variables in scope. If the variable is not found (happens when it is
         # assigned for the first time in a scope), its index will be one greater
         # than the last definition default.
+
+        # If the index is -2, the variable has been declared but not defined
+        # yet. So, now start its indexing with 0 (when it is first assigned).
         if last_definitions.get(var) == -2:
             index = 0
         else:
