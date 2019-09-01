@@ -52,6 +52,8 @@ def to_wiring_diagram(G, lambdas, filename):
         stmts.extend(new_stmts)
         dom = " ⊗ ".join(layer_defs[i-1]["codomain"])
         codom = " ⊗ ".join(layer_defs[i]["domain"])
+        unique_codom = list(set(codom))
+        additional = list(set(dom + unique_codom))
         stmts.append(f"IN_{i} = WiringDiagram(Hom(:L{i}_REWIRE, {dom}, {codom}))")
     stmts.reverse()
 
