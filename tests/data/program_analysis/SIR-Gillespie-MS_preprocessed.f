@@ -1,8 +1,8 @@
       subroutine model(S, I, R, gamma, rho, totalRates)
 
       integer S, I, R
+      double precision rateInfect, rateRecover, totalRates, gamma, rho
       double precision, parameter :: beta = rho * gamma
-      double precision rateInfect, rateRecover, totalRates
       rateInfect = beta * S * I / (S + I + R)
       rateRecover = gamma * I
       totalRates = rateInfect + rateRecover
@@ -23,11 +23,12 @@
       subroutine solver(S, I, R, gamma, rho)
         integer S, I, R
         integer, parameter :: Tmax = 100, total_runs = 1000
+        double precision gamma, rho
         double precision, parameter :: beta = rho * gamma
         double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
         double precision, dimension(0:Tmax) :: VarS, VarI, VarR
         integer, dimension(0:Tmax) :: samples
-        integer i, runs, sample_idx, sample, n_S, n_I, n_R
+        integer i, runs, runs1, sample_idx, samp, n_S, n_I, n_R
         double precision totalRates, dt, t
         do i = 0, Tmax
            MeanS(i) = 0
@@ -52,7 +53,7 @@
 
 
               do while (sample_idx < Tmax .and. t > samples(sample_idx))
-                 sample = samples(sample_idx)
+                 samp = samples(sample_idx)
                  runs1 = runs+1
                  MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
                  VarS(samp) = VarS(samp) + runs/(runs1) * (n_S-MeanS(samp))*(n_S-MeanS(samp))
@@ -68,7 +69,7 @@
            end do
 
            do while (sample_idx < Tmax)
-              sample = samples(sample_idx)
+              samp = samples(sample_idx)
               runs1 = runs+1
               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
               VarS(samp) = VarS(samp) + runs/(runs1) * (n_S-MeanS(samp))*(n_S-MeanS(samp))
