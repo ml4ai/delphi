@@ -1344,7 +1344,7 @@ class GrFNGenerator(object):
         # Get the GrFN schema of the test condition of the `IF` command
         condition_sources = self.gen_grfn(node.test, state, "if")
         # The index of the IF_x_x variable will start from 0
-        if state.last_definition_default in (-1, 0):
+        if state.last_definition_default in (-1, 0, -2):
             # default_if_index = state.last_definition_default + 1
             default_if_index = 0
         else:
@@ -1857,7 +1857,7 @@ class GrFNGenerator(object):
             as well.
         """
         return self.gen_grfn(node.left, state, "compare") \
-               + self.gen_grfn(node.comparators, state, "compare")
+            + self.gen_grfn(node.comparators, state, "compare")
 
     def process_subscript(self, node, state, *_):
         """
@@ -1946,6 +1946,13 @@ class GrFNGenerator(object):
                     self._get_variable_type(node.annotation)
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
+
+                # When a variable is AnnAssigned with [None] it is being
+                # declared but not defined. So, it should not be assigned an
+                # index. Having the index as -2 indicates that this variable
+                # has only been declared but never defined.
+                target['var']['index'] = -2
+                state.last_definitions[target['var']['variable']] = -2
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
@@ -2056,7 +2063,6 @@ class GrFNGenerator(object):
                 for target in node.targets
             ],
         )
-
         grfn = {"functions": [], "variables": [], "containers": []}
         # Again as above, only a single target appears in current version.
         # The `for` loop seems unnecessary but will be required when multiple
@@ -2574,7 +2580,10 @@ class GrFNGenerator(object):
         # variables in scope. If the variable is not found (happens when it is
         # assigned for the first time in a scope), its index will be one greater
         # than the last definition default.
-        index = next_definitions.get(var, last_definition_default + 1)
+        if last_definitions.get(var) == -2:
+            index = 0
+        else:
+            index = next_definitions.get(var, last_definition_default + 1)
         # Update the next definition index of this variable by incrementing
         # it by
         # 1. This will be used the next time when this variable is referenced on
