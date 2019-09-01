@@ -29,14 +29,14 @@ def SIR_Gillespie_MS__model__assign__i__1(i: int):
 def SIR_Gillespie_MS__model__assign__r__0(r: int):
     return (r+1)
 
+def SIR_Gillespie_MS__model__decision__i__2(i_0: int, i_1: int, IF_0_0: bool):
+    return i_1 if IF_0_0 else i_0
+
 def SIR_Gillespie_MS__model__decision__s__1(s_0: int, s_1: int, IF_0_0: bool):
     return s_1 if IF_0_0 else s_0
 
 def SIR_Gillespie_MS__model__decision__r__1(r_0: int, r_1: int, IF_0_0: bool):
     return r_1 if IF_0_0 else r_0
-
-def SIR_Gillespie_MS__model__decision__i__2(i_0: int, i_1: int, IF_0_0: bool):
-    return i_1 if IF_0_0 else i_0
 
 def SIR_Gillespie_MS__solver__assign__tmax__0():
     return 100
@@ -69,7 +69,7 @@ def SIR_Gillespie_MS__solver__assign__samples__0(tmax: int):
     return [0] * (0 + tmax)
 
 def SIR_Gillespie_MS__solver__loop_0__assign__i__0():
-    return 
+    return 0
 
 def SIR_Gillespie_MS__solver__loop_0__condition__IF_0__0(i, tmax):
     return 0 <= i < tmax
@@ -109,7 +109,7 @@ def SIR_Gillespie_MS__solver__loop_0__assign_i__1(i):
     return i + 1
 
 def SIR_Gillespie_MS__solver__loop_1__assign__runs__0():
-    return 
+    return 0
 
 def SIR_Gillespie_MS__solver__loop_1__condition__IF_0__0(runs, total_runs):
     return 0 <= runs < total_runs
