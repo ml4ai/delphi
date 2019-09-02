@@ -180,11 +180,11 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_i__1(n_i: int)
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_r__0(n_r: int):
     return (n_r+1)
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_i__2(n_i_0: int, n_i_1: int, IF_0_0: bool):
-    return n_i_1 if IF_0_0 else n_i_0
-
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_r__1(n_r_0: int, n_r_1: int, IF_0_0: bool):
     return n_r_1 if IF_0_0 else n_r_0
+
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_i__2(n_i_0: int, n_i_1: int, IF_0_0: bool):
+    return n_i_1 if IF_0_0 else n_i_0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
     return n_s_1 if IF_0_0 else n_s_0

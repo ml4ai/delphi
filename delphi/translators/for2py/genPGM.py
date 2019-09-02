@@ -1402,6 +1402,16 @@ class GrFNGenerator(object):
         )
         state.lambda_strings.append(lambda_string)
 
+        # Tricky thing going on here. The last definitions of `state` are
+        # copied into new variables viz. if_definitions and else_definitions
+        # and then assigned to their respective states i.e. if_state and
+        # else_state. This means that the two dictionaries will populate
+        # independently respective to the contents of their bodies (if-body
+        # and else-body) and also independently from the `state`. However,
+        # the `next_definitions` has not been copied like that which means
+        # the `next_definitions` of `state`, `if_state` and `else_state` are
+        # tied together and get passed around as the same dictionary. This
+        # helps in updating the index of variable across the if and else blocks.
         start_definitions = state.last_definitions.copy()
         if_definitions = start_definitions.copy()
         else_definitions = start_definitions.copy()
@@ -1939,9 +1949,12 @@ class GrFNGenerator(object):
                 # When a variable is AnnAssigned with [None] it is being
                 # declared but not defined. So, it should not be assigned an
                 # index. Having the index as -2 indicates that this variable
-                # has only been declared but never defined.
+                # has only been declared but never defined. The next
+                # definition of this variable should start with an index of 0
+                # though.
                 target['var']['index'] = -2
                 state.last_definitions[target['var']['variable']] = -2
+                state.next_definitions[target['var']['variable']] = 0
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
@@ -2570,12 +2583,7 @@ class GrFNGenerator(object):
         # assigned for the first time in a scope), its index will be one greater
         # than the last definition default.
 
-        # If the index is -2, the variable has been declared but not defined
-        # yet. So, now start its indexing with 0 (when it is first assigned).
-        if last_definitions.get(var) == -2:
-            index = 0
-        else:
-            index = next_definitions.get(var, last_definition_default + 1)
+        index = next_definitions.get(var, last_definition_default + 1)
         # Update the next definition index of this variable by incrementing
         # it by
         # 1. This will be used the next time when this variable is referenced on
