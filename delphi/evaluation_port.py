@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sns
 import warnings
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 
 
 class Error(Exception):
@@ -67,20 +68,12 @@ def get_data_value(
     country: Optional[str] = "South Sudan",
     state: Optional[str] = None,
     county: Optional[str] = None,
-    year: Optional[int] = None,
-    month: Optional[int] = None,
+    year: int = 2015,
+    month: int = 1,
     unit: Optional[str] = None,
-) -> float:
+    use_heuristic: bool = False,
+) -> List[float]:
     """ Get a indicator value from the delphi database.
-
-    If multiple data entries exist for one time point then the mean is used
-    for those time points. If there are no data entries for a given year,
-    then the mean over all data values is used. If there are no data entries
-    for a given month (but there are data entries for that year), then the
-    overall value for the year is used (the mean for that year is used if there
-    are multiple values for that year). Default settings are used if state,
-    country, or unit are not found. WARNING: All specifications should be
-    same as what was passed to G.parameterize() or else you could get mismatched data.
 
     Args:
         indicator: Name of the target indicator variable.
@@ -94,6 +87,12 @@ def get_data_value(
         month: Specified Month to get a value for.
 
         unit: Specified Units to get a value for.
+
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
+
 
     Returns:
         Specified float value given the specified parameters.
@@ -122,10 +121,11 @@ def get_data_value(
         check_q = query_parts["base"] + f"and `State` is '{state}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
-            warnings.warn((
-                f"Selected State not found for {indicator}! Using default ",
-                "settings (Getting data at Country level only instead of State ",
-                "level)!"
+            warnings.warn(
+                (
+                    f"Selected State not found for {indicator}! Using default ",
+                    "settings (Getting data at Country level only instead of State ",
+                    "level)!",
                 )
             )
             query_parts["state"] = f"and `State` is 'None'"
@@ -138,9 +138,10 @@ def get_data_value(
         check_q = query_parts["base"] + f"and `County` is '{county}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
-            warnings.warn((
-                f"Selected County not found for {indicator}! Using default ",
-                "settings (Attempting to get data at state level instead)!"
+            warnings.warn(
+                (
+                    f"Selected County not found for {indicator}! Using default ",
+                    "settings (Attempting to get data at state level instead)!",
                 )
             )
             query_parts["county"] = f"and `County` is 'None'"
@@ -168,32 +169,22 @@ def get_data_value(
 
     if results != []:
         unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
+        vals = [float(r["Value"]) for r in results if r["Unit"] == unit]
+        return vals
 
-    query_parts["month"] = ""
+    if not use_heuristic:
+        return []
+
+    query_parts["month"] = f"and `Month` is '0'"
     query = " ".join(query_parts.values())
     results = list(engine.execute(query))
 
     if results != []:
         unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
+        vals = [float(r["Value"]) for r in results if r["Unit"] == unit]
+        return list(map(lambda x: x / 12, vals))
 
-    query_parts["year"] = ""
-    query = " ".join(query_parts.values())
-    results = list(engine.execute(query))
-
-    if results != []:
-        unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
+    return []
 
 
 # ==========================================================================
@@ -201,24 +192,17 @@ def get_data_value(
 # ==========================================================================
 
 
-def data_to_df(
+def data_to_list(
     indicator: str,
     start_year: int,
     start_month: int,
     end_year: int,
     end_month: int,
+    use_heuristic: bool = False,
     **kwargs,
-) -> pd.DataFrame:
+) -> Tuple[List[str], List[List[int]]]:
     """ Get the true values of the indicator variable given a start date and
     end data. Allows for other specifications as well.
-
-    If multiple data entries exist for one time point then the mean is used
-    for those time points. If there are no data entries for a given year,
-    then the mean over all data values is used. If there are no data entries
-    for a given month (but there are data entries for that year), then the
-    overall value for the year is used (the mean for that year is used if there
-    are multiple values for that year). WARNING: The **kwargs parameters should
-    be same as what was passed to G.parameterize() or else you could get mismatched data.
 
     Args:
         variable: Name of target indicator variable.
@@ -231,12 +215,20 @@ def data_to_df(
 
         end_month: An integer, ending month.
 
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
+
         **kwargs: These are options for which you can specify
         country, state, units.
 
     Returns:
-        Pandas Dataframe containing true values for target node's indicator
-        variable. The values are indexed by date.
+        Returns a tuple where the first element is a list of the specified
+        dates in year-month format and the second element is a
+        list of lists of the true data for a given indicator.
+        Each element of the outer list represents a time step and the inner
+        lists contain the data for that time point.
     """
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
@@ -246,12 +238,23 @@ def data_to_df(
     n_timesteps = calculate_timestep(
         start_year, start_month, end_year, end_month
     )
-    vals = np.zeros(n_timesteps + 1)
+    vals = []
     year = start_year
     month = start_month
     date = []
     for j in range(n_timesteps + 1):
-        vals[j] = get_data_value(indicator, country, state, county, year, month, unit)
+        vals.append(
+            get_data_value(
+                indicator,
+                country,
+                state,
+                county,
+                year,
+                month,
+                unit,
+                use_heuristic,
+            )
+        )
         date.append(f"{year}-{month}")
 
         if month == 12:
@@ -260,7 +263,82 @@ def data_to_df(
         else:
             month = month + 1
 
-    return pd.DataFrame(vals, date, columns=[f"{indicator}(True)"])
+    return date, vals
+
+
+def mean_data_to_df(
+    indicator: str,
+    start_year: int,
+    start_month: int,
+    end_year: int,
+    end_month: int,
+    use_heuristic: bool = False,
+    ci: Optional[float] = None,
+    **kwargs,
+) -> pd.DataFrame:
+    """ Get the true values of the indicator variable given a start date and
+        end data. Allows for other specifications as well.
+        variable: Name of target indicator variable.
+
+        start_year: An integer, designates the starting year (ex: 2012).
+
+        start_month: An integer, starting month (1-12).
+
+        end_year: An integer, ending year.
+
+        end_month: An integer, ending month.
+
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
+
+        ci: confidence level. Only the mean is reported if left as None.
+
+        **kwargs: These are options for which you can specify
+        country, state, units.
+
+    Returns:
+        Pandas Dataframe containing true values for target node's indicator
+        variable. The values are indexed by date.
+    """
+    date, vals = data_to_list(
+        indicator,
+        start_year,
+        start_month,
+        end_year,
+        end_month,
+        use_heuristic,
+        **kwargs,
+    )
+    if ci is not None:
+        data_mean = np.zeros((len(date), 3))
+        for i, obs in enumerate(vals):
+            if len(obs) > 1:
+                mean, _, _ = stats.bayes_mvs(obs, ci)
+                data_mean[i, 0] = mean[0]
+                data_mean[i, 1] = mean[1][0]
+                data_mean[i, 2] = mean[2][1]
+            else:
+                data_mean[i, 0] = np.mean(obs)
+                data_mean[i, 1] = np.nan
+                data_mean[i, 2] = np.nan
+
+        return pd.DataFrame(
+            data_mean,
+            date,
+            columns=[
+                f"{indicator}(True)",
+                f"{indicator}(True)(Lower Confidence Bound)",
+                f"{indicator}(True)(Upper Confidence Bound)",
+            ],
+        )
+    else:
+        data_mean = np.zeros((len(date), 1))
+        for i, obs in enumerate(vals):
+            data_mean[i] = np.mean(obs)
+
+        return pd.DataFrame(data_mean, date, columns=[f"{indicator}(True)"])
 
 
 def pred_to_array(
@@ -304,8 +382,9 @@ def mean_pred_to_df(
         List[List[Dict[str, Dict[str, float]]]],
     ],
     indicator: str,
-    ci: float = 0.95,
+    ci: Optional[float] = 0.95,
     true_vals: bool = False,
+    use_heuristic_for_true: bool = False,
     **kwargs,
 ) -> pd.DataFrame:
     """ Outputs mean predictions for a given indicator that were generated by
@@ -337,54 +416,109 @@ def mean_pred_to_df(
         np.ndarray
     """
 
-    pred_raw = pred_to_array(preds, indicator)
-    _, pred_range, _ = preds
-    pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred_raw.T, ci)[:, 0]
-    pred_mean = np.zeros((len(pred_range), 3))
-    for i, (mean, interval) in enumerate(pred_stats):
-        pred_mean[i, 0] = mean
-        pred_mean[i, 1] = interval[0]
-        pred_mean[i, 2] = interval[1]
+    if ci is not None:
+        pred_raw = pred_to_array(preds, indicator)
+        _, pred_range, _ = preds
+        pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred_raw.T, ci)[
+            :, 0
+        ]
+        pred_mean = np.zeros((len(pred_range), 3))
+        for i, (mean, interval) in enumerate(pred_stats):
+            pred_mean[i, 0] = mean
+            pred_mean[i, 1] = interval[0]
+            pred_mean[i, 2] = interval[1]
 
-    mean_df = pd.DataFrame(
-        pred_mean,
-        columns=[
-            f"{indicator}(Mean Prediction)",
-            f"{indicator}(Lower Confidence Bound)",
-            f"{indicator}(Upper Confidence Bound)",
-        ],
-    )
-    if true_vals == True:
-        warnings.warn(
-            "The selected output settings assume that real data exists "
-            "for the given prediction time range. Any missing data values are "
-            "filled with a heuristic estimate based on existing data."
+        mean_df = pd.DataFrame(
+            pred_mean,
+            columns=[
+                f"{indicator}(Mean Prediction)",
+                f"{indicator}(Lower Confidence Bound)",
+                f"{indicator}(Upper Confidence Bound)",
+            ],
         )
-        start_date = pred_range[0]
-        start_year = int(start_date[0:4])
-        start_month = int(start_date[5:7])
-        end_date = pred_range[-1]
-        end_year = int(end_date[0:4])
-        end_month = int(end_date[5:7])
-        true_data_df = data_to_df(
-            indicator, start_year, start_month, end_year, end_month, **kwargs
-        )
-        mean_df = mean_df.set_index(true_data_df.index)
+        if true_vals == True:
+            warnings.warn(
+                "The selected output settings assume that real data exists "
+                "for the given prediction time range. Any missing data values are "
+                "filled with a heuristic estimate based on existing data."
+            )
+            start_date = pred_range[0]
+            start_year = int(start_date[0:4])
+            start_month = int(start_date[5:7])
+            end_date = pred_range[-1]
+            end_year = int(end_date[0:4])
+            end_month = int(end_date[5:7])
+            true_data_df = mean_data_to_df(
+                indicator,
+                start_year,
+                start_month,
+                end_year,
+                end_month,
+                use_heuristic_for_true,
+                ci,
+                **kwargs,
+            )
+            mean_df = mean_df.set_index(true_data_df.index)
 
-        error = mean_df.values - true_data_df.values.reshape(-1, 1)
-        error_df = pd.DataFrame(
-            error, columns=["Error", "Lower Error Bound", "Upper Error Bound"]
-        )
-        error_df = error_df.set_index(true_data_df.index)
+            error = mean_df.values - true_data_df.values[:, 0].reshape(-1, 1)
+            error_df = pd.DataFrame(
+                error,
+                columns=["Error", "Lower Error Bound", "Upper Error Bound"],
+            )
+            error_df = error_df.set_index(true_data_df.index)
 
-        return pd.concat(
-            [mean_df, true_data_df, error_df],
-            axis=1,
-            join_axes=[true_data_df.index],
-        )
+            return pd.concat(
+                [mean_df, true_data_df, error_df],
+                axis=1,
+                join_axes=[true_data_df.index],
+            )
+        else:
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+            return mean_df
     else:
-        mean_df = mean_df.set_index(pd.Index(pred_range))
-        return mean_df
+        pred_raw = pred_to_array(preds, indicator)
+        _, pred_range, _ = preds
+        pred_mean = np.mean(pred_raw, axis=0).reshape(-1, 1)
+
+        mean_df = pd.DataFrame(
+            pred_mean, columns=[f"{indicator}(Mean Prediction)"]
+        )
+        if true_vals == True:
+            warnings.warn(
+                "The selected output settings assume that real data exists "
+                "for the given prediction time range. Any missing data values are "
+                "filled with a heuristic estimate based on existing data."
+            )
+            start_date = pred_range[0]
+            start_year = int(start_date[0:4])
+            start_month = int(start_date[5:7])
+            end_date = pred_range[-1]
+            end_year = int(end_date[0:4])
+            end_month = int(end_date[5:7])
+            true_data_df = mean_data_to_df(
+                indicator,
+                start_year,
+                start_month,
+                end_year,
+                end_month,
+                use_heuristic_for_true,
+                ci,
+                **kwargs,
+            )
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+
+            error = mean_df.values - true_data_df.values.reshape(-1, 1)
+            error_df = pd.DataFrame(error, columns=["Error"])
+            error_df = error_df.set_index(true_data_df.index)
+
+            return pd.concat(
+                [mean_df, true_data_df, error_df],
+                axis=1,
+                join_axes=[true_data_df.index],
+            )
+        else:
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+            return mean_df
 
 
 def calculate_prediction_rmse(
@@ -397,7 +531,6 @@ def calculate_prediction_rmse(
     **kwargs,
 ) -> float:
     df = mean_pred_to_df(preds, indicator, 0.95, True, **kwargs)
-    df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1, inplace=True)
     sqr_residuals = df["Error"].values ** 2
     return np.sqrt(sqr_residuals.mean())
 
@@ -409,11 +542,12 @@ def pred_plot(
         List[List[Dict[str, Dict[str, float]]]],
     ],
     indicator: str,
-    ci: float = 0.95,
+    ci: Optional[float] = 0.95,
     plot_type: str = "Prediction",
     show_rmse: bool = False,
     show_training_data: bool = False,
     save_as: Optional[str] = None,
+    use_heuristic_for_true: bool = False,
     **kwargs,
 ) -> None:
     """ Creates a line plot of the mean predictions for a given indicator that were generated by
@@ -453,95 +587,207 @@ def pred_plot(
         None
     """
 
-    if plot_type == "Comparison":
-        if show_training_data:
-            training_range, pred_range, _ = preds
+    if ci is not None:
+        if plot_type == "Comparison":
+            if show_training_data:
+                training_range, pred_range, _ = preds
 
-            start_year = training_range[0][0]
-            start_month = training_range[0][1]
-            end_year = int(pred_range[-1][0:4])
-            end_month = int(pred_range[-1][5:7])
+                start_year = training_range[0][0]
+                start_month = training_range[0][1]
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
 
-            timesteps = calculate_timestep(start_year,start_month,end_year,end_month)
-            year = start_year
-            month = start_month
-            date = []
-            for j in range(timesteps + 1):
-                date.append(f"{year}-{month}")
-
-                if month == 12:
-                    year = year + 1
-                    month = 1
-                else:
-                    month = month + 1
-
-            training_data = data_to_df(
-                indicator,
-                start_year,
-                start_month,
-                training_range[1][0],
-                training_range[1][1],
-                **kwargs,
-            )
-            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
-            df_compare = pd.concat(
-                [training_data, df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)],
-                axis=0,
-                sort=False,
-            )
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_compare, sort=False, markers=["o","o"])
-            ax.fill_between(
-                x=df.index.astype(str),
-                y1=df[f"{indicator}(Upper Confidence Bound)"].values.astype(
-                    float
-                ),
-                y2=df[f"{indicator}(Lower Confidence Bound)"].values.astype(
-                    float
-                ),
-                alpha=0.5,
-            )
-            ax.set_xticklabels(
-                date,
-                rotation=45,
-                ha="right",
-                fontsize=8,
-            )
-            ax.set_title(f"Predictions vs. True values for {indicator}")
-            ax.get_lines()[0].set_color("orange")
-            ax.get_lines()[1].set_color("blue")
-            ax.get_lines()[0].set_linestyle("--")
-            ax.get_lines()[1].set_linestyle("-")
-            if show_rmse:
-                rmse = round(
-                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
+                total_timesteps = (
+                    calculate_timestep(
+                        start_year, start_month, end_year, end_month
+                    )
+                    + 1
                 )
-                rmse_str = f"Root Mean Squared Error: {rmse}"
+                pred_timesteps = len(pred_range)
+                pred_init_step = total_timesteps - pred_timesteps
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                pred_x = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+                    if i >= pred_init_step:
+                        pred_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                df_pred = df.drop(df.columns[[1, 2]], axis=1)
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                ax2 = sns.lineplot(
+                    x=pred_x, y=df_pred.values.ravel(), sort=False, ax=ax
+                )
+                ax2.fill_between(
+                    x=pred_x,
+                    y1=df[
+                        f"{indicator}(Upper Confidence Bound)"
+                    ].values.astype(float),
+                    y2=df[
+                        f"{indicator}(Lower Confidence Bound)"
+                    ].values.astype(float),
+                    alpha=0.5,
+                )
+                ax.set_xticklabels(
+                    true_date, ha="right", rotation=45, fontsize=8
+                )
+                ax.set_xticks(true_data_x)
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax2.get_lines()[0].set_color("blue")
+                ax2.get_lines()[0].set_linestyle("-")
+                ax2.get_lines()[0].set_marker("o")
                 handles, labels = ax.get_legend_handles_labels()
-                handles.append(mpatches.Patch(color="none", label=rmse_str))
+                handles.append(
+                    mpatches.Patch(
+                        edgecolor="red",
+                        hatch="x",
+                        label=f"{indicator}(True)",
+                        fill=False,
+                        linewidth=0,
+                    )
+                )
+                handles.append(
+                    mpatches.Patch(
+                        color="blue",
+                        linestyle="-",
+                        label=f"{indicator}(Mean Prediction)",
+                    )
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
                 ax.legend(handles=handles)
-        else:
+            else:
+                _, pred_range, _ = preds
+
+                start_year = int(pred_range[0][0:4])
+                start_month = int(pred_range[0][5:7])
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                df_pred = df.drop(df.columns[[1, 2]], axis=1)
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
+                ax.fill_between(
+                    x=df.index.astype(str),
+                    y1=df[
+                        f"{indicator}(Upper Confidence Bound)"
+                    ].values.astype(float),
+                    y2=df[
+                        f"{indicator}(Lower Confidence Bound)"
+                    ].values.astype(float),
+                    alpha=0.5,
+                )
+                ax.set_xticklabels(
+                    df.index.astype(str), rotation=45, ha="right", fontsize=8
+                )
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax.get_lines()[0].set_color("blue")
+                ax.get_lines()[0].set_linestyle("-")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(color="red", label=f"{indicator}(True)")
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+        elif plot_type == "Error":
             df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
-            df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
+            df_error = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_compare, sort=False, markers=["o","o"])
+            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
             ax.fill_between(
-                x=df_compare.index.astype(str),
-                y1=df[f"{indicator}(Upper Confidence Bound)"].values.astype(
-                    float
-                ),
-                y2=df[f"{indicator}(Lower Confidence Bound)"].values.astype(
-                    float
-                ),
+                x=df_error.index,
+                y1=df["Upper Error Bound"].values,
+                y2=df["Lower Error Bound"].values,
                 alpha=0.5,
             )
-            ax.set_xticklabels(
-                df.index.astype(str), rotation=45, ha="right", fontsize=8
-            )
-            ax.set_title(f"Predictions vs. True values for {indicator}")
-            ax.get_lines()[1].set_color("orange")
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.axhline(color="r")
+            ax.set_title(f"Prediction Error for {indicator}")
             ax.get_lines()[0].set_color("blue")
-            ax.get_lines()[1].set_linestyle("--")
             ax.get_lines()[0].set_linestyle("-")
             if show_rmse:
                 rmse = round(
@@ -551,64 +797,255 @@ def pred_plot(
                 handles, labels = ax.get_legend_handles_labels()
                 handles.append(mpatches.Patch(color="none", label=rmse_str))
                 ax.legend(handles=handles)
-    elif plot_type == "Error":
-        df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
-        df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
-        ax.fill_between(
-            x=df_error.index,
-            y1=df["Upper Error Bound"].values,
-            y2=df["Lower Error Bound"].values,
-            alpha=0.5,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.axhline(color="r")
-        ax.set_title(f"Prediction Error for {indicator}")
-        ax.get_lines()[0].set_color("blue")
-        ax.get_lines()[0].set_linestyle("-")
-        if show_rmse:
-            rmse = round(
-                calculate_prediction_rmse(preds, indicator, **kwargs), 4
+        elif plot_type == "Test":
+            # This option may not function properly
+            test_data = kwargs.get("test_data")
+            assert test_data is not None
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            df_pred[f"{indicator}(Synthetic)"] = test_data
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False)
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
             )
-            rmse_str = f"Root Mean Squared Error: {rmse}"
-            handles, labels = ax.get_legend_handles_labels()
-            handles.append(mpatches.Patch(color="none", label=rmse_str))
-            ax.legend(handles=handles)
-    elif plot_type == "Test":
-        test_data = kwargs.get("test_data")
-        assert test_data is not None
-        df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-        df_pred = df.drop(df.columns[[1, 2]], axis=1)
-        df_pred[f"{indicator}(Synthetic)"] = test_data
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_pred, sort=False)
-        ax.fill_between(
-            x=df_pred.index,
-            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-            alpha=0.5,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.set_title(f"Predictions vs. True values(Synthetic) for {indicator}")
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(
+                f"Predictions vs. True values(Synthetic) for {indicator}"
+            )
+        else:
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(f"Predictions for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+        if save_as is not None:
+            fig = ax.get_figure()
+            fig.savefig(save_as)
     else:
-        df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-        df_pred = df.drop(df.columns[[1, 2]], axis=1)
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
-        ax.fill_between(
-            x=df_pred.index,
-            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-            alpha=0.5,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.set_title(f"Predictions for {indicator}")
-        ax.get_lines()[0].set_color("blue")
-        ax.get_lines()[0].set_linestyle("-")
-    if save_as is not None:
-        fig = ax.get_figure()
-        fig.savefig(save_as)
+        if plot_type == "Comparison":
+            if show_training_data:
+                training_range, pred_range, _ = preds
+
+                start_year = training_range[0][0]
+                start_month = training_range[0][1]
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                total_timesteps = (
+                    calculate_timestep(
+                        start_year, start_month, end_year, end_month
+                    )
+                    + 1
+                )
+                pred_timesteps = len(pred_range)
+                pred_init_step = total_timesteps - pred_timesteps
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                pred_x = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+                    if i >= pred_init_step:
+                        pred_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                ax2 = sns.lineplot(
+                    x=pred_x, y=df.values.ravel(), sort=False, ax=ax
+                )
+                ax.set_xticklabels(
+                    true_date, ha="right", rotation=45, fontsize=8
+                )
+                ax.set_xticks(true_data_x)
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax2.get_lines()[0].set_color("blue")
+                ax2.get_lines()[0].set_linestyle("-")
+                ax2.get_lines()[0].set_marker("o")
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(
+                        edgecolor="red",
+                        hatch="x",
+                        label=f"{indicator}(True)",
+                        fill=False,
+                        linewidth=0,
+                    )
+                )
+                handles.append(
+                    mpatches.Patch(
+                        color="blue",
+                        linestyle="-",
+                        label=f"{indicator}(Mean Prediction)",
+                    )
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+            else:
+                _, pred_range, _ = preds
+
+                start_year = int(pred_range[0][0:4])
+                start_month = int(pred_range[0][5:7])
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.lineplot(data=df, sort=False, markers=["o"])
+                ax.set_xticklabels(
+                    df.index.astype(str), rotation=45, ha="right", fontsize=8
+                )
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax.get_lines()[0].set_color("blue")
+                ax.get_lines()[0].set_linestyle("-")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(color="red", label=f"{indicator}(True)")
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+        elif plot_type == "Error":
+            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
+            df_error = df.drop(df.columns[[0, 1]], axis=1)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.axhline(color="r")
+            ax.set_title(f"Prediction Error for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+            if show_rmse:
+                rmse = round(
+                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
+                )
+                rmse_str = f"Root Mean Squared Error: {rmse}"
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(mpatches.Patch(color="none", label=rmse_str))
+                ax.legend(handles=handles)
+        elif plot_type == "Test":
+            # This option may not function properly
+            test_data = kwargs.get("test_data")
+            assert test_data is not None
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            df_pred[f"{indicator}(Synthetic)"] = test_data
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False)
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(
+                f"Predictions vs. True values(Synthetic) for {indicator}"
+            )
+        else:
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df, sort=False, markers=["o"])
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(f"Predictions for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+        if save_as is not None:
+            fig = ax.get_figure()
+            fig.savefig(save_as)
 
 
 # ==========================================================================
