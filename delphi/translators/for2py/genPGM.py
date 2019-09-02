@@ -593,17 +593,6 @@ class GrFNGenerator(object):
         # the body of the loop will have the below scope
         self.current_scope = f"{self.current_scope}.loop${self.loop_index}"
 
-        state = state.copy(
-            last_definitions=state.last_definitions.copy(),
-            next_definitions=state.next_definitions.copy(),
-            last_definition_default=state.last_definition_default,
-            function_name=state.function_name,
-            variable_types=state.variable_types.copy(),
-            lambda_strings=state.lambda_strings,
-            start=state.start.copy(),
-            scope_path=scope_path,
-        )
-
         index_variable = self.gen_grfn(node.target, state, "for")
         # Check: Currently, only one variable is supported as a loop variable
         if len(index_variable) != 1 or "var" not in index_variable[0]:
@@ -892,10 +881,13 @@ class GrFNGenerator(object):
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
             if 'IF' not in item:
+                updated_index = state.last_definitions[item] + 1
                 function_updated.append(
                     f"@variable::{item}::"
-                    f"{state.last_definitions[item] + 1}"
+                    f"{updated_index}"
                 )
+                state.last_definitions[item] = updated_index
+                state.next_definitions[item] = updated_index + 1
                 container_updated.append(
                     f"@variable::{item}::"
                     f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
@@ -1026,17 +1018,6 @@ class GrFNGenerator(object):
         # Update the scope of the loop container so that everything inside
         # the body of the loop will have the below scope
         self.current_scope = f"{self.current_scope}.loop${self.loop_index}"
-
-        state = state.copy(
-            last_definitions=state.last_definitions.copy(),
-            next_definitions=state.next_definitions.copy(),
-            last_definition_default=state.last_definition_default,
-            function_name=state.function_name,
-            variable_types=state.variable_types.copy(),
-            lambda_strings=state.lambda_strings,
-            start=state.start.copy(),
-            scope_path=scope_path,
-        )
 
         loop_test = self.gen_grfn(node.test, state, "while")
 
@@ -1269,10 +1250,13 @@ class GrFNGenerator(object):
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
             if 'IF' not in item:
+                updated_index = state.last_definitions[item] + 1
                 function_updated.append(
                     f"@variable::{item}::"
-                    f"{state.last_definitions[item] + 1}"
+                    f"{updated_index}"
                 )
+                state.last_definitions[item] = updated_index
+                state.next_definitions[item] = updated_index + 1
                 container_updated.append(
                     f"@variable::{item}::"
                     f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
