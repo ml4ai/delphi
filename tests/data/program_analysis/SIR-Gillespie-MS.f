@@ -84,19 +84,19 @@ C     VarR     Measures of Variance for R
         double precision, dimension(0:Tmax) :: VarS, VarI, VarR
         integer, dimension(0:Tmax) :: samples
 
-        integer i, runs, runs1, sample_idx, samp, n_S, n_I, n_R
+        integer j, runs, runs1, sample_idx, samp, n_S, n_I, n_R
         double precision totalRates, dt, t
 
-        do i = 0, Tmax    ! Initialize the mean and variance arrays
-           MeanS(i) = 0
-           MeanI(i) = 0.0
-           MeanR(i) = 0.0
+        do j = 0, Tmax    ! Initialize the mean and variance arrays
+           MeanS(j) = 0
+           MeanI(j) = 0.0
+           MeanR(j) = 0.0
 
-           VarS(i) = 0.0
-           VarI(i) = 0.0
-           VarR(i) = 0.0
+           VarS(j) = 0.0
+           VarI(j) = 0.0
+           VarR(j) = 0.0
 
-           samples(i) = i
+           samples(j) = j
         end do
 
         do runs = 0, total_runs-1

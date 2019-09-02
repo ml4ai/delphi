@@ -45,6 +45,8 @@ def sir_gillespie_ms_grfn():
 def test_petpt_creation_and_execution(petpt_grfn):
     A = petpt_grfn.to_agraph()
     A.draw("PETPT--GrFN.pdf", prog="dot")
+    CAG = petpt_grfn.to_CAG_agraph()
+    CAG.draw('PETPT--CAG.pdf', prog='dot')
     assert isinstance(petpt_grfn, GroundedFunctionNetwork)
     assert len(petpt_grfn.inputs) == 5
     assert len(petpt_grfn.outputs) == 1
@@ -58,6 +60,8 @@ def test_petasce_creation(petasce_grfn):
     A = petasce_grfn.to_agraph()
     CAG = petasce_grfn.to_CAG_agraph()
     CG = petasce_grfn.to_call_agraph()
+    A.draw('PETASCE--GrFN.pdf', prog='dot')
+    CAG.draw('PETASCE--CAG.pdf', prog='dot')
 
     values = {
         "PETASCE_simple::@global::petasce::0::doy::-1": 20.0,
@@ -81,6 +85,10 @@ def test_petasce_creation(petasce_grfn):
 
 def test_crop_yield_creation(crop_yield_grfn):
     assert isinstance(crop_yield_grfn, GroundedFunctionNetwork)
+    G = crop_yield_grfn.to_agraph()
+    G.draw('crop_yield--GrFN.pdf', prog='dot')
+    CAG = crop_yield_grfn.to_CAG_agraph()
+    CAG.draw('crop_yield--CAG.pdf', prog='dot')
 
 
 def test_sir_simple_creation(sir_simple_grfn):

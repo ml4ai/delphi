@@ -13,6 +13,8 @@ sys.path.insert(0, "scripts/SIR_Demo/")
 grfn = GroundedFunctionNetwork.from_fortran_file(filename)
 agraph = grfn.to_agraph()
 agraph.draw(f"{filename}--GrFN.pdf", prog='dot')
+CAG = grfn.to_CAG_agraph()
+CAG.draw(f"{filename}--CAG.pdf", prog="dot")
 
 
 # CAG = grfn.to_CAG()

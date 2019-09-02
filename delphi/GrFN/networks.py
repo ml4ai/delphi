@@ -131,21 +131,16 @@ class ComputationalGraph(nx.DiGraph):
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "variable":
+                cag_name = attrs["cag_label"]
+                G.add_node(cag_name, **attrs)
                 for pred_fn in self.predecessors(name):
-                    if not any(
-                        fn_type in pred_fn
-                        for fn_type in ("condition", "decision")
-                    ):
-                        for pred_var in self.predecessors(pred_fn):
-                            G.add_node(
-                                self.nodes[pred_var]["basename"],
-                                **self.nodes[pred_var],
-                            )
-                            G.add_node(attrs["basename"], **attrs)
-                            G.add_edge(
-                                self.nodes[pred_var]["basename"],
-                                attrs["basename"],
-                            )
+                    for pred_var in self.predecessors(pred_fn):
+                        v_attrs = self.nodes[pred_var]
+                        if "beta" in pred_var:
+                            print(v_attrs)
+                        v_name = v_attrs["cag_label"]
+                        G.add_node(v_name, **self.nodes[pred_var])
+                        G.add_edge(v_name, cag_name)
 
         return G
 
@@ -168,6 +163,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         super().__init__(G)
         self.outputs = outputs
         self.scope_tree = scope_tree
+        for name, data in self.nodes(data=True):
+            if len(data) == 0:
+                print(name, data)
         self.inputs = [
             n
             for n, d in self.in_degree()
@@ -542,7 +540,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                               for n, val in zip(prob_def["names"], sample)}
 
                 res = self.run(values)
-                Y[i] = res
+                Y[i] = res[0]
 
         return sobol.analyze(prob_def, Y)
 
@@ -599,7 +597,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for x, y in itertools.product(range(len(X)), range(len(Y))):
                 inputs = {n: v for n, v in presets.items()}
                 inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs)
+                Z[x][y] = self.run(inputs)[0]
 
         return X, Y, Z, x_var, y_var
 
