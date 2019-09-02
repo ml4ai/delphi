@@ -805,8 +805,10 @@ class GrFNGenerator(object):
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
-                    input_var = ip.split('::')[1]
-                    loop_body_inputs.append(input_var)
+                    (_, input_var, input_index) = ip.split('::')
+                    if int(input_index) == -1 and input_var not in \
+                            loop_body_inputs:
+                        loop_body_inputs.append(input_var)
             elif function['function']['type'] == 'container':
                 # The same code as above but separating it out just in case
                 # some extra checks are added in the future
@@ -876,15 +878,12 @@ class GrFNGenerator(object):
                 # TODO Currently, we only deal with a single output variable.
                 #  Modify the line above to not look at only [0] but loop
                 #  through the output to incorporate multiple outputs
-                output = function["output"][0].split('::')
-                output_var = output[1]
-                output_index = output[2]
+                (_, output_var, output_index) = function["output"][0].split(
+                    '::')
                 loop_body_outputs[output_var] = output_index
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
-                    output = ip.split('::')
-                    output_var = output[1]
-                    output_index = output[2]
+                    (_, output_var, output_index) = ip.split('::')
                     loop_body_outputs[output_var] = output_index
 
         for item in loop_body_outputs:
@@ -1184,8 +1183,10 @@ class GrFNGenerator(object):
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
-                    input_var = ip.split('::')[1]
-                    loop_body_inputs.append(input_var)
+                    (_, input_var, input_index) = ip.split('::')
+                    if int(input_index) == -1 and input_var not in \
+                            loop_body_inputs:
+                        loop_body_inputs.append(input_var)
             elif function['function']['type'] == 'container':
                 # The same code as above but separating it out just in case
                 # some extra checks are added in the future
@@ -1254,15 +1255,12 @@ class GrFNGenerator(object):
                 # TODO Currently, we only deal with a single output variable.
                 #  Modify the line above to not look at only [0] but loop
                 #  through the output to incorporate multiple outputs
-                output = function["output"][0].split('::')
-                output_var = output[1]
-                output_index = output[2]
+                (_, output_var, output_index) = function["output"][0].split(
+                    '::')
                 loop_body_outputs[output_var] = output_index
             elif function['function']['type'] == 'container':
                 for ip in function['updated']:
-                    output = ip.split('::')
-                    output_var = output[1]
-                    output_index = output[2]
+                    (_, output_var, output_index) = ip.split('::')
                     loop_body_outputs[output_var] = output_index
 
         for item in loop_body_outputs:
@@ -1274,11 +1272,11 @@ class GrFNGenerator(object):
             if 'IF' not in item:
                 function_updated.append(
                     f"@variable::{item}::"
-                    f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
+                    f"{state.last_definitions[item] + 1}"
                 )
                 container_updated.append(
                     f"@variable::{item}::"
-                    f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
+                    f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
                 )
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
