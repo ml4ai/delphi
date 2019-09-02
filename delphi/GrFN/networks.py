@@ -164,8 +164,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
         self.outputs = outputs
         self.scope_tree = scope_tree
         for name, data in self.nodes(data=True):
-            if not hasattr(data, "type"):
-                print(name)
+            if len(data) == 0:
+                print(name, data)
         self.inputs = [
             n
             for n, d in self.in_degree()
@@ -540,7 +540,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                               for n, val in zip(prob_def["names"], sample)}
 
                 res = self.run(values)
-                Y[i] = res
+                Y[i] = res[0]
 
         return sobol.analyze(prob_def, Y)
 
@@ -597,7 +597,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for x, y in itertools.product(range(len(X)), range(len(Y))):
                 inputs = {n: v for n, v in presets.items()}
                 inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs)
+                Z[x][y] = self.run(inputs)[0]
 
         return X, Y, Z, x_var, y_var
 
