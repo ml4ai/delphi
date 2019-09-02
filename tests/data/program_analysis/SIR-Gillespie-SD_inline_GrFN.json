@@ -2,76 +2,2665 @@
   "start": [
     "@container::SIR-Gillespie-SD_inline::@global::main"
   ],
-  "containers": [
+  "variables": [
     {
-      "name": "@container::SIR-Gillespie-SD_inline::@global::pyrand",
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::s0::-1",
+      "gensym": "v_74c4784ed532",
       "source_refs": [],
-      "gensym": "c_cd644ef74a41",
-      "repeat": false,
-      "arguments": [
-        "@variable::do_init::-1"
-      ],
-      "updated": [],
-      "return_value": [
-        "@variable::retval::2"
-      ],
-      "body": [
-        {
-          "function": {
-            "name": "SIR_Gillespie_SD_inline__pyrand__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::do_init::-1"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR_Gillespie_SD_inline__pyrand__assign__retval__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::retval::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR_Gillespie_SD_inline__pyrand__assign__retval__1",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::retval::1"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "SIR_Gillespie_SD_inline__pyrand__decision__retval__2",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::retval::1",
-            "@variable::retval::0",
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::retval::2"
-          ],
-          "updated": []
-        }
-      ]
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
     },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::i0::-1",
+      "gensym": "v_a864140ff9ca",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::r0::-1",
+      "gensym": "v_66fbd5ef8552",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::tmax::0",
+      "gensym": "v_92532bdb505d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::total_runs::0",
+      "gensym": "v_b67a1c8245a1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::gamma::0",
+      "gensym": "v_08f73edf8ce2",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::rho::0",
+      "gensym": "v_08c679568a91",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::beta::0",
+      "gensym": "v_880514393d56",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::means::0",
+      "gensym": "v_94ec148a1f93",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::meani::0",
+      "gensym": "v_b920ac93d1e0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::meanr::0",
+      "gensym": "v_987a0b02b0c2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::vars::0",
+      "gensym": "v_81a0cf88274c",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::vari::0",
+      "gensym": "v_7a02fc894b4a",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::varr::0",
+      "gensym": "v_593cd9225bb0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::samples::0",
+      "gensym": "v_fd983da81c46",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::means_i::0",
+      "gensym": "v_bed1063d9ffd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meani_i::0",
+      "gensym": "v_0841a5eafca6",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meanr_i::0",
+      "gensym": "v_aea13d8b7032",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vars_i::0",
+      "gensym": "v_f1d919554826",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vari_i::0",
+      "gensym": "v_14ea2ef74155",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::varr_i::0",
+      "gensym": "v_415f283ae543",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::samples_i::0",
+      "gensym": "v_29aeb02c3e01",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::i::0",
+      "gensym": "v_7cb345ee7d71",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::IF_0::0",
+      "gensym": "v_55a25212ec85",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::EXIT::0",
+      "gensym": "v_26d0f208122f",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::means_i::0",
+      "gensym": "v_bed1063d9ffd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meani_i::0",
+      "gensym": "v_0841a5eafca6",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meanr_i::0",
+      "gensym": "v_aea13d8b7032",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vars_i::0",
+      "gensym": "v_f1d919554826",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vari_i::0",
+      "gensym": "v_14ea2ef74155",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::varr_i::0",
+      "gensym": "v_415f283ae543",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::samples_i::0",
+      "gensym": "v_29aeb02c3e01",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::i::1",
+      "gensym": "v_2a37d12e687e",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::n_samples::0",
+      "gensym": "v_664c291aa540",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::t::0",
+      "gensym": "v_f7fd27a7295f",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_s::0",
+      "gensym": "v_b45bdc74aa0d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_i::0",
+      "gensym": "v_0f3001963bba",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_r::0",
+      "gensym": "v_6ebc9d6164be",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::sample_idx::0",
+      "gensym": "v_b96a017cea70",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
+      "gensym": "v_a9b89babbc0b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
+      "gensym": "v_9b7eee923ba1",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
+      "gensym": "v_d23156e0d029",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
+      "gensym": "v_180ed958c59a",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
+      "gensym": "v_b74969985ee7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_43a62eb64a0c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_d65ea9c35afd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_8b700485d7dd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
+      "gensym": "v_29a0a8069466",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
+      "gensym": "v_3631d7cc47c1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
+      "gensym": "v_a006a7c1a5b0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
+      "gensym": "v_9b1a48936cff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
+      "gensym": "v_5d6444f10977",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
+      "gensym": "v_5447de48abb7",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
+      "gensym": "v_003712817f21",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_a6f9830d09a0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::EXIT::0",
+      "gensym": "v_ac3e1f6af49c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
+      "gensym": "v_a9b89babbc0b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
+      "gensym": "v_9b7eee923ba1",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
+      "gensym": "v_d23156e0d029",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
+      "gensym": "v_180ed958c59a",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
+      "gensym": "v_b74969985ee7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_43a62eb64a0c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_d65ea9c35afd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_8b700485d7dd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
+      "gensym": "v_29a0a8069466",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
+      "gensym": "v_3631d7cc47c1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
+      "gensym": "v_a006a7c1a5b0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
+      "gensym": "v_9b1a48936cff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
+      "gensym": "v_5d6444f10977",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
+      "gensym": "v_5447de48abb7",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
+      "gensym": "v_003712817f21",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
+      "gensym": "v_798fb467e13d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
+      "gensym": "v_d5a52cde9ed5",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
+      "gensym": "v_b50fb33e7be1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_98b66f56fe93",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_b3b421f018d0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7de6d49f9888",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_eef7de0c032d",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_43f9f4a56f5b",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_b4fbb039a951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::IF_0::0",
+      "gensym": "v_031a8b88b99d",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::EXIT::0",
+      "gensym": "v_c09051e60e59",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
+      "gensym": "v_798fb467e13d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
+      "gensym": "v_d5a52cde9ed5",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
+      "gensym": "v_b50fb33e7be1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_98b66f56fe93",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_b3b421f018d0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7de6d49f9888",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_eef7de0c032d",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_43f9f4a56f5b",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_b4fbb039a951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::runs::0",
+      "gensym": "v_92b233afb596",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::IF_0::0",
+      "gensym": "v_89cfbb199aa0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::EXIT::0",
+      "gensym": "v_f7dda1e2ba3e",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::t::0",
+      "gensym": "v_f7fd27a7295f",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_s::0",
+      "gensym": "v_b45bdc74aa0d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_i::0",
+      "gensym": "v_0f3001963bba",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_r::0",
+      "gensym": "v_6ebc9d6164be",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::sample_idx::0",
+      "gensym": "v_b96a017cea70",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
+      "gensym": "v_a9b89babbc0b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
+      "gensym": "v_9b7eee923ba1",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
+      "gensym": "v_d23156e0d029",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
+      "gensym": "v_180ed958c59a",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
+      "gensym": "v_b74969985ee7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_43a62eb64a0c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_d65ea9c35afd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_8b700485d7dd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
+      "gensym": "v_29a0a8069466",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
+      "gensym": "v_3631d7cc47c1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
+      "gensym": "v_a006a7c1a5b0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
+      "gensym": "v_9b1a48936cff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
+      "gensym": "v_5d6444f10977",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
+      "gensym": "v_5447de48abb7",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
+      "gensym": "v_003712817f21",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_a6f9830d09a0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::EXIT::0",
+      "gensym": "v_ac3e1f6af49c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
+      "gensym": "v_a9b89babbc0b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
+      "gensym": "v_9b7eee923ba1",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
+      "gensym": "v_d23156e0d029",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
+      "gensym": "v_180ed958c59a",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
+      "gensym": "v_b74969985ee7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_43a62eb64a0c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_d65ea9c35afd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_784e85390b01",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_28fcb5905b25",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_db56ba45d101",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_3a0ffbfc2d3e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_cada2f17d7a3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_a167a406f122",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_0a9d85fbd3cd",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_902620e8b899",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_ac51507922e8",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
+      "gensym": "v_8b700485d7dd",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
+      "gensym": "v_29a0a8069466",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
+      "gensym": "v_3631d7cc47c1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
+      "gensym": "v_a006a7c1a5b0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
+      "gensym": "v_9b1a48936cff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
+      "gensym": "v_5d6444f10977",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
+      "gensym": "v_5447de48abb7",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
+      "gensym": "v_003712817f21",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
+      "gensym": "v_798fb467e13d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
+      "gensym": "v_d5a52cde9ed5",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
+      "gensym": "v_b50fb33e7be1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_98b66f56fe93",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_b3b421f018d0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7de6d49f9888",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_eef7de0c032d",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_43f9f4a56f5b",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_b4fbb039a951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::IF_0::0",
+      "gensym": "v_031a8b88b99d",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::EXIT::0",
+      "gensym": "v_c09051e60e59",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
+      "gensym": "v_798fb467e13d",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
+      "gensym": "v_d5a52cde9ed5",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
+      "gensym": "v_b50fb33e7be1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_98b66f56fe93",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_b3b421f018d0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7de6d49f9888",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_eef7de0c032d",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_43f9f4a56f5b",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_b4fbb039a951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::runs::1",
+      "gensym": "v_d91cc9ecc699",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::main::s0::0",
+      "gensym": "v_ae3591f73374",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::main::i0::0",
+      "gensym": "v_bf0abf6ba385",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::main::r0::0",
+      "gensym": "v_443c0f4d20ec",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-SD_inline::main::tmax::0",
+      "gensym": "v_c2bbb41e1b55",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    }
+  ],
+  "containers": [
     {
       "name": "@container::SIR-Gillespie-SD_inline::@global::gillespie",
       "source_refs": [],
-      "gensym": "c_e9b9ba5d5573",
+      "gensym": "c_9ad90fa82e37",
       "repeat": false,
       "arguments": [
         "@variable::s0::-1",
@@ -236,14 +2825,14 @@
             "type": "container"
           },
           "input": [
+            "@variable::tmax::0",
             "@variable::means::0",
-            "@variable::samples::0",
-            "@variable::vari::0",
-            "@variable::varr::0",
             "@variable::meani::0",
             "@variable::meanr::0",
-            "@variable::tmax::0",
-            "@variable::vars::0"
+            "@variable::vars::0",
+            "@variable::vari::0",
+            "@variable::varr::0",
+            "@variable::samples::0"
           ],
           "output": [],
           "updated": [
@@ -269,49 +2858,24 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD_inline::@global::pyrand",
-            "type": "container"
-          },
-          "input": [
-            "@literal::boolean::True"
-          ],
-          "output": [
-            "@variable::randval::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
             "name": "@container::SIR-Gillespie-SD_inline::gillespie::loop$1",
             "type": "container"
           },
           "input": [
-            "@variable::i0::-1",
-            "@variable::raterecover::-1",
-            "@variable::meani::0",
-            "@variable::n_i::-1",
-            "@variable::n_s::-1",
-            "@variable::gamma::0",
-            "@variable::varr::0",
-            "@variable::totalrates::-1",
-            "@variable::runs1::-1",
-            "@variable::n_r::-1",
-            "@variable::samp::-1",
-            "@variable::randval::0",
-            "@variable::means::0",
-            "@variable::s0::-1",
-            "@variable::vari::0",
             "@variable::total_runs::0",
-            "@variable::sample_idx::-1",
-            "@variable::t::-1",
-            "@variable::meanr::0",
-            "@variable::dt::-1",
-            "@variable::vars::0",
-            "@variable::samples::0",
+            "@variable::s0::-1",
+            "@variable::i0::-1",
             "@variable::r0::-1",
-            "@variable::beta::0",
             "@variable::tmax::0",
-            "@variable::rateinfect::-1"
+            "@variable::beta::0",
+            "@variable::gamma::0",
+            "@variable::samples::1",
+            "@variable::means::1",
+            "@variable::vars::1",
+            "@variable::meani::1",
+            "@variable::vari::1",
+            "@variable::meanr::1",
+            "@variable::varr::1"
           ],
           "output": [],
           "updated": [
@@ -326,12 +2890,12 @@
             "@variable::dt::0",
             "@variable::samp::0",
             "@variable::runs1::0",
-            "@variable::means::1",
-            "@variable::vars::1",
-            "@variable::meani::1",
-            "@variable::vari::1",
-            "@variable::meanr::1",
-            "@variable::varr::1"
+            "@variable::means::2",
+            "@variable::vars::2",
+            "@variable::meani::2",
+            "@variable::vari::2",
+            "@variable::meanr::2",
+            "@variable::varr::2"
           ]
         }
       ]
@@ -339,17 +2903,17 @@
     {
       "name": "@container::SIR-Gillespie-SD_inline::gillespie::loop$0",
       "source_refs": [],
-      "gensym": "c_8508cabeed19",
+      "gensym": "c_5cb31df5b99e",
       "repeat": true,
       "arguments": [
         "@variable::tmax::-1",
-        "@variable::samples::-1",
         "@variable::means::-1",
-        "@variable::varr::-1",
-        "@variable::meanr::-1",
-        "@variable::vari::-1",
         "@variable::meani::-1",
-        "@variable::vars::-1"
+        "@variable::meanr::-1",
+        "@variable::vars::-1",
+        "@variable::vari::-1",
+        "@variable::varr::-1",
+        "@variable::samples::-1"
       ],
       "updated": [
         "@variable::means::0",
@@ -406,8 +2970,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::means::-1"
+            "@variable::means::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::means::0"
@@ -420,8 +2984,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::meani::-1"
+            "@variable::meani::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::meani::0"
@@ -434,8 +2998,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::meanr::-1"
+            "@variable::meanr::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::meanr::0"
@@ -448,8 +3012,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::vars::-1"
+            "@variable::vars::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::vars::0"
@@ -462,8 +3026,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::vari::-1"
+            "@variable::vari::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::vari::0"
@@ -476,8 +3040,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::i::0",
-            "@variable::varr::-1"
+            "@variable::varr::-1",
+            "@variable::i::0"
           ],
           "output": [
             "@variable::varr::0"
@@ -516,54 +3080,42 @@
     {
       "name": "@container::SIR-Gillespie-SD_inline::gillespie::loop$1",
       "source_refs": [],
-      "gensym": "c_03c346c85d5b",
+      "gensym": "c_6003b0edadd8",
       "repeat": true,
       "arguments": [
-        "@variable::i0::-1",
-        "@variable::randval::-1",
-        "@variable::raterecover::-1",
-        "@variable::gamma::-1",
-        "@variable::vari::-1",
-        "@variable::n_i::-1",
-        "@variable::beta::-1",
-        "@variable::n_s::-1",
-        "@variable::varr::-1",
-        "@variable::meanr::-1",
-        "@variable::totalrates::-1",
-        "@variable::runs1::-1",
-        "@variable::n_r::-1",
-        "@variable::samp::-1",
+        "@variable::total_runs::-1",
         "@variable::s0::-1",
+        "@variable::i0::-1",
+        "@variable::r0::-1",
+        "@variable::tmax::-1",
+        "@variable::beta::-1",
+        "@variable::gamma::-1",
         "@variable::samples::-1",
         "@variable::means::-1",
-        "@variable::sample_idx::-1",
-        "@variable::meani::-1",
-        "@variable::t::-1",
-        "@variable::dt::-1",
         "@variable::vars::-1",
-        "@variable::total_runs::-1",
-        "@variable::tmax::-1",
-        "@variable::r0::-1",
-        "@variable::rateinfect::-1"
+        "@variable::meani::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::varr::-1"
       ],
       "updated": [
-        "@variable::t::0",
-        "@variable::n_s::0",
-        "@variable::n_i::0",
-        "@variable::n_r::0",
-        "@variable::sample_idx::0",
+        "@variable::t::1",
+        "@variable::n_s::1",
+        "@variable::n_i::1",
+        "@variable::n_r::1",
+        "@variable::sample_idx::2",
         "@variable::rateinfect::0",
         "@variable::raterecover::0",
         "@variable::totalrates::0",
         "@variable::dt::0",
-        "@variable::samp::0",
-        "@variable::runs1::0",
-        "@variable::means::0",
-        "@variable::vars::0",
-        "@variable::meani::0",
-        "@variable::vari::0",
-        "@variable::meanr::0",
-        "@variable::varr::0"
+        "@variable::samp::1",
+        "@variable::runs1::1",
+        "@variable::means::1",
+        "@variable::vars::1",
+        "@variable::meani::1",
+        "@variable::vari::1",
+        "@variable::meanr::1",
+        "@variable::varr::1"
       ],
       "return_value": [],
       "body": [
@@ -584,8 +3136,8 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::total_runs::-1",
-            "@variable::runs::0"
+            "@variable::runs::0",
+            "@variable::total_runs::-1"
           ],
           "output": [
             "@variable::IF_0::0"
@@ -672,29 +3224,22 @@
             "type": "container"
           },
           "input": [
-            "@variable::n_i::0",
-            "@variable::randval::-1",
-            "@variable::raterecover::-1",
-            "@variable::gamma::-1",
-            "@variable::vari::-1",
-            "@variable::beta::-1",
-            "@variable::runs::0",
-            "@variable::meanr::-1",
-            "@variable::totalrates::-1",
-            "@variable::varr::-1",
-            "@variable::runs1::-1",
-            "@variable::samp::-1",
-            "@variable::samples::-1",
-            "@variable::means::-1",
-            "@variable::n_r::0",
-            "@variable::meani::-1",
-            "@variable::sample_idx::0",
-            "@variable::dt::-1",
-            "@variable::vars::-1",
-            "@variable::tmax::-1",
             "@variable::t::0",
+            "@variable::tmax::-1",
+            "@variable::n_i::0",
+            "@variable::beta::-1",
             "@variable::n_s::0",
-            "@variable::rateinfect::-1"
+            "@variable::n_r::0",
+            "@variable::gamma::-1",
+            "@variable::sample_idx::0",
+            "@variable::samples::-1",
+            "@variable::runs::0",
+            "@variable::means::-1",
+            "@variable::vars::-1",
+            "@variable::meani::-1",
+            "@variable::vari::-1",
+            "@variable::meanr::-1",
+            "@variable::varr::-1"
           ],
           "output": [],
           "updated": [
@@ -702,7 +3247,7 @@
             "@variable::raterecover::0",
             "@variable::totalrates::0",
             "@variable::dt::0",
-            "@variable::t::0",
+            "@variable::t::1",
             "@variable::samp::0",
             "@variable::runs1::0",
             "@variable::means::0",
@@ -711,9 +3256,9 @@
             "@variable::vari::0",
             "@variable::meanr::0",
             "@variable::varr::0",
-            "@variable::sample_idx::0",
+            "@variable::sample_idx::1",
             "@variable::n_s::1",
-            "@variable::n_i::2",
+            "@variable::n_i::1",
             "@variable::n_r::1"
           ]
         },
@@ -723,33 +3268,31 @@
             "type": "container"
           },
           "input": [
+            "@variable::sample_idx::1",
             "@variable::tmax::-1",
-            "@variable::n_i::0",
             "@variable::samples::-1",
-            "@variable::means::-1",
-            "@variable::n_r::0",
-            "@variable::meanr::-1",
-            "@variable::varr::-1",
             "@variable::runs::0",
-            "@variable::vari::-1",
-            "@variable::meani::-1",
-            "@variable::runs1::-1",
-            "@variable::n_s::0",
-            "@variable::sample_idx::0",
-            "@variable::vars::-1",
-            "@variable::samp::-1"
+            "@variable::means::0",
+            "@variable::n_s::1",
+            "@variable::vars::0",
+            "@variable::meani::0",
+            "@variable::n_i::1",
+            "@variable::vari::0",
+            "@variable::meanr::0",
+            "@variable::n_r::1",
+            "@variable::varr::0"
           ],
           "output": [],
           "updated": [
-            "@variable::samp::0",
-            "@variable::runs1::0",
-            "@variable::means::0",
-            "@variable::vars::0",
-            "@variable::meani::0",
-            "@variable::vari::0",
-            "@variable::meanr::0",
-            "@variable::varr::0",
-            "@variable::sample_idx::0"
+            "@variable::samp::1",
+            "@variable::runs1::1",
+            "@variable::means::1",
+            "@variable::vars::1",
+            "@variable::meani::1",
+            "@variable::vari::1",
+            "@variable::meanr::1",
+            "@variable::varr::1",
+            "@variable::sample_idx::2"
           ]
         },
         {
@@ -770,32 +3313,25 @@
     {
       "name": "@container::SIR-Gillespie-SD_inline::gillespie.loop$1::loop$2",
       "source_refs": [],
-      "gensym": "c_c6a476790ac0",
+      "gensym": "c_145cdf7145ab",
       "repeat": true,
       "arguments": [
-        "@variable::randval::-1",
-        "@variable::raterecover::-1",
-        "@variable::gamma::-1",
-        "@variable::vari::-1",
+        "@variable::t::-1",
+        "@variable::tmax::-1",
         "@variable::n_i::-1",
         "@variable::beta::-1",
         "@variable::n_s::-1",
-        "@variable::varr::-1",
-        "@variable::meanr::-1",
-        "@variable::totalrates::-1",
-        "@variable::runs1::-1",
         "@variable::n_r::-1",
-        "@variable::samp::-1",
-        "@variable::samples::-1",
-        "@variable::means::-1",
+        "@variable::gamma::-1",
         "@variable::sample_idx::-1",
-        "@variable::meani::-1",
-        "@variable::t::-1",
-        "@variable::dt::-1",
-        "@variable::vars::-1",
-        "@variable::tmax::-1",
+        "@variable::samples::-1",
         "@variable::runs::-1",
-        "@variable::rateinfect::-1"
+        "@variable::means::-1",
+        "@variable::vars::-1",
+        "@variable::meani::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::varr::-1"
       ],
       "updated": [
         "@variable::rateinfect::0",
@@ -824,9 +3360,9 @@
             "type": "lambda"
           },
           "input": [
+            "@variable::t::-1",
             "@variable::tmax::-1",
-            "@variable::n_i::-1",
-            "@variable::t::-1"
+            "@variable::n_i::-1"
           ],
           "output": [
             "@variable::IF_0::0"
@@ -892,24 +3428,10 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD_inline::@global::pyrand",
-            "type": "container"
-          },
-          "input": [
-            "@literal::boolean::False"
-          ],
-          "output": [
-            "@variable::randval::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
             "name": "SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__dt__0",
             "type": "lambda"
           },
           "input": [
-            "@variable::randval::0",
             "@variable::totalrates::0"
           ],
           "output": [
@@ -937,22 +3459,20 @@
             "type": "container"
           },
           "input": [
+            "@variable::sample_idx::-1",
             "@variable::tmax::-1",
             "@variable::t::0",
             "@variable::samples::-1",
+            "@variable::runs::-1",
             "@variable::means::-1",
             "@variable::n_s::-1",
-            "@variable::varr::-1",
-            "@variable::meanr::-1",
-            "@variable::runs::-1",
-            "@variable::sample_idx::-1",
-            "@variable::vari::-1",
-            "@variable::meani::-1",
-            "@variable::n_r::-1",
-            "@variable::n_i::-1",
-            "@variable::runs1::-1",
             "@variable::vars::-1",
-            "@variable::samp::-1"
+            "@variable::meani::-1",
+            "@variable::n_i::-1",
+            "@variable::vari::-1",
+            "@variable::meanr::-1",
+            "@variable::n_r::-1",
+            "@variable::varr::-1"
           ],
           "output": [],
           "updated": [
@@ -969,24 +3489,10 @@
         },
         {
           "function": {
-            "name": "@container::SIR-Gillespie-SD_inline::@global::pyrand",
-            "type": "container"
-          },
-          "input": [
-            "@literal::boolean::False"
-          ],
-          "output": [
-            "@variable::randval::1"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
             "name": "SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__condition__IF_0__0",
             "type": "lambda"
           },
           "input": [
-            "@variable::randval::1",
             "@variable::rateinfect::0",
             "@variable::totalrates::0"
           ],
@@ -1064,21 +3570,6 @@
         },
         {
           "function": {
-            "name": "SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::n_s::-1",
-            "@variable::n_s::0",
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::n_s::1"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
             "name": "SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_r__1",
             "type": "lambda"
           },
@@ -1091,31 +3582,44 @@
             "@variable::n_r::1"
           ],
           "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::n_s::-1",
+            "@variable::n_s::0",
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::n_s::1"
+          ],
+          "updated": []
         }
       ]
     },
     {
       "name": "@container::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::loop$3",
       "source_refs": [],
-      "gensym": "c_09b05440e997",
+      "gensym": "c_fa943992596f",
       "repeat": true,
       "arguments": [
+        "@variable::sample_idx::-1",
         "@variable::tmax::-1",
+        "@variable::t::-1",
         "@variable::samples::-1",
+        "@variable::runs::-1",
         "@variable::means::-1",
         "@variable::n_s::-1",
-        "@variable::varr::-1",
-        "@variable::meanr::-1",
-        "@variable::runs::-1",
-        "@variable::sample_idx::-1",
-        "@variable::vari::-1",
-        "@variable::meani::-1",
-        "@variable::n_r::-1",
-        "@variable::t::-1",
-        "@variable::n_i::-1",
-        "@variable::runs1::-1",
         "@variable::vars::-1",
-        "@variable::samp::-1"
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
       ],
       "updated": [
         "@variable::samp::0",
@@ -1136,10 +3640,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::samples::-1",
             "@variable::sample_idx::-1",
             "@variable::tmax::-1",
-            "@variable::t::-1"
+            "@variable::t::-1",
+            "@variable::samples::-1"
           ],
           "output": [
             "@variable::IF_0::0"
@@ -1192,10 +3696,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
             "@variable::means::-1",
+            "@variable::samp::0",
             "@variable::n_s::-1",
-            "@variable::samp::0"
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::means::0"
@@ -1208,12 +3712,12 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::means::0",
+            "@variable::vars::-1",
             "@variable::samp::0",
+            "@variable::runs::-1",
             "@variable::runs1::0",
             "@variable::n_s::-1",
-            "@variable::runs::-1",
-            "@variable::vars::-1"
+            "@variable::means::0"
           ],
           "output": [
             "@variable::vars::0"
@@ -1226,10 +3730,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
-            "@variable::samp::0",
             "@variable::meani::-1",
-            "@variable::n_i::-1"
+            "@variable::samp::0",
+            "@variable::n_i::-1",
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::meani::0"
@@ -1242,10 +3746,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::samp::0",
-            "@variable::runs1::0",
-            "@variable::runs::-1",
             "@variable::vari::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
             "@variable::n_i::-1",
             "@variable::meani::0"
           ],
@@ -1260,10 +3764,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
+            "@variable::meanr::-1",
             "@variable::samp::0",
             "@variable::n_r::-1",
-            "@variable::meanr::-1"
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::meanr::0"
@@ -1276,10 +3780,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::samp::0",
-            "@variable::runs1::0",
             "@variable::varr::-1",
+            "@variable::samp::0",
             "@variable::runs::-1",
+            "@variable::runs1::0",
             "@variable::n_r::-1",
             "@variable::meanr::0"
           ],
@@ -1306,24 +3810,22 @@
     {
       "name": "@container::SIR-Gillespie-SD_inline::gillespie.loop$1::loop$4",
       "source_refs": [],
-      "gensym": "c_ff3f89470d14",
+      "gensym": "c_55ac76750c3b",
       "repeat": true,
       "arguments": [
+        "@variable::sample_idx::-1",
         "@variable::tmax::-1",
         "@variable::samples::-1",
+        "@variable::runs::-1",
         "@variable::means::-1",
         "@variable::n_s::-1",
-        "@variable::varr::-1",
-        "@variable::meanr::-1",
-        "@variable::runs::-1",
-        "@variable::sample_idx::-1",
-        "@variable::vari::-1",
-        "@variable::meani::-1",
-        "@variable::n_r::-1",
-        "@variable::n_i::-1",
-        "@variable::runs1::-1",
         "@variable::vars::-1",
-        "@variable::samp::-1"
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
       ],
       "updated": [
         "@variable::samp::0",
@@ -1398,10 +3900,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
             "@variable::means::-1",
+            "@variable::samp::0",
             "@variable::n_s::-1",
-            "@variable::samp::0"
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::means::0"
@@ -1414,12 +3916,12 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::means::0",
+            "@variable::vars::-1",
             "@variable::samp::0",
+            "@variable::runs::-1",
             "@variable::runs1::0",
             "@variable::n_s::-1",
-            "@variable::runs::-1",
-            "@variable::vars::-1"
+            "@variable::means::0"
           ],
           "output": [
             "@variable::vars::0"
@@ -1432,10 +3934,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
-            "@variable::samp::0",
             "@variable::meani::-1",
-            "@variable::n_i::-1"
+            "@variable::samp::0",
+            "@variable::n_i::-1",
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::meani::0"
@@ -1448,10 +3950,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::samp::0",
-            "@variable::runs1::0",
-            "@variable::runs::-1",
             "@variable::vari::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
             "@variable::n_i::-1",
             "@variable::meani::0"
           ],
@@ -1466,10 +3968,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::runs1::0",
+            "@variable::meanr::-1",
             "@variable::samp::0",
             "@variable::n_r::-1",
-            "@variable::meanr::-1"
+            "@variable::runs1::0"
           ],
           "output": [
             "@variable::meanr::0"
@@ -1482,10 +3984,10 @@
             "type": "lambda"
           },
           "input": [
-            "@variable::samp::0",
-            "@variable::runs1::0",
             "@variable::varr::-1",
+            "@variable::samp::0",
             "@variable::runs::-1",
+            "@variable::runs1::0",
             "@variable::n_r::-1",
             "@variable::meanr::0"
           ],
@@ -1512,7 +4014,7 @@
     {
       "name": "@container::SIR-Gillespie-SD_inline::@global::main",
       "source_refs": [],
-      "gensym": "c_b731edadff71",
+      "gensym": "c_f6ba4733df6f",
       "repeat": false,
       "arguments": [],
       "updated": [],
@@ -1578,2805 +4080,11 @@
       ]
     }
   ],
-  "variables": [
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::pyrand::do_init::-1",
-      "gensym": "v_c1557c38c410",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::pyrand::IF_0::0",
-      "gensym": "v_7bb4755261e9",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::pyrand::retval::0",
-      "gensym": "v_64dba533a90d",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::pyrand::retval::1",
-      "gensym": "v_a16aa1748d7a",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::pyrand::retval::2",
-      "gensym": "v_3c8d11983c0a",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::s0::-1",
-      "gensym": "v_9b26207a7862",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::i0::-1",
-      "gensym": "v_911b9dd2df88",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::r0::-1",
-      "gensym": "v_a61143f2fc56",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::tmax::0",
-      "gensym": "v_b60f3ec5ff83",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::total_runs::0",
-      "gensym": "v_a6b42e3cc1fe",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::gamma::0",
-      "gensym": "v_89f3578bf9e5",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::rho::0",
-      "gensym": "v_c6b5d9331573",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::beta::0",
-      "gensym": "v_6216c980683d",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::means::0",
-      "gensym": "v_57ab505dd107",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::meani::0",
-      "gensym": "v_e35217d94f9f",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::meanr::0",
-      "gensym": "v_732ab48ff08b",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::vars::0",
-      "gensym": "v_6bb72d65620b",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::vari::0",
-      "gensym": "v_8045a5d240ef",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::varr::0",
-      "gensym": "v_65303fab7c88",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::samples::0",
-      "gensym": "v_c1936b272b09",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "int",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::means_i::0",
-      "gensym": "v_8b57374dd943",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meani_i::0",
-      "gensym": "v_6b94522965bc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meanr_i::0",
-      "gensym": "v_3bfd44948ad8",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vars_i::0",
-      "gensym": "v_006a77fc89f7",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vari_i::0",
-      "gensym": "v_6ba46c160bf5",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::varr_i::0",
-      "gensym": "v_cd7318b3d6da",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::samples_i::0",
-      "gensym": "v_01493850a632",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "int",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::i::0",
-      "gensym": "v_003b74162cc8",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::IF_0::0",
-      "gensym": "v_39f6432c14c6",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::EXIT::0",
-      "gensym": "v_c89a44540d24",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::means_i::0",
-      "gensym": "v_8b57374dd943",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meani_i::0",
-      "gensym": "v_6b94522965bc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::meanr_i::0",
-      "gensym": "v_3bfd44948ad8",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vars_i::0",
-      "gensym": "v_006a77fc89f7",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::vari_i::0",
-      "gensym": "v_6ba46c160bf5",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::varr_i::0",
-      "gensym": "v_cd7318b3d6da",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::samples_i::0",
-      "gensym": "v_01493850a632",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "int",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$0::i::1",
-      "gensym": "v_d709549e3d8b",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::n_samples::0",
-      "gensym": "v_9081f890027d",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie::randval::0",
-      "gensym": "v_f3500dcceb6f",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::t::0",
-      "gensym": "v_910ce6c7248d",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_s::0",
-      "gensym": "v_ee9b1e6a9dba",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_i::0",
-      "gensym": "v_3ac71c2fb2d5",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_r::0",
-      "gensym": "v_43f6c20b0d01",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::sample_idx::0",
-      "gensym": "v_67a4ad851bb4",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
-      "gensym": "v_50141bebb3fd",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
-      "gensym": "v_a6ac622eae13",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
-      "gensym": "v_4f9ae1bfead8",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::0",
-      "gensym": "v_b982d6b40316",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
-      "gensym": "v_786dbecaeb51",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
-      "gensym": "v_a12e37097799",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
-      "gensym": "v_6c012d89e445",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
-      "gensym": "v_f6928300d628",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::1",
-      "gensym": "v_9cd1fbb5a810",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_1d0b47af8f7b",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
-      "gensym": "v_b1c0d6579428",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
-      "gensym": "v_24cc880a4c4c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
-      "gensym": "v_31fc540bba65",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
-      "gensym": "v_125ef719e4d6",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
-      "gensym": "v_2a30b24f0eb7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
-      "gensym": "v_9be01c21cda3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
-      "gensym": "v_54deea705c81",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_64b31cea7bdc",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::EXIT::0",
-      "gensym": "v_3679d789828e",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
-      "gensym": "v_50141bebb3fd",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
-      "gensym": "v_a6ac622eae13",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
-      "gensym": "v_4f9ae1bfead8",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::0",
-      "gensym": "v_b982d6b40316",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
-      "gensym": "v_786dbecaeb51",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
-      "gensym": "v_a12e37097799",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
-      "gensym": "v_6c012d89e445",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
-      "gensym": "v_f6928300d628",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::1",
-      "gensym": "v_9cd1fbb5a810",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_1d0b47af8f7b",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
-      "gensym": "v_b1c0d6579428",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
-      "gensym": "v_24cc880a4c4c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
-      "gensym": "v_31fc540bba65",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
-      "gensym": "v_125ef719e4d6",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
-      "gensym": "v_2a30b24f0eb7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
-      "gensym": "v_9be01c21cda3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
-      "gensym": "v_54deea705c81",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
-      "gensym": "v_4d9ed035b95b",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
-      "gensym": "v_6912a8aac248",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
-      "gensym": "v_09eb03a6e682",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
-      "gensym": "v_6bdf510478d1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
-      "gensym": "v_74d5688f771d",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
-      "gensym": "v_3800b035e8b4",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
-      "gensym": "v_954809466f05",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
-      "gensym": "v_669f9946721e",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
-      "gensym": "v_0da85142a084",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::IF_0::0",
-      "gensym": "v_4ac461dcb998",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::EXIT::0",
-      "gensym": "v_6f8445adc7e0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
-      "gensym": "v_4d9ed035b95b",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
-      "gensym": "v_6912a8aac248",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
-      "gensym": "v_09eb03a6e682",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
-      "gensym": "v_6bdf510478d1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
-      "gensym": "v_74d5688f771d",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
-      "gensym": "v_3800b035e8b4",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
-      "gensym": "v_954809466f05",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
-      "gensym": "v_669f9946721e",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
-      "gensym": "v_0da85142a084",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::runs::0",
-      "gensym": "v_7810daa676f9",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::IF_0::0",
-      "gensym": "v_85ff554202cb",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::EXIT::0",
-      "gensym": "v_5d32401c5087",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::t::0",
-      "gensym": "v_910ce6c7248d",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_s::0",
-      "gensym": "v_ee9b1e6a9dba",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_i::0",
-      "gensym": "v_3ac71c2fb2d5",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::n_r::0",
-      "gensym": "v_43f6c20b0d01",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::sample_idx::0",
-      "gensym": "v_67a4ad851bb4",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
-      "gensym": "v_50141bebb3fd",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
-      "gensym": "v_a6ac622eae13",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
-      "gensym": "v_4f9ae1bfead8",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::0",
-      "gensym": "v_b982d6b40316",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
-      "gensym": "v_786dbecaeb51",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
-      "gensym": "v_a12e37097799",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
-      "gensym": "v_6c012d89e445",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
-      "gensym": "v_f6928300d628",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::1",
-      "gensym": "v_9cd1fbb5a810",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_1d0b47af8f7b",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
-      "gensym": "v_b1c0d6579428",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
-      "gensym": "v_24cc880a4c4c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
-      "gensym": "v_31fc540bba65",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
-      "gensym": "v_125ef719e4d6",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
-      "gensym": "v_2a30b24f0eb7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
-      "gensym": "v_9be01c21cda3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
-      "gensym": "v_54deea705c81",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_64b31cea7bdc",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::EXIT::0",
-      "gensym": "v_3679d789828e",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::rateinfect::0",
-      "gensym": "v_50141bebb3fd",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::raterecover::0",
-      "gensym": "v_a6ac622eae13",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::totalrates::0",
-      "gensym": "v_4f9ae1bfead8",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::0",
-      "gensym": "v_b982d6b40316",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::dt::0",
-      "gensym": "v_786dbecaeb51",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::t::0",
-      "gensym": "v_a12e37097799",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::IF_0::0",
-      "gensym": "v_6c012d89e445",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::EXIT::0",
-      "gensym": "v_f6928300d628",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::samp::0",
-      "gensym": "v_6c95da0c6250",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::runs1::0",
-      "gensym": "v_6e60dd65a531",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::means_samp::0",
-      "gensym": "v_4c7ec406acbc",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vars_samp::0",
-      "gensym": "v_9aac807c0d43",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meani_samp::0",
-      "gensym": "v_a3d93b6614c1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::vari_samp::0",
-      "gensym": "v_fa369e47ba46",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::meanr_samp::0",
-      "gensym": "v_d9308c683917",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::varr_samp::0",
-      "gensym": "v_4300a3de7388",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2.loop$3::sample_idx::0",
-      "gensym": "v_aa196d6c831c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::randval::1",
-      "gensym": "v_9cd1fbb5a810",
-      "source_refs": [],
-      "domain": {
-        "name": "float",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::IF_0::0",
-      "gensym": "v_1d0b47af8f7b",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::0",
-      "gensym": "v_b1c0d6579428",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::0",
-      "gensym": "v_24cc880a4c4c",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::1",
-      "gensym": "v_31fc540bba65",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::0",
-      "gensym": "v_125ef719e4d6",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_i::2",
-      "gensym": "v_2a30b24f0eb7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_s::1",
-      "gensym": "v_9be01c21cda3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$2::n_r::1",
-      "gensym": "v_54deea705c81",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
-      "gensym": "v_4d9ed035b95b",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
-      "gensym": "v_6912a8aac248",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
-      "gensym": "v_09eb03a6e682",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
-      "gensym": "v_6bdf510478d1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
-      "gensym": "v_74d5688f771d",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
-      "gensym": "v_3800b035e8b4",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
-      "gensym": "v_954809466f05",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
-      "gensym": "v_669f9946721e",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
-      "gensym": "v_0da85142a084",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::IF_0::0",
-      "gensym": "v_4ac461dcb998",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::EXIT::0",
-      "gensym": "v_6f8445adc7e0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::samp::0",
-      "gensym": "v_4d9ed035b95b",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::runs1::0",
-      "gensym": "v_6912a8aac248",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::means_samp::0",
-      "gensym": "v_09eb03a6e682",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vars_samp::0",
-      "gensym": "v_6bdf510478d1",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meani_samp::0",
-      "gensym": "v_74d5688f771d",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::vari_samp::0",
-      "gensym": "v_3800b035e8b4",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::meanr_samp::0",
-      "gensym": "v_954809466f05",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::varr_samp::0",
-      "gensym": "v_669f9946721e",
-      "source_refs": [],
-      "domain": {
-        "index": 0,
-        "dimensions": [
-          "tmax"
-        ],
-        "elem_type": "float",
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1.loop$4::sample_idx::0",
-      "gensym": "v_0da85142a084",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::gillespie.loop$1::runs::1",
-      "gensym": "v_77592d70c019",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::main::s0::0",
-      "gensym": "v_fe5d31773041",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::main::i0::0",
-      "gensym": "v_723c411d20ff",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::main::r0::0",
-      "gensym": "v_828d513338e7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    },
-    {
-      "name": "@variable::SIR-Gillespie-SD_inline::main::tmax::0",
-      "gensym": "v_82fd739b7b05",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))"
-    }
-  ],
   "grounding": [],
   "types": [],
   "source": [
     "SIR-Gillespie-SD_inline.f"
   ],
-  "source_comments": "{'$file_head': ['********************************************************************************\\n', 'C      subroutine update_mean_var(means, vars, k, n, runs)\\n', 'C      integer, parameter :: Tmax = 100\\n', 'C      double precision, dimension(0:Tmax) :: means, vars\\n', 'C      integer k, n, runs\\n', 'C\\n', 'C      means(k) = means(k) + (n - means(k))/(runs+1)\\n', 'C      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))\\n', 'C\\n', 'C      return\\n', 'C      end subroutine update_mean_var\\n', '********************************************************************************\\n', 'C     Variables:\\n', 'C     beta     Rate of infection\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables: S, I, R\\n', 'C     S - Susceptible population\\n', 'C     I - Infected population\\n', 'C     R - Recovered population\\n', 'C     n_S      current number of susceptible members\\n', 'C     n_I      current number of infected members\\n', 'C     n_R      current number of recovered members\\n', 'C     S0       initial value of S\\n', 'C     I0       initial value of I\\n', 'C     R0       initial value of R\\n', 'C     MeanS    Measures of Mean for S\\n', 'C     MeanI    Measures of Mean for I\\n', 'C     MeanR    Measures of Mean for R\\n', 'C     VarS     Measures of Variance for S\\n', 'C     VarI     Measures of Variance for I\\n', 'C     VarR     Measures of Variance for R\\n', 'C\\n', 'C     rateInfect    Current state dependent rate of infection\\n', 'C     rateRecover   Current state dependent rate of recovery\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', 'C\\n', 'C     Tmax          Maximum time for the simulation\\n', 'C     t             Initial time for the simulation\\n', 'C     totalRuns     Total number of trajectories to generate for the analysis\\n', 'C     dt       next inter-event time\\n', '********************************************************************************\\n'], '$file_foot': [], 'pyrand': {'head': [\"C     Fortranification of AMIDOL's SIR-Gillespie.py\\n\", '********************************************************************************\\n', 'C       subroutine print_output(L)\\n', 'C       implicit none\\n', 'C       integer, parameter :: Tmax = 100\\n', 'C       double precision, dimension(0:Tmax) :: L\\n', 'C       integer i\\n', 'C\\n', 'C       do i = 0, 19\\n', 'C          write (*, 10) L(5*i+0), L(5*i+1), L(5*i+2), L(5*i+3), L(5*i+4)\\n', 'C       end do\\n', 'C       write (*, 11)\\n', 'C\\n', 'C  10   format (5(F10.4,X))\\n', \"C  11   format('----------')\\n\", 'C\\n', 'C       return\\n', 'C       end subroutine print_output\\n', '********************************************************************************\\n', '*                                                                              *\\n', \"*                Pretend to be Python's random-number generator                *\\n\", '*                                                                              *\\n', '********************************************************************************\\n'], 'neck': [], 'foot': [], 'internal': OrderedDict()}, 'gillespie': {'head': ['********************************************************************************\\n', 'C      subroutine update_mean_var(means, vars, k, n, runs)\\n', 'C      integer, parameter :: Tmax = 100\\n', 'C      double precision, dimension(0:Tmax) :: means, vars\\n', 'C      integer k, n, runs\\n', 'C\\n', 'C      means(k) = means(k) + (n - means(k))/(runs+1)\\n', 'C      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))\\n', 'C\\n', 'C      return\\n', 'C      end subroutine update_mean_var\\n', '********************************************************************************\\n', 'C     Variables:\\n', 'C     beta     Rate of infection\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables: S, I, R\\n', 'C     S - Susceptible population\\n', 'C     I - Infected population\\n', 'C     R - Recovered population\\n', 'C     n_S      current number of susceptible members\\n', 'C     n_I      current number of infected members\\n', 'C     n_R      current number of recovered members\\n', 'C     S0       initial value of S\\n', 'C     I0       initial value of I\\n', 'C     R0       initial value of R\\n', 'C     MeanS    Measures of Mean for S\\n', 'C     MeanI    Measures of Mean for I\\n', 'C     MeanR    Measures of Mean for R\\n', 'C     VarS     Measures of Variance for S\\n', 'C     VarI     Measures of Variance for I\\n', 'C     VarR     Measures of Variance for R\\n', 'C\\n', 'C     rateInfect    Current state dependent rate of infection\\n', 'C     rateRecover   Current state dependent rate of recovery\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', 'C\\n', 'C     Tmax          Maximum time for the simulation\\n', 'C     t             Initial time for the simulation\\n', 'C     totalRuns     Total number of trajectories to generate for the analysis\\n', 'C     dt       next inter-event time\\n', '********************************************************************************\\n'], 'neck': [], 'foot': [], 'internal': OrderedDict()}}",
-  "date_created": "2019-08-30T19:30:09.866277Z"
+  "source_comments": "{'$file_head': ['C       call print_output(MeanS)\\n', 'C       call print_output(MeanI)\\n', 'C       call print_output(MeanR)\\n', '!      do i = 0, Tmax\\n', '!         VarS(i) = VarS(i)/total_runs\\n', '!         VarI(i) = VarI(i)/total_runs\\n', '!         VarR(i) = VarR(i)/total_runs\\n', '!      end do\\n', '!\\n', '!      call print_output(VarS)\\n', '!      call print_output(VarI)\\n', '!      call print_output(VarR)\\n', '!\\n'], '$file_foot': [], 'gillespie': {'head': [\"C     Fortranification of AMIDOL's SIR-Gillespie.py\\n\", '********************************************************************************\\n', '********************************************************************************\\n', 'C     Variables:\\n', 'C     beta     Rate of infection\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables: S, I, R\\n', 'C     S - Susceptible population\\n', 'C     I - Infected population\\n', 'C     R - Recovered population\\n', 'C     n_S      current number of susceptible members\\n', 'C     n_I      current number of infected members\\n', 'C     n_R      current number of recovered members\\n', 'C     S0       initial value of S\\n', 'C     I0       initial value of I\\n', 'C     R0       initial value of R\\n', 'C     MeanS    Measures of Mean for S\\n', 'C     MeanI    Measures of Mean for I\\n', 'C     MeanR    Measures of Mean for R\\n', 'C     VarS     Measures of Variance for S\\n', 'C     VarI     Measures of Variance for I\\n', 'C     VarR     Measures of Variance for R\\n', 'C\\n', 'C     rateInfect    Current state dependent rate of infection\\n', 'C     rateRecover   Current state dependent rate of recovery\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', 'C\\n', 'C     Tmax          Maximum time for the simulation\\n', 'C     t             Initial time for the simulation\\n', 'C     totalRuns     Total number of trajectories to generate for the analysis\\n', 'C     dt       next inter-event time\\n', '********************************************************************************\\n'], 'neck': [], 'foot': [], 'internal': OrderedDict()}}",
+  "date_created": "2019-09-02T15:21:14.477496Z"
 }
