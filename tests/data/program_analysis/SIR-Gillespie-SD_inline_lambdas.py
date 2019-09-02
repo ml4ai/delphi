@@ -39,7 +39,7 @@ def SIR_Gillespie_SD_inline__gillespie__assign__samples__0(tmax: int):
     return [0] * (0 + tmax)
 
 def SIR_Gillespie_SD_inline__gillespie__loop_0__assign__i__0():
-    return 
+    return 0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_0__condition__IF_0__0(i, tmax):
     return 0 <= i < tmax
@@ -82,7 +82,7 @@ def SIR_Gillespie_SD_inline__gillespie__assign__n_samples__0():
     return 0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__assign__runs__0():
-    return 
+    return 0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__condition__IF_0__0(runs, total_runs):
     return 0 <= runs < total_runs
@@ -183,11 +183,11 @@ def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__assign__n_r__0(n_r: int)
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_i__2(n_i_0: int, n_i_1: int, IF_0_0: bool):
     return n_i_1 if IF_0_0 else n_i_0
 
-def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
-    return n_s_1 if IF_0_0 else n_s_0
-
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_r__1(n_r_0: int, n_r_1: int, IF_0_0: bool):
     return n_r_1 if IF_0_0 else n_r_0
+
+def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_2__decision__n_s__1(n_s_0: int, n_s_1: int, IF_0_0: bool):
+    return n_s_1 if IF_0_0 else n_s_0
 
 def SIR_Gillespie_SD_inline__gillespie__loop_1__loop_4__condition__IF_0__0(sample_idx, tmax):
     return (sample_idx < tmax)
