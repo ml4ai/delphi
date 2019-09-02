@@ -48,12 +48,25 @@ def to_wiring_diagram(G, lambdas, filename):
             new_stmts.append(f"WD_{out_name} = WiringDiagram(Hom({func_name}, {input_str}, {out_name}))")
             wd_list.append(f"WD_{out_name}")
 
-        stmts.append(f"OUT_{i+1} = OUT_{i} ⊚ IN_{i} ⊚ ({' ⊗ '.join(wd_list)})\n\n")
+        for port in ids:
+            wd_list.append(f"id_{port}")
+
+        if i != 0:
+            out_line = f"OUT_{i+1} = OUT_{i} ⊚ IN_{i} ⊚ ({' ⊗ '.join(wd_list)})\n\n"
+        else:
+            out_line = f"OUT_{i+1} = IN_{i} ⊚ ({' ⊗ '.join(wd_list)})\n\n"
+
+        stmts.append(out_line)
         stmts.extend(new_stmts)
-        dom = " ⊗ ".join(layer_defs[i-1]["codomain"])
-        codom = " ⊗ ".join(layer_defs[i]["domain"])
-        unique_codom = list(set(codom))
-        additional = list(set(dom + unique_codom))
+
+        cur_dom = layer_defs[i-1]["codomain"]
+        cur_codom = layer_defs[i]["domain"]
+        dom_add = list(set(cur_codom) - set(cur_dom))
+        ids.extend(dom_add)
+        cur_dom.extend(dom_add)
+        layer_defs[i-1]["domain"].extend(dom_add)
+        dom = " ⊗ ".join(cur_dom)
+        codom = " ⊗ ".join(cur_codom)
         stmts.append(f"IN_{i} = WiringDiagram(Hom(:L{i}_REWIRE, {dom}, {codom}))")
     stmts.reverse()
 
@@ -74,6 +87,8 @@ def to_wiring_diagram(G, lambdas, filename):
         ]))
         wiring_file.write("\n\n\n")
         wiring_file.write("\n".join(variable_defs))
+        wiring_file.write("\n\n\n")
+        wiring_file.write("\n".join([f"id_{i} = id(Ports([{i}]))" for i in ids]))
         wiring_file.write("\n\n\n")
         wiring_file.write("\n".join(stmts))
 
