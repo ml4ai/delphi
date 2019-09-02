@@ -801,8 +801,9 @@ class GrFNGenerator(object):
                 # The same code as above but separating it out just in case
                 # some extra checks are added in the future
                 for ip in function['input']:
-                    input_var = ip.split('::')[1]
-                    loop_body_inputs.append(input_var)
+                    (_, input_var, input_index) = ip.split('::')
+                    if int(input_index) == -1:
+                        loop_body_inputs.append(input_var)
 
         # Remove any duplicates since variables can be used multiple times in
         # various assignments within the body
@@ -881,7 +882,10 @@ class GrFNGenerator(object):
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
             if 'IF' not in item:
-                updated_index = state.last_definitions[item] + 1
+                if state.last_definitions[item] == -2:
+                    updated_index = 0
+                else:
+                    updated_index = state.last_definitions[item] + 1
                 function_updated.append(
                     f"@variable::{item}::"
                     f"{updated_index}"
@@ -976,6 +980,7 @@ class GrFNGenerator(object):
 
         # Change the current scope back to its previous form.
         self.current_scope = '.'.join(self.current_scope.split('.')[:-1])
+
         return [grfn]
 
     def process_while(self, node, state, *_):
@@ -1171,11 +1176,11 @@ class GrFNGenerator(object):
                 # The same code as above but separating it out just in case
                 # some extra checks are added in the future
                 for ip in function['input']:
-                    input_var = ip.split('::')[1]
+                    (_, input_var, input_index) = ip.split('::')
                     # TODO Hack for bypassing `boolean` types. Will be
                     #  removed once the `literal` as an input question is
                     #  answered.
-                    if input_var != "boolean":
+                    if int(input_index) == -1 and input_var != "boolean":
                         loop_body_inputs.append(input_var)
 
         # Remove any duplicates since variables can be used multiple times in
@@ -1250,7 +1255,10 @@ class GrFNGenerator(object):
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
             if 'IF' not in item:
-                updated_index = state.last_definitions[item] + 1
+                if state.last_definitions[item] == -2:
+                    updated_index = 0
+                else:
+                    updated_index = state.last_definitions[item] + 1
                 function_updated.append(
                     f"@variable::{item}::"
                     f"{updated_index}"
