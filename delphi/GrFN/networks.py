@@ -131,21 +131,16 @@ class ComputationalGraph(nx.DiGraph):
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "variable":
+                cag_name = attrs["cag_label"]
+                G.add_node(cag_name, **attrs)
                 for pred_fn in self.predecessors(name):
-                    if not any(
-                        fn_type in pred_fn
-                        for fn_type in ("condition", "decision")
-                    ):
-                        for pred_var in self.predecessors(pred_fn):
-                            G.add_node(
-                                self.nodes[pred_var]["basename"],
-                                **self.nodes[pred_var],
-                            )
-                            G.add_node(attrs["basename"], **attrs)
-                            G.add_edge(
-                                self.nodes[pred_var]["basename"],
-                                attrs["basename"],
-                            )
+                    for pred_var in self.predecessors(pred_fn):
+                        v_attrs = self.nodes[pred_var]
+                        if "beta" in pred_var:
+                            print(v_attrs)
+                        v_name = v_attrs["cag_label"]
+                        G.add_node(v_name, **self.nodes[pred_var])
+                        G.add_edge(v_name, cag_name)
 
         return G
 

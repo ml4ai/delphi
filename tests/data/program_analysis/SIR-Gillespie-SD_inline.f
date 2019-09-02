@@ -35,13 +35,12 @@ C     t             Initial time for the simulation
 C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
-      subroutine gillespie(S0, I0, R0)
+      subroutine gillespie(S, I, R, gamma, rho)
 
       integer, parameter :: Tmax = 100
-      integer S0, I0, R0
+      integer S, I, R
       integer, parameter :: total_runs = 1000
-      double precision, parameter :: gamma = 1.0/3.0
-      double precision, parameter :: rho = 2.0
+      double precision gamma, rho
       double precision, parameter :: beta = rho * gamma !
 
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
@@ -53,32 +52,48 @@ C     dt       next inter-event time
       double precision t, randval
       double precision rateInfect, rateRecover, totalRates, dt
 
-      do i = 0, Tmax    ! Initialize the mean and variance arrays
-         MeanS(i) = 0
-         MeanI(i) = 0.0
-         MeanR(i) = 0.0
+      do j = 0, Tmax    ! Initialize the mean and variance arrays
+         MeanS(j) = 0
+         MeanI(j) = 0.0
+         MeanR(j) = 0.0
 
-         VarS(i) = 0.0
-         VarI(i) = 0.0
-         VarR(i) = 0.0
+         VarS(j) = 0.0
+         VarI(j) = 0.0
+         VarR(j) = 0.0
 
-         samples(i) = i
+         samples(j) = j
       end do
 
       n_samples = 0
       do runs = 0, total_runs-1
          t = 0.0    ! Restart the event clock
 
-         n_S = S0
-         n_I = I0
-         n_R = R0
+
 
          ! main Gillespie loop
          sample_idx = 0
          do while (t .le. Tmax .and. n_I .gt. 0)
-            rateInfect = beta * n_S * n_I / (n_S + n_I + n_R)
-            rateRecover = gamma * n_I
+            n_S = S
+            n_I = I
+            n_R = R
+
+            rateInfect = beta * S * I / (S + I + R)
+            rateRecover = gamma * I
             totalRates = rateInfect + rateRecover
+
+            ! Determine which event fired.  With probability rateInfect/totalRates
+            ! the next event is infection.
+            if (rand() < (rateInfect/totalRates)) then
+                ! Delta for infection
+                S = S - 1
+                I = I + 1
+            ! Determine the event fired.  With probability rateRecover/totalRates
+            ! the next event is recovery.
+            else
+                ! Delta for recovery
+                I = I - 1
+                R = R + 1
+            endif
 
             dt = -log(1.0-rand())/totalRates  ! next inter-event time
 
@@ -104,20 +119,6 @@ C     dt       next inter-event time
 
                sample_idx = sample_idx+1
             end do
-
-            ! Determine which event fired.  With probability rateInfect/totalRates
-            ! the next event is infection.
-            if (rand() < (rateInfect/totalRates)) then
-                ! Delta for infection
-                n_S = n_S - 1
-                n_I = n_I + 1
-            ! Determine the event fired.  With probability rateRecover/totalRates
-            ! the next event is recovery.
-            else
-                ! Delta for recovery
-                n_I = n_I - 1
-                n_R = n_R + 1
-            endif
          end do
 
          ! After all events have been processed, clean up by evaluating all remaining measures.
@@ -144,9 +145,10 @@ C     dt       next inter-event time
       end subroutine gillespie
 
       program main
-      integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
+      integer, parameter :: S = 500, I = 10, R = 0, Tmax = 100
+      double precision, parameter :: gamma = 1.0/3.0, rho = 2.0
 
-      call gillespie(S0, I0, R0)
+      call gillespie(S, I, R, gamma, rho)
 
 C       call print_output(MeanS)
 C       call print_output(MeanI)
