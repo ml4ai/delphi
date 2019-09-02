@@ -32,11 +32,11 @@ def SIR_Gillespie_MS__model__assign__r__0(r: int):
 def SIR_Gillespie_MS__model__decision__i__2(i_0: int, i_1: int, IF_0_0: bool):
     return i_1 if IF_0_0 else i_0
 
-def SIR_Gillespie_MS__model__decision__s__1(s_0: int, s_1: int, IF_0_0: bool):
-    return s_1 if IF_0_0 else s_0
-
 def SIR_Gillespie_MS__model__decision__r__1(r_0: int, r_1: int, IF_0_0: bool):
     return r_1 if IF_0_0 else r_0
+
+def SIR_Gillespie_MS__model__decision__s__1(s_0: int, s_1: int, IF_0_0: bool):
+    return s_1 if IF_0_0 else s_0
 
 def SIR_Gillespie_MS__solver__assign__tmax__0():
     return 100

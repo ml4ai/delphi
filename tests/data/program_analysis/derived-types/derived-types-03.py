@@ -4,6 +4,7 @@ import math
 from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from dataclasses import dataclass
+from random import random
 @dataclass
 
 class mytype_1:
