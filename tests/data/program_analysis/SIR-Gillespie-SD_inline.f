@@ -36,43 +36,36 @@ C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
       subroutine gillespie(S, I, R, gamma, rho)
+        integer S, I, R
+        integer, parameter :: Tmax = 100, total_runs = 1000
+        double precision gamma, rho
+        double precision, parameter :: beta = rho * gamma !
+        double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
+        double precision, dimension(0:Tmax) :: VarS, VarI, VarR
+        integer, dimension(0:Tmax) :: samples
 
-      integer, parameter :: Tmax = 100
-      integer S, I, R
-      integer, parameter :: total_runs = 1000
-      double precision gamma, rho
-      double precision, parameter :: beta = rho * gamma !
+        integer j, runs, n_S, n_I, n_R, sample_idx, samp, runs1
+        double precision totalRates, dt, t, randval
+        double precision rateInfect, rateRecover
 
-      double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
-      double precision, dimension(0:Tmax) :: VarS, VarI, VarR
-      integer, dimension(0:Tmax) :: samples
-      double precision pyrand
+        do j = 0, Tmax    ! Initialize the mean and variance arrays
+          MeanS(j) = 0
+          MeanI(j) = 0.0
+          MeanR(j) = 0.0
 
-      integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, samp, runs1
-      double precision t, randval
-      double precision rateInfect, rateRecover, totalRates, dt
+          VarS(j) = 0.0
+          VarI(j) = 0.0
+          VarR(j) = 0.0
 
-      do j = 0, Tmax    ! Initialize the mean and variance arrays
-         MeanS(j) = 0
-         MeanI(j) = 0.0
-         MeanR(j) = 0.0
+          samples(j) = j
+        end do
 
-         VarS(j) = 0.0
-         VarI(j) = 0.0
-         VarR(j) = 0.0
+        do runs = 0, total_runs-1
+          t = 0.0    ! Restart the event clock
 
-         samples(j) = j
-      end do
-
-      n_samples = 0
-      do runs = 0, total_runs-1
-         t = 0.0    ! Restart the event clock
-
-
-
-         ! main Gillespie loop
-         sample_idx = 0
-         do while (t .le. Tmax .and. n_I .gt. 0)
+          ! main Gillespie loop
+          sample_idx = 0
+          do while (t .le. Tmax .and. I .gt. 0)
             n_S = S
             n_I = I
             n_R = R
@@ -84,64 +77,62 @@ C     dt       next inter-event time
             ! Determine which event fired.  With probability rateInfect/totalRates
             ! the next event is infection.
             if (rand() < (rateInfect/totalRates)) then
-                ! Delta for infection
-                S = S - 1
-                I = I + 1
+              ! Delta for infection
+              S = S - 1
+              I = I + 1
             ! Determine the event fired.  With probability rateRecover/totalRates
             ! the next event is recovery.
             else
-                ! Delta for recovery
-                I = I - 1
-                R = R + 1
+              ! Delta for recovery
+              I = I - 1
+              R = R + 1
             endif
 
             dt = -log(1.0-rand())/totalRates  ! next inter-event time
-
             t = t + dt          !  Advance the system clock
 
             ! Calculate all measures up to the current time t using
             ! Welford's one pass algorithm
             do while (sample_idx < Tmax .and. t > samples(sample_idx))
-               samp = samples(sample_idx)
+              samp = samples(sample_idx)
 
-               runs1 = runs+1
-               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
-               VarS(samp) = VarS(samp) + runs/(runs1) *
+              runs1 = runs+1
+              MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
+              VarS(samp) = VarS(samp) + runs/(runs1) *
      &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
 
-               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
-               VarI(samp) = VarI(samp) + runs/(runs1) *
+              MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
+              VarI(samp) = VarI(samp) + runs/(runs1) *
      &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
 
-               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
-               VarR(samp) = VarR(samp) + runs/(runs1) *
+              MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
+              VarR(samp) = VarR(samp) + runs/(runs1) *
      &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
 
-               sample_idx = sample_idx+1
+              sample_idx = sample_idx+1
             end do
-         end do
+          end do
 
-         ! After all events have been processed, clean up by evaluating all remaining measures.
-         do while (sample_idx < Tmax)
-               samp = samples(sample_idx)
+          ! After all events have been processed, clean up by evaluating all remaining measures.
+          do while (sample_idx < Tmax)
+            samp = samples(sample_idx)
 
-               runs1 = runs+1
-               MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
-               VarS(samp) = VarS(samp) + runs/(runs1) *
+            runs1 = runs+1
+            MeanS(samp) = MeanS(samp)+(n_S-MeanS(samp))/(runs1)
+            VarS(samp) = VarS(samp) + runs/(runs1) *
      &                        (n_S-MeanS(samp))*(n_S-MeanS(samp))
 
-               MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
-               VarI(samp) = VarI(samp) + runs/(runs1) *
+            MeanI(samp) = MeanI(samp)+(n_I-MeanI(samp))/(runs1)
+            VarI(samp) = VarI(samp) + runs/(runs1) *
      &                         (n_I-MeanI(samp))*(n_I-MeanI(samp))
 
-               MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
-               VarR(samp) = VarR(samp) + runs/(runs1) *
+            MeanR(samp) = MeanR(samp) + (n_R - MeanR(samp))/(runs1)
+            VarR(samp) = VarR(samp) + runs/(runs1) *
      &                         (n_R-MeanR(samp))*(n_R-MeanR(samp))
 
             sample_idx = sample_idx + 1
-         end do
-      end do
-
+          end do
+        end do
       end subroutine gillespie
 
       program main
@@ -149,19 +140,4 @@ C     dt       next inter-event time
       double precision, parameter :: gamma = 1.0/3.0, rho = 2.0
 
       call gillespie(S, I, R, gamma, rho)
-
-C       call print_output(MeanS)
-C       call print_output(MeanI)
-C       call print_output(MeanR)
-
-!      do i = 0, Tmax
-!         VarS(i) = VarS(i)/total_runs
-!         VarI(i) = VarI(i)/total_runs
-!         VarR(i) = VarR(i)/total_runs
-!      end do
-!
-!      call print_output(VarS)
-!      call print_output(VarI)
-!      call print_output(VarR)
-!
       end program main

@@ -45,7 +45,7 @@ def sir_gillespie_ms_grfn():
 def test_petpt_creation_and_execution(petpt_grfn):
     A = petpt_grfn.to_agraph()
     A.draw("PETPT--GrFN.pdf", prog="dot")
-    CAG = petasce_grfn.to_CAG_agraph()
+    CAG = petpt_grfn.to_CAG_agraph()
     CAG.draw('PETPT--CAG.pdf', prog='dot')
     assert isinstance(petpt_grfn, GroundedFunctionNetwork)
     assert len(petpt_grfn.inputs) == 5
