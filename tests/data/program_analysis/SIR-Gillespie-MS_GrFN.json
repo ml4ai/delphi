@@ -1,0 +1,3999 @@
+{
+  "variables": [
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::s::-1",
+      "gensym": "v_45ce3ab21e9c",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::i::-1",
+      "gensym": "v_84c0c7d2c373",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::r::-1",
+      "gensym": "v_11adac221125",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::gamma::-1",
+      "gensym": "v_d0a93d85dac7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::rho::-1",
+      "gensym": "v_2f435adec935",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::totalrates::-1",
+      "gensym": "v_deaa627c6157",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::beta::0",
+      "gensym": "v_d62365ea7dae",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::rateinfect::0",
+      "gensym": "v_f36c5a133d45",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::raterecover::0",
+      "gensym": "v_c55409fd2032",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::totalrates::0",
+      "gensym": "v_fe5a2c38ab02",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::IF_0::0",
+      "gensym": "v_26d99225dfd3",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::s::0",
+      "gensym": "v_0f96e258b3ed",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::i::0",
+      "gensym": "v_cfe39eee80bc",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::i::1",
+      "gensym": "v_7786b8d5a8f5",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::r::0",
+      "gensym": "v_00a0ed6a92da",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::s::1",
+      "gensym": "v_66fb0d50a5cf",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::r::1",
+      "gensym": "v_1c9776892269",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::model::i::2",
+      "gensym": "v_56e631a5ca03",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::s::-1",
+      "gensym": "v_25cdce434b1c",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::i::-1",
+      "gensym": "v_3f0a1fb58d3b",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::r::-1",
+      "gensym": "v_03a3da6a0d6e",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::gamma::-1",
+      "gensym": "v_d7ee094693f8",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::rho::-1",
+      "gensym": "v_defbc31ea0d2",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::tmax::0",
+      "gensym": "v_8899f7a9f01e",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::total_runs::0",
+      "gensym": "v_70116f89f55b",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::beta::0",
+      "gensym": "v_bf4d560855cf",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::means::0",
+      "gensym": "v_cf25a5cddb3b",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::meani::0",
+      "gensym": "v_d4131f725e56",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::meanr::0",
+      "gensym": "v_893439641da3",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::vars::0",
+      "gensym": "v_bdf003ffe6aa",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::vari::0",
+      "gensym": "v_8e763a03cb2d",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::varr::0",
+      "gensym": "v_a59ad08a87f8",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver::samples::0",
+      "gensym": "v_2c3e490b41c1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::means_i::0",
+      "gensym": "v_7b480dcedb94",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::meani_i::0",
+      "gensym": "v_643039297abf",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::meanr_i::0",
+      "gensym": "v_185f1b9a85f4",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::vars_i::0",
+      "gensym": "v_fbda51d8942f",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::vari_i::0",
+      "gensym": "v_52beb6f2dadf",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::varr_i::0",
+      "gensym": "v_f4592eb28db7",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::samples_i::0",
+      "gensym": "v_16df5c8b1cee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::i::0",
+      "gensym": "v_48f34fd77ca7",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::IF_0::0",
+      "gensym": "v_22455862a612",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::EXIT::0",
+      "gensym": "v_c4ce327276a5",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::means_i::0",
+      "gensym": "v_7b480dcedb94",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::meani_i::0",
+      "gensym": "v_643039297abf",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::meanr_i::0",
+      "gensym": "v_185f1b9a85f4",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::vars_i::0",
+      "gensym": "v_fbda51d8942f",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::vari_i::0",
+      "gensym": "v_52beb6f2dadf",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::varr_i::0",
+      "gensym": "v_f4592eb28db7",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::samples_i::0",
+      "gensym": "v_16df5c8b1cee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "int",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$0::i::1",
+      "gensym": "v_74769c2703ad",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::t::0",
+      "gensym": "v_c59b65127fc8",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::sample_idx::0",
+      "gensym": "v_93dc2f843de0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_s::0",
+      "gensym": "v_4e3c05b77984",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_i::0",
+      "gensym": "v_fbddb4bbad19",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_r::0",
+      "gensym": "v_98e8d7d0e3ff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::dt::0",
+      "gensym": "v_43a8ab55281b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::t::0",
+      "gensym": "v_fc995274f342",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_1ffa9c719a80",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_e761fa47968c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::IF_0::0",
+      "gensym": "v_803cc7892fd4",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::EXIT::0",
+      "gensym": "v_411c5836d52a",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_s::0",
+      "gensym": "v_4e3c05b77984",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_i::0",
+      "gensym": "v_fbddb4bbad19",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_r::0",
+      "gensym": "v_98e8d7d0e3ff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::dt::0",
+      "gensym": "v_43a8ab55281b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::t::0",
+      "gensym": "v_fc995274f342",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_1ffa9c719a80",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_e761fa47968c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::samp::0",
+      "gensym": "v_f18e05fcdd88",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::runs1::0",
+      "gensym": "v_b2a7450e3951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::means_samp::0",
+      "gensym": "v_c13617707182",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_649bf3cf6bee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_a3f51d705aaa",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7710e4f7f293",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_8c386f13e84e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_f7577a886916",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_d3833f8462ea",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::IF_0::0",
+      "gensym": "v_eda93ce2c058",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::EXIT::0",
+      "gensym": "v_1a566d9a9eb7",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::samp::0",
+      "gensym": "v_f18e05fcdd88",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::runs1::0",
+      "gensym": "v_b2a7450e3951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::means_samp::0",
+      "gensym": "v_c13617707182",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_649bf3cf6bee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_a3f51d705aaa",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7710e4f7f293",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_8c386f13e84e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_f7577a886916",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_d3833f8462ea",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::runs::0",
+      "gensym": "v_5f3935a51347",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::IF_0::0",
+      "gensym": "v_990373581e7a",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::EXIT::0",
+      "gensym": "v_fd796f69133f",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::t::0",
+      "gensym": "v_c59b65127fc8",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::sample_idx::0",
+      "gensym": "v_93dc2f843de0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_s::0",
+      "gensym": "v_4e3c05b77984",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_i::0",
+      "gensym": "v_fbddb4bbad19",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_r::0",
+      "gensym": "v_98e8d7d0e3ff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::dt::0",
+      "gensym": "v_43a8ab55281b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::t::0",
+      "gensym": "v_fc995274f342",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_1ffa9c719a80",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_e761fa47968c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::IF_0::0",
+      "gensym": "v_803cc7892fd4",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::EXIT::0",
+      "gensym": "v_411c5836d52a",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_s::0",
+      "gensym": "v_4e3c05b77984",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_i::0",
+      "gensym": "v_fbddb4bbad19",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::n_r::0",
+      "gensym": "v_98e8d7d0e3ff",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::dt::0",
+      "gensym": "v_43a8ab55281b",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2::t::0",
+      "gensym": "v_fc995274f342",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::IF_0::0",
+      "gensym": "v_1ffa9c719a80",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::EXIT::0",
+      "gensym": "v_e761fa47968c",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::samp::0",
+      "gensym": "v_adbc7f5a644f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::runs1::0",
+      "gensym": "v_17e0620d8dfd",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::means_samp::0",
+      "gensym": "v_e085b76d2ebe",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vars_samp::0",
+      "gensym": "v_2966e5cadd97",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meani_samp::0",
+      "gensym": "v_60a948a41992",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::vari_samp::0",
+      "gensym": "v_8379d5b1d8e2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::meanr_samp::0",
+      "gensym": "v_c7a36bd65bd2",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::varr_samp::0",
+      "gensym": "v_1eae0a4b3478",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$2.loop$3::sample_idx::0",
+      "gensym": "v_41a766d0a675",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::samp::0",
+      "gensym": "v_f18e05fcdd88",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::runs1::0",
+      "gensym": "v_b2a7450e3951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::means_samp::0",
+      "gensym": "v_c13617707182",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_649bf3cf6bee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_a3f51d705aaa",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7710e4f7f293",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_8c386f13e84e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_f7577a886916",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_d3833f8462ea",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::IF_0::0",
+      "gensym": "v_eda93ce2c058",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::EXIT::0",
+      "gensym": "v_1a566d9a9eb7",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::samp::0",
+      "gensym": "v_f18e05fcdd88",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::runs1::0",
+      "gensym": "v_b2a7450e3951",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::means_samp::0",
+      "gensym": "v_c13617707182",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vars_samp::0",
+      "gensym": "v_649bf3cf6bee",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meani_samp::0",
+      "gensym": "v_a3f51d705aaa",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::vari_samp::0",
+      "gensym": "v_7710e4f7f293",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::meanr_samp::0",
+      "gensym": "v_8c386f13e84e",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::varr_samp::0",
+      "gensym": "v_f7577a886916",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          "tmax"
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1.loop$4::sample_idx::0",
+      "gensym": "v_d3833f8462ea",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::solver.loop$1::runs::1",
+      "gensym": "v_017ef6721beb",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::s::0",
+      "gensym": "v_1f4021daf950",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::i::0",
+      "gensym": "v_5ef7cb03268f",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::r::0",
+      "gensym": "v_d02c2f20f193",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::tmax::0",
+      "gensym": "v_7161e810d4cf",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::gamma::0",
+      "gensym": "v_a4e9ac1694d3",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::SIR-Gillespie-MS::main::rho::0",
+      "gensym": "v_ef045f26e2f7",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    }
+  ],
+  "containers": [
+    {
+      "name": "@container::SIR-Gillespie-MS::@global::model",
+      "source_refs": [],
+      "gensym": "c_dd7c29f87bfd",
+      "repeat": false,
+      "arguments": [
+        "@variable::s::-1",
+        "@variable::i::-1",
+        "@variable::r::-1",
+        "@variable::gamma::-1",
+        "@variable::rho::-1",
+        "@variable::totalrates::-1"
+      ],
+      "updated": [
+        "@variable::s::1",
+        "@variable::i::2",
+        "@variable::r::1",
+        "@variable::totalrates::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__beta__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::rho::-1",
+            "@variable::gamma::-1"
+          ],
+          "output": [
+            "@variable::beta::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__rateinfect__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::beta::0",
+            "@variable::s::-1",
+            "@variable::i::-1",
+            "@variable::r::-1"
+          ],
+          "output": [
+            "@variable::rateinfect::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__raterecover__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::gamma::-1",
+            "@variable::i::-1"
+          ],
+          "output": [
+            "@variable::raterecover::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__totalrates__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::rateinfect::0",
+            "@variable::raterecover::0"
+          ],
+          "output": [
+            "@variable::totalrates::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::rateinfect::0",
+            "@variable::totalrates::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__s__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::s::-1"
+          ],
+          "output": [
+            "@variable::s::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::-1"
+          ],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__i__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::-1"
+          ],
+          "output": [
+            "@variable::i::1"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__assign__r__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::r::-1"
+          ],
+          "output": [
+            "@variable::r::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__decision__s__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::s::-1",
+            "@variable::s::0",
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::s::1"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__decision__r__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::r::0",
+            "@variable::r::-1",
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::r::1"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__model__decision__i__2",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::1",
+            "@variable::i::0",
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::i::2"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::@global::solver",
+      "source_refs": [],
+      "gensym": "c_e8efdd3b03f4",
+      "repeat": false,
+      "arguments": [
+        "@variable::s::-1",
+        "@variable::i::-1",
+        "@variable::r::-1",
+        "@variable::gamma::-1",
+        "@variable::rho::-1"
+      ],
+      "updated": [
+        "@variable::i::1"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__tmax__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::tmax::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__total_runs__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::total_runs::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__beta__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::rho::-1",
+            "@variable::gamma::-1"
+          ],
+          "output": [
+            "@variable::beta::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__means__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::means::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__meani__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::meani::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__meanr__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::meanr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__vars__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::vars::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__vari__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::vari::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__varr__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::varr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__assign__samples__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::tmax::0"
+          ],
+          "output": [
+            "@variable::samples::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::solver::loop$0",
+            "type": "container"
+          },
+          "input": [
+            "@variable::tmax::0",
+            "@variable::means::0",
+            "@variable::meani::0",
+            "@variable::meanr::0",
+            "@variable::vars::0",
+            "@variable::vari::0",
+            "@variable::varr::0",
+            "@variable::samples::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::means::1",
+            "@variable::meani::1",
+            "@variable::meanr::1",
+            "@variable::vars::1",
+            "@variable::vari::1",
+            "@variable::varr::1",
+            "@variable::samples::1"
+          ]
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::solver::loop$1",
+            "type": "container"
+          },
+          "input": [
+            "@variable::total_runs::0",
+            "@variable::t::-2",
+            "@variable::tmax::0",
+            "@variable::i::-1",
+            "@variable::s::-1",
+            "@variable::r::-1",
+            "@variable::gamma::-1",
+            "@variable::rho::-1",
+            "@variable::totalrates::-2",
+            "@variable::dt::-2",
+            "@variable::sample_idx::-2",
+            "@variable::samples::0",
+            "@variable::means::0",
+            "@variable::samp::-2",
+            "@variable::n_s::-2",
+            "@variable::runs1::-2",
+            "@variable::vars::0",
+            "@variable::meani::0",
+            "@variable::n_i::-2",
+            "@variable::vari::0",
+            "@variable::meanr::0",
+            "@variable::n_r::-2",
+            "@variable::varr::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::t::-1",
+            "@variable::sample_idx::-1",
+            "@variable::n_s::-1",
+            "@variable::n_i::-1",
+            "@variable::n_r::-1",
+            "@variable::s::0",
+            "@variable::i::0",
+            "@variable::r::0",
+            "@variable::totalrates::-1",
+            "@variable::dt::-1",
+            "@variable::samp::-1",
+            "@variable::runs1::-1",
+            "@variable::means::1",
+            "@variable::vars::1",
+            "@variable::meani::1",
+            "@variable::vari::1",
+            "@variable::meanr::1",
+            "@variable::varr::1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::solver::loop$0",
+      "source_refs": [],
+      "gensym": "c_0bf7faa6a57f",
+      "repeat": true,
+      "arguments": [
+        "@variable::tmax::-1",
+        "@variable::means::-1",
+        "@variable::meani::-1",
+        "@variable::meanr::-1",
+        "@variable::vars::-1",
+        "@variable::vari::-1",
+        "@variable::varr::-1",
+        "@variable::samples::-1"
+      ],
+      "updated": [
+        "@variable::means::0",
+        "@variable::meani::0",
+        "@variable::meanr::0",
+        "@variable::vars::0",
+        "@variable::vari::0",
+        "@variable::varr::0",
+        "@variable::samples::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0",
+            "@variable::tmax::-1"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__means_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::means::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::means::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__meani_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meani::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::meani::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__meanr_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meanr::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::meanr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__vars_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vars::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::vars::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__vari_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vari::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::vari::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__varr_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::varr::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::varr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign__samples_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::samples::-1",
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::samples::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_0__assign_i__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::i::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::solver::loop$1",
+      "source_refs": [],
+      "gensym": "c_04d73ec80b73",
+      "repeat": true,
+      "arguments": [
+        "@variable::total_runs::-1",
+        "@variable::t::-1",
+        "@variable::tmax::-1",
+        "@variable::i::-1",
+        "@variable::s::-1",
+        "@variable::r::-1",
+        "@variable::gamma::-1",
+        "@variable::rho::-1",
+        "@variable::totalrates::-1",
+        "@variable::dt::-1",
+        "@variable::sample_idx::-1",
+        "@variable::samples::-1",
+        "@variable::means::-1",
+        "@variable::samp::-1",
+        "@variable::n_s::-1",
+        "@variable::runs1::-1",
+        "@variable::vars::-1",
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
+      ],
+      "updated": [
+        "@variable::t::0",
+        "@variable::sample_idx::0",
+        "@variable::n_s::0",
+        "@variable::n_i::0",
+        "@variable::n_r::0",
+        "@variable::s::0",
+        "@variable::i::0",
+        "@variable::r::0",
+        "@variable::totalrates::0",
+        "@variable::dt::0",
+        "@variable::samp::0",
+        "@variable::runs1::0",
+        "@variable::means::0",
+        "@variable::vars::0",
+        "@variable::meani::0",
+        "@variable::vari::0",
+        "@variable::meanr::0",
+        "@variable::varr::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__assign__runs__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::runs::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::runs::0",
+            "@variable::total_runs::-1"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__assign__t__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::t::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__assign__sample_idx__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::sample_idx::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::solver.loop$1::loop$2",
+            "type": "container"
+          },
+          "input": [
+            "@variable::t::0",
+            "@variable::tmax::-1",
+            "@variable::i::-1",
+            "@variable::s::-1",
+            "@variable::r::-1",
+            "@variable::gamma::-1",
+            "@variable::rho::-1",
+            "@variable::totalrates::-1",
+            "@variable::dt::-1",
+            "@variable::sample_idx::0",
+            "@variable::samples::-1",
+            "@variable::runs::0",
+            "@variable::means::-1",
+            "@variable::samp::-1",
+            "@variable::n_s::-1",
+            "@variable::runs1::-1",
+            "@variable::vars::-1",
+            "@variable::meani::-1",
+            "@variable::n_i::-1",
+            "@variable::vari::-1",
+            "@variable::meanr::-1",
+            "@variable::n_r::-1",
+            "@variable::varr::-1"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::n_s::0",
+            "@variable::n_i::0",
+            "@variable::n_r::0",
+            "@variable::s::0",
+            "@variable::i::0",
+            "@variable::r::0",
+            "@variable::totalrates::0",
+            "@variable::dt::0",
+            "@variable::t::0",
+            "@variable::samp::0",
+            "@variable::runs1::0",
+            "@variable::means::0",
+            "@variable::vars::0",
+            "@variable::meani::0",
+            "@variable::vari::0",
+            "@variable::meanr::0",
+            "@variable::varr::0",
+            "@variable::sample_idx::0"
+          ]
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::solver.loop$1::loop$4",
+            "type": "container"
+          },
+          "input": [
+            "@variable::sample_idx::0",
+            "@variable::tmax::-1",
+            "@variable::samples::-1",
+            "@variable::runs::0",
+            "@variable::means::-1",
+            "@variable::samp::-1",
+            "@variable::n_s::-1",
+            "@variable::runs1::-1",
+            "@variable::vars::-1",
+            "@variable::meani::-1",
+            "@variable::n_i::-1",
+            "@variable::vari::-1",
+            "@variable::meanr::-1",
+            "@variable::n_r::-1",
+            "@variable::varr::-1"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::samp::0",
+            "@variable::runs1::0",
+            "@variable::means::0",
+            "@variable::vars::0",
+            "@variable::meani::0",
+            "@variable::vari::0",
+            "@variable::meanr::0",
+            "@variable::varr::0",
+            "@variable::sample_idx::0"
+          ]
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__assign_runs__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::runs::0"
+          ],
+          "output": [
+            "@variable::runs::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::solver.loop$1::loop$2",
+      "source_refs": [],
+      "gensym": "c_4b767321fa3c",
+      "repeat": true,
+      "arguments": [
+        "@variable::t::-1",
+        "@variable::tmax::-1",
+        "@variable::i::-1",
+        "@variable::s::-1",
+        "@variable::r::-1",
+        "@variable::gamma::-1",
+        "@variable::rho::-1",
+        "@variable::totalrates::-1",
+        "@variable::dt::-1",
+        "@variable::sample_idx::-1",
+        "@variable::samples::-1",
+        "@variable::runs::-1",
+        "@variable::means::-1",
+        "@variable::samp::-1",
+        "@variable::n_s::-1",
+        "@variable::runs1::-1",
+        "@variable::vars::-1",
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
+      ],
+      "updated": [
+        "@variable::n_s::0",
+        "@variable::n_i::0",
+        "@variable::n_r::0",
+        "@variable::s::0",
+        "@variable::i::0",
+        "@variable::r::0",
+        "@variable::totalrates::0",
+        "@variable::dt::0",
+        "@variable::t::0",
+        "@variable::samp::0",
+        "@variable::runs1::0",
+        "@variable::means::0",
+        "@variable::vars::0",
+        "@variable::meani::0",
+        "@variable::vari::0",
+        "@variable::meanr::0",
+        "@variable::varr::0",
+        "@variable::sample_idx::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::t::-1",
+            "@variable::tmax::-1",
+            "@variable::i::-1"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__assign__n_s__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::s::-1"
+          ],
+          "output": [
+            "@variable::n_s::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__assign__n_i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::-1"
+          ],
+          "output": [
+            "@variable::n_i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__assign__n_r__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::r::-1"
+          ],
+          "output": [
+            "@variable::n_r::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::@global::model",
+            "type": "container"
+          },
+          "input": [
+            "@variable::s::-1",
+            "@variable::i::-1",
+            "@variable::r::-1",
+            "@variable::gamma::-1",
+            "@variable::rho::-1",
+            "@variable::totalrates::-1"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::s::0",
+            "@variable::i::0",
+            "@variable::r::0",
+            "@variable::totalrates::0"
+          ]
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__assign__dt__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::totalrates::0"
+          ],
+          "output": [
+            "@variable::dt::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__assign__t__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::t::-1",
+            "@variable::dt::0"
+          ],
+          "output": [
+            "@variable::t::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::solver.loop$1.loop$2::loop$3",
+            "type": "container"
+          },
+          "input": [
+            "@variable::sample_idx::-1",
+            "@variable::tmax::-1",
+            "@variable::t::0",
+            "@variable::samples::-1",
+            "@variable::runs::-1",
+            "@variable::means::-1",
+            "@variable::samp::-1",
+            "@variable::n_s::0",
+            "@variable::runs1::-1",
+            "@variable::vars::-1",
+            "@variable::meani::-1",
+            "@variable::n_i::0",
+            "@variable::vari::-1",
+            "@variable::meanr::-1",
+            "@variable::n_r::0",
+            "@variable::varr::-1"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::samp::0",
+            "@variable::runs1::0",
+            "@variable::means::0",
+            "@variable::vars::0",
+            "@variable::meani::0",
+            "@variable::vari::0",
+            "@variable::meanr::0",
+            "@variable::varr::0",
+            "@variable::sample_idx::0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::solver.loop$1.loop$2::loop$3",
+      "source_refs": [],
+      "gensym": "c_be87dc219a43",
+      "repeat": true,
+      "arguments": [
+        "@variable::sample_idx::-1",
+        "@variable::tmax::-1",
+        "@variable::t::-1",
+        "@variable::samples::-1",
+        "@variable::runs::-1",
+        "@variable::means::-1",
+        "@variable::samp::-1",
+        "@variable::n_s::-1",
+        "@variable::runs1::-1",
+        "@variable::vars::-1",
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
+      ],
+      "updated": [
+        "@variable::samp::0",
+        "@variable::runs1::0",
+        "@variable::means::0",
+        "@variable::vars::0",
+        "@variable::meani::0",
+        "@variable::vari::0",
+        "@variable::meanr::0",
+        "@variable::varr::0",
+        "@variable::sample_idx::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::sample_idx::-1",
+            "@variable::tmax::-1",
+            "@variable::t::-1",
+            "@variable::samples::-1"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::samples::-1",
+            "@variable::sample_idx::-1"
+          ],
+          "output": [
+            "@variable::samp::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__runs1__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::runs::-1"
+          ],
+          "output": [
+            "@variable::runs1::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__means_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::means::-1",
+            "@variable::samp::0",
+            "@variable::n_s::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::means::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__vars_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vars::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_s::-1",
+            "@variable::means::0"
+          ],
+          "output": [
+            "@variable::vars::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__meani_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meani::-1",
+            "@variable::samp::0",
+            "@variable::n_i::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::meani::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__vari_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vari::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_i::-1",
+            "@variable::meani::0"
+          ],
+          "output": [
+            "@variable::vari::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__meanr_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meanr::-1",
+            "@variable::samp::0",
+            "@variable::n_r::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::meanr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__varr_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::varr::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_r::-1",
+            "@variable::meanr::0"
+          ],
+          "output": [
+            "@variable::varr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_2__loop_3__assign__sample_idx__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::sample_idx::-1"
+          ],
+          "output": [
+            "@variable::sample_idx::0"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::solver.loop$1::loop$4",
+      "source_refs": [],
+      "gensym": "c_af765968b35e",
+      "repeat": true,
+      "arguments": [
+        "@variable::sample_idx::-1",
+        "@variable::tmax::-1",
+        "@variable::samples::-1",
+        "@variable::runs::-1",
+        "@variable::means::-1",
+        "@variable::samp::-1",
+        "@variable::n_s::-1",
+        "@variable::runs1::-1",
+        "@variable::vars::-1",
+        "@variable::meani::-1",
+        "@variable::n_i::-1",
+        "@variable::vari::-1",
+        "@variable::meanr::-1",
+        "@variable::n_r::-1",
+        "@variable::varr::-1"
+      ],
+      "updated": [
+        "@variable::samp::0",
+        "@variable::runs1::0",
+        "@variable::means::0",
+        "@variable::vars::0",
+        "@variable::meani::0",
+        "@variable::vari::0",
+        "@variable::meanr::0",
+        "@variable::varr::0",
+        "@variable::sample_idx::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::sample_idx::-1",
+            "@variable::tmax::-1"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::samples::-1",
+            "@variable::sample_idx::-1"
+          ],
+          "output": [
+            "@variable::samp::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__runs1__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::runs::-1"
+          ],
+          "output": [
+            "@variable::runs1::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__means_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::means::-1",
+            "@variable::samp::0",
+            "@variable::n_s::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::means::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__vars_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vars::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_s::-1",
+            "@variable::means::0"
+          ],
+          "output": [
+            "@variable::vars::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__meani_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meani::-1",
+            "@variable::samp::0",
+            "@variable::n_i::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::meani::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__vari_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vari::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_i::-1",
+            "@variable::meani::0"
+          ],
+          "output": [
+            "@variable::vari::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__meanr_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::meanr::-1",
+            "@variable::samp::0",
+            "@variable::n_r::-1",
+            "@variable::runs1::0"
+          ],
+          "output": [
+            "@variable::meanr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__varr_samp__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::varr::-1",
+            "@variable::samp::0",
+            "@variable::runs::-1",
+            "@variable::runs1::0",
+            "@variable::n_r::-1",
+            "@variable::meanr::0"
+          ],
+          "output": [
+            "@variable::varr::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__solver__loop_1__loop_4__assign__sample_idx__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::sample_idx::-1"
+          ],
+          "output": [
+            "@variable::sample_idx::0"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::SIR-Gillespie-MS::@global::main",
+      "source_refs": [],
+      "gensym": "c_d15ab483dd9e",
+      "repeat": false,
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__s__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::s::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__r__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::r::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__tmax__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::tmax::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__gamma__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::gamma::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_MS__main__assign__rho__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::rho::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::SIR-Gillespie-MS::@global::solver",
+            "type": "container"
+          },
+          "input": [
+            "@variable::s::0",
+            "@variable::i::0",
+            "@variable::r::0",
+            "@variable::gamma::0",
+            "@variable::rho::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::i::1"
+          ]
+        }
+      ]
+    }
+  ],
+  "start": [
+    "@container::SIR-Gillespie-MS::@global::main"
+  ],
+  "grounding": [],
+  "types": [],
+  "source": [
+    "SIR-Gillespie-MS.f"
+  ],
+  "source_comments": "{'$file_head': ['********************************************************************************\\n', 'C     Input Variables:\\n', 'C     S        Susceptible population\\n', 'C     I        Infected population\\n', 'C     R        Recovered population\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables:\\n', 'C     Tmax     Maximum time for the simulation\\n', 'C     t        Initial time for the simulation\\n', 'C     dt       next inter-event time\\n', 'C     n_S      current number of susceptible members\\n', 'C     n_I      current number of infected members\\n', 'C     n_R      current number of recovered members\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', 'C     totalRuns     Total number of trajectories to generate for the analysis\\n', 'C\\n', 'C     Output Variables:\\n', 'C     MeanS    Measures of Mean for S\\n', 'C     MeanI    Measures of Mean for I\\n', 'C     MeanR    Measures of Mean for R\\n', 'C     VarS     Measures of Variance for S\\n', 'C     VarI     Measures of Variance for I\\n', 'C     VarR     Measures of Variance for R\\n', '********************************************************************************\\n'], '$file_foot': [], 'model': {'head': ['********************************************************************************\\n', \"C     Fortranification of AMIDOL's SIR-Gillespie.py\\n\", '********************************************************************************\\n', '********************************************************************************\\n', 'C     Input Variables:\\n', 'C     S        Susceptible population\\n', 'C     I        Infected population\\n', 'C     R        Recovered population\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables:\\n', 'C     beta          Rate of infection\\n', 'C     rateInfect    Current state dependent rate of infection\\n', 'C     rateRecover   Current state dependent rate of recovery\\n', 'C\\n', 'C     Output Variables:\\n', 'C     S        Susceptible population\\n', 'C     I        Infected population\\n', 'C     R        Recovered population\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', '********************************************************************************\\n'], 'neck': [], 'foot': [], 'internal': OrderedDict()}, 'solver': {'head': ['********************************************************************************\\n', 'C     Input Variables:\\n', 'C     S        Susceptible population\\n', 'C     I        Infected population\\n', 'C     R        Recovered population\\n', 'C     gamma    Rate of recovery from an infection\\n', 'C     rho      Basic reproduction Number\\n', 'C\\n', 'C     State Variables:\\n', 'C     Tmax     Maximum time for the simulation\\n', 'C     t        Initial time for the simulation\\n', 'C     dt       next inter-event time\\n', 'C     n_S      current number of susceptible members\\n', 'C     n_I      current number of infected members\\n', 'C     n_R      current number of recovered members\\n', 'C     totalRates    Sum of total rates; taking advantage of Markovian identities\\n', 'C                       to improve performance.\\n', 'C     totalRuns     Total number of trajectories to generate for the analysis\\n', 'C\\n', 'C     Output Variables:\\n', 'C     MeanS    Measures of Mean for S\\n', 'C     MeanI    Measures of Mean for I\\n', 'C     MeanR    Measures of Mean for R\\n', 'C     VarS     Measures of Variance for S\\n', 'C     VarI     Measures of Variance for I\\n', 'C     VarR     Measures of Variance for R\\n', '********************************************************************************\\n'], 'neck': [], 'foot': [], 'internal': OrderedDict()}}",
+  "date_created": "2019-09-01T22:52:19.441861Z"
+}
