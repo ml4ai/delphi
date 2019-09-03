@@ -212,7 +212,7 @@ class Format:
         fmt = fmt.strip()
 
         # get any leading digits indicating repetition
-        match = re.match("(\d+)(.+)", fmt)
+        match = re.match(r"(\d+)(.+)", fmt)
         if match is None:
             reps = 1
         else:
@@ -226,11 +226,8 @@ class Format:
         else:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
-                xtract_rexp = "(.{" + sz + "})"  # r.e. for extraction
-                leading_sp = " *"
-                optional_sign = "-?"
-                rexp0 = "\d+"
-                rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
+                xtract_rexp = 'r"'+"(.{"+sz+"})"+'"'  # r.e. for extraction
+                rexp1 = 'r" *-?\d+"'  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
 
@@ -245,7 +242,7 @@ class Format:
                 xtract_rexp = "(.{," + sz + "})"  # r.e. for extraction
                 leading_sp = " *"
                 optional_sign = "-?"
-                rexp0 = "\d+(\.\d+)?"
+                rexp0 = r"\d+(\.\d+)?"
                 rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
