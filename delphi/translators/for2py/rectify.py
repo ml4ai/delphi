@@ -536,7 +536,7 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    ), f'In handle_tag_header: Empty elements  "{child.tag}" not handled'
+                    ), f'In handle_tag_header: Empty elements "{child.tag}"'
 
         # equivalent operator has a weird ast syntax,
         # so it requires refactoring.
@@ -588,7 +588,7 @@ class RectifyOFPXML:
                         ):
                             assert (
                                     "lbl" in cur_elem.attrib
-                            ), "Label 'lbl' must be present to store the value in the <if> attrib"
+                            ), "Label 'lbl' must be present in <if> attrib"
 
                             # goto-stmt counter will be used as
                             # an identifier for two statements
@@ -605,14 +605,16 @@ class RectifyOFPXML:
 
                             cur_elem.attrib['conditional-goto-stmt'] = "true"
                             cur_elem.attrib['code'] = unique_code
-                            # If the <statment> for <goto-stmt> was nested under the
-                            # conditional <if>, then the boundary of <statment> is still
-                            # remain as the current - 1 level.
-                            cur_elem.attrib['body-level'] = self.body_level['prev']
+                            # If the <statment> for <goto-stmt> is nested under 
+                            # the conditional <if>, then the boundary of 
+                            # <statment> remains as the current - 1 level.
+                            cur_elem.attrib['body-level'] = \
+                                self.body_level['prev']
 
                             self.body_level['current'] = self.body_level['prev']
                         else:
-                            self.body_level['grand-prev'] = self.body_level['prev']
+                            self.body_level['grand-prev'] = \
+                                self.body_level['prev']
                             self.body_level['prev'] = self.body_level['current']
                             self.body_level['current'] = parent.tag
 
@@ -660,7 +662,7 @@ class RectifyOFPXML:
                                     and current.attrib['parent'] == "loop")
                                     )
                         ):
-                            # Remove statements that is marked to be removed (2nd traverse)
+                            # Remove statements marked for removal (2nd traverse)
                             if (
                                     "goto-remove" in child.attrib
                                     or "goto-move" in child.attrib
@@ -748,7 +750,7 @@ class RectifyOFPXML:
                 if child.tag != "declaration":
                     assert (
                         False
-                    ), f'In handle_tag_specification: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_specification: Empty elements "{child.tag}"'
 
     def handle_tag_declaration(
             self, root, current, parent, grandparent, traverse
@@ -2110,7 +2112,7 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                    ), f'In handle_tag_close: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_close: Empty elements "{child.tag}"'
 
     def handle_tag_call(
             self, root, current, parent, grandparent, traverse
@@ -2141,7 +2143,7 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                    ), f'In handle_tag_call: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
@@ -2175,7 +2177,7 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    ), f'In handle_tag_subroutine: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
 
     def handle_tag_arguments(
             self, root, current, parent, grandparent, traverse
@@ -2385,7 +2387,7 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                    ), f'In handle_tag_function: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_function: Empty elements "{child.tag}"'
 
     def handle_tag_use(
             self, root, current, parent, grandparent, traverse
@@ -2465,7 +2467,7 @@ class RectifyOFPXML:
                 else:
                     assert (
                         False
-                    ), f'In handle_tag_initial_value: Empty elements "{child.tag}" not handled'
+                    ), f'In handle_tag_initial_value: Empty elements "{child.tag}"'
 
     def handle_tag_members(
             self, root, current, parent, grandparent, traverse
@@ -2706,7 +2708,7 @@ class RectifyOFPXML:
         else:
             assert (
                 False
-            ), f"In the parseXMLTree. Currently, <{root.tag}> passed from <{parent.tag}> is not supported"
+            ), f"In parseXMLTree: <{root.tag}> passed from <{parent.tag}> not supported"
 
     #################################################################
     #                                                               #
