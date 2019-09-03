@@ -73,7 +73,7 @@ class Format:
         """init_read_line() initializes fields relevant to input matching"""
         format_list = self._format_list
         self._re_cvt = self.match_input_fmt(format_list)
-        regexp0_str = "".join([subs[0] for subs in self._re_cvt])
+        regexp0_str = 'r"' + "".join([subs[0] for subs in self._re_cvt]) + '"'
         self._regexp_str = regexp0_str
         self._re = re.compile(regexp0_str)
         self._match_exps = [
@@ -212,7 +212,7 @@ class Format:
         fmt = fmt.strip()
 
         # get any leading digits indicating repetition
-        match = re.match("(\d+)(.+)", fmt)
+        match = re.match(r"(\d+)(.+)", fmt)
         if match is None:
             reps = 1
         else:
@@ -226,11 +226,8 @@ class Format:
         else:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
-                xtract_rexp = "(.{" + sz + "})"  # r.e. for extraction
-                leading_sp = " *"
-                optional_sign = "-?"
-                rexp0 = "\d+"
-                rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
+                xtract_rexp = 'r"(.{' + sz +'})"'  # r.e. for extraction
+                rexp1 = r" *-?\d+"  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
 
@@ -242,11 +239,8 @@ class Format:
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1 :]))
-                xtract_rexp = "(.{," + sz + "})"  # r.e. for extraction
-                leading_sp = " *"
-                optional_sign = "-?"
-                rexp0 = "\d+(\.\d+)?"
-                rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
+                xtract_rexp = 'r"(.{,' + sz + '})"'  # r.e. for extraction
+                rexp1 = r" *-?\d+(\.\d+)?"  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
                 raise For2PyError(
@@ -296,7 +290,7 @@ class Format:
         fmt = fmt.strip()
 
         # get any leading digits indicating repetition
-        match = re.match("(\d+)(.+)", fmt)
+        match = re.match(r"(\d+)(.+)", fmt)
         if match is None:
             reps = 1
         else:
@@ -332,7 +326,7 @@ class Format:
                 # the exponent, e.g.: 'E15.3E2'.  For now we ignore any such
                 # the exponent width -- but if it's there, we need to extract
                 # the sequence of digits before it.
-                m = re.match("(\d+).*", suffix)
+                m = re.match(r"(\d+).*", suffix)
                 assert m is not None, f"Improper format? '{fmt}'"
                 prec = m.group(1)
                 gen_fmt = "{}"
