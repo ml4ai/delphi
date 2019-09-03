@@ -436,8 +436,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             asts,
             json_filename,
             mode_mapper_dict,
-            fortran_file,
-            save_file=True
+            fortran_file
         )
 
         # {"file_name": f"{stem}.py"}, # HACK
