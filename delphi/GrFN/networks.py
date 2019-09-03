@@ -136,8 +136,6 @@ class ComputationalGraph(nx.DiGraph):
                 for pred_fn in self.predecessors(name):
                     for pred_var in self.predecessors(pred_fn):
                         v_attrs = self.nodes[pred_var]
-                        if "beta" in pred_var:
-                            print(v_attrs)
                         v_name = v_attrs["cag_label"]
                         G.add_node(v_name, **self.nodes[pred_var])
                         G.add_edge(v_name, cag_name)
