@@ -1,13 +1,14 @@
 #include "data.hpp"
 #include <sqlite3.h>
 
-double get_data_value(std::string indicator,
+std::vector<double> get_data_value(std::string indicator,
                       std::string country,
                       std::string state,
                       std::string county,
                       int year,
                       int month,
-                      std::string unit) {
+                      std::string unit,
+                      bool use_heuristic) {
   using utils::mean;
   using namespace std;
   using fmt::print;
@@ -19,7 +20,7 @@ double get_data_value(std::string indicator,
 
   if (rc) {
     error("Could not open db");
-    return 0.0;
+    return vector<double>();
   }
 
   sqlite3_stmt* stmt;
@@ -115,10 +116,9 @@ double get_data_value(std::string indicator,
               "\tIndicator: No data exists for indicator {}",
               indicator);
 
-        // Should define an exception to throw in this situation
         sqlite3_finalize(stmt);
         sqlite3_close(db);
-        return 0.0;
+        return vector<double>();
       }
     }
   }
@@ -140,10 +140,9 @@ double get_data_value(std::string indicator,
             "\tIndicator: No data exists for {}",
             indicator);
 
-      // Should define an exception to throw in this situation
       sqlite3_finalize(stmt);
       sqlite3_close(db);
-      return 0.0;
+      return vector<double>();
     }
   }
 
@@ -163,52 +162,30 @@ double get_data_value(std::string indicator,
   if (!vals.empty()) {
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    return mean(vals);
+    return vals;
   }
 
-  else {
-    info("No data found for {0}, {1}. Averaging over all months for {1} "
-          "(Default Setting)\n",
-          month,
-          year);
-    sqlite3_finalize(stmt);
+  sqlite3_finalize(stmt);
+  if (!use_heuristic) {
+    sqlite3_close(db);
+    return vector<double>();
   }
 
-  final_query = "{0} and `Year` is '{1}"_format(query, year);
+  final_query = "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
   rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value);
+    vals.push_back(value/12);
   }
 
   if (!vals.empty()) {
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    return mean(vals);
-  }
-  else {
-    debug("No data found for {}. Averaging over all years (Default Setting)\n",
-          year);
-    sqlite3_finalize(stmt);
-  }
-
-  final_query = query;
-  rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value);
-  }
-
-  if (!vals.empty()) {
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-    return mean(vals);
+    return vals;
   }
 
   sqlite3_finalize(stmt);
   sqlite3_close(db);
-  error("data::get_data_value()\n\tIndicator: No data exists for {}");
-  // Should define an exception to throw in this situation
-  return 0.0;
+  return vector<double>();
 }
