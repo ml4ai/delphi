@@ -32,7 +32,14 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    return (line[0] in "cCdD*!")
+    if line[0] in "cCdD*!":
+        return True
+
+    llstrip = line.lstrip()
+    if llstrip != "" and llstrip[0] == '!':
+        return True
+
+    return False
 
 
 ################################################################################
