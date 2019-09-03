@@ -73,7 +73,7 @@ class Format:
         """init_read_line() initializes fields relevant to input matching"""
         format_list = self._format_list
         self._re_cvt = self.match_input_fmt(format_list)
-        regexp0_str = "".join([subs[0] for subs in self._re_cvt])
+        regexp0_str = 'r"' + "".join([subs[0] for subs in self._re_cvt]) + '"'
         self._regexp_str = regexp0_str
         self._re = re.compile(regexp0_str)
         self._match_exps = [
