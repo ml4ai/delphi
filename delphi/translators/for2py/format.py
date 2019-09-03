@@ -288,7 +288,7 @@ class Format:
         fmt = fmt.strip()
 
         # get any leading digits indicating repetition
-        match = re.match("(\d+)(.+)", fmt)
+        match = re.match(r"(\d+)(.+)", fmt)
         if match is None:
             reps = 1
         else:
