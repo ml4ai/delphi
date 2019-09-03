@@ -15,10 +15,11 @@ def main():
     grfn = GroundedFunctionNetwork.from_json_and_lambdas(json_file, lambdas)
     agraph = grfn.to_agraph()
     agraph.draw('SIR-simple.pdf', prog='dot')
-    to_wiring_diagram(grfn, lambdas, "SIR-simple")
+    (D, I, S, F) = to_wiring_diagram(grfn, lambdas)
+    write_files(D, I, S, F, model_file)
 
 
-def to_wiring_diagram(G, lambdas, filename):
+def to_wiring_diagram(G, lambdas):
     layer_defs = get_layer_defs(G)
 
     # Create variable MonoidalCategory definitions per layer
@@ -69,7 +70,11 @@ def to_wiring_diagram(G, lambdas, filename):
         codom = " ⊗ ".join(cur_codom)
         stmts.append(f"IN_{i} = WiringDiagram(Hom(:L{i}_REWIRE, {dom}, {codom}))")
     stmts.reverse()
+    ids = [f"id_{i} = id(Ports([{i}]))" for i in ids]
+    return variable_defs, ids, stmts, funcs
 
+
+def write_files(defs, ids, stmts, funcs, filename):
     with open(f"{filename}__functions.jl", "w") as func_file:
         func_file.write("\n\n".join(funcs))
 
@@ -86,9 +91,9 @@ def to_wiring_diagram(G, lambdas, filename):
             "⊚(a,b) = b ∘ a"
         ]))
         wiring_file.write("\n\n\n")
-        wiring_file.write("\n".join(variable_defs))
+        wiring_file.write("\n".join(defs))
         wiring_file.write("\n\n\n")
-        wiring_file.write("\n".join([f"id_{i} = id(Ports([{i}]))" for i in ids]))
+        wiring_file.write("\n".join(ids))
         wiring_file.write("\n\n\n")
         wiring_file.write("\n".join(stmts))
 
@@ -123,7 +128,7 @@ def define_variables(vars):
 
 
 def py2jl(py_code):
-    return py_code.replace("def", "function").replace(":", "") + "end"
+    return py_code.replace("def", "function").replace(": Real", "").replace(":", "") + "end"
 
 
 if __name__ == '__main__':
