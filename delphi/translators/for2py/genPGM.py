@@ -433,7 +433,7 @@ class GrFNGenerator(object):
         }
 
         function_container_grfn = [function_container_grfn] + \
-                                  body_container_grfn
+            body_container_grfn
 
         # function_assign_grfn.append(function_container_grfn)
         pgm = {"containers": function_container_grfn,
@@ -846,6 +846,21 @@ class GrFNGenerator(object):
             container_argument
         )
 
+        # Creating variable specs for the inputs to the containers.
+        start_definitions = loop_state.last_definitions.copy()
+        container_definitions = start_definitions.copy()
+        container_input_state = loop_state.copy(
+            last_definitions=container_definitions)
+        for argument in container_argument:
+            (_, var, index) = argument.split('::')
+            container_input_state.last_definitions[var] = int(index)
+            argument_variable = self.generate_variable_definition(
+                var,
+                None,
+                container_input_state
+            )
+            body_variables_grfn.append(argument_variable)
+
         # TODO: Think about removing (or retaining) variables which even
         #  though defined outside the loop, are defined again inside the loop
         #  and then used by an operation after it.
@@ -896,6 +911,19 @@ class GrFNGenerator(object):
                     f"@variable::{item}::"
                     f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
                 )
+                # Create variable spec for updated variables in parent scope.
+                # So, temporarily change the current scope to its previous form
+                tmp_scope = self.current_scope
+                self.current_scope = '.'.join(self.current_scope.split('.')[
+                                              :-1])
+                updated_variable = self.generate_variable_definition(
+                    item,
+                    None,
+                    state
+                )
+                body_variables_grfn.append(updated_variable)
+                # Changing it back to its current form
+                self.current_scope = tmp_scope
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -913,7 +941,6 @@ class GrFNGenerator(object):
         loop_functions_grfn.append(loop_condition_function)
         loop_functions_grfn.append(loop_break_function)
 
-        loop_variables_grfn += body_variables_grfn
         loop_functions_grfn += body_functions_grfn
 
         # Finally, add the index increment variable and function grfn to the
@@ -1219,6 +1246,21 @@ class GrFNGenerator(object):
             container_argument
         )
 
+        # Creating variable specs for the inputs to the containers.
+        start_definitions = loop_state.last_definitions.copy()
+        container_definitions = start_definitions.copy()
+        container_input_state = loop_state.copy(
+            last_definitions=container_definitions)
+        for argument in container_argument:
+            (_, var, index) = argument.split('::')
+            container_input_state.last_definitions[var] = int(index)
+            argument_variable = self.generate_variable_definition(
+                var,
+                None,
+                container_input_state
+            )
+            body_variables_grfn.append(argument_variable)
+
         # TODO: Think about removing (or retaining) variables which even
         #  though defined outside the loop, are defined again inside the loop
         #  and then used by an operation after it.
@@ -1269,6 +1311,20 @@ class GrFNGenerator(object):
                     f"@variable::{item}::"
                     f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
                 )
+                # Create variable spec for updated variables in parent scope.
+                # So, temporarily change the current scope to its previous form
+                tmp_scope = self.current_scope
+                self.current_scope = '.'.join(self.current_scope.split('.')[
+                                              :-1])
+                updated_variable = self.generate_variable_definition(
+                    item,
+                    None,
+                    state
+                )
+                body_variables_grfn.append(updated_variable)
+                # Changing it back to its current form
+                self.current_scope = tmp_scope
+
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
         #  some variables are defined inside the loop body, used within that
@@ -1283,7 +1339,6 @@ class GrFNGenerator(object):
         loop_functions_grfn.append(loop_condition_function)
         loop_functions_grfn.append(loop_break_function)
 
-        loop_variables_grfn += body_variables_grfn
         loop_functions_grfn += body_functions_grfn
 
         container_gensym = self.generate_gensym("container")
@@ -1682,7 +1737,6 @@ class GrFNGenerator(object):
             else:
                 container_id_name = self.function_argument_map[function_name][
                     "name"]
-                # ty: type
                 function_type = "container"
 
             function = {
@@ -1695,8 +1749,7 @@ class GrFNGenerator(object):
                 "updated": []
             }
 
-            # Array itself needs to be added
-            # as an input, so check that it's
+            # Array itself needs to be added as an input, so check that it's
             # and array. If yes, then add it manually.
             if array_set:
                 function["input"].append(
@@ -1837,6 +1890,12 @@ class GrFNGenerator(object):
                             state.next_definitions[variable_name] = \
                                 state.last_definitions[variable_name] + 1
 
+                            variable_spec = self.generate_variable_definition(
+                                variable_name,
+                                None,
+                                state
+                            )
+                            grfn['variables'].append(variable_spec)
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
             if len(function['input']) > 0:
@@ -2236,6 +2295,7 @@ class GrFNGenerator(object):
         merged_grfn = [self._merge_dictionary(grfn_list)]
 
         return merged_grfn
+        # TODO Implement this. This needs to be done for generality
         # We fill in the `updated` field of function calls by looking at the
         # `updated` field of their container grfn
         final_grfn = self.load_updated(merged_grfn)
@@ -3033,11 +3093,11 @@ class GrFNGenerator(object):
             else:
                 assert False, f"Error when parsing body variable " \
                               f"{var['name']}"
-
         # Now loop through every argument variable over the body variable to
         # check if the indices mismatch which would indicate an updated variable
         for argument in argument_dict:
-            if argument in body_dict:
+            if argument in body_dict and \
+                    int(body_dict[argument]) > int(argument_dict[argument]):
                 updated_list.append(f"@variable::{argument}::"
                                     f"{body_dict[argument]}")
 
