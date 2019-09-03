@@ -161,9 +161,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         super().__init__(G)
         self.outputs = outputs
         self.scope_tree = scope_tree
-        for name, data in self.nodes(data=True):
-            if len(data) == 0:
-                print(name, data)
         self.inputs = [
             n
             for n, d in self.in_degree()
