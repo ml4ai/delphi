@@ -4,9 +4,9 @@ import json
 import sys
 
 import numpy as np
+import torch
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.translators.GrFN2WiringDiagram.translate import to_wiring_diagram
 
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
@@ -97,12 +97,6 @@ def test_sir_simple_creation(sir_simple_grfn):
     G.draw('SIR-simple--GrFN.pdf', prog='dot')
     CAG = sir_simple_grfn.to_CAG_agraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
-    lambdas = importlib.__import__(f"SIR-simple_lambdas")
-    (D, I, S, F) = to_wiring_diagram(sir_simple_grfn, lambdas)
-    assert len(D) == 3
-    assert len(I) == 3
-    assert len(S) == 9
-    assert len(F) == 5
 
 
 def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
