@@ -21,6 +21,7 @@ import sys
 import pickle
 import argparse
 import re
+import keyword
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
 from delphi.translators.for2py import For2PyError, syntax
@@ -754,6 +755,14 @@ class PythonCodeGenerator(object):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
 
+        if lhs["name"] in keyword.kwlist:
+            lhs["name"] += "_"
+        if (
+                "name" in rhs 
+                and rhs["name"] in keyword.kwlist
+        ):
+            rhs["name"] += "_"
+
         rhs_str = self.proc_expr(node["value"][0], False)
 
         if lhs["is_derived_type_ref"] == "true":
@@ -1135,6 +1144,10 @@ class PythonCodeGenerator(object):
 
     def printVariable(self, node, printState: PrintState):
         var_name = self.nameMapper[node["name"]]
+
+        if var_name in keyword.kwlist:
+            var_name += "_"
+
         if (
                 var_name not in printState.definedVars + printState.globalVars
                 and var_name not in self.functions and var_name not in
