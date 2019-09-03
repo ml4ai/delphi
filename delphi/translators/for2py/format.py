@@ -227,7 +227,7 @@ class Format:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
                 xtract_rexp = 'r"(.{' + sz +'})"'  # r.e. for extraction
-                rexp1 = 'r" *-?\d+"'  # r.e. for matching
+                rexp1 = r" *-?\d+"  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
 
@@ -240,7 +240,7 @@ class Format:
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1 :]))
                 xtract_rexp = 'r"(.{,' + sz + '})"'  # r.e. for extraction
-                rexp1 = 'r" *-?\d+(\.\d+)?"'  # r.e. for matching
+                rexp1 = r" *-?\d+(\.\d+)?"  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
                 raise For2PyError(
@@ -324,7 +324,7 @@ class Format:
                 # the exponent, e.g.: 'E15.3E2'.  For now we ignore any such
                 # the exponent width -- but if it's there, we need to extract
                 # the sequence of digits before it.
-                m = re.match("(\d+).*", suffix)
+                m = re.match(r"(\d+).*", suffix)
                 assert m is not None, f"Improper format? '{fmt}'"
                 prec = m.group(1)
                 gen_fmt = "{}"
