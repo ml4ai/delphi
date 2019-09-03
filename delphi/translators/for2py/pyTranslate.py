@@ -13,7 +13,7 @@ Example:
         <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
-file along with other non-source code information.
+             file along with other non-source code information.
 python_file: The Python file on which to write the resulting Python script.
 """
 
@@ -117,6 +117,7 @@ INTRINSICS_MAP = {
     "tan": ("tan", "FUNC", "math"),
     "tanh": ("tanh", "FUNC", "math"),
     "xor": ("^", "INFIXOP", None),
+    "rand": ("random", "FUNC", None),
 }
 
 
@@ -775,6 +776,7 @@ class PythonCodeGenerator(object):
                     subscripts = ", ".join(subs_strs)
                     assg_str = f"{lhs['name']}.set_(({subscripts}), "
                 else:
+                    # handling derived types might go here
                     assert False
             else:
                 # target is a scalar variable
@@ -1521,7 +1523,8 @@ def create_python_source_list(outputDict: Dict):
         "from dataclasses import dataclass",
         "from delphi.translators.for2py.types_ext import Float32",
         "import delphi.translators.for2py.math_ext as math",
-        "from numbers import Real\n",
+        "from numbers import Real",
+        "from random import random\n",
     ]
 
     for module in module_index_dict:

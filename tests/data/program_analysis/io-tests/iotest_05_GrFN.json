@@ -1,0 +1,48 @@
+{
+  "identifiers": [],
+  "start": "main",
+  "functions": [
+    {
+      "name": "main",
+      "type": "container",
+      "input": [],
+      "variables": [
+        {
+          "name": "format_30",
+          "domain": "string"
+        },
+        {
+          "name": "format_10",
+          "domain": "string"
+        },
+        {
+          "name": "i",
+          "domain": "integer"
+        },
+        {
+          "name": "x",
+          "domain": "real"
+        },
+        {
+          "name": "j",
+          "domain": "integer"
+        },
+        {
+          "name": "y",
+          "domain": "real"
+        }
+      ],
+      "body": []
+    }
+  ],
+  "source": [
+    [
+      [
+        "for2py",
+        "tmp",
+        "iotest_05.py"
+      ]
+    ]
+  ],
+  "dateCreated": "20190514"
+}
