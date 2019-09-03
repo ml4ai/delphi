@@ -226,7 +226,7 @@ class Format:
         else:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
-                xtract_rexp = 'r"'+"(.{"+sz+"})"+'"'  # r.e. for extraction
+                xtract_rexp = 'r"(.{' + sz +'})"'  # r.e. for extraction
                 rexp1 = 'r" *-?\d+"'  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
@@ -239,11 +239,8 @@ class Format:
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1 :]))
-                xtract_rexp = "(.{," + sz + "})"  # r.e. for extraction
-                leading_sp = " *"
-                optional_sign = "-?"
-                rexp0 = r"\d+(\.\d+)?"
-                rexp1 = leading_sp + optional_sign + rexp0  # r.e. for matching
+                xtract_rexp = 'r"(.{,' + sz + '})"'  # r.e. for extraction
+                rexp1 = 'r" *-?\d+(\.\d+)?"'  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
                 raise For2PyError(
