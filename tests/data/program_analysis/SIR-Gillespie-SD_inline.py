@@ -11,11 +11,9 @@ from numbers import Real
 from random import random
 
 
-def gillespie(s0: List[int], i0: List[int], r0: List[int]):
+def gillespie(s: List[int], i: List[int], r: List[int], gamma: List[float], rho: List[float]):
     tmax: List[int] = [100]
     total_runs: List[int] = [1000]
-    gamma: List[float] = [(1.0 / 3.0)]
-    rho: List[float] = [2.0]
     beta: List[float] = [(rho[0] * gamma[0])]
     means = Array(float, [(0, tmax[0])])
     meani = Array(float, [(0, tmax[0])])
@@ -24,9 +22,7 @@ def gillespie(s0: List[int], i0: List[int], r0: List[int]):
     vari = Array(float, [(0, tmax[0])])
     varr = Array(float, [(0, tmax[0])])
     samples = Array(int, [(0, tmax[0])])
-    pyrand: List[float] = [None]
-    i: List[int] = [None]
-    n_samples: List[int] = [None]
+    j: List[int] = [None]
     runs: List[int] = [None]
     n_s: List[int] = [None]
     n_i: List[int] = [None]
@@ -34,31 +30,36 @@ def gillespie(s0: List[int], i0: List[int], r0: List[int]):
     sample_idx: List[int] = [None]
     samp: List[int] = [None]
     runs1: List[int] = [None]
+    totalrates: List[float] = [None]
+    dt: List[float] = [None]
     t: List[float] = [None]
     randval: List[float] = [None]
     rateinfect: List[float] = [None]
     raterecover: List[float] = [None]
-    totalrates: List[float] = [None]
-    dt: List[float] = [None]
-    for i[0] in range(0, tmax[0]+1):
-        means.set_((i[0]), 0)
-        meani.set_((i[0]), 0.0)
-        meanr.set_((i[0]), 0.0)
-        vars.set_((i[0]), 0.0)
-        vari.set_((i[0]), 0.0)
-        varr.set_((i[0]), 0.0)
-        samples.set_((i[0]), i[0])
-    n_samples[0] = 0
+    for j[0] in range(0, tmax[0]+1):
+        means.set_((j[0]), 0)
+        meani.set_((j[0]), 0.0)
+        meanr.set_((j[0]), 0.0)
+        vars.set_((j[0]), 0.0)
+        vari.set_((j[0]), 0.0)
+        varr.set_((j[0]), 0.0)
+        samples.set_((j[0]), j[0])
     for runs[0] in range(0, (total_runs[0] - 1)+1):
         t[0] = 0.0
-        n_s[0] = s0[0]
-        n_i[0] = i0[0]
-        n_r[0] = r0[0]
         sample_idx[0] = 0
-        while ((t[0] <= tmax[0]) and (n_i[0] > 0)):
-            rateinfect[0] = (((beta[0] * n_s[0]) * n_i[0]) / ((n_s[0] + n_i[0]) + n_r[0]))
-            raterecover[0] = (gamma[0] * n_i[0])
+        while ((t[0] <= tmax[0]) and (i[0] > 0)):
+            n_s[0] = s[0]
+            n_i[0] = i[0]
+            n_r[0] = r[0]
+            rateinfect[0] = (((beta[0] * s[0]) * i[0]) / ((s[0] + i[0]) + r[0]))
+            raterecover[0] = (gamma[0] * i[0])
             totalrates[0] = (rateinfect[0] + raterecover[0])
+            if (random() < (rateinfect[0] / totalrates[0])):
+                s[0] = (s[0] - 1)
+                i[0] = (i[0] + 1)
+            else:
+                i[0] = (i[0] - 1)
+                r[0] = (r[0] + 1)
             dt[0] = -((math.log((1.0 - random())) / totalrates[0]))
             t[0] = (t[0] + dt[0])
             while ((sample_idx[0] < tmax[0]) and (t[0] > samples.get_((sample_idx[0])))):
@@ -71,12 +72,6 @@ def gillespie(s0: List[int], i0: List[int], r0: List[int]):
                 meanr.set_((samp[0]), (meanr.get_((samp[0])) + ((n_r[0] - meanr.get_((samp[0]))) / runs1[0])))
                 varr.set_((samp[0]), (varr.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_r[0] - meanr.get_((samp[0])))) * (n_r[0] - meanr.get_((samp[0]))))))
                 sample_idx[0] = (sample_idx[0] + 1)
-            if (random() < (rateinfect[0] / totalrates[0])):
-                n_s[0] = (n_s[0] - 1)
-                n_i[0] = (n_i[0] + 1)
-            else:
-                n_i[0] = (n_i[0] - 1)
-                n_r[0] = (n_r[0] + 1)
         while (sample_idx[0] < tmax[0]):
             samp[0] = samples.get_((sample_idx[0]))
             runs1[0] = (runs[0] + 1)
@@ -89,10 +84,12 @@ def gillespie(s0: List[int], i0: List[int], r0: List[int]):
             sample_idx[0] = (sample_idx[0] + 1)
 
 def main():
-    s0: List[int] = [500]
-    i0: List[int] = [10]
-    r0: List[int] = [0]
+    s: List[int] = [500]
+    i: List[int] = [10]
+    r: List[int] = [0]
     tmax: List[int] = [100]
-    gillespie(s0, i0, r0)
+    gamma: List[float] = [(1.0 / 3.0)]
+    rho: List[float] = [2.0]
+    gillespie(s, i, r, gamma, rho)
 
 main()
