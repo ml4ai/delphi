@@ -233,5 +233,8 @@ exhale_args = {
     "doxygenStripFromPath":  "..",
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../lib"
+    "exhaleDoxygenStdin":    """
+    INPUT = ../lib
+    WARN_IF_UNDOCUMENTED = NO
+    QUIET=YES"""
 }

@@ -3,11 +3,14 @@ This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
 problematic for the OpenFortranParser front end. It can also be run as a script,
 as seen below.
+
 Example:
     To invoke this script, do: ::
         ./preprocessor.py <infile> <outfile>
+
 where `infile` is the name of the input file, and `outfile` is the name of the
 file to which the preprocessed code will be written.
+
 Author:
     Saumya Debray
 """
@@ -349,30 +352,46 @@ def split_trailing_comment(line: str) -> str:
     if line.find("!") == -1:
         return (line, None)
 
-    i = 0
-    while i < len(line):
-        if line[i] == "'":
-            j = line.find("'", i + 1)
-            if j == -1:
-                sys.stderr.write("WEIRD: unbalanced quote ': line = " + line)
-                return (line, None)
-            else:
-                i = j + 1
-        elif line[i] == '"':
-            j = line.find('"', i + 1)
-            if j == -1:
-                sys.stderr.write('WEIRD: unbalanced quote ": line = ' + line)
-                return (line, None)
-            else:
-                i = j + 1
-        elif line[i] == "!":  # partial-line comment
-            comment_part = line[i:]
-            code_part = line[:i].rstrip() + "\n"
-            return (code_part, comment_part)
-        else:
-            i += 1
+    # We use a simple finite-state machine to process the input line, deal
+    # with quotes (single or double) appropriately, and find the first
+    # occurrence of the comment character ! outside any quote.
 
-    return (line, None)
+    comment_pos = None
+
+    i = 0
+    state = "outside"
+    
+    while i < len(line):
+        char = line[i]
+
+        if state == "outside":
+            if char == '"':
+                state = "double-quotes"
+            elif char == "'":
+                state = "single-quotes"
+            elif char == "!":
+                state = "comment"
+                comment_pos = i
+                break
+        elif state == "single-quotes":
+            if char == "'":
+                state = "outside"
+        elif state == "double-quotes":
+            if char == '"':
+                state = "outside"
+        else:
+            assert False, f"Unknown state: {state}"
+
+        i += 1
+
+    if comment_pos is None:
+        code_part = line
+        comment_part = None
+    else:
+        comment_part = line[comment_pos:]
+        code_part = line[:comment_pos].rstrip() + "\n"
+
+    return (code_part, comment_part)
 
 
 def preprocess(lines):

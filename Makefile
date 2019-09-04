@@ -1,4 +1,4 @@
-all: extensions
+all: test docs
 
 docs:
 	cd docs; make html
@@ -17,7 +17,6 @@ test: extensions
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests
-	./build/cpptests
 
 pypi_upload:
 	rm -rf dist

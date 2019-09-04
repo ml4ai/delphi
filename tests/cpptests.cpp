@@ -20,19 +20,17 @@ TEST_CASE("Testing model training") {
   AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
 
   G.map_concepts_to_indicators();
+  G.to_png();
 
   G.replace_indicator("UN/events/human/human_migration",
                       "Net migration",
                       "New asylum seeking applicants",
                       "UNHCR");
-  G.to_png();
-  cout << G.to_dot() << endl;
 
+  G.construct_beta_pdfs();
   G.train_model(2015, 1, 2015, 12, 100, 900);
 
-  pair<vector<string>,
-       vector<vector<unordered_map<string, unordered_map<string, double>>>>>
-      preds = G.generate_prediction(2015, 1, 2015, 12);
+  Prediction preds = G.generate_prediction(2015, 1, 2015, 12);
   fmt::print("Prediction to array\n");
 
   try {
