@@ -19,7 +19,9 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
 
-typedef std::vector<std::vector<std::vector<double>>> ObservedStateSequence;
+typedef std::vector<std::vector<std::vector<std::vector<double>>>> ObservedStateSequence;
+
+typedef std::vector<std::vector<std::vector<double>>> PredictedObservedStateSequence;
 
 typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
@@ -130,7 +132,9 @@ class AnalysisGraph {
   // Access this as
   // prediction_observed_state_sequences
   //                            [ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<ObservedStateSequence> predicted_observed_state_sequences;
+  std::vector<PredictedObservedStateSequence> predicted_observed_state_sequences;
+  
+  PredictedObservedStateSequence test_observed_state_sequence;
 
   // Sampling resolution. Default is 200
   int res = DEFAULT_N_SAMPLES;
@@ -143,10 +147,6 @@ class AnalysisGraph {
   // Access this as
   // current_latent_state
   Eigen::VectorXd current_latent_state;
-
-  // Access this as
-  // observed_state_sequences[ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<ObservedStateSequence> observed_state_sequences;
 
   // Access this as
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
@@ -162,6 +162,7 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
+  bool data_heuristic = false;
 
   void
   get_subgraph_rooted_at(int vert,
@@ -415,7 +416,7 @@ class AnalysisGraph {
    *                  on the specified time point.
    *                  Access it as: [ vertex id ][ indicator id ]
    */
-  std::vector<std::vector<double>>
+  std::vector<std::vector<std::vector<double>>>
   get_observed_state_from_data(int year,
                                int month,
                                std::string country = "South Sudan",
@@ -497,7 +498,8 @@ class AnalysisGraph {
                    std::string state = "",
                    std::string county = "",
                    std::map<std::string, std::string> units = {},
-                   InitialBeta initial_beta = InitialBeta::ZERO);
+                   InitialBeta initial_beta = InitialBeta::ZERO,
+                   bool use_heuristic = false);
 
   /**
    * Sample a collection of observed state sequences from the likelihood
@@ -579,7 +581,7 @@ class AnalysisGraph {
   void
   generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
-  std::pair<ObservedStateSequence, Prediction>
+  std::pair<PredictedObservedStateSequence, Prediction>
   test_inference_with_synthetic_data(
       int start_year = 2015,
       int start_month = 1,
