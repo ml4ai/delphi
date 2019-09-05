@@ -121,32 +121,33 @@ def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
     CAG.draw('SIR-Gillespie_ms--CAG.pdf', prog='dot')
 
 
-# def test_petasce_torch_execution():
-#     lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
-#     pgm = json.load(open(data_dir + "PETASCE_simple_torch.json", "r"))
-#     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
-#
-#     N = 100
-#     samples = {
-#         "petasce::doy_0": np.random.randint(1, 100, N),
-#         "petasce::meevp_0": np.where(np.random.rand(N) >= 0.5, 'A', 'W'),
-#         "petasce::msalb_0": np.random.uniform(0, 1, N),
-#         "petasce::srad_0": np.random.uniform(1, 30, N),
-#         "petasce::tmax_0": np.random.uniform(-30, 60, N),
-#         "petasce::tmin_0": np.random.uniform(-30, 60, N),
-#         "petasce::xhlai_0": np.random.uniform(0, 20, N),
-#         "petasce::tdew_0": np.random.uniform(-30, 60, N),
-#         "petasce::windht_0": np.random.uniform(0, 10, N),
-#         "petasce::windrun_0": np.random.uniform(0, 900, N),
-#         "petasce::xlat_0": np.random.uniform(0, 90, N),
-#         "petasce::xelev_0": np.random.uniform(0, 6000, N),
-#         "petasce::canht_0": np.random.uniform(0.001, 3, N),
-#     }
-#
-#     values = {
-#         k: torch.tensor(v, dtype=torch.double) if v.dtype != "<U1" else v
-#         for k, v in samples.items()
-#     }
-#
-#     res = G.run(values, torch_size=N)
-#     assert res.size()[0] == N
+@pytest.mark.skip("Need to update to latest JSON")
+def test_petasce_torch_execution():
+    lambdas = importlib.__import__("PETASCE_simple_torch_lambdas")
+    pgm = json.load(open(data_dir + "PETASCE_simple_torch.json", "r"))
+    G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
+
+    N = 100
+    samples = {
+        "petasce::doy_0": np.random.randint(1, 100, N),
+        "petasce::meevp_0": np.where(np.random.rand(N) >= 0.5, 'A', 'W'),
+        "petasce::msalb_0": np.random.uniform(0, 1, N),
+        "petasce::srad_0": np.random.uniform(1, 30, N),
+        "petasce::tmax_0": np.random.uniform(-30, 60, N),
+        "petasce::tmin_0": np.random.uniform(-30, 60, N),
+        "petasce::xhlai_0": np.random.uniform(0, 20, N),
+        "petasce::tdew_0": np.random.uniform(-30, 60, N),
+        "petasce::windht_0": np.random.uniform(0, 10, N),
+        "petasce::windrun_0": np.random.uniform(0, 900, N),
+        "petasce::xlat_0": np.random.uniform(0, 90, N),
+        "petasce::xelev_0": np.random.uniform(0, 6000, N),
+        "petasce::canht_0": np.random.uniform(0.001, 3, N),
+    }
+
+    values = {
+        k: torch.tensor(v, dtype=torch.double) if v.dtype != "<U1" else v
+        for k, v in samples.items()
+    }
+
+    res = G.run(values, torch_size=N)
+    assert res.size()[0] == N
