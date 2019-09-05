@@ -166,7 +166,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
-        # self.output_node = self.outputs[-1]
         self.call_graph = self.build_call_graph()
         self.function_sets = self.build_function_sets()
 
@@ -434,7 +433,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             fortran_file
         )
 
-        # {"file_name": f"{stem}.py"}, # HACK
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
