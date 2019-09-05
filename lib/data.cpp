@@ -9,7 +9,6 @@ std::vector<double> get_data_value(std::string indicator,
                       int month,
                       std::string unit,
                       bool use_heuristic) {
-  using utils::mean;
   using namespace std;
   using fmt::print;
   using namespace fmt::literals;

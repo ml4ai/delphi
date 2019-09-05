@@ -126,7 +126,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::ZERO,
-           "use_heuristic"_a = false),
+           "use_heuristic"_a = false)
       .def("generate_prediction",
            &AnalysisGraph::generate_prediction,
            "start_year"_a,
