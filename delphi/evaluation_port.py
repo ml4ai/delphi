@@ -532,7 +532,7 @@ def calculate_prediction_rmse(
 ) -> float:
     df = mean_pred_to_df(preds, indicator, 0.95, True, **kwargs)
     sqr_residuals = df["Error"].values ** 2
-    return np.sqrt(sqr_residuals.mean())
+    return np.sqrt(np.nanmean(sqr_residuals))
 
 
 def pred_plot(
