@@ -101,29 +101,10 @@ def processCode():
     with open(input_code_tmpfile, "w") as f:
         f.write(preprocessor.process(lines))
 
-    xml_string = sp.run(
-        [
-            "java",
-            "fortran.ofp.FrontEnd",
-            "--class",
-            "fortran.ofp.XMLPrinter",
-            "--verbosity",
-            "0",
-            input_code_tmpfile,
-        ],
-        stdout=sp.PIPE,
-    ).stdout
-
-    trees = [ET.fromstring(xml_string)]
-    comments = get_comments.get_comments(input_code_tmpfile)
-    outputDict = translate.XMLToJSONTranslator().analyze(trees, comments)
-    pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-
     lambdas = f"{filename}_lambdas"
     lambdas_path = f"/tmp/automates/{lambdas}.py"
-    G = GroundedFunctionNetwork.from_python_src(
-        pySrc, lambdas_path, f"{filename}.json", filename, save_file=False
-    )
+    G = GroundedFunctionNetwork.from_fortran_file(input_code_tmpfile,
+                                                  tmpdir="/tmp/automates/")
 
     graphJSON, layout = get_grfn_surface_plot(G)
 
@@ -138,7 +119,6 @@ def processCode():
         "index.html",
         form=form,
         code=app.code,
-        python_code=highlight(pySrc, PYTHON_LEXER, PYTHON_FORMATTER),
         scopeTree_elementsJSON=scopeTree_elementsJSON,
         graphJSON=graphJSON,
         layout=layout,
@@ -193,7 +173,7 @@ def modelAnalysis():
 
 
 def main():
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=80, debug=True)
 
 
 if __name__ == "__main__":
