@@ -6,6 +6,7 @@ import sys
 import numpy as np
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
+from delphi.GrFN.linking import make_link_tables
 from delphi.translators.GrFN2WiringDiagram.translate import to_wiring_diagram
 
 data_dir = "tests/data/GrFN/"
@@ -119,6 +120,12 @@ def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
     G.draw('SIR-Gillespie_ms--GrFN.pdf', prog='dot')
     CAG = sir_gillespie_ms_grfn.to_CAG_agraph()
     CAG.draw('SIR-Gillespie_ms--CAG.pdf', prog='dot')
+
+
+def test_linking_graph():
+    grfn = json.load(open("tests/data/program_analysis/SIR-Gillespie-SD_GrFN_with_groundings.json", "r"))
+    tables = make_link_tables(grfn)
+    assert len(tables.keys()) == 207
 
 
 @pytest.mark.skip("Need to update to latest JSON")
