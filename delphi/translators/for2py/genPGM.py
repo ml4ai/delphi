@@ -3242,6 +3242,20 @@ def dump_ast(node, annotate_fields=True, include_attributes=False, indent="  "):
     return _format(node)
 
 
+def process_comments(source_comment_dict, generator_object):
+    """
+        This function replaces the keys in the source comments that are
+        function names in the source files into their container id name.
+    """
+    grfn_argument_map = generator_object.function_argument_map
+    for key in source_comment_dict:
+        if key in grfn_argument_map:
+            source_comment_dict[grfn_argument_map[key]['name']] = \
+                source_comment_dict.pop(key)
+
+    return source_comment_dict
+
+
 def create_grfn_dict(
         lambda_file: str,
         asts: List,
@@ -3294,7 +3308,9 @@ def create_grfn_dict(
     grfn["source"] = [file_path_list[-1]]
 
     # Get the source comments from the original Fortran source file.
-    source_comments = str(dict(get_comments(original_file)))
+    source_file_comments = get_comments(original_file)
+    comment_dict = process_comments(dict(source_file_comments), generator)
+    source_comments = comment_dict
     grfn["source_comments"] = source_comments
 
     # dateCreated stores the date and time on which the lambda and GrFN files
