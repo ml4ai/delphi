@@ -32,11 +32,11 @@ def make_link_tables(GrFN):
                                         G[n1][n2]["label"],
                                         G[n2][n3]["label"]
                                     ]),
-                                    "comm": n1,
+                                    "comm": n1.split("\n")[1],
                                     "var--comm": G[var_name][n1]["label"],
-                                    "txt": n2,
+                                    "txt": n2.split("\n")[1],
                                     "comm--txt": G[n1][n2]["label"],
-                                    "eqn": n3,
+                                    "eqn": n3.split("\n")[1],
                                     "txt--eqn": G[n2][n3]["label"]
                                 })
         var_table.sort(
@@ -81,9 +81,9 @@ def output_link_graph(G):
 def print_table_data(table_data):
     for (_, scope, name, idx), table in table_data.items():
         print("::".join([scope, name, idx]))
-        print("L-SCORE\tV-C\tC-T\tT-E")
+        print("L-SCORE\tComment\tV-C\tText-span\tC-T\tEquation\tT-E")
         for row in table:
-            print(f"{row['link-score']}\t{row['var--comm']}\t{row['comm--txt']}\t{row['txt--eqn']}")
+            print(f"{row['link-score']}\t{row['comm']}\t{row['var--comm']}\t{row['txt']}\t{row['comm--txt']}\t{row['eqn']}\t{row['txt--eqn']}")
         print("\n\n")
 
 
@@ -116,12 +116,15 @@ def get_id(el_data):
         tokens = el_data["content"].split()
         name = tokens[0]
         desc = " ".join(format_long_text(tokens[1:]))
+        return ("<CMS>", f"{name}: {desc}")
         return ("<CMS>", name, desc)
     elif el_type == "text_span":
         desc = " ".join(format_long_text(el_data["content"].split()))
+        desc = el_data["content"]
         return ("<TXT>", desc)
     elif el_type == "equation_span":
         desc = " ".join(format_long_text(el_data["content"].split()))
+        desc = el_data["content"]
         return ("<EQN>", desc)
     else:
         raise ValueError(f"Unrecognized link type: {el_type}")

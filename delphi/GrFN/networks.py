@@ -696,7 +696,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         functions. """
 
         A = nx.nx_agraph.to_agraph(self.call_graph)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )

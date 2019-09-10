@@ -6,8 +6,8 @@ import sys
 import numpy as np
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.linking import make_link_tables
-from delphi.translators.GrFN2WiringDiagram.translate import to_wiring_diagram
+import delphi.GrFN.linking as linking
+import delphi.translators.GrFN2WiringDiagram.translate as GrFN2WD
 
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
@@ -30,7 +30,12 @@ def petasce_grfn():
 
 @pytest.fixture
 def sir_simple_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f", save_file=True)
+
+
+@pytest.fixture
+def sir_gillespie_grfn():
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/Gillespie-SIR.f", save_file=True)
 
 
 @pytest.fixture
@@ -99,11 +104,19 @@ def test_sir_simple_creation(sir_simple_grfn):
     CAG = sir_simple_grfn.to_CAG_agraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
     lambdas = importlib.__import__(f"SIR-simple_lambdas")
-    (D, I, S, F) = to_wiring_diagram(sir_simple_grfn, lambdas)
+    (D, I, S, F) = GrFN2WD.to_wiring_diagram(sir_simple_grfn, lambdas)
     assert len(D) == 3
     assert len(I) == 3
     assert len(S) == 9
     assert len(F) == 5
+
+
+def test_gillespie_creation(sir_gillespie_grfn):
+    assert isinstance(sir_gillespie_grfn, GroundedFunctionNetwork)
+    G = sir_gillespie_grfn.to_agraph()
+    G.draw('Gillespie-SIR--GrFN.pdf', prog='dot')
+    CAG = sir_gillespie_grfn.to_CAG_agraph()
+    CAG.draw('Gillespie-SIR--CAG.pdf', prog='dot')
 
 
 def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
@@ -123,8 +136,9 @@ def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
 
 
 def test_linking_graph():
-    grfn = json.load(open("tests/data/program_analysis/SIR-Gillespie-SD_GrFN_with_groundings.json", "r"))
-    tables = make_link_tables(grfn)
+    grfn = json.load(open("tests/data/program_analysis/SIR-simple_with_groundings.json", "r"))
+    tables = linking.make_link_tables(grfn)
+    linking.print_table_data(tables)
     assert len(tables.keys()) == 207
 
 

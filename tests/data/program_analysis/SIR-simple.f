@@ -1,3 +1,16 @@
+********************************************************************************
+C     Input Variables:
+C     S        Number of susceptible members
+C     I        Number of infected members
+C     R        Number of recovered members
+C     beta     Rate of infection
+C     gamma    Rate of recovery from an infection
+C     dt       Next inter-event time
+C
+C     State Variables:
+C     infected    Current state dependent rate of infection
+C     recovered   Current state dependent rate of recovery
+********************************************************************************
       subroutine sir(S, I, R, beta, gamma, dt)
         implicit none
         double precision S, I, R, beta, gamma, dt
@@ -10,10 +23,3 @@
         I = I + infected - recovered
         R = R + recovered
       end subroutine sir
-
-C      program main
-C      double precision, parameter :: S0 = 500, I0 = 10, R0 = 0
-C      double precision, parameter :: beta = 0.5, gamma = 0.3, t = 1
-C
-C      call sir(S0, I0, R0, beta, gamma, t)
-C      end program main
