@@ -15,7 +15,6 @@ from scipy.stats import gaussian_kde
 import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
-from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
 from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
@@ -54,6 +53,13 @@ def normpdf(x, mean, sd):
     denom = (2 * pi * var) ** 0.5
     num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
     return num / denom
+
+
+def log_normpdf(x, mean, sd):
+    var = float(sd) ** 2
+    log_denom = -0.5 * log(2 * pi) - log(sd)
+    log_num = ((float(x) - float(mean)) ** 2) / (2 * var)
+    return log_denom - log_num
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -146,6 +152,7 @@ class AnalysisGraph(nx.DiGraph):
                 or the instance of Eidos running locally on your computer (e.g.
                 http://localhost:9000.
         """
+        from indra.sources.eidos import process_text
         eidosProcessor = process_text(text, webservice=webservice)
         return cls.from_statements(eidosProcessor.statements)
 
@@ -377,15 +384,13 @@ class AnalysisGraph(nx.DiGraph):
             n_timesteps: The number of timesteps for the sequences.
         """
 
-        self.n_timesteps = n_timesteps
         self.latent_state_sequences = lmap(
-            lambda A: ltake(
+            lambda A, t: ltake(
                 n_timesteps,
-                iterate(
-                    lambda s: pd.Series(A @ s.values, index=s.index), self.s0
-                ),
+                iterate(lambda s: pd.Series(A @ s.values, index=s.index), t),
             ),
             self.transition_matrix_collection,
+            self.initial_latent_states_for_prediction,
         )
 
         self.observed_state_sequences = [
@@ -439,10 +444,8 @@ class AnalysisGraph(nx.DiGraph):
             for n in self.nodes(data=True):
                 for indicator, value in observed_state[n[0]].items():
                     ind = n[1]["indicators"][indicator]
-                    log_likelihood = log(
-                        normpdf(
-                            value, latent_state[n[0]] * ind.mean, ind.stdev
-                        )
+                    log_likelihood = log_normpdf(
+                        value, latent_state[n[0]] * ind.mean, ind.stdev
                     )
                     _list.append(log_likelihood)
 
@@ -451,7 +454,7 @@ class AnalysisGraph(nx.DiGraph):
 
     def set_latent_state_sequence(self, A):
         self.latent_state_sequence = ltake(
-            self.n_timesteps, iterate(lambda s: A.dot(s), self.s0)
+            self.n_timesteps + 1, iterate(lambda s: A.dot(s), self.s0)
         )
 
     def sample_observed_state(self, s: pd.Series) -> Dict:
@@ -489,7 +492,7 @@ class AnalysisGraph(nx.DiGraph):
         # Remember the original value of the element, in case we need to revert
         # the MCMC step.
         self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.01)
+        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=1)
 
     def get_timeseries_values_for_indicators(
         self, resolution: str = "month", months: Iterable[int] = range(6, 9)
@@ -615,7 +618,9 @@ class AnalysisGraph(nx.DiGraph):
         dampen=False,
         set_delta: float = None,
     ):
-        """ Advance the model by one time step. """
+        """ Advance the model by one time step. set_delta is currently just a
+        placeholder for a future feature.
+        """
 
         for n in self.nodes(data=True):
             n[1]["next_state"] = n[1]["update_function"](n)
@@ -630,13 +635,6 @@ class AnalysisGraph(nx.DiGraph):
                     self.s0[i][f"∂({n[0]})/∂t"] = self.s0_original[
                         f"∂({n[0]})/∂t"
                     ] * exp(-τ * self.t)
-                # Suppresses dampening
-                if set_delta is not None:
-                    if dampen:
-                        warnings.warn(
-                            "When set_delta is not None, the effect of dampen = True is suppressed"
-                        )
-                    self.s0[i][f"∂({n[0]})/∂t"] = set_delta
             if update_indicators:
                 for indicator in n[1]["indicators"].values():
                     indicator.samples = np.random.normal(

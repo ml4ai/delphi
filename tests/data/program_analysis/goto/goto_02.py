@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
 from numbers import Real
+from random import random
 
 
 def factorial():
@@ -35,11 +36,10 @@ def factorial():
                 if (i[0] == n[0]):
                     return
                 label_flag_2[0] = True
-        if goto_flag_1[0]:
-            n[0] = 10
-            fact[0] = 1
-            i[0] = 0
-            goto_flag_1[0] = False
+        n[0] = 10
+        fact[0] = 1
+        i[0] = 0
+        goto_flag_1[0] = False
         label_flag_3[0] = True
     
 

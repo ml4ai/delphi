@@ -44,8 +44,7 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         os.makedirs(ext.builddir, exist_ok=True)
-        check_call(["cmake", "../../"], cwd=ext.builddir)
-        check_call(["cmake", "--build", "."], cwd=ext.builddir)
+        check_call(["make","extensions"])
 
 
 setup(
@@ -64,7 +63,7 @@ setup(
     ],
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-    ext_modules=[CMakeExtension("extension", "lib/", "delphi/cpp")],
+    ext_modules=[CMakeExtension("extension", "lib/", "build")],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     install_requires=[
@@ -117,7 +116,6 @@ setup(
             "sphinx-rtd-theme",
             "sphinxcontrib-bibtex",
             "sphinxcontrib-trio",
-            "sphinx-autodoc-typehints",
             "recommonmark",
             "breathe",
             "exhale",

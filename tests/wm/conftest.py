@@ -23,11 +23,11 @@ concepts = {
     },
     "migration": {
         "grounding": "UN/events/human/human_migration",
-        "delta": {"polarity": 1, "adjective": ['small']},
+        "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "product": {
         "grounding": "UN/entities/natural/crop_technology/product",
-        "delta": {"polarity": 1, "adjective": ['large']},
+        "delta": {"polarity": 1, "adjective": ["large"]},
     },
     "economic crisis": {
         "grounding": "UN/events/human/economic_crisis",
@@ -41,7 +41,6 @@ concepts = {
         "grounding": "UN/entities/human/financial/economic/inflation",
         "delta": {"polarity": -1, "adjective": []},
     },
-
 }
 
 

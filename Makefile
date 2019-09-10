@@ -1,9 +1,12 @@
+all: test docs
+
 docs:
 	cd docs; make html
 
 extensions: 
-	mkdir -p build
-	cd build; cmake ..; make -j
+	mkdir -p build && \
+	cd build  && cmake .. &&  cmake --build . -- -j && \
+	cp *.so ../delphi/cpp
 
 test: extensions
 	time pytest \
@@ -11,7 +14,6 @@ test: extensions
 	  --doctest-modules\
 	  --ignore=delphi/analysis/sensitivity/tests\
 	  --ignore=delphi/cpp/pybind11\
-	  --ignore=delphi/cpp/nlohmann\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests

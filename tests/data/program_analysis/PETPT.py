@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
 from numbers import Real
+from random import random
 
 
 def petpt(msalb: List[Real], srad: List[Real], tmax: List[Real], tmin: List[Real], xhlai: List[Real], eo: List[Real]):

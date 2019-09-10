@@ -13,7 +13,7 @@ Example:
         <outputFileList>
 
 pickle_file: Pickled file containing the ast representation of the Fortran
-             file along with other non-source code information.
+file along with other non-source code information.
 python_file: The Python file on which to write the resulting Python script.
 """
 
@@ -117,6 +117,7 @@ INTRINSICS_MAP = {
     "tan": ("tan", "FUNC", "math"),
     "tanh": ("tanh", "FUNC", "math"),
     "xor": ("^", "INFIXOP", None),
+    "rand": ("random", "FUNC", None),
 }
 
 
@@ -248,6 +249,7 @@ class PythonCodeGenerator(object):
             "private": self.printPrivate,
             "array": self.printArray,
             "derived-type": self.printDerivedType,
+            "cycle": self.printContinue,
         }
         self.readFormat = []
 
@@ -774,7 +776,6 @@ class PythonCodeGenerator(object):
                     subscripts = ", ".join(subs_strs)
                     assg_str = f"{lhs['name']}.set_(({subscripts}), "
                 else:
-                    # handling derived types might go here
                     assert False
             else:
                 # target is a scalar variable
@@ -864,7 +865,12 @@ class PythonCodeGenerator(object):
         if node.get("value"):
             self.pyStrings.append(f"print({node['value']})")
             self.pyStrings.append(printState.sep)
-        self.pyStrings.append("return")
+        if node['tag'] == "exit":
+            self.pyStrings.append("break")
+        elif node['tag'] == "stop":
+            self.pyStrings.append("return")
+        else:
+            assert False, f"tag: {node['tag']} not being handled yet."
 
     def printReturn(self, node, printState: PrintState):
         self.pyStrings.append("")
@@ -1322,6 +1328,17 @@ class PythonCodeGenerator(object):
                 node["body"].remove(to_delete)
         self.is_save = False
 
+    def printContinue(self, node, printState: PrintState):
+        """
+        This function simply adds python statement "continue"
+        that is equivalent to "cycle" in Fortran.
+        """
+        assert (
+                node['tag'] == "cycle"
+        ), f"Tag must be <cycle> for <continue> statement.\
+            current: {node['tag']}"
+        self.pyStrings.append("continue")
+
     ###########################################################################
     #                                                                         #
     #                              MISCELLANEOUS                              #
@@ -1505,7 +1522,8 @@ def create_python_source_list(outputDict: Dict):
         "from dataclasses import dataclass",
         "from delphi.translators.for2py.types_ext import Float32",
         "import delphi.translators.for2py.math_ext as math",
-        "from numbers import Real\n",
+        "from numbers import Real",
+        "from random import random\n",
     ]
 
     for module in module_index_dict:
@@ -1623,7 +1641,7 @@ if __name__ == "__main__":
             modFile = f"{targetDir}m_{item[1].lower()}.py"
             try:
                 with open(modFile, "w") as f:
-                    outputList.append("m_" + item[1].lower() + ".py")
+                    outputList.append(modFile)
                     f.write(item[0])
             except IOError:
                 raise For2PyError(f"Unable to write to {modFile}")

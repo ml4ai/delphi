@@ -49,9 +49,9 @@ def clean_UNHCR_data():
     # are only present in the 2017 and 2018 entries. The UNHCR's reasoning is
     # that with such few counts and being such recent data, the privacy of these
     # individuals could be easily compromised. In my cleaning, I have decided to
-    # round-up from the median value between 1-4. Thus all * are being changed
+    # round-down from the median value between 1-4. Thus all * are being changed
     # to 2.
-    df = df.replace("*", 2)
+    df = df.replace("*", "")
 
     # Values are originally inferred as strings from the raw data because of the
     #'*'.
@@ -66,13 +66,13 @@ def clean_UNHCR_data():
     # Rename Origin to just Country
     df.columns = ["Country", "Year", "Month", "Value"]
 
-    # Add all needed axes. I choose to call the variable 'New ayslum
+    # Add all needed axes. I choose to call the variable 'New asylum
     # seeking applicants' and the units 'applicants'.
     df["State"] = None
     df["County"] = None
     df["Source"] = "UNHCR"
     df["Unit"] = "applicants"
-    df["Variable"] = "New ayslum seeking applicants"
+    df["Variable"] = "New asylum seeking applicants"
 
     # Reordered to fit south_sudan_data.tsv
     df = df.reindex(

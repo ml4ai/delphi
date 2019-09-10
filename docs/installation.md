@@ -16,8 +16,9 @@ The following are the prerequisites for Delphi:
 
 1. Download and set up the Delphi database
    ```
-   curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
+   curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
+(Last updated on 8/19/2019)
 
    Then, point the environment variable `DELPHI_DB` to point to `delphi.db`. On
    Linux, you can do the following:

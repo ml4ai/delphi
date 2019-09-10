@@ -1,21 +1,82 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(Boost_NO_BOOST_CMAKE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/delphi/cpp)
-set(PYBIND11_CPP_STANDARD -std=c++17)
-set(PYBIND11_PYTHON_VERSION 3.6)
-add_subdirectory(external/pybind11)
+find_package(Graphviz)
+
+include_directories(${GRAPHVIZ_INCLUDE_DIRS})
+# Add and link pybind11 modules
+find_package(Boost REQUIRED)
 include_directories(lib)
 include_directories(external)
-pybind11_add_module(kde lib/kde_wrapper.cpp)
-pybind11_add_module(AnalysisGraph lib/AnalysisGraph_wrapper.cpp)
+include_directories(${Boost_INCLUDE_DIR})
 
-# Finding and linking SQLite3
-include(FindPackageHandleStandardArgs)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(SQLite3)
-if (SQLITE3_FOUND)
-  include_directories(${SQLITE3_INCLUDE_DIRS})
-  target_link_libraries (AnalysisGraph PUBLIC ${SQLITE3_LIBRARIES})
-endif (SQLITE3_FOUND)
+include_directories(external/nlohmann-json)
+include_directories(external/cppitertools)
+
+add_subdirectory(external/fmt)
+add_subdirectory(external/spdlog)
+include_directories(external/fmt/include)
+include_directories(external/spdlog/include)
+
+find_package(PythonInterp REQUIRED)
+
+set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+set(PYBIND11_CPP_STANDARD -std=c++17)
+add_subdirectory(external/pybind11)
+
+file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
+
+message("-- Using Eigen3 version 3.3 bundled with Delphi")
+include_directories(external/eigen)
+
+find_package(SQLite3 REQUIRED)
+include_directories(${SQLITE3_INCLUDE_DIRS})
+
+add_library(Delphi 
+  lib/AnalysisGraph.cpp
+  lib/AnalysisGraph.hpp
+  lib/construct_beta_pdfs.cpp
+  lib/data.cpp
+  lib/data.hpp
+  lib/DiGraph.hpp
+  lib/graphviz_interface.cpp
+  lib/graphviz_interface.hpp
+  lib/kde.cpp
+  lib/kde.hpp
+  lib/random_variables.cpp
+  lib/random_variables.hpp
+  lib/rng.cpp
+  lib/rng.hpp
+  lib/train_model.cpp
+  lib/tran_mat_cell.hpp
+  lib/utils.cpp
+  lib/utils.hpp
+)
+
+target_link_libraries(Delphi
+                      PRIVATE ${Boost_LIBRARIES}
+                              fmt::fmt
+                              spdlog::spdlog
+                              "sqlite3"
+                              ${GRAPHVIZ_LIBS})
+
+# Tests
+add_library(doctest INTERFACE)
+add_executable(cpptests tests/cpptests.cpp)
+target_include_directories(doctest INTERFACE external/doctest)
+target_link_libraries(cpptests PRIVATE doctest Delphi)
+
+pybind11_add_module(DelphiPython MODULE lib/wrappers/AnalysisGraph_wrapper.cpp)
+target_link_libraries(DelphiPython PRIVATE Delphi)
+
+# Executables
+add_executable(create_model apps/create_model.cpp)
+target_link_libraries(create_model PRIVATE Delphi)
