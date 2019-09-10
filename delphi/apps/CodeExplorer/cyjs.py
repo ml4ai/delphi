@@ -67,93 +67,98 @@ src_comments_alignments, comment_text_alignments, src_text_alignments = (
 
 
 def get_tooltip(n):
-    if n[1]["type"] == "variable":
-        metadata = src_text_alignments.get(n[1]["basename"])
-        if metadata is not None:
-            comment_provenance = metadata["from_comments"]
-            text_provenance = metadata["from_text"]
+    try:
+        if n[1]["type"] == "variable":
+            metadata = src_text_alignments.get(n[1]["basename"])
+            if metadata is not None:
+                comment_provenance = metadata["from_comments"]
+                text_provenance = metadata["from_text"]
+                tooltip = """
+                <strong>Metadata extracted using NLP</strong>
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab-{n[0]}" role="tablist">
+                        <a class="nav-item nav-link active" id="nav-comments-tab-{n[0]}"
+                            data-toggle="tab" href="#nav-comments-{n[0]}" role="tab"
+                            aria-controls="nav-comments-{n[0]}" aria-selected="true">
+                            Code comments
+                        </a>
+                        <a class="nav-item nav-link" id="nav-text-tab-{n[0]}"
+                            data-toggle="tab" href="#nav-text-{n[0]}" role="tab"
+                            aria-controls="nav-text-{n[0]}" aria-selected="false">
+                            Scientific texts
+                        </a>
+                    </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
+                    <div class="tab-pane fade show active" id="nav-comments-{n[0]}"
+                        role="tabpanel" aria-labelledby="nav-comments-tab-{n[0]}">
+                        <table style="width:100%">
+                            <tr><td><strong>Text</strong>:</td> <td> {from_comments[description][0][text]} </td></tr>
+                            <tr><td><strong>Source</strong>:</td> <td> {from_comments[description][0][source]} </td></tr>
+                            <tr><td><strong>Sentence ID</strong>:</td> <td> {from_comments[description][0][sentIdx]} </td></tr>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
+                        aria-labelledby="nav-text-tab-{n[0]}">
+                        <table style="width:100%">
+                            <tr><td><strong>Text</strong>:</td> <td> {from_text[description][0][text]} </td></tr>
+                            <tr><td><strong>Source</strong>:</td> <td> {from_text[description][0][source]} </td></tr>
+                            <tr><td><strong>Sentence ID</strong>:</td> <td> {from_text[description][0][sentIdx]} </td></tr>
+                        </table>
+                    </div>
+                </div>
+                """.format(
+                    n=n,
+                    metadata=metadata,
+                    from_comments=comment_provenance,
+                    from_text=text_provenance,
+                )
+            else:
+                tooltip = None
+
+        else:
+            func_name = n[1]["lambda_fn"].__name__
+            out_name = func_name.split("__")[-2].replace("_", "\_")
+            src = inspect.getsource(n[1]["lambda_fn"])
+            src_lines = src.split("\n")
+            computation = src_lines[1].replace("return", "").strip().replace("math.", "")
+            print(computation)
+
+            ltx = (out_name + " = " +
+                   latex(sympify(computation), mul_symbol="dot",).replace("_", "\_")
+                   )
+
             tooltip = """
-            <strong>Metadata extracted using NLP</strong>
             <nav>
-                <div class="nav nav-tabs" id="nav-tab-{n[0]}" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-comments-tab-{n[0]}"
-                        data-toggle="tab" href="#nav-comments-{n[0]}" role="tab"
-                        aria-controls="nav-comments-{n[0]}" aria-selected="true">
-                        Code comments
+                <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
+                        data-toggle="tab" href="#nav-eq-{n}" role="tab"
+                        aria-controls="nav-eq-{n}" aria-selected="true">
+                        Equation
                     </a>
-                    <a class="nav-item nav-link" id="nav-text-tab-{n[0]}"
-                        data-toggle="tab" href="#nav-text-{n[0]}" role="tab"
-                        aria-controls="nav-text-{n[0]}" aria-selected="false">
-                        Scientific texts
+                    <a class="nav-item nav-link" id="nav-code-tab-{n}"
+                        data-toggle="tab" href="#nav-code-{n}" role="tab"
+                        aria-controls="nav-code-{n}" aria-selected="false">
+                        Lambda Function
                     </a>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
-                <div class="tab-pane fade show active" id="nav-comments-{n[0]}"
-                    role="tabpanel" aria-labelledby="nav-comments-tab-{n[0]}">
-                    <table style="width:100%">
-                        <tr><td><strong>Text</strong>:</td> <td> {from_comments[description][0][text]} </td></tr>
-                        <tr><td><strong>Source</strong>:</td> <td> {from_comments[description][0][source]} </td></tr>
-                        <tr><td><strong>Sentence ID</strong>:</td> <td> {from_comments[description][0][sentIdx]} </td></tr>
-                    </table>
+                <div class="tab-pane fade show active" id="nav-eq-{n}"
+                    role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
+                    \({ltx}\)
                 </div>
-                <div class="tab-pane fade" id="nav-text-{n[0]}" role="tabpanel"
-                    aria-labelledby="nav-text-tab-{n[0]}">
-                    <table style="width:100%">
-                        <tr><td><strong>Text</strong>:</td> <td> {from_text[description][0][text]} </td></tr>
-                        <tr><td><strong>Source</strong>:</td> <td> {from_text[description][0][source]} </td></tr>
-                        <tr><td><strong>Sentence ID</strong>:</td> <td> {from_text[description][0][sentIdx]} </td></tr>
-                    </table>
+                <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
+                    aria-labelledby="nav-code-tab-{n}">
+                    {src}
                 </div>
             </div>
             """.format(
-                n=n,
-                metadata=metadata,
-                from_comments=comment_provenance,
-                from_text=text_provenance,
+                ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
             )
-        else:
-            tooltip = None
-
-    else:
-        src = inspect.getsource(n[1]["lambda_fn"])
-        src_lines = src.split("\n")
-        ltx = (
-            src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
-            + " = "
-            + latex(
-                sympify(src_lines[1][10:].replace("math.", "")),
-                mul_symbol="dot",
-            ).replace("_", "\_")
-        )
-        tooltip = """
-        <nav>
-            <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
-                <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
-                    data-toggle="tab" href="#nav-eq-{n}" role="tab"
-                    aria-controls="nav-eq-{n}" aria-selected="true">
-                    Equation
-                </a>
-                <a class="nav-item nav-link" id="nav-code-tab-{n}"
-                    data-toggle="tab" href="#nav-code-{n}" role="tab"
-                    aria-controls="nav-code-{n}" aria-selected="false">
-                    Lambda Function
-                </a>
-            </div>
-        </nav>
-        <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
-            <div class="tab-pane fade show active" id="nav-eq-{n}"
-                role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
-                \({ltx}\)
-            </div>
-            <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
-                aria-labelledby="nav-code-tab-{n}">
-                {src}
-            </div>
-        </div>
-        """.format(
-            ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
-        )
+    except ValueError as e:
+        print(e)
+        return ""
     return tooltip
 
 
