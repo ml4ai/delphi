@@ -189,6 +189,13 @@ class RectifyOFPXML:
         self.goto_under_else = False
         # When handling function, collect names
         self.args_for_function = []
+        # Holds arguments of subroutine or function
+        self.arguments_list = {}
+        # Holds the caller arguments that are array
+        self.caller_arr_arguments = {}
+        # Set to true if handling <call>
+        self.call_function = False
+
 
     #################################################################
     #                                                               #
@@ -505,7 +512,19 @@ class RectifyOFPXML:
                         self.parseXMLTree(
                                 child, cur_elem, current, parent, traverse
                         )
+                        # If the current header belongs to <subroutine>,
+                        # add it to the arguments_list for later
+                        # array status marking when a function call happens
+                        if (
+                            parent.tag == "subroutine"
+                            and child.tag == "arguments"
+                        ):
+                            sub_name = parent.attrib["name"]
+                            self.arguments_list[sub_name] = cur_elem
 
+                        # If the current header belongs to <function>,
+                        # we need to manipulate the structure of the AST
+                        # to have an equivalent syntax as <subroutine>
                         if (
                                 parent.tag == "function"
                                 and cur_elem.tag == "names"
@@ -524,7 +543,7 @@ class RectifyOFPXML:
                         temp_elem_holder.append(cur_elem)
                         if cur_elem.tag == "equiv-operand__equiv-op":
                             need_refactoring = True
-                    # Handler for the case wher label appears under
+                    # Handler for the case where label appears under
                     # the header element. This happens when label
                     # is assigned to the if statement.
                     if (
@@ -1348,6 +1367,11 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                     if child.tag == "subscripts":
+                        # If current name is for caller arguments,
+                        # mark the name of the function in the subscripts
+                        # as an one of its attributes
+                        if parent.tag == "call":
+                            cur_elem.attrib['fname'] = current.attrib['id']
                         # Default
                         current.attrib['hasSubscripts'] = "true"
                         # Check whether the variable is an array AND the
@@ -1373,6 +1397,7 @@ class RectifyOFPXML:
                                     ] == self.current_scope
                         ):
                             current.attrib['hasSubscripts'] = "false"
+
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1691,7 +1716,6 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-
                 try:
                     error_chk = self.subscripts_child_tags.index(child.tag)
                 except:
@@ -1702,6 +1726,24 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+                # If current subscript is for a function caller and
+                # current element (argument) is an array, then store
+                # it into the caller_arr_arguments map for later use
+                if (
+                    self.call_function
+                    and (cur_elem.tag == "name"
+                    and cur_elem.attrib['is_array'] == "true")
+                ):
+                    assert (
+                        "fname" in parent.attrib
+                    ), "If this subscript is for the caller argument,\
+                            fname must exist in the parent"
+                    fname = parent.attrib['fname']
+                    arg = cur_elem.attrib['id']
+                    if fname in self.caller_arr_arguments:
+                        self.caller_arr_arguments[fname].append (arg)
+                    else:
+                        self.caller_arr_arguments[fname] = [arg]
 
     def handle_tag_operation(
             self, root, current, parent, grandparent, traverse
@@ -2146,10 +2188,13 @@ class RectifyOFPXML:
         <call>
         </call>
         """
+        self.call_function = True
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "name":
+                    # fname: Function name
+                    current.attrib['fname'] = child.attrib['id']
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -2167,6 +2212,24 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
+
+        fname = current.attrib['fname']
+        callee_arguments = self.arguments_list[fname]
+        for arg in callee_arguments:
+            # self.caller_arr_arguments holds any element
+            # only when arrays are being passed to functions
+            # as arguments. Thus, we first need to check if
+            # callee function name exists in the list
+            if (
+                fname in self.caller_arr_arguments
+                and arg.attrib['name'] in self.caller_arr_arguments[fname]
+            ):
+                arg.attrib['is_array'] = "true"
+            else:
+                arg.attrib['is_array'] = "false"
+        # re-initialize back to initial values
+        self.call_function = False
+        self.arguments_list = []
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
