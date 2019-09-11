@@ -18,64 +18,6 @@ from itertools import chain, product
 import operator
 import uuid
 
-###########################################################################
-#                                                                         #
-#                            GLOBAL VARIABLES                             #
-#                                                                         #
-###########################################################################
-
-# The BINOPS dictionary holds operators for all the arithmetic and
-# comparative functions
-# TODO Take this inside class
-BINOPS = {
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.Pow: operator.pow,
-    ast.Eq: operator.eq,
-    ast.LtE: operator.le,
-}
-
-# The ANNOTATE_MAP dictionary is used to map Python ast data types into data
-# types for the lambdas
-# TODO Take this inside class
-ANNOTATE_MAP = {
-    "real": "Real",
-    "float": "real",
-    "Real": "real",
-    "integer": "int",
-    "int": "integer",
-    "string": "str",
-    "str": "string",
-    "array": "[]",
-    "list": "array",
-    "bool": "bool",
-    "file_handle": "fh",
-}
-
-# The UNNECESSARY_TYPES tuple holds the ast types to ignore
-# TODO Take this inside class
-UNNECESSARY_TYPES = (
-    ast.Mult,
-    ast.Add,
-    ast.Sub,
-    ast.Pow,
-    ast.Div,
-    ast.USub,
-    ast.Eq,
-    ast.LtE,
-)
-
-# Regular expression to match python statements that need to be bypassed in
-# the GrFN and lambda files. Currently contains I/O statements.
-# TODO Take this inside class
-BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
-            r"^write_line$|^format_\d+_obj" \
-            r".*|^Format$|^list_output_formats$|^write_list_stream$|^file_\d" \
-            r"+\.write$"
-RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
-
 
 class GrFNState:
     def __init__(
@@ -173,6 +115,56 @@ class GrFNGenerator(object):
             "string": "string",
             "bool": "boolean",
         }
+
+        # The binops dictionary holds operators for all the arithmetic and
+        # comparative functions
+        self.binops = {
+            ast.Add: operator.add,
+            ast.Sub: operator.sub,
+            ast.Mult: operator.mul,
+            ast.Div: operator.truediv,
+            ast.Pow: operator.pow,
+            ast.Eq: operator.eq,
+            ast.LtE: operator.le,
+        }
+
+        # The annotate_map dictionary is used to map Python ast data types
+        # into data types for the lambdas
+        self.annotate_map = {
+            "real": "Real",
+            "float": "real",
+            "Real": "real",
+            "integer": "int",
+            "int": "integer",
+            "string": "str",
+            "str": "string",
+            "array": "[]",
+            "list": "array",
+            "bool": "bool",
+            "file_handle": "fh",
+        }
+
+        # The unnecessary_types tuple holds the ast types to ignore
+        self.unnecessary_types = (
+            ast.Mult,
+            ast.Add,
+            ast.Sub,
+            ast.Pow,
+            ast.Div,
+            ast.USub,
+            ast.Eq,
+            ast.LtE,
+        )
+
+        # Regular expression to match python statements that need to be
+        # bypassed in the GrFN and lambda files. Currently contains I/O
+        # statements.
+        self.bypass_io = r"^format_\d+$|^format_\d+_obj$|^file_\d+$" \
+                         r"|^write_list_\d+$|^write_line$|^format_\d+_obj" \
+                         r".*|^Format$|^list_output_formats$|" \
+                         r"^write_list_stream$|^file_\d+\.write$"
+        self.re_bypass_io = re.compile(self.bypass_io, re.I)
+
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
             "ast.arguments": self.process_arguments,
@@ -228,7 +220,7 @@ class GrFNGenerator(object):
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
         elif any(isinstance(node, node_type) for node_type in
-                 UNNECESSARY_TYPES):
+                 self.unnecessary_types):
             return self.process_unnecessary_types(node, state, call_source)
         else:
             node_name = node.__repr__().split()[0][2:]
@@ -287,7 +279,7 @@ class GrFNGenerator(object):
                 function_name=node.name,
                 variable_types=local_variable_types,
             )
-            self._process_decorators(node.decorator_list, function_state)
+            self.process_decorators(node.decorator_list, function_state)
 
         # Check if the function contains arguments or not. This determines
         # whether the function is the outermost scope (does not contain
@@ -464,7 +456,7 @@ class GrFNGenerator(object):
         assert (
             node.annotation
         ), "Found argument without annotation. This should not happen."
-        state.variable_types[node.arg] = self._get_variable_type(
+        state.variable_types[node.arg] = self.get_variable_type(
             node.annotation)
 
         if state.last_definitions.get(node.arg) is None:
@@ -495,8 +487,7 @@ class GrFNGenerator(object):
         """
         self.gen_grfn(node.value, state, "index")
 
-    @staticmethod
-    def process_num(node, *_):
+    def process_num(self, node, *_):
         """
             This function handles the ast.Num of the ast tree. This node only
             contains a numeric value in its body. For example: Num(n=0),
@@ -504,7 +495,7 @@ class GrFNGenerator(object):
             <function_assign_body_literal_spec> form.
 
         """
-        data_type = ANNOTATE_MAP.get(type(node.n).__name__)
+        data_type = self.annotate_map.get(type(node.n).__name__)
         if data_type:
             # TODO Change this format. Since the spec has changed,
             #  this format is no longer required. Go for a simpler format.
@@ -745,7 +736,7 @@ class GrFNGenerator(object):
         else:
             assert False, "Error in getting loop end name"
         # First, lambda function for loop index initiation
-        index_initiation_lambda = self._generate_lambda_function(
+        index_initiation_lambda = self.generate_lambda_function(
             loop_start_name,
             index_function_name["name"],
             True,
@@ -758,7 +749,7 @@ class GrFNGenerator(object):
 
         # Second, lambda function for IF_0_0 test
         loop_test_string = f"0 <= {index_name} < {loop_end_name}"
-        loop_continuation_test_lambda = self._generate_lambda_function(
+        loop_continuation_test_lambda = self.generate_lambda_function(
             loop_test_string,
             loop_check_function_name["name"],
             True,
@@ -770,7 +761,7 @@ class GrFNGenerator(object):
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
 
         # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self._generate_lambda_function(
+        loop_exit_test_lambda = self.generate_lambda_function(
             "IF_0_0",
             loop_break_function_name["name"],
             True,
@@ -962,7 +953,7 @@ class GrFNGenerator(object):
         }
 
         # Finally, lambda function for loop index increment
-        index_increment_lambda = self._generate_lambda_function(
+        index_increment_lambda = self.generate_lambda_function(
             f"{index_name} + 1",
             index_increment_function_name["name"],
             True,
@@ -1161,7 +1152,7 @@ class GrFNGenerator(object):
         #  more complex form. The one below is for the basic case.
 
         # Second, lambda function for IF_0_0 test
-        loop_continuation_test_lambda = self._generate_lambda_function(
+        loop_continuation_test_lambda = self.generate_lambda_function(
             node.test,
             loop_check_function_name["name"],
             True,
@@ -1173,7 +1164,7 @@ class GrFNGenerator(object):
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
 
         # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self._generate_lambda_function(
+        loop_exit_test_lambda = self.generate_lambda_function(
             "IF_0_0",
             loop_break_function_name["name"],
             True,
@@ -1400,7 +1391,7 @@ class GrFNGenerator(object):
                                                           default_if_index)
             state.next_definitions["#cond"] = condition_number + 1
             condition_name = f"IF_{condition_number}"
-            condition_index = self._get_last_definition(condition_name,
+            condition_index = self.get_last_definition(condition_name,
                                                         state.last_definitions,
                                                         0)
         else:
@@ -1445,7 +1436,7 @@ class GrFNGenerator(object):
         grfn["variables"].append(variable_spec)
         grfn["functions"].append(fn)
 
-        lambda_string = self._generate_lambda_function(
+        lambda_string = self.generate_lambda_function(
             node.test,
             function_name["name"],
             False,
@@ -1574,7 +1565,7 @@ class GrFNGenerator(object):
                     {"variable": updated_definition, "index": 1},
                     condition_output,
                 ]
-            lambda_string = self._generate_lambda_function(
+            lambda_string = self.generate_lambda_function(
                 node,
                 function_name["name"],
                 False,
@@ -1618,10 +1609,10 @@ class GrFNGenerator(object):
         # simply perform the respective operation on these two numbers and
         # represent this computation in a GrFN spec.
         if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
-            for op in BINOPS:
+            for op in self.binops:
                 if isinstance(node.op, op):
-                    val = BINOPS[type(node.op)](node.left.n, node.right.n)
-                    data_type = ANNOTATE_MAP.get(type(val).__name__)
+                    val = self.binops[type(node.op)](node.left.n, node.right.n)
+                    data_type = self.annotate_map.get(type(val).__name__)
                     if data_type:
                         return [
                             {
@@ -1691,7 +1682,7 @@ class GrFNGenerator(object):
             array_set = False
             call = expr["call"]
             function_name = call["function"]
-            io_match = self._check_io_variables(function_name)
+            io_match = self.check_io_variables(function_name)
             if io_match:
                 return []
             # Bypassing calls to `print` for now. Need further discussion and
@@ -1703,7 +1694,7 @@ class GrFNGenerator(object):
             if ".set_" in function_name:
                 array_set = True
                 function_name = function_name.replace(".set_", "")
-                input_index = self._get_last_definition(
+                input_index = self.get_last_definition(
                     function_name,
                     state.last_definitions,
                     state.last_definition_default
@@ -1798,7 +1789,7 @@ class GrFNGenerator(object):
                         generate_lambda_for_arr = True
 
                     if generate_lambda_for_arr:
-                        lambda_string = self._generate_lambda_function(
+                        lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
                             True,
@@ -1964,7 +1955,7 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-            last_definition = self._get_last_definition(
+            last_definition = self.get_last_definition(
                 node.id,
                 state.last_definitions,
                 state.last_definition_default
@@ -2001,7 +1992,7 @@ class GrFNGenerator(object):
                 sources[0]['value'] is None:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
-                    self._get_variable_type(node.annotation)
+                    self.get_variable_type(node.annotation)
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
 
@@ -2033,12 +2024,12 @@ class GrFNGenerator(object):
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self._check_io_variables(target_name)
+            io_match = self.check_io_variables(target_name)
             if io_match:
                 self.exclude_list.append(target_name)
                 return []
             state.variable_types[target_name] = \
-                self._get_variable_type(node.annotation)
+                self.get_variable_type(node.annotation)
             if target_name not in self.annotated_assigned:
                 self.annotated_assigned.append(target_name)
             # Update the `next_definition` index of the target since it is
@@ -2062,7 +2053,7 @@ class GrFNGenerator(object):
             fn = self.make_fn_dict(function_name, target, sources)
 
             if len(sources) > 0:
-                lambda_string = self._generate_lambda_function(
+                lambda_string = self.generate_lambda_function(
                     node,
                     function_name["name"],
                     False,
@@ -2137,7 +2128,7 @@ class GrFNGenerator(object):
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self._check_io_variables(target_name)
+            io_match = self.check_io_variables(target_name)
             if io_match:
                 self.exclude_list.append(target_name)
                 return []
@@ -2179,7 +2170,7 @@ class GrFNGenerator(object):
             #  proper method to handle IO moving on
             for src in sources:
                 if 'call' in src:
-                    if self._check_io_variables(src["call"]["function"]):
+                    if self.check_io_variables(src["call"]["function"]):
                         io_source = True
                     function = src['call']['function']
                     # Check if the source is a function call by comparing its
@@ -2214,7 +2205,7 @@ class GrFNGenerator(object):
                 not io_source
                 and not is_function_call
             ):
-                lambda_string = self._generate_lambda_function(
+                lambda_string = self.generate_lambda_function(
                     node, function_name["name"], False, True,
                     source_list, state, False
                 )
@@ -2335,7 +2326,7 @@ class GrFNGenerator(object):
         else:
             # TODO: This section of the code should be the same as
             #  `process_name`. Verify this.
-            last_definition = self._get_last_definition(
+            last_definition = self.get_last_definition(
                 node.attr,
                 state.last_definitions,
                 state.last_definition_default
@@ -2408,7 +2399,7 @@ class GrFNGenerator(object):
         source_list = []
         for src in source_dictionary:
             if "var" in src:
-                if src["var"]["variable"] not in ANNOTATE_MAP:
+                if src["var"]["variable"] not in self.annotate_map:
                     source_list.append(src["var"]["variable"])
             elif "call" in src:
                 for ip in src["call"]["inputs"]:
@@ -2461,7 +2452,7 @@ class GrFNGenerator(object):
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i'
                 #  in the long run
-                bypass_match_source = self._check_io_variables(
+                bypass_match_source = self.check_io_variables(
                     src["call"]["function"]
                 )
                 if bypass_match_source:
@@ -2568,8 +2559,7 @@ class GrFNGenerator(object):
 
         return source_list
 
-    @staticmethod
-    def _process_decorators(node, state):
+    def process_decorators(self, node, state):
         """
             Go through each decorator and extract relevant information.
             Currently this function only checks for the static_vars decorator
@@ -2582,7 +2572,8 @@ class GrFNGenerator(object):
                 for arg in decorator.args[0].elts:
                     variable = arg.values[0].s
                     variable_type = arg.values[2].s
-                    state.variable_types[variable] = ANNOTATE_MAP[variable_type]
+                    state.variable_types[variable] = self.annotate_map[
+                        variable_type]
 
     @staticmethod
     def _merge_dictionary(dicts: Iterable[Dict]) -> Dict:
@@ -2611,8 +2602,8 @@ class GrFNGenerator(object):
 
         return merged_dict
 
-    @staticmethod
-    def _get_last_definition(var, last_definitions, last_definition_default):
+    def get_last_definition(self, var, last_definitions,
+                            last_definition_default):
         """
             This function returns the last (current) definition (index) of a
             variable.
@@ -2621,7 +2612,7 @@ class GrFNGenerator(object):
 
         # Pre-processing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match = RE_BYPASS_IO.match(var)
+        bypass_match = self.re_bypass_io.match(var)
 
         if not bypass_match:
             if var in last_definitions:
@@ -2654,8 +2645,7 @@ class GrFNGenerator(object):
         last_definitions[var] = index
         return index
 
-    @staticmethod
-    def _get_variable_type(annotation_node):
+    def get_variable_type(self, annotation_node):
         """
             This function returns the data type of a variable using the
             annotation information used to define that variable
@@ -2666,8 +2656,8 @@ class GrFNGenerator(object):
             data_type = annotation_node.slice.value.id
         else:
             data_type = annotation_node.id
-        if ANNOTATE_MAP.get(data_type):
-            return ANNOTATE_MAP[data_type]
+        if self.annotate_map.get(data_type):
+            return self.annotate_map[data_type]
         else:
             sys.stderr.write(
                 "Unsupported type (only float, int, list, real, bool and str "
@@ -2694,10 +2684,9 @@ class GrFNGenerator(object):
         """
         return f"{self.gensym_tag_map[tag]}_{uuid.uuid4().hex[:12]}"
 
-    @staticmethod
-    def _generate_lambda_function(node, function_name: str, return_value: bool,
-                                  array_assign: bool, inputs, state,
-                                  is_custom: bool):
+    def generate_lambda_function(self, node, function_name: str,
+                                 return_value: bool, array_assign: bool,
+                                 inputs, state, is_custom: bool):
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
@@ -2744,7 +2733,7 @@ class GrFNGenerator(object):
             # function argument requires annotation only when
             # it's dealing with simple variable (at least for now).
             if lambda_for_var:
-                annotation = ANNOTATE_MAP[annotation]
+                annotation = self.annotate_map[annotation]
                 argument_strings.append(f"{ip}: {annotation}")
             # Currently, this is for array specific else case.
             else:
@@ -2998,7 +2987,7 @@ class GrFNGenerator(object):
             if "var" in var:
                 var_name = var['var']['variable']
                 if var_name not in argument_list:
-                    input_index = self._get_last_definition(
+                    input_index = self.get_last_definition(
                         var_name,
                         state.last_definitions,
                         state.last_definition_default
@@ -3019,7 +3008,7 @@ class GrFNGenerator(object):
                     if get_array_name not in argument_list:
                         argument_list.append(get_array_name)
                         if get_array_name != name:
-                            ip_index = self._get_last_definition(
+                            ip_index = self.get_last_definition(
                                 get_array_name,
                                 state.last_definitions,
                                 state.last_definition_default
@@ -3032,7 +3021,7 @@ class GrFNGenerator(object):
                         # It's not an error, so just pass it.
                         pass
         # Generate lambda function for array[index]
-        lambda_string = self._generate_lambda_function(
+        lambda_string = self.generate_lambda_function(
             node,
             container_id_name,
             True,
@@ -3103,13 +3092,12 @@ class GrFNGenerator(object):
 
         return updated_list
 
-    @staticmethod
-    def _check_io_variables(variable_name):
+    def check_io_variables(self, variable_name):
         """
             This function scans the variable and checks if it is an io
             variable. It returns the status of this check i.e. True or False.
         """
-        io_match = RE_BYPASS_IO.match(variable_name)
+        io_match = self.re_bypass_io.match(variable_name)
         return io_match
 
     @staticmethod
