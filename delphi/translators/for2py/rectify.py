@@ -512,16 +512,6 @@ class RectifyOFPXML:
                         self.parseXMLTree(
                                 child, cur_elem, current, parent, traverse
                         )
-                        # If the current header belongs to <subroutine>,
-                        # add it to the arguments_list for later
-                        # array status marking when a function call happens
-                        if (
-                            parent.tag == "subroutine"
-                            and child.tag == "arguments"
-                        ):
-                            sub_name = parent.attrib["name"]
-                            self.arguments_list[sub_name] = cur_elem
-
                         # If the current header belongs to <function>,
                         # we need to manipulate the structure of the AST
                         # to have an equivalent syntax as <subroutine>
@@ -538,6 +528,17 @@ class RectifyOFPXML:
                                 argument = ET.SubElement(
                                                 cur_elem, "argument",
                                                 {"name": arg})
+
+                        # If the current header belongs to <subroutine>,
+                        # add it to the arguments_list for later
+                        # array status marking when a function call happens
+                        if (
+                            (parent.tag == "subroutine"
+                            and child.tag == "arguments")
+                            or parent.tag == "function"
+                        ):
+                            sub_name = parent.attrib["name"]
+                            self.arguments_list[sub_name] = cur_elem
                      
                     if cur_elem.tag in target_tags:
                         temp_elem_holder.append(cur_elem)
@@ -2214,6 +2215,8 @@ class RectifyOFPXML:
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
         fname = current.attrib['fname']
+        # DEBUG
+        print ("self.arguments_list: ", self.arguments_list)
         callee_arguments = self.arguments_list[fname]
         for arg in callee_arguments:
             # self.caller_arr_arguments holds any element
@@ -2229,7 +2232,6 @@ class RectifyOFPXML:
                 arg.attrib['is_array'] = "false"
         # re-initialize back to initial values
         self.call_function = False
-        self.arguments_list = []
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
