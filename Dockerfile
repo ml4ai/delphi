@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN add-apt-repository ppa:jonathonf/python-3.6
 RUN apt-get update && apt-get -y install \
-  apt-utils build-essential g++-8 curl git tar wget \
-  python3.6 python3.6-dev python3-pip python3.6-venv \
-  doxygen graphviz sqlite3 \
+  apt-utils build-essential g++-8 curl git tar wget
+
+
+RUN apt-get -y install python3.6 python3.6-dev python3-pip python3.6-venv \
+  doxygen graphviz sqlite3 openjdk-8-jdk \
   libsqlite3-dev libboost-all-dev libeigen3-dev
 
 # Setup the correct version of Python and install/update pip
