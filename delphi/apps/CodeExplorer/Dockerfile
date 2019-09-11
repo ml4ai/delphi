@@ -1,3 +1,5 @@
+# NOTE: This dockerfile is intended to be run from the root of the delphi repo
+
 # Use an official Python runtime as a parent image
 from python:3.6
 run apt-get update; apt-get install -y openjdk-8-jre
