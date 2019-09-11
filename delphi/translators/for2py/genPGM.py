@@ -52,6 +52,7 @@ ANNOTATE_MAP = {
     "list": "array",
     "bool": "bool",
     "file_handle": "fh",
+    "Array": "array",
 }
 
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
@@ -160,6 +161,8 @@ class GrFNGenerator(object):
         self.current_scope = None
         self.loop_index = -1
         self.parent_loop_state = None
+        self.handling_f_args = True
+        self.f_array_arg = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -172,6 +175,7 @@ class GrFNGenerator(object):
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
+            "array": "array",
         }
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -344,15 +348,20 @@ class GrFNGenerator(object):
         self.current_scope = node.name
         # Create the variable definition for the arguments
         argument_variable_grfn = []
+        self.handling_f_args = True
         for argument in argument_list:
             argument_variable_grfn.append(
                 self.generate_variable_definition(argument,
                                                   None,
                                                   function_state)
             )
-
+        self.handling_f_args = False
         # Generate the `variable_identifier_name` for each container
         # argument.
+        # DEBUG
+        print ("node.name: ", node.name)
+        # DEBUG
+        print ("state.last_definition: ", function_state.last_definitions)
         # TODO Currently only variables are handled as container arguments.
         #  Create test cases of other containers as container arguments and
         #  extend this functionality.
@@ -393,7 +402,9 @@ class GrFNGenerator(object):
         # Find the list of updated identifiers
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
-                                                     function_variable_grfn)
+                                                     function_variable_grfn,
+                                                     self.f_array_arg,
+                                                     function_state)
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -2830,6 +2841,7 @@ class GrFNGenerator(object):
             "domain_constraint": domain_constraint,
         }
 
+        state.last_definitions[variable] += 1
         return variable_definition
 
     def get_domain_dictionary(self, variable, state):
@@ -2837,6 +2849,11 @@ class GrFNGenerator(object):
             domain_dictionary = self.arrays[variable]
         else:
             variable_type = state.variable_types[variable]
+            if (
+                self.handling_f_args
+                and variable_type == "array"
+            ):
+                self.f_array_arg.append(variable)
             domain_dictionary = {
                 "name": self.type_def_map[variable_type],
                 "type": "type"
@@ -3061,7 +3078,7 @@ class GrFNGenerator(object):
         return main_string
 
     @staticmethod
-    def _find_updated(argument_list, body_variable_list):
+    def _find_updated(argument_list, body_variable_list, f_array_arg, state):
         """
             This function finds and generates a list of updated identifiers
             in a container.
@@ -3100,6 +3117,12 @@ class GrFNGenerator(object):
                     int(body_dict[argument]) > int(argument_dict[argument]):
                 updated_list.append(f"@variable::{argument}::"
                                     f"{body_dict[argument]}")
+            # If argument is an array type, get the current index and
+            # update it. Then, append to the function's updated list
+            elif argument in f_array_arg:
+                updated_idx = state.last_definitions[argument]
+                updated_list.append(f"@variable::{argument}::"
+                                    f"{updated_idx}")
 
         return updated_list
 
