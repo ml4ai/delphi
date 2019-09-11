@@ -45,6 +45,7 @@ from delphi.apps.CodeExplorer.cyjs import (
 
 
 os.makedirs("/tmp/automates/", exist_ok=True)
+os.makedirs("/tmp/automates/input_code/", exist_ok=True)
 TMPDIR = "/tmp/automates"
 sys.path.insert(0, TMPDIR)
 
@@ -97,10 +98,11 @@ def processCode():
         if line != ""
     ]
 
-    dir_name = str(uuid4())
-    os.mkdir(f"/tmp/automates/input_code/{dir_name}")
-    input_code_tmpfile = f"/tmp/automates/input_code/{dir_name}/{orig_file}.f"
-
+    # dir_name = str(uuid4())
+    # os.mkdir(f"/tmp/automates/input_code/{dir_name}")
+    # input_code_tmpfile = f"/tmp/automates/input_code/{dir_name}/{orig_file}.f"
+    filename = f"input_code_{str(uuid4()).replace('-', '_')}"
+    input_code_tmpfile = f"/tmp/automates/{filename}.f"
     with open(input_code_tmpfile, "w") as f:
         f.write(preprocessor.process(lines))
 

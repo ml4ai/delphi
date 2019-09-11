@@ -122,7 +122,6 @@ def get_tooltip(n):
             src = inspect.getsource(n[1]["lambda_fn"])
             src_lines = src.split("\n")
             computation = src_lines[1].replace("return", "").strip().replace("math.", "")
-            print(computation)
 
             ltx = (out_name + " = " +
                    latex(sympify(computation), mul_symbol="dot",).replace("_", "\_")
