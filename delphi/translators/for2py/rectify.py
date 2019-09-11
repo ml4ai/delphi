@@ -2215,8 +2215,6 @@ class RectifyOFPXML:
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
         fname = current.attrib['fname']
-        # DEBUG
-        print ("self.arguments_list: ", self.arguments_list)
         callee_arguments = self.arguments_list[fname]
         for arg in callee_arguments:
             # self.caller_arr_arguments holds any element
