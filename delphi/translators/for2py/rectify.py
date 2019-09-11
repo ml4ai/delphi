@@ -1323,8 +1323,13 @@ class RectifyOFPXML:
             (2) procedure - Function (or procedure) call
             (3) ambiguous - None of the above two type
         """
-        # All variables have default "is_array" value "false"
-        current.attrib['is_array'] = "false"
+        if (
+            "id" in current.attrib
+            and current.attrib['id'] in self.declared_array_vars
+        ):
+            current.attrib['is_array'] = "true"
+        else:
+            current.attrib['is_array'] = "false"
 
         # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
         # Thus, clean up the 'id' and reconstruct the <name> AST
