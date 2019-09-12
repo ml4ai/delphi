@@ -12,40 +12,11 @@ compiler:
 python:
   - "3.6"
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-8
-    - graphviz
-    - doxygen
-    - sqlite3
-    - libsqlite3-dev
-    - libboost-all-dev
-    - libeigen3-dev
-
-install:
-  - export CC=gcc-8
-  - export CXX=g++-8
-  - pip install cython
-  - pip install -e .[test,docs]
-  # Download SQLite3 database containing model parameterization data.
-  - curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
-  # Set the environment variable DELPHI_DB to point to the SQLite3 database.
-  - export DELPHI_DB=`pwd`/delphi.db
-
 before_install:
-  - docker pull qbradq/example-build:latest
-  - docker run -itd --name delphi qbradq/example-build
-  - docker exec build git clone https://github.com/qbradq/docker-build-example.git /repo
+  - docker pull pauldhein/project-containers:delphi
+  - docker run -itd --name delphi pauldhein/project-containers
+  - docker exec delphi git clone https://github.com/ml4ai/delphi.git /repo
 
-before_install:
-  - docker build -t delphi .
-  - docker run -d -p 127.0.0.1:80:4567 delphi /bin/sh -c "cd /repo/delphi; make test;"
-  - docker ps -a
-  - docker run delphi /bin/sh -c "cd /repo/delphi; make test"
-  - docker run delphi /bin/sh -c "cd /repo/delphi/docs; make apidocs; make html"
 script:
   - make test
   - cd /repo/delphi/docs; make apidocs; make html

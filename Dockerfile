@@ -6,13 +6,13 @@ RUN apt-get update && apt-get install -y software-properties-common
 # Required system packages
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN add-apt-repository ppa:jonathonf/python-3.6
-RUN apt-get update && apt-get -y install \
-  apt-utils build-essential g++-8 curl git tar wget
+RUN apt-get update
+RUN apt-get -y install apt-utils build-essential g++-8 curl git tar wget time
 
 
-RUN apt-get -y install python3.6 python3.6-dev python3-pip python3.6-venv \
-  doxygen graphviz sqlite3 openjdk-8-jdk \
-  libsqlite3-dev libboost-all-dev libeigen3-dev
+RUN apt-get -y install python3.6 python3.6-dev python3-pip python3.6-venv
+RUN apt-get -y install doxygen openjdk-8-jdk graphviz libgraphviz-dev pkg-config
+RUN apt-get -y install sqlite3 libsqlite3-dev libboost-all-dev libeigen3-dev
 
 # Setup the correct version of Python and install/update pip
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1
@@ -36,4 +36,5 @@ RUN git clone https://github.com/ml4ai/delphi.git
 
 WORKDIR /repo/delphi
 RUN pip install cython
+RUN pip install cmake
 RUN pip install -e .[test,docs]
