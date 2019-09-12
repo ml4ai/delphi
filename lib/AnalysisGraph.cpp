@@ -428,6 +428,109 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return G;
 }
 
+AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, int minimum_evidence_pieces_required) {
+  //auto json_data = utils::load_json(filename);
+  nlohmann::json passed_json = nlohmann::json::parse(json_str);
+
+  AnalysisGraph G;
+
+  unordered_map<string, int> name_to_vertex = {};
+
+  auto statements = passed_json["statements"];
+
+  for (auto stmt : statements) {
+    auto evidence = stmt["evidence"];
+
+    if(evidence.is_null()) {
+      continue;
+    }
+    
+    if( evidence.size() <= minimum_evidence_pieces_required) {
+      continue;
+    }
+
+    auto subj = stmt["subj"];
+    auto obj = stmt["obj"];
+
+    if (subj.is_null() or obj.is_null()) {
+      continue;
+    }
+
+    auto subj_db_ref = subj["db_refs"];
+    auto obj_db_ref = obj["db_refs"];
+
+    if (subj_db_ref.is_null() or obj_db_ref.is_null()) {
+      continue;
+    }
+
+    auto subj_concept_json = subj_db_ref["concept"];
+    auto obj_concept_json = obj_db_ref["concept"];
+
+    if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
+      continue;
+    }
+
+    string subj_concept = subj_concept_json.get<string>();
+    string obj_concept = obj_concept_json.get<string>();
+
+
+
+    auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
+    auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
+    bool grounding_check = true;
+    int belief_score_cutoff = 10;
+
+    if (stmt["type"] == "Influence" and grounding_check) {
+      auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
+      auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
+      if (!subj.is_null() and !obj.is_null()) {
+        if (stmt["belief"] < belief_score_cutoff) {
+          continue;
+        }
+        string subj_str = subj.get<string>();
+        string obj_str = obj.get<string>();
+
+        if (subj_str.compare(obj_str) != 0) { // Guard against self loops
+          // Add the nodes to the graph if they are not in it already
+          for (string name : {subj_str, obj_str}) {
+            G.add_node(name);
+          }
+
+          // Add the edge to the graph if it is not in it already
+          for (auto evidence : stmt["evidence"]) {
+            auto annotations = evidence["annotations"];
+            auto subj_adjectives = annotations["subj_adjectives"];
+            auto obj_adjectives = annotations["obj_adjectives"];
+            auto subj_adjective =
+                (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                    ? subj_adjectives[0]
+                    : "None";
+            auto obj_adjective =
+                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+            auto subj_polarity = annotations["subj_polarity"];
+            auto obj_polarity = annotations["obj_polarity"];
+
+            if (subj_polarity.is_null()) {
+              subj_polarity = 1;
+            }
+            if (obj_polarity.is_null()) {
+              obj_polarity = 1;
+            }
+            string subj_adj_str = subj_adjective.get<string>();
+            string obj_adj_str = subj_adjective.get<string>();
+            auto causal_fragment =
+                CausalFragment({subj_adj_str, subj_polarity, subj_str},
+                               {obj_adj_str, obj_polarity, obj_str});
+            G.add_edge(causal_fragment);
+          }
+        }
+      }
+    }
+  }
+  G.initialize_random_number_generator();
+  return G;
+}
+
 void AnalysisGraph::clear_state() {
   this->A_beta_factors.clear();
 
