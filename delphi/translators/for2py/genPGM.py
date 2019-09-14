@@ -91,7 +91,7 @@ class GrFNState:
             scope_path: Optional[List] = [],
             arrays: Optional[Dict] = {},
             array_types: Optional[Dict] = {},
-            array_assign_name: Optional = None
+            array_assign_name: Optional = None,
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -163,6 +163,8 @@ class GrFNGenerator(object):
         self.parent_loop_state = None
         self.handling_f_args = True
         self.f_array_arg = []
+        # {symbol:index}
+        self.updated_arrays = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -330,7 +332,6 @@ class GrFNGenerator(object):
                 variable_types=local_variable_types,
                 last_definition_default=-1,
             )
-
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
         # Keep a map of the arguments for each function. This will be used in
@@ -358,10 +359,6 @@ class GrFNGenerator(object):
         self.handling_f_args = False
         # Generate the `variable_identifier_name` for each container
         # argument.
-        # DEBUG
-        print ("node.name: ", node.name)
-        # DEBUG
-        print ("state.last_definition: ", function_state.last_definitions)
         # TODO Currently only variables are handled as container arguments.
         #  Create test cases of other containers as container arguments and
         #  extend this functionality.
@@ -405,6 +402,9 @@ class GrFNGenerator(object):
                                                      function_variable_grfn,
                                                      self.f_array_arg,
                                                      function_state)
+            for array in self.f_array_arg:
+                if array in function_state.last_definitions:
+                    self.updated_arrays[array] = function_state.last_definitions[array]
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -450,7 +450,6 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
-
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -480,7 +479,10 @@ class GrFNGenerator(object):
 
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
-                state.last_definitions[node.arg] = -1
+                if node.arg not in self.updated_arrays:
+                    state.last_definitions[node.arg] = -1
+                else:
+                    state.last_definitions[node.arg] = self.updated_arrays[node.arg]
             else:
                 assert False, ("Call source is not ast.FunctionDef. "
                                "Handle this by setting state.last_definitions["
@@ -2841,7 +2843,6 @@ class GrFNGenerator(object):
             "domain_constraint": domain_constraint,
         }
 
-        state.last_definitions[variable] += 1
         return variable_definition
 
     def get_domain_dictionary(self, variable, state):
@@ -2933,7 +2934,6 @@ class GrFNGenerator(object):
                                 )
                                 grfn_dict[0]['variables'].append(variable_spec)
                             body_function['updated'] = updated_variable
-
         return grfn_dict
 
     @staticmethod
