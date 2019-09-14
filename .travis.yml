@@ -15,11 +15,15 @@ python:
 before_install:
   - docker pull pauldhein/project-containers:delphi
   - docker run -itd --name delphi pauldhein/project-containers
-  - docker exec delphi git clone https://github.com/ml4ai/delphi.git /repo
+  - docker exec delphi git clone https://github.com/$TRAVIS_REPO_SLUG.git /$TRAVIS_REPO_SLUG
+  - docker exec delphi cd /$TRAVIS_REPO_SLUG
+  - docker exec delphi git checkout -qf $TRAVIS_COMMIT
 
 script:
-  - make test
-  - cd /repo/delphi/docs; make apidocs; make html
+  - docker exec delphi make test
+  - docker exec delphi cd /$TRAVIS_REPO_SLUG/delphi/docs
+  - docker exec delphi make apidocs
+  - docker exec delphi make html
 
 deploy:
   local-dir: docs/_build/html
