@@ -13,14 +13,19 @@ python:
   - "3.6"
 
 before_install:
-  - docker pull pauldhein/project-containers:delphi
-  - docker run -itd --name delphi pauldhein/project-containers
-  - docker exec delphi git clone https://github.com/$TRAVIS_REPO_SLUG.git /$TRAVIS_REPO_SLUG
-  - docker run delphi /bin/sh -c "cd /$TRAVIS_REPO_SLUG; git checkout -qf $TRAVIS_COMMIT"
+  - docker pull pauldhein/project-containers
+  - docker run -d -p 127.0.0.1:80:4567 pauldhein/project-containers /bin/sh -c "cd /root/sinatra; bundle exec foreman start;"
+  - docker ps -a
+  # - docker run -itd --name delphi pauldhein/project-containers
+  - docker exec pauldhein/project-containers git clone https://github.com/$TRAVIS_REPO_SLUG.git /$TRAVIS_REPO_SLUG
+  - docker run pauldhein/project-containers /bin/sh -c "cd /$TRAVIS_REPO_SLUG; git checkout -qf $TRAVIS_COMMIT"
 
+# script:
+#   - docker exec delphi make test
+#   - docker run delphi /bin/sh -c  "cd /$TRAVIS_REPO_SLUG/delphi/docs; make apidocs; make html"
 script:
-  - docker exec delphi make test
-  - docker run delphi /bin/sh -c  "cd /$TRAVIS_REPO_SLUG/delphi/docs; make apidocs; make html"
+  - make test
+  - cd /$TRAVIS_REPO_SLUG/delphi/docs; make apidocs; make html
 
 deploy:
   local-dir: docs/_build/html
