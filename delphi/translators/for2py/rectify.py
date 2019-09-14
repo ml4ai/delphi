@@ -1452,9 +1452,20 @@ class RectifyOFPXML:
         <value>
         </value>
         """
+        function_call = False
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
+
+            if (
+                child.tag == "name"
+                and child.attrib['id'] in self.arguments_list
+            ):
+                # if 'id' is in the arguments_list, it indicates that
+                # the RHS of the assginment is a function call
+                self.call_function = True
+                function_call = True
+                current.attrib['fname'] = child.attrib['id']
 
             try:
                 error_chk = self.value_child_tags.index(child.tag)
@@ -1464,6 +1475,12 @@ class RectifyOFPXML:
             self.parseXMLTree(
                 child, cur_elem, current, parent, traverse
             )
+
+            # If current assignment is done with a function call,
+            # then update function definition's arguments with array status
+            if function_call:
+                self.update_arguments(current)
+
             if (
                     child.tag == "name"
                     and self.need_reconstruct
@@ -2214,22 +2231,8 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
-        fname = current.attrib['fname']
-        callee_arguments = self.arguments_list[fname]
-        for arg in callee_arguments:
-            # self.caller_arr_arguments holds any element
-            # only when arrays are being passed to functions
-            # as arguments. Thus, we first need to check if
-            # callee function name exists in the list
-            if (
-                fname in self.caller_arr_arguments
-                and arg.attrib['name'] in self.caller_arr_arguments[fname]
-            ):
-                arg.attrib['is_array'] = "true"
-            else:
-                arg.attrib['is_array'] = "false"
-        # re-initialize back to initial values
-        self.call_function = False
+        # Update function definition's arguments with array status
+        self.update_arguments(current)
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
@@ -2280,6 +2283,8 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                # Set a default array status to False
+                cur_elem.attrib['is_array'] = "false"
             else:
                 assert (
                     False
@@ -4119,6 +4124,36 @@ class RectifyOFPXML:
                 boundary, boundary_for_label,
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
+        
+    def update_arguments(self, current):
+        """This function handles function definition's
+        arguments with array status based on the information
+        that was observed during the function call
+
+        Args:
+            current (:obj: 'ET'): Current node (either call or value)
+
+        Returns:
+            None.
+        """
+
+        fname = current.attrib['fname']
+        callee_arguments = self.arguments_list[fname]
+        for arg in callee_arguments:
+            # self.caller_arr_arguments holds any element
+            # only when arrays are being passed to functions
+            # as arguments. Thus, we first need to check if
+            # callee function name exists in the list
+            if (
+                fname in self.caller_arr_arguments
+                and arg.attrib['name'] in self.caller_arr_arguments[fname]
+            ):
+                arg.attrib['is_array'] = "true"
+            else:
+                arg.attrib['is_array'] = "false"
+        # re-initialize back to initial values
+        self.call_function = False 
+
 
     #################################################################
     #                                                               #
