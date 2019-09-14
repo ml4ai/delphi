@@ -16,14 +16,11 @@ before_install:
   - docker pull pauldhein/project-containers:delphi
   - docker run -itd --name delphi pauldhein/project-containers
   - docker exec delphi git clone https://github.com/$TRAVIS_REPO_SLUG.git /$TRAVIS_REPO_SLUG
-  - docker exec delphi cd /$TRAVIS_REPO_SLUG
-  - docker exec delphi git checkout -qf $TRAVIS_COMMIT
+  - docker run delphi /bin/sh -c "cd /$TRAVIS_REPO_SLUG; git checkout -qf $TRAVIS_COMMIT"
 
 script:
   - docker exec delphi make test
-  - docker exec delphi cd /$TRAVIS_REPO_SLUG/delphi/docs
-  - docker exec delphi make apidocs
-  - docker exec delphi make html
+  - docker run delphi /bin/sh -c  "cd /$TRAVIS_REPO_SLUG/delphi/docs; make apidocs; make html"
 
 deploy:
   local-dir: docs/_build/html
