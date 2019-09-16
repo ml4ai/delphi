@@ -527,7 +527,7 @@ class RectifyOFPXML:
                             for arg in self.args_for_function:
                                 argument = ET.SubElement(
                                                 cur_elem, "argument",
-                                                {"name": arg})
+                                                {"name": arg, "is_array": "false"})
 
                         # If the current header belongs to <subroutine>,
                         # add it to the arguments_list for later
