@@ -165,6 +165,13 @@ class GrFNGenerator(object):
         self.f_array_arg = []
         # {symbol:index}
         self.updated_arrays = {}
+        # {symbol: [_list_of_domains_]}
+        # This mapping is required as there may be
+        # a multiple array passes to the function
+        # argument and we do not want to replace one
+        # with another. We need to update all function
+        # argument domains for arrays
+        self.array_arg_domain = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -2823,6 +2830,43 @@ class GrFNGenerator(object):
             index = 0
 
         domain = self.get_domain_dictionary(variable, state)
+        # Since we need to update the domain of arrays that
+        # were passed to a function once the program actually
+        # finds about it, we need to temporarily hold the domain
+        # information in the dictionary of domain list.
+        if (
+            "name" in domain
+            and domain["name"] == "array"
+        ):
+            if variable in self.array_arg_domain:
+                self.array_arg_domain[variable].append(domain)
+            else:
+                self.array_arg_domain[variable] = [domain]
+
+        # Only array variables hold dimensions in their domain
+        # when they get declared, we identify the array variable
+        # declaraion by simply checking the existance of the dimensions
+        # key in the domain. Also, the array was previously passed
+        # to functions.
+        if (
+            "dimensions" in domain
+            and variable in self.array_arg_domain
+        ):
+            # Since we can't simply do "dom = domain"
+            # as this will do a replacement of the dict element
+            # not the actual domain object of the original function
+            # argument, we need to clean off the existing contents
+            # first and then add the array domain spec one-by-one.
+            for dom in self.array_arg_domain[variable]:
+                if "name" in dom:
+                    del dom["name"]
+                if "type" in dom:
+                    del dom["type"]
+                dom["index"] = domain["index"]
+                dom["dimensions"] = domain["dimensions"]
+                dom["elem_type"] = domain["elem_type"]
+                dom["mutable"] = domain["mutable"]
+
         variable_gensym = self.generate_gensym("variable")
 
         if arr_index is not None:
