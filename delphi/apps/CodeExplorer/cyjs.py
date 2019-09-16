@@ -24,9 +24,9 @@ def process_tr_dicts():
         tr_dict_1 = json.load(f)
 
     with open(
-        os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json"), "r"
+        os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json"), "r", encoding='utf-8'
     ) as f:
-        tr_dict_2 = json.load(f)
+        tr_dict_2 = json.load(f,)
 
     tr_dict = {
         "variables": tr_dict_1["variables"][0]+ tr_dict_2["variables"][0],
