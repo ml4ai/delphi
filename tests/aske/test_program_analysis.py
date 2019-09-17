@@ -131,6 +131,11 @@ def SIR_python_IR_test():
         Path(f"{DATA_DIR}" f"/SIR-Gillespie-SD_inline.f"))[0][0]
 
     
+@pytest.fixture
+def array_to_func_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/array_func_loop/array-to-func_06.f"))[0][0]
+
 #########################################################
 #                                                       #
 #               TARGET PYTHON TEST FILE                 #
@@ -233,3 +238,9 @@ def test_SIR_pythonIR_generation(SIR_python_IR_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_inline.py", "r") as f:
         python_src = f.read()
     assert SIR_python_IR_test[0] == python_src
+
+
+def test_array_to_func_pythonIR_generation(array_to_func_python_IR_test):
+    with open(f"{DATA_DIR}/array_func_loop/array-to-func_06.py", "r") as f:
+        python_src = f.read()
+    assert array_to_func_python_IR_test[0] == python_src
