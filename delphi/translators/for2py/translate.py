@@ -221,10 +221,11 @@ class XML_to_JSON_translator(object):
 
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
+        array_status = root.attrib["is_array"]
         # Store each argument respective to the function it is defined in
         self.argument_list.setdefault(self.current_module, []).append(var_name)
 
-        return [{"tag": "arg", "name": var_name}]
+        return [{"tag": "arg", "name": var_name, "is_array": array_status}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by

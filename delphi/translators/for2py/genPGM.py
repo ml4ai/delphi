@@ -52,6 +52,7 @@ ANNOTATE_MAP = {
     "list": "array",
     "bool": "bool",
     "file_handle": "fh",
+    "Array": "array",
 }
 
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
@@ -90,7 +91,7 @@ class GrFNState:
             scope_path: Optional[List] = [],
             arrays: Optional[Dict] = {},
             array_types: Optional[Dict] = {},
-            array_assign_name: Optional = None
+            array_assign_name: Optional = None,
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -160,6 +161,17 @@ class GrFNGenerator(object):
         self.current_scope = None
         self.loop_index = -1
         self.parent_loop_state = None
+        self.handling_f_args = True
+        self.f_array_arg = []
+        # {symbol:index}
+        self.updated_arrays = {}
+        # {symbol: [_list_of_domains_]}
+        # This mapping is required as there may be
+        # a multiple array passes to the function
+        # argument and we do not want to replace one
+        # with another. We need to update all function
+        # argument domains for arrays
+        self.array_arg_domain = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -172,6 +184,7 @@ class GrFNGenerator(object):
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
+            "array": "array",
         }
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -326,7 +339,6 @@ class GrFNGenerator(object):
                 variable_types=local_variable_types,
                 last_definition_default=-1,
             )
-
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
         # Keep a map of the arguments for each function. This will be used in
@@ -344,13 +356,14 @@ class GrFNGenerator(object):
         self.current_scope = node.name
         # Create the variable definition for the arguments
         argument_variable_grfn = []
+        self.handling_f_args = True
         for argument in argument_list:
             argument_variable_grfn.append(
                 self.generate_variable_definition(argument,
                                                   None,
                                                   function_state)
             )
-
+        self.handling_f_args = False
         # Generate the `variable_identifier_name` for each container
         # argument.
         # TODO Currently only variables are handled as container arguments.
@@ -393,7 +406,12 @@ class GrFNGenerator(object):
         # Find the list of updated identifiers
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
-                                                     function_variable_grfn)
+                                                     function_variable_grfn,
+                                                     self.f_array_arg,
+                                                     function_state)
+            for array in self.f_array_arg:
+                if array in function_state.last_definitions:
+                    self.updated_arrays[array] = function_state.last_definitions[array]
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -439,7 +457,6 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
-
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -469,7 +486,10 @@ class GrFNGenerator(object):
 
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
-                state.last_definitions[node.arg] = -1
+                if node.arg not in self.updated_arrays:
+                    state.last_definitions[node.arg] = -1
+                else:
+                    state.last_definitions[node.arg] = self.updated_arrays[node.arg]
             else:
                 assert False, ("Call source is not ast.FunctionDef. "
                                "Handle this by setting state.last_definitions["
@@ -2810,6 +2830,43 @@ class GrFNGenerator(object):
             index = 0
 
         domain = self.get_domain_dictionary(variable, state)
+        # Since we need to update the domain of arrays that
+        # were passed to a function once the program actually
+        # finds about it, we need to temporarily hold the domain
+        # information in the dictionary of domain list.
+        if (
+            "name" in domain
+            and domain["name"] == "array"
+        ):
+            if variable in self.array_arg_domain:
+                self.array_arg_domain[variable].append(domain)
+            else:
+                self.array_arg_domain[variable] = [domain]
+
+        # Only array variables hold dimensions in their domain
+        # when they get declared, we identify the array variable
+        # declaraion by simply checking the existance of the dimensions
+        # key in the domain. Also, the array was previously passed
+        # to functions.
+        if (
+            "dimensions" in domain
+            and variable in self.array_arg_domain
+        ):
+            # Since we can't simply do "dom = domain"
+            # as this will do a replacement of the dict element
+            # not the actual domain object of the original function
+            # argument, we need to clean off the existing contents
+            # first and then add the array domain spec one-by-one.
+            for dom in self.array_arg_domain[variable]:
+                if "name" in dom:
+                    del dom["name"]
+                if "type" in dom:
+                    del dom["type"]
+                dom["index"] = domain["index"]
+                dom["dimensions"] = domain["dimensions"]
+                dom["elem_type"] = domain["elem_type"]
+                dom["mutable"] = domain["mutable"]
+
         variable_gensym = self.generate_gensym("variable")
 
         if arr_index is not None:
@@ -2837,6 +2894,11 @@ class GrFNGenerator(object):
             domain_dictionary = self.arrays[variable]
         else:
             variable_type = state.variable_types[variable]
+            if (
+                self.handling_f_args
+                and variable_type == "array"
+            ):
+                self.f_array_arg.append(variable)
             domain_dictionary = {
                 "name": self.type_def_map[variable_type],
                 "type": "type"
@@ -2916,7 +2978,6 @@ class GrFNGenerator(object):
                                 )
                                 grfn_dict[0]['variables'].append(variable_spec)
                             body_function['updated'] = updated_variable
-
         return grfn_dict
 
     @staticmethod
@@ -3061,7 +3122,7 @@ class GrFNGenerator(object):
         return main_string
 
     @staticmethod
-    def _find_updated(argument_list, body_variable_list):
+    def _find_updated(argument_list, body_variable_list, f_array_arg, state):
         """
             This function finds and generates a list of updated identifiers
             in a container.
@@ -3100,6 +3161,12 @@ class GrFNGenerator(object):
                     int(body_dict[argument]) > int(argument_dict[argument]):
                 updated_list.append(f"@variable::{argument}::"
                                     f"{body_dict[argument]}")
+            # If argument is an array type, get the current index and
+            # update it. Then, append to the function's updated list
+            elif argument in f_array_arg:
+                updated_idx = state.last_definitions[argument]
+                updated_list.append(f"@variable::{argument}::"
+                                    f"{updated_idx}")
 
         return updated_list
 
