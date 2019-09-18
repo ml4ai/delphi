@@ -154,16 +154,18 @@ def combine_data():
 
     ind_cols = ["Variable", "Unit", "Source", "Country"]
     fao_wdi_df = pd.concat([fao_df, wdi_df], sort=True)
+
     # If a column name is something like 2010-2012, we make copies of its data
     # for three years - 2010, 2011, 2012
 
     for c in fao_wdi_df.columns:
-        if "-" in c:
-            years = c.split("-")
-            for y in range(int(years[0]), int(years[-1]) + 1):
-                y = str(y)
-                fao_wdi_df[y] = fao_wdi_df[y].fillna(fao_wdi_df[c])
-            del fao_wdi_df[c]
+        if isinstance(c,str):
+            if "-" in c:
+                years = c.split("-")
+                for y in range(int(years[0]), int(years[-1]) + 1):
+                    y = str(y)
+                    fao_wdi_df[y] = fao_wdi_df[y].fillna(fao_wdi_df[c])
+                del fao_wdi_df[c]
 
     fao_wdi_df = (
         fao_wdi_df.reset_index()

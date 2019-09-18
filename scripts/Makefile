@@ -65,7 +65,6 @@ data/fao_data.tsv: $(RAW)/FAOSTAT
 	python data_processing/process_FAO_and_WDI_data.py --fao
 
 data/wdi_data.tsv: $(RAW)/WDI/WDIData.csv
-	python data_processing/process_FAO_and_WDI_data.py --wdi
 
 data/indicator_data_fewsnet.tsv: $(RAW)/FEWS
 	python data_processing/process_FEWSNET_data.py	
