@@ -41,7 +41,7 @@ DSSAT_DATA := $(RAW)/DSSAT/disaggregated_all_20190123_1451
 DSSAT_AGGREGATED_DATA := $(RAW)/DSSAT/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
-				data/south_sudan_data.tsv\
+				data/south_sudan_ethiopia_data.tsv\
 				data/un_to_indicators.tsv\
 				data/raw/adjectiveData.tsv\
 				$(DSSAT_AGGREGATED_DATA)
@@ -61,10 +61,10 @@ $(RAW)/adjectiveData.tsv: $(RAW)
 $(DSSAT_AGGREGATED_DATA): $(RAW)
 
 
-data/south_sudan_data_fao.tsv: $(RAW)/FAOSTAT
+data/south_sudan_ethiopia_data_fao.tsv: $(RAW)/FAOSTAT
 	python data_processing/process_FAO_and_WDI_data.py --fao
 
-data/south_sudan_data_wdi.tsv: $(RAW)/WDI/WDIData.csv
+data/south_sudan_ethiopia_data_wdi.tsv: $(RAW)/WDI/WDIData.csv
 	python data_processing/process_FAO_and_WDI_data.py --wdi
 
 data/south_sudan_data_fewsnet.tsv: $(RAW)/FEWS
@@ -92,9 +92,9 @@ data/south_sudan_migration_data_secondary: data_processing/process_migration_dat
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
 
-data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
-						   data/south_sudan_data_fao.tsv\
-						   data/south_sudan_data_wdi.tsv\
+data/south_sudan_ethiopia_data.tsv: data_processing/process_FAO_and_WDI_data.py\
+						   data/south_sudan_ethiopia_data_fao.tsv\
+						   data/south_sudan_ethiopia_data_wdi.tsv\
 						   $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
 						   data/south_sudan_data_fewsnet.tsv\
 						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
@@ -103,7 +103,7 @@ data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
 						   data/south_sudan_migration_data_secondary
 	python $< --combine
 
-data/indicator_flat_list.txt: data/south_sudan_data.tsv
+data/indicator_flat_list.txt: data/south_sudan_ethiopia_data.tsv
 
 
 # =============================================================================
@@ -152,7 +152,7 @@ $(EIDOS)/$(EIDOS_JAR):
 
 data/un_to_indicators.tsv: data/indicator_flat_list.txt\
 						   $(ONTOLOGY_GEN_SCRIPT)\
-						   data/south_sudan_data.tsv\
+						   data/south_sudan_ethiopia_data.tsv\
 						   $(EIDOS)/$(EIDOS_JAR)\
 						   $(WORD_EMBEDDING_VECTORS)
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 
