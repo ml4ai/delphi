@@ -27,7 +27,7 @@ DB_EXIST := data/delphi.db
 
 
 $(RAW_ZIP):
-	curl http://vanga.sista.arizona.edu/delphi_data/$@ -o $@
+	curl http://vanga.sista.arizona.edu/delphi_data/$(@F) -o $@
 	
 $(RAW): $(RAW_ZIP)
 	unzip $< -d data
@@ -42,7 +42,7 @@ DSSAT_AGGREGATED_DATA := $(RAW)/DSSAT/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
 				data/south_sudan_data.tsv\
-				data/un_to_indicators.tsv\
+				data/primary_to_indicators.tsv\
 				data/raw/adjectiveData.tsv\
 				$(DSSAT_AGGREGATED_DATA)
 	python $^ $@
@@ -150,7 +150,7 @@ EIDOS_JAR:=target/scala-$(SCALA_VERSION)/eidos-assembly-$(EIDOS_VERSION)-SNAPSHO
 $(EIDOS)/$(EIDOS_JAR):
 	cd $(EIDOS); JAVA_OPTS=-Xmx16g time sbt assembly 
 
-data/un_to_indicators.tsv: data/indicator_flat_list.txt\
+data/primary_to_indicators.tsv: data/indicator_flat_list.txt\
 						   $(ONTOLOGY_GEN_SCRIPT)\
 						   data/south_sudan_data.tsv\
 						   $(EIDOS)/$(EIDOS_JAR)\
