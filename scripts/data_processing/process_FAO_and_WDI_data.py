@@ -33,7 +33,7 @@ def clean_FAOSTAT_data():
             usecols=lambda colName: all(
                 map(
                     lambda x: x not in colName,
-                    ["Code", "Flag", "Note", "ElementGroup"],
+                    ["Flag", "Note", "ElementGroup"],
                 )
             ),
         )
@@ -62,12 +62,11 @@ def clean_FAOSTAT_data():
             df = df.rename(columns={"Recipient Country": "Area"})
             del df["Donor Country"]
             df["Element"] = "Food aid shipments"
-        if set(df.columns.values) == set(
-            ["Area", "Item", "Element", "Year", "Unit", "Value"]
-        ):
-            df = df[df["Area"] == "South Sudan"]
-            del df["Area"]
-            df["Country"] = "South Sudan"
+        if set(df.columns.values) == {'Element Code', 'Year Code', 'Year',
+                'Element', 'Value', 'Item', 'Area Code', 'Item Code', 'Area',
+                'Unit'}:
+            df.rename(columns={"Area": "Country"}, inplace=True)
+            df = df[["Element", "Item", "Country", "Year", "Value", "Unit"]]
             dfs.append(df)
 
     df = pd.concat(dfs)
@@ -76,7 +75,7 @@ def clean_FAOSTAT_data():
     del df["Element"]
     del df["Item"]
     df.to_csv(
-        str(data_dir / "south_sudan_data_fao.tsv"), index=False, sep="\t"
+        str(data_dir / "fao_data.tsv"), index=False, sep="\t"
     )
 
 
@@ -95,7 +94,7 @@ def process_variable_name(k, e):
 
 def construct_FAO_ontology():
     """ Construct FAO variable ontology for use with Eidos. """
-    df = pd.read_csv("south_sudan_data_fao.csv")
+    df = pd.read_csv("fao_data.csv")
     gb = df.groupby("Element")
 
     d = [
@@ -128,14 +127,13 @@ def clean_WDI_data():
         columns={"Indicator Name": "Variable", "Country Name": "Country"},
         inplace=True,
     )
-    df = df[df["Country"] == "South Sudan"]
-    df.to_csv("data/south_sudan_data_wdi.tsv", index=False, sep="\t")
+    df.to_csv("data/wdi_data.tsv", index=False, sep="\t")
 
 
 def combine_data():
-    fao_df = pd.read_csv("data/south_sudan_data_fao.tsv", sep="\t")
+    fao_df = pd.read_csv("data/fao_data.tsv", sep="\t")
     fao_df["Source"] = "FAO"
-    wdi_df = pd.read_csv("data/south_sudan_data_wdi.tsv", sep="\t")
+    wdi_df = pd.read_csv("data/wdi_data.tsv", sep="\t")
     wdi_df["Source"] = "WDI"
 
     wdi_df["Unit"] = (
@@ -239,7 +237,7 @@ def combine_data():
     ).dropna(subset=["Value"])
     combined_df.Variable = combined_df.Variable.str.strip()
     combined_df.to_csv(
-        Path(data_dir) / "south_sudan_data.tsv", sep="\t", index=False
+        Path(data_dir) / "indicator_data.tsv", sep="\t", index=False
     )
     with open("data/indicator_flat_list.txt", "w") as f:
         f.write("\n".join(set(combined_df.Variable)))
