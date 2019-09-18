@@ -21,6 +21,8 @@ C   The code was sampled from SIR-Gillespie.f
       integer, parameter :: Tmax = 100, k = 0, n = 0, runs = 50
       double precision, dimension(0:Tmax) :: meanS, varS
 
+      meanS(k) = 100
+      varS(k) = 200
       call update_mean_var(meanS, varS, k, n, runs)
 
       end subroutine gillespie
