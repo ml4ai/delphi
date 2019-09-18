@@ -348,7 +348,8 @@ def process_climis_livestock_data(data_dir: str):
             livestock_migration_df,
             livestock_pasture_df,
             livestock_water_sources_df,
-        ]
+        ],
+        sort=True
     )
     return climis_livestock_data_df
 
@@ -497,5 +498,4 @@ if __name__ == "__main__":
     data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
-    df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
     df.to_csv("data/south_sudan_data_climis_unicef_ieconomics.tsv", index=False, sep="\t")

@@ -123,16 +123,6 @@ def clean_WDI_data():
     print("Cleaning WDI data")
     df = pd.read_csv(
         "data/raw/WDI/WDIData.csv",
-        usecols=[
-            "Country Name",
-            "Indicator Name",
-            "2012",
-            "2013",
-            "2014",
-            "2015",
-            "2016",
-            "2017",
-        ],
     )
     df.rename(
         columns={"Indicator Name": "Variable", "Country Name": "Country"},
