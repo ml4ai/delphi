@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-docker pull pauldhein/project-containers
-docker run pauldhein/project-containers /bin/sh -c "git fetch; git checkout travis-docker-ci; git pull"
-docker run pauldhein/project-containers /bin/sh -c "pip install -e .[test,docs]"
+docker pull pauldhein/project-containers:delphi
+docker run -itd --rm --name build-con pauldhein/project-containers:delphi
 
-docker run pauldhein/project-containers /bin/sh -c "make test"
-# docker run -w="/repo/delphi/docs" pauldhein/project-containers /bin/sh -c "make apidocs; make html"
+docker exec build-con bash -c 'git fetch; git checkout travis-docker-ci; git pull'
+docker exec build-con pip install -e .[test,docs]
+docker exec build-con make test
+# docker exec -w /repo/delphi/docs build-con bash -c "make apidocs; make html"
