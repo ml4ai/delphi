@@ -44,23 +44,6 @@ from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
 
-def normpdf(x, mean, sd):
-    """ Calculate pdf of normal distribution with a given mean and standard
-    deviation. Faster than scipy.stats.norm.pdf. From
-    https://stackoverflow.com/a/12413491 """
-    var = float(sd) ** 2
-    denom = (2 * pi * var) ** 0.5
-    num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
-    return num / denom
-
-
-def log_normpdf(x, mean, sd):
-    var = float(sd) ** 2
-    log_denom = -0.5 * log(2 * pi) - log(sd)
-    log_num = ((float(x) - float(mean)) ** 2) / (2 * var)
-    return log_denom - log_num
-
-
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
