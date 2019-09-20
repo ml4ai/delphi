@@ -470,8 +470,56 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, in
       continue;
     }
 
-    string subj_concept = subj_concept_json.get<string>();
-    string obj_concept = obj_concept_json.get<string>();
+    // TODO: Not sure why python version is doing a split on / and
+    // then again a join on /!!
+    string subj_name = subj_concept_json.get<string>();
+    string obj_name = obj_concept_json.get<string>();
+
+    /*
+    //G.add_edge(subj_name, obj_name);
+    if (subj_name.compare(obj_name) != 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      for (string name : {subj_name, obj_name}) {
+        G.add_node(name);
+      }
+    }
+    */
+
+    auto subj_delta = stmt["subj_delta"];
+    auto obj_delta = stmt["obj_delta"];
+
+    auto subj_polarity_json = subj_delta["polarity"];
+    auto obj_polarity_json = obj_delta["polarity"];
+
+    int subj_polarity = 1;
+    int obj_polarity = 1;
+    if(!subj_polarity_json.is_null())
+    {
+      subj_polarity = subj_polarity_json.get<int>();
+    }
+
+    if(!obj_polarity_json.is_null())
+    {
+      obj_polarity = obj_polarity_json.get<int>();
+    }
+
+    auto subj_adjectives = subj_delta["adjectives"];
+    auto obj_adjectives = obj_delta["adjectives"];
+    auto subj_adjective =
+      (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+      ? subj_adjectives[0]
+      : "None";
+    auto obj_adjective =
+      (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+
+    string subj_adj_str = subj_adjective.get<string>();
+    string obj_adj_str = subj_adjective.get<string>();
+
+    auto causal_fragment =
+      CausalFragment({subj_adj_str, subj_polarity, subj_name},
+          {obj_adj_str, obj_polarity, obj_name});
+    G.add_edge(causal_fragment);
+
 
 
 
