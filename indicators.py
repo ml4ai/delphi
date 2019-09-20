@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVR
+from keras.models import Sequential
+from keras.layers import Dense, LSTM
 
 def get_column(col_name):
     
@@ -45,23 +46,19 @@ for col in df:
 df['date'] = pd.to_datetime(df['Month'].astype(int).astype(str) + '-' + df['Year'].astype(str), format='%m-%Y')
 df = df.drop(columns = ['Year', 'Month'])
 df['Value'] = df['Value'].astype(int)
-arr = df.groupby(['County', 'State', 'date'])['Value'].count()
-# print(arr)
-df1 = df.groupby(['County', 'State', 'date'])['Value'].sum()/arr
-df1 = df1.reset_index()
+df1 = df.groupby(['County', 'State', 'date'])['Value'].sum()
 # print(df1)
 # print(df1.index)
 
 
-for key, grp in df1.groupby(['County', 'State']):
-    
-    # print(key, grp)
+
+for key, grp in df.groupby(['County', 'State']):
     ydata = grp['Value'].values
     xdata = grp['date'].values
 
     n = len(ydata)
     train_start = 0
-    train_end = int(np.floor(0.8*n))
+    train_end = int(np.floor(0.6*n))
     test_start = train_end
     test_end = n
 
@@ -78,39 +75,27 @@ for key, grp in df1.groupby(['County', 'State']):
     X_train, y_train = create_dataset(data_train_scaled, look_back)
     X_test, y_test = create_dataset(data_test_scaled, look_back)
 
-    # print(X_train.shape, y_train.shape)
-    # print(type(X_train), type(y_train))
-    
-    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1]))
-    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
-
-    # print(X_train.shape, y_train.shape)
+    # print(X_train)
     # print(y_train)
 
-    svr_lin = SVR(kernel='linear', C=1e3)
-    # svr_poly = SVR(kernel='poly', C=1e3, degree=2)
-    # svr_rbf = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+    X_test= np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
-    svr_lin.fit(X_train, y_train.ravel())
-    # svr_poly.fit(X_train, y_train)
-    # svr_rbf.fit(X_train, y_train)
-    
-    predict_lin = svr_lin.predict(X_test)
-    predict_lin = scaler.inverse_transform(predict_lin.reshape(-1,1))
+    regressor = Sequential()
+    regressor.add(LSTM(units=20, return_sequences=True, input_shape=(X_train.shape[1], 1)))
+    regressor.add(LSTM(units=20))
+    regressor.add(Dense(units=1))
+    regressor.compile(loss='mean_squared_error', optimizer='adam')
+    regressor.fit(X_train, y_train, epochs=10, batch_size=2)
 
-    predict_poly = svr_lin.predict(X_test)
-    predict_poly = scaler.inverse_transform(predict_poly.reshape(-1,1))
-    
-    predict_rbf = svr_lin.predict(X_test)
-    predict_rbf = scaler.inverse_transform(predict_rbf.reshape(-1,1))
-    
+    prediction = regressor.predict(X_test)
+    prediction = scaler.inverse_transform(prediction)
+
     plt.figure()
     plt.title(key)
     plt.plot(xdata[:train_end+look_back+1], ydata[:train_end+look_back+1], color='b', label='Train')
     plt.plot(xdata[train_end+look_back+1:], ydata[train_end+look_back+1:], color='g', label='Test')
-    plt.plot(xdata[train_end+look_back+1:], predict_lin, color = 'orange', label = 'Linear Prediction')
-    # # plt.plot(xdata[train_end+look_back+1:], predict_poly, color = 'k',label = 'Poly Prediction')
-    # # plt.plot(xdata[train_end+look_back+1:], predict_rbf, color = 'm', label = 'RBF Prediction')
+    plt.plot(xdata[train_end+look_back+1:], prediction, color = 'orange', label = 'Predicted Data')
     plt.legend()
     plt.show()
 
