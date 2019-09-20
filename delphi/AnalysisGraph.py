@@ -16,7 +16,6 @@ import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
 from .random_variables import LatentVar, Indicator
-from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
 from .utils.indra import (
     get_statements_from_json_list,
@@ -679,54 +678,6 @@ class AnalysisGraph(nx.DiGraph):
     def get_current_time(self) -> float:
         """ Returns the current time in the execution of the model. """
         return self.t
-
-    # ==========================================================================
-    # Export
-    # ==========================================================================
-
-    def export_node(self, n) -> Dict[str, Union[str, List[str]]]:
-        """ Return dict suitable for exporting to JSON.
-
-        Args:
-            n: A dict representing the data in a networkx AnalysisGraph node.
-
-        Returns:
-            The node dict with additional fields for name, units, dtype, and
-            arguments.
-
-        """
-        node_dict = {
-            "name": n[0],
-            "units": _get_units(n[0]),
-            "dtype": _get_dtype(n[0]),
-            "arguments": list(self.predecessors(n[0])),
-        }
-
-        if not n[1].get("indicators") is None:
-            for indicator in n[1]["indicators"].values():
-                if "dataset" in indicator.__dict__:
-                    del indicator.__dict__["dataset"]
-
-            node_dict["indicators"] = [
-                _process_datetime(indicator.__dict__)
-                for indicator in n[1]["indicators"].values()
-            ]
-        else:
-            node_dict["indicators"] = None
-
-        return node_dict
-
-    def to_dict(self) -> Dict:
-        """ Export the CAG to a dict that can be serialized to JSON. """
-        return {
-            "name": self.name,
-            "dateCreated": str(self.dateCreated),
-            "variables": lmap(
-                lambda n: self.export_node(n), self.nodes(data=True)
-            ),
-            "timeStep": str(self.Δt),
-            "edge_data": lmap(export_edge, self.edges(data=True)),
-        }
 
     def to_pickle(self, filename: str = "delphi_model.pkl"):
         with open(filename, "wb") as f:
