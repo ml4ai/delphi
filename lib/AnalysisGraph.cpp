@@ -513,7 +513,7 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, in
       (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
 
     string subj_adj_str = subj_adjective.get<string>();
-    string obj_adj_str = subj_adjective.get<string>();
+    string obj_adj_str = obj_adjective.get<string>();
 
     auto causal_fragment =
       CausalFragment({subj_adj_str, subj_polarity, subj_name},
