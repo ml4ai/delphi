@@ -165,9 +165,13 @@ class GrFNGenerator(object):
         self.mode_mapper = {}
         self.name_mapper = {}
         self.function_argument_map = {}
+        # Holds all declared arrays {symbol:domain}
         self.arrays = {}
+        # Holds declared array types {symbol:type}
         self.array_types = {}
         self.array_assign_name = None
+        # Holds a list of multi-dimensional array symbols
+        self.md_array = []
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
@@ -1751,7 +1755,10 @@ class GrFNGenerator(object):
                 arr_index = self._generate_array_index(node)
                 str_arr_index = ""
                 for idx in arr_index:
-                    str_arr_index += str(idx)
+                    if function_name not in self.md_array:
+                        str_arr_index += str(idx)
+                    else:
+                        str_arr_index += f"[{idx}]"
                 # arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
@@ -1759,7 +1766,10 @@ class GrFNGenerator(object):
                 variable_spec = self.generate_variable_definition(
                     function_name, str_arr_index, state)
                 grfn["variables"].append(variable_spec)
-                state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                if function_name not in self.md_array:
+                    state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                else:
+                    state.array_assign_name = f"{function_name}{str_arr_index}"
                 # We want to have a new variable spec for the original
                 # array (arr(i), for example) and generate the function
                 # name with it.
@@ -3162,6 +3172,9 @@ class GrFNGenerator(object):
             return [left, op, right]
         # Case 2: Multi-dimensional array
         elif args_name == "ast.Tuple":
+            md_array_name = node.value.func.value.id
+            if md_array_name not in self.md_array:
+                self.md_array.append(md_array_name)
             dimensions = args.elts
             dimension_list = []
             for dimension in dimensions:
