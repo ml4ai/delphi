@@ -187,6 +187,15 @@ class RectifyOFPXML:
         # If goto is conditional and under else
         # that is a case of conditional without operator
         self.goto_under_else = False
+        # When handling function, collect names
+        self.args_for_function = []
+        # Holds arguments of subroutine or function
+        self.arguments_list = {}
+        # Holds the caller arguments that are array
+        self.caller_arr_arguments = {}
+        # Set to true if handling <call>
+        self.call_function = False
+
 
     #################################################################
     #                                                               #
@@ -503,12 +512,39 @@ class RectifyOFPXML:
                         self.parseXMLTree(
                                 child, cur_elem, current, parent, traverse
                         )
+                        # If the current header belongs to <function>,
+                        # we need to manipulate the structure of the AST
+                        # to have an equivalent syntax as <subroutine>
+                        if (
+                                parent.tag == "function"
+                                and cur_elem.tag == "names"
+                        ):
+                            current.remove(cur_elem)
+                            count = len(self.args_for_function)
+                            cur_elem = ET.SubElement(
+                                                current, "arguments",
+                                                {"count": str(count)})
+                            for arg in self.args_for_function:
+                                argument = ET.SubElement(
+                                                cur_elem, "argument",
+                                                {"name": arg, "is_array": "false"})
 
+                        # If the current header belongs to <subroutine>,
+                        # add it to the arguments_list for later
+                        # array status marking when a function call happens
+                        if (
+                            (parent.tag == "subroutine"
+                            and child.tag == "arguments")
+                            or parent.tag == "function"
+                        ):
+                            sub_name = parent.attrib["name"]
+                            self.arguments_list[sub_name] = cur_elem
+                     
                     if cur_elem.tag in target_tags:
                         temp_elem_holder.append(cur_elem)
                         if cur_elem.tag == "equiv-operand__equiv-op":
                             need_refactoring = True
-                    # Handler for the case wher label appears under
+                    # Handler for the case where label appears under
                     # the header element. This happens when label
                     # is assigned to the if statement.
                     if (
@@ -1268,6 +1304,8 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                if grandparent.tag == "function":
+                    self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds subelements,
                 # call the XML tree parser with created
                 # new <name> element
@@ -1305,8 +1343,13 @@ class RectifyOFPXML:
             (2) procedure - Function (or procedure) call
             (3) ambiguous - None of the above two type
         """
-        # All variables have default "is_array" value "false"
-        current.attrib['is_array'] = "false"
+        if (
+            "id" in current.attrib
+            and current.attrib['id'] in self.declared_array_vars
+        ):
+            current.attrib['is_array'] = "true"
+        else:
+            current.attrib['is_array'] = "false"
 
         # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
         # Thus, clean up the 'id' and reconstruct the <name> AST
@@ -1325,6 +1368,11 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                     if child.tag == "subscripts":
+                        # If current name is for caller arguments,
+                        # mark the name of the function in the subscripts
+                        # as an one of its attributes
+                        if parent.tag == "call":
+                            cur_elem.attrib['fname'] = current.attrib['id']
                         # Default
                         current.attrib['hasSubscripts'] = "true"
                         # Check whether the variable is an array AND the
@@ -1350,6 +1398,7 @@ class RectifyOFPXML:
                                     ] == self.current_scope
                         ):
                             current.attrib['hasSubscripts'] = "false"
+
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1403,9 +1452,20 @@ class RectifyOFPXML:
         <value>
         </value>
         """
+        function_call = False
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
+
+            if (
+                child.tag == "name"
+                and child.attrib['id'] in self.arguments_list
+            ):
+                # if 'id' is in the arguments_list, it indicates that
+                # the RHS of the assginment is a function call
+                self.call_function = True
+                function_call = True
+                current.attrib['fname'] = child.attrib['id']
 
             try:
                 error_chk = self.value_child_tags.index(child.tag)
@@ -1415,6 +1475,12 @@ class RectifyOFPXML:
             self.parseXMLTree(
                 child, cur_elem, current, parent, traverse
             )
+
+            # If current assignment is done with a function call,
+            # then update function definition's arguments with array status
+            if function_call:
+                self.update_arguments(current)
+
             if (
                     child.tag == "name"
                     and self.need_reconstruct
@@ -1668,7 +1734,6 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-
                 try:
                     error_chk = self.subscripts_child_tags.index(child.tag)
                 except:
@@ -1679,6 +1744,24 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+                # If current subscript is for a function caller and
+                # current element (argument) is an array, then store
+                # it into the caller_arr_arguments map for later use
+                if (
+                    self.call_function
+                    and (cur_elem.tag == "name"
+                    and cur_elem.attrib['is_array'] == "true")
+                ):
+                    assert (
+                        "fname" in parent.attrib
+                    ), "If this subscript is for the caller argument,\
+                            fname must exist in the parent"
+                    fname = parent.attrib['fname']
+                    arg = cur_elem.attrib['id']
+                    if fname in self.caller_arr_arguments:
+                        self.caller_arr_arguments[fname].append (arg)
+                    else:
+                        self.caller_arr_arguments[fname] = [arg]
 
     def handle_tag_operation(
             self, root, current, parent, grandparent, traverse
@@ -2123,10 +2206,13 @@ class RectifyOFPXML:
         <call>
         </call>
         """
+        self.call_function = True
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "name":
+                    # fname: Function name
+                    current.attrib['fname'] = child.attrib['id']
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -2144,6 +2230,9 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
+
+        # Update function definition's arguments with array status
+        self.update_arguments(current)
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
@@ -2194,6 +2283,8 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                # Set a default array status to False
+                cur_elem.attrib['is_array'] = "false"
             else:
                 assert (
                     False
@@ -4033,6 +4124,36 @@ class RectifyOFPXML:
                 boundary, boundary_for_label,
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
+        
+    def update_arguments(self, current):
+        """This function handles function definition's
+        arguments with array status based on the information
+        that was observed during the function call
+
+        Args:
+            current (:obj: 'ET'): Current node (either call or value)
+
+        Returns:
+            None.
+        """
+
+        fname = current.attrib['fname']
+        callee_arguments = self.arguments_list[fname]
+        for arg in callee_arguments:
+            # self.caller_arr_arguments holds any element
+            # only when arrays are being passed to functions
+            # as arguments. Thus, we first need to check if
+            # callee function name exists in the list
+            if (
+                fname in self.caller_arr_arguments
+                and arg.attrib['name'] in self.caller_arr_arguments[fname]
+            ):
+                arg.attrib['is_array'] = "true"
+            else:
+                arg.attrib['is_array'] = "false"
+        # re-initialize back to initial values
+        self.call_function = False 
+
 
     #################################################################
     #                                                               #

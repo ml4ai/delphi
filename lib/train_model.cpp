@@ -16,9 +16,11 @@ void AnalysisGraph::train_model(int start_year,
                                 string state,
                                 string county,
                                 map<string, string> units,
-                                InitialBeta initial_beta) {
+                                InitialBeta initial_beta,
+                                bool use_heuristic) {
 
   this->find_all_paths();
+  this->data_heuristic = use_heuristic;
 
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);

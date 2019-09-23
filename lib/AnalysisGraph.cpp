@@ -111,21 +111,39 @@ void AnalysisGraph::parameterize(string country,
                                  int month,
                                  map<string, string> units) {
   double stdev;
+  double mean;
   for (auto& node : this->nodes()) {
     for (auto& [name, i] : node.indicator_names) {
       auto& indicator = node.indicators[i];
       try {
         if (units.find(name) != units.end()) {
           indicator.set_unit(units[name]);
-          indicator.set_mean(get_data_value(
-              name, country, state, county, year, month, units[name]));
+          vector<double> data = get_data_value(
+              name, country, state, county, year, month, units[name],this->data_heuristic);
+          if (data.empty()) {
+            mean = 0;
+          }
+          else {
+            mean = utils::mean(data);
+          }
+          indicator.set_mean(mean);
         }
         else {
           indicator.set_default_unit();
-          indicator.set_mean(
-              get_data_value(name, country, state, county, year, month));
+          vector<double> data = get_data_value(
+              name, country, state, county, year, month, units[name],this->data_heuristic);
+          if (data.empty()) {
+            mean = 0;
+          }
+          else {
+            mean = utils::mean(data);
+          }
+          indicator.set_mean(mean);
         }
         stdev = 0.1 * abs(indicator.get_mean());
+        if (stdev == 0) {
+          stdev = 1;
+        }
         indicator.set_stdev(stdev);
       }
       catch (logic_error& le) {
@@ -941,21 +959,23 @@ void AnalysisGraph::set_log_likelihood() {
 
     // Access
     // observed_state[ vertex ][ indicator ]
-    const vector<vector<double>>& observed_state =
+    const vector<vector<vector<double>>>& observed_state =
         this->observed_state_sequence[ts];
 
     for (int v : this->vertices()) {
       const int& num_inds_for_v = observed_state[v].size();
 
       for (int i = 0; i < observed_state[v].size(); i++) {
-        const double& value = observed_state[v][i];
         const Indicator& ind = this->graph[v].indicators[i];
-
-        // Even indices of latent_state keeps track of the state of each
-        // vertex
-        double log_likelihood_component =
-            this->log_normpdf(value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
-        this->log_likelihood += log_likelihood_component;
+        for (int j = 0; j < observed_state[v][i].size(); j++) {
+          const double& value = observed_state[v][i][j];
+          // Even indices of latent_state keeps track of the state of each
+          // vertex
+          double log_likelihood_component =
+              this->log_normpdf(value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+          this->log_likelihood += log_likelihood_component;
+ 
+        }
       }
     }
   }
@@ -1061,18 +1081,18 @@ void AnalysisGraph::print_A_beta_factors() {
   }
 }
 
-vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
+vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     int year, int month, string country, string state, string county) {
   int num_verts = boost::num_vertices(this->graph);
 
   // Access
   // [ vertex ][ indicator ]
-  vector<vector<double>> observed_state(num_verts);
+  vector<vector<vector<double>>> observed_state(num_verts);
 
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
 
-    observed_state[v] = vector<double>(indicators.size(), 0.0);
+    observed_state[v] = vector<vector<double>>(indicators.size());
 
     transform(indicators.begin(),
               indicators.end(),
@@ -1085,7 +1105,8 @@ vector<vector<double>> AnalysisGraph::get_observed_state_from_data(
                                       county,
                                       year,
                                       month,
-                                      ind.get_unit());
+                                      ind.get_unit(),
+                                      this->data_heuristic);
               });
   }
 
@@ -1262,7 +1283,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
 
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
-
+    vector<double> next_state_values;
     for (int i = 0; i < indicators.size(); i++) {
       Indicator& ind = indicators[i];
 
@@ -1271,19 +1292,18 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
       while (ind_mean == 0) {
         ind_mean = this->norm_dist(this->rand_num_generator);
       }
-
-      double ind_value = this->observed_state_sequence[0][v][i];
-
-      // TODO: If ind_mean is very close to zero, this could overflow
-      // Even indexes of the latent state vector represent variables
-      this->s0(2 * v) = ind_value / ind_mean;
-
-      double next_ind_value =
-          this->observed_state_sequence[1][v][i];
-      double next_state_value = next_ind_value / ind_mean;
-      double diff = next_state_value - this->s0(2 * v);
-      this->s0(2 * v + 1) = diff;
+      double next_ind_value;
+      if (this->observed_state_sequence[1][v][i].empty()) {
+        next_ind_value = 0;
+      }
+      else {
+        next_ind_value =
+            utils::mean(this->observed_state_sequence[1][v][i]);
+      }
+      next_state_values.push_back(next_ind_value / ind_mean);
     }
+    double diff = utils::mean(next_state_values) - this->s0(2 * v);
+    this->s0(2 * v + 1) = diff;
   }
 }
 
@@ -1362,9 +1382,9 @@ void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
-  this->predicted_observed_state_sequences = vector<ObservedStateSequence>(
+  this->predicted_observed_state_sequences = vector<PredictedObservedStateSequence>(
       this->res,
-      ObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
+      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
     vector<Eigen::VectorXd>& sample =
@@ -1526,19 +1546,19 @@ void AnalysisGraph::generate_synthetic_latent_state_sequence() {
 void AnalysisGraph::
     generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
   // Allocate memory for observed_state_sequences
-  this->observed_state_sequence.clear();
-  this->observed_state_sequence =
-      ObservedStateSequence(this->n_timesteps, vector<vector<double>>());
+  this->test_observed_state_sequence.clear();
+  this->test_observed_state_sequence =
+      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>());
 
   transform(this->synthetic_latent_state_sequence.begin(),
             this->synthetic_latent_state_sequence.end(),
-            this->observed_state_sequence.begin(),
+            this->test_observed_state_sequence.begin(),
             [this](Eigen::VectorXd latent_state) {
               return this->sample_observed_state(latent_state);
             });
 }
 
-pair<ObservedStateSequence, Prediction>
+pair<PredictedObservedStateSequence, Prediction>
 AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int start_month,
                                                   int end_year,
@@ -1564,7 +1584,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
   this->generate_synthetic_latent_state_sequence();
   this->generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
-  for (vector<vector<double>> obs : this->observed_state_sequence) {
+  for (vector<vector<double>> obs : this->test_observed_state_sequence) {
     print("({}, {})\n", obs[0][0], obs[1][0]);
   }
 
@@ -1581,7 +1601,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                     InitialBeta::ZERO);
 
   return make_pair(
-      this->observed_state_sequence,
+      this->test_observed_state_sequence,
       this->generate_prediction(start_year, start_month, end_year, end_month));
 
   synthetic_data_experiment = false;
