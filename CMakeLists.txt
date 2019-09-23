@@ -26,7 +26,7 @@ add_subdirectory(external/spdlog)
 include_directories(external/fmt/include)
 include_directories(external/spdlog/include)
 
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp 3.6 REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
@@ -40,7 +40,7 @@ include_directories(external/eigen)
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
 
-add_library(Delphi 
+add_library(Delphi
   lib/AnalysisGraph.cpp
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp

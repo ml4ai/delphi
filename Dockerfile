@@ -19,8 +19,8 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 2
 RUN curl https://bootstrap.pypa.io/ez_setup.py -o - | python3.6 && python3.6 -m easy_install pip
 RUN pip install pip --upgrade && pip install wheel
+RUN alias python=python3
 
-RUN mkdir -p /data /repo
 WORKDIR /data
 # Download SQLite3 database containing model parameterization data.
 RUN curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
