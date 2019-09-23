@@ -62,6 +62,10 @@ ARITHMETIC_OPS = {
     "Sub": "-",
     "Div": "/",
     "Mult": "*",
+    "+": "+",
+    "-": "-",
+    "/": "/",
+    "*": "*",
 }
 
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
@@ -558,8 +562,11 @@ class GrFNGenerator(object):
         # arise, the following code might need to be rewritten and the
         # following return code will have to be added as well.
         # return elements if len(elements) == 1 else [{"list": elements}]
+        # DEBUG
+        print ("2. ast.dump: ", ast.dump (node))
+        element_grfn = []
         for list_element in node.elts:
-            element_grfn = self.gen_grfn(list_element, state, "List")
+            element_grfn.append(self.gen_grfn(list_element, state, "List"))
 
         return element_grfn
 
@@ -1746,15 +1753,25 @@ class GrFNGenerator(object):
                 # DEBUG
                 print ("ast_dump: ", ast.dump(node))
                 arr_index = self._generate_array_index(node)
-
+                str_arr_index = ""
+                for idx in arr_index:
+                    # DEBUG
+                    print ("idx: ", idx)
+                    str_arr_index += str(idx)
+                # DEBUG
+                print ("str_arr_index: ", str_arr_index)
                 # arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
                 # variable in GrFN.
                 variable_spec = self.generate_variable_definition(
-                    function_name, arr_index, state)
+                    function_name, str_arr_index, state)
+                # DEBUG
+                print ("variable_spec: ", variable_spec)
                 grfn["variables"].append(variable_spec)
-                state.array_assign_name = f"{function_name}[{arr_index}]"
+                state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                # DEBUG
+                print ("state.array_assign_name: ", state.array_assign_name)
                 # We want to have a new variable spec for the original
                 # array (arr(i), for example) and generate the function
                 # name with it.
@@ -1765,6 +1782,8 @@ class GrFNGenerator(object):
                     variable_spec['name'],
                     arr_index
                 )
+                # DEBUG
+                print ("assgin_function: ", assign_function)
                 container_id_name = assign_function["name"]
                 function_type = assign_function["type"]
             else:
@@ -2029,8 +2048,8 @@ class GrFNGenerator(object):
         # If the source i.e. assigned value is `None` (e.g. day: List[int] =
         # [None]), only update the data type of the targets and populate the
         # `annotated_assigned` map. No further processing will be done.
-        if len(sources) == 1 and ('value' in sources[0].keys()) and \
-                sources[0]['value'] is None:
+        if len(sources) == 1 and ('value' in sources[0][0].keys()) and \
+                sources[0][0]['value'] is None:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
                     self._get_variable_type(node.annotation)
@@ -2142,6 +2161,8 @@ class GrFNGenerator(object):
             array_assignment = True
             array_dimensions = []
             inputs = sources[0]["call"]["inputs"]
+            # DEBUG
+            print ("**sources: ", sources)
             array_type = inputs[0][0]["var"]["variable"]
             self._get_array_dimension(sources, array_dimensions, inputs)
 
@@ -2261,6 +2282,7 @@ class GrFNGenerator(object):
             This function handles the ast.Tuple node of the AST. This handled
             in the same way `process_list_ast` is handled.
         """
+        print ("ast.dump: ", ast.dump(node))
         elements = [
             element[0]
             for element in [
@@ -2754,6 +2776,8 @@ class GrFNGenerator(object):
                 assert False, f"Should always return"
             lambda_strings.append("\n\n")
             return "".join(lambda_strings)
+        # DEBUG
+        print ("inputs: ", inputs)
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
@@ -2926,9 +2950,12 @@ class GrFNGenerator(object):
         variable_match = re.match(variable_spec_regex, variable)
         if variable_match:
             namespace_scope = variable_match.group("namescope")
-            variable_name = variable_match.group("variable")
+            variable_name = f"{variable_match.group('variable')}_"
             if arr_index:
-                variable_name = variable_name + f"_{arr_index}"
+                for index in arr_index:
+                    variable_name = variable_name + f"{index}"
+                # DEBUG
+                print ("variable_name: ", variable_name)
             variable_index = variable_match.group("index")
 
             name = namespace_scope + function_type + variable_name + "::" + \
@@ -3006,15 +3033,19 @@ class GrFNGenerator(object):
             Returns:
                 None.
         """
+        # DEBUG
+        print ("**inputs: ", inputs[1], len(inputs[1]))
         # A multi-dimensional array handler
-        if "list" in inputs[1][0]["list"][0]:
-            for lists in inputs[1][0]["list"]:
-                low_bound = int(lists["list"][0]["value"])
-                upper_bound = int(lists["list"][1]["value"])
+        if len(inputs[1]) > 1:
+            for lst in inputs[1]:
+                low_bound = int(lst[0]["list"][0]["value"])
+                upper_bound = int(lst[0]["list"][1]["value"])
                 array_dimensions.append(upper_bound - low_bound + 1)
+            # DEBUG
+            print ("array_dimensions: ", array_dimensions)
         # 1-D array handler
         else:
-            bounds = inputs[1][0]["list"]
+            bounds = inputs[1][0][0]["list"]
             # Get lower bound of an array
             if "type" in bounds[0]:
                 # When an index is a scalar value
@@ -3060,10 +3091,17 @@ class GrFNGenerator(object):
                 (list) function: A completed list of function.
         """
         argument_list = list()
-
         # Array index is always one of
         # the lambda function argument
-        argument_list.append(arr_index)
+        for idx in arr_index:
+            if (
+                    idx not in ARITHMETIC_OPS
+                    and isinstance(idx, str)
+            ):
+                argument_list.append(idx)
+        #    argument_list.append(arr_index)
+        # DEBUG
+        print ("argument_list: ", argument_list)
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
             # If an input is a simple variable
@@ -3125,23 +3163,47 @@ class GrFNGenerator(object):
         args_name = args.__repr__().split()[0][2:]
         # DEBUG
         print ("    args_name: ", args_name)
+        # Case 1: Single dimensional array
         if args_name == "ast.Subscript":
-            return args.value.id
+            return [args.value.id]
+        # Case 1.1: Single dimensional array with arithmetic
+        # operation as setter index
         elif args_name == "ast.BinOp":
             left_ast = args.left.__repr__().split()[0][2:]
             right_ast = args.right.__repr__().split()[0][2:]
+            # Get the operator's left side value
             if left_ast == "ast.Subscript":
                 left = args.left.value.id
             elif left_ast == "ast.Num":
                 left = args.left.n
-
+            # Get the arithmetic operator
             op = ARITHMETIC_OPS[args.op.__repr__().split()[0][6:]]
-
+            # Get the operator's right side value
             if right_ast == "ast.Subscript":
                 right = args.right.value.id
             elif right_ast == "ast.Num":
                 right = args.right.n
-        return f"{left} {op} {right}"
+            return [left, op, right]
+        # Case 2: Multi-dimensional array
+        elif args_name == "ast.Tuple":
+            dimensions = args.elts
+            dimension_list = []
+            # DEBUG
+            print ("dimensions: ", dimensions)
+            for dimension in dimensions:
+                ast_name = dimension.__repr__().split()[0][2:]
+                if ast_name == "ast.Subscript":
+                    dimension_list.append(dimension.value.id)
+                else:
+                    assert (
+                        ast_name == "ast.Num"
+                    ), f"Unable to handle {ast_name} for multi-dimensional array"
+            # DEBUG
+            print ("dimension_list: ", dimension_list)
+            return dimension_list
+        else:
+            assert False, f"Unable to handle {args_name}"
+
 
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
