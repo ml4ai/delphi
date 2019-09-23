@@ -55,6 +55,15 @@ ANNOTATE_MAP = {
     "Array": "array",
 }
 
+# Arithmetic operator dictionary
+# TODO: Complete the list
+ARITHMETIC_OPS = {
+    "Add": "+",
+    "Sub": "-",
+    "Div": "/",
+    "Mult": "*",
+}
+
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
 # TODO Take this inside class
 UNNECESSARY_TYPES = (
@@ -1734,7 +1743,11 @@ class GrFNGenerator(object):
                     state.next_definitions,
                     state.last_definition_default
                 )
-                arr_index = call["inputs"][0][0]["var"]["variable"]
+                # DEBUG
+                print ("ast_dump: ", ast.dump(node))
+                arr_index = self._generate_array_index(node)
+
+                # arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
                 # variable in GrFN.
@@ -1808,7 +1821,7 @@ class GrFNGenerator(object):
                     # gets assigned to an array. For example, arr(i) =
                     # __expression__ or arr(i) = arr2(i).
                     elif "call" in arg[0]:
-                        function = self.generate_array_setter(
+                        function = self._generate_array_setter(
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
@@ -1829,22 +1842,21 @@ class GrFNGenerator(object):
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
-                    if "call" in arg[0]:
-                        if function_name in self.arrays:
-                            # If array type is <float> the argument holder
-                            # has a different structure that it does not hold
-                            # function info. like when an array is 'int' type
-                            # [{'call': {'function': '_type_', 'inputs': [...]]
-                            # which causes an error. Thus, the code below fixes
-                            # by correctly structuring it.
-                            array_type = self.arrays[function_name]['elem_type']
-                            fixed_arg = [{'call': {
-                                'function': array_type,
-                                'inputs': [arg]}}]
-                            function = self.generate_array_setter(
-                                node, function, fixed_arg,
-                                function_name, container_id_name,
-                                arr_index, state)
+                    if function_name in self.arrays:
+                        # If array type is <float> the argument holder
+                        # has a different structure that it does not hold
+                        # function info. like when an array is 'int' type
+                        # [{'call': {'function': '_type_', 'inputs': [...]]
+                        # which causes an error. Thus, the code below fixes
+                        # by correctly structuring it.
+                        array_type = self.arrays[function_name]['elem_type']
+                        fixed_arg = [{'call': {
+                            'function': array_type,
+                            'inputs': [arg]}}]
+                        function = self._generate_array_setter(
+                            node, function, fixed_arg,
+                            function_name, container_id_name,
+                            arr_index, state)
                     else:
                         raise For2PyError(
                             "Only 1 input per argument supported right now."
@@ -2242,7 +2254,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
-
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -3028,7 +3039,7 @@ class GrFNGenerator(object):
                 assert False, f"low_bound type: {type(low_bound)} is " \
                               f"currently not handled."
 
-    def generate_array_setter(self, node, function, arg, name,
+    def _generate_array_setter(self, node, function, arg, name,
                               container_id_name, arr_index, state
                               ):
         """
@@ -3105,6 +3116,32 @@ class GrFNGenerator(object):
         state.lambda_strings.append(lambda_string)
 
         return function
+
+    def _generate_array_index (self, node):
+        args = node.value.args[0]
+        # DEBUG
+        print ("    args: ", args)
+        print ("    ast_dump: ", ast.dump(args))
+        args_name = args.__repr__().split()[0][2:]
+        # DEBUG
+        print ("    args_name: ", args_name)
+        if args_name == "ast.Subscript":
+            return args.value.id
+        elif args_name == "ast.BinOp":
+            left_ast = args.left.__repr__().split()[0][2:]
+            right_ast = args.right.__repr__().split()[0][2:]
+            if left_ast == "ast.Subscript":
+                left = args.left.value.id
+            elif left_ast == "ast.Num":
+                left = args.left.n
+
+            op = ARITHMETIC_OPS[args.op.__repr__().split()[0][6:]]
+
+            if right_ast == "ast.Subscript":
+                right = args.right.value.id
+            elif right_ast == "ast.Num":
+                right = args.right.n
+        return f"{left} {op} {right}"
 
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
@@ -3574,4 +3611,4 @@ if __name__ == "__main__":
     print_ast = arguments.print_ast
 
     process_files(python_file_list, grfn_suffix, lambda_suffix, fortran_file,
-                  print_ast)
+                  argsprint_ast)
