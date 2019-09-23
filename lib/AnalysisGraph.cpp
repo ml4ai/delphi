@@ -30,7 +30,7 @@ auto AnalysisGraph::vertices() {
   return make_iterator_range(boost::vertices(this->graph));
 }
 
-NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
+auto AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
@@ -184,8 +184,7 @@ void AnalysisGraph::allocate_A_beta_factors() {
 void AnalysisGraph::get_subgraph_rooted_at(
     int vert,
     unordered_set<int>& vertices_to_keep,
-    int cutoff,
-    NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int)) {
+    int cutoff) {
 
   // Mark the current vertex visited
   (*this)[vert].visited = true;
@@ -197,7 +196,7 @@ void AnalysisGraph::get_subgraph_rooted_at(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(this->successors(vert), [&](int v) {
       if (!(*this)[v].visited) {
-        this->get_subgraph_rooted_at(v, vertices_to_keep, cutoff, neighbors);
+        this->get_subgraph_rooted_at(v, vertices_to_keep, cutoff);
       }
     });
   }
@@ -483,8 +482,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
   else {
     // All paths of length less than or equal to depth beginning at vert_id
-    this->get_subgraph_rooted_at(
-        vert_id, vertices_to_keep, depth, &AnalysisGraph::successors);
+    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth);
   }
 
   if (vertices_to_keep.size() == 0) {
