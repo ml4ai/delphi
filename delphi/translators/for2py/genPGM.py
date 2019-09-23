@@ -1754,17 +1754,20 @@ class GrFNGenerator(object):
                 )
                 arr_index = self._generate_array_index(node)
                 str_arr_index = ""
+                str_arr_for_varname = ""
                 for idx in arr_index:
                     if function_name not in self.md_array:
                         str_arr_index += str(idx)
+                        str_arr_for_varname += str(idx)
                     else:
                         str_arr_index += f"[{idx}]"
+                        str_arr_for_varname += f"{idx}"
                 # arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
                 # variable in GrFN.
                 variable_spec = self.generate_variable_definition(
-                    function_name, str_arr_index, state)
+                    function_name, str_arr_for_varname, state)
                 grfn["variables"].append(variable_spec)
                 if function_name not in self.md_array:
                     state.array_assign_name = f"{function_name}[{str_arr_index}]"
@@ -2900,7 +2903,9 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-
+        # DEBUG
+        print ("arr_index: ", arr_index)
+        print ("variable_name: ", variable_name)
         # TODO Change the domain constraint. How do you figure the domain
         #  constraint out?
         domain_constraint = "(and (> v -infty) (< v infty)))"
@@ -2941,8 +2946,9 @@ class GrFNGenerator(object):
         variable_match = re.match(variable_spec_regex, variable)
         if variable_match:
             namespace_scope = variable_match.group("namescope")
-            variable_name = f"{variable_match.group('variable')}_"
+            variable_name = variable_match.group("variable")
             if arr_index:
+                variable_name += "_"
                 for index in arr_index:
                     variable_name = variable_name + f"{index}"
             variable_index = variable_match.group("index")
