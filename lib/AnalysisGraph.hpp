@@ -54,7 +54,7 @@ class AnalysisGraph {
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices();
 
-  NEIGHBOR_ITERATOR successors(int i);
+  auto successors(int i);
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
@@ -167,8 +167,7 @@ class AnalysisGraph {
   void
   get_subgraph_rooted_at(int vert,
                          std::unordered_set<int>& vertices_to_keep,
-                         int cutoff,
-                         NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int));
+                         int cutoff);
 
   void get_subgraph_sinked_at(int vert,
                               std::unordered_set<int>& vertices_to_keep,
