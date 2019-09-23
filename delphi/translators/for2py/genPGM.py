@@ -3128,6 +3128,15 @@ class GrFNGenerator(object):
         return function
 
     def _generate_array_index (self, node):
+        """This function is for generating array index grfn
+        handling both single and multi-dimensional arrays.
+
+        Args:
+            node: The node referring to the array.
+           
+        Returns:
+            (list) index: Formed array index.
+        """
         args = node.value.args[0]
         args_name = args.__repr__().split()[0][2:]
         # Case 1: Single dimensional array
