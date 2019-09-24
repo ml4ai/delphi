@@ -3414,7 +3414,7 @@ def create_grfn_dict(
         lambda_file: str,
         asts: List,
         file_name: str,
-        mode_mapper_dict: dict,
+        mode_mapper_dict: list,
         original_file: str,
         save_file=False,
 ) -> Dict:
@@ -3431,7 +3431,7 @@ def create_grfn_dict(
 
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
-    generator.mode_mapper = mode_mapper_dict
+    generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
     grfn = generator.gen_grfn(asts, state, "")[0]
 
@@ -3580,7 +3580,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)[0]
+            module_mapper = get_index(xml_file)
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
@@ -3592,7 +3592,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
-            file_handle.write(json.dumps(grfn_dict, indent=2))
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
