@@ -17,23 +17,25 @@ DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(
     original_fortran_file
-) -> Tuple[str, str, str, str, str, Dict]:
+) -> Tuple[str, str, str, str, list, str]:
     return f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
     pySrc, lambdas_filename, json_filename, python_filename, \
-    original_fortran, mode_mapper_dict = get_python_source(original_fortran_file)
+        mode_mapper_dict, original_fortran = get_python_source(
+            original_fortran_file)
     _dict = f2grfn.generate_grfn(
         pySrc[0][0],
         python_filename,
         lambdas_filename,
-        json_filename,
         mode_mapper_dict,
+        str(original_fortran_file),
         True
     )
 
-    return _dict
+    return json.dumps(_dict, sort_keys=True, indent=2)
+
 
 
 def postprocess_test_data_grfn_dict(_dict):
@@ -135,6 +137,10 @@ def SIR_python_IR_test():
 def array_to_func_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/array_func_loop/array-to-func_06.f"))[0][0]
+
+@pytest.fixture
+def multidimensional_array_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))
 
 #########################################################
 #                                                       #
@@ -244,3 +250,9 @@ def test_array_to_func_pythonIR_generation(array_to_func_python_IR_test):
     with open(f"{DATA_DIR}/array_func_loop/array-to-func_06.py", "r") as f:
         python_src = f.read()
     assert array_to_func_python_IR_test[0] == python_src
+
+
+def test_multidimensional_array_grfn_generation(multidimensional_array_test):
+    with open(f"{DATA_DIR}/arrays/arrays-basic-06_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(multidimensional_array_test) == grfn_dict

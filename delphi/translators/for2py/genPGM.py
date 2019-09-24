@@ -1811,6 +1811,8 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
+            # DEBUG
+            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1876,9 +1878,9 @@ class GrFNGenerator(object):
                             function_name, container_id_name,
                             arr_index, state)
                     else:
-                        raise For2PyError(
-                            "Only 1 input per argument supported right now."
-                        )
+                        assert (
+                             "call" in arg[0]
+                        ), "Only 1 input per argument supported right now."
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
@@ -2218,6 +2220,8 @@ class GrFNGenerator(object):
                     "elem_type": array_type,
                     "mutable": True,
                 }
+                # DEBUG
+                print ("var_name: ", var_name)
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
@@ -2903,9 +2907,6 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-        # DEBUG
-        print ("arr_index: ", arr_index)
-        print ("variable_name: ", variable_name)
         # TODO Change the domain constraint. How do you figure the domain
         #  constraint out?
         domain_constraint = "(and (> v -infty) (< v infty)))"
@@ -3417,7 +3418,7 @@ def create_grfn_dict(
         lambda_file: str,
         asts: List,
         file_name: str,
-        mode_mapper_dict: dict,
+        mode_mapper_dict: list,
         original_file: str,
         save_file=False,
 ) -> Dict:
@@ -3434,7 +3435,7 @@ def create_grfn_dict(
 
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
-    generator.mode_mapper = mode_mapper_dict
+    generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
     grfn = generator.gen_grfn(asts, state, "")[0]
 
@@ -3583,7 +3584,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)[0]
+            module_mapper = get_index(xml_file)
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
@@ -3595,7 +3596,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
-            file_handle.write(json.dumps(grfn_dict, indent=2))
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
@@ -3664,4 +3665,4 @@ if __name__ == "__main__":
     print_ast = arguments.print_ast
 
     process_files(python_file_list, grfn_suffix, lambda_suffix, fortran_file,
-                  argsprint_ast)
+                  print_ast)
