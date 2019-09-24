@@ -7,8 +7,6 @@ import multiprocessing as mp
 from functools import partial
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as S
 from ruamel.yaml import YAML
-
-# from delphi.paths import data_dir
 from delphi.utils.shell import cd
 from delphi.utils.web import download_file
 from pathlib import Path
@@ -18,7 +16,6 @@ import contextlib
 
 
 data_dir = Path("data")
-
 
 def clean_FAOSTAT_data():
 
@@ -33,9 +30,10 @@ def clean_FAOSTAT_data():
             usecols=lambda colName: all(
                 map(
                     lambda x: x not in colName,
-                    ["Code", "Flag", "Note", "ElementGroup"],
+                    ["Flag", "Note", "ElementGroup"],
                 )
             ),
+        dtype = {"Month": int, "State": str, "Country" : str, "Unit" : str, "Year":str, "Value": str}
         )
 
         df.rename(columns={"Country": "Area", "Months": "Month"}, inplace=True)
@@ -62,90 +60,44 @@ def clean_FAOSTAT_data():
             df = df.rename(columns={"Recipient Country": "Area"})
             del df["Donor Country"]
             df["Element"] = "Food aid shipments"
-        if set(df.columns.values) == set(
-            ["Area", "Item", "Element", "Year", "Unit", "Value"]
-        ):
-            df = df.query("Area == 'South Sudan' or Area == 'Ethiopia'")
-            df["Country"] = df["Area"]
-            del df["Area"]
+        if set(df.columns.values) == {'Area', 'Area Code', 'Item','Item Code',  'Element', 'Element Code',
+                'Year', 'Year Code', 'Value', 'Area Code', 'Unit', 'Value'}:
+            df.Value = pd.to_numeric(df.Value, errors='coerce')
+            df = df[df.Value.notnull()]
+            df.rename(columns={"Area": "Country"}, inplace=True)
+            df = df[["Country", "Item", "Element", "Year", "Unit", "Value"]]
+            df = df[~df.Year.str.contains('-')]
+            df["Variable"] = df["Element"] + ", " + df["Item"]
+            del df["Element"]
+            del df["Item"]
             dfs.append(df)
 
     df = pd.concat(dfs)
 
-    df["Variable"] = df["Element"] + ", " + df["Item"]
-    del df["Element"]
-    del df["Item"]
     df.to_csv(
-        str(data_dir / "south_sudan_ethiopia_data_fao.tsv"), index=False, sep="\t"
+        str(data_dir / "fao_data.tsv"), index=False, sep="\t"
     )
-
-
-def process_variable_name(k, e):
-    if "," in e:
-        spstrs = e.split(",")
-        if len(e.split()) == 2:
-            if spstrs[1].endswith("s"):
-                spstrs[1] = spstrs[1].rstrip("s")
-            return S((" ".join([k, spstrs[1].lstrip(), spstrs[0]]).lower()))
-        else:
-            return S(" ".join([k, e]))
-    else:
-        return S(" ".join([k, e]))
-
-
-def construct_FAO_ontology():
-    """ Construct FAO variable ontology for use with Eidos. """
-    df = pd.read_csv("south_sudan_ethiopia_data_fao.csv")
-    gb = df.groupby("Element")
-
-    d = [
-        {
-            "events": [
-                {
-                    k: [
-                        {e: [process_variable_name(k, e)]}
-                        for e in list(set(gb.get_group(k)["Item"].tolist()))
-                    ]
-                }
-                for k in gb.groups.keys()
-            ]
-        }
-    ]
-
-    yaml = YAML()
-    yaml.default_flow_style = False
-
-    with open("fao_variable_ontology.yml", "w") as f:
-        yaml.dump(d, f)
 
 
 def clean_WDI_data():
     print("Cleaning WDI data")
     df = pd.read_csv(
         "data/raw/WDI/WDIData.csv",
-        usecols=[
-            "Country Name",
-            "Indicator Name",
-            "2012",
-            "2013",
-            "2014",
-            "2015",
-            "2016",
-            "2017",
-        ],
     )
+    del df["Unnamed: 63"]
     df.rename(
         columns={"Indicator Name": "Variable", "Country Name": "Country"},
         inplace=True,
     )
-    df = df.query("Country == 'South Sudan' or Country == 'Ethiopia'")
-    df.to_csv("data/south_sudan_ethiopia_data_wdi.tsv", index=False, sep="\t")
+    df.to_csv("data/wdi_data.tsv", index=False, sep="\t")
 
 
 def combine_data():
-    fao_df = pd.read_csv("data/south_sudan_ethiopia_data_fao.tsv", sep="\t")
+    dtype_dict = {"Month": int, "Variable": str, "Country" : str, "Unit" : str, "Year":int, "Value": float}
+    fao_df = pd.read_csv("data/fao_data.tsv", sep="\t", dtype=dtype_dict)
     fao_df["Source"] = "FAO"
-    wdi_df = pd.read_csv("data/south_sudan_ethiopia_data_wdi.tsv", sep="\t")
+
+    wdi_df = pd.read_csv("data/wdi_data.tsv", sep="\t", dtype=dtype_dict)
     wdi_df["Source"] = "WDI"
 
     wdi_df["Unit"] = (
@@ -153,7 +105,7 @@ def combine_data():
     )
     wdi_df["Variable"] = wdi_df["Variable"].str.partition("(")[0]
     wdi_df = wdi_df.set_index(["Variable", "Unit", "Source", "Country"])
-    fao_df = fao_df[fao_df.Value != 0.0]
+    fao_df.dropna(subset=["Value"], inplace=True)
     fao_df = (
         fao_df.pivot_table(
             values="Value",
@@ -165,7 +117,14 @@ def combine_data():
     )
 
     ind_cols = ["Variable", "Unit", "Source", "Country"]
-    fao_wdi_df = pd.concat([fao_df, wdi_df], sort=True)
+    fao_wdi_df = pd.concat([fao_df, wdi_df])
+
+
+    fao_wdi_df = (
+        fao_wdi_df.reset_index()
+        .melt(id_vars=ind_cols, var_name="Year", value_name="Value")
+        .dropna(subset=["Value"])
+    )
 
     # If a column name is something like 2010-2012, we make copies of its data
     # for three years - 2010, 2011, 2012
@@ -173,17 +132,13 @@ def combine_data():
     for c in fao_wdi_df.columns:
         if isinstance(c,str):
             if "-" in c:
+                print(c)
                 years = c.split("-")
                 for y in range(int(years[0]), int(years[-1]) + 1):
                     y = str(y)
                     fao_wdi_df[y] = fao_wdi_df[y].fillna(fao_wdi_df[c])
                 del fao_wdi_df[c]
 
-    fao_wdi_df = (
-        fao_wdi_df.reset_index()
-        .melt(id_vars=ind_cols, var_name="Year", value_name="Value")
-        .dropna(subset=["Value"])
-    )
     fao_wdi_df["State"] = None
     conflict_data_df = pd.read_csv(
         "data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv",
@@ -251,7 +206,7 @@ def combine_data():
     ).dropna(subset=["Value"])
     combined_df.Variable = combined_df.Variable.str.strip()
     combined_df.to_csv(
-        Path(data_dir) / "south_sudan_ethiopia_data.tsv", sep="\t", index=False
+        Path(data_dir) / "indicator_data.tsv", sep="\t", index=False
     )
     with open("data/indicator_flat_list.txt", "w") as f:
         f.write("\n".join(set(combined_df.Variable)))
