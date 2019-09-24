@@ -118,8 +118,14 @@ void AnalysisGraph::parameterize(string country,
       try {
         if (units.find(name) != units.end()) {
           indicator.set_unit(units[name]);
-          vector<double> data = get_data_value(
-              name, country, state, county, year, month, units[name],this->data_heuristic);
+          vector<double> data = get_data_value(name,
+                                               country,
+                                               state,
+                                               county,
+                                               year,
+                                               month,
+                                               units[name],
+                                               this->data_heuristic);
           if (data.empty()) {
             mean = 0;
           }
@@ -130,8 +136,14 @@ void AnalysisGraph::parameterize(string country,
         }
         else {
           indicator.set_default_unit();
-          vector<double> data = get_data_value(
-              name, country, state, county, year, month, units[name],this->data_heuristic);
+          vector<double> data = get_data_value(name,
+                                               country,
+                                               state,
+                                               county,
+                                               year,
+                                               month,
+                                               units[name],
+                                               this->data_heuristic);
           if (data.empty()) {
             mean = 0;
           }
@@ -181,10 +193,9 @@ void AnalysisGraph::allocate_A_beta_factors() {
 // successors() and predecessors() I could not complete it.
 // If we can figure the return type, we can combine these two
 // methods into one
-void AnalysisGraph::get_subgraph_rooted_at(
-    int vert,
-    unordered_set<int>& vertices_to_keep,
-    int cutoff) {
+void AnalysisGraph::get_subgraph_rooted_at(int vert,
+                                           unordered_set<int>& vertices_to_keep,
+                                           int cutoff) {
 
   // Mark the current vertex visited
   (*this)[vert].visited = true;
@@ -396,52 +407,54 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   unordered_map<string, int> name_to_vertex = {};
 
   for (auto stmt : json_data) {
-    auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
-    auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
-    bool grounding_check = (subj_ground >= grounding_score_cutoff) and
-                           (obj_ground >= grounding_score_cutoff);
-    if (stmt["type"] == "Influence" and grounding_check) {
-      auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
-      auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
-      if (!subj.is_null() and !obj.is_null()) {
-        if (stmt["belief"] < belief_score_cutoff) {
-          continue;
-        }
-        string subj_str = subj.get<string>();
-        string obj_str = obj.get<string>();
-
-        if (subj_str.compare(obj_str) != 0) { // Guard against self loops
-          // Add the nodes to the graph if they are not in it already
-          for (string name : {subj_str, obj_str}) {
-            G.add_node(name);
+    if (stmt["type"] == "Influence") {
+      auto subj_ground = stmt["subj"]["concept"]["db_refs"]["WM"][0][1];
+      auto obj_ground = stmt["obj"]["concept"]["db_refs"]["WM"][0][1];
+      bool grounding_check = (subj_ground >= grounding_score_cutoff) and
+                             (obj_ground >= grounding_score_cutoff);
+      if (grounding_check) {
+        auto subj = stmt["subj"]["concept"]["db_refs"]["WM"][0][0];
+        auto obj = stmt["obj"]["concept"]["db_refs"]["WM"][0][0];
+        if (!subj.is_null() and !obj.is_null()) {
+          if (stmt["belief"] < belief_score_cutoff) {
+            continue;
           }
+          string subj_str = subj.get<string>();
+          string obj_str = obj.get<string>();
 
-          // Add the edge to the graph if it is not in it already
-          for (auto evidence : stmt["evidence"]) {
-            auto annotations = evidence["annotations"];
-            auto subj_adjectives = annotations["subj_adjectives"];
-            auto obj_adjectives = annotations["obj_adjectives"];
-            auto subj_adjective =
-                (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-                    ? subj_adjectives[0]
-                    : "None";
-            auto obj_adjective =
-                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
-            auto subj_polarity = annotations["subj_polarity"];
-            auto obj_polarity = annotations["obj_polarity"];
+          if (subj_str.compare(obj_str) != 0) { // Guard against self loops
+            // Add the nodes to the graph if they are not in it already
+            for (string name : {subj_str, obj_str}) {
+              G.add_node(name);
+            }
 
-            if (subj_polarity.is_null()) {
-              subj_polarity = 1;
+            // Add the edge to the graph if it is not in it already
+            for (auto evidence : stmt["evidence"]) {
+              auto annotations = evidence["annotations"];
+              auto subj_adjectives = annotations["subj_adjectives"];
+              auto obj_adjectives = annotations["obj_adjectives"];
+              auto subj_adjective =
+                  (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                      ? subj_adjectives[0]
+                      : "None";
+              auto obj_adjective =
+                  (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+              auto subj_polarity = annotations["subj_polarity"];
+              auto obj_polarity = annotations["obj_polarity"];
+
+              if (subj_polarity.is_null()) {
+                subj_polarity = 1;
+              }
+              if (obj_polarity.is_null()) {
+                obj_polarity = 1;
+              }
+              string subj_adj_str = subj_adjective.get<string>();
+              string obj_adj_str = subj_adjective.get<string>();
+              auto causal_fragment =
+                  CausalFragment({subj_adj_str, subj_polarity, subj_str},
+                                 {obj_adj_str, obj_polarity, obj_str});
+              G.add_edge(causal_fragment);
             }
-            if (obj_polarity.is_null()) {
-              obj_polarity = 1;
-            }
-            string subj_adj_str = subj_adjective.get<string>();
-            string obj_adj_str = subj_adjective.get<string>();
-            auto causal_fragment =
-                CausalFragment({subj_adj_str, subj_polarity, subj_str},
-                               {obj_adj_str, obj_polarity, obj_str});
-            G.add_edge(causal_fragment);
           }
         }
       }
@@ -969,10 +982,9 @@ void AnalysisGraph::set_log_likelihood() {
           const double& value = observed_state[v][i][j];
           // Even indices of latent_state keeps track of the state of each
           // vertex
-          double log_likelihood_component =
-              this->log_normpdf(value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+          double log_likelihood_component = this->log_normpdf(
+              value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
           this->log_likelihood += log_likelihood_component;
- 
         }
       }
     }
@@ -1295,8 +1307,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value =
-            utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value = utils::mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }
@@ -1311,8 +1322,7 @@ void AnalysisGraph::set_random_initial_latent_state() {
   this->set_default_initial_state();
 
   for (int v = 0; v < num_verts; v++) {
-    this->s0(2 * v + 1) =
-        0.1 * this->uni_dist(this->rand_num_generator);
+    this->s0(2 * v + 1) = 0.1 * this->uni_dist(this->rand_num_generator);
   }
 }
 
@@ -1354,7 +1364,10 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   }
 }
 
-void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps) {
+void AnalysisGraph::sample_predicted_latent_state_sequences(
+    int prediction_timesteps,
+    int initial_prediction_step,
+    int total_timesteps) {
   this->n_timesteps = prediction_timesteps;
 
   int num_verts = boost::num_vertices(this->graph);
@@ -1369,7 +1382,8 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_times
   for (int samp = 0; samp < this->res; samp++) {
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
-      const Eigen::MatrixXd& A_t = pred_step*this->transition_matrix_collection[samp]; 
+      const Eigen::MatrixXd& A_t =
+          pred_step * this->transition_matrix_collection[samp];
       this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
       pred_step++;
     }
@@ -1380,9 +1394,11 @@ void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
-  this->predicted_observed_state_sequences = vector<PredictedObservedStateSequence>(
-      this->res,
-      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
+  this->predicted_observed_state_sequences =
+      vector<PredictedObservedStateSequence>(
+          this->res,
+          PredictedObservedStateSequence(this->n_timesteps,
+                                         vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
     vector<Eigen::VectorXd>& sample =
@@ -1430,12 +1446,14 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *  |___________|________________________________|
    *      diff              pred_timesteps
    */
-  int total_timesteps = this->calculate_num_timesteps(
-      this->training_range.first.first, this->training_range.first.second, end_year, end_month);
+  int total_timesteps =
+      this->calculate_num_timesteps(this->training_range.first.first,
+                                    this->training_range.first.second,
+                                    end_year,
+                                    end_month);
 
   this->pred_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
-  
 
   int pred_init_timestep = total_timesteps - pred_timesteps;
 
@@ -1457,7 +1475,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     }
   }
 
-  this->sample_predicted_latent_state_sequences(this->pred_timesteps, pred_init_timestep, total_timesteps);
+  this->sample_predicted_latent_state_sequences(
+      this->pred_timesteps, pred_init_timestep, total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(
@@ -1545,8 +1564,8 @@ void AnalysisGraph::
     generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
   // Allocate memory for observed_state_sequences
   this->test_observed_state_sequence.clear();
-  this->test_observed_state_sequence =
-      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>());
+  this->test_observed_state_sequence = PredictedObservedStateSequence(
+      this->n_timesteps, vector<vector<double>>());
 
   transform(this->synthetic_latent_state_sequence.begin(),
             this->synthetic_latent_state_sequence.end(),
@@ -1684,9 +1703,8 @@ void AnalysisGraph::sample_from_proposal() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = ts*this->A_original;
+  const Eigen::MatrixXd& A_t = ts * this->A_original;
   this->current_latent_state = A_t.exp() * this->s0;
-
 }
 
 double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
