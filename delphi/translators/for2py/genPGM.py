@@ -2903,9 +2903,6 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-        # DEBUG
-        print ("arr_index: ", arr_index)
-        print ("variable_name: ", variable_name)
         # TODO Change the domain constraint. How do you figure the domain
         #  constraint out?
         domain_constraint = "(and (> v -infty) (< v infty)))"
@@ -3664,4 +3661,4 @@ if __name__ == "__main__":
     print_ast = arguments.print_ast
 
     process_files(python_file_list, grfn_suffix, lambda_suffix, fortran_file,
-                  argsprint_ast)
+                  print_ast)
