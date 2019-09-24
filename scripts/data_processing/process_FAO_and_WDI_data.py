@@ -65,6 +65,7 @@ def clean_FAOSTAT_data():
             df.Value = pd.to_numeric(df.Value, errors='coerce')
             df = df[df.Value.notnull()]
             df.rename(columns={"Area": "Country"}, inplace=True)
+            df = df.query("Country == 'South Sudan' or Country == 'Ethiopia'")
             df = df[["Country", "Item", "Element", "Year", "Unit", "Value"]]
             df = df[~df.Year.str.contains('-')]
             df["Variable"] = df["Element"] + ", " + df["Item"]
