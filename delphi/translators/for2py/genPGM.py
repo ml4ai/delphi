@@ -1811,6 +1811,8 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
+            # DEBUG
+            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1876,9 +1878,9 @@ class GrFNGenerator(object):
                             function_name, container_id_name,
                             arr_index, state)
                     else:
-                        raise For2PyError(
-                            "Only 1 input per argument supported right now."
-                        )
+                        assert (
+                             "call" in arg[0]
+                        ), "Only 1 input per argument supported right now."
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
@@ -2218,6 +2220,8 @@ class GrFNGenerator(object):
                     "elem_type": array_type,
                     "mutable": True,
                 }
+                # DEBUG
+                print ("var_name: ", var_name)
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
