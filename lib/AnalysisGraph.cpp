@@ -399,7 +399,8 @@ void AnalysisGraph::remove_node(int node_id) {
 
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,
-                                            double grounding_score_cutoff) {
+                                            double grounding_score_cutoff,
+                                            string ontology) {
   auto json_data = utils::load_json(filename);
 
   AnalysisGraph G;
@@ -408,8 +409,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 
   for (auto stmt : json_data) {
     if (stmt["type"] == "Influence") {
-      auto subj_ground = stmt["subj"]["concept"]["db_refs"]["WM"][0][1];
-      auto obj_ground = stmt["obj"]["concept"]["db_refs"]["WM"][0][1];
+      auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
+      auto obj_ground = stmt["obj"]["concept"]["db_refs"][ontology][0][1];
       bool grounding_check = (subj_ground >= grounding_score_cutoff) and
                              (obj_ground >= grounding_score_cutoff);
       if (grounding_check) {

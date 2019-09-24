@@ -237,7 +237,8 @@ class AnalysisGraph {
    */
   static AnalysisGraph from_json_file(std::string filename,
                                       double belief_score_cutoff = 0.9,
-                                      double grounding_score_cutoff = 0.0);
+                                      double grounding_score_cutoff = 0.0,
+                                      std::string ontology = "WM");
 
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
