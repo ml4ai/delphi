@@ -14,7 +14,8 @@ python:
 
 before_install:
   - docker pull pauldhein/project-containers:delphi
-  - docker run -itd --rm --name build-con pauldhein/project-containers:delphi
+  - CI_ENV=`bash <(curl -s https://codecov.io/env)`
+  - docker run $CI_ENV -itd --rm --name build-con pauldhein/project-containers:delphi
   - docker exec build-con git fetch
   - docker exec build-con git checkout $TRAVIS_COMMIT
   - docker exec build-con rm -rf /repo/delphi/build
@@ -22,8 +23,8 @@ before_install:
 
 script:
   - docker exec build-con make test
-  - docker exec -w /repo/delphi/docs build-con make apidocs
-  - docker exec -w /repo/delphi/docs build-con make html
+  - docker exec --workdir /repo/delphi/docs build-con make apidocs
+  - docker exec --workdir /repo/delphi/docs build-con make html
   - docker cp build-con:/repo/delphi/docs .
   - docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN build-con bash -c 'bash <(curl -s https://codecov.io/bash)'
 
