@@ -15,8 +15,10 @@ python:
 before_install:
   - docker pull pauldhein/project-containers:delphi
   - docker run -itd --rm --name build-con pauldhein/project-containers:delphi
-  - docker exec build-con bash -c 'git fetch; git checkout $TRAVIS_COMMIT'
-  - docker exec build-con bash -c 'rm -rf /repo/delphi/build'
+  - docker exec build-con git fetch
+  - docker exec build-con git checkout $TRAVIS_COMMIT
+  # - docker exec build-com git pull
+  - docker exec build-con rm -rf /repo/delphi/build
   - docker exec build-con pip install -e .[test,docs]
 
 script:
