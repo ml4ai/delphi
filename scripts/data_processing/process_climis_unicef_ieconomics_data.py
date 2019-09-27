@@ -498,4 +498,4 @@ if __name__ == "__main__":
     data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
-    df.to_csv("data/south_sudan_data_climis_unicef_ieconomics.tsv", index=False, sep="\t")
+    df.to_csv(sys.argv[1], index=False, sep="\t")

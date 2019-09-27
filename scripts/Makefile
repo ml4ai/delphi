@@ -23,7 +23,6 @@ all: report.pdf
 
 RAW := data/raw
 RAW_ZIP := $(RAW).zip
-DB_EXIST := data/delphi.db
 
 
 $(RAW_ZIP):
@@ -61,16 +60,17 @@ $(RAW)/adjectiveData.tsv: $(RAW)
 $(DSSAT_AGGREGATED_DATA): $(RAW)
 
 
-data/fao_data.tsv: $(RAW)/FAOSTAT
-	python data_processing/process_FAO_and_WDI_data.py --fao
+data/fao_data.tsv: data_processing/process_FAO_data.py $(RAW)/FAOSTAT
+	python $< $@
 
-data/wdi_data.tsv: $(RAW)/WDI/WDIData.csv
+data/wdi_data.tsv: data_processing/process_WDI_data.py $(RAW)/WDI/WDIData.csv
+	python $^ $@
 
-data/indicator_data_fewsnet.tsv: $(RAW)/FEWS
-	python data_processing/process_FEWSNET_data.py	
+data/indicator_data_fewsnet.tsv: data_processing/process_FEWSNET_data.py $(RAW)/FEWS 
+	python $< $@
 
 data/indicator_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
-	python $<
+	python $< $@
 
 dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
@@ -78,7 +78,7 @@ data/indicator_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DAT
 	python $^ $@
 	
 data/indicator_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
-	python $<
+	python $< $@
 
 data/south_sudan_migration_data_initial: data_processing/process_migration_data_initial.py
 	python $<
@@ -91,19 +91,16 @@ data/south_sudan_migration_data_secondary: data_processing/process_migration_dat
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
 
-data/indicator_data.tsv: data_processing/process_FAO_and_WDI_data.py\
-						   data/fao_data.tsv\
-						   data/wdi_data.tsv\
-						   $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
-						   data/indicator_data_fewsnet.tsv\
-						   data/indicator_data_climis_unicef_ieconomics.tsv\
-						   data/indicator_data_dssat.tsv\
-						   data/indicator_data_UNHCR.tsv\
-						   data/south_sudan_migration_data_secondary
-	python $< --combine
-
-data/indicator_flat_list.txt: data/indicator_data.tsv
-
+data/indicator_data.tsv: data_processing/combine_data.py\
+						 data/fao_data.tsv\
+						 data/wdi_data.tsv\
+						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
+						 data/indicator_data_fewsnet.tsv\
+						 data/indicator_data_climis_unicef_ieconomics.tsv\
+						 data/indicator_data_dssat.tsv\
+						 data/indicator_data_UNHCR.tsv\
+						 data/south_sudan_migration_data_secondary
+	python $< $@
 
 # =============================================================================
 # Creation of concept to indicator mapping
