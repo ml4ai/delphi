@@ -7,20 +7,29 @@
 int main(int argc, char* argv[]) {
   using namespace std;
   using namespace boost::program_options;
+  using namespace spdlog;
 
   options_description desc("Allowed options");
   positional_options_description pd;
 
   // Path to JSON-serialized INDRA statements
   string stmts;
+  string cag_png_filename;
 
   desc.add_options()
     ("help,h", "Executable for creating Delphi models")
-    ("stmts", value<string>(&stmts), "Path to JSON-serialized INDRA statements")
-    ("belief_score_cutoff", value<double>()->default_value(0.9),
+    ("stmts,s", value<string>(&stmts), "Path to JSON-serialized INDRA statements")
+    ("belief_score_cutoff,b", value<double>()->default_value(0.9),
      "INDRA belief score cutoff for statements to be included in the model.")
-    ("grounding_score_cutoff", value<double>()->default_value(0.7),
+    ("grounding_score_cutoff,g", value<double>()->default_value(0.7),
      "Grounding score cutoff for statements to be included in the model")
+    ("draw_graph,d", value<bool>()->default_value(false), "Draw causal analysis graph using Graphviz")
+    ("quantify,q", value<bool>()->default_value(false), "Quantify graph with probability distributions")
+    ("train_model,t", value<bool>()->default_value(false), "Train model")
+    ("map_concepts", value<bool>()->default_value(false), "Map concepts to indicators")
+    ("simplified_labels", value<bool>()->default_value(false),
+     "Use simplified node labels without showing the whole ontology path.")
+    ("cag_filename", value<string>(&cag_png_filename)->default_value("CAG.png"), "Filename for the output visualized CAG")
   ;
 
   // Setting positional arguments
@@ -39,15 +48,27 @@ int main(int argc, char* argv[]) {
 
   RNG *R = RNG::rng();
   R->set_seed(87);
-  spdlog::set_level(spdlog::level::debug);
+
+  set_level(spdlog::level::debug);
   auto G = AnalysisGraph::from_json_file(
       stmts,
       vm["belief_score_cutoff"].as<double>(), 
       vm["grounding_score_cutoff"].as<double>());
 
-  G.map_concepts_to_indicators();
-  G.construct_beta_pdfs();
-  G.to_png();
-  G.train_model(2015, 1, 2015, 12, 100, 900);
+  debug("Number of vertices: {}", G.num_vertices());
+  debug("Number of edges: {}", G.num_edges());
+
+  if (vm["map_concepts"].as<bool>()){
+    G.map_concepts_to_indicators();
+  }
+  if (vm["quantify"].as<bool>()){
+    G.construct_beta_pdfs();
+  }
+  if (vm["draw_graph"].as<bool>()){
+    G.to_png(vm["cag_filename"].as<string>(), vm["simplified_labels"].as<bool>());
+  }
+  if (vm["train_model"].as<bool>()){
+    G.train_model(2015, 1, 2015, 12, 100, 900);
+  }
   return EXIT_SUCCESS;
 }
