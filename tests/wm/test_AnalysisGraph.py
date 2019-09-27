@@ -32,18 +32,27 @@ def test_from_statements_file():
     os.remove(test_statements_file)
 
 
+@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
+        "Probably at some point we will want to have tests that are not so"
+        "dependent on the particular version of the DB and ontology")
 def test_get_subgraph_for_concept(G):
     concept_of_interest = food_security
     sg = G.get_subgraph_for_concept(concept_of_interest, reverse=True)
     assert set(sg.nodes()) == set([conflict, food_security])
 
 
+@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
+        "Probably at some point we will want to have tests that are not so"
+        "dependent on the particular version of the DB and ontology")
 def test_get_subgraph_for_concept_pair(G):
     concept_pair = (conflict, food_security)
     sg = G.get_subgraph_for_concept_pair(*concept_pair)
     assert set(sg.nodes()) == set(concept_pair)
 
 
+@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
+        "Probably at some point we will want to have tests that are not so"
+        "dependent on the particular version of the DB and ontology")
 def test_map_concepts_to_indicators(G):
     G.map_concepts_to_indicators()
     indicator = Indicator(
@@ -56,6 +65,9 @@ def test_map_concepts_to_indicators(G):
     assert indicator.name in G.nodes[food_security]["indicators"]
 
 
+@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
+        "Probably at some point we will want to have tests that are not so"
+        "dependent on the particular version of the DB and ontology")
 def test_parameterize(G_unit):
     # Assign correct units case
     units = {
