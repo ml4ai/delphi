@@ -89,7 +89,7 @@ def G():
     G.res = 200
     G.sample_from_prior()
     G.map_concepts_to_indicators()
-    G.parameterize(year=2014, month=12)
+    G.parameterize(year=2017, month=9)
     yield G
 
 
@@ -99,7 +99,7 @@ def G_eval():
     G.map_concepts_to_indicators()
     G.res = 200
     G.sample_from_prior()
-    G.parameterize(year=2013, month=9)
+    G.parameterize(year=2017, month=9)
     G.get_timeseries_values_for_indicators()
     yield G
 

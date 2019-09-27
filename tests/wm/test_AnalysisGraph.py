@@ -32,31 +32,22 @@ def test_from_statements_file():
     os.remove(test_statements_file)
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
-        "Probably at some point we will want to have tests that are not so"
-        "dependent on the particular version of the DB and ontology")
 def test_get_subgraph_for_concept(G):
     concept_of_interest = food_security
     sg = G.get_subgraph_for_concept(concept_of_interest, reverse=True)
     assert set(sg.nodes()) == set([conflict, food_security])
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
-        "Probably at some point we will want to have tests that are not so"
-        "dependent on the particular version of the DB and ontology")
 def test_get_subgraph_for_concept_pair(G):
     concept_pair = (conflict, food_security)
     sg = G.get_subgraph_for_concept_pair(*concept_pair)
     assert set(sg.nodes()) == set(concept_pair)
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
-        "Probably at some point we will want to have tests that are not so"
-        "dependent on the particular version of the DB and ontology")
 def test_map_concepts_to_indicators(G):
     G.map_concepts_to_indicators()
     indicator = Indicator(
-        name="Import Value, Infant food",
+        name="Food supply quantity (kg/capita/yr), Infant food",
         source="WB",
         mean=None,
         stdev=None,
@@ -65,9 +56,7 @@ def test_map_concepts_to_indicators(G):
     assert indicator.name in G.nodes[food_security]["indicators"]
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online."
-        "Probably at some point we will want to have tests that are not so"
-        "dependent on the particular version of the DB and ontology")
+@pytest.mark.skip("Too dependent on DB, ontology, and mappings")
 def test_parameterize(G_unit):
     # Assign correct units case
     units = {
@@ -89,7 +78,7 @@ def test_parameterize(G_unit):
         UserWarning,
         match="Selected units not found for Claims on other sectors of the domestic economy! Falling back to default units!",
     ):
-        G_unit.parameterize(year=2012, units=units)
+        G_unit.parameterize(year=2017, units=units)
     ec_unit = list(
         G_unit.nodes(data=True)["UN/events/human/economic_crisis"][
             "indicators"
@@ -98,7 +87,7 @@ def test_parameterize(G_unit):
     assert ec_unit == "% of GDP"
 
     # unit = None case
-    G_unit.parameterize(year=2012)
+    G_unit.parameterize(year=2017)
     ec_unit = list(
         G_unit.nodes(data=True)["UN/events/human/economic_crisis"][
             "indicators"

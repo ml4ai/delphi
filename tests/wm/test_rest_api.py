@@ -44,19 +44,16 @@ def test_listAllICMs(G, client):
     assert G.id in rv.json
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_getICMByUUID(G, client):
     rv = client.get(f"/icm/{G.id}")
     assert G.id == rv.json["id"]
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_getICMPrimitives(G, client):
     rv = client.get(f"/icm/{G.id}/primitive")
     assert len(rv.json) == 3
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_createExperiment(G, client):
     timestamp = "2018-11-01"
     post_data = {
@@ -89,7 +86,6 @@ def test_createExperiment(G, client):
     assert b"Forward projection sent successfully" in rv.data
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_getExperiment(G, client):
     experiment = ForwardProjection.query.first()
     url = "/".join(["icm", G.id, "experiment", experiment.id])
@@ -103,7 +99,6 @@ def test_getAllModels(G, client):
     assert G.id in rv.json
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_createModel(client):
     with open("tests/data/delphi_create_model_payload.json") as f:
         data = json.load(f)
@@ -123,7 +118,6 @@ def test_createModel(client):
     print(json.dumps(rv.json["results"]["UN/events/human/famine"], indent=2))
 
 
-@pytest.mark.skip("Skipping until C++ version of AnalysisGraph is online")
 def test_getIndicators(client):
     with open("tests/data/causemos_cag.json", "r") as f:
         data = json.load(f)
