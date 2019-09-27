@@ -21,7 +21,8 @@ PYBIND11_MODULE(DelphiPython, m) {
                   &AnalysisGraph::from_json_file,
                   "filename"_a,
                   "belief_score_cutoff"_a = 0.9,
-                  "grounding_score_cutoff"_a = 0.0)
+                  "grounding_score_cutoff"_a = 0.0,
+                  "ontology"_a = "WM")
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
