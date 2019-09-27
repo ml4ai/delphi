@@ -1,16 +1,7 @@
 sudo: required
-# language:
-#  - python
-#  - cpp
 
 services:
   - docker
-
-# compiler:
-#   - gcc
-
-# python:
-#   - "3.6"
 
 addons:
   apt:
@@ -40,8 +31,5 @@ deploy:
   github-token: $GITHUB_TOKEN
   on:
     branch: master
-
-
-# after_success: bash <(curl -s https://codecov.io/bash)
 
 cache: pip
