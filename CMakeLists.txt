@@ -13,7 +13,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})

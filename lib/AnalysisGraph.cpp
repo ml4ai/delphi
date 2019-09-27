@@ -3,6 +3,7 @@
 #include "tqdm.hpp"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cmath>
 #include <sqlite3.h>
 #include <type_traits>
@@ -19,6 +20,14 @@ using spdlog::warn;
 using spdlog::debug;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+
+size_t AnalysisGraph::num_vertices(){
+  return boost::num_vertices(this->graph);
+}
+
+size_t AnalysisGraph::num_edges(){
+  return boost::num_edges(this->graph);
+}
 
 Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
 
@@ -174,7 +183,7 @@ void AnalysisGraph::parameterize(string country,
 void AnalysisGraph::allocate_A_beta_factors() {
   this->A_beta_factors.clear();
 
-  int num_verts = boost::num_vertices(this->graph);
+  int num_verts = this->num_vertices();
 
   for (int vert = 0; vert < num_verts; ++vert) {
     this->A_beta_factors.push_back(
@@ -351,7 +360,7 @@ void AnalysisGraph::set_default_initial_state() {
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
   //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-  int num_verts = boost::num_vertices(this->graph);
+  int num_verts = this->num_vertices();
   int num_els = num_verts * 2;
 
   this->s0 = Eigen::VectorXd(num_els);
@@ -402,12 +411,14 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double grounding_score_cutoff,
                                             string ontology) {
   auto json_data = utils::load_json(filename);
+  debug("Loading INDRA statements JSON file.");
 
   AnalysisGraph G;
 
   unordered_map<string, int> name_to_vertex = {};
 
-  for (auto stmt : json_data) {
+  debug("Processing INDRA statements...");
+  for (auto stmt : tqdm(json_data)) {
     if (stmt["type"] == "Influence") {
       auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
       auto obj_ground = stmt["obj"]["concept"]["db_refs"][ontology][0][1];
@@ -781,8 +792,10 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
+pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels) {
   using delphi::gv::set_property, delphi::gv::add_node;
+  using boost::split;
+
   Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
   GVC_t* gvc;
   gvc = gvContext();
@@ -802,16 +815,37 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   Agnode_t* trgt;
   Agedge_t* edge;
 
+  string source_label;
+  string target_label;
+
   // Add CAG links
   for (auto e : this->edges()) {
     string source_name = this->graph[boost::source(e, this->graph)].name;
     string target_name = this->graph[boost::target(e, this->graph)].name;
 
+
+    // TODO Implement a refined version of this that checks for set size
+    // equality, a la the Python implementation (i.e. check if the length of
+    // the nodeset is the same as the length of the set of simplified labels).
+
+    if (simplified_labels) {
+      vector<string> source_string_vec;
+      vector<string> target_string_vec;
+      split(source_string_vec, source_name, [](char c){return c=='/';});
+      split(target_string_vec, target_name, [](char c){return c=='/';});
+      source_label = source_string_vec.at(source_string_vec.size() - 1);
+      target_label = target_string_vec.at(target_string_vec.size() - 1);
+    }
+    else{
+      source_label=source_name;
+      target_label=target_name;
+    }
+
     src = add_node(G, source_name);
-    set_property(src, "label", source_name);
+    set_property(src, "label", source_label);
 
     trgt = add_node(G, target_name);
-    set_property(trgt, "label", target_name);
+    set_property(trgt, "label", target_label);
 
     edge = agedge(G, src, trgt, 0, true);
   }
@@ -860,7 +894,7 @@ string AnalysisGraph::to_dot() {
   return sstream.str();
 }
 
-void AnalysisGraph::to_png(string filename) {
+void AnalysisGraph::to_png(string filename, bool simplified_labels) {
   auto [G, gvc] = this->to_agraph();
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);

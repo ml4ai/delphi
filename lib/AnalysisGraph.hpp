@@ -48,6 +48,8 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Edge& edge(int, int);
+  size_t num_vertices();
+  size_t num_edges();
   auto nodes();
 
   // Manujinda: I had to move this up since I am usign this within the private:
@@ -732,11 +734,11 @@ class AnalysisGraph {
 
   void print_name_to_vertex();
 
-  std::pair<Agraph_t*, GVC_t*> to_agraph();
+  std::pair<Agraph_t*, GVC_t*> to_agraph(bool simplified_labels = false);
 
   std::string to_dot();
 
-  void to_png(std::string filename = "CAG.png");
+  void to_png(std::string filename = "CAG.png", bool simplified_labels = false);
 
   void print_indicators();
 };

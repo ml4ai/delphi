@@ -46,7 +46,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
-      .def("to_png", &AnalysisGraph::to_png, "filename"_a = "CAG.png")
+      .def("to_png", &AnalysisGraph::to_png, "filename"_a = "CAG.png", "simplified_labels"_a = true)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
