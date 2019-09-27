@@ -48,13 +48,15 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Edge& edge(int, int);
+  size_t num_vertices();
+  size_t num_edges();
   auto nodes();
 
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto vertices();
 
-  NEIGHBOR_ITERATOR successors(int i);
+  auto successors(int i);
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
@@ -167,8 +169,7 @@ class AnalysisGraph {
   void
   get_subgraph_rooted_at(int vert,
                          std::unordered_set<int>& vertices_to_keep,
-                         int cutoff,
-                         NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int));
+                         int cutoff);
 
   void get_subgraph_sinked_at(int vert,
                               std::unordered_set<int>& vertices_to_keep,
@@ -238,7 +239,8 @@ class AnalysisGraph {
    */
   static AnalysisGraph from_json_file(std::string filename,
                                       double belief_score_cutoff = 0.9,
-                                      double grounding_score_cutoff = 0.0);
+                                      double grounding_score_cutoff = 0.0,
+                                      std::string ontology = "WM");
 
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
@@ -732,11 +734,11 @@ class AnalysisGraph {
 
   void print_name_to_vertex();
 
-  std::pair<Agraph_t*, GVC_t*> to_agraph();
+  std::pair<Agraph_t*, GVC_t*> to_agraph(bool simplified_labels = false);
 
   std::string to_dot();
 
-  void to_png(std::string filename = "CAG.png");
+  void to_png(std::string filename = "CAG.png", bool simplified_labels = false);
 
   void print_indicators();
 };

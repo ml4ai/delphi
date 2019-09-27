@@ -3,6 +3,7 @@
 #include "tqdm.hpp"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cmath>
 #include <sqlite3.h>
 #include <type_traits>
@@ -20,6 +21,14 @@ using spdlog::debug;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
+size_t AnalysisGraph::num_vertices(){
+  return boost::num_vertices(this->graph);
+}
+
+size_t AnalysisGraph::num_edges(){
+  return boost::num_edges(this->graph);
+}
+
 Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
 
 Node& AnalysisGraph::operator[](string node_name) {
@@ -30,7 +39,7 @@ auto AnalysisGraph::vertices() {
   return make_iterator_range(boost::vertices(this->graph));
 }
 
-NEIGHBOR_ITERATOR AnalysisGraph::successors(int i) {
+auto AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
 }
 
@@ -118,8 +127,14 @@ void AnalysisGraph::parameterize(string country,
       try {
         if (units.find(name) != units.end()) {
           indicator.set_unit(units[name]);
-          vector<double> data = get_data_value(
-              name, country, state, county, year, month, units[name],this->data_heuristic);
+          vector<double> data = get_data_value(name,
+                                               country,
+                                               state,
+                                               county,
+                                               year,
+                                               month,
+                                               units[name],
+                                               this->data_heuristic);
           if (data.empty()) {
             mean = 0;
           }
@@ -130,8 +145,14 @@ void AnalysisGraph::parameterize(string country,
         }
         else {
           indicator.set_default_unit();
-          vector<double> data = get_data_value(
-              name, country, state, county, year, month, units[name],this->data_heuristic);
+          vector<double> data = get_data_value(name,
+                                               country,
+                                               state,
+                                               county,
+                                               year,
+                                               month,
+                                               units[name],
+                                               this->data_heuristic);
           if (data.empty()) {
             mean = 0;
           }
@@ -162,7 +183,7 @@ void AnalysisGraph::parameterize(string country,
 void AnalysisGraph::allocate_A_beta_factors() {
   this->A_beta_factors.clear();
 
-  int num_verts = boost::num_vertices(this->graph);
+  int num_verts = this->num_vertices();
 
   for (int vert = 0; vert < num_verts; ++vert) {
     this->A_beta_factors.push_back(
@@ -181,11 +202,9 @@ void AnalysisGraph::allocate_A_beta_factors() {
 // successors() and predecessors() I could not complete it.
 // If we can figure the return type, we can combine these two
 // methods into one
-void AnalysisGraph::get_subgraph_rooted_at(
-    int vert,
-    unordered_set<int>& vertices_to_keep,
-    int cutoff,
-    NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int)) {
+void AnalysisGraph::get_subgraph_rooted_at(int vert,
+                                           unordered_set<int>& vertices_to_keep,
+                                           int cutoff) {
 
   // Mark the current vertex visited
   (*this)[vert].visited = true;
@@ -197,7 +216,7 @@ void AnalysisGraph::get_subgraph_rooted_at(
     // Recursively process all the vertices adjacent to the current vertex
     for_each(this->successors(vert), [&](int v) {
       if (!(*this)[v].visited) {
-        this->get_subgraph_rooted_at(v, vertices_to_keep, cutoff, neighbors);
+        this->get_subgraph_rooted_at(v, vertices_to_keep, cutoff);
       }
     });
   }
@@ -341,7 +360,7 @@ void AnalysisGraph::set_default_initial_state() {
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
   //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-  int num_verts = boost::num_vertices(this->graph);
+  int num_verts = this->num_vertices();
   int num_els = num_verts * 2;
 
   this->s0 = Eigen::VectorXd(num_els);
@@ -389,60 +408,65 @@ void AnalysisGraph::remove_node(int node_id) {
 
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,
-                                            double grounding_score_cutoff) {
+                                            double grounding_score_cutoff,
+                                            string ontology) {
   auto json_data = utils::load_json(filename);
+  debug("Loading INDRA statements JSON file.");
 
   AnalysisGraph G;
 
   unordered_map<string, int> name_to_vertex = {};
 
-  for (auto stmt : json_data) {
-    auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
-    auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
-    bool grounding_check = (subj_ground >= grounding_score_cutoff) and
-                           (obj_ground >= grounding_score_cutoff);
-    if (stmt["type"] == "Influence" and grounding_check) {
-      auto subj = stmt["subj"]["concept"]["db_refs"]["UN"][0][0];
-      auto obj = stmt["obj"]["concept"]["db_refs"]["UN"][0][0];
-      if (!subj.is_null() and !obj.is_null()) {
-        if (stmt["belief"] < belief_score_cutoff) {
-          continue;
-        }
-        string subj_str = subj.get<string>();
-        string obj_str = obj.get<string>();
-
-        if (subj_str.compare(obj_str) != 0) { // Guard against self loops
-          // Add the nodes to the graph if they are not in it already
-          for (string name : {subj_str, obj_str}) {
-            G.add_node(name);
+  debug("Processing INDRA statements...");
+  for (auto stmt : tqdm(json_data)) {
+    if (stmt["type"] == "Influence") {
+      auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
+      auto obj_ground = stmt["obj"]["concept"]["db_refs"][ontology][0][1];
+      bool grounding_check = (subj_ground >= grounding_score_cutoff) and
+                             (obj_ground >= grounding_score_cutoff);
+      if (grounding_check) {
+        auto subj = stmt["subj"]["concept"]["db_refs"]["WM"][0][0];
+        auto obj = stmt["obj"]["concept"]["db_refs"]["WM"][0][0];
+        if (!subj.is_null() and !obj.is_null()) {
+          if (stmt["belief"] < belief_score_cutoff) {
+            continue;
           }
+          string subj_str = subj.get<string>();
+          string obj_str = obj.get<string>();
 
-          // Add the edge to the graph if it is not in it already
-          for (auto evidence : stmt["evidence"]) {
-            auto annotations = evidence["annotations"];
-            auto subj_adjectives = annotations["subj_adjectives"];
-            auto obj_adjectives = annotations["obj_adjectives"];
-            auto subj_adjective =
-                (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-                    ? subj_adjectives[0]
-                    : "None";
-            auto obj_adjective =
-                (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
-            auto subj_polarity = annotations["subj_polarity"];
-            auto obj_polarity = annotations["obj_polarity"];
+          if (subj_str.compare(obj_str) != 0) { // Guard against self loops
+            // Add the nodes to the graph if they are not in it already
+            for (string name : {subj_str, obj_str}) {
+              G.add_node(name);
+            }
 
-            if (subj_polarity.is_null()) {
-              subj_polarity = 1;
+            // Add the edge to the graph if it is not in it already
+            for (auto evidence : stmt["evidence"]) {
+              auto annotations = evidence["annotations"];
+              auto subj_adjectives = annotations["subj_adjectives"];
+              auto obj_adjectives = annotations["obj_adjectives"];
+              auto subj_adjective =
+                  (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+                      ? subj_adjectives[0]
+                      : "None";
+              auto obj_adjective =
+                  (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+              auto subj_polarity = annotations["subj_polarity"];
+              auto obj_polarity = annotations["obj_polarity"];
+
+              if (subj_polarity.is_null()) {
+                subj_polarity = 1;
+              }
+              if (obj_polarity.is_null()) {
+                obj_polarity = 1;
+              }
+              string subj_adj_str = subj_adjective.get<string>();
+              string obj_adj_str = subj_adjective.get<string>();
+              auto causal_fragment =
+                  CausalFragment({subj_adj_str, subj_polarity, subj_str},
+                                 {obj_adj_str, obj_polarity, obj_str});
+              G.add_edge(causal_fragment);
             }
-            if (obj_polarity.is_null()) {
-              obj_polarity = 1;
-            }
-            string subj_adj_str = subj_adjective.get<string>();
-            string obj_adj_str = subj_adjective.get<string>();
-            auto causal_fragment =
-                CausalFragment({subj_adj_str, subj_polarity, subj_str},
-                               {obj_adj_str, obj_polarity, obj_str});
-            G.add_edge(causal_fragment);
           }
         }
       }
@@ -483,8 +507,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   }
   else {
     // All paths of length less than or equal to depth beginning at vert_id
-    this->get_subgraph_rooted_at(
-        vert_id, vertices_to_keep, depth, &AnalysisGraph::successors);
+    this->get_subgraph_rooted_at(vert_id, vertices_to_keep, depth);
   }
 
   if (vertices_to_keep.size() == 0) {
@@ -769,8 +792,10 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
+pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels) {
   using delphi::gv::set_property, delphi::gv::add_node;
+  using boost::split;
+
   Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
   GVC_t* gvc;
   gvc = gvContext();
@@ -790,16 +815,37 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph() {
   Agnode_t* trgt;
   Agedge_t* edge;
 
+  string source_label;
+  string target_label;
+
   // Add CAG links
   for (auto e : this->edges()) {
     string source_name = this->graph[boost::source(e, this->graph)].name;
     string target_name = this->graph[boost::target(e, this->graph)].name;
 
+
+    // TODO Implement a refined version of this that checks for set size
+    // equality, a la the Python implementation (i.e. check if the length of
+    // the nodeset is the same as the length of the set of simplified labels).
+
+    if (simplified_labels) {
+      vector<string> source_string_vec;
+      vector<string> target_string_vec;
+      split(source_string_vec, source_name, [](char c){return c=='/';});
+      split(target_string_vec, target_name, [](char c){return c=='/';});
+      source_label = source_string_vec.at(source_string_vec.size() - 1);
+      target_label = target_string_vec.at(target_string_vec.size() - 1);
+    }
+    else{
+      source_label=source_name;
+      target_label=target_name;
+    }
+
     src = add_node(G, source_name);
-    set_property(src, "label", source_name);
+    set_property(src, "label", source_label);
 
     trgt = add_node(G, target_name);
-    set_property(trgt, "label", target_name);
+    set_property(trgt, "label", target_label);
 
     edge = agedge(G, src, trgt, 0, true);
   }
@@ -848,7 +894,7 @@ string AnalysisGraph::to_dot() {
   return sstream.str();
 }
 
-void AnalysisGraph::to_png(string filename) {
+void AnalysisGraph::to_png(string filename, bool simplified_labels) {
   auto [G, gvc] = this->to_agraph();
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);
@@ -971,10 +1017,9 @@ void AnalysisGraph::set_log_likelihood() {
           const double& value = observed_state[v][i][j];
           // Even indices of latent_state keeps track of the state of each
           // vertex
-          double log_likelihood_component =
-              this->log_normpdf(value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+          double log_likelihood_component = this->log_normpdf(
+              value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
           this->log_likelihood += log_likelihood_component;
- 
         }
       }
     }
@@ -1297,8 +1342,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value =
-            utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value = utils::mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }
@@ -1313,8 +1357,7 @@ void AnalysisGraph::set_random_initial_latent_state() {
   this->set_default_initial_state();
 
   for (int v = 0; v < num_verts; v++) {
-    this->s0(2 * v + 1) =
-        0.1 * this->uni_dist(this->rand_num_generator);
+    this->s0(2 * v + 1) = 0.1 * this->uni_dist(this->rand_num_generator);
   }
 }
 
@@ -1356,7 +1399,10 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   }
 }
 
-void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps) {
+void AnalysisGraph::sample_predicted_latent_state_sequences(
+    int prediction_timesteps,
+    int initial_prediction_step,
+    int total_timesteps) {
   this->n_timesteps = prediction_timesteps;
 
   int num_verts = boost::num_vertices(this->graph);
@@ -1371,7 +1417,8 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(int prediction_times
   for (int samp = 0; samp < this->res; samp++) {
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
-      const Eigen::MatrixXd& A_t = pred_step*this->transition_matrix_collection[samp]; 
+      const Eigen::MatrixXd& A_t =
+          pred_step * this->transition_matrix_collection[samp];
       this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
       pred_step++;
     }
@@ -1382,9 +1429,11 @@ void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
-  this->predicted_observed_state_sequences = vector<PredictedObservedStateSequence>(
-      this->res,
-      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>()));
+  this->predicted_observed_state_sequences =
+      vector<PredictedObservedStateSequence>(
+          this->res,
+          PredictedObservedStateSequence(this->n_timesteps,
+                                         vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
     vector<Eigen::VectorXd>& sample =
@@ -1432,12 +1481,14 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *  |___________|________________________________|
    *      diff              pred_timesteps
    */
-  int total_timesteps = this->calculate_num_timesteps(
-      this->training_range.first.first, this->training_range.first.second, end_year, end_month);
+  int total_timesteps =
+      this->calculate_num_timesteps(this->training_range.first.first,
+                                    this->training_range.first.second,
+                                    end_year,
+                                    end_month);
 
   this->pred_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
-  
 
   int pred_init_timestep = total_timesteps - pred_timesteps;
 
@@ -1459,7 +1510,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     }
   }
 
-  this->sample_predicted_latent_state_sequences(this->pred_timesteps, pred_init_timestep, total_timesteps);
+  this->sample_predicted_latent_state_sequences(
+      this->pred_timesteps, pred_init_timestep, total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(
@@ -1547,8 +1599,8 @@ void AnalysisGraph::
     generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
   // Allocate memory for observed_state_sequences
   this->test_observed_state_sequence.clear();
-  this->test_observed_state_sequence =
-      PredictedObservedStateSequence(this->n_timesteps, vector<vector<double>>());
+  this->test_observed_state_sequence = PredictedObservedStateSequence(
+      this->n_timesteps, vector<vector<double>>());
 
   transform(this->synthetic_latent_state_sequence.begin(),
             this->synthetic_latent_state_sequence.end(),
@@ -1686,9 +1738,8 @@ void AnalysisGraph::sample_from_proposal() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = ts*this->A_original;
+  const Eigen::MatrixXd& A_t = ts * this->A_original;
   this->current_latent_state = A_t.exp() * this->s0;
-
 }
 
 double AnalysisGraph::log_normpdf(double x, double mean, double sd) {

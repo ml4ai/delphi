@@ -91,7 +91,7 @@ def clean_UNHCR_data():
     )
 
     df.to_csv(
-        str(data_dir / "south_sudan_data_UNHCR.tsv"), index=False, sep="\t"
+        str(data_dir / "indicator_data_UNHCR.tsv"), index=False, sep="\t"
     )
 
 

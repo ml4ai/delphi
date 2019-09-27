@@ -546,7 +546,7 @@ class AnalysisGraph(nx.DiGraph):
 
     def parameterize(
         self,
-        country: Optional[str] = "South Sudan",
+        country: Optional[str] = "Ethiopia",
         state: Optional[str] = None,
         year: Optional[int] = None,
         month: Optional[int] = None,
@@ -684,7 +684,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
                     st.obj.delta.polarity = -st.obj.delta.polarity
-                st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
+                st.obj.db_refs["WM"][0] = (n2, st.obj.db_refs["WM"][0][1])
 
             if not self.has_edge(p, n2):
                 self.add_edge(p, n2)
@@ -701,7 +701,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
                     st.subj.delta.polarity = -st.subj.delta.polarity
-                st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
+                st.subj.db_refs["WM"][0] = (n2, st.subj.db_refs["WM"][0][1])
 
             if not self.has_edge(n2, s):
                 self.add_edge(n2, s)

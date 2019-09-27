@@ -12,7 +12,8 @@ def insert_table(df, table_name):
 
 
 def create_indicator_table(indicator_table):
-    df = pd.read_csv(indicator_table, index_col=False, sep="\t")
+    df = pd.read_csv(indicator_table, index_col=False, sep="\t",
+            dtype={"Country": str, "Source": str})
     df["Country"].fillna(value="None", inplace=True, downcast="infer")
     df["County"].fillna(value="None", inplace=True, downcast="infer")
     df["Month"].fillna(value=0, inplace=True, downcast="infer")

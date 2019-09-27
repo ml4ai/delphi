@@ -13,7 +13,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
@@ -21,10 +21,23 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-add_subdirectory(external/fmt)
-add_subdirectory(external/spdlog)
-include_directories(external/fmt/include)
-include_directories(external/spdlog/include)
+option(USE_BUNDLED_FMT "Use fmtlib bundled with Delphi" ON)
+option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
+
+if(USE_BUNDLED_FMT)
+  include_directories(external/fmt/include)
+  add_subdirectory(external/fmt)
+else()
+  find_package(fmt REQUIRED)
+endif()
+
+
+if(USE_BUNDLED_SPDLOG)
+  add_subdirectory(external/spdlog)
+  include_directories(external/spdlog/include)
+else()
+  find_package(spdlog 1.4.1 REQUIRED)
+endif()
 
 find_package(PythonInterp 3.6 REQUIRED)
 

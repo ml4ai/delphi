@@ -125,6 +125,7 @@ Delphi is also part of the
   delphi_database
   CONTRIBUTING
   cpp_api/library_root
+  grfn_openapi
 
 License and Funding
 -------------------
