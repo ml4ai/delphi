@@ -543,11 +543,10 @@ class AnalysisGraph(nx.DiGraph):
                 x: Indicator(x, "MITRE12")
                 for x in [r[0] for r in take(n, results)]
             }
-            print(node)
 
     def parameterize(
         self,
-        country: Optional[str] = "South Sudan",
+        country: Optional[str] = "Ethiopia",
         state: Optional[str] = None,
         year: Optional[int] = None,
         month: Optional[int] = None,
