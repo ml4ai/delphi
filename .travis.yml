@@ -1,16 +1,21 @@
 sudo: required
-language:
- - python
- - cpp
+# language:
+#  - python
+#  - cpp
 
 services:
   - docker
 
-compiler:
-  - gcc
+# compiler:
+#   - gcc
 
-python:
-  - "3.6"
+# python:
+#   - "3.6"
+
+addons:
+  apt:
+    packages:
+      - docker-ce
 
 before_install:
   - docker pull pauldhein/project-containers:delphi
