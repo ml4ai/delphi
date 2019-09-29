@@ -29,7 +29,8 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "causal_fragments"_a)
       .def("__len__", &AnalysisGraph::num_vertices)
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
-      .def("__getitem__", [](AnalysisGraph& G, int node_index) { return G[node_index]; })
+      .def("__getitem__",
+           [](AnalysisGraph& G, int node_index) { return G[node_index]; })
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
@@ -51,9 +52,7 @@ PYBIND11_MODULE(DelphiPython, m) {
           [](AnalysisGraph& g) {
             return py::make_iterator(g.begin(), g.end());
           },
-          py::keep_alive<
-              0,
-              1>() /* Essential: keep object alive while iterator exists */)
+          py::keep_alive<0, 1>())
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
       .def("print_nodes", &AnalysisGraph::print_nodes)
@@ -82,14 +81,10 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("remove_edges", &AnalysisGraph::remove_edges, "edges"_a)
       .def("find_all_paths", &AnalysisGraph::find_all_paths)
       .def("print_all_paths", &AnalysisGraph::print_all_paths)
-      //.def("simple_paths", &AnalysisGraph::simple_paths)
       .def("print_cells_affected_by_beta",
            &AnalysisGraph::print_cells_affected_by_beta,
            "source"_a,
            "target"_a)
-      //.def("sample_from_posterior",
-      //     &AnalysisGraph::sample_from_posterior,
-      //     py::return_value_policy::reference_internal)
       .def("get_beta",
            &AnalysisGraph::get_beta,
            "source_vertex_name"_a,
@@ -117,8 +112,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("delete_all_indicators",
            &AnalysisGraph::delete_all_indicators,
            "concept"_a)
-      //.def("get_indicator", &AnalysisGraph::get_indicator, "concept"_a,
-      //     "indicator"_a, py::return_value_policy::automatic)
       .def("test_inference_with_synthetic_data",
            &AnalysisGraph::test_inference_with_synthetic_data,
            "start_year"_a = 2015,

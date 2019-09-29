@@ -442,7 +442,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       bool inward,
                                                       int depth) {
   int vert_id =
-      get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
+      this->get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
 
   // Mark all the vertices are not visited
   for_each(this->nodes(), [](Node& node) { node.visited = false; });
@@ -479,9 +479,9 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
 
-  int src_id = get_vertex_id_for_concept(source_concept,
+  int src_id = this->get_vertex_id_for_concept(source_concept,
                                          "get_subgraph_for_concept_pair()");
-  int tgt_id = get_vertex_id_for_concept(target_concept,
+  int tgt_id = this->get_vertex_id_for_concept(target_concept,
                                          "get_subgraph_for_concept_pair()");
 
   unordered_set<int> vertices_to_keep;
@@ -880,8 +880,9 @@ Edge& AnalysisGraph::edge(int i, int j) {
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
-  int vertex_to_remove = get_vertex_id_for_concept(concept_1, "merge_nodes()");
-  int vertex_to_keep = get_vertex_id_for_concept(concept_2, "merge_nodes()");
+
+  int vertex_to_remove = this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
+  int vertex_to_keep = this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
 
   for (int predecessor : this->predecessors(vertex_to_remove)) {
 
@@ -910,7 +911,7 @@ void AnalysisGraph::merge_nodes(string concept_1,
          evidence_keep.end() - evidence_move.size());
   }
 
-  for (int successor : successors(vertex_to_remove)) {
+  for (int successor : this->successors(vertex_to_remove)) {
 
     // Get the edge descripter for
     //                   vertex_to_remove --> successor
