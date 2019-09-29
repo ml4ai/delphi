@@ -1,6 +1,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/operators.h>
 
 #include "AnalysisGraph.hpp"
 
@@ -26,6 +27,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
+      .def("__len__", &AnalysisGraph::num_vertices)
+      .def("__getitem__", [](AnalysisGraph& G, string name){return G[name];})
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
@@ -42,11 +45,17 @@ PYBIND11_MODULE(DelphiPython, m) {
            "concept_1"_a,
            "concept_2"_a,
            "same_polarity"_a = true)
+      .def("num_vertices", &AnalysisGraph::num_vertices)
+      .def("num_edges", &AnalysisGraph::num_edges)
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("to_dot", &AnalysisGraph::to_dot)
-      .def("to_png", &AnalysisGraph::to_png, "filename"_a = "CAG.png", "simplified_labels"_a = true)
+      .def("to_png",
+           &AnalysisGraph::to_png,
+           "filename"_a = "CAG.png",
+           "simplified_labels"_a = true,
+           "label_depth"_a = 1)
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
@@ -180,7 +189,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "Evaluate pdf for a list of values")
       .def("logpdf", &KDE::logpdf)
       .def_readwrite("dataset", &KDE::dataset)
-      .def(py::pickle([](KDE &kde) { return py::make_tuple(kde.dataset); },
+      .def(py::pickle([](KDE& kde) { return py::make_tuple(kde.dataset); },
                       [](py::tuple t) {
                         if (t.size() != 1)
                           throw std::runtime_error("Invalid state!");
@@ -188,5 +197,4 @@ PYBIND11_MODULE(DelphiPython, m) {
                         KDE kde(t[0].cast<vector<double>>());
                         return kde;
                       }));
-
 }

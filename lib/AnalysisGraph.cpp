@@ -1,33 +1,32 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
 #include "tqdm.hpp"
+#include <boost/algorithm/string.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/algorithm/string.hpp>
 #include <cmath>
+#include <range/v3/all.hpp>
 #include <sqlite3.h>
 #include <type_traits>
 
 using namespace std;
-using fmt::print, fmt::format;
-using tq::tqdm;
+using boost::for_each;
 using boost::make_iterator_range;
 using boost::adaptors::transformed;
-using boost::for_each;
+using fmt::print, fmt::format;
+using tq::tqdm;
 using namespace fmt::literals;
+using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using spdlog::debug;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
-size_t AnalysisGraph::num_vertices(){
+size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);
 }
 
-size_t AnalysisGraph::num_edges(){
-  return boost::num_edges(this->graph);
-}
+size_t AnalysisGraph::num_edges() { return boost::num_edges(this->graph); }
 
 Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
 
@@ -45,8 +44,7 @@ auto AnalysisGraph::successors(int i) {
 
 auto AnalysisGraph::nodes() {
   using boost::adaptors::transformed;
-  return this->vertices() |
-         transformed([&](int v) -> auto& { return (*this)[v]; });
+  return this->vertices() | transformed([&](int v)->Node& {return (*this)[v];});
 }
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
@@ -60,7 +58,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
   string query_base =
       "select Source, Indicator from concept_to_indicator_mapping ";
   string query;
-  for (auto& node : this->nodes()) {
+  for (Node& node : this->nodes()) {
     query = query_base + "where `Concept` like " + "'" + node.name + "'";
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     node.clear_indicators();
@@ -121,7 +119,7 @@ void AnalysisGraph::parameterize(string country,
                                  map<string, string> units) {
   double stdev;
   double mean;
-  for (auto& node : this->nodes()) {
+  for (Node& node : this->nodes()) {
     for (auto& [name, i] : node.indicator_names) {
       auto& indicator = node.indicators[i];
       try {
@@ -792,9 +790,13 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels) {
+pair<Agraph_t*, GVC_t*>
+AnalysisGraph::to_agraph(bool simplified_labels,
+                         int label_depth) {
   using delphi::gv::set_property, delphi::gv::add_node;
-  using boost::split;
+  using namespace ranges::views;
+  using ranges::end, ranges::to;
+  using ranges::views::slice, ranges::views::replace;
 
   Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
   GVC_t* gvc;
@@ -823,22 +825,21 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels) {
     string source_name = this->graph[boost::source(e, this->graph)].name;
     string target_name = this->graph[boost::target(e, this->graph)].name;
 
-
     // TODO Implement a refined version of this that checks for set size
     // equality, a la the Python implementation (i.e. check if the length of
     // the nodeset is the same as the length of the set of simplified labels).
 
-    if (simplified_labels) {
-      vector<string> source_string_vec;
-      vector<string> target_string_vec;
-      split(source_string_vec, source_name, [](char c){return c=='/';});
-      split(target_string_vec, target_name, [](char c){return c=='/';});
-      source_label = source_string_vec.at(source_string_vec.size() - 1);
-      target_label = target_string_vec.at(target_string_vec.size() - 1);
+    string source_label, target_label;
+
+    if (simplified_labels == true) {
+      source_label = source_name | split('/') | slice(end - label_depth, end) |
+                     join('/') | replace('_', ' ') | to<string>();
+      target_label = target_name | split('/') | slice(end - label_depth, end) |
+                     join('/') | replace('_', ' ') | to<string>();
     }
-    else{
-      source_label=source_name;
-      target_label=target_name;
+    else {
+      source_label = source_name;
+      target_label = target_name;
     }
 
     src = add_node(G, source_name);
@@ -851,7 +852,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels) {
   }
 
   // Add concepts, indicators, and link them.
-  for (auto& node : this->nodes()) {
+  for (Node& node : this->nodes()) {
     string concept_name = node.name;
     for (auto indicator : node.indicators) {
       src = add_node(G, concept_name);
@@ -894,8 +895,10 @@ string AnalysisGraph::to_dot() {
   return sstream.str();
 }
 
-void AnalysisGraph::to_png(string filename, bool simplified_labels) {
-  auto [G, gvc] = this->to_agraph();
+void AnalysisGraph::to_png(string filename,
+                           bool simplified_labels,
+                           int label_depth) {
+  auto [G, gvc] = this->to_agraph(simplified_labels, label_depth);
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);
   agclose(G);

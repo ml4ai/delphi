@@ -19,9 +19,11 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
 
-typedef std::vector<std::vector<std::vector<std::vector<double>>>> ObservedStateSequence;
+typedef std::vector<std::vector<std::vector<std::vector<double>>>>
+    ObservedStateSequence;
 
-typedef std::vector<std::vector<std::vector<double>>> PredictedObservedStateSequence;
+typedef std::vector<std::vector<std::vector<double>>>
+    PredictedObservedStateSequence;
 
 typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
@@ -134,8 +136,9 @@ class AnalysisGraph {
   // Access this as
   // prediction_observed_state_sequences
   //                            [ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<PredictedObservedStateSequence> predicted_observed_state_sequences;
-  
+  std::vector<PredictedObservedStateSequence>
+      predicted_observed_state_sequences;
+
   PredictedObservedStateSequence test_observed_state_sequence;
 
   // Sampling resolution. Default is 200
@@ -166,10 +169,9 @@ class AnalysisGraph {
   double previous_log_likelihood = 0.0;
   bool data_heuristic = false;
 
-  void
-  get_subgraph_rooted_at(int vert,
-                         std::unordered_set<int>& vertices_to_keep,
-                         int cutoff);
+  void get_subgraph_rooted_at(int vert,
+                              std::unordered_set<int>& vertices_to_keep,
+                              int cutoff);
 
   void get_subgraph_sinked_at(int vert,
                               std::unordered_set<int>& vertices_to_keep,
@@ -507,13 +509,16 @@ class AnalysisGraph {
    * Sample a collection of observed state sequences from the likelihood
    * model given a collection of transition matrices.
    *
-   * @param prediction_timesteps: The number of timesteps for the prediction sequences.
+   * @param prediction_timesteps: The number of timesteps for the prediction
+   * sequences.
    * @param initial_prediction_step: The initial prediction timestep relative
-   *                                 to training timesteps. 
+   *                                 to training timesteps.
    * @param total_timesteps: Total number of timesteps from the initial
    *                         training date to the end prediction date.
    */
-  void sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps);
+  void sample_predicted_latent_state_sequences(int prediction_timesteps,
+                                               int initial_prediction_step,
+                                               int total_timesteps);
 
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
@@ -734,11 +739,22 @@ class AnalysisGraph {
 
   void print_name_to_vertex();
 
-  std::pair<Agraph_t*, GVC_t*> to_agraph(bool simplified_labels = false);
+  std::pair<Agraph_t*, GVC_t*>
+  to_agraph(bool simplified_labels =
+                false, /** Whether to create simplified labels or not. */
+            int label_depth =
+                1 /** Depth in the ontology to which simplified labels extend */
+  );
 
   std::string to_dot();
 
-  void to_png(std::string filename = "CAG.png", bool simplified_labels = false);
+  void
+  to_png(std::string filename = "CAG.png",
+         bool simplified_labels =
+             false, /** Whether to create simplified labels or not. */
+         int label_depth =
+             1 /** Depth in the ontology to which simplified labels extend */
+  );
 
   void print_indicators();
 };

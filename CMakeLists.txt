@@ -74,6 +74,7 @@ add_library(Delphi
   lib/utils.hpp
 )
 
+target_include_directories(Delphi PRIVATE external/range-v3/include)
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
