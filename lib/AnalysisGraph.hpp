@@ -5,6 +5,7 @@
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -44,19 +45,31 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
  * The AnalysisGraph class is the main model/interface for Delphi.
  */
 class AnalysisGraph {
+
   DiGraph graph;
 
   public:
   AnalysisGraph() {}
   Node& operator[](std::string);
+  Node& operator[](int);
   Edge& edge(int, int);
   size_t num_vertices();
   size_t num_edges();
-  auto nodes();
-
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
-  auto vertices();
+  auto node_indices() {
+    return boost::make_iterator_range(boost::vertices(this->graph));
+  };
+
+  auto nodes(){
+    using boost::adaptors::transformed;
+    return this->node_indices() |
+          transformed([&](int v) -> Node& { return (*this)[v]; });
+  };
+
+  boost::range_detail::integer_iterator<unsigned long> begin() {return boost::vertices(this->graph).first;};
+  boost::range_detail::integer_iterator<unsigned long> end() {return boost::vertices(this->graph).second;};
+
 
   auto successors(int i);
 
@@ -66,7 +79,6 @@ class AnalysisGraph {
   void print_A_beta_factors();
 
   private:
-  Node& operator[](int);
   void clear_state();
 
   // Maps each concept name to the vertex id of the
@@ -169,13 +181,10 @@ class AnalysisGraph {
   double previous_log_likelihood = 0.0;
   bool data_heuristic = false;
 
-  void get_subgraph_rooted_at(int vert,
-                              std::unordered_set<int>& vertices_to_keep,
-                              int cutoff);
-
-  void get_subgraph_sinked_at(int vert,
-                              std::unordered_set<int>& vertices_to_keep,
-                              int cutoff);
+  void get_subgraph(int vert,
+                    std::unordered_set<int>& vertices_to_keep,
+                    int cutoff,
+                    bool inward);
 
   void get_subgraph_between(int start,
                             int end,

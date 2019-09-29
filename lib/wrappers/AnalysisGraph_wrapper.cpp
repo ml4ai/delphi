@@ -1,7 +1,7 @@
 #include <pybind11/numpy.h>
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/operators.h>
 
 #include "AnalysisGraph.hpp"
 
@@ -28,7 +28,8 @@ PYBIND11_MODULE(DelphiPython, m) {
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
       .def("__len__", &AnalysisGraph::num_vertices)
-      .def("__getitem__", [](AnalysisGraph& G, string name){return G[name];})
+      .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
+      .def("__getitem__", [](AnalysisGraph& G, int node_index) { return G[node_index]; })
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
@@ -45,6 +46,14 @@ PYBIND11_MODULE(DelphiPython, m) {
            "concept_1"_a,
            "concept_2"_a,
            "same_polarity"_a = true)
+      .def(
+          "__iter__",
+          [](AnalysisGraph& g) {
+            return py::make_iterator(g.begin(), g.end());
+          },
+          py::keep_alive<
+              0,
+              1>() /* Essential: keep object alive while iterator exists */)
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
       .def("print_nodes", &AnalysisGraph::print_nodes)
@@ -177,6 +186,10 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("rng", &RNG::rng)
       .def("set_seed", &RNG::set_seed, "seed"_a)
       .def("get_seed", &RNG::get_seed);
+
+  py::class_<Node>(m, "Node")
+      .def_readwrite("name", &Node::name)
+      .def("__repr__", &Node::to_string);
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())

@@ -19,6 +19,7 @@ class Node {
   std::string name = "";
   bool visited;
   LatentVar rv;
+  std::string to_string() {return this->name;}
 
   std::vector<Indicator> indicators;
   // Maps each indicator name to its index in the indicators vector
