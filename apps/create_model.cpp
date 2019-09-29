@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
   desc.add_options()
     ("help,h", "Executable for creating Delphi models")
-    ("stmts,s", value<string>(&stmts), "Path to JSON-serialized INDRA statements")
+    ("stmts,i", value<string>(&stmts), "Path to input JSON-serialized INDRA statements")
     ("belief_score_cutoff,b", value<double>()->default_value(0.9),
      "INDRA belief score cutoff for statements to be included in the model.")
     ("grounding_score_cutoff,g", value<double>()->default_value(0.7),
