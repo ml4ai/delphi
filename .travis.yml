@@ -15,7 +15,7 @@ env:
     REGISTRY_PASS: qabkun-9qonxI-betvyp
 
 before_install:
-  # - docker pull $CACHE_IMAGE:latest || true
+  - docker pull $CACHE_IMAGE:latest || true
   - docker build --cache-from $CACHE_IMAGE:latest --tag $CACHE_IMAGE:latest .
   - CI_ENV=`bash <(curl -s https://codecov.io/env)`
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
