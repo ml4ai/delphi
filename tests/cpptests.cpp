@@ -4,13 +4,17 @@
 #include <fmt/core.h>
 
 using namespace std;
+string inflation = "wm/concept/causal_factor/economic_and_commerce/economic activity/market/inflation";
+string migration =  "wm/concept/causal_factor/social_and_political/migration/human_migration";
+string food_security =  "wm/concept/causal_factor/condition/food_security";
+
 vector<CausalFragment> causal_fragments = {
-    {{"large", -1, "UN/entities/human/financial/economic/inflation"},
-     {"small", 1, "UN/events/human/human_migration"}},
-    {{"large", 1, "UN/events/human/human_migration"},
-     {"small", -1, "UN/entities/human/food/food_security"}},
-    {{"large", 1, "UN/events/human/human_migration"},
-     {"small", 1, "UN/entities/human/food/food_insecurity"}},
+    {{"large", -1, inflation},
+     {"small", 1, migration}},
+    {{"large", 1, migration},
+     {"small", -1, food_security}},
+    {{"large", 1, migration},
+     {"small", -1, food_security}},
 };
 
 TEST_CASE("Testing model training") {
@@ -22,7 +26,7 @@ TEST_CASE("Testing model training") {
   G.map_concepts_to_indicators();
   G.to_png();
 
-  G.replace_indicator("UN/events/human/human_migration",
+  G.replace_indicator(migration,
                       "Net migration",
                       "New asylum seeking applicants",
                       "UNHCR");
@@ -44,13 +48,4 @@ TEST_CASE("Testing model training") {
   catch (IndicatorNotFoundException &infe) {
     fmt::print(infe.what());
   }
-}
-
-TEST_CASE("Testing merge_nodes") {
-  AnalysisGraph G = AnalysisGraph::from_causal_fragments(causal_fragments);
-  REQUIRE(G.num_nodes() == 4);
-  G.merge_nodes("UN/entities/human/food/food_security",
-                "UN/entities/human/food/food_insecurity",
-                false);
-  REQUIRE(G.num_nodes() == 3);
 }

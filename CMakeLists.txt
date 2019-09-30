@@ -74,6 +74,7 @@ add_library(Delphi
   lib/utils.hpp
 )
 
+target_include_directories(Delphi PRIVATE external/range-v3/include)
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
@@ -87,7 +88,7 @@ add_executable(cpptests tests/cpptests.cpp)
 target_include_directories(doctest INTERFACE external/doctest)
 target_link_libraries(cpptests PRIVATE doctest Delphi)
 
-pybind11_add_module(DelphiPython MODULE lib/wrappers/AnalysisGraph_wrapper.cpp)
+pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi)
 
 # Executables
