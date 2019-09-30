@@ -313,7 +313,7 @@ class AnalysisGraph {
   // Note:
   //      Although just calling this->remove_node(concept) within the loop
   //          for( std::string concept : concept_s )
-  //      is suffifient to implement this method, it is not very efficient.
+  //      is sufficient to implement this method, it is not very efficient.
   //      It re-calculates directed simple paths for each vertex removed
   //
   //      Therefore, the code in this->remove_node() has been duplicated with
