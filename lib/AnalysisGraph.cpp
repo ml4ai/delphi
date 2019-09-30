@@ -3,6 +3,7 @@
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cmath>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
