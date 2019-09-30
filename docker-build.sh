@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 docker pull pauldhein/project-containers:latest
-docker run -itd --rm --name build-con pauldhein/project-containers:delphi
+docker run -itd --rm --name build-con pauldhein/project-containers:latest
 docker exec build-con git fetch
-docker exec build-con git checkout 04fedc0cb701f90112648440d704858a8d3acc72
+docker exec build-con git checkout 7eb2c66a09e6deea2a86453a9cde3755a9d96793
 docker exec build-con rm -rf /repo/delphi/build
 docker exec build-con pip install -e .[test,docs]
 docker exec build-con make test
