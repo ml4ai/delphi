@@ -21,6 +21,7 @@ before_install:
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
   - docker exec build-con git fetch
   - docker exec build-con git checkout $TRAVIS_BRANCH
+  - git status
 
 script:
   - docker exec build-con make test
