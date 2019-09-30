@@ -21,7 +21,6 @@ before_install:
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
   - docker exec build-con git fetch
   - docker exec build-con git checkout $TRAVIS_COMMIT
-  - docker exec build-con rm -rf /repo/delphi/build
   - docker exec build-con pip install -e .[test,docs]
 
 script:
@@ -43,4 +42,4 @@ deploy:
   on:
     branch: master
 
-cache: pip
+# cache: pip
