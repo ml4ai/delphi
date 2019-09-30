@@ -20,8 +20,7 @@ before_install:
   - CI_ENV=`bash <(curl -s https://codecov.io/env)`
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
   - docker exec build-con git fetch
-  - docker exec build-con git checkout $TRAVIS_COMMIT
-  # - docker exec build-con pip install -e .[test,docs]
+  - docker exec build-con git checkout $TRAVIS_BRANCH
 
 script:
   - docker exec build-con make test
