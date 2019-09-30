@@ -30,6 +30,6 @@ bucket = s3.Bucket(bucket_name)
 objects = bucket.objects.filter(Prefix="indra_models")
 
 # S3 key for the file you want to download
-s3_key = "indra_models/dart-20190905-stmts-location_and_time/statements.json"
+s3_key = "indra_models/dart-20190925-stmts-grounding/statements.json"
 
 bucket.download_file(s3_key, "statements.json")
