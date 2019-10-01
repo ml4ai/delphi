@@ -55,6 +55,9 @@ PYBIND11_MODULE(DelphiPython, m) {
           py::keep_alive<0, 1>())
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
+      .def("get_successor_list", &AnalysisGraph::get_successor_list)
+      .def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
+      .def("edge", py::overload_cast<string, string>(&AnalysisGraph::edge))
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
@@ -63,7 +66,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::to_png,
            "filename"_a = "CAG.png",
            "simplified_labels"_a = true,
-           "label_depth"_a = 1)
+           "label_depth"_a = 1,
+           "node_to_highlight"_a = "")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",

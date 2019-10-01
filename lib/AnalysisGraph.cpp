@@ -3,7 +3,6 @@
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/algorithm/string.hpp>
 #include <cmath>
 #include <sqlite3.h>
 #include <type_traits>
@@ -35,6 +34,32 @@ Node& AnalysisGraph::operator[](string node_name) {
 
 auto AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
+}
+
+auto AnalysisGraph::successors(string node_name) {
+  return make_iterator_range(boost::adjacent_vertices(
+      this->name_to_vertex.at(node_name), this->graph));
+}
+
+auto AnalysisGraph::predecessors(string node_name) {
+  return make_iterator_range(boost::adjacent_vertices(
+      this->name_to_vertex.at(node_name), this->graph));
+}
+
+vector<Node> AnalysisGraph::get_successor_list(string node) {
+  vector<Node> successors = {};
+  for (int successor : this->successors(node)) {
+    successors.push_back((*this)[successor]);
+  }
+  return successors;
+}
+
+vector<Node> AnalysisGraph::get_predecessor_list(string node) {
+  vector<Node> predecessors = {};
+  for (int predecessor : this->predecessors(node)) {
+    predecessors.push_back((*this)[predecessor]);
+  }
+  return predecessors;
 }
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
@@ -479,10 +504,10 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
 
-  int src_id = this->get_vertex_id_for_concept(source_concept,
-                                         "get_subgraph_for_concept_pair()");
-  int tgt_id = this->get_vertex_id_for_concept(target_concept,
-                                         "get_subgraph_for_concept_pair()");
+  int src_id = this->get_vertex_id_for_concept(
+      source_concept, "get_subgraph_for_concept_pair()");
+  int tgt_id = this->get_vertex_id_for_concept(
+      target_concept, "get_subgraph_for_concept_pair()");
 
   unordered_set<int> vertices_to_keep;
   unordered_set<string> vertices_to_remove;
@@ -763,7 +788,6 @@ string AnalysisGraph::to_dot() {
   return sstream.str();
 }
 
-
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   AnalysisGraph G;
@@ -791,12 +815,21 @@ Edge& AnalysisGraph::edge(int i, int j) {
   return this->graph[boost::edge(i, j, this->graph).first];
 }
 
+Edge& AnalysisGraph::edge(string source, string target) {
+  return this->graph[boost::edge(this->name_to_vertex.at(source),
+                                 this->name_to_vertex.at(target),
+                                 this->graph)
+                         .first];
+}
+
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
 
-  int vertex_to_remove = this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
-  int vertex_to_keep = this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
+  int vertex_to_remove =
+      this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
+  int vertex_to_keep =
+      this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
 
   for (int predecessor : this->predecessors(vertex_to_remove)) {
 

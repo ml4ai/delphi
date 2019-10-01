@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   if (vm["draw_graph"].as<bool>() == true) {
     G.to_png(vm["cag_filename"].as<string>(),
              vm["simplified_labels"].as<bool>(),
-             vm["label_depth"].as<int>());
+             vm["label_depth"].as<int>(), "");
   }
   if (vm["train_model"].as<bool>()) {
     G.train_model(2015, 1, 2015, 12, 100, 900);

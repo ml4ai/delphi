@@ -4,8 +4,8 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -53,6 +53,7 @@ class AnalysisGraph {
   Node& operator[](std::string);
   Node& operator[](int);
   Edge& edge(int, int);
+  Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
   // Manujinda: I had to move this up since I am usign this within the private:
@@ -61,17 +62,28 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
-  auto nodes(){
+  auto nodes() {
     using boost::adaptors::transformed;
     return this->node_indices() |
-          transformed([&](int v) -> Node& { return (*this)[v]; });
+           transformed([&](int v) -> Node& { return (*this)[v]; });
   };
 
-  boost::range_detail::integer_iterator<unsigned long> begin() {return boost::vertices(this->graph).first;};
-  boost::range_detail::integer_iterator<unsigned long> end() {return boost::vertices(this->graph).second;};
-
+  boost::range_detail::integer_iterator<unsigned long> begin() {
+    return boost::vertices(this->graph).first;
+  };
+  boost::range_detail::integer_iterator<unsigned long> end() {
+    return boost::vertices(this->graph).second;
+  };
 
   auto successors(int i);
+  auto successors(std::string node_name);
+  auto predecessors(std::string node_name);
+  auto predecessors(int i) {
+    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
+  }
+
+  std::vector<Node> get_successor_list(std::string node_name);
+  std::vector<Node> get_predecessor_list(std::string node_name);
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
@@ -328,10 +340,6 @@ class AnalysisGraph {
 
   /** Number of nodes in the graph */
   int num_nodes() { return boost::num_vertices(graph); }
-
-  auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
-  }
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
   // void
@@ -733,7 +741,6 @@ class AnalysisGraph {
 
   /**
    * Parameterize the indicators of the AnalysisGraph..
-   *
    */
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
@@ -743,17 +750,15 @@ class AnalysisGraph {
                     std::map<std::string, std::string> units = {});
 
   void print_nodes();
-
   void print_edges();
-
   void print_name_to_vertex();
 
-  std::pair<Agraph_t*, GVC_t*>
-  to_agraph(bool simplified_labels =
-                false, /** Whether to create simplified labels or not. */
-            int label_depth =
-                1 /** Depth in the ontology to which simplified labels extend */
-  );
+  std::pair<Agraph_t*, GVC_t*> to_agraph(
+      bool simplified_labels =
+          false, /** Whether to create simplified labels or not. */
+      int label_depth =
+          1, /** Depth in the ontology to which simplified labels extend */
+      std::string node_to_highlight = "");
 
   std::string to_dot();
 
@@ -762,8 +767,8 @@ class AnalysisGraph {
          bool simplified_labels =
              false, /** Whether to create simplified labels or not. */
          int label_depth =
-             1 /** Depth in the ontology to which simplified labels extend */
-  );
+             1, /** Depth in the ontology to which simplified labels extend */
+         std::string node_to_highlight = "");
 
   void print_indicators();
 };
