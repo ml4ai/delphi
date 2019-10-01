@@ -62,6 +62,7 @@ add_library(Delphi
   lib/DiGraph.hpp
   lib/graphviz_interface.cpp
   lib/graphviz_interface.hpp
+  lib/graphviz.cpp
   lib/kde.cpp
   lib/kde.hpp
   lib/random_variables.cpp
