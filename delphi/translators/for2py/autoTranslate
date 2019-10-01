@@ -67,9 +67,9 @@ for file in "$@"; do
 
     pyFile="$targetDir$base".py
     outputFileList="$targetDir$base"_outputList.txt
-    ( set -x; $PYTRANSLATE translate.py -f "$rectifiedAstFile" -g "$pickleFile" -i "$file")
-    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -t "$targetDir" -o "$outputFileList")
+#    ( set -x; $PYTRANSLATE translate.py -f "$rectifiedAstFile" -g "$pickleFile" -i "$file")
+#    ( set -x; $PYTRANSLATE pyTranslate.py -f "$pickleFile" -g "$pyFile" -t "$targetDir" -o "$outputFileList")
     pyFiles+=" $pyFile"
 done
 
-( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList -g $file)
+#( set -x; $PYTRANSLATE genPGM.py -f$pyFiles -p GrFN.json -l lambdas.py -o $outputFileList -g $file)
