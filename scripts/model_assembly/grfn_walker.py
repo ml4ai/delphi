@@ -18,7 +18,7 @@ def main():
         Interval(-math.inf, math.inf, False, False)
         for input_name in petpt.inputs
     }
-    start_variable = petpt.output_node
+    start_variable = petpt.outputs[0]
     print(domain_constraints)
     traverse_GrFN(start_variable, petpt, domain_constraints)
 
