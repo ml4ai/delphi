@@ -1,6 +1,7 @@
 #include <AnalysisGraph.hpp>
 #include <graphviz_interface.hpp>
 #include <range/v3/all.hpp>
+#include <tinycolormap.hpp>
 
 using namespace std;
 
@@ -68,6 +69,11 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
     set_property(trgt, "label", target_label);
 
     edge = agedge(G, src, trgt, 0, true);
+
+    // Dynamic edge color setting
+    //const tinycolormap::Color color = tinycolormap::GetColor(0.5, tinycolormap::ColormapType::Viridis);
+    //auto edge_color = to_string(color.r())+to_string(color.g())+to_string(color.b());
+    //set_property(edge, "color", edge_color);
   }
 
   if (node_to_highlight != "") {
