@@ -407,6 +407,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
           if (stmt["belief"] < belief_score_cutoff) {
             continue;
           }
+
           string subj_str = subj.get<string>();
           string obj_str = obj.get<string>();
 

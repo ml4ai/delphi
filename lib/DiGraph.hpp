@@ -19,7 +19,7 @@ class Node {
   std::string name = "";
   bool visited;
   LatentVar rv;
-  std::string to_string() {return this->name;}
+  std::string to_string() { return this->name; }
 
   std::vector<Indicator> indicators;
   // Maps each indicator name to its index in the indicators vector
@@ -99,8 +99,26 @@ class Node {
   }
 };
 
+class Concept {
+  public:
+  std::string name;
+  std::unordered_map<std::string, std::vector<std::tuple<std::string, double>>>
+      db_refs;
+};
+
+enum class Polarity { positive = 1, negative = -1, unspecified };
+
+class QualitativeDelta {
+  public:
+  Polarity polarity = Polarity::positive;
+  std::vector<std::string> adjectives = {};
+};
+
 class Event {
   public:
+  Concept concept;
+  QualitativeDelta delta;
+
   std::string adjective;
   int polarity;
   std::string concept_name;
