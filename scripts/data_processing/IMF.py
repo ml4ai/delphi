@@ -4,29 +4,22 @@ from glob import glob
 
 dfs = list()
 
-filenames = glob('Data for November 2019 Evaluation/South Sudan Data/IMF/imf*.xlsx')
-# filenames = ['Data for November 2019 Evaluation/South Sudan Data/IMF/imf-dm-export-inflation-2012-2017-SouthSudan.xlsx']
-# filenames = ['Data for November 2019 Evaluation/South Sudan Data/IMF/imf-dm-export--Real_GDP-SouthSudan-Ethiopia.xlsx']
-# filenames = ['Data for November 2019 Evaluation/South Sudan Data/IMF/imf-dm-export-Population-Ethiopia-SSudan.xlsx']
+directoryPath = '../data/raw/data_for_november_2019_evaluation/south_sudan_data/IMF/'
+filenames = glob(directoryPath + 'imf*.xlsx')
 for filename in filenames:
-    # print(filename)
     
     df = pd.read_excel(filename)
-    # df.dropna(axis=0, how='all', inplace=True)
     df = df.transpose()
 
     index_val = df.index.values
-    # print(index_val)
     indicator = index_val[0]
     year_val = index_val[1:]
     
 
     colnames = df.iloc[0,:]
-    # print(colnames)
 
     df = df.iloc[1:, :]
     col_dict = dict(zip(list(range(df.shape[1])), colnames))
-    # print(col_dict)
    
     df.rename(col_dict, axis=1, inplace=True)
     df.dropna(axis=1, how='all', inplace=True)
@@ -48,8 +41,6 @@ for filename in filenames:
 
     df = df[['Year', 'Variable', 'Value', 'Country']]
     
-    # print(df.columns)
-    # print(df.Country.values)
     dfs.append(df)
 
 
@@ -57,4 +48,9 @@ big_frame = pd.concat(dfs, sort=False, ignore_index=False)
 big_frame.index = list(range(big_frame.shape[0]))    
 big_frame['Unit'] = big_frame['Variable'].apply(lambda st: st[st.find('(') + 1:st.find(')')])     
 big_frame['Source'], big_frame['Month'], big_frame['County'], big_frame['State'] = 'IMF', None, None, None
-print(big_frame)
+
+big_frame.dropna(subset=['Value'], inplace=True)
+big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
+
+big_frame.to_csv('IMF-data.csv', index=False)
+
