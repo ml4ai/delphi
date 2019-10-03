@@ -104,7 +104,7 @@ def combine_data(outputFile):
 
     WFP_df = pd.read_csv('WFP-data.csv', index_col=False)
     
-    World-Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
+    World_Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
     
     combined_df = pd.concat(
         [
@@ -125,7 +125,7 @@ def combine_data(outputFile):
             WHO3_df,
             IMF_df,
             WFP_df,
-            World-Bank_df
+            World_Bank_df
         ],
         sort=True,
     ).dropna(subset=["Value"])
