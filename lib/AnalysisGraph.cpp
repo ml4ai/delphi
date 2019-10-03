@@ -3,9 +3,7 @@
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/algorithm/string.hpp>
 #include <cmath>
-#include <range/v3/all.hpp>
 #include <sqlite3.h>
 #include <type_traits>
 
@@ -36,6 +34,32 @@ Node& AnalysisGraph::operator[](string node_name) {
 
 auto AnalysisGraph::successors(int i) {
   return make_iterator_range(boost::adjacent_vertices(i, this->graph));
+}
+
+auto AnalysisGraph::successors(string node_name) {
+  return make_iterator_range(boost::adjacent_vertices(
+      this->name_to_vertex.at(node_name), this->graph));
+}
+
+auto AnalysisGraph::predecessors(string node_name) {
+  return make_iterator_range(boost::adjacent_vertices(
+      this->name_to_vertex.at(node_name), this->graph));
+}
+
+vector<Node> AnalysisGraph::get_successor_list(string node) {
+  vector<Node> successors = {};
+  for (int successor : this->successors(node)) {
+    successors.push_back((*this)[successor]);
+  }
+  return successors;
+}
+
+vector<Node> AnalysisGraph::get_predecessor_list(string node) {
+  vector<Node> predecessors = {};
+  for (int predecessor : this->predecessors(node)) {
+    predecessors.push_back((*this)[predecessor]);
+  }
+  return predecessors;
 }
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
@@ -383,6 +407,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
           if (stmt["belief"] < belief_score_cutoff) {
             continue;
           }
+
           string subj_str = subj.get<string>();
           string obj_str = obj.get<string>();
 
@@ -480,10 +505,10 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
 
-  int src_id = this->get_vertex_id_for_concept(source_concept,
-                                         "get_subgraph_for_concept_pair()");
-  int tgt_id = this->get_vertex_id_for_concept(target_concept,
-                                         "get_subgraph_for_concept_pair()");
+  int src_id = this->get_vertex_id_for_concept(
+      source_concept, "get_subgraph_for_concept_pair()");
+  int tgt_id = this->get_vertex_id_for_concept(
+      target_concept, "get_subgraph_for_concept_pair()");
 
   unordered_set<int> vertices_to_keep;
   unordered_set<string> vertices_to_remove;
@@ -737,83 +762,6 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
-                                                 int label_depth) {
-  using delphi::gv::set_property, delphi::gv::add_node;
-  using namespace ranges::views;
-  using ranges::end, ranges::to;
-  using ranges::views::slice, ranges::views::replace;
-
-  Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
-  GVC_t* gvc;
-  gvc = gvContext();
-
-  // Set global properties
-  set_property(G, AGNODE, "shape", "rectangle");
-  set_property(G, AGNODE, "style", "rounded");
-  set_property(G, AGNODE, "color", "maroon");
-
-#if defined __APPLE__
-  set_property(G, AGNODE, "fontname", "Gill Sans");
-#else
-  set_property(G, AGNODE, "fontname", "Helvetica");
-#endif
-
-  Agnode_t* src;
-  Agnode_t* trgt;
-  Agedge_t* edge;
-
-  string source_label;
-  string target_label;
-
-  // Add CAG links
-  for (auto e : this->edges()) {
-    string source_name = this->graph[boost::source(e, this->graph)].name;
-    string target_name = this->graph[boost::target(e, this->graph)].name;
-
-    // TODO Implement a refined version of this that checks for set size
-    // equality, a la the Python implementation (i.e. check if the length of
-    // the nodeset is the same as the length of the set of simplified labels).
-
-    string source_label, target_label;
-
-    if (simplified_labels == true) {
-      source_label = source_name | split('/') | slice(end - label_depth, end) |
-                     join('/') | replace('_', ' ') | to<string>();
-      target_label = target_name | split('/') | slice(end - label_depth, end) |
-                     join('/') | replace('_', ' ') | to<string>();
-    }
-    else {
-      source_label = source_name;
-      target_label = target_name;
-    }
-
-    src = add_node(G, source_name);
-    set_property(src, "label", source_label);
-
-    trgt = add_node(G, target_name);
-    set_property(trgt, "label", target_label);
-
-    edge = agedge(G, src, trgt, 0, true);
-  }
-
-  // Add concepts, indicators, and link them.
-  for (Node& node : this->nodes()) {
-    string concept_name = node.name;
-    for (auto indicator : node.indicators) {
-      src = add_node(G, concept_name);
-      trgt = add_node(G, indicator.name);
-      set_property(
-          trgt, "label", indicator.name + "\nSource: " + indicator.source);
-      set_property(trgt, "style", "rounded,filled");
-      set_property(trgt, "fillcolor", "lightblue");
-
-      edge = agedge(G, src, trgt, 0, true);
-    }
-  }
-  gvLayout(gvc, G, "dot");
-  return make_pair(G, gvc);
-}
 
 /** Output the graph in DOT format */
 string AnalysisGraph::to_dot() {
@@ -839,16 +787,6 @@ string AnalysisGraph::to_dot() {
 
   // Return the string with the graph in DOT format
   return sstream.str();
-}
-
-void AnalysisGraph::to_png(string filename,
-                           bool simplified_labels,
-                           int label_depth) {
-  auto [G, gvc] = this->to_agraph(simplified_labels, label_depth);
-  gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
-  gvFreeLayout(gvc, G);
-  agclose(G);
-  gvFreeContext(gvc);
 }
 
 AnalysisGraph
@@ -878,12 +816,21 @@ Edge& AnalysisGraph::edge(int i, int j) {
   return this->graph[boost::edge(i, j, this->graph).first];
 }
 
+Edge& AnalysisGraph::edge(string source, string target) {
+  return this->graph[boost::edge(this->name_to_vertex.at(source),
+                                 this->name_to_vertex.at(target),
+                                 this->graph)
+                         .first];
+}
+
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
 
-  int vertex_to_remove = this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
-  int vertex_to_keep = this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
+  int vertex_to_remove =
+      this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
+  int vertex_to_keep =
+      this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
 
   for (int predecessor : this->predecessors(vertex_to_remove)) {
 
@@ -1335,7 +1282,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     break;
   case InitialBeta::MEAN:
     for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-      graph[e].beta = graph[e].kde.value().mu;
+      graph[e].beta = graph[e].kde.mu;
     }
     break;
   case InitialBeta::RANDOM:
@@ -1706,7 +1653,7 @@ double AnalysisGraph::calculate_delta_log_prior() {
   // using .value() (In the case of kde being missing, this
   // will throw an exception). We should follow a process
   // similar to Tran_Mat_Cell::sample_from_prior
-  KDE& kde = this->graph[this->previous_beta.first].kde.value();
+  KDE& kde = this->graph[this->previous_beta.first].kde;
 
   // We have to return: log( p( β_new )) - log( p( β_old ))
   return kde.logpdf(this->graph[this->previous_beta.first].beta) -

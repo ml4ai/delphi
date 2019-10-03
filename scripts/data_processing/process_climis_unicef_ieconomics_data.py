@@ -159,7 +159,7 @@ def process_climis_crop_production_data(data_dir: str):
         "Crops_EstimatedProductionConsumptionBalance*.csv"
     )
     state_county_df = pd.read_csv(
-        f"data/south_sudan_data_fewsnet.tsv", skipinitialspace=True
+        f"data/indicator_data_fewsnet.tsv", skipinitialspace=True
     )
     combined_records = []
 

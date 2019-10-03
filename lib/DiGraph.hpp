@@ -19,7 +19,7 @@ class Node {
   std::string name = "";
   bool visited;
   LatentVar rv;
-  std::string to_string() {return this->name;}
+  std::string to_string() { return this->name; }
 
   std::vector<Indicator> indicators;
   // Maps each indicator name to its index in the indicators vector
@@ -99,8 +99,26 @@ class Node {
   }
 };
 
+class Concept {
+  public:
+  std::string name;
+  std::unordered_map<std::string, std::vector<std::tuple<std::string, double>>>
+      db_refs;
+};
+
+enum class Polarity { positive = 1, negative = -1, unspecified };
+
+class QualitativeDelta {
+  public:
+  Polarity polarity = Polarity::positive;
+  std::vector<std::string> adjectives = {};
+};
+
 class Event {
   public:
+  Concept concept;
+  QualitativeDelta delta;
+
   std::string adjective;
   int polarity;
   std::string concept_name;
@@ -123,6 +141,9 @@ class Statement {
   Statement() : subject(Event("", 0, "")), object(Event("", 0, "")) {}
 
   Statement(Event sub, Event obj) : subject(sub), object(obj) {}
+  int overall_polarity() {
+    return this->subject.polarity * this->object.polarity;
+  }
 };
 
 class Edge {
@@ -131,7 +152,7 @@ class Edge {
   // TODO: Why kde is optional?
   // According to AnalysisGraph::construct_beta_pdfs()
   // it seems all the edges have a kde
-  std::optional<KDE> kde;
+  KDE kde;
   // std::vector<CausalFragment> causalFragments = {};
 
   std::vector<Statement> evidence;
@@ -145,6 +166,15 @@ class Edge {
       stmt.subject.polarity = subject_polarity;
       stmt.object.polarity = object_polarity;
     }
+  }
+
+
+  double get_reinforcement() {
+    std::vector<double> overall_polarities = {};
+    for (auto stmt : this->evidence){
+      overall_polarities.push_back(stmt.overall_polarity());
+    }
+    return utils::mean(overall_polarities);
   }
 };
 

@@ -84,7 +84,7 @@ void AnalysisGraph::construct_beta_pdfs() {
 
     // Initialize the initial β for this edge
     // TODO: Decide the correct way to initialize this
-    this->graph[e].beta = this->graph[e].kde.value().mu;
+    this->graph[e].beta = this->graph[e].kde.mu;
   }
 }
 

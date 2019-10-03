@@ -273,13 +273,13 @@ def perform_intervention(G, n0, partial_t_n0, n1, xlim=(0, 1)):
     print(f"Standard deviation, σ = {np.std(vals[n1]):.2f}")
     plt.tight_layout()
 
-def display(G, simplified_labels = True, label_depth=1):
+def display(G, simplified_labels = True, label_depth=1, node_to_highlight=""):
     from pygraphviz import AGraph
     from IPython.core.display import Image
 
     temporary_image_filename = "tmp.png"
     try:
-        G.to_png(temporary_image_filename, simplified_labels, label_depth)
+        G.to_png(temporary_image_filename, simplified_labels, label_depth, node_to_highlight)
         return Image(temporary_image_filename)
     finally:
         os.remove(temporary_image_filename)

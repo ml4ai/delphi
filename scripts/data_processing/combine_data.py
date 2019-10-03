@@ -95,23 +95,19 @@ def combine_data(outputFile):
     )
     
     WHO1_df = pd.read_csv('data/WHO-data1.csv', index_col=False)
-    
     WHO2_df = pd.read_csv('data/WHO-data2.csv', index_col=False)
-    
     WHO3_df = pd.read_csv('data/WHO-data3.csv', index_col=False)
-    
+
     IMF_df = pd.read_csv('data/IMF-data1.csv', index_col=False)
 
     WFP_df = pd.read_csv('data/WFP-data.csv', index_col=False)
-    
-    World-Bank_df = pd.read_csv('data/World-Bank-data.csv', index_col=False)
-   
+
     acled1_df = pd.read_csv('data/acled-data1.csv', index_col=False)
-    
     acled2_df = pd.read_csv('data/acled-data2.csv', index_col=False)
-    
     acled3_df = pd.read_csv('data/acled-data3.csv', index_col=False)
-    
+
+    World_Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
+
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -131,10 +127,10 @@ def combine_data(outputFile):
             WHO3_df,
             IMF_df,
             WFP_df,
-            World-Bank_df,
             acled1_df,
             acled2_df,
             acled3_df
+            World_Bank_df
         ],
         sort=True,
     ).dropna(subset=["Value"])

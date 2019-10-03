@@ -4,6 +4,15 @@
 /** Syntactic sugar for setting Agraph_t component properties */
 namespace delphi::gv {
 
+void set_property(Agedge_t *edge,
+                  std::string property_name,
+                  std::string property_value) {
+  agsafeset(edge,
+            const_cast<char *>(property_name.c_str()),
+            const_cast<char *>(property_value.c_str()),
+            const_cast<char *>(""));
+}
+
 void set_property(Agnode_t *node,
                   std::string property_name,
                   std::string property_value) {
