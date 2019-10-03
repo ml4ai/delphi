@@ -15,6 +15,7 @@ string rgb2hex(double r, double g, double b, bool with_head = true) {
   ss << hex << ((int)(r*255) << 16 | (int)(g*255) << 8 | (int)(b*255));
   return ss.str();
 }
+
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
                                                  int label_depth,
                                                  string node_to_highlight) {
@@ -100,12 +101,11 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
     edge = agedge(G, src, trgt, 0, true);
 
     // Dynamic edge color setting
-    double colorFromMedian = get_median_beta(e) / max_median_betas;
-    const tinycolormap::Color color = tinycolormap::GetColor(
-        colorFromMedian, tinycolormap::ColormapType::Viridis);
-    string edgeColor = rgb2hex(color.r(), color.g(), color.b());
-    cout << edgeColor << endl;
-    set_property(edge, "color", edgeColor);
+    //double colorFromMedian = get_median_beta(e) / max_median_betas;
+    //const tinycolormap::Color color = tinycolormap::GetColor(
+        //colorFromMedian, tinycolormap::ColormapType::Inferno);
+    //string edgeColor = rgb2hex(color.r(), color.g(), color.b());
+    //set_property(edge, "color", edgeColor);
   }
 
   if (node_to_highlight != "") {
