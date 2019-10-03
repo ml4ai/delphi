@@ -11,4 +11,4 @@ df['Variable'] = df['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
 df['Source'], df['State'], df['County'], df['Month'] = 'World Bank', None, None, None
 
-df.to_csv('World-Bank-data.csv', index=False)
+df.to_csv('../data/World-Bank-data.csv', index=False)

@@ -54,4 +54,4 @@ big_frame['Unit'] = np.where(big_frame['Variable'] == 'Population below minimum 
 
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
-big_frame.to_csv('WHO-data2.csv', index=False)
+big_frame.to_csv('../data/WHO-data2.csv', index=False)

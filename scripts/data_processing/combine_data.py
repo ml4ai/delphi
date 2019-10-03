@@ -105,6 +105,10 @@ def combine_data(outputFile):
     WFP_df = pd.read_csv('WFP-data.csv', index_col=False)
     
     World-Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
+   
+    acled1_df = pd.read_csv('acled-data1.csv', index_col=False)
+    
+    acled2_df = pd.read_csv('acled-data2.csv', index_col=False)
     
     combined_df = pd.concat(
         [
@@ -125,7 +129,9 @@ def combine_data(outputFile):
             WHO3_df,
             IMF_df,
             WFP_df,
-            World-Bank_df
+            World-Bank_df,
+            acled1_df,
+            acled2_df
         ],
         sort=True,
     ).dropna(subset=["Value"])

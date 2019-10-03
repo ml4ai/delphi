@@ -52,5 +52,5 @@ big_frame['Source'], big_frame['Month'], big_frame['County'], big_frame['State']
 big_frame.dropna(subset=['Value'], inplace=True)
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
-big_frame.to_csv('IMF-data.csv', index=False)
+big_frame.to_csv('../data/IMF-data.csv', index=False)
 

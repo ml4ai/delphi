@@ -26,4 +26,4 @@ big_frame = pd.concat(dfs, sort=False, ignore_index=True)
 
 big_frame['Source'],  big_frame['State'], big_frame['County'] = 'WFP', None, None
 
-big_frame.to_csv('WFP-data.csv', index=False)
+big_frame.to_csv('../data/WFP-data.csv', index=False)
