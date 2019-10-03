@@ -421,6 +421,7 @@ class GrFNGenerator(object):
         # container body
         container_variables = argument_variable_grfn + function_variable_grfn
         # Find the list of updated identifiers
+        # TODO: CHECK HERE
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
                                                      function_variable_grfn,
@@ -1927,14 +1928,25 @@ class GrFNGenerator(object):
                 for functions in self.function_argument_map:
                     if self.function_argument_map[functions]["name"] == \
                             function["function"]["name"]:
+                        # DEBUG
+                        print ("self.function_argument_map: ", self.function_argument_map)
                         for updated in self.function_argument_map[
                                 functions]["updated_list"]:
+                            # DEBUG
+                            print ("    updated: ", updated)
                             (_, variable_name, _) = updated.split('::')
+                            print ("    variable_name: ", variable_name)
+                            # DEBUG
+                            print ("    function[input]: ", function["input"])
+                            for var in function["input"]:
+                                print ("        var: ", var)
+                                index = var.rsplit('::', 1)[1]
+                            """
                             index = [
                                 var.rsplit('::', 1)[1]
                                 for var in function["input"]
                                 if variable_name in var
-                            ][0]
+                            ][0]"""
                             function["updated"].append(
                                 f"@variable::{variable_name}::{int(index)+1}"
                             )
@@ -1957,6 +1969,8 @@ class GrFNGenerator(object):
                     "state": state
                 }
             grfn["functions"].append(function)
+
+            print ("    Final GrFN: ", grfn, "\n")
         return [grfn]
 
     def process_compare(self, node, state, *_):
