@@ -46,7 +46,7 @@ for i in range(1,df.shape[0]):
     big_frame = pd.concat([big_frame, df_new], sort=False, ignore_index=True)
 
 big_frame = big_frame[big_frame['Country']!='Africa']
-big_frame['Source'], big_frame['Month'], big_frame['County'] = 'WHO', None, None
+big_frame['Source'], big_frame['Month'], big_frame['County'], big_frame['State'] = 'WHO', None, None, None
 
 big_frame.dropna(subset=['Value'], inplace=True)
 big_frame = big_frame[big_frame['Value'] != 'No data']
@@ -56,7 +56,7 @@ big_frame['Value'] = big_frame['Value'].str.split('[').str[0]
 big_frame['Unit'] = np.where(big_frame['Variable'] == 'Neonates protected at birth against neonatal tetanus (PAB) (%)', '%',big_frame['Variable'].str.findall(r'(?<=\()[^(]*(?=\))').str[0])
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
-big_frame.to_csv('WHO-cleaned.csv', index=False)
+big_frame.to_csv('WHO-data1.csv', index=False)
 
 
 
