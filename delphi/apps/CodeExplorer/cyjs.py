@@ -17,20 +17,15 @@ sys.path.insert(0, "/tmp/automates")
 
 
 def process_tr_dicts():
+    grfn_path = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+    petasce_path = os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json")
 
-    with open(
-        os.path.join(THIS_FOLDER, "grfn_with_alignments.json"), "r"
-    ) as f:
-        tr_dict_1 = json.load(f)
-
-    with open(
-        os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json"), "r"
-    ) as f:
-        tr_dict_2 = json.load(f)
+    tr_dict_1 = json.load(open(grfn_path, "r", encoding="utf-8"))
+    tr_dict_2 = json.load(open(petasce_path, "r", encoding="utf-8"))
 
     tr_dict = {
-        "variables": tr_dict_1["variables"][0]+ tr_dict_2["variables"][0],
-        "alignments": tr_dict_1["alignments"][0]+ tr_dict_2["alignments"][0],
+        "variables": tr_dict_1["variables"][0] + tr_dict_2["variables"][0],
+        "alignments": tr_dict_1["alignments"][0] + tr_dict_2["alignments"][0],
     }
 
     tr_dict_processed = {}

@@ -93,8 +93,19 @@ def combine_data(outputFile):
     migration6_df = pd.read_csv(
         "data/south_sudan_UNHCR_migration_data_old.tsv", index_col=False, sep="\t"
     )
+    
+    WHO1_df = pd.read_csv('WHO-data1.csv', index_col=False)
+    
+    WHO2_df = pd.read_csv('WHO-data2.csv', index_col=False)
+    
+    WHO3_df = pd.read_csv('WHO-data3.csv', index_col=False)
+    
+    IMF_df = pd.read_csv('IMF-data1.csv', index_col=False)
 
-
+    WFP_df = pd.read_csv('WFP-data.csv', index_col=False)
+    
+    World-Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
+    
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -109,6 +120,12 @@ def combine_data(outputFile):
             migration4_df,
             migration5_df,
             migration6_df,
+            WHO1_df,
+            WHO2_df,
+            WHO3_df,
+            IMF_df,
+            WFP_df,
+            World-Bank_df
         ],
         sort=True,
     ).dropna(subset=["Value"])

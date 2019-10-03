@@ -53,7 +53,7 @@ include_directories(external/eigen)
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
 
-add_library(Delphi 
+add_library(Delphi
   lib/AnalysisGraph.cpp
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp

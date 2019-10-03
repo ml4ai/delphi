@@ -483,7 +483,7 @@ def fortran_to_grfn(
 
     # Open and read original fortran file
     try:
-        with open(original_fortran_file, "r") as f:
+        with open(original_fortran_file, "r", encoding="utf-8") as f:
             input_lines = f.readlines()
     except IOError:
         assert False, f"Fortran file: {original_fortran_file} Not Found"
