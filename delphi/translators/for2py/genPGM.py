@@ -3,6 +3,7 @@
 import ast
 import sys
 import tokenize
+import pickle
 from datetime import datetime
 import re
 import argparse
@@ -164,6 +165,7 @@ class GrFNGenerator(object):
         self.update_functions = {}
         self.mode_mapper = {}
         self.name_mapper = {}
+        self.variable_map = {}
         self.function_argument_map = {}
         # Holds all declared arrays {symbol:domain}
         self.arrays = {}
@@ -2214,11 +2216,17 @@ class GrFNGenerator(object):
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
                     state.last_definitions[target_name] = 0
+
+                if var_name in self.variable_map and \
+                        self.variable_map[var_name]["parameter"]:
+                    is_mutable = True
+                else:
+                    is_mutable = False
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
                     "elem_type": array_type,
-                    "mutable": True,
+                    "mutable": is_mutable,
                 }
                 # DEBUG
                 print ("var_name: ", var_name)
@@ -2878,7 +2886,7 @@ class GrFNGenerator(object):
 
         # Only array variables hold dimensions in their domain
         # when they get declared, we identify the array variable
-        # declaraion by simply checking the existance of the dimensions
+        # declaration by simply checking the existence of the dimensions
         # key in the domain. Also, the array was previously passed
         # to functions.
         if (
@@ -2907,8 +2915,8 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-        # TODO Change the domain constraint. How do you figure the domain
-        #  constraint out?
+        # TODO Change the domain constraint. How do you figure out the domain
+        #  constraint?
         domain_constraint = "(and (> v -infty) (< v infty)))"
 
         variable_definition = {
@@ -2926,6 +2934,11 @@ class GrFNGenerator(object):
             domain_dictionary = self.arrays[variable]
         else:
             variable_type = state.variable_types[variable]
+            if variable in self.variable_map and \
+                    self.variable_map[variable]["parameter"]:
+                is_mutable = True
+            else:
+                is_mutable = False
             if (
                 self.handling_f_args
                 and variable_type == "array"
@@ -2933,7 +2946,8 @@ class GrFNGenerator(object):
                 self.f_array_arg.append(variable)
             domain_dictionary = {
                 "name": self.type_def_map[variable_type],
-                "type": "type"
+                "type": "type",
+                "mutable": is_mutable,
             }
         return domain_dictionary
 
@@ -3437,7 +3451,16 @@ def create_grfn_dict(
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
+
+    try:
+        with open(f"{file_name[:-3]}_variables_pickle", "rb") as f:
+            variable_map = pickle.load(f)
+        generator.variable_map = variable_map
+    except IOError:
+        raise For2PyError(f"Unable to read file {file_name}.")
+
     grfn = generator.gen_grfn(asts, state, "")[0]
+
 
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
