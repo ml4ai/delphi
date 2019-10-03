@@ -1811,8 +1811,6 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
-            # DEBUG
-            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1930,19 +1928,12 @@ class GrFNGenerator(object):
 
                         for var in function["input"]:
                             input_var = var.rsplit('::')
-                            # DEBUG
-                            print ("input_var: ", input_var)
                             index = input_var[2]
                             if (
                                 input_var[1] in self.f_array_arg
                                 or var in self.function_argument_map[functions]["updated_list"]
                             ):
                                 variable_name = input_var[1]
-                                # DEBUG
-                                print ("variable_name: ", variable_name)
-
-                                # DEBUG
-                                print ("    self.f_array_arg: ", self.f_array_arg)
                                 function["updated"].append(
                                     f"@variable::{variable_name}::{int(index)+1}"
                                 )
