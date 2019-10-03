@@ -1812,8 +1812,6 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
-            # DEBUG
-            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1928,25 +1926,13 @@ class GrFNGenerator(object):
                 for functions in self.function_argument_map:
                     if self.function_argument_map[functions]["name"] == \
                             function["function"]["name"]:
-                        # DEBUG
-                        print ("self.function_argument_map: ", self.function_argument_map)
                         for updated in self.function_argument_map[
                                 functions]["updated_list"]:
-                            # DEBUG
-                            print ("    updated: ", updated)
                             (_, variable_name, _) = updated.split('::')
-                            print ("    variable_name: ", variable_name)
-                            # DEBUG
-                            print ("    function[input]: ", function["input"])
+
                             for var in function["input"]:
-                                print ("        var: ", var)
                                 index = var.rsplit('::', 1)[1]
-                            """
-                            index = [
-                                var.rsplit('::', 1)[1]
-                                for var in function["input"]
-                                if variable_name in var
-                            ][0]"""
+
                             function["updated"].append(
                                 f"@variable::{variable_name}::{int(index)+1}"
                             )
@@ -1970,7 +1956,6 @@ class GrFNGenerator(object):
                 }
             grfn["functions"].append(function)
 
-            print ("    Final GrFN: ", grfn, "\n")
         return [grfn]
 
     def process_compare(self, node, state, *_):
@@ -2234,8 +2219,6 @@ class GrFNGenerator(object):
                     "elem_type": array_type,
                     "mutable": True,
                 }
-                # DEBUG
-                print ("var_name: ", var_name)
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
