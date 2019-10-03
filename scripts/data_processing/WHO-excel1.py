@@ -1,12 +1,13 @@
 import pandas as pd
 from glob import glob
+import numpy as np
 
 excel_files = ['Life expectancy-Ethiopia-SSudan.xls', 'child_malnutrition-Ethiopia-SSudan.xlsx']
 
 dfs = list()
 
 for filename in excel_files:
-    df = pd.read_excel('Data for November 2019 Evaluation/South Sudan Data/WHO/'+ filename)
+    df = pd.read_excel('../data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/'+ filename)
 
 
     col1 = df.iloc[0, 0]
@@ -31,14 +32,21 @@ for filename in excel_files:
         big_frame = pd.concat([big_frame, df2], sort=False, ignore_index=True)
 
     big_frame['Source'] = 'WHO'
-    big_frame['County'], big_frame['Month'] = None, None
+    big_frame['County'], big_frame['Month'], big_frame['State'] = None, None, None
     big_frame['Unit'] = big_frame['Variable'].apply(lambda st: st[st.find('(') + 1:st.find(')')] )
-    # print(big_frame.columns)
-    # print(big_frame)
     dfs.append(big_frame)
 
 big_frame = pd.concat(dfs, sort=False, ignore_index=True)
-print(big_frame)
 
-# print(big_frame)
+big_frame.dropna(subset=['Value'], inplace=True)
 
+big_frame['Unit'] = big_frame['Variable'].str.findall(r'(?<=\()[^(]*(?=\))').str[0]
+big_frame['Unit'] = np.where(big_frame['Variable'].str.contains('HALE'),'%',big_frame['Unit'])
+
+
+
+big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
+big_frame['Variable'] = big_frame['Variable'].str.replace(r'\.[0-9]', '').str.strip()
+big_frame['Variable'] = big_frame['Variable'].str.replace(r'\<br>', '')
+
+big_frame.to_csv('WHO-data3.csv', index=False)
