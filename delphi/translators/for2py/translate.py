@@ -108,6 +108,7 @@ class XML_to_JSON_translator(object):
             "write",
             "save-stmt",
             "saved-entity",
+            "constants",
         ]
         self.handled_tags += self.libRtns
 
@@ -142,6 +143,8 @@ class XML_to_JSON_translator(object):
             "use": self.process_use,
             "variables": self.process_variables,
             "variable": self.process_variable,
+            "constants": self.process_constants,
+            "constant": self.process_constant,
             "write": self.process_direct_map,
             "derived-types": self.process_derived_types,
             "length": self.process_length,
@@ -237,6 +240,15 @@ class XML_to_JSON_translator(object):
             root.tag == "declaration"
         ), f"The root must be <declaration>. Current tag is {root.tag} with "\
             f"{root.attrib} attributes."
+
+        # Check if this is a parameter declaration under which case,
+        # the declaration would be turned into an assignment operation
+        if root.attrib.get("type") == "parameter":
+            parameter_assignment = []
+            for node in root:
+                parameter_assignment += self.parseTree(node, state)
+            return parameter_assignment
+
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
@@ -418,6 +430,53 @@ class XML_to_JSON_translator(object):
             return [variable]
         except:
             return []
+
+    def process_constants(self, root, state) -> List[Dict]:
+        """ This function handles <constants> element, which its duty is to
+        call <constant> tag processor"""
+        try:
+            constants = []
+            assert (
+                root.tag == "constants"
+            ), f"The root must be <constants>. Current tag is {root.tag}" \
+                f"with {root.attrib} attributes."
+            for node in root:
+                constants += self.parseTree(node, state)
+            return constants
+        except:
+            return []
+
+    def process_constant(self, root, state) -> List[Dict]:
+        """
+        This function will get called from the process_constants function, and
+        it will construct the constant AST list, then return it back to the
+        called function.
+        """
+
+        assert (
+                root.tag == "constant"
+        ), f"The root must be <constant>. Current tag is {root.tag} with " \
+           f"{root.attrib} attributes."
+        assign = {"tag": "assignment"}
+
+        # Populate the target field of the parameter assignment
+        target = {
+            "tag": "ref",  # Default for a normal variable
+            "is_array": root.attrib["is_array"],
+            "name": root.attrib["name"].lower(),
+            "numPartRef": "1",  # Default value of 1
+            "is_arg": "false",
+            "hasSubscripts": "false",  # Default of false
+            "is_derived_type_ref": "false",  # Default of false
+            "is_parameter": "true",
+        }
+
+        assign["target"] = [target]
+
+        for node in root:
+            assign["value"] = self.parseTree(node, state)
+
+        return [assign]
 
     def process_derived_types(self, root, state) -> List[Dict]:
         """ This function handles <derived-types> tag nested in the <type> tag.
@@ -655,6 +714,7 @@ class XML_to_JSON_translator(object):
                 "hasSubscripts": root.attrib["hasSubscripts"],
                 "is_array": is_array,
                 "is_arg": "false",
+                "is_parameter": "false",
             }
 
             # Check whether the passed element is for derived type reference
