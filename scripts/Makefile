@@ -107,6 +107,15 @@ data/WFP-data.csv: data_processing/WFP.py $(RAW)/data_for_november_2019_evaluati
 data/World-Bank-data.csv: data_processing/World-Bank.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/World\ Bank
 	python $< 
 
+data/acled-data1.csv: data_processing/acled-South-Sudan.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
+	python $< 
+
+
+data/acled-data2.csv: data_processing/acled-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/ethiopia_east_africa_data/Armed\ Conflict\ Location\ &\ Event\ Data\ Project\ -\ ACLED
+	python $< 
+
+
+
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
