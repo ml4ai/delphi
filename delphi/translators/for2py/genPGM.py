@@ -52,6 +52,20 @@ ANNOTATE_MAP = {
     "list": "array",
     "bool": "bool",
     "file_handle": "fh",
+    "Array": "array",
+}
+
+# Arithmetic operator dictionary
+# TODO: Complete the list
+ARITHMETIC_OPS = {
+    "Add": "+",
+    "Sub": "-",
+    "Div": "/",
+    "Mult": "*",
+    "+": "+",
+    "-": "-",
+    "/": "/",
+    "*": "*",
 }
 
 # The UNNECESSARY_TYPES tuple holds the ast types to ignore
@@ -90,7 +104,7 @@ class GrFNState:
             scope_path: Optional[List] = [],
             arrays: Optional[Dict] = {},
             array_types: Optional[Dict] = {},
-            array_assign_name: Optional = None
+            array_assign_name: Optional = None,
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -151,15 +165,30 @@ class GrFNGenerator(object):
         self.mode_mapper = {}
         self.name_mapper = {}
         self.function_argument_map = {}
+        # Holds all declared arrays {symbol:domain}
         self.arrays = {}
+        # Holds declared array types {symbol:type}
         self.array_types = {}
         self.array_assign_name = None
+        # Holds a list of multi-dimensional array symbols
+        self.md_array = []
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
         self.current_scope = None
         self.loop_index = -1
         self.parent_loop_state = None
+        self.handling_f_args = True
+        self.f_array_arg = []
+        # {symbol:index}
+        self.updated_arrays = {}
+        # {symbol: [_list_of_domains_]}
+        # This mapping is required as there may be
+        # a multiple array passes to the function
+        # argument and we do not want to replace one
+        # with another. We need to update all function
+        # argument domains for arrays
+        self.array_arg_domain = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -172,6 +201,7 @@ class GrFNGenerator(object):
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
+            "array": "array",
         }
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
@@ -326,7 +356,6 @@ class GrFNGenerator(object):
                 variable_types=local_variable_types,
                 last_definition_default=-1,
             )
-
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
         # Keep a map of the arguments for each function. This will be used in
@@ -344,13 +373,14 @@ class GrFNGenerator(object):
         self.current_scope = node.name
         # Create the variable definition for the arguments
         argument_variable_grfn = []
+        self.handling_f_args = True
         for argument in argument_list:
             argument_variable_grfn.append(
                 self.generate_variable_definition(argument,
                                                   None,
                                                   function_state)
             )
-
+        self.handling_f_args = False
         # Generate the `variable_identifier_name` for each container
         # argument.
         # TODO Currently only variables are handled as container arguments.
@@ -393,7 +423,12 @@ class GrFNGenerator(object):
         # Find the list of updated identifiers
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
-                                                     function_variable_grfn)
+                                                     function_variable_grfn,
+                                                     self.f_array_arg,
+                                                     function_state)
+            for array in self.f_array_arg:
+                if array in function_state.last_definitions:
+                    self.updated_arrays[array] = function_state.last_definitions[array]
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -439,7 +474,6 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
-
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -469,7 +503,10 @@ class GrFNGenerator(object):
 
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
-                state.last_definitions[node.arg] = -1
+                if node.arg not in self.updated_arrays:
+                    state.last_definitions[node.arg] = -1
+                else:
+                    state.last_definitions[node.arg] = self.updated_arrays[node.arg]
             else:
                 assert False, ("Call source is not ast.FunctionDef. "
                                "Handle this by setting state.last_definitions["
@@ -529,8 +566,9 @@ class GrFNGenerator(object):
         # arise, the following code might need to be rewritten and the
         # following return code will have to be added as well.
         # return elements if len(elements) == 1 else [{"list": elements}]
+        element_grfn = []
         for list_element in node.elts:
-            element_grfn = self.gen_grfn(list_element, state, "List")
+            element_grfn.append(self.gen_grfn(list_element, state, "List"))
 
         return element_grfn
 
@@ -1714,14 +1752,27 @@ class GrFNGenerator(object):
                     state.next_definitions,
                     state.last_definition_default
                 )
-                arr_index = call["inputs"][0][0]["var"]["variable"]
+                arr_index = self._generate_array_index(node)
+                str_arr_index = ""
+                str_arr_for_varname = ""
+                for idx in arr_index:
+                    if function_name not in self.md_array:
+                        str_arr_index += str(idx)
+                        str_arr_for_varname += str(idx)
+                    else:
+                        str_arr_index += f"[{idx}]"
+                        str_arr_for_varname += f"{idx}"
+                # arr_index = call["inputs"][0][0]["var"]["variable"]
                 # Create a new variable spec for indexed array. Ex.
                 # arr(i) will be arr_i. This will be added as a new
                 # variable in GrFN.
                 variable_spec = self.generate_variable_definition(
-                    function_name, arr_index, state)
+                    function_name, str_arr_for_varname, state)
                 grfn["variables"].append(variable_spec)
-                state.array_assign_name = f"{function_name}[{arr_index}]"
+                if function_name not in self.md_array:
+                    state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                else:
+                    state.array_assign_name = f"{function_name}{str_arr_index}"
                 # We want to have a new variable spec for the original
                 # array (arr(i), for example) and generate the function
                 # name with it.
@@ -1760,6 +1811,8 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
+            # DEBUG
+            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1788,7 +1841,7 @@ class GrFNGenerator(object):
                     # gets assigned to an array. For example, arr(i) =
                     # __expression__ or arr(i) = arr2(i).
                     elif "call" in arg[0]:
-                        function = self.generate_array_setter(
+                        function = self._generate_array_setter(
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
@@ -1809,26 +1862,25 @@ class GrFNGenerator(object):
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
-                    if "call" in arg[0]:
-                        if function_name in self.arrays:
-                            # If array type is <float> the argument holder
-                            # has a different structure that it does not hold
-                            # function info. like when an array is 'int' type
-                            # [{'call': {'function': '_type_', 'inputs': [...]]
-                            # which causes an error. Thus, the code below fixes
-                            # by correctly structuring it.
-                            array_type = self.arrays[function_name]['elem_type']
-                            fixed_arg = [{'call': {
-                                'function': array_type,
-                                'inputs': [arg]}}]
-                            function = self.generate_array_setter(
-                                node, function, fixed_arg,
-                                function_name, container_id_name,
-                                arr_index, state)
+                    if function_name in self.arrays:
+                        # If array type is <float> the argument holder
+                        # has a different structure that it does not hold
+                        # function info. like when an array is 'int' type
+                        # [{'call': {'function': '_type_', 'inputs': [...]]
+                        # which causes an error. Thus, the code below fixes
+                        # by correctly structuring it.
+                        array_type = self.arrays[function_name]['elem_type']
+                        fixed_arg = [{'call': {
+                            'function': array_type,
+                            'inputs': [arg]}}]
+                        function = self._generate_array_setter(
+                            node, function, fixed_arg,
+                            function_name, container_id_name,
+                            arr_index, state)
                     else:
-                        raise For2PyError(
-                            "Only 1 input per argument supported right now."
-                        )
+                        assert (
+                             "call" in arg[0]
+                        ), "Only 1 input per argument supported right now."
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
@@ -1997,8 +2049,8 @@ class GrFNGenerator(object):
         # If the source i.e. assigned value is `None` (e.g. day: List[int] =
         # [None]), only update the data type of the targets and populate the
         # `annotated_assigned` map. No further processing will be done.
-        if len(sources) == 1 and ('value' in sources[0].keys()) and \
-                sources[0]['value'] is None:
+        if len(sources) == 1 and ('value' in sources[0][0].keys()) and \
+                sources[0][0]['value'] is None:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
                     self._get_variable_type(node.annotation)
@@ -2168,6 +2220,8 @@ class GrFNGenerator(object):
                     "elem_type": array_type,
                     "mutable": True,
                 }
+                # DEBUG
+                print ("var_name: ", var_name)
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
@@ -2222,7 +2276,6 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
-
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2810,6 +2863,43 @@ class GrFNGenerator(object):
             index = 0
 
         domain = self.get_domain_dictionary(variable, state)
+        # Since we need to update the domain of arrays that
+        # were passed to a function once the program actually
+        # finds about it, we need to temporarily hold the domain
+        # information in the dictionary of domain list.
+        if (
+            "name" in domain
+            and domain["name"] == "array"
+        ):
+            if variable in self.array_arg_domain:
+                self.array_arg_domain[variable].append(domain)
+            else:
+                self.array_arg_domain[variable] = [domain]
+
+        # Only array variables hold dimensions in their domain
+        # when they get declared, we identify the array variable
+        # declaraion by simply checking the existance of the dimensions
+        # key in the domain. Also, the array was previously passed
+        # to functions.
+        if (
+            "dimensions" in domain
+            and variable in self.array_arg_domain
+        ):
+            # Since we can't simply do "dom = domain"
+            # as this will do a replacement of the dict element
+            # not the actual domain object of the original function
+            # argument, we need to clean off the existing contents
+            # first and then add the array domain spec one-by-one.
+            for dom in self.array_arg_domain[variable]:
+                if "name" in dom:
+                    del dom["name"]
+                if "type" in dom:
+                    del dom["type"]
+                dom["index"] = domain["index"]
+                dom["dimensions"] = domain["dimensions"]
+                dom["elem_type"] = domain["elem_type"]
+                dom["mutable"] = domain["mutable"]
+
         variable_gensym = self.generate_gensym("variable")
 
         if arr_index is not None:
@@ -2817,7 +2907,6 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-
         # TODO Change the domain constraint. How do you figure the domain
         #  constraint out?
         domain_constraint = "(and (> v -infty) (< v infty)))"
@@ -2837,6 +2926,11 @@ class GrFNGenerator(object):
             domain_dictionary = self.arrays[variable]
         else:
             variable_type = state.variable_types[variable]
+            if (
+                self.handling_f_args
+                and variable_type == "array"
+            ):
+                self.f_array_arg.append(variable)
             domain_dictionary = {
                 "name": self.type_def_map[variable_type],
                 "type": "type"
@@ -2855,7 +2949,9 @@ class GrFNGenerator(object):
             namespace_scope = variable_match.group("namescope")
             variable_name = variable_match.group("variable")
             if arr_index:
-                variable_name = variable_name + f"_{arr_index}"
+                variable_name += "_"
+                for index in arr_index:
+                    variable_name = variable_name + f"{index}"
             variable_index = variable_match.group("index")
 
             name = namespace_scope + function_type + variable_name + "::" + \
@@ -2916,7 +3012,6 @@ class GrFNGenerator(object):
                                 )
                                 grfn_dict[0]['variables'].append(variable_spec)
                             body_function['updated'] = updated_variable
-
         return grfn_dict
 
     @staticmethod
@@ -2935,14 +3030,14 @@ class GrFNGenerator(object):
                 None.
         """
         # A multi-dimensional array handler
-        if "list" in inputs[1][0]["list"][0]:
-            for lists in inputs[1][0]["list"]:
-                low_bound = int(lists["list"][0]["value"])
-                upper_bound = int(lists["list"][1]["value"])
+        if len(inputs[1]) > 1:
+            for lst in inputs[1]:
+                low_bound = int(lst[0]["list"][0]["value"])
+                upper_bound = int(lst[0]["list"][1]["value"])
                 array_dimensions.append(upper_bound - low_bound + 1)
         # 1-D array handler
         else:
-            bounds = inputs[1][0]["list"]
+            bounds = inputs[1][0][0]["list"]
             # Get lower bound of an array
             if "type" in bounds[0]:
                 # When an index is a scalar value
@@ -2967,7 +3062,7 @@ class GrFNGenerator(object):
                 assert False, f"low_bound type: {type(low_bound)} is " \
                               f"currently not handled."
 
-    def generate_array_setter(self, node, function, arg, name,
+    def _generate_array_setter(self, node, function, arg, name,
                               container_id_name, arr_index, state
                               ):
         """
@@ -2988,10 +3083,14 @@ class GrFNGenerator(object):
                 (list) function: A completed list of function.
         """
         argument_list = list()
-
         # Array index is always one of
         # the lambda function argument
-        argument_list.append(arr_index)
+        for idx in arr_index:
+            if (
+                    idx not in ARITHMETIC_OPS
+                    and isinstance(idx, str)
+            ):
+                argument_list.append(idx)
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
             # If an input is a simple variable
@@ -3045,6 +3144,59 @@ class GrFNGenerator(object):
 
         return function
 
+    def _generate_array_index (self, node):
+        """This function is for generating array index grfn
+        handling both single and multi-dimensional arrays.
+
+        Args:
+            node: The node referring to the array.
+           
+        Returns:
+            (list) index: Formed array index.
+        """
+        args = node.value.args[0]
+        args_name = args.__repr__().split()[0][2:]
+        # Case 1: Single dimensional array
+        if args_name == "ast.Subscript":
+            return [args.value.id]
+        # Case 1.1: Single dimensional array with arithmetic
+        # operation as setter index
+        elif args_name == "ast.BinOp":
+            left_ast = args.left.__repr__().split()[0][2:]
+            right_ast = args.right.__repr__().split()[0][2:]
+            # Get the operator's left side value
+            if left_ast == "ast.Subscript":
+                left = args.left.value.id
+            elif left_ast == "ast.Num":
+                left = args.left.n
+            # Get the arithmetic operator
+            op = ARITHMETIC_OPS[args.op.__repr__().split()[0][6:]]
+            # Get the operator's right side value
+            if right_ast == "ast.Subscript":
+                right = args.right.value.id
+            elif right_ast == "ast.Num":
+                right = args.right.n
+            return [left, op, right]
+        # Case 2: Multi-dimensional array
+        elif args_name == "ast.Tuple":
+            md_array_name = node.value.func.value.id
+            if md_array_name not in self.md_array:
+                self.md_array.append(md_array_name)
+            dimensions = args.elts
+            dimension_list = []
+            for dimension in dimensions:
+                ast_name = dimension.__repr__().split()[0][2:]
+                if ast_name == "ast.Subscript":
+                    dimension_list.append(dimension.value.id)
+                else:
+                    assert (
+                        ast_name == "ast.Num"
+                    ), f"Unable to handle {ast_name} for multi-dimensional array"
+            return dimension_list
+        else:
+            assert False, f"Unable to handle {args_name}"
+
+
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
         """
@@ -3061,7 +3213,7 @@ class GrFNGenerator(object):
         return main_string
 
     @staticmethod
-    def _find_updated(argument_list, body_variable_list):
+    def _find_updated(argument_list, body_variable_list, f_array_arg, state):
         """
             This function finds and generates a list of updated identifiers
             in a container.
@@ -3100,6 +3252,12 @@ class GrFNGenerator(object):
                     int(body_dict[argument]) > int(argument_dict[argument]):
                 updated_list.append(f"@variable::{argument}::"
                                     f"{body_dict[argument]}")
+            # If argument is an array type, get the current index and
+            # update it. Then, append to the function's updated list
+            elif argument in f_array_arg:
+                updated_idx = state.last_definitions[argument]
+                updated_list.append(f"@variable::{argument}::"
+                                    f"{updated_idx}")
 
         return updated_list
 
@@ -3260,7 +3418,7 @@ def create_grfn_dict(
         lambda_file: str,
         asts: List,
         file_name: str,
-        mode_mapper_dict: dict,
+        mode_mapper_dict: list,
         original_file: str,
         save_file=False,
 ) -> Dict:
@@ -3277,7 +3435,7 @@ def create_grfn_dict(
 
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
-    generator.mode_mapper = mode_mapper_dict
+    generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
     grfn = generator.gen_grfn(asts, state, "")[0]
 
@@ -3426,7 +3584,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)[0]
+            module_mapper = get_index(xml_file)
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
@@ -3438,7 +3596,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
-            file_handle.write(json.dumps(grfn_dict, indent=2))
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.

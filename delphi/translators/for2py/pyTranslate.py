@@ -634,7 +634,7 @@ class PythonCodeGenerator(object):
             "type": var_type
         })
         if "is_array" in node and node["is_array"] == "true":
-            self.pyStrings.append(f"{arg_name}")
+            self.pyStrings.append(f"{arg_name}: Array")
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"

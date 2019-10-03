@@ -155,7 +155,7 @@ def create_food_security_data_table(region: str, country: str):
                                 }
                             )
     df = pd.DataFrame(ipc_records)
-    df.to_csv("data/south_sudan_data_fewsnet.tsv", sep="\t", index=False)
+    df.to_csv(sys.argv[1], sep="\t", index=False)
 
 
 if __name__ == "__main__":

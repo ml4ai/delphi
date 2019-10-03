@@ -1,5 +1,6 @@
 import ast
 import sys
+import re
 from . import For2PyError
 
 
@@ -141,11 +142,17 @@ class genCode:
         # This tuple handler is a very specific method
         # for handling an array declaration lambda.
         code_string = "[0] * ("
-        code_string += (
-            str(elements[0])
-            if len(elements) == 1
-            else "{0}".format(" + ".join(elements))
-        )
+        if len(elements) == 1:
+            code_string += str(elements[0])
+        else:
+            low_bound = None
+            # Calculate the size of each dimension
+            for elem in elements:
+                if low_bound == None:
+                    low_bound = elem
+                else:
+                    code_string += f"{elem} - {low_bound}"
+                    low_bound = None
         code_string += ")"
         return code_string
 

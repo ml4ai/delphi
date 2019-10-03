@@ -19,6 +19,7 @@ class Node {
   std::string name = "";
   bool visited;
   LatentVar rv;
+  std::string to_string() {return this->name;}
 
   std::vector<Indicator> indicators;
   // Maps each indicator name to its index in the indicators vector
@@ -159,18 +160,3 @@ typedef boost::adjacency_list<boost::setS,
                               Edge,
                               GraphData>
     DiGraph;
-
-typedef boost::iterator_range<boost::adjacency_iterator<
-    DiGraph,
-    long unsigned int,
-    boost::detail::out_edge_iter<
-        std::_Rb_tree_const_iterator<boost::detail::stored_edge_iter<
-            long unsigned int,
-            std::_List_iterator<boost::list_edge<long unsigned int, Edge>>,
-            Edge>>,
-        long unsigned int,
-        boost::detail::edge_desc_impl<boost::bidirectional_tag,
-                                      long unsigned int>,
-        long int>,
-    long int>>
-    NEIGHBOR_ITERATOR;
