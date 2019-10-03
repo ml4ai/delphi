@@ -141,6 +141,9 @@ class Statement {
   Statement() : subject(Event("", 0, "")), object(Event("", 0, "")) {}
 
   Statement(Event sub, Event obj) : subject(sub), object(obj) {}
+  int overall_polarity() {
+    return this->subject.polarity * this->object.polarity;
+  }
 };
 
 class Edge {
@@ -163,6 +166,15 @@ class Edge {
       stmt.subject.polarity = subject_polarity;
       stmt.object.polarity = object_polarity;
     }
+  }
+
+
+  double get_reinforcement() {
+    std::vector<double> overall_polarities = {};
+    for (auto stmt : this->evidence){
+      overall_polarities.push_back(stmt.overall_polarity());
+    }
+    return utils::mean(overall_polarities);
   }
 };
 
