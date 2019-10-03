@@ -129,7 +129,7 @@ def combine_data(outputFile):
             WFP_df,
             acled1_df,
             acled2_df,
-            acled3_df
+            acled3_df,
             World_Bank_df
         ],
         sort=True,
