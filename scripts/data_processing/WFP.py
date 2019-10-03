@@ -3,11 +3,10 @@ from glob import glob
 
 dfs = list()
 
-filenames = glob('Data for November 2019 Evaluation/South Sudan Data/WFP/wfp*.xlsx')
+filenames = glob('../data/raw/data_for_november_2019_evaluation/south_sudan_data/WFP/wfp*.xlsx')
 
 for filename in filenames:
     df = pd.read_excel(filename)
-    # df = pd.read_excel('Data for November 2019 Evaluation/South Sudan Data/WFP/wfp_food_prices_south-sudan-2006-2018.xlsx')
     df.dropna(how='all', axis=1, inplace=True)
     df.drop(df.index[0], inplace=True)
     df.rename({'cmname':'Variable', 'price':'Value', 'unit':'Unit', 'country':'Country'}, axis=1, inplace=True)
@@ -24,4 +23,7 @@ for filename in filenames:
         dfs.append(df_temp)
 
 big_frame = pd.concat(dfs, sort=False, ignore_index=True)
-print(big_frame)
+
+big_frame['Source'],  big_frame['State'], big_frame['County'] = 'WFP', None, None
+
+big_frame.to_csv('WFP-data.csv', index=False)
