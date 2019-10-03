@@ -102,10 +102,16 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
 
     // Dynamic edge color setting
     //double colorFromMedian = get_median_beta(e) / max_median_betas;
-    //const tinycolormap::Color color = tinycolormap::GetColor(
-        //colorFromMedian, tinycolormap::ColormapType::Inferno);
-    //string edgeColor = rgb2hex(color.r(), color.g(), color.b());
-    //set_property(edge, "color", edgeColor);
+    double colorFromReinforcement = this->edge(source_name, target_name).get_reinforcement();
+
+    if (colorFromReinforcement < 0) {
+      const tinycolormap::Color color = tinycolormap::GetColor(
+          colorFromReinforcement, tinycolormap::ColormapType::Jet);
+    }
+
+
+    string edgeColor = rgb2hex(color.r(), color.g(), color.b());
+    set_property(edge, "color", edgeColor);
   }
 
   if (node_to_highlight != "") {
