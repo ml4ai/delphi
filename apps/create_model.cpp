@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
       bool_switch()->default_value(false),
       "Map concepts to indicators")(
       "simplified_labels",
-      bool_switch()->default_value(true),
+      bool_switch()->default_value(false),
       "Use simplified node labels without showing the whole ontology path.")(
       "cag_filename,o",
       value<string>(&cag_png_filename)->default_value("CAG.png"),
