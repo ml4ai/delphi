@@ -421,7 +421,6 @@ class GrFNGenerator(object):
         # container body
         container_variables = argument_variable_grfn + function_variable_grfn
         # Find the list of updated identifiers
-        # TODO: CHECK HERE
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
                                                      function_variable_grfn,
@@ -1812,6 +1811,8 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
+            # DEBUG
+            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -1931,11 +1932,23 @@ class GrFNGenerator(object):
                             (_, variable_name, _) = updated.split('::')
 
                             for var in function["input"]:
-                                index = var.rsplit('::', 1)[1]
-
+                                input_var = var.rsplit('::')
+                                # DEBUG
+                                print ("input_var: ", input_var)
+                                index = input_var[2]
+                                if (
+                                        variable_name is not input_var[1]
+                                        and input_var[1] in self.f_array_arg
+                                ):
+                                    variable_name = input_var[1]
+                                    # DEBUG
+                                    print ("variable_name: ", variable_name)
+                            # DEBUG
+                            print ("    self.f_array_arg: ", self.f_array_arg)
                             function["updated"].append(
                                 f"@variable::{variable_name}::{int(index)+1}"
                             )
+
                             state.last_definitions[variable_name] += 1
                             state.next_definitions[variable_name] = \
                                 state.last_definitions[variable_name] + 1
@@ -1955,7 +1968,6 @@ class GrFNGenerator(object):
                     "state": state
                 }
             grfn["functions"].append(function)
-
         return [grfn]
 
     def process_compare(self, node, state, *_):
