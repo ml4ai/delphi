@@ -1282,7 +1282,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     break;
   case InitialBeta::MEAN:
     for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-      graph[e].beta = graph[e].kde.value().mu;
+      graph[e].beta = graph[e].kde.mu;
     }
     break;
   case InitialBeta::RANDOM:
@@ -1653,7 +1653,7 @@ double AnalysisGraph::calculate_delta_log_prior() {
   // using .value() (In the case of kde being missing, this
   // will throw an exception). We should follow a process
   // similar to Tran_Mat_Cell::sample_from_prior
-  KDE& kde = this->graph[this->previous_beta.first].kde.value();
+  KDE& kde = this->graph[this->previous_beta.first].kde;
 
   // We have to return: log( p( β_new )) - log( p( β_old ))
   return kde.logpdf(this->graph[this->previous_beta.first].beta) -

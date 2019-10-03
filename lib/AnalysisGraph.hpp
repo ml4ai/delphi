@@ -56,6 +56,7 @@ class AnalysisGraph {
   Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
+
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
   auto node_indices() {
