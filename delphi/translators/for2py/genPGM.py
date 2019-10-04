@@ -1927,27 +1927,29 @@ class GrFNGenerator(object):
                 for functions in self.function_argument_map:
                     if self.function_argument_map[functions]["name"] == \
                             function["function"]["name"]:
-                        for updated in self.function_argument_map[
-                                functions]["updated_list"]:
-                            (_, variable_name, _) = updated.split('::')
-                            index = [
-                                var.rsplit('::', 1)[1]
-                                for var in function["input"]
-                                if variable_name in var
-                            ][0]
-                            function["updated"].append(
-                                f"@variable::{variable_name}::{int(index)+1}"
-                            )
-                            state.last_definitions[variable_name] += 1
-                            state.next_definitions[variable_name] = \
-                                state.last_definitions[variable_name] + 1
 
-                            variable_spec = self.generate_variable_definition(
-                                variable_name,
-                                None,
-                                state
-                            )
-                            grfn['variables'].append(variable_spec)
+                        for var in function["input"]:
+                            input_var = var.rsplit('::')
+                            index = input_var[2]
+                            if (
+                                input_var[1] in self.f_array_arg
+                                or var in self.function_argument_map[functions]["updated_list"]
+                            ):
+                                variable_name = input_var[1]
+                                function["updated"].append(
+                                    f"@variable::{variable_name}::{int(index)+1}"
+                                )
+
+                                state.last_definitions[variable_name] += 1
+                                state.next_definitions[variable_name] = \
+                                    state.last_definitions[variable_name] + 1
+
+                                variable_spec = self.generate_variable_definition(
+                                    variable_name,
+                                    None,
+                                    state
+                                )
+                                grfn['variables'].append(variable_spec)
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
             if len(function['input']) > 0:
