@@ -1399,7 +1399,8 @@ class RectifyOFPXML:
         <name>
         <name>
 
-        There are three different types of names that the type attribute can hold:
+        There are three different types of names that the type attribute can
+    hold:
             (1) variable  - Simple (single) variable or an array
             (2) procedure - Function (or procedure) call
             (3) ambiguous - None of the above two type
@@ -1412,8 +1413,8 @@ class RectifyOFPXML:
         else:
             current.attrib['is_array'] = "false"
 
-        # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
-        # Thus, clean up the 'id' and reconstruct the <name> AST
+        # If 'id' attribute holds '%' symbol, it's an indication of derived type
+        # referencing. Thus, clean up the 'id' and reconstruct the <name> AST.
         if "id" in current.attrib and "%" in current.attrib['id']:
             self.is_derived_type_ref = True
             self.clean_derived_type_ref(current)
@@ -1523,7 +1524,7 @@ class RectifyOFPXML:
                 and child.attrib['id'] in self.arguments_list
             ):
                 # if 'id' is in the arguments_list, it indicates that
-                # the RHS of the assginment is a function call
+                # the RHS of the assignment is a function call
                 self.call_function = True
                 function_call = True
                 current.attrib['fname'] = child.attrib['id']
@@ -4220,7 +4221,6 @@ class RectifyOFPXML:
                 arg.attrib['is_array'] = "false"
         # re-initialize back to initial values
         self.call_function = False 
-
 
     #################################################################
     #                                                               #
