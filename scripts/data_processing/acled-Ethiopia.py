@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-filename = '../data/raw/data_for_november_2019_evaluation/ethiopia_east_africa_data/Armed Conflict Location & Event Data Project - ACLED/acled-ethiopia-data.csv'
+filename = 'data/raw/data_for_november_2019_evaluation/ethiopia_east_africa_data/Armed Conflict Location & Event Data Project - ACLED/acled-ethiopia-data.csv'
 
 df = pd.read_csv(filename)
 df.drop(df.index[0], inplace=True)
@@ -19,6 +19,6 @@ df1 = df.groupby(['Year', 'Month', 'State', 'Variable'])['Value'].sum()
 df1 = df1.reset_index()
 df1['Unit'], df1['County'] = None, None
 
-df1.to_csv('../data/acled-data2.csv', index=False)
+df1.to_csv('data/acled-data2.csv', index=False)
 
 

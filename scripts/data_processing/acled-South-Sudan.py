@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-filename = '../data/raw/data_for_november_2019_evaluation/south_sudan_data/Humanitarian Data Exchange/acled-data-2011-2018-SSudan.xlsx'
+filename = 'data/raw/data_for_november_2019_evaluation/south_sudan_data/Humanitarian Data Exchange/acled-data-2011-2018-SSudan.xlsx'
 
 df = pd.read_excel(filename, header=1)
 df.drop(df.index[0], inplace=True)
@@ -21,6 +21,6 @@ df1 = df1.reset_index()
 
 df1['Unit'], df1['County'] = None, None 
 
-df1.to_csv('../data/acled-data1.csv', index=False)
+df1.to_csv('data/acled-data1.csv', index=False)
 
 

@@ -7,7 +7,7 @@ excel_files = ['Life expectancy-Ethiopia-SSudan.xls', 'child_malnutrition-Ethiop
 dfs = list()
 
 for filename in excel_files:
-    df = pd.read_excel('../data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/'+ filename)
+    df = pd.read_excel('data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/'+ filename)
 
 
     col1 = df.iloc[0, 0]
@@ -49,4 +49,4 @@ big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.st
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\.[0-9]', '').str.strip()
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\<br>', '')
 
-big_frame.to_csv('../data/WHO-data3.csv', index=False)
+big_frame.to_csv('data/WHO-data3.csv', index=False)

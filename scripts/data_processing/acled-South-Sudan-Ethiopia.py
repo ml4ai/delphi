@@ -2,7 +2,7 @@ import pandas as pd
 from glob import glob
 import matplotlib.pyplot as plt
 
-filenames = glob('../data/raw/data_for_november_2019_evaluation/south_sudan_data/Humanitarian Data Exchange/201*.xlsx')
+filenames = glob('data/raw/data_for_november_2019_evaluation/south_sudan_data/Humanitarian Data Exchange/201*.xlsx')
 
 dfs = list()
 
@@ -33,4 +33,4 @@ new_frame.dropna(subset=['Value'], inplace=True)
 
 new_frame['Source'], new_frame['Unit'], new_frame['State'], big_frame['County'], big_frame['County'] = 'ACLED', None, None, None, None
 
-new_frame.to_csv('../data/acled-data3.csv', index=False)
+new_frame.to_csv('data/acled-data3.csv', index=False)

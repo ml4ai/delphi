@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from glob import glob
 
-df = pd.read_excel('../data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/Misc_WHO_Health_Data_to_2016_SSudan_Ethiopia.xlsx', sheet_name='WHO NLIS Data Export')
+df = pd.read_excel('data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/Misc_WHO_Health_Data_to_2016_SSudan_Ethiopia.xlsx', sheet_name='WHO NLIS Data Export')
 df.dropna(how='all',axis=1, inplace=True)
 
 df['Start Month'].fillna(0, inplace=True)
@@ -54,4 +54,4 @@ big_frame['Unit'] = np.where(big_frame['Variable'] == 'Population below minimum 
 
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
-big_frame.to_csv('../data/WHO-data2.csv', index=False)
+big_frame.to_csv('data/WHO-data2.csv', index=False)
