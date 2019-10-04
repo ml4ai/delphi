@@ -1813,8 +1813,6 @@ class GrFNGenerator(object):
 
             argument_list = []
             list_index = 0
-            # DEBUG
-            print ("call: ", call)
             for arg in call["inputs"]:
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
@@ -2228,8 +2226,6 @@ class GrFNGenerator(object):
                     "elem_type": array_type,
                     "mutable": is_mutable,
                 }
-                # DEBUG
-                print ("var_name: ", var_name)
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
