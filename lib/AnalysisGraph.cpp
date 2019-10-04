@@ -453,8 +453,9 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, int minimum_evidence_pieces_required) {
-  //auto json_data = utils::load_json(filename);
+AnalysisGraph AnalysisGraph::from_uncharted_json_string(
+    std::string json_str, int minimum_evidence_pieces_required) {
+  // auto json_data = utils::load_json(filename);
   nlohmann::json passed_json = nlohmann::json::parse(json_str);
 
   AnalysisGraph G;
@@ -466,11 +467,11 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, in
   for (auto stmt : statements) {
     auto evidence = stmt["evidence"];
 
-    if(evidence.is_null()) {
+    if (evidence.is_null()) {
       continue;
     }
-    
-    if( evidence.size() <= minimum_evidence_pieces_required) {
+
+    if (evidence.size() <= minimum_evidence_pieces_required) {
       continue;
     }
 
@@ -518,35 +519,30 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_string(std::string json_str, in
 
     int subj_polarity = 1;
     int obj_polarity = 1;
-    if(!subj_polarity_json.is_null())
-    {
+    if (!subj_polarity_json.is_null()) {
       subj_polarity = subj_polarity_json.get<int>();
     }
 
-    if(!obj_polarity_json.is_null())
-    {
+    if (!obj_polarity_json.is_null()) {
       obj_polarity = obj_polarity_json.get<int>();
     }
 
     auto subj_adjectives = subj_delta["adjectives"];
     auto obj_adjectives = obj_delta["adjectives"];
     auto subj_adjective =
-      (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-      ? subj_adjectives[0]
-      : "None";
+        (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+            ? subj_adjectives[0]
+            : "None";
     auto obj_adjective =
-      (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+        (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
 
     string subj_adj_str = subj_adjective.get<string>();
     string obj_adj_str = obj_adjective.get<string>();
 
     auto causal_fragment =
-      CausalFragment({subj_adj_str, subj_polarity, subj_name},
-          {obj_adj_str, obj_polarity, obj_name});
+        CausalFragment({subj_adj_str, subj_polarity, subj_name},
+                       {obj_adj_str, obj_polarity, obj_name});
     G.add_edge(causal_fragment);
-
-
-
 
     auto subj_ground = stmt["subj"]["concept"]["db_refs"]["UN"][0][1];
     auto obj_ground = stmt["obj"]["concept"]["db_refs"]["UN"][0][1];
