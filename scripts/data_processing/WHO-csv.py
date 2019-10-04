@@ -1,10 +1,11 @@
+import sys
 import pandas as pd
 from glob import glob
 import numpy as np
 
 dfs = list()
 
-directoryPath = '../data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/'
+directoryPath = 'data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/'
 filenames = glob(directoryPath + '*-SSudan.csv')
 colnames = ['GHO (DISPLAY)', 'YEAR (DISPLAY)', 'REGION (DISPLAY)', 'Numeric']
 for filename in filenames:
@@ -21,7 +22,7 @@ big_frame.rename({'GHO':'Variable', 'Numeric':'Value', 'REGION':'Country', 'YEAR
 
 
 
-filename = '../data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/South Sudan WHO Statistics Summary.csv'
+filename = 'data/raw/data_for_november_2019_evaluation/south_sudan_data/WHO/South Sudan WHO Statistics Summary.csv'
 df = pd.read_csv(filename, index_col=False)
 for col in df.columns:
     if col == 'Unnamed: 0':
@@ -56,7 +57,7 @@ big_frame['Value'] = big_frame['Value'].str.split('[').str[0]
 big_frame['Unit'] = np.where(big_frame['Variable'] == 'Neonates protected at birth against neonatal tetanus (PAB) (%)', '%',big_frame['Variable'].str.findall(r'(?<=\()[^(]*(?=\))').str[0])
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
 
-big_frame.to_csv('../data/WHO-data1.csv', index=False)
+big_frame.to_csv('data/WHO-data1.csv', index=False)
 
 
 

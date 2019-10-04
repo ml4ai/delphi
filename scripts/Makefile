@@ -90,7 +90,7 @@ data/south_sudan_migration_data_secondary: data_processing/process_migration_dat
 
 
 data/WHO-data1.csv: data_processing/WHO-csv.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
-	python $< 
+	python $< $@ 
 
 data/WHO-data2.csv: data_processing/WHO-excel.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
 	python $< 
@@ -122,7 +122,7 @@ data/acled-data2.csv: data_processing/acled-Ethiopia.py $(RAW)/data_for_november
 
 data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/fao_data.tsv\
-						 data/wdi_data.tsv\
+						 data/WHO-data1.csv\
 						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
 						 data/indicator_data_fewsnet.tsv\
 						 data/indicator_data_climis_unicef_ieconomics.tsv\
