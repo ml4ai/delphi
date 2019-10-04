@@ -319,6 +319,7 @@ class PythonCodeGenerator(object):
         self.funcArgs[self.nameMapper[node["name"]]] = [
             self.nameMapper[x["name"]] for x in node["args"]
         ]
+        print(node)
         self.printAst(
             node["args"],
             printState.copy(
@@ -622,6 +623,7 @@ class PythonCodeGenerator(object):
 
     def printArg(self, node, printState: PrintState):
         try:
+            print(node)
             var_type = TYPE_MAP[node["type"].lower()]
         except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
@@ -845,6 +847,9 @@ class PythonCodeGenerator(object):
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]] + "[0]"
             else:
+                # TODO: Need to handle not just "op" but call to expressions
+                #  as well. Also, current implementation does not go deep
+                #  enough. This can be arbitrarily deep.
                 if "value" in node:
                     val = node["value"]
                 else:
@@ -856,11 +861,15 @@ class PythonCodeGenerator(object):
 
                     if node["left"][0]["tag"] == "ref":
                         left = self.proc_ref(node["left"][0], False)
+                    elif node["left"][0]["tag"] == "call":
+                        left = self.proc_call(node["left"][0])
                     else:
                         left = node["left"][0]["value"]
                     operator = node["operator"]
                     if node["right"][0]["tag"] == "ref":
                         right = self.proc_ref(node["right"][0], False)
+                    elif node["right"][0]["tag"] == "call":
+                        right = self.proc_call(node["right"][0])
                     else:
                         right = node["right"][0]["value"]
 
