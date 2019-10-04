@@ -453,9 +453,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
-  auto json_data = utils::load_json(filename);
-
+AnalysisGraph AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
 
   unordered_map<string, int> name_to_vertex = {};
@@ -530,6 +528,17 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
   }
   G.initialize_random_number_generator();
   return G;
+
+}
+
+AnalysisGraph AnalysisGraph::from_uncharted_json_string(string json_string) {
+  auto json_data = nlohmann::json::parse(json_string);
+  return AnalysisGraph::from_uncharted_json_dict(json_data);
+}
+
+AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
+  auto json_data = utils::load_json(filename);
+  return AnalysisGraph::from_uncharted_json_dict(json_data);
 }
 
 void AnalysisGraph::clear_state() {

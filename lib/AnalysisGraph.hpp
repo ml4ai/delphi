@@ -270,6 +270,8 @@ class AnalysisGraph {
    * Construct an AnalysisGraph object from a dict of INDRA statements
      exported by Uncharted's CauseMos webapp, and stored in a file.
   */
+  static AnalysisGraph from_uncharted_json_dict(nlohmann::json json_data);
+  static AnalysisGraph from_uncharted_json_string(std::string json_string);
   static AnalysisGraph from_uncharted_json_file(std::string filename);
 
   /**
