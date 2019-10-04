@@ -268,15 +268,9 @@ class AnalysisGraph {
 
   /*
    * Construct an AnalysisGraph object from a dict of INDRA statements
-     exported by Uncharted's CauseMos webapp.
-
-     Args:
-        _dict: A dict of INDRA statements exported by Uncharted's CauseMos
-               HMI.
-        minimum_evidence_pieces_required: The minimum number of evidence
-               pieces required to consider a statement for assembly.
+     exported by Uncharted's CauseMos webapp, and stored in a file.
   */
-  static AnalysisGraph from_uncharted_json_string(std::string data, int minimum_evidence_pieces_required);
+  static AnalysisGraph from_uncharted_json_file(std::string filename);
 
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
