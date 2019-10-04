@@ -37,13 +37,16 @@ auto AnalysisGraph::successors(int i) {
 }
 
 auto AnalysisGraph::successors(string node_name) {
-  return make_iterator_range(boost::adjacent_vertices(
-      this->name_to_vertex.at(node_name), this->graph));
+  return this->successors(this->name_to_vertex.at(node_name));
+}
+
+auto AnalysisGraph::predecessors(int i) {
+  return boost::make_iterator_range(
+      boost::inv_adjacent_vertices(i, this->graph));
 }
 
 auto AnalysisGraph::predecessors(string node_name) {
-  return make_iterator_range(boost::adjacent_vertices(
-      this->name_to_vertex.at(node_name), this->graph));
+  return this->predecessors(this->name_to_vertex.at(node_name));
 }
 
 vector<Node> AnalysisGraph::get_successor_list(string node) {
@@ -373,7 +376,7 @@ void AnalysisGraph::remove_node(int node_id) {
   // Delete all the edges incident to this node
   boost::clear_vertex(node_id, this->graph);
 
-  // Remove the vetex
+  // Remove the vertex
   boost::remove_vertex(node_id, this->graph);
 
   // Update the internal meta-data
@@ -453,7 +456,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
+AnalysisGraph
+AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
 
   unordered_map<string, int> name_to_vertex = {};
@@ -528,7 +532,6 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) 
   }
   G.initialize_random_number_generator();
   return G;
-
 }
 
 AnalysisGraph AnalysisGraph::from_uncharted_json_string(string json_string) {
@@ -678,7 +681,7 @@ void AnalysisGraph::remove_node(string concept) {
 
     // Recalculate all the directed simple paths
   }
-  else // indicator_old is not attached to this node
+  else
   {
     warn("AnalysisGraph::remove_vertex(): "
          "\tConcept: {} not present in the CAG!\n",
@@ -900,8 +903,18 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
-Edge& AnalysisGraph::edge(int i, int j) {
-  return this->graph[boost::edge(i, j, this->graph).first];
+Edge& AnalysisGraph::edge(int source, int target) {
+  return this->graph[boost::edge(source, target, this->graph).first];
+}
+
+Edge& AnalysisGraph::edge(int source, string target) {
+  return this->graph
+      [boost::edge(source, this->name_to_vertex.at(target), this->graph).first];
+}
+
+Edge& AnalysisGraph::edge(string source, int target) {
+  return this->graph
+      [boost::edge(this->name_to_vertex.at(source), target, this->graph).first];
 }
 
 Edge& AnalysisGraph::edge(string source, string target) {
@@ -911,33 +924,51 @@ Edge& AnalysisGraph::edge(string source, string target) {
                          .first];
 }
 
+Edge& AnalysisGraph::edge(boost::graph_traits<DiGraph>::edge_descriptor e) {
+  return this->graph[e];
+}
+
+pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+AnalysisGraph::add_edge(int source, int target) {
+  return boost::add_edge(source, target, this->graph);
+}
+
+pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+AnalysisGraph::add_edge(int source, string target) {
+  return boost::add_edge(source, this->name_to_vertex.at(target), this->graph);
+}
+
+pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+AnalysisGraph::add_edge(string source, int target) {
+  return boost::add_edge(this->name_to_vertex.at(source), target, this->graph);
+}
+
+pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+AnalysisGraph::add_edge(string source, string target) {
+  return boost::add_edge(this->name_to_vertex.at(source),
+                         this->name_to_vertex.at(target),
+                         this->graph);
+}
+
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
 
-  int vertex_to_remove =
-      this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
-  int vertex_to_keep =
-      this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
-
-  for (int predecessor : this->predecessors(vertex_to_remove)) {
-
-    Edge edge_to_remove = this->edge(predecessor, vertex_to_remove);
-
+  for (int predecessor : this->predecessors(concept_1)) {
+    Edge& edge_to_remove = this->edge(predecessor, concept_1);
     if (!same_polarity) {
       for (Statement stmt : edge_to_remove.evidence) {
         stmt.object.polarity = -stmt.object.polarity;
       }
     }
 
-    // Add the edge   predecessor --> vertex_to_keep
-    auto edge_to_keep =
-        boost::add_edge(predecessor, vertex_to_keep, this->graph).first;
+    // Add the edge predecessor --> vertex_to_keep
+    auto edge_to_keep = this->add_edge(predecessor, concept_2).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // predecessor --> vertex_to_keep
-    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
+    vector<Statement>& evidence_keep = this->edge(edge_to_keep).evidence;
     vector<Statement>& evidence_move = edge_to_remove.evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
@@ -947,26 +978,25 @@ void AnalysisGraph::merge_nodes(string concept_1,
          evidence_keep.end() - evidence_move.size());
   }
 
-  for (int successor : this->successors(vertex_to_remove)) {
+  for (int successor : this->successors(concept_1)) {
 
     // Get the edge descripter for
     //                   vertex_to_remove --> successor
-    Edge edge_to_remove = this->edge(vertex_to_remove, successor);
+    Edge edge_to_remove = this->edge(concept_1, successor);
 
     if (!same_polarity) {
       for (Statement stmt : edge_to_remove.evidence) {
-        stmt.object.polarity = -stmt.object.polarity;
+        stmt.subject.polarity = -stmt.subject.polarity;
       }
     }
 
     // Add the edge   successor --> vertex_to_keep
-    auto edge_to_keep =
-        boost::add_edge(vertex_to_keep, successor, this->graph).first;
+    auto edge_to_keep = this->add_edge(concept_2, successor).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // vertex_to_keep --> successor
-    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
+    vector<Statement>& evidence_keep = this->edge(edge_to_keep).evidence;
     vector<Statement>& evidence_move = edge_to_remove.evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
@@ -977,8 +1007,8 @@ void AnalysisGraph::merge_nodes(string concept_1,
   }
 
   // Remove vertex_to_remove from the CAG
-  // Note: This is an overlaoded private method that takes in a vertex id
-  this->remove_node(vertex_to_remove);
+  // Note: This is an overloaded private method that takes in a vertex id
+  this->remove_node(this->name_to_vertex.at(concept_1));
 }
 
 void AnalysisGraph::set_log_likelihood() {

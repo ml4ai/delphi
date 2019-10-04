@@ -74,11 +74,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "node_to_highlight"_a = "")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
-      .def("remove_node",
-           (void (AnalysisGraph::*)(string)) & AnalysisGraph::remove_node,
-           "concept"_a)
+      .def("remove_node", py::overload_cast<string>(&AnalysisGraph::remove_node))
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
-      .def("add_edge", &AnalysisGraph::add_edge, "causal_fragment"_a)
+      .def("add_edge", py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge), "causal_fragment"_a)
       .def("change_polarity_of_edge",
            &AnalysisGraph::change_polarity_of_edge,
            "source_concept"_a,

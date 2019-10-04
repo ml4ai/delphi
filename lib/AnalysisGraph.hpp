@@ -52,7 +52,10 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Node& operator[](int);
+  Edge& edge(boost::graph_traits<DiGraph>::edge_descriptor);
   Edge& edge(int, int);
+  Edge& edge(int, std::string);
+  Edge& edge(std::string, int);
   Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
@@ -79,9 +82,7 @@ class AnalysisGraph {
   auto successors(int i);
   auto successors(std::string node_name);
   auto predecessors(std::string node_name);
-  auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
-  }
+  auto predecessors(int i);
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);
@@ -325,6 +326,11 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int, int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int, std::string);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(std::string, int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(std::string, std::string);
+
   void change_polarity_of_edge(std::string source_concept,
                                int source_polarity,
                                std::string target_concept,
