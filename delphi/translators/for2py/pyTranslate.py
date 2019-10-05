@@ -319,7 +319,6 @@ class PythonCodeGenerator(object):
         self.funcArgs[self.nameMapper[node["name"]]] = [
             self.nameMapper[x["name"]] for x in node["args"]
         ]
-        print(node)
         self.printAst(
             node["args"],
             printState.copy(
@@ -623,7 +622,6 @@ class PythonCodeGenerator(object):
 
     def printArg(self, node, printState: PrintState):
         try:
-            print(node)
             var_type = TYPE_MAP[node["type"].lower()]
         except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
@@ -863,6 +861,8 @@ class PythonCodeGenerator(object):
                         left = self.proc_ref(node["left"][0], False)
                     elif node["left"][0]["tag"] == "call":
                         left = self.proc_call(node["left"][0])
+                    elif node["left"][0]["tag"] == "op":
+                        left = self.proc_op(node["left"][0])
                     else:
                         left = node["left"][0]["value"]
                     operator = node["operator"]
@@ -870,6 +870,8 @@ class PythonCodeGenerator(object):
                         right = self.proc_ref(node["right"][0], False)
                     elif node["right"][0]["tag"] == "call":
                         right = self.proc_call(node["right"][0])
+                    elif node["right"][0]["tag"] == "op":
+                        right = self.proc_op(node["right"][0])
                     else:
                         right = node["right"][0]["value"]
 
