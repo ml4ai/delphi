@@ -410,8 +410,16 @@ class GrFNGenerator(object):
         #  literals as well. Add that functionality here.
         if return_value:
             for value in return_value:
-                return_list.append(f"@variable::{value['var']['variable']}::"
-                                   f"{value['var']['index']}")
+                if "var" in value:
+                    return_list.append(f"@variable::{value['var']['variable']}::"
+                                       f"{value['var']['index']}")
+                elif "call" in value:
+                    for inputs in value['call']['inputs']:
+                        if "var" in value:
+                            return_list.append(
+                                f"@variable::{value['var']['variable']}::"
+                                f"{value['var']['index']}")
+            return_list = list(set(return_list))
         else:
             return_list = []
 
