@@ -1,3 +1,64 @@
+C=======================================================================
+C  VPSAT, Real Function, N.B. Pickering, 4/1/90
+C  Calculates saturated vapor pressure of air (Tetens, 1930).
+!-----------------------------------------------------------------------
+!  Called by: CANPET, HMET, VPSLOP, PETPEN
+!  Calls:     None
+!-----------------------------------------------------------------------
+C  Input : T (C)
+C  Output: VPSAT (Pa)
+C=======================================================================
+
+      REAL FUNCTION VPSAT(T)
+
+      IMPLICIT NONE
+      REAL T
+
+      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
+
+      RETURN
+      END FUNCTION VPSAT
+C=======================================================================
+! VPSAT Variables
+!-----------------------------------------------------------------------
+! T     Air temperature (oC)
+! VPSAT Saturated vapor pressure of air (Pa)
+C=======================================================================
+
+
+
+C=======================================================================
+C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
+C  Calculates slope of saturated vapor pressure versus temperature curve
+C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
+!-----------------------------------------------------------------------
+!  Called by: ETSOLV, PETPEN, TRATIO
+!  Calls:     VPSAT
+!-----------------------------------------------------------------------
+C  Input : T (C)
+C  Output: VPSLOP
+C=======================================================================
+
+      REAL FUNCTION VPSLOP(T)
+
+      IMPLICIT NONE
+
+      REAL T,VPSAT
+
+C     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
+
+      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
+
+      RETURN
+      END FUNCTION VPSLOP
+C=======================================================================
+! VPSLOP variables
+!-----------------------------------------------------------------------
+! T      Air temperature (oC)
+! VPSAT  Saturated vapor pressure of air (Pa)
+! VPSLOP Slope of saturated vapor pressure versus temperature curve
+C=======================================================================
+
 
 C=======================================================================
 C  PETDYN Subroutine, K. J. BOOTE, F. SAU, M. BOSTIC
@@ -40,7 +101,7 @@ C  Calculates Penman-Monteith evapotranspiration
       REAL SHAIR, PATM, SBZCON
       REAL k,DFAO, CANHT, ZOMF, ZOHF, ra, rl, rs, RAERO !add for PenDyn
       REAL ZCROP,DCROP,ZOMC,ZOVC,WIND2C,RASOIL,HTS,DLH,ZOLH
-      REAL MAXHT, rb, AC, AS, zos, RTOT                  !add for PenDyn
+      REAL MAXHT, rb, AC, AS_MOD, zos, RTOT                  !add for PenDyn
 C     PARAMETER (SHAIR = 1005.0)
       PARAMETER (SHAIR = 0.001005)  !changed for PenDyn to MJ/kg/K
       PARAMETER (PATM = 101300.0)
@@ -163,9 +224,9 @@ C
 
 C       Using K = 0.5 everywhere possible
         AC = 1-exp(-0.50*XHLAI)
-        AS = 1 - AC
+        AS_MOD = 1 - AC
 
-      RAERO = AC*RA + AS*RASOIL
+      RAERO = AC*RA + AS_MOD*RASOIL
 C     Calculate surface resistance (rs).
 C     rs = rl/LAIactive       rs (s m^-1),
 C     rl = bulk stomatal resistance of the well-illuminated leaf (s m^-1)
@@ -180,7 +241,7 @@ C          rs = rl/(0.5*XHLAI)
       
       rs = rs/86400           !converts (s m^-1 to d/m)
 
-      RTOT = AC*rs + AS*rb
+      RTOT = AC*rs + AS_MOD*rb
 
 C     Calculate net radiation (MJ/m2/d).  By FAO method 1990. EAIR is divided
 C       by 1000 to convert Pa to KPa.
