@@ -181,7 +181,7 @@ def generate_outputdict(
 
 def generate_python_src(
     output_dictionary, python_file_name,
-    output_file, temp_dir, tester_call
+    output_file, variable_map_file, temp_dir, tester_call
 ):
     """This function generates python source file from
     generated python source list. This function will
@@ -204,7 +204,11 @@ def generate_python_src(
         str: A string of generated python code.
     """
 
-    python_source = pyTranslate.create_python_source_list(output_dictionary)
+    (python_source, variable_map) = pyTranslate.create_python_source_list(
+     output_dictionary)
+
+    with open(variable_map_file, "wb") as f:
+        pickle.dump(variable_map, f)
 
     if not tester_call:
         print(
@@ -476,6 +480,7 @@ def fortran_to_grfn(
     ofp_file = temp_dir + "/" + base + ".xml"
     rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
     pickle_file = temp_dir + "/" + base + "_pickle"
+    variable_map_file = temp_dir + "/" + base + "_variables_pickle"
     translated_python_file = temp_dir + "/" + base + ".py"
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_suffix = temp_dir + "/" + base + ".json"
@@ -522,7 +527,8 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_source = generate_python_src(
-        output_dict, translated_python_file, output_file, temp_dir, tester_call
+        output_dict, translated_python_file, output_file, variable_map_file,
+        temp_dir, tester_call
     )
 
     if tester_call:
