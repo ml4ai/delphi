@@ -3459,7 +3459,11 @@ def create_grfn_dict(
     generator.fortran_file = original_file
 
     try:
-        with open(f"{file_name.split('.')[0]}_variables_pickle", "rb") as f:
+        filename_regex = re.compile(r"(.*)\..*$")
+        name_match = re.match(filename_regex, file_name)
+        assert name_match, f"Can't match filename to any format: {file_name}"
+        file_name = name_match.group(1)
+        with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
     except IOError:
