@@ -489,9 +489,8 @@ class RectifyOFPXML:
         <header>
         </header>
         """
-        # This holder will be used only when refactoring
-        # of header is needed, such as with odd syntax
-        # of .eqv. operator
+        # This holder will be used only when refactoring of header is needed,
+        # such as with odd syntax of .eqv. operator
         temp_elem_holder = []
         target_tags = [
                 "name",
@@ -576,6 +575,9 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_header: Empty elements "{child.tag}"'
 
+        # Revert the argument list back to its empty state to accommodate for
+        # new functions
+        self.args_for_function = []
         # equivalent operator has a weird ast syntax,
         # so it requires refactoring.
         if need_refactoring:
