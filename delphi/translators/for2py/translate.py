@@ -281,7 +281,8 @@ class XML_to_JSON_translator(object):
                 variables = self.parseTree(node, state)
                 # Declare variables based on the counts to handle the case
                 # where a multiple variables declared under a single type
-                for index in range(int(node.attrib["count"])):
+                # for index in range(int(node.attrib["count"])):
+                for index in range(len(variables)):
                     if len(declared_type) > 0:
                         combined = declared_type[-1]
                         combined.update(variables[index])
@@ -407,12 +408,14 @@ class XML_to_JSON_translator(object):
         it will construct the variable AST list, then return it back to the
         called function.
         """
-
         assert (
             root.tag == "variable"
         ), f"The root must be <variable>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
         try:
+            # First check if the variables are actually function names
+            if root.attrib["name"] in self.functionList:
+                return []
             var_name = root.attrib["name"].lower()
             is_array = root.attrib["is_array"].lower()
 
