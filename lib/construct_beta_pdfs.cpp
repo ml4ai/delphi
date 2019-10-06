@@ -5,7 +5,7 @@ using namespace std;
 
 AdjectiveResponseMap
 construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
-  using utils::hasKey;
+  using utils::contains;
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -22,7 +22,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     string adjective =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (hasKey(adjective_response_map, adjective)) {
+    if (contains(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
     }
     else {

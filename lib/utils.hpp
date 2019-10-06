@@ -3,12 +3,13 @@
 #include <fmt/core.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <unordered_set>
 #include <vector>
 
 namespace utils {
 
 using std::cout, std::endl, std::vector, std::string, 
-    std::unordered_map;
+    std::unordered_map, std::unordered_set;
 
 template <class T> void printVec(vector<T> xs) {
   for (T x : xs) {
@@ -17,13 +18,18 @@ template <class T> void printVec(vector<T> xs) {
 }
 
 template <class Key, class Value>
-bool hasKey(unordered_map<Key, Value> umap, Key key) {
+bool contains(unordered_map<Key, Value> umap, Key key) {
   return umap.count(key) != 0;
+}
+
+template <class T>
+bool contains(unordered_set<T> uset, T value) {
+  return uset.count(value) != 0;
 }
 
 template <class Key, class Value>
 Value get(unordered_map<Key, Value> umap, Key key, Value default_value) {
-  return hasKey(umap, key) ? umap[key] : default_value;
+  return contains(umap, key) ? umap[key] : default_value;
 }
 
 template <class V, class Iterable> vector<V> list(Iterable xs) {
