@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
   string indra_json_file;
   string uncharted_json_file;
   string cag_png_filename;
+  string country;
 
   desc.add_options()("help,h", "Executable for creating Delphi models")(
       "stmts,i",
@@ -45,19 +46,27 @@ int main(int argc, char* argv[]) {
       bool_switch()->default_value(false),
       "Quantify graph with probability distributions")(
       "train_model,t", bool_switch()->default_value(false), "Train model")(
+      "n_indicators",
+      value<int>()->default_value(1),
+      "Number of indicators to map to each concept")(
       "map_concepts",
       bool_switch()->default_value(false),
       "Map concepts to indicators")(
       "simplified_labels",
       bool_switch()->default_value(false),
       "Use simplified node labels without showing the whole ontology path.")(
+      "country",
+      value<string>(&country)->default_value("South Sudan"),
+      "The country for which the model is being built")(
       "cag_filename,o",
       value<string>(&cag_png_filename)->default_value("CAG.png"),
       "Filename for the output visualized CAG")(
       "label_depth",
       value<int>()->default_value(1),
       "Ontology depth for simplified labels in CAG visualization")(
-      "causemos_json", value<string>(&uncharted_json_file), "Path to CauseMos JSON file");
+      "causemos_json",
+      value<string>(&uncharted_json_file),
+      "Path to CauseMos JSON file");
 
   // Setting positional arguments
   pd.add("stmts", 1);
@@ -95,7 +104,7 @@ int main(int argc, char* argv[]) {
   debug("Number of edges: {}", G.num_edges());
 
   if (vm["map_concepts"].as<bool>()) {
-    G.map_concepts_to_indicators();
+    G.map_concepts_to_indicators(vm["n_indicators"].as<int>(), vm["country"].as<string>());
   }
   if (vm["quantify"].as<bool>()) {
     G.construct_beta_pdfs();
@@ -108,7 +117,7 @@ int main(int argc, char* argv[]) {
              "");
   }
   if (vm["train_model"].as<bool>()) {
-    G.train_model(2015, 1, 2015, 12, 100, 900);
+    G.train_model(2015, 1, 2015, 12, 100, 900, "South Sudan");
   }
   return EXIT_SUCCESS;
 }
