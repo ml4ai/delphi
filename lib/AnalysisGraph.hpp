@@ -326,10 +326,14 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int, int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int, std::string);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(std::string, int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(std::string, std::string);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int,
+                                                                          int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+  add_edge(int, std::string);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+  add_edge(std::string, int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+      add_edge(std::string, std::string);
 
   void change_polarity_of_edge(std::string source_concept,
                                int source_polarity,
@@ -773,7 +777,8 @@ class AnalysisGraph {
           false, /** Whether to create simplified labels or not. */
       int label_depth =
           1, /** Depth in the ontology to which simplified labels extend */
-      std::string node_to_highlight = "");
+      std::string node_to_highlight = "",
+      std::string rankdir = "TB");
 
   std::string to_dot();
 
@@ -783,7 +788,8 @@ class AnalysisGraph {
              false, /** Whether to create simplified labels or not. */
          int label_depth =
              1, /** Depth in the ontology to which simplified labels extend */
-         std::string node_to_highlight = "");
+         std::string node_to_highlight = "",
+         std::string rankdir = "TB");
 
   void print_indicators();
 };

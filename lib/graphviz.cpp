@@ -12,13 +12,14 @@ string rgb2hex(double r, double g, double b, bool with_head = true) {
   stringstream ss;
   if (with_head)
     ss << "#";
-  ss << hex << ((int)(r*255) << 16 | (int)(g*255) << 8 | (int)(b*255));
+  ss << hex << ((int)(r * 255) << 16 | (int)(g * 255) << 8 | (int)(b * 255));
   return ss.str();
 }
 
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
                                                  int label_depth,
-                                                 string node_to_highlight) {
+                                                 string node_to_highlight,
+                                                 string rankdir) {
 
   using delphi::gv::set_property, delphi::gv::add_node;
   using namespace ranges::views;
@@ -38,6 +39,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   set_property(G, AGRAPH, "dpi", "150");
   set_property(G, AGRAPH, "overlap", "scale");
   set_property(G, AGRAPH, "splines", "true");
+  set_property(G, AGRAPH, "rankdir", rankdir);
 
 #if defined __APPLE__
   set_property(G, AGNODE, "fontname", "Gill Sans");
@@ -101,17 +103,17 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
     edge = agedge(G, src, trgt, 0, true);
 
     // Dynamic edge color setting
-    //double colorFromMedian = get_median_beta(e) / max_median_betas;
-    //double colorFromReinforcement = this->edge(source_name, target_name).get_reinforcement();
+    // double colorFromMedian = get_median_beta(e) / max_median_betas;
+    // double colorFromReinforcement = this->edge(source_name,
+    // target_name).get_reinforcement();
 
-    //if (colorFromReinforcement < 0) {
-      //const tinycolormap::Color color = tinycolormap::GetColor(
-          //colorFromReinforcement, tinycolormap::ColormapType::Jet);
+    // if (colorFromReinforcement < 0) {
+    // const tinycolormap::Color color = tinycolormap::GetColor(
+    // colorFromReinforcement, tinycolormap::ColormapType::Jet);
     //}
 
-
-    //string edgeColor = rgb2hex(color.r(), color.g(), color.b());
-    //set_property(edge, "color", edgeColor);
+    // string edgeColor = rgb2hex(color.r(), color.g(), color.b());
+    // set_property(edge, "color", edgeColor);
   }
 
   if (node_to_highlight != "") {
@@ -141,9 +143,10 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
 void AnalysisGraph::to_png(string filename,
                            bool simplified_labels,
                            int label_depth,
-                           string node_to_highlight) {
-  auto [G, gvc] =
-      this->to_agraph(simplified_labels, label_depth, node_to_highlight);
+                           string node_to_highlight,
+                           string rankdir) {
+  auto [G, gvc] = this->to_agraph(
+      simplified_labels, label_depth, node_to_highlight, rankdir);
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);
   agclose(G);
