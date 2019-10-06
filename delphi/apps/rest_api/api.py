@@ -307,6 +307,10 @@ def getExperimentResults(modelID: str, experimentID: str):
 # ============
 # ICM API
 # ============
+@bp.route("/ping", methods=["GET"])
+def pint():
+    """ Health-check / Ping """
+    return jsonify({})
 
 
 @bp.route("/icm", methods=["POST"])
@@ -324,6 +328,7 @@ def createNewICM():
 
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
+    print("In getting all icm")
     """ List all ICMs"""
     if (
         list(
@@ -346,6 +351,15 @@ def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
     _metadata = ICMMetadata.query.filter_by(id=uuid).first().deserialize()
     del _metadata["model_id"]
+    _metadata["icmProvider"] = "DUMMY"
+    _metadata["title"] = _metadata["id"]
+    _metadata["version"] = 1
+    _metadata["createdByUser"] = { "id": 1 } 
+    _metadata["lastUpdatedByUser"] = { "id": 1 } 
+    _metadata["created"] = _metadata["created"] + "T00:00:00Z"
+    _metadata["lastAccessed"] = _metadata["created"]
+    _metadata["lastUpdated"] = _metadata["created"]
+
     return jsonify(_metadata)
 
 
