@@ -98,7 +98,7 @@ def combine_data(outputFile):
     WHO2_df = pd.read_csv('data/WHO-data2.csv', index_col=False)
     WHO3_df = pd.read_csv('data/WHO-data3.csv', index_col=False)
 
-    IMF_df = pd.read_csv('data/IMF-data1.csv', index_col=False)
+    IMF_df = pd.read_csv('data/IMF-data.csv', index_col=False)
 
     WFP_df = pd.read_csv('data/WFP-data.csv', index_col=False)
 
