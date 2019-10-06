@@ -455,7 +455,7 @@ class AnalysisGraph {
   std::vector<std::vector<std::vector<double>>>
   get_observed_state_from_data(int year,
                                int month,
-                               std::string country = "South Sudan",
+                               std::string country,
                                std::string state = "",
                                std::string county = "");
 
@@ -752,7 +752,7 @@ class AnalysisGraph {
    * Default is 1 since our model so far is configured for only 1 indicator per
    * node.
    */
-  void map_concepts_to_indicators(int n = 1);
+  void map_concepts_to_indicators(int n = 1, std::string country = "");
 
   /**
    * Parameterize the indicators of the AnalysisGraph..

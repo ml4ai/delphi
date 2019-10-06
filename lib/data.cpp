@@ -1,6 +1,7 @@
 #include "data.hpp"
 #include <sqlite3.h>
 
+
 std::vector<double> get_data_value(std::string indicator,
                       std::string country,
                       std::string state,

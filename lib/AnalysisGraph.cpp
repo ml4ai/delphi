@@ -3,6 +3,7 @@
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/range/algorithm/sort.hpp>
 #include <cmath>
 #include <sqlite3.h>
 #include <type_traits>
@@ -65,7 +66,11 @@ vector<Node> AnalysisGraph::get_predecessor_list(string node) {
   return predecessors;
 }
 
-void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
+void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
+                                               string country) {
+  using boost::range::sort;
+  using utils::contains;
+  spdlog::set_level(spdlog::level::debug);
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
@@ -73,51 +78,75 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
           "environment correctly set to point to the Delphi database?");
   }
   sqlite3_stmt* stmt;
-  string query_base =
-      "select Source, Indicator from concept_to_indicator_mapping ";
+  string query_base = "select Indicator from concept_to_indicator_mapping ";
   string query;
-  for (Node& node : this->nodes()) {
-    query = query_base + "where `Concept` like " + "'" + node.name + "'";
+
+  // Check if there are any data values for an indicator for this country.
+  auto has_data = [&](string indicator) {
+    query =
+        "select `Value` from indicator where `Variable` like '{0}' and `Country` like '{1}'"_format(
+            indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    node.clear_indicators();
-    bool ind_not_found = false;
+    return sqlite3_step(stmt) == SQLITE_ROW;
+  };
+
+  auto get_indicator_source = [&](string indicator) {
+    query =
+        "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
+            indicator, country);
+    sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    sqlite3_step(stmt);
+    return string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+  };
+
+  // Making the mapping more deterministic by sorting the nodes alphabetically
+  // by name.
+
+  auto node_sorting_predicate = [](Node& n1, Node& n2) {
+    return n1.name < n2.name;
+  };
+
+  for (Node& node : sort(this->nodes(), node_sorting_predicate)) {
+    node.clear_indicators(); // Clear pre-existing attached indicators
+
+    query = "{0} where `Concept` like '{1}' order by `Score` desc"_format(
+        query_base, node.name);
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+
+    vector<string> matches = {};
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      matches.push_back(
+          string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
+    }
+
+    string ind_name, ind_source;
+
     for (int i = 0; i < n_indicators; i++) {
-      string ind_name, ind_source;
-      do {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-          ind_source = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-          ind_name = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-        }
-        else {
-          ind_not_found = true;
+      bool at_least_one_indicator_found = false;
+      for (string indicator : matches) {
+        if (!contains(this->indicators_in_CAG, indicator) and
+            has_data(indicator)) {
+          node.add_indicator(indicator, get_indicator_source(indicator));
+          this->indicators_in_CAG.insert(indicator);
+          at_least_one_indicator_found = true;
           break;
         }
-      } while (this->indicators_in_CAG.find(ind_name) !=
-               this->indicators_in_CAG.end());
-
-      if (!ind_not_found) {
-        node.add_indicator(ind_name, ind_source);
-        this->indicators_in_CAG.insert(ind_name);
       }
-      else {
-        print("No more indicators were found, only {0} indicators attached to "
-              "{1}",
-              i,
-              node.name);
-        break;
+      if (!at_least_one_indicator_found) {
+        debug("No suitable indicators found for concept '{0}' for country "
+              "'{1}', please select "
+              "one manually.",
+              node.name,
+              country);
       }
     }
-    sqlite3_finalize(stmt);
   }
-  sqlite3_close(db);
+  sqlite3_finalize(stmt);
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
-  // All the places we need random numbers, share this generator
+  // All the places we need random numbers share this generator
 
   this->rand_num_generator = RNG::rng()->get_RNG();
 
@@ -681,8 +710,7 @@ void AnalysisGraph::remove_node(string concept) {
 
     // Recalculate all the directed simple paths
   }
-  else
-  {
+  else {
     warn("AnalysisGraph::remove_vertex(): "
          "\tConcept: {} not present in the CAG!\n",
          concept);
@@ -1174,7 +1202,7 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
 }
 
 void AnalysisGraph::add_node(string concept) {
-  if (!utils::hasKey(this->name_to_vertex, concept)) {
+  if (!utils::contains(this->name_to_vertex, concept)) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
