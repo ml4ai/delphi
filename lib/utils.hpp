@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace utils {
+namespace delphi::utils {
 
 using std::cout, std::endl, std::vector, std::string, 
     std::unordered_map, std::unordered_set;
@@ -17,14 +17,14 @@ template <class T> void printVec(vector<T> xs) {
   }
 }
 
-template <class Container, class Value>
-bool contains(Container container, Value value) {
+template <class AssociativeContainer, class Value>
+bool in(AssociativeContainer container, Value value) {
   return container.count(value) != 0;
 }
 
-template <class Key, class Value>
-Value get(unordered_map<Key, Value> umap, Key key, Value default_value) {
-  return contains(umap, key) ? umap[key] : default_value;
+template <class AssociativeContainer, class Key, class Value>
+Value get(AssociativeContainer container, Key key, Value default_value) {
+  return in(container, key) ? container[key] : default_value;
 }
 
 template <class V, class Iterable> vector<V> list(Iterable xs) {

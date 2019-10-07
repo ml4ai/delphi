@@ -174,7 +174,7 @@ class Edge {
     for (auto stmt : this->evidence){
       overall_polarities.push_back(stmt.overall_polarity());
     }
-    return utils::mean(overall_polarities);
+    return delphi::utils::mean(overall_polarities);
   }
 };
 

@@ -2,10 +2,10 @@
 #include "itertools.hpp"
 #include <sqlite3.h>
 using namespace std;
+using namespace delphi::utils;
 
 AdjectiveResponseMap
 construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
-  using utils::contains;
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -22,7 +22,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     string adjective =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (contains(adjective_response_map, adjective)) {
+    if (in(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
     }
     else {
@@ -39,8 +39,6 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
 }
 
 void AnalysisGraph::construct_beta_pdfs() {
-  using utils::get;
-  using utils::lmap;
 
   double sigma_X = 1.0;
   double sigma_Y = 1.0;

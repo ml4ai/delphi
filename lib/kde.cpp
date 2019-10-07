@@ -14,6 +14,7 @@ using boost::lambda::_1;
 using boost::lambda::_2;
 using std::mt19937;
 using std::normal_distribution;
+using namespace delphi::utils;
 
 
 double sample_from_normal(
@@ -28,7 +29,6 @@ double sample_from_normal(
 KDE::KDE(std::vector<double> v) : dataset(v) {
     using boost::adaptors::transformed;
     using boost::lambda::_1;
-    using utils::mean;
 
     // Compute the bandwidth using Silverman's rule
     mu = mean(v);
@@ -50,7 +50,6 @@ vector<double> KDE::resample(int n_samples) {
 }
 
 double KDE::pdf(double x) {
-  using utils::sqr;
   double p = 0.0;
   size_t N = dataset.size();
   for (double elem : dataset) {

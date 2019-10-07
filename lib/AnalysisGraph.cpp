@@ -20,7 +20,7 @@ using ranges::views::filter;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using utils::contains;
+using namespace delphi::utils;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
@@ -121,7 +121,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     for (int i = 0; i < n_indicators; i++) {
       bool at_least_one_indicator_found = false;
       for (string indicator : matches) {
-        if (!contains(this->indicators_in_CAG, indicator) and
+        if (!in(this->indicators_in_CAG, indicator) and
             has_data(indicator)) {
           node.add_indicator(indicator, get_indicator_source(indicator));
           this->indicators_in_CAG.insert(indicator);
@@ -166,7 +166,7 @@ void AnalysisGraph::parameterize(string country,
     for (auto& [name, i] : node.indicator_names) {
       Indicator& indicator = node.indicators[i];
       try {
-        if (contains(units, name)) {
+        if (in(units, name)) {
           indicator.set_unit(units[name]);
           vector<double> data = get_data_value(name,
                                                country,
@@ -180,7 +180,7 @@ void AnalysisGraph::parameterize(string country,
             mean = 0;
           }
           else {
-            mean = utils::mean(data);
+            mean = delphi::utils::mean(data);
           }
           indicator.set_mean(mean);
         }
@@ -198,7 +198,7 @@ void AnalysisGraph::parameterize(string country,
             mean = 0;
           }
           else {
-            mean = utils::mean(data);
+            mean = delphi::utils::mean(data);
           }
           indicator.set_mean(mean);
         }
@@ -403,7 +403,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,
                                             double grounding_score_cutoff,
                                             string ontology) {
-  auto json_data = utils::load_json(filename);
+  auto json_data = delphi::utils::load_json(filename);
   debug("Loading INDRA statements JSON file.");
 
   AnalysisGraph G;
@@ -557,7 +557,7 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_string(string json_string) {
 }
 
 AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
-  auto json_data = utils::load_json(filename);
+  auto json_data = load_json(filename);
   return AnalysisGraph::from_uncharted_json_dict(json_data);
 }
 
@@ -590,7 +590,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
   unordered_set<string> nodes_to_remove =
       this->node_indices() |
-      filter([&](int v) { return !contains(vertices_to_keep, v); }) |
+      filter([&](int v) { return !in(vertices_to_keep, v); }) |
       transform([&](int v) { return (*this)[v].name; }) | to<unordered_set>();
 
   if (vertices_to_keep.size() == 0) {
@@ -635,7 +635,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   // Determine the vertices to be removed
   for (int vert_id : this->node_indices()) {
-    if (contains(vertices_to_keep,vert_id)) {
+    if (in(vertices_to_keep,vert_id)) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
   }
@@ -671,7 +671,7 @@ void AnalysisGraph::prune(int cutoff) {
         pair<int, int> edge = make_pair(src, tgt);
 
         // edge ≡ β
-        if (contains(this->beta2cell, edge)) {
+        if (in(this->beta2cell, edge)) {
           // There is a direct edge src --> tgt
           // Remove that edge
           boost::remove_edge(src, tgt, this->graph);
@@ -789,7 +789,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
                    if (src_id != -1 && tgt_id != -1) {
                      pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                     if (contains(this->beta2cell, edge_id)) {
+                     if (in(this->beta2cell, edge_id)) {
                        src_id = -2;
                      }
                    }
@@ -1172,7 +1172,7 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
 }
 
 void AnalysisGraph::add_node(string concept) {
-  if (!contains(this->name_to_vertex, concept)) {
+  if (!in(this->name_to_vertex, concept)) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
@@ -1220,7 +1220,7 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
   pair<int, int> edge = make_pair(src_id, tgt_id);
 
   // edge ≡ β
-  if (contains(this->beta2cell, edge)) {
+  if (in(this->beta2cell, edge)) {
     // There is a edge from src_concept to tgt_concept
     // get that edge object
     auto e = boost::edge(src_id, tgt_id, this->graph).first;
@@ -1355,11 +1355,11 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value = utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value = delphi::utils::mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }
-    double diff = utils::mean(next_state_values) - this->s0(2 * v);
+    double diff = delphi::utils::mean(next_state_values) - this->s0(2 * v);
     this->s0(2 * v + 1) = diff;
   }
 }
@@ -1813,7 +1813,7 @@ void AnalysisGraph::sample_from_posterior() {
 void AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
-  if (contains(this->indicators_in_CAG, indicator)) {
+  if (in(this->indicators_in_CAG, indicator)) {
     debug("{0} already exists in Causal Analysis Graph, Indicator {0} was "
           "not added to Concept {1}.",
           indicator,
@@ -1865,7 +1865,7 @@ void AnalysisGraph::replace_indicator(string concept,
                                       string indicator_old,
                                       string indicator_new,
                                       string source) {
-  if (contains(this->indicators_in_CAG, indicator_new)){
+  if (in(this->indicators_in_CAG, indicator_new)){
     warn("{0} already exists in Causal Analysis Graph, Indicator {0} did "
          "not replace Indicator {1} for Concept {2}.",
          indicator_new,

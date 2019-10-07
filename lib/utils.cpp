@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace utils {
+namespace delphi::utils {
   nlohmann::json load_json(string filename) {
     ifstream i(filename);
     nlohmann::json j = nlohmann::json::parse(i);

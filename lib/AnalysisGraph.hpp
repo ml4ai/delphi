@@ -109,7 +109,6 @@ class AnalysisGraph {
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
-  // std::vector<std::string> indicators_in_CAG;
   std::unordered_set<std::string> indicators_in_CAG;
 
   // A_beta_factors is a 2D array (std::vector of std::vectors) that keeps track
