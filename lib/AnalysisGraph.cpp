@@ -9,6 +9,7 @@
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
 #include <type_traits>
+#include "dbg.h"
 
 using namespace std;
 using boost::for_each;
@@ -121,8 +122,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     for (int i = 0; i < n_indicators; i++) {
       bool at_least_one_indicator_found = false;
       for (string indicator : matches) {
-        if (!in(this->indicators_in_CAG, indicator) and
-            has_data(indicator)) {
+        if (!in(this->indicators_in_CAG, indicator) and has_data(indicator)) {
           node.add_indicator(indicator, get_indicator_source(indicator));
           this->indicators_in_CAG.insert(indicator);
           at_least_one_indicator_found = true;
@@ -163,60 +163,27 @@ void AnalysisGraph::parameterize(string country,
                                  map<string, string> units) {
   double stdev, mean;
   for (Node& node : this->nodes()) {
-    for (auto& [name, i] : node.nameToIndexMap) {
-      Indicator& indicator = node.indicators[i];
-      try {
-        if (in(units, name)) {
-          indicator.set_unit(units[name]);
-          vector<double> data = get_data_value(name,
-                                               country,
-                                               state,
-                                               county,
-                                               year,
-                                               month,
-                                               units[name],
-                                               this->data_heuristic);
-          if (data.empty()) {
-            mean = 0;
-          }
-          else {
-            mean = delphi::utils::mean(data);
-          }
-          indicator.set_mean(mean);
-        }
-        else {
-          indicator.set_default_unit();
-          vector<double> data = get_data_value(name,
-                                               country,
-                                               state,
-                                               county,
-                                               year,
-                                               month,
-                                               units[name],
-                                               this->data_heuristic);
-          if (data.empty()) {
-            mean = 0;
-          }
-          else {
-            mean = delphi::utils::mean(data);
-          }
-          indicator.set_mean(mean);
-        }
-        stdev = 0.1 * abs(indicator.get_mean());
-        if (stdev == 0) {
-          stdev = 1;
-        }
-        indicator.set_stdev(stdev);
+    for (Indicator& indicator : node.indicators) {
+      if (in(units, indicator.name)) {
+        indicator.set_unit(units[indicator.name]);
       }
-      catch (logic_error& le) {
-        error("AnalysisGraph::parameterize()\n"
-              "\tReading data for:\n"
-              "\t\tConcept: {0}\n"
-              "\t\tIndicator: {1}\n",
-              node.name,
-              name);
-        rethrow_exception(current_exception());
+      else {
+        indicator.set_default_unit();
       }
+      vector<double> data = get_data_value(indicator.name,
+                                           country,
+                                           state,
+                                           county,
+                                           year,
+                                           month,
+                                           indicator.unit,
+                                           this->data_heuristic);
+
+      mean = data.empty() ? 0 : delphi::utils::mean(data);
+      indicator.set_mean(mean);
+      stdev = 0.1 * abs(indicator.get_mean());
+      stdev = stdev == 0 ? 1 : stdev;
+      indicator.set_stdev(stdev);
     }
   }
 }
@@ -503,7 +470,6 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     auto subj_concept_json = subj_db_ref["concept"];
     auto obj_concept_json = obj_db_ref["concept"];
 
-
     if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
       continue;
     }
@@ -635,7 +601,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   // Determine the vertices to be removed
   for (int vert_id : this->node_indices()) {
-    if (in(vertices_to_keep,vert_id)) {
+    if (in(vertices_to_keep, vert_id)) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
   }
@@ -1155,6 +1121,8 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
 
+    dbg(year);
+    dbg(month);
     observed_state[v] = indicators | transform([&](Indicator ind) {
                           return get_data_value(ind.get_name(),
                                                 country,
@@ -1168,6 +1136,7 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
                         to<vector>();
   }
 
+  dbg("Finished setting observed state");
   return observed_state;
 }
 
@@ -1311,16 +1280,22 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           string country,
                                                           string state,
                                                           string county) {
+  dbg("Clearing observed state sequence");
   this->observed_state_sequence.clear();
 
   // Access
   // [ timestep ][ veretx ][ indicator ]
+  dbg("Setting observed state sequence");
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
   int month = start_month;
 
+  dbg(year);
+  dbg(month);
   for (int ts = 0; ts < this->n_timesteps; ts++) {
+    dbg(ts);
+    dbg("getting observed state sequence");
     this->observed_state_sequence[ts] =
         get_observed_state_from_data(year, month, country, state, county);
 
@@ -1355,7 +1330,8 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value = delphi::utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value =
+            delphi::utils::mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }

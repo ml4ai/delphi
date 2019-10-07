@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "spdlog/spdlog.h"
 #include <tqdm.hpp>
+#include "dbg.h"
 
 using namespace std;
 using tq::trange;
@@ -28,17 +29,23 @@ void AnalysisGraph::train_model(int start_year,
   this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
+  dbg("Parameterizing");
   this->parameterize(country, state, county, start_year, start_month, units);
 
+  dbg("Setting training range");
   this->training_range = make_pair(make_pair(start_year,start_month), make_pair(end_year,end_month));
 
+  dbg(synthetic_data_experiment);
   if (!synthetic_data_experiment) {
+    dbg("Setting observed state sequence from data");
     this->set_observed_state_sequence_from_data(
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
+  dbg("Setting initial latent state from observed_state sequence");
   this->set_initial_latent_state_from_observed_state_sequence();
 
+  dbg("Setting log_likelihood");
   this->set_log_likelihood();
 
   // Accumulates the transition matrices for accepted samples
@@ -60,9 +67,12 @@ void AnalysisGraph::train_model(int start_year,
   // Here we populate it with res number of sampler emitted transition
   // matrices.
   //
+  dbg("Clearing transition_matrix_collection");
   this->transition_matrix_collection.clear();
+  dbg("Initializing transition_matrix_collection");
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
+  dbg("Burning samples");
   for (int i : trange(burn)) {
     this->sample_from_posterior();
   }

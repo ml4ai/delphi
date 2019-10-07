@@ -732,7 +732,7 @@ class AnalysisGraph {
                     std::string state = "",
                     std::string county = "",
                     int year = 2012,
-                    int month = 1,
+                    int month = 0,
                     std::map<std::string, std::string> units = {});
 
   void print_nodes();
