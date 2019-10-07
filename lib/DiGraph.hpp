@@ -23,35 +23,35 @@ class Node {
 
   std::vector<Indicator> indicators;
   // Maps each indicator name to its index in the indicators vector
-  std::map<std::string, int> indicator_names;
+  std::map<std::string, int> nameToIndexMap;
 
   void add_indicator(std::string indicator, std::string source) {
     // TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
-    //      in the indicator_names map
+    //      in the nameToIndexMap map
     // What if this indicator already exists?
     //*Loren: We just say it's already attached and do nothing.
     // As of right now, we are only attaching one indicator per node but even
     // if we were attaching multiple indicators to one node, I can't yet think
     // of a case where the numerical id (i.e. the order) matters. If we do come
     // across that case, we will just write a function that swaps ids.*
-    if (this->indicator_names.find(indicator) != this->indicator_names.end()) {
+    if (delphi::utils::in(this->nameToIndexMap,indicator)) {
       std::cout << indicator << " already attached to " << name << std::endl;
       return;
     }
 
-    this->indicator_names[indicator] = indicators.size();
-    indicators.push_back(Indicator(indicator, source));
+    this->nameToIndexMap[indicator] = this->indicators.size();
+    this->indicators.push_back(Indicator(indicator, source));
   }
 
   void delete_indicator(std::string indicator) {
-    if (this->indicator_names.find(indicator) != this->indicator_names.end()) {
-      int ind_index = this->indicator_names[indicator];
-      this->indicator_names.clear();
-      indicators.erase(indicators.begin() + ind_index);
+    if (delphi::utils::in(this->nameToIndexMap, indicator)) {
+      int ind_index = this->nameToIndexMap.at(indicator);
+      this->nameToIndexMap.clear();
+      this->indicators.erase(this->indicators.begin() + ind_index);
       // The values of the map object have to align with the vecter indexes.
-      for (int i = 0; i < indicators.size(); i++) {
-        this->indicator_names[indicators[i].get_name()] = i;
+      for (int i = 0; i < this->indicators.size(); i++) {
+        this->nameToIndexMap.at(this->indicators[i].get_name()) = i;
       }
     }
     else {
@@ -62,7 +62,7 @@ class Node {
 
   Indicator get_indicator(std::string indicator) {
     try {
-      return indicators[this->indicator_names.at(indicator)];
+      return this->indicators[this->nameToIndexMap.at(indicator)];
     }
     catch (const std::out_of_range& oor) {
       throw IndicatorNotFoundException(indicator);
@@ -73,29 +73,37 @@ class Node {
                          std::string indicator_new,
                          std::string source) {
 
-    auto map_entry = this->indicator_names.extract(indicator_old);
+    dbg("Extracting map_entry");
+    auto map_entry = this->nameToIndexMap.extract(indicator_old);
+    dbg("Map entry extracted");
 
     if (map_entry) // indicator_old is in the map
     {
+      dbg("Map entry is true (?)");
       // Update the map entry and add the new indicator
       // in place of the old indicator
       map_entry.key() = indicator_new;
-      this->indicator_names.insert(move(map_entry));
-      indicators[map_entry.mapped()] = Indicator(indicator_new, source);
+      dbg("");
+      this->nameToIndexMap.insert(move(map_entry));
+      dbg("");
+      this->indicators[map_entry.mapped()] = Indicator(indicator_new, source);
+      dbg("");
     }
     else // indicator_old is not attached to this node
     {
       std::cout << "Node::replace_indicator - indicator " << indicator_old
                 << " is not attached to node " << name << std::endl;
       std::cout << "\tAdding indicator " << indicator_new << " afresh\n";
+      dbg("");
       add_indicator(indicator_new, source);
+      dbg("");
     }
   }
 
   // Utility function that clears the indicators vector and the name map.
   void clear_indicators() {
-    indicators.clear();
-    this->indicator_names.clear();
+    this->indicators.clear();
+    this->nameToIndexMap.clear();
   }
 };
 
