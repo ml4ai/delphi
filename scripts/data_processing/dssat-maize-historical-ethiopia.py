@@ -4,7 +4,7 @@ import numpy as np
 
 dfs = list()
 
-directoryPath = '../data/raw/data_for_november_2019_evaluation/ethiopia_east_africa_data/'
+directoryPath = 'data/raw/data_for_november_2019_evaluation/ethiopia_east_africa_data/'
 filenames = glob(directoryPath + '*.csv')
 
 
@@ -35,4 +35,4 @@ dict_var = {'HWAMA': 'Average Harvested Weight at Maturity (Maize)', 'TAVGA' : '
 
 big_frame['Variable'].replace(dict_var, inplace=True)
 
-big_frame.to_csv('../data/dssat-maize-data2.csv', index=False)
+big_frame.to_csv('data/dssat-maize-data2.csv', index=False)
