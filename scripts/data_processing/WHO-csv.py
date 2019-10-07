@@ -53,6 +53,8 @@ big_frame.dropna(subset=['Value'], inplace=True)
 big_frame = big_frame[big_frame['Value'] != 'No data']
 big_frame['Value'] = big_frame['Value'].astype(str)
 big_frame['Value'] = big_frame['Value'].str.split('[').str[0]
+big_frame['Value'] = big_frame['Value'].str.split().str.get(0)
+
 
 big_frame['Unit'] = np.where(big_frame['Variable'] == 'Neonates protected at birth against neonatal tetanus (PAB) (%)', '%',big_frame['Variable'].str.findall(r'(?<=\()[^(]*(?=\))').str[0])
 big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.strip()
