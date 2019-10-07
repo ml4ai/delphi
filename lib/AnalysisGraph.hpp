@@ -6,6 +6,8 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -66,10 +68,16 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
+
   auto nodes() {
     using boost::adaptors::transformed;
     return this->node_indices() |
-           transformed([&](int v) -> Node& { return (*this)[v]; });
+           transformed([&](int v) -> Node& {return (*this)[v];});
+  };
+
+  auto node_names() {
+    using boost::adaptors::transformed;
+    return this->nodes() | transformed([&](auto node) -> std::string {return node.name;});
   };
 
   boost::range_detail::integer_iterator<unsigned long> begin() {
@@ -288,10 +296,9 @@ class AnalysisGraph {
   // restrict_to_subgraph_for_concept, update docstring
 
   /**
-   * Returns a new AnaysisGraph related to the concept provided,
-   * which is a subgraph of this graph.
+   * Returns the subgraph of the AnalysisGraph around a concept.
    *
-   * @param concept: The concept where the subgraph is about.
+   * @param concept: The concept to center the subgraph about.
    * @param depth  : The maximum number of hops from the concept provided
    *                 to be included in the subgraph.
    * #param inward : Sets the direction of the causal influence flow to
@@ -703,7 +710,7 @@ class AnalysisGraph {
   // ==========================================================================
 
   void
-  set_indicator(std::string concept, std::string indicator, std::string source);
+  add_indicator(std::string concept, std::string indicator, std::string source);
 
   void delete_indicator(std::string concept, std::string indicator);
 

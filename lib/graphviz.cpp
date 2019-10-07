@@ -7,6 +7,7 @@
 #include <tinycolormap.hpp>
 
 using namespace std;
+using boost::source, boost::target;
 
 string rgb2hex(double r, double g, double b, bool with_head = true) {
   stringstream ss;
@@ -57,8 +58,7 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   auto get_median_beta = [&](auto e) {
     accumulator_set<double, stats<tag::median(with_p_square_quantile)>> acc;
     auto dataset =
-        this->edge(boost::source(e, this->graph), boost::target(e, this->graph))
-            .kde.dataset;
+        this->edge(source(e, this->graph), target(e, this->graph)).kde.dataset;
     for (double x : dataset) {
       acc(x);
     }
@@ -69,13 +69,13 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
 
   auto getHex = [](double x) {
     stringstream ss;
-    ss << std::hexfloat << x;
+    ss << hexfloat << x;
     return ss.str();
   };
   // Add CAG links
   for (auto e : this->edges()) {
-    string source_name = this->graph[boost::source(e, this->graph)].name;
-    string target_name = this->graph[boost::target(e, this->graph)].name;
+    string source_name = this->graph[source(e, this->graph)].name;
+    string target_name = this->graph[target(e, this->graph)].name;
 
     // TODO Implement a refined version of this that checks for set size
     // equality, a la the Python implementation (i.e. check if the length of

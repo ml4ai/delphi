@@ -17,14 +17,9 @@ template <class T> void printVec(vector<T> xs) {
   }
 }
 
-template <class Key, class Value>
-bool contains(unordered_map<Key, Value> umap, Key key) {
-  return umap.count(key) != 0;
-}
-
-template <class T>
-bool contains(unordered_set<T> uset, T value) {
-  return uset.count(value) != 0;
+template <class Container, class Value>
+bool contains(Container container, Value value) {
+  return container.count(value) != 0;
 }
 
 template <class Key, class Value>
