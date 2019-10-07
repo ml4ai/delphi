@@ -710,7 +710,7 @@ class AnalysisGraph {
   // ==========================================================================
 
   void
-  add_indicator(std::string concept, std::string indicator, std::string source);
+  set_indicator(std::string concept, std::string indicator, std::string source);
 
   void delete_indicator(std::string concept, std::string indicator);
 

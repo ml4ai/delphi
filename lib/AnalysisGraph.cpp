@@ -751,16 +751,6 @@ void AnalysisGraph::remove_edge(string src, string tgt) {
     return;
   }
 
-  pair<int, int> edge = make_pair(src_id, tgt_id);
-
-  // edge ≡ β
-  if (this->beta2cell.find(edge) == this->beta2cell.end()) {
-    cerr << "AnalysisGraph::remove_edge" << endl;
-    cerr << "\tThere is no edge from " << src << " to " << tgt << " in the CAG!"
-         << endl;
-    return;
-  }
-
   // Remove the edge
   boost::remove_edge(src_id, tgt_id, this->graph);
 }
@@ -1821,7 +1811,7 @@ void AnalysisGraph::sample_from_posterior() {
   }
 }
 
-void AnalysisGraph::add_indicator(string concept,
+void AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
   if (contains(this->indicators_in_CAG, indicator)) {
