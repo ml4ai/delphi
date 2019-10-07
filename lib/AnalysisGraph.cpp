@@ -163,7 +163,7 @@ void AnalysisGraph::parameterize(string country,
                                  map<string, string> units) {
   double stdev, mean;
   for (Node& node : this->nodes()) {
-    for (auto& [name, i] : node.indicator_names) {
+    for (auto& [name, i] : node.nameToIndexMap) {
       Indicator& indicator = node.indicators[i];
       try {
         if (in(units, name)) {
@@ -1095,7 +1095,7 @@ void AnalysisGraph::print_edges() {
 void AnalysisGraph::print_indicators() {
   for (int v : this->node_indices()) {
     cout << v << ":" << (*this)[v].name << endl;
-    for (auto [name, vert] : (*this)[v].indicator_names) {
+    for (auto [name, vert] : (*this)[v].nameToIndexMap) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
@@ -1544,7 +1544,7 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   for (int samp = 0; samp < this->res; samp++) {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
       for (auto [vert_name, vert_id] : this->name_to_vertex) {
-        for (auto [ind_name, ind_id] : (*this)[vert_id].indicator_names) {
+        for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
           result[samp][ts][vert_name][ind_name] =
               this->predicted_observed_state_sequences[samp][ts][vert_id]
                                                       [ind_id];
@@ -1569,7 +1569,7 @@ vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
   // a map from indicator names to vertices they are attached to.
   // This is just a quick and dirty implementation
   for (auto [v_name, v_id] : this->name_to_vertex) {
-    for (auto [i_name, i_id] : (*this)[v_id].indicator_names) {
+    for (auto [i_name, i_id] : (*this)[v_id].nameToIndexMap) {
       if (indicator.compare(i_name) == 0) {
         vert_id = v_id;
         ind_id = i_id;

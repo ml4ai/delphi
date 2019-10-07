@@ -73,30 +73,22 @@ class Node {
                          std::string indicator_new,
                          std::string source) {
 
-    dbg("Extracting map_entry");
     auto map_entry = this->nameToIndexMap.extract(indicator_old);
-    dbg("Map entry extracted");
 
     if (map_entry) // indicator_old is in the map
     {
-      dbg("Map entry is true (?)");
       // Update the map entry and add the new indicator
       // in place of the old indicator
       map_entry.key() = indicator_new;
-      dbg("");
       this->nameToIndexMap.insert(move(map_entry));
-      dbg("");
       this->indicators[map_entry.mapped()] = Indicator(indicator_new, source);
-      dbg("");
     }
     else // indicator_old is not attached to this node
     {
       std::cout << "Node::replace_indicator - indicator " << indicator_old
                 << " is not attached to node " << name << std::endl;
       std::cout << "\tAdding indicator " << indicator_new << " afresh\n";
-      dbg("");
-      add_indicator(indicator_new, source);
-      dbg("");
+      this->add_indicator(indicator_new, source);
     }
   }
 
