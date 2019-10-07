@@ -23,7 +23,7 @@ vector<double> get_data_value(string indicator,
 
   vector<double> vals = {};
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  dbg(rc);
+  //dbg(rc);
   if (rc) {
     throw("Could not open db. Do you have the DELPHI_DB "
           "environment correctly set to point to the Delphi database?");
@@ -123,7 +123,7 @@ vector<double> get_data_value(string indicator,
 
   if (vals.empty() and use_heuristic) {
     final_query =
-        "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
+      "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
