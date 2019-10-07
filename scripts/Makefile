@@ -136,8 +136,7 @@ data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/acled-data1.csv\
 						 data/acled-data2.csv\
 						 data/acled-data3.csv\
-						 data/dssat-maize-data1.csv\
-						 data/dssat-maize-data2.csv\
+						 data/dssat_data_oct2019_eval.tsv\
 						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
 						 data/indicator_data_fewsnet.tsv\
 						 data/indicator_data_climis_unicef_ieconomics.tsv\
