@@ -10,6 +10,7 @@ dtype_dict = {
     "Year": int,
     "Value": float,
 }
+
 read_csv = partial(pd.read_csv, sep="\t", dtype=dtype_dict, index_col=False)
 
 
@@ -70,6 +71,7 @@ def combine_data(outputFile):
     climis_unicef_ieconomics_df = read_csv(
         "data/indicator_data_climis_unicef_ieconomics.tsv", thousands=","
     )
+
     dssat_df = read_csv("data/indicator_data_dssat.tsv")
 
     unhcr_df = read_csv("data/indicator_data_UNHCR.tsv")
@@ -108,6 +110,8 @@ def combine_data(outputFile):
         "data/World-Bank-data.csv", index_col=False, dtype=dtype_dict
     )
 
+    dssat1_df = pd.read_csv('data/dssat-maize-data1.csv', index_col=False)
+    dssat2_df = pd.read_csv('data/dssat-maize-data2.csv', index_col=False)
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -126,6 +130,8 @@ def combine_data(outputFile):
             acled2_df,
             acled3_df,
             World_Bank_df,
+            dssat1_df,
+            dssat2_df
         ],
         sort=True,
     ).dropna(subset=["Value"])
