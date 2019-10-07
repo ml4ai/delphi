@@ -166,7 +166,7 @@ void AnalysisGraph::parameterize(string country,
     for (auto& [name, i] : node.indicator_names) {
       Indicator& indicator = node.indicators[i];
       try {
-        if (units.find(name) != units.end()) {
+        if (contains(units, name)) {
           indicator.set_unit(units[name]);
           vector<double> data = get_data_value(name,
                                                country,
@@ -635,7 +635,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   // Determine the vertices to be removed
   for (int vert_id : this->node_indices()) {
-    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
+    if (contains(vertices_to_keep,vert_id)) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
   }
@@ -671,7 +671,7 @@ void AnalysisGraph::prune(int cutoff) {
         pair<int, int> edge = make_pair(src, tgt);
 
         // edge ≡ β
-        if (this->beta2cell.find(edge) != this->beta2cell.end()) {
+        if (contains(this->beta2cell, edge)) {
           // There is a direct edge src --> tgt
           // Remove that edge
           boost::remove_edge(src, tgt, this->graph);
@@ -789,8 +789,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
                    if (src_id != -1 && tgt_id != -1) {
                      pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                     if (this->beta2cell.find(edge_id) ==
-                         this->beta2cell.end()) {
+                     if (contains(this->beta2cell, edge_id)) {
                        src_id = -2;
                      }
                    }
@@ -1218,10 +1217,10 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
   int tgt_id = this->get_vertex_id_for_concept(target_concept,
                                                "change_polarity_of_edge");
 
-  pair<int, int> edg = make_pair(src_id, tgt_id);
+  pair<int, int> edge = make_pair(src_id, tgt_id);
 
   // edge ≡ β
-  if (this->beta2cell.find(edg) != this->beta2cell.end()) {
+  if (contains(this->beta2cell, edge)) {
     // There is a edge from src_concept to tgt_concept
     // get that edge object
     auto e = boost::edge(src_id, tgt_id, this->graph).first;
@@ -1866,8 +1865,7 @@ void AnalysisGraph::replace_indicator(string concept,
                                       string indicator_old,
                                       string indicator_new,
                                       string source) {
-  if (this->indicators_in_CAG.find(indicator_new) !=
-      this->indicators_in_CAG.end()) {
+  if (contains(this->indicators_in_CAG, indicator_new)){
     warn("{0} already exists in Causal Analysis Graph, Indicator {0} did "
          "not replace Indicator {1} for Concept {2}.",
          indicator_new,
