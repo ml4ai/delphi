@@ -4,10 +4,10 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/range/adaptor/transformed.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -68,16 +68,16 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
-
   auto nodes() {
     using boost::adaptors::transformed;
     return this->node_indices() |
-           transformed([&](int v) -> Node& {return (*this)[v];});
+           transformed([&](int v) -> Node& { return (*this)[v]; });
   };
 
   auto node_names() {
     using boost::adaptors::transformed;
-    return this->nodes() | transformed([&](auto node) -> std::string {return node.name;});
+    return this->nodes() |
+           transformed([&](auto node) -> std::string { return node.name; });
   };
 
   boost::range_detail::integer_iterator<unsigned long> begin() {
@@ -714,45 +714,6 @@ class AnalysisGraph {
   void delete_indicator(std::string concept, std::string indicator);
 
   void delete_all_indicators(std::string concept);
-
-  /*
-  // TODO: Demosntrate how to use the Node::get_indicator() method
-  // with the custom exception.
-  // Not sure whether we need this method in AnalaysisGraph
-  // so that python side can directly access the Indicator class
-  // objects and maipulate them (we need to fiture out how to map a
-  // custom class from C++ into python for this) - harder
-  // or
-  // mirror getter and setter methods of the Indicator class
-  // in AnalysisGraph and make the python side call them - easier.
-  Indicator get_indicator(std::string concept, std::string indicator) {
-    try {
-      return graph[name_to_vertex.at(concept)].get_indicator(indicator);
-    } catch (const std::out_of_range &oor) {
-      fmt::print("Error: AnalysisGraph::get_indicator()\n");
-      fmt::print("\tConcept: {} is not in the CAG\n", concept);
-    } catch (IndicatorNotFoundException &infe) {
-      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
-                << "\tindicator: " << infe.what()
-                << " is not attached to CAG node " << concept << std::endl;
-    }
-  }
-  */
-
-  void replace_indicator(std::string concept,
-                         std::string indicator_old,
-                         std::string indicator_new,
-                         std::string source);
-
-  /*
-    ==========================================================================
-    Model parameterization
-    *Loren: I am going to try to port this, I'll try not to touch anything up
-    top
-    and only push changes that compile. If I do push a change that breaks things
-    you could probably just comment out this section.*
-    ==========================================================================
-  */
 
   /**
    * Map each concept node in the AnalysisGraph instance to one or more

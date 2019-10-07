@@ -1860,29 +1860,3 @@ void AnalysisGraph::delete_all_indicators(string concept) {
           concept);
   }
 }
-
-void AnalysisGraph::replace_indicator(string concept,
-                                      string indicator_old,
-                                      string indicator_new,
-                                      string source) {
-  if (in(this->indicators_in_CAG, indicator_new)){
-    warn("{0} already exists in Causal Analysis Graph, Indicator {0} did "
-         "not replace Indicator {1} for Concept {2}.",
-         indicator_new,
-         indicator_old,
-         concept);
-    return;
-  }
-  try {
-    (*this)[concept].replace_indicator(indicator_old, indicator_new, source);
-    this->indicators_in_CAG.insert(indicator_new);
-    this->indicators_in_CAG.erase(indicator_old);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::replace_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} cannot be replaced",
-          concept,
-          indicator_old);
-  }
-}

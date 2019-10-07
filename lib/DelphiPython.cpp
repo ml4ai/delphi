@@ -107,12 +107,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            "concept"_a,
            "indicator"_a,
            "source"_a)
-      .def("replace_indicator",
-           &AnalysisGraph::replace_indicator,
-           "concept"_a,
-           "indicator_old"_a,
-           "indicator_new"_a,
-           "source"_a)
       .def("delete_indicator",
            &AnalysisGraph::delete_indicator,
            "concept"_a,
@@ -190,7 +184,8 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<Node>(m, "Node")
       .def_readwrite("name", &Node::name)
-      .def("__repr__", &Node::to_string);
+      .def("__repr__", &Node::to_string)
+      .def("replace_indicator", &Node::replace_indicator);
 
   py::class_<Edge>(m, "Edge")
     .def_readwrite("evidence", &Edge::evidence);
