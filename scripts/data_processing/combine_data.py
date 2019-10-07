@@ -106,7 +106,7 @@ def combine_data(outputFile):
     acled2_df = pd.read_csv('data/acled-data2.csv', index_col=False)
     acled3_df = pd.read_csv('data/acled-data3.csv', index_col=False)
 
-    World_Bank_df = pd.read_csv('World-Bank-data.csv', index_col=False)
+    World_Bank_df = pd.read_csv('data/World-Bank-data.csv', index_col=False)
 
     combined_df = pd.concat(
         [

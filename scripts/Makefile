@@ -127,7 +127,7 @@ data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/WHO-data1.csv\
 						 data/WHO-data2.csv\
 						 data/WHO-data3.csv\
-						 data/IMF-data1.csv\
+						 data/IMF-data.csv\
 						 data/WFP-data.csv\
 						 data/World-Bank-data.csv\
 						 data/acled-data1.csv\
