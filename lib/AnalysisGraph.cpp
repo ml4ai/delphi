@@ -1105,7 +1105,7 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     }
   }
 
-  dbg("Finished setting observed state");
+  //dbg("Finished setting observed state");
   return observed_state;
 }
 
@@ -1249,22 +1249,22 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           string country,
                                                           string state,
                                                           string county) {
-  dbg("Clearing observed state sequence");
+  //dbg("Clearing observed state sequence");
   this->observed_state_sequence.clear();
 
   // Access
   // [ timestep ][ veretx ][ indicator ]
-  dbg("Setting observed state sequence");
+  //dbg("Setting observed state sequence");
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
   int month = start_month;
 
-  dbg(year);
-  dbg(month);
+  //dbg(year);
+  //dbg(month);
   for (int ts = 0; ts < this->n_timesteps; ts++) {
-    dbg(ts);
-    dbg("getting observed state sequence");
+    //dbg(ts);
+    //dbg("getting observed state sequence");
     this->observed_state_sequence[ts] =
         get_observed_state_from_data(year, month, country, state, county);
 

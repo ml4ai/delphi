@@ -1,4 +1,5 @@
 from delphi.cpp.DelphiPython import AnalysisGraph
+import delphi.evaluation as EN
 
 def create_base_CAG(uncharted_json_file):
     G = AnalysisGraph.from_uncharted_json_file(uncharted_json_file)
@@ -47,3 +48,6 @@ if __name__ == "__main__":
     curate_indicators(G)
     draw_CAG(G)
     G.train_model(country="South Sudan")
+    #preds = G.generate_prediction(2012, 1, 2017, 12)
+    preds = G.generate_prediction(2018, 1, 2018, 6)
+    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Comparison',show_rmse=True, show_training_data=True, save_as='/home/manujinda/Documents/ivilab/delphi/Oct2019EvalPred.png')
