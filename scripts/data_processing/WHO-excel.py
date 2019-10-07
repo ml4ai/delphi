@@ -56,4 +56,6 @@ big_frame['Variable'] = big_frame['Variable'].str.replace(r'\(.*?\)', '').str.st
 
 big_frame = big_frame[~big_frame['Year'].str.contains('-')]
 
+big_frame['Country'] = big_frame['Country'].str.title()
+
 big_frame.to_csv('data/WHO-data2.csv', index=False)
