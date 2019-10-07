@@ -73,6 +73,10 @@ add_library(Delphi
   lib/tran_mat_cell.hpp
   lib/utils.cpp
   lib/utils.hpp
+  lib/Node.hpp
+  lib/Indicator.hpp
+  lib/Indicator.cpp
+  lib/parameterization.cpp
 )
 
 target_include_directories(Delphi PRIVATE external/range-v3/include)

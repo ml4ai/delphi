@@ -5,6 +5,7 @@
 #include <graphviz_interface.hpp>
 #include <range/v3/all.hpp>
 #include <tinycolormap.hpp>
+#include <Node.hpp>
 
 using namespace std;
 using boost::source, boost::target;

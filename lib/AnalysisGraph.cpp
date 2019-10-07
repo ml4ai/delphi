@@ -1,5 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
+#include "dbg.h"
+#include "Node.hpp"
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/adaptor/filtered.hpp>
@@ -9,7 +11,6 @@
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
 #include <type_traits>
-#include "dbg.h"
 
 using namespace std;
 using boost::for_each;
@@ -155,38 +156,6 @@ void AnalysisGraph::initialize_random_number_generator() {
   this->norm_dist = normal_distribution<double>(0.0, 1.0);
 }
 
-void AnalysisGraph::parameterize(string country,
-                                 string state,
-                                 string county,
-                                 int year,
-                                 int month,
-                                 map<string, string> units) {
-  double stdev, mean;
-  for (Node& node : this->nodes()) {
-    for (Indicator& indicator : node.indicators) {
-      if (in(units, indicator.name)) {
-        indicator.set_unit(units[indicator.name]);
-      }
-      else {
-        indicator.set_default_unit();
-      }
-      vector<double> data = get_data_value(indicator.name,
-                                           country,
-                                           state,
-                                           county,
-                                           year,
-                                           month,
-                                           indicator.unit,
-                                           this->data_heuristic);
-
-      mean = data.empty() ? 0 : delphi::utils::mean(data);
-      indicator.set_mean(mean);
-      stdev = 0.1 * abs(indicator.get_mean());
-      stdev = stdev == 0 ? 1 : stdev;
-      indicator.set_stdev(stdev);
-    }
-  }
-}
 
 void AnalysisGraph::allocate_A_beta_factors() {
   this->A_beta_factors.clear();
@@ -1123,17 +1092,18 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
 
     dbg(year);
     dbg(month);
-    observed_state[v] = indicators | transform([&](Indicator ind) {
-                          return get_data_value(ind.get_name(),
-                                                country,
-                                                state,
-                                                county,
-                                                year,
-                                                month,
-                                                ind.get_unit(),
-                                                this->data_heuristic);
-                        }) |
-                        to<vector>();
+    for (auto ind : indicators) {
+      auto vals = get_data_value(ind.get_name(),
+                            country,
+                            state,
+                            county,
+                            year,
+                            month,
+                            ind.get_unit(),
+                            this->data_heuristic);
+
+      observed_state[v].push_back(vals);
+    }
   }
 
   dbg("Finished setting observed state");
