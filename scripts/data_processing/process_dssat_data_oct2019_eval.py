@@ -40,17 +40,17 @@ for filename in filenames:
         elif "ETH" in filename:
             big_frame["Country"] = "Ethiopia"
         else:
-            raise Exception("Neither SSD or ETH in filename - are you sure you
-                    "are passing in the correct files?")
+            raise Exception("Neither SSD or ETH in filename - are you sure you"
+                    " are passing in the correct files?")
 
     dfs.append(big_frame)
 
 big_frame = pd.concat(dfs, ignore_index=True, sort=True)
 
-big_frame["Month"], big_frame["County"] = None, None, None
-big_frame[big_frame["Variable"] == "HWAMA"]["Unit"] = "kg/ha"
-big_frame[big_frame["Variable"] == "PRCPA"]["Unit"] = "mm"
-big_frame[big_frame["Variable"] == "TAVGA"]["Unit"] = "Celsius"
+big_frame["Month"], big_frame["County"], big_frame["Unit"] = None, None, None
+big_frame.loc[big_frame["Variable"] == "HWAMA", ["Unit"]] = "kg/ha"
+big_frame.loc[big_frame["Variable"] == "PRCPA", ["Unit"]] = "mm"
+big_frame.loc[big_frame["Variable"] == "TAVGA", ["Unit"]] = "Celsius"
 
 dict_var = {
     "HWAMA": "Average Harvested Weight at Maturity (Maize)",
