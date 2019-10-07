@@ -1,7 +1,8 @@
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import sys
 
 data_dir = Path("data")
 
@@ -128,11 +129,7 @@ def clean_reachjongleijan_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_ReachJongleiJan_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 def clean_54660_data():
@@ -246,11 +243,7 @@ def clean_54660_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_54660_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 def clean_62801_data():
@@ -341,11 +334,7 @@ def clean_62801_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_62801_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 def clean_62803_data():
@@ -431,11 +420,7 @@ def clean_62803_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_62803_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 def clean_63604_data():
@@ -511,11 +496,7 @@ def clean_63604_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_63604_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 def clean_UNHCR_data():
@@ -603,17 +584,17 @@ def clean_UNHCR_data():
         ]
     )
 
-    df.to_csv(
-        str(data_dir / "south_sudan_UNHCR_migration_data_new.tsv"),
-        index=False,
-        sep="\t",
-    )
+    return df
 
 
 if __name__ == "__main__":
-    clean_reachjongleijan_data()
-    clean_54660_data()
-    clean_62801_data()
-    clean_62803_data()
-    clean_63604_data()
-    clean_UNHCR_data()
+    combined_df = pd.concat([
+        clean_reachjongleijan_data(),
+        clean_54660_data(),
+        clean_62801_data(),
+        clean_62803_data(),
+        clean_63604_data(),
+        clean_UNHCR_data(),
+    ])
+    combined_df.to_csv(sys.argv[1], sep="\t", index=False)
+

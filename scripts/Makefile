@@ -81,12 +81,12 @@ data/indicator_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DAT
 data/indicator_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
 	python $< $@
 
-data/south_sudan_migration_data_initial: data_processing/process_migration_data_initial.py
-	python $<
+data/south_sudan_migration_data_initial.tsv: data_processing/process_migration_data_initial.py
+	python $< $@
 
-data/south_sudan_migration_data_secondary: data_processing/process_migration_data_secondary.py\
-										   data/south_sudan_migration_data_initial
-	python $<
+data/south_sudan_migration_data_secondary.tsv: data_processing/process_migration_data_secondary.py\
+										   data/south_sudan_migration_data_initial.tsv
+	python $^ $@
 
 
 data/WHO-data1.csv: data_processing/WHO-csv.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
@@ -138,7 +138,7 @@ data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/indicator_data_climis_unicef_ieconomics.tsv\
 						 data/indicator_data_dssat.tsv\
 						 data/indicator_data_UNHCR.tsv\
-						 data/south_sudan_migration_data_secondary
+						 data/south_sudan_migration_data_secondary.tsv
 	python $< $@
 
 # =============================================================================
