@@ -118,6 +118,11 @@ data/acled-data2.csv: data_processing/acled-Ethiopia.py $(RAW)/data_for_november
 data/acled-data3.csv: data_processing/acled-South-Sudan-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
 	python $< 
 
+data/dssat-maize-data1.csv: data_processing/dssat-maize-historical-south-sudan.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data
+	python $< 
+
+data/dssat-maize-data2.csv: data_processing/dssat-maize-historical-ethiopia.py $(RAW)/data_for_november_2019_evaluation/ethiopia_east_africa_data
+	python $< 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
@@ -133,6 +138,8 @@ data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/acled-data1.csv\
 						 data/acled-data2.csv\
 						 data/acled-data3.csv\
+						 data/dssat-maize-data1.csv\
+						 data/dssat-maize-data2.csv\
 						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
 						 data/indicator_data_fewsnet.tsv\
 						 data/indicator_data_climis_unicef_ieconomics.tsv\

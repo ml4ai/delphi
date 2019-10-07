@@ -108,6 +108,9 @@ def combine_data(outputFile):
 
     World_Bank_df = pd.read_csv('data/World-Bank-data.csv', index_col=False)
 
+    dssat1_df = pd.read_csv('data/dssat-maize-data1.csv', index_col=False)
+    dssat2_df = pd.read_csv('data/dssat-maize-data2.csv', index_col=False)
+    
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -130,7 +133,9 @@ def combine_data(outputFile):
             acled1_df,
             acled2_df,
             acled3_df,
-            World_Bank_df
+            World_Bank_df,
+            dssat1_df,
+            dssat2_df
         ],
         sort=True,
     ).dropna(subset=["Value"])
