@@ -1,9 +1,8 @@
 #include "data.hpp"
-#include <sqlite3.h>
+#include "spdlog/spdlog.h"
 #include "utils.hpp"
 #include <fmt/format.h>
-#include "spdlog/spdlog.h"
-#include "dbg.h"
+#include <sqlite3.h>
 
 using namespace std;
 
@@ -23,7 +22,6 @@ vector<double> get_data_value(string indicator,
 
   vector<double> vals = {};
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  dbg(rc);
   if (rc) {
     throw("Could not open db. Do you have the DELPHI_DB "
           "environment correctly set to point to the Delphi database?");
@@ -52,7 +50,6 @@ vector<double> get_data_value(string indicator,
   else {
     query = "{} and `Country` is 'None'"_format(query);
   }
-
 
   if (!state.empty()) {
     check_q = "{0} and `State` is '{1}'"_format(query, state);
@@ -133,7 +130,8 @@ vector<double> get_data_value(string indicator,
     }
   }
 
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
+  if ((rc = sqlite3_finalize(stmt)) == SQLITE_OK) {
+    sqlite3_close(db);
+  }
   return vals;
 }
