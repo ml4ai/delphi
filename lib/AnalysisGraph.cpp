@@ -11,6 +11,7 @@
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
 #include <type_traits>
+#include "spdlog/spdlog.h"
 
 using namespace std;
 using boost::for_each;
@@ -1090,8 +1091,6 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
 
-    dbg(year);
-    dbg(month);
     for (auto ind : indicators) {
       auto vals = get_data_value(ind.get_name(),
                             country,

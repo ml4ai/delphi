@@ -1,4 +1,8 @@
 #include "data.hpp"
+#include <sqlite3.h>
+#include "utils.hpp"
+#include <fmt/format.h>
+#include "spdlog/spdlog.h"
 #include "dbg.h"
 
 using namespace std;
@@ -15,11 +19,11 @@ vector<double> get_data_value(string indicator,
   using namespace fmt::literals;
   using spdlog::debug, spdlog::error, spdlog::info;
 
-  dbg(indicator);
   sqlite3* db;
 
   vector<double> vals = {};
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
+  dbg(rc);
   if (rc) {
     throw("Could not open db. Do you have the DELPHI_DB "
           "environment correctly set to point to the Delphi database?");
@@ -48,6 +52,7 @@ vector<double> get_data_value(string indicator,
   else {
     query = "{} and `Country` is 'None'"_format(query);
   }
+
 
   if (!state.empty()) {
     check_q = "{0} and `State` is '{1}'"_format(query, state);
@@ -107,7 +112,6 @@ vector<double> get_data_value(string indicator,
   string final_query =
       "{0} and `Year` is '{1}' and `Month` is '{2}'"_format(query, year, month);
 
-  dbg(final_query);
   sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
   double value;
@@ -124,12 +128,12 @@ vector<double> get_data_value(string indicator,
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
       value = sqlite3_column_double(stmt, 1);
-      vals.push_back(value / 12);
+      value = value / 12;
+      vals.push_back(value);
     }
   }
 
   sqlite3_finalize(stmt);
   sqlite3_close(db);
-  dbg(vals);
   return vals;
 }
