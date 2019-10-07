@@ -1,25 +1,25 @@
 #include "data.hpp"
-#include <sqlite3.h>
 
-std::vector<double> get_data_value(std::string indicator,
-                      std::string country,
-                      std::string state,
-                      std::string county,
-                      int year,
-                      int month,
-                      std::string unit,
-                      bool use_heuristic) {
-  using namespace std;
+using namespace std;
+
+vector<double> get_data_value(string indicator,
+                              string country,
+                              string state,
+                              string county,
+                              int year,
+                              int month,
+                              string unit,
+                              bool use_heuristic) {
   using fmt::print;
   using namespace fmt::literals;
   using spdlog::debug, spdlog::error, spdlog::info;
 
   sqlite3* db;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
+  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
-    error("Could not open db");
-    return vector<double>();
+    throw("Could not open db. Do you have the DELPHI_DB "
+    "environment correctly set to point to the Delphi database?");
   }
 
   sqlite3_stmt* stmt;
@@ -170,12 +170,13 @@ std::vector<double> get_data_value(std::string indicator,
     return vector<double>();
   }
 
-  final_query = "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
+  final_query =
+      "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
   rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value/12);
+    vals.push_back(value / 12);
   }
 
   if (!vals.empty()) {

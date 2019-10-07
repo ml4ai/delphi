@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "spdlog/spdlog.h"
+#include <sqlite3.h>
 
 std::vector<double> get_data_value(std::string indicator,
                       std::string country = "",

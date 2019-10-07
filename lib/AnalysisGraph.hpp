@@ -6,6 +6,8 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -52,7 +54,10 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Node& operator[](int);
+  Edge& edge(boost::graph_traits<DiGraph>::edge_descriptor);
   Edge& edge(int, int);
+  Edge& edge(int, std::string);
+  Edge& edge(std::string, int);
   Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
@@ -63,10 +68,16 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
+
   auto nodes() {
     using boost::adaptors::transformed;
     return this->node_indices() |
-           transformed([&](int v) -> Node& { return (*this)[v]; });
+           transformed([&](int v) -> Node& {return (*this)[v];});
+  };
+
+  auto node_names() {
+    using boost::adaptors::transformed;
+    return this->nodes() | transformed([&](auto node) -> std::string {return node.name;});
   };
 
   boost::range_detail::integer_iterator<unsigned long> begin() {
@@ -79,9 +90,7 @@ class AnalysisGraph {
   auto successors(int i);
   auto successors(std::string node_name);
   auto predecessors(std::string node_name);
-  auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
-  }
+  auto predecessors(int i);
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);
@@ -266,6 +275,14 @@ class AnalysisGraph {
                                       double grounding_score_cutoff = 0.0,
                                       std::string ontology = "WM");
 
+  /*
+   * Construct an AnalysisGraph object from a dict of INDRA statements
+     exported by Uncharted's CauseMos webapp, and stored in a file.
+  */
+  static AnalysisGraph from_uncharted_json_dict(nlohmann::json json_data);
+  static AnalysisGraph from_uncharted_json_string(std::string json_string);
+  static AnalysisGraph from_uncharted_json_file(std::string filename);
+
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
    * ( subject, object ) pairs (Statements)
@@ -279,10 +296,9 @@ class AnalysisGraph {
   // restrict_to_subgraph_for_concept, update docstring
 
   /**
-   * Returns a new AnaysisGraph related to the concept provided,
-   * which is a subgraph of this graph.
+   * Returns the subgraph of the AnalysisGraph around a concept.
    *
-   * @param concept: The concept where the subgraph is about.
+   * @param concept: The concept to center the subgraph about.
    * @param depth  : The maximum number of hops from the concept provided
    *                 to be included in the subgraph.
    * #param inward : Sets the direction of the causal influence flow to
@@ -317,6 +333,15 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int,
+                                                                          int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+  add_edge(int, std::string);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+  add_edge(std::string, int);
+  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
+      add_edge(std::string, std::string);
+
   void change_polarity_of_edge(std::string source_concept,
                                int source_polarity,
                                std::string target_concept,
@@ -441,7 +466,7 @@ class AnalysisGraph {
   std::vector<std::vector<std::vector<double>>>
   get_observed_state_from_data(int year,
                                int month,
-                               std::string country = "South Sudan",
+                               std::string country,
                                std::string state = "",
                                std::string county = "");
 
@@ -738,7 +763,7 @@ class AnalysisGraph {
    * Default is 1 since our model so far is configured for only 1 indicator per
    * node.
    */
-  void map_concepts_to_indicators(int n = 1);
+  void map_concepts_to_indicators(int n = 1, std::string country = "");
 
   /**
    * Parameterize the indicators of the AnalysisGraph..
@@ -759,7 +784,8 @@ class AnalysisGraph {
           false, /** Whether to create simplified labels or not. */
       int label_depth =
           1, /** Depth in the ontology to which simplified labels extend */
-      std::string node_to_highlight = "");
+      std::string node_to_highlight = "",
+      std::string rankdir = "TB");
 
   std::string to_dot();
 
@@ -769,7 +795,8 @@ class AnalysisGraph {
              false, /** Whether to create simplified labels or not. */
          int label_depth =
              1, /** Depth in the ontology to which simplified labels extend */
-         std::string node_to_highlight = "");
+         std::string node_to_highlight = "",
+         std::string rankdir = "TB");
 
   void print_indicators();
 };

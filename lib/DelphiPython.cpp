@@ -24,6 +24,10 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "belief_score_cutoff"_a = 0.9,
                   "grounding_score_cutoff"_a = 0.0,
                   "ontology"_a = "WM")
+      .def_static("from_uncharted_json_string",
+                  &AnalysisGraph::from_uncharted_json_string)
+      .def_static("from_uncharted_json_file",
+                  &AnalysisGraph::from_uncharted_json_file)
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
@@ -67,14 +71,13 @@ PYBIND11_MODULE(DelphiPython, m) {
            "filename"_a = "CAG.png",
            "simplified_labels"_a = true,
            "label_depth"_a = 1,
-           "node_to_highlight"_a = "")
+           "node_to_highlight"_a = "",
+           "rankdir"_a = "TB")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
-      .def("remove_node",
-           (void (AnalysisGraph::*)(string)) & AnalysisGraph::remove_node,
-           "concept"_a)
+      .def("remove_node", py::overload_cast<string>(&AnalysisGraph::remove_node))
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
-      .def("add_edge", &AnalysisGraph::add_edge, "causal_fragment"_a)
+      .def("add_edge", py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge), "causal_fragment"_a)
       .def("change_polarity_of_edge",
            &AnalysisGraph::change_polarity_of_edge,
            "source_concept"_a,
@@ -96,7 +99,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
-           "n"_a = 1)
+           "n"_a = 1,
+           "country"_a = "South Sudan")
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator",
            &AnalysisGraph::set_indicator,
