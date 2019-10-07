@@ -35,23 +35,23 @@ class Node {
     // if we were attaching multiple indicators to one node, I can't yet think
     // of a case where the numerical id (i.e. the order) matters. If we do come
     // across that case, we will just write a function that swaps ids.*
-    if (indicator_names.find(indicator) != indicator_names.end()) {
+    if (this->indicator_names.find(indicator) != this->indicator_names.end()) {
       std::cout << indicator << " already attached to " << name << std::endl;
       return;
     }
 
-    indicator_names[indicator] = indicators.size();
+    this->indicator_names[indicator] = indicators.size();
     indicators.push_back(Indicator(indicator, source));
   }
 
   void delete_indicator(std::string indicator) {
-    if (indicator_names.find(indicator) != indicator_names.end()) {
-      int ind_index = indicator_names[indicator];
-      indicator_names.clear();
+    if (this->indicator_names.find(indicator) != this->indicator_names.end()) {
+      int ind_index = this->indicator_names[indicator];
+      this->indicator_names.clear();
       indicators.erase(indicators.begin() + ind_index);
       // The values of the map object have to align with the vecter indexes.
       for (int i = 0; i < indicators.size(); i++) {
-        indicator_names[indicators[i].get_name()] = i;
+        this->indicator_names[indicators[i].get_name()] = i;
       }
     }
     else {
@@ -62,7 +62,7 @@ class Node {
 
   Indicator get_indicator(std::string indicator) {
     try {
-      return indicators[indicator_names.at(indicator)];
+      return indicators[this->indicator_names.at(indicator)];
     }
     catch (const std::out_of_range& oor) {
       throw IndicatorNotFoundException(indicator);
@@ -73,14 +73,14 @@ class Node {
                          std::string indicator_new,
                          std::string source) {
 
-    auto map_entry = indicator_names.extract(indicator_old);
+    auto map_entry = this->indicator_names.extract(indicator_old);
 
     if (map_entry) // indicator_old is in the map
     {
       // Update the map entry and add the new indicator
       // in place of the old indicator
       map_entry.key() = indicator_new;
-      indicator_names.insert(move(map_entry));
+      this->indicator_names.insert(move(map_entry));
       indicators[map_entry.mapped()] = Indicator(indicator_new, source);
     }
     else // indicator_old is not attached to this node
@@ -95,7 +95,7 @@ class Node {
   // Utility function that clears the indicators vector and the name map.
   void clear_indicators() {
     indicators.clear();
-    indicator_names.clear();
+    this->indicator_names.clear();
   }
 };
 
