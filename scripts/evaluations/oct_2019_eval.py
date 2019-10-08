@@ -34,6 +34,24 @@ def curate_indicators(G):
         "FEWSNET",
     )
 
+    set_indicator(G,
+        "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price",
+        "Consumer price index",
+        "WDI",
+    )
+
+    set_indicator(G,
+        "wm/concept/indicator_and_reported_property/conflict/population_displacement",
+        "Internally displaced persons, total displaced by conflict and violence",
+        "WDI",
+    )
+
+    set_indicator(G,
+        "wm/concept/causal_factor/condition/tension",
+        "Conflict incidences",
+        "None",
+    )
+
 
 def draw_CAG(G):
     G.to_png(
@@ -47,7 +65,8 @@ if __name__ == "__main__":
     G = create_base_CAG("data/Model4.json")
     curate_indicators(G)
     draw_CAG(G)
-    G.train_model(country="South Sudan")
-    #preds = G.generate_prediction(2012, 1, 2017, 12)
-    preds = G.generate_prediction(2018, 1, 2018, 6)
-    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Comparison',show_rmse=True, show_training_data=True, save_as='/home/manujinda/Documents/ivilab/delphi/Oct2019EvalPred.png')
+    G.print_nodes()
+    G.train_model(country="South Sudan", res=200, burn=1000, use_heuristic=True)
+    preds = G.generate_prediction(2012, 1, 2012, 6)
+    #preds = G.generate_prediction(2018, 1, 2018, 2)
+    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Prediction',show_rmse=True, show_training_data=True, save_as='/home/manujinda/Documents/ivilab/delphi/Oct2019EvalPred.png')
