@@ -1106,13 +1106,11 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
   this->set_initial_latent_from_end_of_training();
   for (int samp = 0; samp < this->res; samp++) {
-    int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
       const Eigen::MatrixXd& A_t =
-          pred_step * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][ts] =
-          exp(-TAU * pred_step) * A_t.exp() * this->s0;
-      pred_step++;
+          ts * this->transition_matrix_collection[samp];
+      this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
+      this->predicted_latent_state_sequences[samp][ts] *= exp(-TAU * ts * ts) ;
     }
   }
 }

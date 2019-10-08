@@ -3,7 +3,6 @@
 #include "utils.hpp"
 #include <fmt/format.h>
 #include <sqlite3.h>
-#include "dbg.h"
 #include <chrono>
 #include <thread>
 
