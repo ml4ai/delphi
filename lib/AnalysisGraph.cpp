@@ -1350,7 +1350,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, pred_init_timestep, total_timesteps);
+      this->pred_timesteps, 0,/*pred_init_timestep,*/ total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(
