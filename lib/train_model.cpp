@@ -3,8 +3,8 @@
 #include <tqdm.hpp>
 
 using namespace std;
-using tq::trange;
 using spdlog::debug;
+using tq::trange;
 
 void AnalysisGraph::train_model(int start_year,
                                 int start_month,
@@ -30,7 +30,8 @@ void AnalysisGraph::train_model(int start_year,
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, county, start_year, start_month, units);
 
-  this->training_range = make_pair(make_pair(start_year,start_month), make_pair(end_year,end_month));
+  this->training_range = make_pair(make_pair(start_year, start_month),
+                                   make_pair(end_year, end_month));
 
   if (!synthetic_data_experiment) {
     this->set_observed_state_sequence_from_data(

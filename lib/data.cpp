@@ -3,6 +3,9 @@
 #include "utils.hpp"
 #include <fmt/format.h>
 #include <sqlite3.h>
+#include "dbg.h"
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -21,10 +24,11 @@ vector<double> get_data_value(string indicator,
   sqlite3* db;
 
   vector<double> vals = {};
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
+
+  int rc;
+  rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc != SQLITE_OK) {
-    throw std::runtime_error(
-        "Could not open db. Do you have the DELPHI_DB "
+    throw runtime_error("Could not open db. Do you have the DELPHI_DB "
         "environment correctly set to point to the Delphi database?");
   }
 
@@ -50,12 +54,9 @@ vector<double> get_data_value(string indicator,
               "countries for given axes (Default Setting)\n",
               country);
       }
+      sqlite3_reset(stmt);
     }
   }
-  else {
-    query = "{} and `Country` is 'None'"_format(query);
-  }
-  sqlite3_reset(stmt);
 
   if (!state.empty()) {
     check_q = "{0} and `State` is '{1}'"_format(query, state);
@@ -65,11 +66,11 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      sqlite3_reset(stmt);
       debug("Could not find data for state {}. Only obtaining data "
             "of the country level (Default Setting)\n",
             state);
     }
+    sqlite3_reset(stmt);
   }
 
   if (!county.empty()) {
@@ -80,11 +81,11 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      sqlite3_reset(stmt);
       debug("Could not find data for county {}. Only obtaining data "
             "of the state level (Default Setting)\n",
             county);
     }
+    sqlite3_reset(stmt);
   }
 
   if (!unit.empty()) {
@@ -103,7 +104,7 @@ vector<double> get_data_value(string indicator,
       vector<string> units;
 
       rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-      while (sqlite3_step(stmt) == SQLITE_ROW) {
+      while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         string ind_unit =
             string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
         units.push_back(ind_unit);
@@ -118,15 +119,16 @@ vector<double> get_data_value(string indicator,
       }
     }
   }
+  sqlite3_reset(stmt);
 
   string final_query =
       "{0} and `Year` is '{1}' and `Month` is '{2}'"_format(query, year, month);
 
-  rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
   double value;
 
-  while (sqlite3_step(stmt) == SQLITE_ROW) {
+  rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
+  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     value = sqlite3_column_double(stmt, 1);
     vals.push_back(value);
   }
@@ -134,18 +136,18 @@ vector<double> get_data_value(string indicator,
 
   if (vals.empty() and use_heuristic) {
     final_query =
-      "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
+        "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
       value = sqlite3_column_double(stmt, 1);
       value = value / 12;
       vals.push_back(value);
     }
+    sqlite3_reset(stmt);
   }
 
-  if ((rc = sqlite3_finalize(stmt)) == SQLITE_OK) {
-    sqlite3_close(db);
-  }
+  rc = sqlite3_finalize(stmt);
+  rc = sqlite3_close(db);
   return vals;
 }

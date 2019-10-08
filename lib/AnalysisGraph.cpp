@@ -1098,7 +1098,7 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
 
-    for (auto ind : indicators) {
+    for (auto& ind : indicators) {
       auto vals = get_data_value(ind.get_name(),
                             country,
                             state,
