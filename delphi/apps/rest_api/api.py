@@ -98,6 +98,13 @@ def search_indicators():
 
 
 def get_indicator_detail(indicator, start, end, geolocation):
+    """
+    Helper method to return raw indicator data, applying the following filters
+    - indicator: indicator string
+    - start: start yaer
+    - end: end year
+    - geolocation: geolocation string
+    """
     indicator = indicator.replace("'", "''")
 
     sql = "SELECT * from indicator WHERE 1 = 1"
@@ -132,12 +139,18 @@ def get_indicator_detail(indicator, start, end, geolocation):
 
 @bp.route("/delphi/indicator-detail", methods=["POST"])
 def indicator_detail():
+    """
+    Returns raw indicator data given the following search criteria
+    - indicator: indicator string
+    - start: start year
+    - end: end year
+    - geolocation: geolocation string
+    """
     args = request.get_json()
     start = args.get("start")
     end = args.get("end")
     geolocation = args.get("geolocation")
     indicator = args.get("indicator")
-
 
     result = detail = get_indicator_detail(indicator, start, end, geolocation)
     return jsonify(result)
@@ -145,6 +158,14 @@ def indicator_detail():
 
 @bp.route("/delphi/search-concept-indicators", methods=["POST"])
 def search_concept_indicators():
+    """
+    Given a list of concepts,  this endpoint returns their respective matching
+    indicators. The search parameters are:
+    - concepts: a list of concepts
+    - start: start year
+    - end: end year
+    - geolocation: geolocation string
+    """
     args = request.get_json()
     concepts = args.get("concepts")
     start = args.get("start")
