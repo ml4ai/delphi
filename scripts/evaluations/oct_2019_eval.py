@@ -18,20 +18,21 @@ def set_indicator(G, concept, indicator_new, source):
     G.set_indicator(concept, indicator_new, source)
 
 def curate_indicators(G):
-    set_indicator(G, "wm/concept/indicator_and_reported_property/weather/rainfall",
-            "Average Precipitation", "DSSAT")
+    # set_indicator(G, "wm/concept/indicator_and_reported_property/weather/rainfall",
+            # "Average Precipitation", "DSSAT")
 
-    set_indicator(G,
-        "wm/concept/indicator_and_reported_property/agriculture/Crop_Production",
-        "Average Harvested Weight at Maturity (Maize)",
-        "DSSAT",
-    )
+    # set_indicator(G,
+        # "wm/concept/indicator_and_reported_property/agriculture/Crop_Production",
+        # "Average Harvested Weight at Maturity (Maize)",
+        # "DSSAT",
+    # )
 
-    set_indicator(G,
-        "wm/concept/causal_factor/condition/food_insecurity",
-        "IPC Phase Classification",
-        "FEWSNET",
-    )
+    # set_indicator(G,
+        # "wm/concept/causal_factor/condition/food_insecurity",
+        # "IPC Phase Classification",
+        # "FEWSNET",
+    # )
+    pass
 
 
 def draw_CAG(G):
@@ -39,6 +40,7 @@ def draw_CAG(G):
         "Oct2019EvalCAG.png",
         rankdir="TB",
         node_to_highlight="wm/concept/causal_factor/condition/food_insecurity",
+        simplified_labels=False
     )
 
 
@@ -46,4 +48,4 @@ if __name__ == "__main__":
     G = create_base_CAG("data/Model4.json")
     curate_indicators(G)
     draw_CAG(G)
-    G.train_model(country="South Sudan")
+    G.train_model(2014, 5, 2016, 4, country="South Sudan", burn=1)
