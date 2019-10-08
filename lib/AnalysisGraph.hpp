@@ -505,6 +505,8 @@ class AnalysisGraph {
    */
   void set_initial_latent_state_from_observed_state_sequence();
 
+  void set_initial_latent_from_end_of_training();
+
   void initialize_random_number_generator();
 
   void set_random_initial_latent_state();

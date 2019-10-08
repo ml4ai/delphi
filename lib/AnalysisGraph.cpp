@@ -25,6 +25,8 @@ using spdlog::error;
 using spdlog::warn;
 using namespace delphi::utils;
 
+const double TAU = 1;
+
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
 
 size_t AnalysisGraph::num_vertices() {
@@ -1307,6 +1309,43 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
   }
 }
 
+void AnalysisGraph::set_initial_latent_from_end_of_training() {
+  int num_verts = this->num_vertices();
+
+  this->set_default_initial_state();
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+    vector<double> state_values;
+    for (int i = 0; i < indicators.size(); i++) {
+      Indicator& ind = indicators[i];
+
+      double last_ind_value;
+      if (this->observed_state_sequence[this->observed_state_sequence.size()-1][v][i].empty()) {
+        last_ind_value = 0;
+      }
+      else {
+        last_ind_value =
+            delphi::utils::mean(this->observed_state_sequence[this->observed_state_sequence.size()-1][v][i]);
+      }
+      double prev_ind_value;
+      if (this->observed_state_sequence[this->observed_state_sequence.size()-2][v][i].empty()) {
+        prev_ind_value = 0;
+      }
+      else {
+        prev_ind_value =
+            delphi::utils::mean(this->observed_state_sequence[this->observed_state_sequence.size()-2][v][i]);
+      }
+      while (prev_ind_value == 0) {
+        prev_ind_value = this->norm_dist(this->rand_num_generator);
+      }
+      state_values.push_back((last_ind_value - prev_ind_value) / prev_ind_value);
+    }
+    double diff = delphi::utils::mean(state_values);
+    this->s0(2 * v + 1) = diff;
+  }
+}
+
 void AnalysisGraph::set_random_initial_latent_state() {
   int num_verts = this->num_vertices();
 
@@ -1370,12 +1409,13 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
       vector<Eigen::VectorXd>(this->n_timesteps,
                               Eigen::VectorXd(num_verts * 2)));
 
+  this->set_initial_latent_from_end_of_training();
   for (int samp = 0; samp < this->res; samp++) {
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
       const Eigen::MatrixXd& A_t =
-          0.1 * pred_step * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
+          pred_step * this->transition_matrix_collection[samp];
+      this->predicted_latent_state_sequences[samp][ts] = exp(-TAU*pred_step) * A_t.exp() * this->s0;
       pred_step++;
     }
   }
@@ -1701,7 +1741,7 @@ void AnalysisGraph::sample_from_proposal() {
 
 void AnalysisGraph::set_current_latent_state(int ts) {
   const Eigen::MatrixXd& A_t = ts * this->A_original;
-  this->current_latent_state = A_t.exp() * this->s0;
+  this->current_latent_state = exp(-TAU * ts) * A_t.exp() * this->s0;
 }
 
 double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
