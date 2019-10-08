@@ -61,6 +61,43 @@ def createNewModel():
     return jsonify({"status": "success"})
 
 
+@bp.route("/delphi/search-indicators", methods=["POST"])
+def searchIndicators():
+    args = request.get_json()
+    start = args.get("start")
+    end = args.get("end")
+    geolocation = args.get("geolocation")
+    match = args.get("match")
+
+    sql = "SELECT DISTINCT `Variable` from indicator WHERE 1 = 1"
+    if match is not None:
+        sql = sql + f" AND (`Variable` LIKE '{match}%' OR `Variable` LIKE '% {match}%')" # trying to match prefix
+    if start is not None:
+        sql = sql + f" AND `Year` > {start}"
+    if end is not None:
+        sql = sql + f" AND `Year` < {end}"
+
+    print("Running SQL: ", sql)
+    records = list(engine.execute(sql))
+
+    result = []
+    for r in records:
+        result.append(r["Variable"])
+
+    return jsonify(result)
+
+
+@bp.route("/delphi/indicator-detail", methods=["POST"])
+def indicatorDetail():
+    args = request.get_json()
+    start = args.get("start")
+    end = args.get("end")
+    geolocation = args.get("geolocation")
+    indicator = args.get("indicator")
+    return jsonify([])
+
+
+
 @bp.route("/delphi/search", methods=["POST"])
 def getIndicators():
     """
