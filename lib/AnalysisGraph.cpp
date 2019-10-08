@@ -90,16 +90,20 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
         "select `Value` from indicator where `Variable` like '{0}' and `Country` like '{1}'"_format(
             indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    return sqlite3_step(stmt) == SQLITE_ROW;
+    rc = sqlite3_step(stmt) == SQLITE_ROW;
+    sqlite3_reset(stmt);
+    return rc;
   };
 
   auto get_indicator_source = [&](string indicator) {
     query =
         "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
             indicator, country);
-    sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    sqlite3_step(stmt);
-    return string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    rc = sqlite3_step(stmt);
+    string source = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+    sqlite3_reset(stmt);
+    return source;
   };
 
   // Making the mapping more deterministic by sorting the nodes alphabetically
@@ -117,6 +121,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       matches.push_back(
           string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
     }
+    sqlite3_reset(stmt);
 
     string ind_name, ind_source;
 
@@ -139,9 +144,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       }
     }
   }
-  if (sqlite3_finalize(stmt) == SQLITE_OK){
-    sqlite3_close(db);
-  }
+  rc = sqlite3_finalize(stmt);
+  rc = sqlite3_close(db);
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
