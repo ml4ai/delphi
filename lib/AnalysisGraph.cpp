@@ -11,6 +11,7 @@
 #include <sqlite3.h>
 #include <type_traits>
 #include "spdlog/spdlog.h"
+#include "dbg.h"
 
 using namespace std;
 using boost::for_each;
@@ -1373,7 +1374,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
       const Eigen::MatrixXd& A_t =
-          pred_step * this->transition_matrix_collection[samp];
+          0.1 * pred_step * this->transition_matrix_collection[samp];
       this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
       pred_step++;
     }
@@ -1642,6 +1643,9 @@ AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
                      normal_distribution<double> gaussian(
                          ind.mean * latent_state[2 * v], ind.stdev);
 
+                     //dbg(ind.get_name());
+                     //dbg(ind.mean);
+                     //dbg(ind.stdev);
                      return gaussian(this->rand_num_generator);
                    });
   }

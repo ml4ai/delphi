@@ -137,7 +137,6 @@ vector<double> get_data_value(string indicator,
   if (vals.empty() and use_heuristic) {
     final_query =
         "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
-    dbg(final_query);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
@@ -148,8 +147,18 @@ vector<double> get_data_value(string indicator,
     sqlite3_reset(stmt);
   }
 
+<<<<<<< HEAD
   rc = sqlite3_finalize(stmt);
   rc = sqlite3_close(db);
   dbg(vals);
+=======
+  if ((rc = sqlite3_finalize(stmt)) == SQLITE_OK) {
+    sqlite3_close(db);
+  }
+  //if (indicator.compare("IPC Phase Classification") == 0) {
+  std::cout << indicator << std::endl;
+    std::cout << year << " " << month << " " << vals.size() << std::endl;
+  //}
+>>>>>>> 72f8fceba882ba4e4f1bd74fbb47a98ad04fd123
   return vals;
 }

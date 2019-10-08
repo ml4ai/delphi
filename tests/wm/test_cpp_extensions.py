@@ -10,10 +10,8 @@ from delphi.cpp.DelphiPython import AnalysisGraph, Indicator
 food_security = "wm/concept/causal_factor/condition/food_security"
 inflation = "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation"
 tension = "wm/concept/causal_factor/condition/tension"
-displacement =
-"wm/concept/indicator_and_reported_property/conflict/population_displacement"
-crop_production =
-"wm/concept/indicator_and_reported_property/agriculture/Crop_Production"
+displacement = "wm/concept/indicator_and_reported_property/conflict/population_displacement"
+crop_production = "wm/concept/indicator_and_reported_property/agriculture/Crop_Production"
 
 
 def test_cpp_extensions():
