@@ -153,3 +153,30 @@ void AnalysisGraph::to_png(string filename,
   agclose(G);
   gvFreeContext(gvc);
 }
+
+/** Output the graph in DOT format */
+string AnalysisGraph::to_dot() {
+  auto [G, gvc] = this->to_agraph();
+
+  stringstream sstream;
+  stringbuf* sstream_buffer;
+  streambuf* original_cout_buffer;
+
+  // Back up original cout buffer
+  original_cout_buffer = cout.rdbuf();
+  sstream_buffer = sstream.rdbuf();
+
+  // Redirect cout to sstream
+  cout.rdbuf(sstream_buffer);
+
+  gvRender(gvc, G, "dot", stdout);
+  agclose(G);
+  gvFreeContext(gvc);
+
+  // Restore cout's original buffer
+  cout.rdbuf(original_cout_buffer);
+
+  // Return the string with the graph in DOT format
+  return sstream.str();
+}
+

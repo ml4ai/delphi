@@ -1,14 +1,19 @@
 #include "AnalysisGraph.hpp"
-#include "utils.hpp"
 #include "tqdm.hpp"
 #include "spdlog/spdlog.h"
+#include <fstream>
 
 using namespace std;
 using tq::tqdm;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using delphi::utils::load_json;
+
+nlohmann::json load_json(string filename) {
+  ifstream i(filename);
+  nlohmann::json j = nlohmann::json::parse(i);
+  return j;
+}
 
 AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,

@@ -4,8 +4,6 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
 
@@ -14,6 +12,7 @@
 #include "DiGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -96,13 +95,13 @@ class AnalysisGraph {
   }
 
   auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, this->graph));
+    return boost::make_iterator_range(
+        boost::inv_adjacent_vertices(i, this->graph));
   }
 
   auto predecessors(std::string node_name) {
     return this->predecessors(this->name_to_vertex.at(node_name));
   }
-
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);
@@ -704,8 +703,6 @@ class AnalysisGraph {
   void sample_from_proposal();
 
   void set_current_latent_state(int ts);
-
-  double log_normpdf(double x, double mean, double sd);
 
   void set_log_likelihood();
 

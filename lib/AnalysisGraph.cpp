@@ -1,29 +1,24 @@
 #include "AnalysisGraph.hpp"
-#include "Node.hpp"
-#include "data.hpp"
-#include "dbg.h"
-#include "spdlog/spdlog.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/range/adaptor/filtered.hpp>
+#include "data.cpp"
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/range/algorithm/sort.hpp>
-#include <cmath>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
-#include <type_traits>
 
 using namespace std;
+using namespace fmt::literals;
+using namespace delphi::utils;
+
 using boost::for_each;
-using boost::make_iterator_range;
 using boost::graph_traits;
 using fmt::print, fmt::format;
-using namespace fmt::literals;
-using ranges::views::filter;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using namespace delphi::utils;
 using Eigen::VectorXd;
+
+// Forward declarations
+class Node;
+class Indicator;
 
 const double TAU = 1;
 
@@ -58,9 +53,30 @@ vector<Node> AnalysisGraph::get_predecessor_list(string node) {
   return predecessors;
 }
 
+int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
+  int vert_id = -1;
+
+  try {
+    vert_id = this->name_to_vertex.at(concept);
+  }
+  catch (const out_of_range& oor) {
+    error("AnalysisGraph::{0}\n"
+          "The concept {1} is not in the CAG!",
+          caller,
+          concept);
+    rethrow_exception(current_exception());
+  }
+
+  return vert_id;
+}
+
+int AnalysisGraph::get_degree(int vertex_id) {
+  return boost::in_degree(vertex_id, this->graph) +
+         boost::out_degree(vertex_id, this->graph);
+}
+
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
-  using boost::range::sort;
   spdlog::set_level(spdlog::level::debug);
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -95,9 +111,6 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     sqlite3_reset(stmt);
     return source;
   };
-
-  // Making the mapping more deterministic by sorting the nodes alphabetically
-  // by name.
 
   for (Node& node : this->nodes()) {
     node.clear_indicators(); // Clear pre-existing attached indicators
@@ -272,28 +285,6 @@ void AnalysisGraph::find_all_paths_between_util(int start,
   path.pop_back();
   (*this)[start].visited = false;
 };
-
-int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
-  int vert_id = -1;
-
-  try {
-    vert_id = this->name_to_vertex.at(concept);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::{0}\n"
-          "The concept {1} is not in the CAG!",
-          caller,
-          concept);
-    rethrow_exception(current_exception());
-  }
-
-  return vert_id;
-}
-
-int AnalysisGraph::get_degree(int vertex_id) {
-  return boost::in_degree(vertex_id, this->graph) +
-         boost::out_degree(vertex_id, this->graph);
-}
 
 void AnalysisGraph::clear_state() {
   this->A_beta_factors.clear();
@@ -511,31 +502,6 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
   }
 }
 
-/** Output the graph in DOT format */
-string AnalysisGraph::to_dot() {
-  auto [G, gvc] = this->to_agraph();
-
-  stringstream sstream;
-  stringbuf* sstream_buffer;
-  streambuf* original_cout_buffer;
-
-  // Back up original cout buffer
-  original_cout_buffer = cout.rdbuf();
-  sstream_buffer = sstream.rdbuf();
-
-  // Redirect cout to sstream
-  cout.rdbuf(sstream_buffer);
-
-  gvRender(gvc, G, "dot", stdout);
-  agclose(G);
-  gvFreeContext(gvc);
-
-  // Restore cout's original buffer
-  cout.rdbuf(original_cout_buffer);
-
-  // Return the string with the graph in DOT format
-  return sstream.str();
-}
 
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
@@ -699,7 +665,7 @@ void AnalysisGraph::set_log_likelihood() {
           const double& value = observed_state[v][i][j];
           // Even indices of latent_state keeps track of the state of each
           // vertex
-          double log_likelihood_component = this->log_normpdf(
+          double log_likelihood_component = log_normpdf(
               value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
           this->log_likelihood += log_likelihood_component;
         }
@@ -1238,7 +1204,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, 0,/*pred_init_timestep,*/ total_timesteps);
+      this->pred_timesteps, 0, /*pred_init_timestep,*/ total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(
@@ -1412,9 +1378,6 @@ AnalysisGraph::sample_observed_state(VectorXd latent_state) {
                      normal_distribution<double> gaussian(
                          ind.mean * latent_state[2 * v], ind.stdev);
 
-                     // dbg(ind.get_name());
-                     // dbg(ind.mean);
-                     // dbg(ind.stdev);
                      return gaussian(this->rand_num_generator);
                    });
   }
@@ -1470,14 +1433,6 @@ void AnalysisGraph::sample_from_proposal() {
 void AnalysisGraph::set_current_latent_state(int ts) {
   const Eigen::MatrixXd& A_t = ts * this->A_original;
   this->current_latent_state = exp(-TAU * ts) * A_t.exp() * this->s0;
-}
-
-double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
-  double var = pow(sd, 2);
-  double log_denom = -0.5 * log(2 * M_PI) - log(sd);
-  double log_nume = pow(x - mean, 2) / (2 * var);
-
-  return log_denom - log_nume;
 }
 
 double AnalysisGraph::calculate_delta_log_prior() {
