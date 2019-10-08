@@ -77,6 +77,7 @@ add_library(Delphi
   lib/Indicator.cpp
   lib/parameterization.cpp
   lib/subgraphs.cpp
+  lib/json_constructors.cpp
 )
 
 target_include_directories(Delphi PRIVATE external/range-v3/include)
