@@ -1,4 +1,4 @@
-from delphi.cpp.DelphiPython import AnalysisGraph
+from delphi.cpp.DelphiPython import AnalysisGraph, RNG
 import delphi.evaluation as EN
 
 def create_base_CAG(uncharted_json_file):
@@ -19,21 +19,20 @@ def set_indicator(G, concept, indicator_new, source):
     G.set_indicator(concept, indicator_new, source)
 
 def curate_indicators(G):
-    # set_indicator(G, "wm/concept/indicator_and_reported_property/weather/rainfall",
-            # "Average Precipitation", "DSSAT")
+    set_indicator(G, "wm/concept/indicator_and_reported_property/weather/rainfall",
+            "Average Precipitation", "DSSAT")
 
-    # set_indicator(G,
-        # "wm/concept/indicator_and_reported_property/agriculture/Crop_Production",
-        # "Average Harvested Weight at Maturity (Maize)",
-        # "DSSAT",
-    # )
+    set_indicator(G,
+        "wm/concept/indicator_and_reported_property/agriculture/Crop_Production",
+        "Average Harvested Weight at Maturity (Maize)",
+        "DSSAT",
+    )
 
-    # set_indicator(G,
-        # "wm/concept/causal_factor/condition/food_insecurity",
-        # "IPC Phase Classification",
-        # "FEWSNET",
-    # )
-    pass
+    set_indicator(G,
+         "wm/concept/causal_factor/condition/food_insecurity",
+         "IPC Phase Classification",
+         "FEWSNET",
+     )
 
     set_indicator(G,
         "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/price_or_cost/food_price",
@@ -64,6 +63,8 @@ def draw_CAG(G):
 
 
 if __name__ == "__main__":
+    r = RNG.rng()
+    r.set_seed(2018)
     G = create_base_CAG("data/Model4.json")
     curate_indicators(G)
     draw_CAG(G)
