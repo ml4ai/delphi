@@ -1034,6 +1034,7 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
 }
 
 void AnalysisGraph::set_initial_latent_from_end_of_training() {
+  using delphi::utils::mean;
   int num_verts = this->num_vertices();
 
   this->set_default_initial_state();
@@ -1051,7 +1052,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
         last_ind_value = 0;
       }
       else {
-        last_ind_value = delphi::utils::mean(
+        last_ind_value = mean(
             this->observed_state_sequence[this->observed_state_sequence.size() -
                                           1][v][i]);
       }
@@ -1062,7 +1063,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
         prev_ind_value = 0;
       }
       else {
-        prev_ind_value = delphi::utils::mean(
+        prev_ind_value = mean(
             this->observed_state_sequence[this->observed_state_sequence.size() -
                                           2][v][i]);
       }
@@ -1072,7 +1073,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
       state_values.push_back((last_ind_value - prev_ind_value) /
                              prev_ind_value);
     }
-    double diff = delphi::utils::mean(state_values);
+    double diff = mean(state_values);
     this->s0(2 * v + 1) = diff;
   }
 }
