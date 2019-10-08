@@ -1436,11 +1436,6 @@ void AnalysisGraph::set_current_latent_state(int ts) {
 }
 
 double AnalysisGraph::calculate_delta_log_prior() {
-  // If kde of an edge is truely optional ≡ there are some
-  // edges without a kde assigned, we should not access it
-  // using .value() (In the case of kde being missing, this
-  // will throw an exception). We should follow a process
-  // similar to Tran_Mat_Cell::sample_from_prior
   KDE& kde = this->graph[this->previous_beta.first].kde;
 
   // We have to return: log( p( β_new )) - log( p( β_old ))
@@ -1455,7 +1450,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
 
   // Reset the transition matrix cells that were changed
   // TODO: Can we change the transition matrix only when the sample is
-  // accpeted?
+  // accepted?
   this->update_transition_matrix_cells(this->previous_beta.first);
 }
 
