@@ -69,7 +69,8 @@ if __name__ == "__main__":
     curate_indicators(G)
     draw_CAG(G)
     G.print_nodes()
-    G.train_model(country="South Sudan", res=200, burn=1000, use_heuristic=True)
-    preds = G.generate_prediction(2012, 1, 2012, 6)
+    G.train_model(2014,6, 2016, 3,country="South Sudan", res=200, burn=1000, use_heuristic=True)
+    preds = G.generate_prediction(2016, 6, 2016, 7)
     #preds = G.generate_prediction(2018, 1, 2018, 2)
-    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Prediction',show_rmse=True, show_training_data=True, save_as='/home/manujinda/Documents/ivilab/delphi/Oct2019EvalPred.png')
+    EN.pred_plot(preds,'Consumer price index',0.95,plot_type='Comparison',show_rmse=False,
+            show_training_data=True,use_heuristic_for_true=True, save_as='Oct2019EvalPred.png')

@@ -147,9 +147,5 @@ vector<double> get_data_value(string indicator,
   if ((rc = sqlite3_finalize(stmt)) == SQLITE_OK) {
     sqlite3_close(db);
   }
-  //if (indicator.compare("IPC Phase Classification") == 0) {
-  std::cout << indicator << std::endl;
-    std::cout << year << " " << month << " " << vals.size() << std::endl;
-  //}
   return vals;
 }
