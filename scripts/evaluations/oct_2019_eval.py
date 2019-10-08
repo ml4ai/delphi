@@ -72,4 +72,4 @@ if __name__ == "__main__":
     G.train_model(country="South Sudan", res=200, burn=1000, use_heuristic=True)
     preds = G.generate_prediction(2012, 1, 2012, 6)
     #preds = G.generate_prediction(2018, 1, 2018, 2)
-    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Prediction',show_rmse=True, show_training_data=True, save_as='/home/manujinda/Documents/ivilab/delphi/Oct2019EvalPred.png')
+    EN.pred_plot(preds,'IPC Phase Classification',0.95,plot_type='Prediction',show_rmse=True, show_training_data=True, save_as='Oct2019EvalPred.png')
