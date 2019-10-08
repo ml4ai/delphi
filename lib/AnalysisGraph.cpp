@@ -1,6 +1,5 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "dbg.h"
 #include "Node.hpp"
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
@@ -140,8 +139,9 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       }
     }
   }
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
+  if (sqlite3_finalize(stmt) == SQLITE_OK){
+    sqlite3_close(db);
+  }
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
@@ -1105,7 +1105,6 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     }
   }
 
-  dbg("Finished setting observed state");
   return observed_state;
 }
 
@@ -1249,22 +1248,16 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           string country,
                                                           string state,
                                                           string county) {
-  dbg("Clearing observed state sequence");
   this->observed_state_sequence.clear();
 
   // Access
-  // [ timestep ][ veretx ][ indicator ]
-  dbg("Setting observed state sequence");
+  // [ timestep ][ vertex ][ indicator ]
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
   int month = start_month;
 
-  dbg(year);
-  dbg(month);
   for (int ts = 0; ts < this->n_timesteps; ts++) {
-    dbg(ts);
-    dbg("getting observed state sequence");
     this->observed_state_sequence[ts] =
         get_observed_state_from_data(year, month, country, state, county);
 
