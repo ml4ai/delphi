@@ -111,6 +111,11 @@ def combine_data(outputFile):
     )
 
     dssat_oct2019_eval_data_df = read_csv('data/dssat_data_oct2019_eval.tsv')
+    
+    IOM_DTM1_df = pd.read_csv(
+        "data/IOM-DTM-data1.csv", index_col=False, dtype=dtype_dict
+    )
+    
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -130,6 +135,7 @@ def combine_data(outputFile):
             acled3_df,
             World_Bank_df,
             dssat_oct2019_eval_data_df,
+            IOM_DTM1_df,
         ],
         sort=True,
     ).dropna(subset=["Value"])
