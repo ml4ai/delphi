@@ -87,10 +87,22 @@ class AnalysisGraph {
     return boost::vertices(this->graph).second;
   };
 
-  auto successors(int i);
-  auto successors(std::string node_name);
-  auto predecessors(std::string node_name);
-  auto predecessors(int i);
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
+  }
+
+  auto successors(std::string node_name) {
+    return this->successors(this->name_to_vertex.at(node_name));
+  }
+
+  auto predecessors(int i) {
+    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, this->graph));
+  }
+
+  auto predecessors(std::string node_name) {
+    return this->predecessors(this->name_to_vertex.at(node_name));
+  }
+
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);

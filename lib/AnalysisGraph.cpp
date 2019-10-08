@@ -27,7 +27,7 @@ using namespace delphi::utils;
 
 const double TAU = 1;
 
-typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
 size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);
@@ -41,21 +41,6 @@ Node& AnalysisGraph::operator[](string node_name) {
   return (*this)[this->name_to_vertex.at(node_name)];
 }
 
-auto AnalysisGraph::successors(int i) {
-  return make_iterator_range(boost::adjacent_vertices(i, this->graph));
-}
-
-auto AnalysisGraph::successors(string node_name) {
-  return this->successors(this->name_to_vertex.at(node_name));
-}
-
-auto AnalysisGraph::predecessors(int i) {
-  return make_iterator_range(boost::inv_adjacent_vertices(i, this->graph));
-}
-
-auto AnalysisGraph::predecessors(string node_name) {
-  return this->predecessors(this->name_to_vertex.at(node_name));
-}
 
 vector<Node> AnalysisGraph::get_successor_list(string node) {
   vector<Node> successors = {};
@@ -80,7 +65,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
-    throw("Could not open db. Do you have the DELPHI_DB "
+    throw runtime_error("Could not open db. Do you have the DELPHI_DB "
           "environment correctly set to point to the Delphi database?");
   }
   sqlite3_stmt* stmt;
@@ -176,73 +161,6 @@ void AnalysisGraph::allocate_A_beta_factors() {
   }
 }
 
-void AnalysisGraph::get_subgraph(int vert,
-                                 unordered_set<int>& vertices_to_keep,
-                                 int cutoff,
-                                 bool inward) {
-
-  // Mark the current vertex visited
-  (*this)[vert].visited = true;
-  vertices_to_keep.insert(vert);
-
-  if (cutoff != 0) {
-    cutoff--;
-
-    // Recursively process all the vertices adjacent to the current vertex
-    if (inward) {
-      for_each(this->predecessors(vert), [&](int v) {
-        if (!(*this)[v].visited) {
-          this->get_subgraph(v, vertices_to_keep, cutoff, inward);
-        }
-      });
-    }
-    else {
-      for_each(this->successors(vert), [&](int v) {
-        if (!(*this)[v].visited) {
-          this->get_subgraph(v, vertices_to_keep, cutoff, inward);
-        }
-      });
-    }
-  }
-
-  // Mark the current vertex unvisited
-  (*this)[vert].visited = false;
-};
-
-void AnalysisGraph::get_subgraph_between(int start,
-                                         int end,
-                                         vector<int>& path,
-                                         unordered_set<int>& vertices_to_keep,
-                                         int cutoff) {
-
-  // Mark the current vertex visited
-  (*this)[start].visited = true;
-
-  // Add this vertex to the path
-  path.push_back(start);
-
-  // If current vertex is the destination vertex, then
-  //   we have found one path.
-  //   Add this cell to the Tran_Mat_Object that is tracking
-  //   this transition matrix cell.
-  if (start == end) {
-    vertices_to_keep.insert(path.begin(), path.end());
-  }
-  else if (cutoff != 0) {
-    cutoff--;
-
-    // Recursively process all the vertices adjacent to the current vertex
-    for_each(this->successors(start), [&](int v) {
-      if (!(*this)[v].visited) {
-        this->get_subgraph_between(v, end, path, vertices_to_keep, cutoff);
-      }
-    });
-  }
-
-  // Remove current vertex from the path and make it unvisited
-  path.pop_back();
-  (*this)[start].visited = false;
-};
 
 void AnalysisGraph::find_all_paths_between(int start,
                                            int end,
@@ -515,83 +433,6 @@ void AnalysisGraph::clear_state() {
   this->beta_dependent_cells.clear();
 }
 
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      bool inward,
-                                                      int depth) {
-
-  using ranges::views::filter, ranges::views::transform, ranges::to;
-
-  // Mark all the vertices as not visited
-  for_each(this->nodes(), [](Node& node) { node.visited = false; });
-
-  int num_verts = this->num_vertices();
-
-  unordered_set<int> vertices_to_keep = unordered_set<int>();
-
-  this->get_subgraph(
-      this->name_to_vertex.at(concept), vertices_to_keep, depth, inward);
-
-  unordered_set<string> nodes_to_remove =
-      this->node_indices() |
-      filter([&](int v) { return !in(vertices_to_keep, v); }) |
-      transform([&](int v) { return (*this)[v].name; }) | to<unordered_set>();
-
-  if (vertices_to_keep.size() == 0) {
-    warn("Subgraph has 0 nodes - returning an empty CAG!");
-  }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  for_each(nodes_to_remove, [&](string n) { G_sub.remove_node(n); });
-  G_sub.clear_state();
-
-  return G_sub;
-}
-
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
-    string source_concept, string target_concept, int cutoff) {
-  int src_id = this->get_vertex_id_for_concept(
-      source_concept, "get_subgraph_for_concept_pair()");
-  int tgt_id = this->get_vertex_id_for_concept(
-      target_concept, "get_subgraph_for_concept_pair()");
-
-  unordered_set<int> vertices_to_keep;
-  unordered_set<string> vertices_to_remove;
-  vector<int> path;
-
-  // Mark all the vertices are not visited
-  for_each(this->node_indices(), [&](int v) { (*this)[v].visited = false; });
-
-  this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
-
-  if (vertices_to_keep.size() == 0) {
-    warn("AnalysisGraph::get_subgraph_for_concept_pair(): "
-         "There are no paths of length <= {0} from "
-         "source concept {1} --to-> target concept {2}. "
-         "Returning an empty CAG!",
-         cutoff,
-         source_concept,
-         target_concept);
-  }
-
-  // Determine the vertices to be removed
-  for (int vert_id : this->node_indices()) {
-    if (in(vertices_to_keep, vert_id)) {
-      vertices_to_remove.insert((*this)[vert_id].name);
-    }
-  }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  G_sub.remove_nodes(vertices_to_remove);
-  G_sub.clear_state();
-
-  return G_sub;
-}
 
 void AnalysisGraph::prune(int cutoff) {
   int num_verts = this->num_vertices();
@@ -1176,18 +1017,18 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
 // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
 // print all the transition matrix cells that are dependent on it.
 void AnalysisGraph::print_cells_affected_by_beta(int source, int target) {
-  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
   pair<int, int> beta = make_pair(source, target);
 
-  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+  pair<MMapIterator, MMapIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
 
   cout << endl
        << "Cells of A afected by beta_(" << source << ", " << target << ")"
        << endl;
 
-  for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+  for (MMapIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
        it++) {
     cout << "(" << it->second.first * 2 << ", " << it->second.second * 2 + 1
          << ") ";
@@ -1698,14 +1539,14 @@ void AnalysisGraph::update_transition_matrix_cells(
   pair<int, int> beta =
       make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
-  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+  pair<MMapIterator, MMapIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
 
   // TODO: I am introducing this to implement calculate_Δ_log_prior
   // Remember the cells of A that got changed and their previous values
   // this->A_cells_changed.clear();
 
-  for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+  for (MMapIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
        it++) {
     int& row = it->second.first;
     int& col = it->second.second;
