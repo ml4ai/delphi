@@ -51,7 +51,6 @@ message("-- Using Eigen3 version 3.3 bundled with Delphi")
 include_directories(external/eigen)
 
 find_package(SQLite3 REQUIRED)
-include_directories(${SQLITE3_INCLUDE_DIRS})
 
 add_library(Delphi
   lib/AnalysisGraph.cpp
@@ -84,7 +83,7 @@ target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
                               spdlog::spdlog
-                              "sqlite3"
+                              SQLite::SQLite3
                               ${GRAPHVIZ_LIBS})
 
 # Tests

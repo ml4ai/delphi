@@ -1,6 +1,5 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "dbg.h"
 #include "Node.hpp"
 #include "tqdm.hpp"
 #include <boost/algorithm/string.hpp>
@@ -12,6 +11,7 @@
 #include <sqlite3.h>
 #include <type_traits>
 #include "spdlog/spdlog.h"
+#include "dbg.h"
 
 using namespace std;
 using boost::for_each;
@@ -91,16 +91,20 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
         "select `Value` from indicator where `Variable` like '{0}' and `Country` like '{1}'"_format(
             indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    return sqlite3_step(stmt) == SQLITE_ROW;
+    rc = sqlite3_step(stmt) == SQLITE_ROW;
+    sqlite3_reset(stmt);
+    return rc;
   };
 
   auto get_indicator_source = [&](string indicator) {
     query =
         "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
             indicator, country);
-    sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    sqlite3_step(stmt);
-    return string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    rc = sqlite3_step(stmt);
+    string source = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+    sqlite3_reset(stmt);
+    return source;
   };
 
   // Making the mapping more deterministic by sorting the nodes alphabetically
@@ -118,6 +122,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       matches.push_back(
           string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
     }
+    sqlite3_reset(stmt);
 
     string ind_name, ind_source;
 
@@ -140,8 +145,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       }
     }
   }
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
+  rc = sqlite3_finalize(stmt);
+  rc = sqlite3_close(db);
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
@@ -1105,7 +1110,6 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     }
   }
 
-  dbg("Finished setting observed state");
   return observed_state;
 }
 
@@ -1249,22 +1253,16 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           string country,
                                                           string state,
                                                           string county) {
-  dbg("Clearing observed state sequence");
   this->observed_state_sequence.clear();
 
   // Access
-  // [ timestep ][ veretx ][ indicator ]
-  dbg("Setting observed state sequence");
+  // [ timestep ][ vertex ][ indicator ]
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
   int month = start_month;
 
-  dbg(year);
-  dbg(month);
   for (int ts = 0; ts < this->n_timesteps; ts++) {
-    dbg(ts);
-    dbg("getting observed state sequence");
     this->observed_state_sequence[ts] =
         get_observed_state_from_data(year, month, country, state, county);
 
@@ -1376,7 +1374,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     int pred_step = initial_prediction_step;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
       const Eigen::MatrixXd& A_t =
-          pred_step * this->transition_matrix_collection[samp];
+          0.1 * pred_step * this->transition_matrix_collection[samp];
       this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
       pred_step++;
     }
@@ -1645,6 +1643,9 @@ AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
                      normal_distribution<double> gaussian(
                          ind.mean * latent_state[2 * v], ind.stdev);
 
+                     //dbg(ind.get_name());
+                     //dbg(ind.mean);
+                     //dbg(ind.stdev);
                      return gaussian(this->rand_num_generator);
                    });
   }
