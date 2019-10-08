@@ -91,7 +91,7 @@ if __name__ == "__main__":
         burn=1000,
         use_heuristic=True,
     )
-    preds = G.generate_prediction(2016, 6, 2016, 7)
+    preds = G.generate_prediction(2016, 3, 2016, 7)
     # preds = G.generate_prediction(2018, 1, 2018, 2)
     EN.pred_plot(
         preds,
