@@ -20,7 +20,10 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
-      .def_property("s0", &AnalysisGraph::get_initial_latent_state, &AnalysisGraph::set_initial_latent_state)
+      .def_readwrite("res", &AnalysisGraph::res)
+      .def_property("s0",
+                    &AnalysisGraph::get_initial_latent_state,
+                    &AnalysisGraph::set_initial_latent_state)
       .def_static("from_json_file",
                   &AnalysisGraph::from_json_file,
                   "filename"_a,
@@ -157,6 +160,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
+      .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state);
 
@@ -166,6 +170,7 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<Indicator, RV>(m, "Indicator")
       .def("__repr__", &Indicator::get_name)
+      .def_readwrite("name", &Indicator::name)
       .def("set_source", &Indicator::set_source)
       .def("set_unit", &Indicator::set_unit)
       .def("set_mean", &Indicator::set_mean)
@@ -199,7 +204,9 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("replace_indicator", &Node::replace_indicator)
       .def_readwrite("indicators", &Node::indicators);
 
-  py::class_<Edge>(m, "Edge").def_readwrite("evidence", &Edge::evidence);
+  py::class_<Edge>(m, "Edge")
+      .def_readwrite("evidence", &Edge::evidence)
+      .def_readwrite("kde", &Edge::kde);
 
   py::class_<Statement>(m, "Statement")
       .def_readwrite("subject", &Statement::subject)
