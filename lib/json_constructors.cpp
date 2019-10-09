@@ -19,8 +19,8 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
                                             double belief_score_cutoff,
                                             double grounding_score_cutoff,
                                             string ontology) {
-  auto json_data = load_json(filename);
   debug("Loading INDRA statements JSON file.");
+  auto json_data = load_json(filename);
 
   AnalysisGraph G;
 
