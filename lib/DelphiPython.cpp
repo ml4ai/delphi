@@ -156,6 +156,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("sample", &RV::sample);
 
   py::class_<Indicator, RV>(m, "Indicator")
+      .def("__repr__", &Indicator::get_name)
       .def("set_source", &Indicator::set_source)
       .def("set_unit", &Indicator::set_unit)
       .def("set_mean", &Indicator::set_mean)
@@ -185,7 +186,8 @@ PYBIND11_MODULE(DelphiPython, m) {
   py::class_<Node>(m, "Node")
       .def_readwrite("name", &Node::name)
       .def("__repr__", &Node::to_string)
-      .def("replace_indicator", &Node::replace_indicator);
+      .def("replace_indicator", &Node::replace_indicator)
+      .def_readwrite("indicators", &Node::indicators);
 
   py::class_<Edge>(m, "Edge")
     .def_readwrite("evidence", &Edge::evidence);
