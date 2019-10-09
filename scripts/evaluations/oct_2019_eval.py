@@ -79,8 +79,13 @@ if __name__ == "__main__":
     r.set_seed(2018)
     G = create_base_CAG("data/Model4.json")
     curate_indicators(G)
+    G.data_heuristic = False
+    G.parameterize("South Sudan", "Jonglei", "", 2017, 4, {})
+    ind = G[
+        "wm/concept/indicator_and_reported_property/agriculture/Crop_Production"
+    ].get_indicator("Average Harvested Weight at Maturity (Maize)")
+
     draw_CAG(G)
-    G.print_nodes()
     G.train_model(
         2014,
         6,
@@ -88,18 +93,20 @@ if __name__ == "__main__":
         3,
         country="South Sudan",
         res=200,
-        burn=1000,
-        use_heuristic=True,
+        burn=10000,
+        use_heuristic=False,
     )
+    G.set_default_initial_state()
+    G.s0[1] = 0.1
     preds = G.generate_prediction(2016, 3, 2016, 7)
     # preds = G.generate_prediction(2018, 1, 2018, 2)
     EN.pred_plot(
         preds,
-        "Consumer price index",
+        "IPC Phase Classification",
         0.95,
-        plot_type="Comparison",
-        show_rmse=False,
+        plot_type="Prediction",
+        show_rmse=True,
         show_training_data=True,
-        use_heuristic_for_true=True,
+        use_heuristic_for_true=False,
         save_as="Oct2019EvalPred.png",
     )
