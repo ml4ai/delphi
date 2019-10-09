@@ -120,13 +120,39 @@ vector<double> get_data_value(string indicator,
   }
   sqlite3_reset(stmt);
 
-  string final_query =
-      "{0} and `Year` is '{1}' and `Month` is '{2}'"_format(query, year, month);
+  if (!(year == -1)) {
+    check_q = "{0} and `Year` is '{1}'"_format(query, year);
+    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+      query = check_q;
+    }
+    else {
+      debug("Could not find data for year {}. Aggregating data "
+            "over all years (Default Setting)\n",
+            county);
+    }
+    sqlite3_reset(stmt);
+  }
 
+  if (!(month == 0)) {
+    check_q = "{0} and `Year` is '{1}'"_format(query, month);
+    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+      query = check_q;
+    }
+    else {
+      debug("Could not find data for month {}. Aggregating data "
+            "over all months (Default Setting)\n",
+            county);
+    }
+    sqlite3_reset(stmt);
+  }
 
   double value;
 
-  rc = sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
+  rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     value = sqlite3_column_double(stmt, 1);
     vals.push_back(value);
@@ -134,7 +160,7 @@ vector<double> get_data_value(string indicator,
   sqlite3_reset(stmt);
 
   if (vals.empty() and use_heuristic) {
-    final_query =
+    string final_query =
         "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
