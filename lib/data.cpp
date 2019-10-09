@@ -19,6 +19,7 @@ vector<double> get_data_value(string indicator,
   using fmt::print;
   using namespace fmt::literals;
   using spdlog::debug, spdlog::error, spdlog::info;
+  spdlog::set_level(spdlog::level::warn);
 
   sqlite3* db;
 
