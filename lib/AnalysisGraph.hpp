@@ -117,7 +117,18 @@ class AnalysisGraph {
   // convert this to s0
   Eigen::VectorXd s0;
 
+  Eigen::VectorXd& get_initial_latent_state() {
+    return this->s0;
+  };
+
+  void set_initial_latent_state(Eigen::VectorXd vec) {
+    this->s0 = vec;
+  };
+
+
   void set_default_initial_state();
+
+  bool data_heuristic = false;
 
   private:
 
@@ -215,7 +226,6 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
-  bool data_heuristic = false;
 
   void get_subgraph(int vert,
                     std::unordered_set<int>& vertices_to_keep,
@@ -745,7 +755,7 @@ class AnalysisGraph {
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
                     std::string county = "",
-                    int year = 2012,
+                    int year = -1,
                     int month = 0,
                     std::map<std::string, std::string> units = {});
 
