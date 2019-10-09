@@ -1,5 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include "data.cpp"
+#include "dbg.h"
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
@@ -21,6 +22,7 @@ class Node;
 class Indicator;
 
 const double TAU = 1;
+const double tuning_param = 0.001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 typedef graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
@@ -501,7 +503,6 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-
 
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
@@ -1015,7 +1016,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
       if (this->observed_state_sequence[this->observed_state_sequence.size() -
                                         1][v][i]
               .empty()) {
-        last_ind_value = 0;
+        last_ind_value = 0.;
       }
       else {
         last_ind_value = mean(
@@ -1026,14 +1027,14 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
       if (this->observed_state_sequence[this->observed_state_sequence.size() -
                                         2][v][i]
               .empty()) {
-        prev_ind_value = 0;
+        prev_ind_value = 0.;
       }
       else {
         prev_ind_value = mean(
             this->observed_state_sequence[this->observed_state_sequence.size() -
                                           2][v][i]);
       }
-      while (prev_ind_value == 0) {
+      while (prev_ind_value == 0.) {
         prev_ind_value = this->norm_dist(this->rand_num_generator);
       }
       state_values.push_back((last_ind_value - prev_ind_value) /
@@ -1097,20 +1098,16 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     int total_timesteps) {
   this->n_timesteps = prediction_timesteps;
 
-  int num_verts = this->num_vertices();
-
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
   this->predicted_latent_state_sequences = vector<vector<VectorXd>>(
-      this->res, vector<VectorXd>(this->n_timesteps, VectorXd(num_verts * 2)));
+      this->res, vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
 
-  this->set_initial_latent_from_end_of_training();
   for (int samp = 0; samp < this->res; samp++) {
-    for (int ts = 0; ts < this->n_timesteps; ts++) {
+    for (int t = 0; t < this->n_timesteps; t++) {
       const Eigen::MatrixXd& A_t =
-          ts * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
-      this->predicted_latent_state_sequences[samp][ts] *= exp(-TAU * ts * ts) ;
+          tuning_param * t * this->transition_matrix_collection[samp];
+      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
     }
   }
 }
@@ -1149,12 +1146,13 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     throw "Model not yet trained";
   }
 
+  // Check for sensible ranges.
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
        start_month < this->training_range.first.second)) {
-    print("The initial prediction date can't be before the\n"
-          "inital training date. Defaulting initial prediction date\n"
-          "to initial training date.");
+    warn("The initial prediction date can't be before the "
+         "inital training date. Defaulting initial prediction date "
+         "to initial training date.");
     start_year = this->training_range.first.first;
     start_month = this->training_range.first.first;
   }
@@ -1164,7 +1162,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *   ____________________________________________
    *  |                                            |
    *  v                                            v
-   * start trainig                                 end prediction
+   * start training                          end prediction
    *  |--------------------------------------------|
    *  :           |--------------------------------|
    *  :         start prediction                   :
@@ -1189,8 +1187,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   this->pred_range.clear();
   this->pred_range = vector<string>(this->pred_timesteps);
 
-  for (int ts = 0; ts < this->pred_timesteps; ts++) {
-    this->pred_range[ts] = to_string(year) + "-" + to_string(month);
+  for (int t = 0; t < this->pred_timesteps; t++) {
+    this->pred_range[t] = to_string(year) + "-" + to_string(month);
 
     if (month == 12) {
       year++;
@@ -1353,6 +1351,8 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
 
 vector<vector<double>>
 AnalysisGraph::sample_observed_state(VectorXd latent_state) {
+  using ranges::to;
+  using ranges::views::transform;
   int num_verts = this->num_vertices();
 
   assert(num_verts == latent_state.size() / 2);
@@ -1369,15 +1369,13 @@ AnalysisGraph::sample_observed_state(VectorXd latent_state) {
     // scaled by the value of the latent state that caused this observation.
     // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
     //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
-    std::transform(indicators.begin(),
-                   indicators.end(),
-                   observed_state[v].begin(),
-                   [&](Indicator ind) {
-                     normal_distribution<double> gaussian(
-                         ind.mean * latent_state[2 * v], ind.stdev);
+    observed_state[v] = indicators | transform([&](Indicator ind) {
+                          normal_distribution<double> gaussian(
+                              ind.mean * latent_state[2 * v], ind.stdev);
 
-                     return gaussian(this->rand_num_generator);
-                   });
+                          return gaussian(this->rand_num_generator);
+                        }) |
+                        to<vector>();
   }
 
   return observed_state;
@@ -1429,8 +1427,8 @@ void AnalysisGraph::sample_from_proposal() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = ts * this->A_original;
-  this->current_latent_state = exp(-TAU * ts) * A_t.exp() * this->s0;
+  const Eigen::MatrixXd& A_t = tuning_param * ts * this->A_original;
+  this->current_latent_state = A_t.exp() * this->s0;
 }
 
 double AnalysisGraph::calculate_delta_log_prior() {

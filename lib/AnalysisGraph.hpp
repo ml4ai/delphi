@@ -111,7 +111,16 @@ class AnalysisGraph {
 
   void print_A_beta_factors();
 
+  // Latent state that is evolved by sampling.
+  // Since s0 is used to represent a sequence of latent states,
+  // I named this s0_original. Once things are refactored, we might be able to
+  // convert this to s0
+  Eigen::VectorXd s0;
+
+  void set_default_initial_state();
+
   private:
+
   void clear_state();
 
   // Maps each concept name to the vertex id of the
@@ -149,11 +158,6 @@ class AnalysisGraph {
   double t = 0.0;
   double delta_t = 1.0;
 
-  // Latent state that is evolved by sampling.
-  // Since s0 is used to represent a sequence of latent states,
-  // I named this s0_original. Once things are refactored, we might be able to
-  // convert this to s0
-  Eigen::VectorXd s0;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -254,7 +258,6 @@ class AnalysisGraph {
    Utilities
    ==========================================================================
   */
-  void set_default_initial_state();
 
   std::mt19937 rand_num_generator;
 
