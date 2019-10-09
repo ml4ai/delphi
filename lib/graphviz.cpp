@@ -1,11 +1,11 @@
 #include <AnalysisGraph.hpp>
+#include <Node.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <graphviz_interface.hpp>
 #include <range/v3/all.hpp>
 #include <tinycolormap.hpp>
-#include <Node.hpp>
 
 using namespace std;
 using boost::source, boost::target;
@@ -129,8 +129,11 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
     for (auto indicator : node.indicators) {
       src = add_node(G, concept_name);
       trgt = add_node(G, indicator.name);
-      set_property(
-          trgt, "label", indicator.name + "\nSource: " + indicator.source);
+      set_property(trgt,
+                   "label",
+                   indicator.name + "\nSource: " + indicator.source +
+                       "\nDBN Initialization Value: " +
+                       to_string(indicator.mean) + "\nUnit: " + indicator.unit);
       set_property(trgt, "style", "rounded,filled");
       set_property(trgt, "fillcolor", "lightblue");
 
@@ -152,4 +155,30 @@ void AnalysisGraph::to_png(string filename,
   gvFreeLayout(gvc, G);
   agclose(G);
   gvFreeContext(gvc);
+}
+
+/** Output the graph in DOT format */
+string AnalysisGraph::to_dot() {
+  auto [G, gvc] = this->to_agraph();
+
+  stringstream sstream;
+  stringbuf* sstream_buffer;
+  streambuf* original_cout_buffer;
+
+  // Back up original cout buffer
+  original_cout_buffer = cout.rdbuf();
+  sstream_buffer = sstream.rdbuf();
+
+  // Redirect cout to sstream
+  cout.rdbuf(sstream_buffer);
+
+  gvRender(gvc, G, "dot", stdout);
+  agclose(G);
+  gvFreeContext(gvc);
+
+  // Restore cout's original buffer
+  cout.rdbuf(original_cout_buffer);
+
+  // Return the string with the graph in DOT format
+  return sstream.str();
 }

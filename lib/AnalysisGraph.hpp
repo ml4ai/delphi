@@ -4,8 +4,6 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
 
@@ -14,6 +12,7 @@
 #include "DiGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -87,10 +86,22 @@ class AnalysisGraph {
     return boost::vertices(this->graph).second;
   };
 
-  auto successors(int i);
-  auto successors(std::string node_name);
-  auto predecessors(std::string node_name);
-  auto predecessors(int i);
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
+  }
+
+  auto successors(std::string node_name) {
+    return this->successors(this->name_to_vertex.at(node_name));
+  }
+
+  auto predecessors(int i) {
+    return boost::make_iterator_range(
+        boost::inv_adjacent_vertices(i, this->graph));
+  }
+
+  auto predecessors(std::string node_name) {
+    return this->predecessors(this->name_to_vertex.at(node_name));
+  }
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);
@@ -100,7 +111,27 @@ class AnalysisGraph {
 
   void print_A_beta_factors();
 
+  // Latent state that is evolved by sampling.
+  // Since s0 is used to represent a sequence of latent states,
+  // I named this s0_original. Once things are refactored, we might be able to
+  // convert this to s0
+  Eigen::VectorXd s0;
+
+  Eigen::VectorXd& get_initial_latent_state() {
+    return this->s0;
+  };
+
+  void set_initial_latent_state(Eigen::VectorXd vec) {
+    this->s0 = vec;
+  };
+
+
+  void set_default_initial_state();
+
+  bool data_heuristic = false;
+
   private:
+
   void clear_state();
 
   // Maps each concept name to the vertex id of the
@@ -138,11 +169,6 @@ class AnalysisGraph {
   double t = 0.0;
   double delta_t = 1.0;
 
-  // Latent state that is evolved by sampling.
-  // Since s0 is used to represent a sequence of latent states,
-  // I named this s0_original. Once things are refactored, we might be able to
-  // convert this to s0
-  Eigen::VectorXd s0;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -200,7 +226,6 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
-  bool data_heuristic = false;
 
   void get_subgraph(int vert,
                     std::unordered_set<int>& vertices_to_keep,
@@ -243,7 +268,6 @@ class AnalysisGraph {
    Utilities
    ==========================================================================
   */
-  void set_default_initial_state();
 
   std::mt19937 rand_num_generator;
 
@@ -505,6 +529,8 @@ class AnalysisGraph {
    */
   void set_initial_latent_state_from_observed_state_sequence();
 
+  void set_initial_latent_from_end_of_training();
+
   void initialize_random_number_generator();
 
   void set_random_initial_latent_state();
@@ -691,8 +717,6 @@ class AnalysisGraph {
 
   void set_current_latent_state(int ts);
 
-  double log_normpdf(double x, double mean, double sd);
-
   void set_log_likelihood();
 
   double calculate_delta_log_prior();
@@ -731,7 +755,7 @@ class AnalysisGraph {
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
                     std::string county = "",
-                    int year = 2012,
+                    int year = -1,
                     int month = 0,
                     std::map<std::string, std::string> units = {});
 

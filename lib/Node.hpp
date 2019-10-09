@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "Indicator.hpp"
 #include "exceptions.hpp"
 
@@ -49,7 +50,7 @@ class Node {
     }
   }
 
-  Indicator get_indicator(std::string indicator) {
+  Indicator& get_indicator(std::string indicator) {
     try {
       return this->indicators[this->nameToIndexMap.at(indicator)];
     }

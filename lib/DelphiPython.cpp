@@ -1,3 +1,4 @@
+#include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
@@ -18,6 +19,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("RANDOM", InitialBeta::RANDOM);
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
+      .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
+      .def_property("s0", &AnalysisGraph::get_initial_latent_state, &AnalysisGraph::set_initial_latent_state)
       .def_static("from_json_file",
                   &AnalysisGraph::from_json_file,
                   "filename"_a,
@@ -75,9 +78,12 @@ PYBIND11_MODULE(DelphiPython, m) {
            "rankdir"_a = "TB")
       .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
-      .def("remove_node", py::overload_cast<string>(&AnalysisGraph::remove_node))
+      .def("remove_node",
+           py::overload_cast<string>(&AnalysisGraph::remove_node))
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
-      .def("add_edge", py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge), "causal_fragment"_a)
+      .def("add_edge",
+           py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge),
+           "causal_fragment"_a)
       .def("change_polarity_of_edge",
            &AnalysisGraph::change_polarity_of_edge,
            "source_concept"_a,
@@ -101,6 +107,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,
            "country"_a = "South Sudan")
+      .def("parameterize", &AnalysisGraph::parameterize)
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator",
            &AnalysisGraph::set_indicator,
@@ -149,13 +156,16 @@ PYBIND11_MODULE(DelphiPython, m) {
            "end_month"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
-           "indicator"_a);
+           "indicator"_a)
+      .def("set_default_initial_state",
+           &AnalysisGraph::set_default_initial_state);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
       .def("sample", &RV::sample);
 
   py::class_<Indicator, RV>(m, "Indicator")
+      .def("__repr__", &Indicator::get_name)
       .def("set_source", &Indicator::set_source)
       .def("set_unit", &Indicator::set_unit)
       .def("set_mean", &Indicator::set_mean)
@@ -185,14 +195,15 @@ PYBIND11_MODULE(DelphiPython, m) {
   py::class_<Node>(m, "Node")
       .def_readwrite("name", &Node::name)
       .def("__repr__", &Node::to_string)
-      .def("replace_indicator", &Node::replace_indicator);
+      .def("get_indicator", &Node::get_indicator)
+      .def("replace_indicator", &Node::replace_indicator)
+      .def_readwrite("indicators", &Node::indicators);
 
-  py::class_<Edge>(m, "Edge")
-    .def_readwrite("evidence", &Edge::evidence);
+  py::class_<Edge>(m, "Edge").def_readwrite("evidence", &Edge::evidence);
 
   py::class_<Statement>(m, "Statement")
-    .def_readwrite("subject", &Statement::subject)
-    .def_readwrite("object", &Statement::subject);
+      .def_readwrite("subject", &Statement::subject)
+      .def_readwrite("object", &Statement::subject);
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
