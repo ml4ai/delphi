@@ -22,7 +22,7 @@ class Node;
 class Indicator;
 
 const double TAU = 1;
-const double tuning_param = 0.001;
+const double tuning_param = 0.0001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 typedef graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
@@ -203,6 +203,12 @@ void AnalysisGraph::delete_all_indicators(string concept) {
           concept);
   }
 }
+
+void AnalysisGraph::set_derivative(string concept, double derivative) {
+  int v = this->name_to_vertex.at(concept);
+  this->s0[2*v + 1] = derivative;
+}
+
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
   // All the places we need random numbers share this generator
@@ -1200,7 +1206,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, 0, /*pred_init_timestep,*/ total_timesteps);
+      this->pred_timesteps, 0, total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(

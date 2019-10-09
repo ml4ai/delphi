@@ -60,6 +60,8 @@ class AnalysisGraph {
   Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
+  // Sampling resolution. Default is 200
+  int res = DEFAULT_N_SAMPLES;
 
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
@@ -127,17 +129,19 @@ class AnalysisGraph {
 
 
   void set_default_initial_state();
+  void set_derivative(std::string, double);
 
   bool data_heuristic = false;
-
-  private:
-
-  void clear_state();
 
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
   // concept name --> CAG vertex id
   std::unordered_map<std::string, int> name_to_vertex = {};
+
+  private:
+
+  void clear_state();
+
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
   std::unordered_set<std::string> indicators_in_CAG;
@@ -200,8 +204,6 @@ class AnalysisGraph {
 
   PredictedObservedStateSequence test_observed_state_sequence;
 
-  // Sampling resolution. Default is 200
-  int res = DEFAULT_N_SAMPLES;
 
   // Keep track whether the model is trained.
   // Used to check whether there is a trained model before calling
