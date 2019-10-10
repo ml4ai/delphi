@@ -107,7 +107,6 @@ class GrFNGenerator(object):
             "container": 'c',
             "variable": 'v',
             "function": 'f',
-            "holder": 'h'  # TODO Change/Remove this
         }
         self.type_def_map = {
             "real": "float",
@@ -284,8 +283,9 @@ class GrFNGenerator(object):
         # Check if the function contains arguments or not. This determines
         # whether the function is the outermost scope (does not contain
         # arguments) or it is not (contains arguments). For non-outermost
-        # scopes, indexing starts from -1. For outermost scopes, indexing
-        # starts from 0
+        # scopes, indexing starts from -1 (because all arguments will have
+        # an index of -1). For outermost scopes, indexing starts from
+        # normally from 0.
         # TODO: What do you do when a non-outermost scope function does not
         #  have arguments. Current assumption is that the function without
         #  arguments is the outermost function i.e. call to the `start`
@@ -338,13 +338,11 @@ class GrFNGenerator(object):
         argument_variable_grfn = []
         for argument in argument_list:
             argument_variable_grfn.append(
-                self.generate_variable_definition(argument,
-                                                  None,
+                self.generate_variable_definition(argument, None,
                                                   function_state)
             )
 
-        # Generate the `variable_identifier_name` for each container
-        # argument.
+        # Generate the `variable_identifier_name` for each container argument.
         # TODO Currently only variables are handled as container arguments.
         #  Create test cases of other containers as container arguments and
         #  extend this functionality.
@@ -1370,6 +1368,9 @@ class GrFNGenerator(object):
             the IF body and generates the `decision` and `condition` type of
             the `<function_assign_def>`.
         """
+        # The `is_break` variable lets you know whether the if condition is
+        # related to a break (return) from the function or not.
+        is_break = False
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
             scope_path.append("@global")
@@ -1467,6 +1468,9 @@ class GrFNGenerator(object):
         # Note that `else_grfn` will be empty if the else block contains
         # another `if-else` block
         else_node_name = node.orelse.__repr__().split()[0][3:]
+
+        is_break = self._check_break(if_grfn)
+
         if else_node_name != "ast.If":
             else_grfn = self.gen_grfn(node.orelse, else_state, "if")
         else:
@@ -2353,6 +2357,15 @@ class GrFNGenerator(object):
         return [grfn]
 
     @staticmethod
+    def _check_break(grfn_body):
+        """
+            This function checks if the grfn body is related to a break from
+            the function call. This happens when there is a `return` or
+            `continue`
+        """
+
+
+    @staticmethod
     def process_ast(node, *_):
         sys.stderr.write(
             f"No handler for AST.{node.__class__.__name__} in gen_grfn, "
@@ -2680,7 +2693,10 @@ class GrFNGenerator(object):
             HEX string. The uuid4() function of 'uuid' focuses on randomness.
             Each and every bit of a UUID v4 is generated randomly and with no
             inherent logic. To every gensym, we add a tag signifying the data
-            type it represents. 'v' is for variables and 'h' is for holders.
+            type it represents.
+            'v': variables
+            'c': containers
+            'f': functions
         """
         return f"{self.gensym_tag_map[tag]}_{uuid.uuid4().hex[:12]}"
 
