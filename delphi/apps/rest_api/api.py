@@ -462,7 +462,6 @@ def createNewICM():
 
 @bp.route("/icm", methods=["GET"])
 def listAllICMs():
-    print("In getting all icm")
     """ List all ICMs"""
     if (
         list(
