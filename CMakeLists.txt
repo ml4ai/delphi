@@ -13,7 +13,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
@@ -21,12 +21,25 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-add_subdirectory(external/fmt)
-add_subdirectory(external/spdlog)
-include_directories(external/fmt/include)
-include_directories(external/spdlog/include)
+option(USE_BUNDLED_FMT "Use fmtlib bundled with Delphi" ON)
+option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
 
-find_package(PythonInterp REQUIRED)
+if(USE_BUNDLED_FMT)
+  include_directories(external/fmt/include)
+  add_subdirectory(external/fmt)
+else()
+  find_package(fmt REQUIRED)
+endif()
+
+
+if(USE_BUNDLED_SPDLOG)
+  add_subdirectory(external/spdlog)
+  include_directories(external/spdlog/include)
+else()
+  find_package(spdlog 1.4.1 REQUIRED)
+endif()
+
+find_package(PythonInterp 3.6 REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
@@ -40,7 +53,7 @@ include_directories(external/eigen)
 find_package(SQLite3 REQUIRED)
 include_directories(${SQLITE3_INCLUDE_DIRS})
 
-add_library(Delphi 
+add_library(Delphi
   lib/AnalysisGraph.cpp
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp
@@ -61,6 +74,7 @@ add_library(Delphi
   lib/utils.hpp
 )
 
+target_include_directories(Delphi PRIVATE external/range-v3/include)
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
@@ -74,7 +88,7 @@ add_executable(cpptests tests/cpptests.cpp)
 target_include_directories(doctest INTERFACE external/doctest)
 target_link_libraries(cpptests PRIVATE doctest Delphi)
 
-pybind11_add_module(DelphiPython MODULE lib/wrappers/AnalysisGraph_wrapper.cpp)
+pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi)
 
 # Executables

@@ -14,31 +14,31 @@ from delphi.utils.shell import cd
 
 concepts = {
     "conflict": {
-        "grounding": "UN/events/human/conflict",
+        "grounding": "wm/concept/causal_factor/social_and_political/conflict/war",
         "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "food security": {
-        "grounding": "UN/entities/human/food/food_security",
+        "grounding": "wm/concept/causal_factor/condition/food_security",
         "delta": {"polarity": -1, "adjective": ["large"]},
     },
     "migration": {
-        "grounding": "UN/events/human/human_migration",
+        "grounding": "wm/concept/causal_factor/social_and_political/migration/human_migration",
         "delta": {"polarity": 1, "adjective": ["small"]},
     },
     "product": {
-        "grounding": "UN/entities/natural/crop_technology/product",
+        "grounding": "wm/concept/causal_factor/agriculture/crop_storage",
         "delta": {"polarity": 1, "adjective": ["large"]},
     },
     "economic crisis": {
-        "grounding": "UN/events/human/economic_crisis",
+        "grounding": "wm/concept/causal_factor/crisis_and_disaster/crisis/economic_crisis/poverty",
         "delta": {"polarity": 1, "adjective": ["large"]},
     },
     "precipitation": {
-        "grounding": "UN/events/weather/precipitation",
+        "grounding": "wm/concept/indicator_and_reported_property/weather/rainfall",
         "delta": {"polarity": 1, "adjective": []},
     },
     "inflation": {
-        "grounding": "UN/entities/human/financial/economic/inflation",
+        "grounding": "wm/concept/causal_factor/economic_and_commerce/economic activity/market/inflation",
         "delta": {"polarity": -1, "adjective": []},
     },
 }
@@ -89,7 +89,7 @@ def G():
     G.res = 200
     G.sample_from_prior()
     G.map_concepts_to_indicators()
-    G.parameterize(year=2014, month=12)
+    G.parameterize(year=2017, month=9)
     yield G
 
 
@@ -99,7 +99,7 @@ def G_eval():
     G.map_concepts_to_indicators()
     G.res = 200
     G.sample_from_prior()
-    G.parameterize(year=2013, month=9)
+    G.parameterize(year=2017, month=9)
     G.get_timeseries_values_for_indicators()
     yield G
 

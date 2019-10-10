@@ -181,7 +181,7 @@ def generate_outputdict(
 
 def generate_python_src(
     output_dictionary, python_file_name,
-    output_file, temp_dir, tester_call
+    output_file, variable_map_file, temp_dir, tester_call
 ):
     """This function generates python source file from
     generated python source list. This function will
@@ -204,7 +204,11 @@ def generate_python_src(
         str: A string of generated python code.
     """
 
-    python_source = pyTranslate.create_python_source_list(output_dictionary)
+    (python_source, variable_map) = pyTranslate.create_python_source_list(
+     output_dictionary)
+
+    with open(variable_map_file, "wb") as f:
+        pickle.dump(variable_map, f)
 
     if not tester_call:
         print(
@@ -252,7 +256,7 @@ def generate_grfn(
         python_filename (str): A file name of generated python script.
         lambdas_file_suffix (str): The suffix of the file name where
         lambdas will be written to.
-        mode_mapper_dictionary (dict): A mapper of file info (i.e. filename,
+        mode_mapper_dictionary (list): A mapper of file info (i.e. filename,
         module, and exports, etc).
         original_fortran_file (str): The path to the original
         Fortran file being analyzed.
@@ -283,9 +287,14 @@ def generate_grfn(
             lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
             original_fortran_file, save_file=True
         )
-        if "identifiers" in grfn_dictionary:
-            for identifier in grfn_dictionary["identifiers"]:
-                del identifier["gensyms"]
+        del grfn_dictionary["date_created"]
+        for item in grfn_dictionary["variables"]:
+            if "gensym" in item:
+                del item["gensym"]
+        for item in grfn_dictionary["containers"]:
+            if "gensym" in item:
+                del item["gensym"]
+
         return grfn_dictionary
 
 def parse_args():
@@ -471,6 +480,7 @@ def fortran_to_grfn(
     ofp_file = temp_dir + "/" + base + ".xml"
     rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
     pickle_file = temp_dir + "/" + base + "_pickle"
+    variable_map_file = temp_dir + "/" + base + "_variables_pickle"
     translated_python_file = temp_dir + "/" + base + ".py"
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_suffix = temp_dir + "/" + base + ".json"
@@ -478,10 +488,10 @@ def fortran_to_grfn(
 
     # Open and read original fortran file
     try:
-        with open(original_fortran_file, "r") as f:
+        with open(original_fortran_file, "r", encoding="utf-8") as f:
             input_lines = f.readlines()
     except IOError:
-        assert False, f"Fortran file: {original_original_fortran_file} Not Found"
+        assert False, f"Fortran file: {original_fortran_file} Not Found"
 
     # Pre-process the read in fortran file
     if not tester_call:
@@ -517,7 +527,8 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_source = generate_python_src(
-        output_dict, translated_python_file, output_file, temp_dir, tester_call
+        output_dict, translated_python_file, output_file, variable_map_file,
+        temp_dir, tester_call
     )
 
     if tester_call:
@@ -536,7 +547,14 @@ def fortran_to_grfn(
         #  TODO: This is related to networks.py and subsequent GrFN
         #  generation. Change the python_src index from [0][0] to incorporate
         #  all modules after all GrFN features have been added
-        return (python_source[0][0], lambdas_suffix, json_suffix, base, original_fortran_file, mode_mapper_dict[0])
+        return (
+            python_source[0][0],
+            lambdas_suffix,
+            json_suffix,
+            base,
+            mode_mapper_dict,
+            original_fortran_file
+        )
 
 
 if __name__ == "__main__":

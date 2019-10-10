@@ -1,5 +1,5 @@
 from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta
-from delphi.evaluation_port import pred_plot
+from delphi.evaluation import pred_plot
 import pytest
 from matplotlib import pyplot as plt
 from tqdm import trange
