@@ -8,13 +8,13 @@ using namespace std;
 using namespace fmt::literals;
 using namespace delphi::utils;
 
-using boost::for_each;
-using boost::graph_traits;
+using boost::for_each, boost::graph_traits, boost::clear_vertex,
+    boost::remove_vertex;
+using Eigen::VectorXd;
 using fmt::print, fmt::format;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using Eigen::VectorXd;
 
 // Forward declarations
 class Node;
@@ -205,7 +205,7 @@ void AnalysisGraph::delete_all_indicators(string concept) {
 
 void AnalysisGraph::set_derivative(string concept, double derivative) {
   int v = this->name_to_vertex.at(concept);
-  this->s0[2*v + 1] = derivative;
+  this->s0[2 * v + 1] = derivative;
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
@@ -330,7 +330,6 @@ void AnalysisGraph::prune(int cutoff) {
           // Remove that edge
           boost::remove_edge(src, tgt, this->graph);
         }
-        //}
       }
     }
   }
@@ -340,10 +339,10 @@ void AnalysisGraph::prune(int cutoff) {
 
 void AnalysisGraph::remove_node(int node_id) {
   // Delete all the edges incident to this node
-  boost::clear_vertex(node_id, this->graph);
+  clear_vertex(node_id, this->graph);
 
   // Remove the vertex
-  boost::remove_vertex(node_id, this->graph);
+  remove_vertex(node_id, this->graph);
 
   // Update the internal meta-data
   for (int vert_id : this->node_indices()) {
@@ -374,7 +373,7 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
 
   if (invalid_concepts.size() > 0) {
     // There were some invalid concepts
-    error("AnalysisGraph::remove_vertex()\n"
+    error("AnalysisGraph::remove_nodes()\n"
           "\tThe following concepts were not present in the CAG!\n");
     for (string invalid_concept : invalid_concepts) {
       cerr << "\t\t" << invalid_concept << endl;
@@ -1106,7 +1105,8 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
   this->predicted_latent_state_sequences = vector<vector<VectorXd>>(
-      this->res, vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
+      this->res,
+      vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
     for (int t = 0; t < this->n_timesteps; t++) {
