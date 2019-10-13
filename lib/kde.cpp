@@ -1,21 +1,18 @@
-#include <random>
-#include <boost/range/irange.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/range/numeric.hpp>
-#include <boost/range/adaptors.hpp>
-#include <boost/range/algorithm/for_each.hpp>
+#include "kde.hpp"
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
-#include "kde.hpp"
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm/for_each.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/numeric.hpp>
+#include <random>
 
-using std::vector;
+using namespace std;
 using boost::irange;
+using boost::adaptors::transformed;
 using boost::lambda::_1;
-using boost::lambda::_2;
-using std::mt19937;
-using std::normal_distribution;
 using namespace delphi::utils;
-
 
 double sample_from_normal(
     double mu = 0.0, /**< The mean of the distribution.*/
@@ -27,18 +24,16 @@ double sample_from_normal(
 }
 
 KDE::KDE(std::vector<double> v) : dataset(v) {
-    using boost::adaptors::transformed;
-    using boost::lambda::_1;
 
-    // Compute the bandwidth using Silverman's rule
-    mu = mean(v);
-    auto X = v | transformed(_1 - mu);
+  // Compute the bandwidth using Silverman's rule
+  mu = mean(v);
+  auto X = v | transformed(_1 - mu);
 
-    // Compute standard deviation of the sample.
-    size_t N = v.size();
-    double stdev = sqrt(inner_product(X, X, 0.0) / (N - 1));
-    bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
-  }
+  // Compute standard deviation of the sample.
+  size_t N = v.size();
+  double stdev = sqrt(inner_product(X, X, 0.0) / (N - 1));
+  bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
+}
 
 vector<double> KDE::resample(int n_samples) {
   vector<double> samples;
@@ -51,8 +46,8 @@ vector<double> KDE::resample(int n_samples) {
 
 double KDE::pdf(double x) {
   double p = 0.0;
-  size_t N = dataset.size();
-  for (double elem : dataset) {
+  size_t N = this->dataset.size();
+  for (double elem : this->dataset) {
     double x1 = exp(-sqr(x - elem) / (2 * sqr(bw)));
     x1 /= N * bw * sqrt(2 * M_PI);
     p += x1;
@@ -69,4 +64,3 @@ vector<double> KDE::pdf(vector<double> v) {
 }
 
 double KDE::logpdf(double x) { return log(pdf(x)); }
-

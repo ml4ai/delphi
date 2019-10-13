@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "itertools.hpp"
 #include <sqlite3.h>
+
 using namespace std;
 using namespace delphi::utils;
 
@@ -53,7 +54,7 @@ void AnalysisGraph::construct_beta_pdfs() {
   marginalized_responses =
       KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES);
 
-  for (auto e : edges()) {
+  for (auto e : this->edges()) {
     vector<double> all_thetas = {};
 
     for (Statement stmt : this->graph[e].evidence) {
@@ -76,8 +77,6 @@ void AnalysisGraph::construct_beta_pdfs() {
       }
     }
 
-    // TODO: Why kde is optional in struct Edge?
-    // It seems all the edges get assigned with a kde
     this->graph[e].kde = KDE(all_thetas);
 
     // Initialize the initial β for this edge
