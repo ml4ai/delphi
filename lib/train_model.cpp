@@ -19,6 +19,7 @@ void AnalysisGraph::train_model(int start_year,
                                 InitialBeta initial_beta,
                                 bool use_heuristic) {
 
+  this->construct_beta_pdfs();
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
