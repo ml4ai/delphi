@@ -16,31 +16,18 @@ crop_production = "wm/concept/indicator_and_reported_property/agriculture/Crop_P
 
 def test_cpp_extensions():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
-    # G.construct_beta_pdfs()
-
-    # G.print_nodes()
-
-    # print( '\nName to vertex ID map entries' )
-    # G.print_name_to_vertex()
-
-    # G.sample_from_prior()
-
 
 def test_simple_path_construction():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
     G.add_node("c0")
     G.add_node("c1")
     G.add_node("c2")
-    # G.add_node('c3')
-    # G.add_node('c4')
 
     print("Nodes of the graph:")
     G.print_nodes()
 
     G.add_edge((("", 1, "c0"), ("", 1, "c1")))
     G.add_edge((("", 1, "c1"), ("", 1, "c2")))
-    # G.add_edge((("", 1, "c1"), ("", 1, "c3")))
-    # G.add_edge((("", 1, "c2"), ("", 1, "c3")))
     G.add_edge((("", 1, "c0"), ("", 1, "c2")))
     G.add_edge(
         (("", 1, "c3"), ("", 1, "c1"))
@@ -67,19 +54,6 @@ def test_simple_path_construction():
         "tests/data/indra_statements_format.json"
     )
 
-    # G2.initialize( True )
-    """
-    samples = G2.sample_from_prior()
-
-    print( 'Nunber of samples from prior: ', len(samples) )
-    for i in range(5):
-        print( samples[i] )
-    """
-    # G2.sample_from_likelihood( 10 )
-
-    # G.sample_from_proposal_debug()
-
-
 def test_inference():
     causal_fragments = [(("small", 1, tension), ("large", -1, food_security))]
 
@@ -91,9 +65,6 @@ def test_inference():
 
     print("\nName to vertex ID map entries")
     G.print_name_to_vertex()
-
-    print("\nSample from proposal debug")
-    # G.sample_from_proposal_debug()
 
 
 def test_remove_node():
@@ -165,25 +136,16 @@ def test_remove_edge():
     G.find_all_paths()
 
     G.print_nodes()
-
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-
     G.print_all_paths()
 
     print("\nRemoving edge - invalid source")
     G.remove_edge(source="invalid", target=food_security)
     G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
     G.print_all_paths()
 
     print("\nRemoving edge - invalid target")
     G.remove_edge(source=tension, target="invalid")
     G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-    G.print_all_paths()
 
     print("\nRemoving edge - source and target inverted target")
     G.remove_edge(source=food_security, target=tension)
@@ -195,11 +157,8 @@ def test_remove_edge():
     print("\nRemoving edge - correct")
     G.remove_edge(source=tension, target=food_security)
     G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-    G.print_all_paths()
+    G.print_edges()
     G.to_png()
-
 
 def test_remove_edges():
     causal_fragments = [
