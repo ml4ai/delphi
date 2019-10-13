@@ -1,6 +1,8 @@
 #pragma once
 
+#include <iostream>
 #include <map>
+#include "utils.hpp"
 #include "Indicator.hpp"
 #include "exceptions.hpp"
 
