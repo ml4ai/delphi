@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <cmath>
 #include <boost/range/numeric.hpp>
 
 using namespace std;
