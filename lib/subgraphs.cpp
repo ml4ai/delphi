@@ -95,7 +95,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   unordered_set<int> vertices_to_keep = unordered_set<int>();
 
   this->get_subgraph(
-      this->name_to_vertex.at(concept), vertices_to_keep, depth, inward);
+      this->get_vertex_id(concept), vertices_to_keep, depth, inward);
 
   unordered_set<string> nodes_to_remove =
       this->node_indices() |
