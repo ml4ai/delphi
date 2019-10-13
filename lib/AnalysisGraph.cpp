@@ -1,6 +1,5 @@
 #include "AnalysisGraph.hpp"
 #include "data.cpp"
-#include "dbg.h"
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
