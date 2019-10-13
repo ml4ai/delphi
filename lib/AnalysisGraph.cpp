@@ -171,7 +171,7 @@ void AnalysisGraph::delete_all_indicators(string concept) {
 }
 
 void AnalysisGraph::set_derivative(string concept, double derivative) {
-  int v = this->name_to_vertex.at(concept);
+  int v = this->get_vertex_id(concept);
   this->s0[2 * v + 1] = derivative;
 }
 
@@ -370,7 +370,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
                    // Flag invalid source vertices
                    try {
-                     src_id = this->name_to_vertex.at(edge.first);
+                     src_id = this->get_vertex_id(edge.first);
                    }
                    catch (const out_of_range& oor) {
                      src_id = -1;
@@ -378,7 +378,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
 
                    // Flag invalid target vertices
                    try {
-                     tgt_id = this->name_to_vertex.at(edge.second);
+                     tgt_id = this->get_vertex_id(edge.second);
                    }
                    catch (const out_of_range& oor) {
                      tgt_id = -1;
@@ -483,17 +483,17 @@ Edge& AnalysisGraph::edge(int source, int target) {
 
 Edge& AnalysisGraph::edge(int source, string target) {
   return this->graph
-      [boost::edge(source, this->name_to_vertex.at(target), this->graph).first];
+      [boost::edge(source, this->get_vertex_id(target), this->graph).first];
 }
 
 Edge& AnalysisGraph::edge(string source, int target) {
   return this->graph
-      [boost::edge(this->name_to_vertex.at(source), target, this->graph).first];
+      [boost::edge(this->get_vertex_id(source), target, this->graph).first];
 }
 
 Edge& AnalysisGraph::edge(string source, string target) {
-  return this->graph[boost::edge(this->name_to_vertex.at(source),
-                                 this->name_to_vertex.at(target),
+  return this->graph[boost::edge(this->get_vertex_id(source),
+                                 this->get_vertex_id(target),
                                  this->graph)
                          .first];
 }
@@ -505,17 +505,17 @@ pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, int target) {
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, string target) {
-  return boost::add_edge(source, this->name_to_vertex.at(target), this->graph);
+  return boost::add_edge(source, this->get_vertex_id(target), this->graph);
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source, int target) {
-  return boost::add_edge(this->name_to_vertex.at(source), target, this->graph);
+  return boost::add_edge(this->get_vertex_id(source), target, this->graph);
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source,
                                                    string target) {
-  return boost::add_edge(this->name_to_vertex.at(source),
-                         this->name_to_vertex.at(target),
+  return boost::add_edge(this->get_vertex_id(source),
+                         this->get_vertex_id(target),
                          this->graph);
 }
 
