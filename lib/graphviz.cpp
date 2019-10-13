@@ -5,18 +5,9 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <graphviz_interface.hpp>
 #include <range/v3/all.hpp>
-#include <tinycolormap.hpp>
 
 using namespace std;
 using boost::source, boost::target;
-
-string rgb2hex(double r, double g, double b, bool with_head = true) {
-  stringstream ss;
-  if (with_head)
-    ss << "#";
-  ss << hex << ((int)(r * 255) << 16 | (int)(g * 255) << 8 | (int)(b * 255));
-  return ss.str();
-}
 
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
                                                  int label_depth,
@@ -56,23 +47,6 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   string source_label;
   string target_label;
 
-  auto get_median_beta = [&](auto e) {
-    accumulator_set<double, stats<tag::median(with_p_square_quantile)>> acc;
-    auto dataset =
-        this->edge(source(e, this->graph), target(e, this->graph)).kde.dataset;
-    for (double x : dataset) {
-      acc(x);
-    }
-    return median(acc);
-  };
-
-  auto max_median_betas = max(this->edges() | transform(get_median_beta));
-
-  auto getHex = [](double x) {
-    stringstream ss;
-    ss << hexfloat << x;
-    return ss.str();
-  };
   // Add CAG links
   for (auto e : this->edges()) {
     string source_name = this->graph[source(e, this->graph)].name;
@@ -102,19 +76,6 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
     set_property(trgt, "label", target_label);
 
     edge = agedge(G, src, trgt, 0, true);
-
-    // Dynamic edge color setting
-    // double colorFromMedian = get_median_beta(e) / max_median_betas;
-    // double colorFromReinforcement = this->edge(source_name,
-    // target_name).get_reinforcement();
-
-    // if (colorFromReinforcement < 0) {
-    // const tinycolormap::Color color = tinycolormap::GetColor(
-    // colorFromReinforcement, tinycolormap::ColormapType::Jet);
-    //}
-
-    // string edgeColor = rgb2hex(color.r(), color.g(), color.b());
-    // set_property(edge, "color", edgeColor);
   }
 
   if (node_to_highlight != "") {
