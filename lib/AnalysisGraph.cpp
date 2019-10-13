@@ -1,5 +1,6 @@
 #include "AnalysisGraph.hpp"
-#include "data.cpp"
+#include "data.hpp"
+#include "spdlog/spdlog.h"
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
@@ -7,6 +8,7 @@
 using namespace std;
 using namespace fmt::literals;
 using namespace delphi::utils;
+using spdlog::debug, spdlog::error, spdlog::info;
 
 using boost::for_each, boost::graph_traits, boost::clear_vertex,
     boost::remove_vertex;
@@ -32,10 +34,19 @@ size_t AnalysisGraph::num_vertices() {
 
 size_t AnalysisGraph::num_edges() { return boost::num_edges(this->graph); }
 
-Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
+int AnalysisGraph::get_vertex_id(string concept) {
+  try {
+    return this->name_to_vertex.at(concept);
+  }
+  catch (const out_of_range& oor) {
+    throw out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+  }
+}
+
+Node& AnalysisGraph::operator[](int v) { return this->graph[v]; }
 
 Node& AnalysisGraph::operator[](string node_name) {
-  return (*this)[this->name_to_vertex.at(node_name)];
+  return (*this)[this->get_vertex_id(node_name)];
 }
 
 vector<Node> AnalysisGraph::get_successor_list(string node) {
@@ -54,22 +65,6 @@ vector<Node> AnalysisGraph::get_predecessor_list(string node) {
   return predecessors;
 }
 
-int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
-  int vert_id = -1;
-
-  try {
-    vert_id = this->name_to_vertex.at(concept);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::{0}\n"
-          "The concept {1} is not in the CAG!",
-          caller,
-          concept);
-    rethrow_exception(current_exception());
-  }
-
-  return vert_id;
-}
 
 int AnalysisGraph::get_degree(int vertex_id) {
   return boost::in_degree(vertex_id, this->graph) +
@@ -162,45 +157,17 @@ void AnalysisGraph::set_indicator(string concept,
           concept);
     return;
   }
-  try {
-    (*this)[concept].add_indicator(indicator, source);
-    this->indicators_in_CAG.insert(indicator);
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::set_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} with Source: {2}"
-          "\tCannot be added\n",
-          concept,
-          indicator,
-          source);
-  }
+  (*this)[concept].add_indicator(indicator, source);
+  this->indicators_in_CAG.insert(indicator);
 }
 
 void AnalysisGraph::delete_indicator(string concept, string indicator) {
-  try {
-    (*this)[concept].delete_indicator(indicator);
-    this->indicators_in_CAG.erase(indicator);
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::delete_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} cannot be deleted",
-          concept,
-          indicator);
-  }
+  (*this)[concept].delete_indicator(indicator);
+  this->indicators_in_CAG.erase(indicator);
 }
 
 void AnalysisGraph::delete_all_indicators(string concept) {
-  try {
-    (*this)[concept].clear_indicators();
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::delete_indicator()\n"
-          "\tConcept: {} is not in the CAG\n"
-          "\tIndicators cannot be deleted",
-          concept);
-  }
+  (*this)[concept].clear_indicators();
 }
 
 void AnalysisGraph::set_derivative(string concept, double derivative) {
@@ -351,7 +318,7 @@ void AnalysisGraph::remove_node(int node_id) {
 }
 
 void AnalysisGraph::remove_node(string concept) {
-  this->remove_node(this->name_to_vertex.at(concept));
+  this->remove_node(this->get_vertex_id(concept));
 }
 
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
@@ -382,30 +349,9 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
 }
 
 void AnalysisGraph::remove_edge(string src, string tgt) {
-  int src_id = -1;
-  int tgt_id = -1;
-
-  try {
-    src_id = this->name_to_vertex.at(src);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::remove_edge: Source vertex {} is not in the CAG!",
-          src);
-    return;
-  }
-
-  try {
-    tgt_id = this->name_to_vertex.at(tgt);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::remove_edge: \n"
-          "\tTarget vertex {} is not in the CAG!",
-          tgt);
-    return;
-  }
-
   // Remove the edge
-  boost::remove_edge(src_id, tgt_id, this->graph);
+  boost::remove_edge(
+      this->get_vertex_id(src), this->get_vertex_id(tgt), this->graph);
 }
 
 void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
@@ -851,10 +797,8 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
                                             int source_polarity,
                                             string target_concept,
                                             int target_polarity) {
-  int src_id = this->get_vertex_id_for_concept(source_concept,
-                                               "change_polarity_of_edge");
-  int tgt_id = this->get_vertex_id_for_concept(target_concept,
-                                               "change_polarity_of_edge");
+  int src_id = this->get_vertex_id(source_concept);
+  int tgt_id = this->get_vertex_id(target_concept);
 
   pair<int, int> edge = make_pair(src_id, tgt_id);
 

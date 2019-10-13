@@ -11,11 +11,14 @@ food_security = "wm/concept/causal_factor/condition/food_security"
 inflation = "wm/concept/causal_factor/economic_and_commerce/economic_activity/market/inflation"
 tension = "wm/concept/causal_factor/condition/tension"
 displacement = "wm/concept/indicator_and_reported_property/conflict/population_displacement"
-crop_production = "wm/concept/indicator_and_reported_property/agriculture/Crop_Production"
+crop_production = (
+    "wm/concept/indicator_and_reported_property/agriculture/Crop_Production"
+)
 
 
 def test_cpp_extensions():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+
 
 def test_simple_path_construction():
     G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
@@ -32,14 +35,6 @@ def test_simple_path_construction():
     G.add_edge(
         (("", 1, "c3"), ("", 1, "c1"))
     )  # Creates a loop 1 -> 2 -> 3 -> 1
-    """
-    G.add_edge(0,1)
-    G.add_edge(1,2)
-    #G.add_edge(1,3)
-    #G.add_edge(2,3)
-    G.add_edge(0,2)
-    G.add_edge(3,1) # Creates a loop 1 -> 2 -> 3 -> 1
-    """
 
     print("Edges of the graph:")
     G.print_edges()
@@ -53,6 +48,7 @@ def test_simple_path_construction():
     G2 = AnalysisGraph.from_json_file(
         "tests/data/indra_statements_format.json"
     )
+
 
 def test_inference():
     causal_fragments = [(("small", 1, tension), ("large", -1, food_security))]
@@ -74,27 +70,15 @@ def test_remove_node():
     print("\nCreating CAG")
     G = AnalysisGraph.from_causal_fragments(causal_fragments)
     G.find_all_paths()
-
     G.print_nodes()
-
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-
-    G.print_all_paths()
 
     print("\nRemoving an invalid concept")
-    G.remove_node(concept="invalid")
-    G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-    G.print_all_paths()
+    with pytest.raises(IndexError):
+        G.remove_node(concept="invalid")
 
     print("\nRemoving a valid concept")
     G.remove_node(concept=tension)
     G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-    G.print_all_paths()
 
 
 def test_remove_nodes():
@@ -113,9 +97,7 @@ def test_remove_nodes():
     G.print_all_paths()
 
     print("\nRemoving a several concepts, some valid, some invalid")
-    G.remove_nodes(
-        concepts=set(["invalid1",tension, "invalid2"])
-    )
+    G.remove_nodes(concepts=set(["invalid1", tension, "invalid2"]))
     G.print_nodes()
     print("\nName to vertex ID map entries")
     G.print_name_to_vertex()
@@ -123,12 +105,7 @@ def test_remove_nodes():
 
 
 def test_remove_edge():
-    causal_fragments = [
-        (
-            ("small", 1,tension),
-            ("large", -1, food_security),
-        )
-    ]
+    causal_fragments = [(("small", 1, tension), ("large", -1, food_security))]
 
     print("\n\n\n\n")
     print("\nCreating CAG")
@@ -139,20 +116,16 @@ def test_remove_edge():
     G.print_all_paths()
 
     print("\nRemoving edge - invalid source")
-    G.remove_edge(source="invalid", target=food_security)
-    G.print_nodes()
-    G.print_all_paths()
+    with pytest.raises(IndexError):
+        G.remove_edge(source="invalid", target=food_security)
 
     print("\nRemoving edge - invalid target")
-    G.remove_edge(source=tension, target="invalid")
-    G.print_nodes()
+    with pytest.raises(IndexError):
+        G.remove_edge(source=tension, target="invalid")
 
     print("\nRemoving edge - source and target inverted target")
     G.remove_edge(source=food_security, target=tension)
     G.print_nodes()
-    print("\nName to vertex ID map entries")
-    G.print_name_to_vertex()
-    G.print_all_paths()
 
     print("\nRemoving edge - correct")
     G.remove_edge(source=tension, target=food_security)
@@ -160,13 +133,9 @@ def test_remove_edge():
     G.print_edges()
     G.to_png()
 
+
 def test_remove_edges():
-    causal_fragments = [
-        (
-            ("small", 1,tension),
-            ("large", -1, food_security),
-        )
-    ]
+    causal_fragments = [(("small", 1, tension), ("large", -1, food_security))]
 
     print("\n\n\n\n")
     print("\nCreating CAG")
@@ -187,7 +156,7 @@ def test_remove_edges():
         (tension, "invalid_tgt2"),
         ("invalid_src_2", "invalid_tgt_2"),
         ("invalid_src_3", "invalid_tgt3"),
-        (food_security,tension),
+        (food_security, tension),
         (tension, food_security),
     ]
     print("\nRemoving edges")
@@ -208,8 +177,6 @@ def test_subgraph():
         (("small", 1, "n5"), ("large", -1, "n6")),
         (("small", 1, "n6"), ("large", -1, "n7")),
         (("small", 1, "n7"), ("large", -1, "n8")),
-        # (("small", 1, "n8"), ("large", -1, "n9")),
-        # (("small", 1, "n9"), ("large", -1, "n0")),
         (("small", 1, "n0"), ("large", -1, "n9")),
         (("small", 1, "n9"), ("large", -1, "n2")),
         (("small", 1, "n2"), ("large", -1, "n10")),
@@ -235,14 +202,10 @@ def test_subgraph():
     print("\nName to vertex ID map entries")
     G.print_name_to_vertex()
 
-    # G.remove_nodes(set(['n0', 'n1', 'n2', 'n3', 'n4']))
-    # G.remove_nodes(set(['n2', 'n3', 'n4']))
-    # G.remove_nodes(set(['n9', 'n8', 'n7', 'n6', 'n5']))
-
     G.print_nodes()
     G.print_name_to_vertex()
 
-    hops = 3
+    hops = 2
     node = "n4"
     print(
         "\nSubgraph of {} hops beginning at node {} graph".format(hops, node)
@@ -257,13 +220,10 @@ def test_subgraph():
     print("The original")
     G.print_nodes()
     G.print_name_to_vertex()
-    # G.print_all_paths()
-    print()
 
     print("The subgraph")
     G_sub.print_nodes()
     G_sub.print_name_to_vertex()
-    # G_sub.print_all_paths()
 
     print("\nSubgraph of {} hops ending at node {} graph".format(hops, node))
     G_sub = G.get_subgraph_for_concept(node, True, hops)
@@ -371,47 +331,22 @@ def test_prune():
 
 def test_merge():
     causal_fragments = [
-        (
-            ("small", 1,tension),
-            ("large", -1, food_security),
-        ),
-        (
-            ("small", 1,displacement),
-            ("small", 1,tension),
-        ),
-        (
-            ("small", 1,displacement),
-            ("large", -1, food_security),
-        ),
-        (
-            ("small", 1,tension),
-            ("small", 1, "UN/entities/natural/crop_technology/product"),
-        ),
-        (
-            ("large", -1, food_security),
-            ("small", 1, "UN/entities/natural/crop_technology/product"),
-        ),
+        (("small", 1, tension), ("large", -1, food_security)),
+        (("small", 1, displacement), ("small", 1, tension)),
+        (("small", 1, displacement), ("large", -1, food_security)),
+        (("small", 1, tension), ("small", 1, crop_production)),
+        (("large", -1, food_security), ("small", 1, crop_production)),
         (
             ("small", 1, "UN/events/human/economic_crisis"),
-            ("small", 1,tension),
+            ("small", 1, tension),
         ),
         (
             ("small", 1, "UN/events/weather/precipitation"),
             ("large", -1, food_security),
         ),
-        (("small", 1), ("small", 1,tension)),
         (("large", -1, food_security), ("small", 1, inflation)),
     ]
 
-    """
-    ("large", -1,food_security)
-    ("small", 1,tension)
-    ("small", 1,displacement)
-    ("small", 1, "UN/entities/natural/crop_technology/product")
-    ("small", 1, "UN/events/human/economic_crisis")
-    ("small", 1, "UN/events/weather/precipitation")
-    ("small", 1,inflation)
-    """
     print("\n\n\n\n")
     print("\nCreating CAG")
     G = AnalysisGraph.from_causal_fragments(causal_fragments)
@@ -423,7 +358,7 @@ def test_merge():
     G.print_nodes()
 
     print("\nAfter merging")
-    G.merge_nodes(food_security,tension)
+    G.merge_nodes(food_security, tension)
 
     G.print_all_paths()
 
@@ -438,8 +373,6 @@ def test_debug():
         (("small", 1, "n2"), ("large", -1, "n1")),
         (("small", 1, "n3"), ("large", -1, "n4")),
         (("small", 1, "n4"), ("large", -1, "n1")),
-        # (("small", 1, "n4"), ("large", -1, "n2")),
-        # (("small", 1, "n2"), ("large", -1, "n3")),
     ]
 
     causal_fragments = [  # Center node is n4
@@ -490,14 +423,13 @@ def test_debug():
     hops = 3
     node = "n0"
     print(
-        "\nSubgraph of {} hops beginning at node {} graph".format(hops, node)
+        f"\nSubgraph of {hops} hops beginning at node {node} graph"
     )
     try:
         G_sub = G.get_subgraph_for_concept(node, False, hops)
     except IndexError:
-        print("Concept {} is not in the CAG!".format(node))
+        print(f"Concept {node} is not in the CAG!")
         return
 
     G_sub.find_all_paths()
     G_sub.print_nodes()
-    # G_sub.print_all_paths()

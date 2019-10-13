@@ -1,15 +1,15 @@
 #include "AnalysisGraph.hpp"
 #include "Node.hpp"
-#include <range/v3/all.hpp>
 #include "spdlog/spdlog.h"
 #include "utils.hpp"
 #include <boost/range/algorithm/for_each.hpp>
+#include <range/v3/all.hpp>
 
+using boost::for_each;
+using delphi::utils::in;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
-using delphi::utils::in;
-using boost::for_each;
 
 using namespace std;
 
@@ -118,10 +118,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
 AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
     string source_concept, string target_concept, int cutoff) {
-  int src_id = this->get_vertex_id_for_concept(
-      source_concept, "get_subgraph_for_concept_pair()");
-  int tgt_id = this->get_vertex_id_for_concept(
-      target_concept, "get_subgraph_for_concept_pair()");
+  int src_id = this->get_vertex_id(source_concept);
+  int tgt_id = this->get_vertex_id(target_concept);
 
   unordered_set<int> vertices_to_keep;
   unordered_set<string> vertices_to_remove;
@@ -158,4 +156,3 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   return G_sub;
 }
-

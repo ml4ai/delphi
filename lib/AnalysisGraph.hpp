@@ -119,14 +119,9 @@ class AnalysisGraph {
   // convert this to s0
   Eigen::VectorXd s0;
 
-  Eigen::VectorXd& get_initial_latent_state() {
-    return this->s0;
-  };
+  Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
 
-  void set_initial_latent_state(Eigen::VectorXd vec) {
-    this->s0 = vec;
-  };
-
+  void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
 
   void set_default_initial_state();
   void set_derivative(std::string, double);
@@ -139,9 +134,7 @@ class AnalysisGraph {
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   private:
-
   void clear_state();
-
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
   std::unordered_set<std::string> indicators_in_CAG;
@@ -173,7 +166,6 @@ class AnalysisGraph {
   double t = 0.0;
   double delta_t = 1.0;
 
-
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
   // I chose to name this A_orginal. After refactoring the code, we could
@@ -203,7 +195,6 @@ class AnalysisGraph {
       predicted_observed_state_sequences;
 
   PredictedObservedStateSequence test_observed_state_sequence;
-
 
   // Keep track whether the model is trained.
   // Used to check whether there is a trained model before calling
@@ -279,7 +270,7 @@ class AnalysisGraph {
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-  int get_vertex_id_for_concept(std::string concept, std::string caller);
+  int get_vertex_id(std::string concept);
 
   int get_degree(int vertex_id);
 
@@ -410,12 +401,10 @@ class AnalysisGraph {
 
   double get_beta(std::string source_vertex_name,
                   std::string target_vertex_name) {
+
     // This is ∂target / ∂source
-    // return this->A_original(2 * this->name_to_vertex[target_vertex_name],
-    //                        2 * this->name_to_vertex[source_vertex_name] + 1);
-    return this->A_original(
-        2 * get_vertex_id_for_concept(target_vertex_name, "get_beta()"),
-        2 * get_vertex_id_for_concept(source_vertex_name, "get_beta()") + 1);
+    return this->A_original(2 * get_vertex_id(target_vertex_name),
+                            2 * get_vertex_id(source_vertex_name) + 1);
   }
 
   void construct_beta_pdfs();
