@@ -1,10 +1,10 @@
 #pragma once
 
 #include "kde.hpp"
-#include "random_variables.hpp"
 #include "Node.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <string>
+
 
 class Concept {
   public:
@@ -56,12 +56,7 @@ class Statement {
 class Edge {
   public:
   std::string name;
-  // TODO: Why kde is optional?
-  // According to AnalysisGraph::construct_beta_pdfs()
-  // it seems all the edges have a kde
   KDE kde;
-  // std::vector<CausalFragment> causalFragments = {};
-
   std::vector<Statement> evidence;
 
   // The current β for this edge
