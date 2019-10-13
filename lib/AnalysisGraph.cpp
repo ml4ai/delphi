@@ -26,7 +26,6 @@ const double TAU = 1;
 const double tuning_param = 0.0001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
-typedef graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
 
 size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);

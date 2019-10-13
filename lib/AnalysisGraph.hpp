@@ -40,6 +40,8 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    FormattedPredictionResult>
     Prediction;
 
+typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
+
 AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 
 /**
@@ -53,7 +55,7 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Node& operator[](int);
-  Edge& edge(boost::graph_traits<DiGraph>::edge_descriptor);
+  Edge& edge(EdgeDescriptor);
   Edge& edge(int, int);
   Edge& edge(int, std::string);
   Edge& edge(std::string, int);
@@ -214,8 +216,7 @@ class AnalysisGraph {
   // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, double>
-      previous_beta;
+  std::pair<EdgeDescriptor, double> previous_beta;
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
@@ -349,14 +350,10 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int,
-                                                                          int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-  add_edge(int, std::string);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-  add_edge(std::string, int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-      add_edge(std::string, std::string);
+  std::pair<EdgeDescriptor, bool> add_edge(int, int);
+  std::pair<EdgeDescriptor, bool> add_edge(int, std::string);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, int);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, std::string);
 
   void change_polarity_of_edge(std::string source_concept,
                                int source_polarity,
@@ -684,8 +681,7 @@ class AnalysisGraph {
    *
    * @param e: The directed edge ≡ β that has been perturbed
    */
-  void update_transition_matrix_cells(
-      boost::graph_traits<DiGraph>::edge_descriptor e);
+  void update_transition_matrix_cells(EdgeDescriptor e);
 
   /**
    * Sample a new transition matrix from the proposal distribution,
