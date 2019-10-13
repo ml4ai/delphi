@@ -73,6 +73,7 @@ add_library(Delphi
   lib/utils.cpp
   lib/utils.hpp
   lib/Node.hpp
+  lib/Edge.hpp
   lib/Indicator.hpp
   lib/Indicator.cpp
   lib/parameterization.cpp
