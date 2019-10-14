@@ -30,12 +30,12 @@ def petasce_grfn():
 
 @pytest.fixture
 def sir_simple_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f", save_file=True)
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
 
 
 @pytest.fixture
 def sir_gillespie_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/Gillespie-SIR.f", save_file=True)
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/Gillespie-SIR.f")
 
 
 @pytest.fixture
