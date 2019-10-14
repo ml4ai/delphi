@@ -27,23 +27,23 @@ def make_link_tables(GrFN):
                         for n3 in G.neighbors(n2):
                             if n3.startswith("<EQN>"):
                                 var_table.append({
-                                    "link-score": min([
+                                    "link_score": min([
                                         G[var_name][n1]["label"],
                                         G[n1][n2]["label"],
                                         G[n2][n3]["label"]
                                     ]),
                                     "comm": n1.split("\n")[1],
-                                    "var--comm": G[var_name][n1]["label"],
+                                    "vc_score": G[var_name][n1]["label"],
                                     "txt": n2.split("\n")[1],
-                                    "comm--txt": G[n1][n2]["label"],
+                                    "ct_score": G[n1][n2]["label"],
                                     "eqn": n3.split("\n")[1],
-                                    "txt--eqn": G[n2][n3]["label"]
+                                    "te_score": G[n2][n3]["label"]
                                 })
         var_table.sort(
-            key=lambda r: (r["link-score"],
-                           r["var--comm"],
-                           r["comm--txt"],
-                           r["txt--eqn"]),
+            key=lambda r: (r["link_score"],
+                           r["vc_score"],
+                           r["ct_score"],
+                           r["te_score"]),
             reverse=True
         )
         table_data[var] = var_table
@@ -83,7 +83,7 @@ def print_table_data(table_data):
         print("::".join([scope, name, idx]))
         print("L-SCORE\tComment\tV-C\tText-span\tC-T\tEquation\tT-E")
         for row in table:
-            print(f"{row['link-score']}\t{row['comm']}\t{row['var--comm']}\t{row['txt']}\t{row['comm--txt']}\t{row['eqn']}\t{row['txt--eqn']}")
+            print(f"{row['link_score']}\t{row['comm']}\t{row['vc_score']}\t{row['txt']}\t{row['ct_score']}\t{row['eqn']}\t{row['te_score']}")
         print("\n\n")
 
 
