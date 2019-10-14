@@ -1,186 +1,52 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-<head>
-  <meta charset="utf-8">
-  <title>AutoMATES ModelExplorer</title>
-
-  <!-- LOADING JS LIBRARIES -->
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.js"></script>
-  <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
-
-  <!-- LOADING BOOTSTRAP CSS/JS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/css/bootstrap-select.min.css">
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
-
-  <!-- LOADING LOCAL FILES WITH FLASK -->
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/style.css') }}">
-</head>
+{% include "head.html" %}
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <span class="navbar-brand mb-0 h1">Model Explorer</span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto">
-
-        <li class="nav-item active">
-          <a href="#" class="nav-link">Model Extraction</a>
-        </li>
-        <li class="nav-item active">
-          <a href="#" class="nav-link">Model Comparison</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Sidebar for doc/code/model/var menus -->
-  <div class="sidenav bg-light">
-    <div class="accordion" id="modelComponentAccordian">
-      <div class="card">
-        <div class="card-header" id="headingDocs">
-          <h5 class="mb-0">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseDocs" aria-expanded="true" aria-controls="collapseDocs">
-              Documents
-            </button>
-            <button id=new-doc-button class="badge badge-pill badge-success" data-toggle="modal" data-target="#new-doc-modal">+</button>
-          </h5>
-        </div>
-        <div id="collapseDocs" class="collapse show" aria-labelledby="headingDocs" data-parent="#modelComponentAccordian">
-          <div class="card-body">
-            <ul id=document-list class="list-group">
-              <!-- <a href="#" class="list-group-item list-group-item-action"><span class="badge badge-pill badge-success" aria-hidden="true">+</span> New document</a> -->
-            </ul>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header" id="headingCode">
-          <h5 class="mb-0">
-            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseCode" aria-expanded="false" aria-controls="collapseCode">
-              Source Code
-            </button>
-            <button id=new-code-button class="badge badge-pill badge-success">+</button>
-          </h5>
-        </div>
-        <div id="collapseCode" class="collapse" aria-labelledby="headingCode" data-parent="#modelComponentAccordian">
-          <div class="card-body">
-            <div id=source-file-list class="list-group">
-              <!-- <a class="list-group-item list-group-item-action">
-                <span class="badge badge-pill badge-success">+</span> New source file
-              </a> -->
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header" id="headingModels">
-          <h5 class="mb-0">
-            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseModels" aria-expanded="false" aria-controls="collapseModels">
-              Models
-            </button>
-            <button id=new-model-button class="badge badge-pill badge-success">+</button>
-          </h5>
-        </div>
-        <div id="collapseModels" class="collapse" aria-labelledby="headingModels" data-parent="#modelComponentAccordian">
-          <div class="card-body">
-            <ul class="list-group">
-              <!-- <a href="#" class="list-group-item list-group-item-action"><span class="badge badge-pill badge-success" aria-hidden="true">+</span> New model</a> -->
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header" id="headingVars">
-          <h5 class="mb-0">
-            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseVars" aria-expanded="false" aria-controls="collapseVars">
-              Variables
-            </button>
-            <button id=new-var-button class="badge badge-pill badge-success">+</button>
-          </h5>
-        </div>
-        <div id="collapseVars" class="collapse" aria-labelledby="headingVars" data-parent="#modelComponentAccordian">
-          <div class="card-body">
-            <ul class="list-group">
-              <!-- <a href="#" class="list-group-item list-group-item-action"><span class="badge badge-pill badge-success" aria-hidden="true">+</span> New variable</a> -->
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <nav class="navbar fixed-bottom navbar-light bg-light">
-      <button type="button" class="btn btn-primary disabled">Generate new model</button>
-    </nav>
-  </div>
+  {% include "navbar.html" %}
+  {% include "sidebar.html" %}
 
   <!-- Page content -->
   <div class="main">
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" href="#">Source Materials</a>
+    <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+      <li id=main-viewer-tabs class="nav-item">
+        <a class="nav-link active" id="materials-tab" data-toggle="tab" href="#materials-pane" role="tab" aria-controls="materials-pane" aria-selected="true">Source Materials</a>
+      </li>
+      <!-- <li class="nav-item">
+        <a class="nav-link" id="grfn-tab" data-toggle="tab" href="#grfn-pane" role="tab" aria-controls="grfn-pane" aria-selected="false">Grounded Function Network</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Grounded Function Network</a>
-      </li>
+        <a class="nav-link" id="cag-tab" data-toggle="tab" href="#cag-pane" role="tab" aria-controls="cag-pane" aria-selected="false">Causal Analysis Graph</a>
+      </li> -->
       <li class="nav-item">
-        <a class="nav-link" href="#">Causal Analysis Graph</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Grounding Table</a>
+        <a class="nav-link" id="grounding-table-tab" data-toggle="tab" href="#grounding-table-pane" role="tab" aria-controls="grounding-table-pane" aria-selected="false">Grounding Table</a>
       </li>
     </ul>
-    <div class="row">
+    <div class="tab-content" id="main-viewer-content">
+      <div class="tab-pane fade show active" id="materials-pane" role="tabpanel" aria-labelledby="materials-tab">
+        <div class="container">
+          <div class="row">
+            <div id=code-viewer class="col-6">
+              <h3>Source Code</h3>
+              <textarea id=code-viewer-area></textarea>
+            </div>
+            <div  class="col-6">
+              <h3>Source Text</h3>
+              <div id="document-viewer">
 
-    </div>
-  </div>
-
-  <!-- Modal to load a new document -->
-  <div class="modal fade" id="new-doc-modal" tabindex="-1" role="dialog" aria-labelledby="docModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3 class="modal-title" id="docModalLabel">Upload a new document</h3>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id=doc-upload-form class="md-form">
-            <div class="file-field">
-              <div class="btn btn-outline-primary btn-sm float-left">
-                <span>Choose file</span>
-                <input type="file">
-              </div>
-              <div class="file-path-wrapper">
-                <input class="file-path validate" type="text" placeholder="Upload a new PDF">
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <a id=new-doc-submit class="btn btn-primary text-white">Load</a>
-            </div>
-          </form>
-          <!-- <form>
-            <div class="form-group">
-              <label for="doc-upload">New PDF</label>
-              <input type="file" class="form-control-file" id="doc-upload">
-            </div>
-
-          </form> -->
+          </div>
         </div>
+      </div>
+      <!-- <div class="tab-pane fade" id="grfn-pane" role="tabpanel" aria-labelledby="grfn-tab">...</div>
+      <div class="tab-pane fade" id="cag-pane" role="tabpanel" aria-labelledby="cag-tab">...</div> -->
+      <div class="tab-pane fade" id="grounding-table-pane" role="tabpanel" aria-labelledby="grounding-table-tab">
+        <div class="accordion" id="grounding-accordian"></div>
       </div>
     </div>
   </div>
 
+  {% include "modals.html" %}
 </body>
-
-<script src="{{ url_for('static', filename='js/controller.js') }}"></script>
-
+<script type="text/javascript" src="static/js/controller.js"></script>
 </html>

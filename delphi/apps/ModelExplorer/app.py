@@ -4,26 +4,10 @@ import json
 from uuid import uuid4
 from datetime import datetime
 import subprocess as sp
-from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
-    genPGM,
-    For2PyError,
-)
-from delphi.GrFN.networks import GroundedFunctionNetwork
 import xml.etree.ElementTree as ET
 
-from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    jsonify,
-    flash,
-)
+from flask import Flask, render_template, request, redirect
+from flask import url_for, jsonify, flash
 from flask_wtf import FlaskForm
 from flask_codemirror.fields import CodeMirrorField
 from wtforms.fields import SubmitField
@@ -43,6 +27,11 @@ from delphi.apps.CodeExplorer.cyjs import (
     PYTHON_FORMATTER,
 )
 
+from delphi.translators.for2py import preprocessor, translate, get_comments
+from delphi.translators.for2py import pyTranslate, genPGM, For2PyError
+from delphi.GrFN.networks import GroundedFunctionNetwork
+from delphi.GrFN.linking import make_link_tables
+
 
 os.makedirs("/tmp/automates/", exist_ok=True)
 os.makedirs("/tmp/automates/input_code/", exist_ok=True)
@@ -58,6 +47,8 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 codemirror = CodeMirror(app)
 
+SOURCE_FILES = "/Users/phein/Google Drive/ASKE-AutoMATES/Data/source_model_files"
+
 
 @app.route("/")
 def index():
@@ -66,18 +57,76 @@ def index():
 
 @app.route('/get_saved_materials', methods=["GET"])
 def get_saved_materials():
-    save_path = os.path.join(os.getcwd(), "source_model_files")
-    code_files = os.listdir(os.path.join(save_path, "code"))
-    docs_files = os.listdir(os.path.join(save_path, "docs"))
-    return jsonify({"code": code_files, "docs": docs_files})
+    code_files = os.listdir(os.path.join(SOURCE_FILES, "code"))
+    docs_files = [f for f in os.listdir(os.path.join(SOURCE_FILES, "docs"))
+                  if f.endswith(".pdf")]
+    model_files = [f for f in os.listdir(os.path.join(SOURCE_FILES, "models"))
+                   if f.endswith(".json")]
+    return jsonify({
+        "code": code_files,
+        "docs": docs_files,
+        "models": model_files
+    })
+
+
+@app.route("/get_GrFN", methods=["POST"])
+def get_GrFN():
+    model_name = request.form["model_json"]
+    return NotImplemented
+    form = MyForm()
+    code = form.source_code.data
+    app.code = code
+    if code == "":
+        return render_template("index.html", form=form)
+    lines = [
+        line.replace("\r", "") + "\n"
+        for line in [line for line in code.split("\n")]
+        if line != ""
+    ]
+
+    # dir_name = str(uuid4())
+    # os.mkdir(f"/tmp/automates/input_code/{dir_name}")
+    # input_code_tmpfile = f"/tmp/automates/input_code/{dir_name}/{orig_file}.f"
+    filename = f"input_code_{str(uuid4()).replace('-', '_')}"
+    input_code_tmpfile = f"/tmp/automates/{filename}.f"
+    with open(input_code_tmpfile, "w") as f:
+        f.write(preprocessor.process(lines))
+
+    lambdas = f"{filename}_lambdas"
+    lambdas_path = f"/tmp/automates/{lambdas}.py"
+    G = GroundedFunctionNetwork.from_fortran_file(input_code_tmpfile,
+                                                  tmpdir="/tmp/automates/")
+
+    graphJSON, layout = get_grfn_surface_plot(G)
+
+    scopeTree_elementsJSON = to_cyjs_grfn(G)
+    CAG = G.to_CAG()
+    program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
+
+    os.remove(input_code_tmpfile)
+    os.remove(f"/tmp/automates/{lambdas}.py")
+
+    return render_template(
+        "index.html",
+        form=form,
+        code=app.code,
+        scopeTree_elementsJSON=scopeTree_elementsJSON,
+        graphJSON=graphJSON,
+        layout=layout,
+        program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
+    )
+
+
+@app.route("/get_link_table", methods=["POST"])
+def get_link_table():
+    model_name = request.form["model_json"]
+    grfn = json.load(open(f"{SOURCE_FILES}/models/{model_name}"))
+    return jsonify({str(k): v for k, v in make_link_tables(grfn).items()})
 
 
 @app.route('/upload_doc', methods=["POST"])
 def upload_doc():
-    save_path = os.path.join(os.getcwd(), "source_model_files")
-    code_files = os.listdir(os.path.join(save_path, "code"))
-    docs_files = os.listdir(os.path.join(save_path, "docs"))
-    return jsonify({"code": code_files, "docs": docs_files})
+    return NotImplemented
 
 
 def main():
