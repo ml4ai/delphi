@@ -124,21 +124,14 @@ public:
         // At the moment, the code silently skips that edge as if that edge
         // does not exist in the path. Is this the correct thing to do?
         // What happens when all the edges of a path do not have KDEs assigned?
-        if (CAG[boost::edge(v, v + 1, CAG).first].kde.has_value()) {
           // Vector of all the samples for this edge
           const std::vector<double> &samples =
-              CAG[boost::edge(v, v + 1, CAG).first].kde.value().dataset;
+              CAG[boost::edge(v, v + 1, CAG).first].kde.dataset;
 
           // Check whether we have enough samples to fulfil this request
           if (samples.size() > samp_num) {
             this->products[p] *= CAG[boost::edge(v, v + 1, CAG).first]
-                                     .kde.value()
-                                     .dataset[samp_num];
-            hasKDE = true;
-          } else {
-            // What should we do if there is not enough samples generated for
-            // this path?
-          }
+                                     .kde.dataset[samp_num];
         }
       }
 

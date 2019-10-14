@@ -136,7 +136,9 @@ class AnalysisGraph(nx.DiGraph):
         """
         from indra.sources.eidos import process_text
         eidosProcessor = process_text(text, webservice=webservice)
-        return cls.from_statements(eidosProcessor.statements)
+        eidosProcessor.extract_causal_relations()
+        return cls.from_statements([stmt for stmt in eidosProcessor.statements
+            if isinstance(stmt, Influence)])
 
     @classmethod
     def from_json_serialized_statements_list(

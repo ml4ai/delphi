@@ -100,6 +100,7 @@ def get_data_value(
 
     query_base = " ".join(
         [f"select * from indicator", f"where `Variable` like '{indicator}'"]
+        #[f"select Country, Year, Month, avg(Value) as Value, Unit from indicator", f"where `Variable` like '{indicator}'"]
     )
 
     query_parts = {"base": query_base}
@@ -131,8 +132,8 @@ def get_data_value(
             query_parts["state"] = f"and `State` is 'None'"
         else:
             query_parts["state"] = f"and `State` is '{state}'"
-    else:
-        query_parts["state"] = f"and `State` is 'None'"
+    #else:
+    #    query_parts["state"] = f"and `State` is 'None'"
 
     if county is not None:
         check_q = query_parts["base"] + f"and `County` is '{county}'"
@@ -147,8 +148,8 @@ def get_data_value(
             query_parts["county"] = f"and `County` is 'None'"
         else:
             query_parts["county"] = f"and `County` is '{county}'"
-    else:
-        query_parts["county"] = f"and `County` is 'None'"
+    #else:
+    #    query_parts["county"] = f"and `County` is 'None'"
 
     if unit is not None:
         check_q = query_parts["base"] + f" and `Unit` is '{unit}'"
@@ -164,8 +165,12 @@ def get_data_value(
     query_parts["year"] = f"and `Year` is '{year}'"
     query_parts["month"] = f"and `Month` is '{month}'"
 
+    #query_parts["groupby"] = f"group by `Year`, `Month`"
+
     query = " ".join(query_parts.values())
+    #print(query)
     results = list(engine.execute(query))
+    #print(results)
 
     if results != []:
         unit = sorted(list({r["Unit"] for r in results}))[0]

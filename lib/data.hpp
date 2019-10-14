@@ -1,10 +1,7 @@
 #pragma once
 
-#include "utils.hpp"
-#include <fmt/format.h>
 #include <string>
 #include <vector>
-#include "spdlog/spdlog.h"
 
 std::vector<double> get_data_value(std::string indicator,
                       std::string country = "",

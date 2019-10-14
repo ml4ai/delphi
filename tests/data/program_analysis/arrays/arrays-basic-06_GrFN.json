@@ -435,7 +435,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main::a::0",
@@ -450,7 +450,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a_ijk::0",
@@ -465,7 +465,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a::-1",
@@ -473,6 +473,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -482,6 +483,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -498,7 +500,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::0",
@@ -506,6 +508,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -515,6 +518,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -524,6 +528,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -533,6 +538,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -549,7 +555,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::-1",
@@ -557,6 +563,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -573,7 +580,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0::a::0",
@@ -581,6 +588,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -590,6 +598,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -599,6 +608,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -608,6 +618,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -624,7 +635,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main.loop$0::a::-1",
@@ -639,7 +650,7 @@
         ],
         "elem_type": "int",
         "index": 0,
-        "mutable": true
+        "mutable": false
       },
       "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::arrays-basic-06::main::a::1",
@@ -647,6 +658,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -656,6 +668,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -665,6 +678,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -674,6 +688,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -683,6 +698,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -692,6 +708,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -701,6 +718,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -710,6 +728,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -719,6 +738,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },
@@ -728,6 +748,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -737,6 +758,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "boolean",
         "type": "type"
       },
@@ -746,6 +768,7 @@
     },
     {
       "domain": {
+        "mutable": false,
         "name": "integer",
         "type": "type"
       },

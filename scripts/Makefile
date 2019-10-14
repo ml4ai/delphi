@@ -26,6 +26,7 @@ RAW_ZIP := $(RAW).zip
 
 
 $(RAW_ZIP):
+	mkdir -p data
 	curl http://vanga.sista.arizona.edu/delphi_data/$(@F) -o $@
 	
 $(RAW): $(RAW_ZIP)
@@ -80,12 +81,48 @@ data/indicator_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DAT
 data/indicator_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
 	python $< $@
 
-data/south_sudan_migration_data_initial: data_processing/process_migration_data_initial.py
-	python $<
+data/south_sudan_migration_data_initial.tsv: data_processing/process_migration_data_initial.py
+	python $< $@
 
-data/south_sudan_migration_data_secondary: data_processing/process_migration_data_secondary.py\
-										   data/south_sudan_migration_data_initial
-	python $<
+data/south_sudan_migration_data_secondary.tsv: data_processing/process_migration_data_secondary.py\
+										   data/south_sudan_migration_data_initial.tsv
+	python $^ $@
+
+
+data/WHO-data1.csv: data_processing/WHO-csv.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< $@ 
+
+data/WHO-data2.csv: data_processing/WHO-excel.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< 
+
+data/WHO-data3.csv: data_processing/WHO-excel1.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< 
+
+data/IMF-data.csv: data_processing/IMF.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/IMF
+	python $< 
+
+data/WFP-data.csv: data_processing/WFP.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WFP
+	python $< 
+
+data/World-Bank-data.csv: data_processing/World-Bank.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/World\ Bank
+	python $< 
+
+data/acled-data1.csv: data_processing/acled-South-Sudan.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
+	python $< 
+
+
+data/acled-data2.csv: data_processing/acled-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/ethiopia_east_africa_data/Armed\ Conflict\ Location\ &\ Event\ Data\ Project\ -\ ACLED
+	python $< 
+
+
+data/acled-data3.csv: data_processing/acled-South-Sudan-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
+	python $< 
+
+data/dssat_data_oct2019_eval.tsv: data_processing/process_dssat_data_oct2019_eval.py
+	python $< $@
+
+data/IOM-DTM-data1.csv: data_processing/IOM-DTM1.py
+	python $< $@
 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
@@ -93,13 +130,23 @@ data/south_sudan_migration_data_secondary: data_processing/process_migration_dat
 
 data/indicator_data.tsv: data_processing/combine_data.py\
 						 data/fao_data.tsv\
-						 data/wdi_data.tsv\
+						 data/WHO-data1.csv\
+						 data/WHO-data2.csv\
+						 data/WHO-data3.csv\
+						 data/IMF-data.csv\
+						 data/WFP-data.csv\
+						 data/World-Bank-data.csv\
+						 data/acled-data1.csv\
+						 data/acled-data2.csv\
+						 data/acled-data3.csv\
+						 data/IOM-DTM-data1.csv\
+						 data/dssat_data_oct2019_eval.tsv\
 						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
 						 data/indicator_data_fewsnet.tsv\
 						 data/indicator_data_climis_unicef_ieconomics.tsv\
 						 data/indicator_data_dssat.tsv\
 						 data/indicator_data_UNHCR.tsv\
-						 data/south_sudan_migration_data_secondary
+						 data/south_sudan_migration_data_secondary.tsv
 	python $< $@
 
 # =============================================================================
