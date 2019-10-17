@@ -135,7 +135,7 @@ bmi_config.txt
 *.pkl
 
 # Automatically generated dotfiles, pngs, and pdfs (do git add -f to override)
-
+!delphi/apps/ModelExplorer/static/source_model_files/docs
 *.dot
 *.png
 *.pdf
