@@ -2,6 +2,8 @@ var SOURCE_DOC = null;
 var SOURCE_CODE = null;
 var CURR_MODEL = null;
 
+var SOURCE_FILES = "/static/source_model_files/";
+
 var EDITOR = CodeMirror.fromTextArea(document.getElementById("code-viewer-area"), {
     "lineNumbers": "true",
     "viewportMargin": 800,
@@ -100,8 +102,8 @@ $(function() {
 
   $("#model-gen-button").on("click", (e) => {
     var pdf_name = get_model_pdf(CURR_MODEL);
-    PDFObject.embed("/static/source_model_files/docs/" + SOURCE_DOC, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
-    $.get("/static/source_model_files/code/" + SOURCE_CODE, (code) => {
+    PDFObject.embed(SOURCE_FILES + "docs/" + SOURCE_DOC, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
+    $.get(SOURCE_FILES + "code/" + SOURCE_CODE, (code) => {
       EDITOR.getDoc().setValue(code);
     });
 
@@ -156,8 +158,8 @@ $(function() {
    */
   $("#model-view-button").on("click", (e) => {
     var pdf_name = get_model_pdf(CURR_MODEL);
-    PDFObject.embed("/static/source_model_files/docs/" + pdf_name, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
-    $.get("/static/source_model_files/code/" + CURR_MODEL + ".f", (code) => {
+    PDFObject.embed(SOURCE_FILES + "docs/" + pdf_name, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
+    $.get(SOURCE_FILES + "code/" + CURR_MODEL + ".f", (code) => {
       EDITOR.getDoc().setValue(code);
     });
 
@@ -204,6 +206,20 @@ $(function() {
     // $.getJSON("/get_Grfn", {}, (data) => {
     //
     // });
+  });
+
+  $("#model-comp-button").on("click", (e) => {
+    $.ajax({
+        url: '/model_comparison',
+        data: {},
+        type: 'GET',
+        success: function(data) {
+          console.log(data);
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
   });
 
   // Setup a model for start conditions

@@ -139,6 +139,7 @@ bmi_config.txt
 *.dot
 *.png
 *.pdf
+*.Icon
 
 # VSCode
 .vscode/

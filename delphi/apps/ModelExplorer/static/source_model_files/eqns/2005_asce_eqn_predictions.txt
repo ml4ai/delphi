@@ -1,0 +1,62 @@
+\mathrm { E T } _ { \mathrm { s p } } = { \frac { 0 . 4 0 8 \Delta \left( R _ { \mathrm { n } } - \mathrm { G } \right) + \gamma _ { \overline { { 1 + 2 7 } } 3 } u _ { 2 } \left( \mathrm { e } _ { \mathrm { s } } - \mathrm { e } _ { \mathrm { a } } \right) } { \Delta + \gamma \left( 1 + \mathrm { C _ { d } u _ { 2 } } \right) } }
+\mathrm { T } = \frac { \mathrm { T } _ { \mathrm { m a x } } + \mathrm { T } _ { \mathrm { m i n } } } { 2 }
+\mathrm { P } = 1 0 1 . 3 \left( \frac { 2 9 3 - 0 . 0 0 6 5 2 } { 2 9 3 } \right) ^ { 5 . 2 6 }
+\gamma = 0 . 0 0 0 6 6 5 \mathrm { P }
+\Delta = \frac { 2 5 0 3 \operatorname { e x p } \left( \frac { 1 7 . 2 7 7 } { 1 + 2 3 7 . 3 } \right) } { ( \mathrm { T } + 2 3 7 . 3 ) ^ { 3 } }
+e _ { s } = \frac { e ^ { 0 } \left( T _ { \operatorname* { m a x } } \right) + e ^ { \circ } \left( T _ { \operatorname* { m i n } } \right) } { 2 }
+\mathrm { e } ^ { \mathrm { o } } ( \mathrm { T } ) = 0 . 6 1 0 8 \operatorname { e x p } \left( \frac { 1 7 . 2 7 \mathrm { T } } { T + 2 3 7 . 3 } \right)
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \mathrm { o } } \left( \mathrm { T } _ { \mathrm { d e w } } \right) = 0 . 6 1 0 8 \operatorname { e x p } \left[ \frac { 1 7 . 2 7 \mathrm { T } _ { \mathrm { d e v } } } { \mathrm { T } _ { \mathrm { d e w } } + 2 3 7 . 3 } \right]
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \mathrm { o } } \, ( \mathrm { T } _ { \mathrm { v e t } } ) - \gamma _ { \mathrm { p s y } } \, ( \mathrm { T } _ { \mathrm { d r y } } - \mathrm { T } _ { \mathrm { { v e t } } } )
+\gamma _ { \mathrm { p s y } } = a _ { \mathrm { p s y } } \mathrm { P }
+\mathrm { e } _ { \mathrm { a } } = { \frac { \mathrm { e } ^ { \mathrm { o } } \left( \mathrm { T } _ { \mathrm { m i n } } \right) { \frac { \mathrm { B H } _ { \mathrm { m i n } } } { 1 0 0 } } + \mathrm { e } ^ { \mathrm { o } } \left( \mathrm { T } _ { \mathrm { m a x } } \right) { \frac { \mathrm { B H } _ { \mathrm { m i n } } } { 1 0 } } } { 2 } }
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \circ } \left( \mathrm { T } _ { \mathrm { m i n } } \right) \frac { \mathrm { R H } _ { \mathrm { m a x } } } { 1 0 0 }
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \circ } \left( \mathrm { T } _ { \mathrm { m a x } } \right) \frac { \mathrm { R H } _ { \mathrm { m i n } } } { 1 0 0 }
+\mathrm { e } _ { \mathrm { a } } = \frac { \mathrm { R H } _ { \mathrm { m e a n } } } { 1 0 0 } \mathrm { e } ^ { \mathrm { o } } \left( \mathrm { T } _ { \mathrm { m e a n } } \right)
+\mathrm { R } _ { n } = \mathrm { R } _ { \mathrm { n s } } - \mathrm { R } _ { \mathrm { n l } }
+\mathrm { R } _ { \mathrm { n s } } = \mathrm { R } _ { \mathrm { s } } - \alpha \mathrm { R } _ { \mathrm { s } } = ( 1 - \alpha ) \mathrm { R } _ { \mathrm { s } }
+\mathrm { R } _ { \mathrm { n l } } = \sigma \mathrm { f } _ { \mathrm { c d } } \left( 0 . 3 4 - 0 . 1 4 \sqrt { \mathrm { e } _ { \mathrm { a } } } \right) \left[ \frac { \mathrm { T } _ { \mathrm { K m a x } } ^ { 4 } + \mathrm { T } _ { \mathrm { K m i n } } ^ { 4 } } { 2 } \right]
+\mathrm { f _ { \mathrm { c d } } } = 1 . 3 5 \frac { \mathrm { R _ { s } } } { \mathrm { R _ { s o } } } - 0 . 3 5
+\mathrm { R } _ { s o } = ( 0 . 7 5 + 2 \times 1 0 ^ { - 5 } Z ) \, \mathrm { R } _ { \mathrm { a } }
+\mathrm { R } _ { \mathrm { s o } } = \mathrm { K } _ { \mathrm { a b } } \mathrm { R } _ { \mathrm { a } }
+\mathrm { R } _ { \mathrm { a } } = \frac { 2 4 } { \pi } \mathrm { G } _ { \mathrm { s c } } \mathrm { d } _ { \mathrm { r } } \left[ \omega _ { \mathrm { s } } \operatorname { s i n } ( \varphi ) \operatorname { s i n } ( \delta ) + \operatorname { c o s } ( \varphi ) \operatorname { c o s } ( \delta ) \operatorname { s i n } \left( \omega _ { \mathrm { s } } \right) \right]
+\mathrm { d } _ { r } = 1 + 0 . 0 3 3 \operatorname { c o s } \left( \frac { 2 \pi } { 3 6 5 } J \right)
+\delta = 0 . 4 0 9 \operatorname { s i n } \left( \frac { 2 \pi } { 3 6 5 } J - 1 . 3 9 \right)
+\mathrm { J = D _ { M } - 3 2 + I n t } \left( 2 7 5 \frac { \mathrm { M } } { 9 } \right) + 2 \, \mathrm { I n t } \left( \frac { 3 } { \mathrm { M + 1 } } \right) + \mathrm { I n t } \left( \frac { \mathrm { M } } { 1 0 0 } - \frac { \mathrm { M o d } ( Y , 4 ) } { 4 } + 0 . 9 7 5 \right)
+\mathrm { J } _ { \mathrm { m o n t h } } = \mathrm { I n t } ( 3 0 . 4 M - 1 5 )
+\omega _ { \mathrm { S } } = \operatorname { a r c c o s } [ - \operatorname { t a n } ( \varphi ) \operatorname { t a n } ( \delta ) ]
+\omega _ { s } = \frac { \pi } { 2 } - \operatorname { a r c t a n } \left[ \frac { - \operatorname { t a n } ( \varphi ) \operatorname { t a n } ( \delta ) } { X ^ { 0 . 5 } } \right]
+\begin{array} { r c l } \end{array}
+\mathrm { G } _ { \mathrm { m o n t h , i } } = 0 . 0 7 \left( T _ { \mathrm { m o n t h , i + 1 } } - \mathrm { T } _ { \mathrm { m o n t h , i - 1 } } \right)
+\mathrm { G } _ { \mathrm { m o n t h , i } } = 0 . 1 4 \left( \mathrm { T } _ { \mathrm { m o n t h , i } } - \mathrm { T } _ { \mathrm { m o n t h , i - 1 } } \right)
+\mathrm { u } _ { 2 } = u _ { \mathrm { Z } } \frac { 4 . 8 7 } { \mathrm { l n } \left( 6 7 . 8 _ { Z _ { \mathrm { w } } } - 5 . 4 2 \right) }
+\mathrm { P } = 1 0 1 . 3 \left( \frac { 2 9 3 - 0 . 0 0 6 5 2 } { 2 9 3 } \right) ^ { 5 . 2 6 }
+\Delta = \frac { 2 5 0 3 \operatorname { e x p } \left( \frac { 1 7 . 2 7 7 } { 1 + 2 3 7 . 3 } \right) } { ( \mathrm { T } + 2 3 7 . 3 ) ^ { 3 } }
+\mathrm { e } _ { \mathrm { s } } = \mathrm { e } ^ { \mathrm { O } } ( \mathrm { T } ) = 0 . 6 1 0 8 \operatorname { e x p } \left( \frac { 1 7 . 2 7 \mathrm { T } } { \mathrm { T } + 2 3 7 . 3 } \right)
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \mathrm { o } } \left( \mathrm { T } _ { \mathrm { d e w } } \right) = 0 . 6 1 0 8 \operatorname { e x p } \left[ \frac { 1 7 . 2 7 \mathrm { T } _ { \mathrm { d e v } } } { \mathrm { T } _ { \mathrm { d e w } } + 2 3 7 . 3 } \right]
+\mathrm { e } _ { \mathrm { a } } = \mathrm { e } ^ { \mathrm { o } } \, ( \mathrm { T } _ { \mathrm { v e t } } ) - \gamma _ { \mathrm { p s y } } \, ( \mathrm { T } _ { \mathrm { d r y } } - \mathrm { T } _ { \mathrm { { v e t } } } )
+\gamma _ { \mathrm { p s y } } = \mathrm { a } _ { \mathrm { p s y } } \mathrm { P }
+\mathrm { e } _ { \mathrm { a } } = \frac { \mathrm { R H } } { 1 0 0 } \mathrm { e } ^ { \mathrm { o } } ( \mathrm { T } )
+\mathrm { R } _ { n } = \mathrm { R } _ { \mathrm { n s } } - \mathrm { R } _ { \mathrm { n l } }
+\mathrm { R } _ { \mathrm { n s } } = \mathrm { R } _ { \mathrm { s } } - \alpha \mathrm { R } _ { \mathrm { s } } = ( 1 - \alpha ) \mathrm { R } _ { \mathrm { s } }
+\mathrm { R } _ { \mathrm { n l } } = \sigma f _ { \mathrm { c d } } \left( 0 . 3 4 - 0 . 1 4 \sqrt { \mathrm { e } _ { \mathrm { a } } } \right) \, \mathrm { T } _ { \mathrm { K \, h r } } ^ { 4 }
+\mathrm { f _ { \mathrm { c d } } } = 1 . 3 5 \frac { \mathrm { R _ { s } } } { \mathrm { R _ { s o } } } - 0 . 3 5
+\mathrm { f } _ { \mathrm { c d } } = \mathrm { f } _ { \mathrm { c d } } \beta > 0 . 3
+\mathrm { R } _ { s o } = ( 0 . 7 5 + 2 \times 1 0 ^ { - 5 } Z ) \, \mathrm { R } _ { \mathrm { a } }
+\mathrm { R } _ { \mathrm { a } } = \frac { 1 2 } { \pi } \mathrm { G } _ { \mathrm { s c } } \mathrm { d } _ { \mathrm { r } } \left[ ( \omega _ { 2 } - \omega _ { 1 } ) \operatorname { s i n } ( \varphi ) \operatorname { s i n } ( \delta ) + \operatorname { c o s } ( \varphi ) \operatorname { c o s } ( \delta ) \left( \operatorname { s i n } { ( \omega _ { 2 } ) } - \operatorname { s i n } { ( \omega _ { 1 } ) } ) \right]
+\mathrm { R a d i a n s ~ } = \frac { \pi } { 1 8 0 } \mathrm { ( ~ d e c i m a l ~ d e g ~ r e e s ~ } )
+\mathrm { d } _ { r } = 1 + 0 . 0 3 3 \operatorname { c o s } \left( \frac { 2 \pi } { 3 6 5 } J \right)
+\delta = 0 . 4 0 9 \operatorname { s i n } \left( \frac { 2 \pi } { 3 6 5 } J - 1 . 3 9 \right)
+\mathrm { J = D _ { M } - 3 2 + I n t } \left( 2 7 5 \frac { \mathrm { M } } { 9 } \right) + 2 \, \mathrm { I n t } \left( \frac { 3 } { \mathrm { M + 1 } } \right) + \mathrm { I n t } \left( \frac { \mathrm { M } } { 1 0 0 } - \frac { \mathrm { M o d } ( Y , 4 ) } { 4 } + 0 . 9 7 5 \right)
+\omega _ { 1 } = \omega - \frac { \pi t _ { 1 } } { 2 4 }
+\omega = \frac { \pi } { 1 2 } \left[ ( t + 0 . 0 6 6 6 7 \left( \L _ { z } - \L _ { \mathrm { m } } \right) + \mathrm { S } _ { \mathrm { c } } \right) - 1 2 \right]
+\mathrm { S } _ { \mathrm { c } } = 0 . 1 6 4 5 \operatorname { s i n } ( 2 \mathrm { b } ) - 0 . 1 2 5 5 \operatorname { c o s } ( \mathrm { b } ) - 0 . 0 2 5 \operatorname { s i n } ( \mathrm { b } )
+\mathrm { b } = \frac { 2 \pi ( J - 8 1 ) } { 3 6 4 }
+\omega _ { \mathrm { S } } = \operatorname { a r c c o s } [ - \operatorname { t a n } ( \varphi ) \operatorname { t a n } ( \delta ) ]
+\omega _ { \mathrm { S } } = \frac { \pi } { 2 } - \operatorname { a r c t a n } \left[ \frac { - \operatorname { t a n } ( \varphi ) \operatorname { t a n } ( \delta ) } { X ^ { 0 , 5 } } \right]
+\begin{array} { r c l } \end{array}
+\beta = \operatorname { a r c s i n } [ \operatorname { s i n } ( \varphi ) \operatorname { s i n } ( \delta ) + \operatorname { c o s } ( \varphi ) \operatorname { c o s } ( \delta ) \operatorname { c o s } ( \omega ) ]
+\beta = \operatorname { a r c t a n } \left[ \frac { Y } { \left( 1 - Y ^ { 2 } \right) ^ { 0 , 5 } } \right]
+Y = \operatorname { s i n } ( \varphi ) \operatorname { s i n } ( \delta ) + \operatorname { c o s } ( \varphi ) \operatorname { c o s } ( \delta ) \operatorname { c o s } ( \omega )
+\mathrm { G ~ h r d a t t i m e } \, = 0 . 1 R _ { \mathrm { n } }
+\mathrm { u } _ { 2 } = u _ { \mathrm { z } } \frac { 4 . 8 7 } { \mathrm { l n } \left( 6 7 . 8 Z _ { \mathrm { w } } - 5 . 4 2 \right) }
+\mathrm { E T } _ { \mathrm { c } } = \mathrm { K } _ { \mathrm { c o } } * \mathrm { E T _ { \mathrm { o s } } } \quad \underline { { \mathrm { o r } } } \quad \mathrm { E T _ { \mathrm { c } } } = \mathrm { K _ { \mathrm { c r } } } * \mathrm { E T _ { r _ { \mathrm { S } } } }

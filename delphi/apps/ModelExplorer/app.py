@@ -57,7 +57,8 @@ def index():
 
 @app.route('/get_saved_materials', methods=["GET"])
 def get_saved_materials():
-    code_files = os.listdir(os.path.join(SOURCE_FILES, "code"))
+    code_files = [f for f in os.listdir(os.path.join(SOURCE_FILES, "code"))
+                  if f.endswith(".f")]
     docs_files = [f for f in os.listdir(os.path.join(SOURCE_FILES, "docs"))
                   if f.endswith(".pdf")]
     model_files = [f for f in os.listdir(os.path.join(SOURCE_FILES, "models"))
@@ -114,6 +115,51 @@ def get_GrFN():
         graphJSON=graphJSON,
         layout=layout,
         program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
+    )
+
+
+@app.route("/model_comparison")
+def model_comparison():
+    PETPT_GrFN = GroundedFunctionNetwork.from_fortran_file(
+        "static/source_model_files/code/petpt.f", tmpdir=TMPDIR
+    )
+    PETASCE_GrFN = GroundedFunctionNetwork.from_fortran_file(
+        "static/source_model_files/code/petasce.f", tmpdir=TMPDIR
+    )
+
+    PETPT_FIB = PETPT_GrFN.to_FIB(PETASCE_GrFN)
+    PETASCE_FIB = PETASCE_GrFN.to_FIB(PETPT_GrFN)
+
+    asce_inputs = {
+        "petasce::msalb_-1": 0.5,
+        "petasce::srad_-1": 15,
+        "petasce::tmax_-1": 10,
+        "petasce::tmin_-1": -10,
+        "petasce::xhlai_-1": 10,
+    }
+
+
+    asce_covers = {
+        "petasce::canht_-1": 2,
+        "petasce::meevp_-1": "A",
+        "petasce::cht_0": 0.001,
+        "petasce::cn_4": 1600.0,
+        "petasce::cd_4": 0.38,
+        "petasce::rso_0": 0.062320,
+        "petasce::ea_0": 7007.82,
+        "petasce::wind2m_0": 3.5,
+        "petasce::psycon_0": 0.0665,
+        "petasce::wnd_0": 3.5,
+    }
+    # graphJSON, layout = get_fib_surface_plot(PETASCE_FIB, asce_covers, 10)
+
+    return render_template(
+        "model_comparison.html",
+        petpt_elementsJSON=to_cyjs_cag(PETPT_GrFN.to_CAG()),
+        petasce_elementsJSON=to_cyjs_cag(PETASCE_GrFN.to_CAG()),
+        fib_elementsJSON=to_cyjs_fib(PETASCE_FIB.to_CAG()),
+        # layout=layout,
+        # graphJSON=graphJSON,
     )
 
 
