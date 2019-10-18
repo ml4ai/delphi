@@ -6,14 +6,13 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -41,6 +40,8 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    FormattedPredictionResult>
     Prediction;
 
+typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
+
 AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 
 /**
@@ -54,13 +55,15 @@ class AnalysisGraph {
   AnalysisGraph() {}
   Node& operator[](std::string);
   Node& operator[](int);
-  Edge& edge(boost::graph_traits<DiGraph>::edge_descriptor);
+  Edge& edge(EdgeDescriptor);
   Edge& edge(int, int);
   Edge& edge(int, std::string);
   Edge& edge(std::string, int);
   Edge& edge(std::string, std::string);
   size_t num_vertices();
   size_t num_edges();
+  // Sampling resolution. Default is 200
+  int res = DEFAULT_N_SAMPLES;
 
   // Manujinda: I had to move this up since I am usign this within the private:
   // block This is ugly. We need to re-factor the code to make it pretty again
@@ -68,16 +71,16 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
-
   auto nodes() {
     using boost::adaptors::transformed;
     return this->node_indices() |
-           transformed([&](int v) -> Node& {return (*this)[v];});
+           transformed([&](int v) -> Node& { return (*this)[v]; });
   };
 
   auto node_names() {
     using boost::adaptors::transformed;
-    return this->nodes() | transformed([&](auto node) -> std::string {return node.name;});
+    return this->nodes() |
+           transformed([&](auto node) -> std::string { return node.name; });
   };
 
   boost::range_detail::integer_iterator<unsigned long> begin() {
@@ -87,10 +90,22 @@ class AnalysisGraph {
     return boost::vertices(this->graph).second;
   };
 
-  auto successors(int i);
-  auto successors(std::string node_name);
-  auto predecessors(std::string node_name);
-  auto predecessors(int i);
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
+  }
+
+  auto successors(std::string node_name) {
+    return this->successors(this->name_to_vertex.at(node_name));
+  }
+
+  auto predecessors(int i) {
+    return boost::make_iterator_range(
+        boost::inv_adjacent_vertices(i, this->graph));
+  }
+
+  auto predecessors(std::string node_name) {
+    return this->predecessors(this->name_to_vertex.at(node_name));
+  }
 
   std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node_name);
@@ -100,16 +115,30 @@ class AnalysisGraph {
 
   void print_A_beta_factors();
 
-  private:
-  void clear_state();
+  // Latent state that is evolved by sampling.
+  // Since s0 is used to represent a sequence of latent states,
+  // I named this s0_original. Once things are refactored, we might be able to
+  // convert this to s0
+  Eigen::VectorXd s0;
+
+  Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
+
+  void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
+
+  void set_default_initial_state();
+  void set_derivative(std::string, double);
+
+  bool data_heuristic = false;
 
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
   // concept name --> CAG vertex id
   std::unordered_map<std::string, int> name_to_vertex = {};
 
+  private:
+  void clear_state();
+
   // Keeps track of indicators in CAG to ensure there are no duplicates.
-  // std::vector<std::string> indicators_in_CAG;
   std::unordered_set<std::string> indicators_in_CAG;
 
   // A_beta_factors is a 2D array (std::vector of std::vectors) that keeps track
@@ -138,12 +167,6 @@ class AnalysisGraph {
 
   double t = 0.0;
   double delta_t = 1.0;
-
-  // Latent state that is evolved by sampling.
-  // Since s0 is used to represent a sequence of latent states,
-  // I named this s0_original. Once things are refactored, we might be able to
-  // convert this to s0
-  Eigen::VectorXd s0;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -175,9 +198,6 @@ class AnalysisGraph {
 
   PredictedObservedStateSequence test_observed_state_sequence;
 
-  // Sampling resolution. Default is 200
-  int res = DEFAULT_N_SAMPLES;
-
   // Keep track whether the model is trained.
   // Used to check whether there is a trained model before calling
   // generate_prediction()
@@ -196,12 +216,10 @@ class AnalysisGraph {
   // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, double>
-      previous_beta;
+  std::pair<EdgeDescriptor, double> previous_beta;
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
-  bool data_heuristic = false;
 
   void get_subgraph(int vert,
                     std::unordered_set<int>& vertices_to_keep,
@@ -244,7 +262,6 @@ class AnalysisGraph {
    Utilities
    ==========================================================================
   */
-  void set_default_initial_state();
 
   std::mt19937 rand_num_generator;
 
@@ -254,7 +271,7 @@ class AnalysisGraph {
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-  int get_vertex_id_for_concept(std::string concept, std::string caller);
+  int get_vertex_id(std::string concept);
 
   int get_degree(int vertex_id);
 
@@ -333,14 +350,10 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool> add_edge(int,
-                                                                          int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-  add_edge(int, std::string);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-  add_edge(std::string, int);
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, bool>
-      add_edge(std::string, std::string);
+  std::pair<EdgeDescriptor, bool> add_edge(int, int);
+  std::pair<EdgeDescriptor, bool> add_edge(int, std::string);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, int);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, std::string);
 
   void change_polarity_of_edge(std::string source_concept,
                                int source_polarity,
@@ -385,12 +398,10 @@ class AnalysisGraph {
 
   double get_beta(std::string source_vertex_name,
                   std::string target_vertex_name) {
+
     // This is ∂target / ∂source
-    // return this->A_original(2 * this->name_to_vertex[target_vertex_name],
-    //                        2 * this->name_to_vertex[source_vertex_name] + 1);
-    return this->A_original(
-        2 * get_vertex_id_for_concept(target_vertex_name, "get_beta()"),
-        2 * get_vertex_id_for_concept(source_vertex_name, "get_beta()") + 1);
+    return this->A_original(2 * get_vertex_id(target_vertex_name),
+                            2 * get_vertex_id(source_vertex_name) + 1);
   }
 
   void construct_beta_pdfs();
@@ -505,6 +516,8 @@ class AnalysisGraph {
    *                  0 <= timestep < this->n_timesteps
    */
   void set_initial_latent_state_from_observed_state_sequence();
+
+  void set_initial_latent_from_end_of_training();
 
   void initialize_random_number_generator();
 
@@ -668,8 +681,7 @@ class AnalysisGraph {
    *
    * @param e: The directed edge ≡ β that has been perturbed
    */
-  void update_transition_matrix_cells(
-      boost::graph_traits<DiGraph>::edge_descriptor e);
+  void update_transition_matrix_cells(EdgeDescriptor e);
 
   /**
    * Sample a new transition matrix from the proposal distribution,
@@ -691,8 +703,6 @@ class AnalysisGraph {
   void sample_from_proposal();
 
   void set_current_latent_state(int ts);
-
-  double log_normpdf(double x, double mean, double sd);
 
   void set_log_likelihood();
 
@@ -716,45 +726,6 @@ class AnalysisGraph {
 
   void delete_all_indicators(std::string concept);
 
-  /*
-  // TODO: Demosntrate how to use the Node::get_indicator() method
-  // with the custom exception.
-  // Not sure whether we need this method in AnalaysisGraph
-  // so that python side can directly access the Indicator class
-  // objects and maipulate them (we need to fiture out how to map a
-  // custom class from C++ into python for this) - harder
-  // or
-  // mirror getter and setter methods of the Indicator class
-  // in AnalysisGraph and make the python side call them - easier.
-  Indicator get_indicator(std::string concept, std::string indicator) {
-    try {
-      return graph[name_to_vertex.at(concept)].get_indicator(indicator);
-    } catch (const std::out_of_range &oor) {
-      fmt::print("Error: AnalysisGraph::get_indicator()\n");
-      fmt::print("\tConcept: {} is not in the CAG\n", concept);
-    } catch (IndicatorNotFoundException &infe) {
-      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
-                << "\tindicator: " << infe.what()
-                << " is not attached to CAG node " << concept << std::endl;
-    }
-  }
-  */
-
-  void replace_indicator(std::string concept,
-                         std::string indicator_old,
-                         std::string indicator_new,
-                         std::string source);
-
-  /*
-    ==========================================================================
-    Model parameterization
-    *Loren: I am going to try to port this, I'll try not to touch anything up
-    top
-    and only push changes that compile. If I do push a change that breaks things
-    you could probably just comment out this section.*
-    ==========================================================================
-  */
-
   /**
    * Map each concept node in the AnalysisGraph instance to one or more
    * tangible quantities, known as 'indicators'.
@@ -771,8 +742,8 @@ class AnalysisGraph {
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
                     std::string county = "",
-                    int year = 2012,
-                    int month = 1,
+                    int year = -1,
+                    int month = 0,
                     std::map<std::string, std::string> units = {});
 
   void print_nodes();

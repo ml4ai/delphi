@@ -627,7 +627,10 @@ class PythonCodeGenerator(object):
             raise For2PyError(f"unrecognized type {node['type']}")
 
         arg_name = self.nameMapper[node["name"]]
-        self.variableMap[arg_name] = node["type"]
+        self.variableMap[arg_name] = {
+            "type": node["type"],
+            "parameter": False,
+        }
 
         self.var_type.setdefault(self.current_module, []).append({
             "name": arg_name,
@@ -781,6 +784,14 @@ class PythonCodeGenerator(object):
                 # target is a scalar variable
                 assg_str = f"{lhs['name']}[0]"
 
+        # Check if this is a parameter assignment
+        if lhs["is_parameter"] == "true":
+            parameter_comment = f"  # PARAMETER: {assg_str[:-3].upper()}"
+            self.variableMap[assg_str[:-3]]["parameter"] = True
+            is_parameter = True
+        else:
+            is_parameter = False
+
         # Check if the rhs string contains a multiplication or division
         # operation and if so check if the target variable is an integer. In
         # this case, cast the rhs string with int()
@@ -807,6 +818,9 @@ class PythonCodeGenerator(object):
         else:
             assg_str += f" = {rhs_str}"
 
+        if is_parameter:
+            assg_str += parameter_comment
+
         self.pyStrings.append(assg_str)
         return
 
@@ -831,6 +845,9 @@ class PythonCodeGenerator(object):
             if node.get("name") is not None:
                 val = self.nameMapper[node["name"]] + "[0]"
             else:
+                # TODO: Need to handle not just "op" but call to expressions
+                #  as well. Also, current implementation does not go deep
+                #  enough. This can be arbitrarily deep.
                 if "value" in node:
                     val = node["value"]
                 else:
@@ -842,11 +859,19 @@ class PythonCodeGenerator(object):
 
                     if node["left"][0]["tag"] == "ref":
                         left = self.proc_ref(node["left"][0], False)
+                    elif node["left"][0]["tag"] == "call":
+                        left = self.proc_call(node["left"][0])
+                    elif node["left"][0]["tag"] == "op":
+                        left = self.proc_op(node["left"][0])
                     else:
                         left = node["left"][0]["value"]
                     operator = node["operator"]
                     if node["right"][0]["tag"] == "ref":
                         right = self.proc_ref(node["right"][0], False)
+                    elif node["right"][0]["tag"] == "call":
+                        right = self.proc_call(node["right"][0])
+                    elif node["right"][0]["tag"] == "op":
+                        right = self.proc_op(node["right"][0])
                     else:
                         right = node["right"][0]["value"]
 
@@ -1184,12 +1209,19 @@ class PythonCodeGenerator(object):
 
             if not printState.sep:
                 printState.sep = "\n"
-            self.variableMap[self.nameMapper[node["name"]]] = node["type"]
+            self.variableMap[self.nameMapper[node["name"]]] = {
+                "type": node["type"],
+                "parameter": False,
+            }
         else:
             # If the variable is a saved variable, add its type mapping to
             # self.var_type
             if var_name in self.saved_variables[self.current_module]:
                 varType = self.get_type(node)
+            self.variableMap[self.nameMapper[node["name"]]] = {
+                "type": node["type"],
+                "parameter": False,
+            }
             printState.printFirst = False
 
     def printArray(self, node, printState: PrintState):
@@ -1578,7 +1610,7 @@ def create_python_source_list(outputDict: Dict):
         (code_generator.get_python_source(), main_ast, "program")
     )
 
-    return py_sourcelist
+    return (py_sourcelist, code_generator.variableMap)
 
 
 def parse_args():
@@ -1634,7 +1666,7 @@ if __name__ == "__main__":
     except IOError:
         raise For2PyError(f"Unable to read file {pickleFile}.")
 
-    python_source_list = create_python_source_list(outputDict)
+    (python_source_list, variable_map) = create_python_source_list(outputDict)
     outputList = []
     for item in python_source_list:
         if item[2] == "module":
@@ -1652,6 +1684,13 @@ if __name__ == "__main__":
                     f.write(item[0])
             except IOError:
                 raise For2PyError(f"Unable to write to {pyFile}.")
+
+    variable_map_file = f"{pyFile[:-3]}_variables_pickle"
+    try:
+        with open(variable_map_file, "wb") as f:
+            pickle.dump(variable_map, f)
+    except IOError:
+        raise For2PyError(f"Unable to write to {variable_map_file}.")
 
     try:
         with open(outFile, "w") as f:

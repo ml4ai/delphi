@@ -39,7 +39,7 @@ else()
   find_package(spdlog 1.4.1 REQUIRED)
 endif()
 
-find_package(PythonInterp 3.6 REQUIRED)
+find_package(PythonInterp REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
@@ -51,7 +51,6 @@ message("-- Using Eigen3 version 3.3 bundled with Delphi")
 include_directories(external/eigen)
 
 find_package(SQLite3 REQUIRED)
-include_directories(${SQLITE3_INCLUDE_DIRS})
 
 add_library(Delphi
   lib/AnalysisGraph.cpp
@@ -73,6 +72,13 @@ add_library(Delphi
   lib/tran_mat_cell.hpp
   lib/utils.cpp
   lib/utils.hpp
+  lib/Node.hpp
+  lib/Edge.hpp
+  lib/Indicator.hpp
+  lib/Indicator.cpp
+  lib/parameterization.cpp
+  lib/subgraphs.cpp
+  lib/json_constructors.cpp
 )
 
 target_include_directories(Delphi PRIVATE external/range-v3/include)
@@ -80,7 +86,7 @@ target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
                               spdlog::spdlog
-                              "sqlite3"
+                              SQLite::SQLite3
                               ${GRAPHVIZ_LIBS})
 
 # Tests
