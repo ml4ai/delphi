@@ -180,7 +180,7 @@ def generate_outputdict(
 
 
 def generate_python_src(
-    output_dictionary, python_file_name,
+    output_dictionary, python_files,
     output_file, variable_map_file, temp_dir, tester_call
 ):
     """This function generates python source file from
@@ -227,10 +227,11 @@ def generate_python_src(
                         f.write(item[0])
                 except IOError:
                     assert False, f"Unable to write to {module_file}."
+                python_files.append(module_file)
             else:
                 try:
-                    with open(python_file_name, "w") as f:
-                        output_list.append(python_file_name)
+                    with open(python_files[0], "w") as f:
+                        output_list.append(python_files[0])
                         f.write(item[0])
                 except IOError:
                     assert False, f"Unable to write to {python_file_name}."
@@ -253,7 +254,7 @@ def generate_grfn(
 
     Args:
         python_source_string (str): A string of python code.
-        python_filename (str): A file name of generated python script.
+        python_filename (str): A generated python file name.
         lambdas_file_suffix (str): The suffix of the file name where
         lambdas will be written to.
         mode_mapper_dictionary (list): A mapper of file info (i.e. filename,
@@ -481,7 +482,7 @@ def fortran_to_grfn(
     rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
     pickle_file = temp_dir + "/" + base + "_pickle"
     variable_map_file = temp_dir + "/" + base + "_variables_pickle"
-    translated_python_file = temp_dir + "/" + base + ".py"
+    translated_python_files = [temp_dir + "/" + base + ".py"]
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_suffix = temp_dir + "/" + base + ".json"
     lambdas_suffix = temp_dir + "/" + base + "_lambdas.py"
@@ -520,6 +521,10 @@ def fortran_to_grfn(
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
+    # DEUBG
+    print ("mode_mapper_dict:")
+    print ("    ", mode_mapper_dict, "\n")
+
     # Creates a pickle file
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
@@ -527,9 +532,13 @@ def fortran_to_grfn(
 
     # Create a python source file
     python_source = generate_python_src(
-        output_dict, translated_python_file, output_file, variable_map_file,
+        output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
+
+    # DEBUG
+    print ("translated_python_files:")
+    print ("    ", translated_python_files, "\n")
 
     if tester_call:
         os.remove(preprocessed_fortran_file)
@@ -539,7 +548,7 @@ def fortran_to_grfn(
             python_source,
             lambdas_suffix,
             json_suffix,
-            translated_python_file,
+            translated_python_files,
             mode_mapper_dict,
             original_fortran_file,
         )
@@ -562,13 +571,19 @@ if __name__ == "__main__":
         python_src,
         lambdas_file,
         json_file,
-        python_file,
+        python_files,
         mode_mapper_dict,
         original_fortran_file
     ) = fortran_to_grfn()
 
+    for python_src in python_src:
+        # DEBUG
+        print ("python_source:")
+        print ("    ", python_src, "\n")
+
     # Generate GrFN file
-    grfn_dict = generate_grfn(
-        python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
-        original_fortran_file, False
-    )
+    for python_file in python_files:
+        grfn_dict = generate_grfn(
+            python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
+            original_fortran_file, False
+        )
