@@ -389,7 +389,8 @@ class GrFNGenerator(object):
         #  a list and you should append to it.
         for body in body_grfn:
             for function in body["functions"]:
-                if function.get("type") == "return":
+                if function.get("function") and function["function"]["type"] \
+                        == "return":
                     return_value = function["value"]
                     # Remove the return_value function body from the main
                     # body as we don't need that anymore
@@ -2415,8 +2416,19 @@ class GrFNGenerator(object):
         else:
             val = None
 
+        namespace = self._get_namespace(self.fortran_file)
+        function_name = f"{namespace}__{self.current_scope}__return"
+        function_name = self.replace_multiple(
+            function_name,
+            ['$', '-', ':'],
+            '_'
+        )
+        function_name = function_name.replace('.', '__')
         return_dict = {
-            "type": "return",
+            "function": {
+                "name": function_name,
+                "type": "return"
+            },
             "value": val
         }
         grfn["functions"].append(return_dict)
