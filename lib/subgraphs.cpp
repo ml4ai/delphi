@@ -142,7 +142,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
 
   // Determine the vertices to be removed
   for (int vert_id : this->node_indices()) {
-    if (in(vertices_to_keep, vert_id)) {
+    if (!in(vertices_to_keep, vert_id)) {
       vertices_to_remove.insert((*this)[vert_id].name);
     }
   }
