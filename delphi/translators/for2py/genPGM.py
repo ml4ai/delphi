@@ -265,15 +265,15 @@ class GrFNGenerator(object):
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                if call_source == "module":
-                    node_name = node.__repr__().split()[0][2:]
-                    if self.process_grfn.get(node_name):
-                        # DEBUG
-                        print ("4a")
-                        return self.process_grfn[node_name](node, state, call_source)
-                    else:
-                        print ("4b")
-                        return self.process_nomatch(node, state, call_source)
+                # DEBUG
+                print ("1d")
+                node_name = node.__repr__().split()[0][2:]
+                print ("node_name: ", node_name)
+                if (
+                        node_name != "ast.Import" and
+                        node_name != "ast.ImportFrom"
+                ):
+                    return self.process_grfn[node_name](node, state, call_source)
                 else:
                     return []
         elif isinstance(node, list):
@@ -2396,9 +2396,9 @@ class GrFNGenerator(object):
         """
         grfn_list = []
         for cur in node.body:
-            # DEBUG
-            print ("cur: ", cur)
             grfn = self.gen_grfn(cur, state, "module")
+            # DEBUG
+            print ("cur-grfn: ", cur, " - ", grfn)
             grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
 
