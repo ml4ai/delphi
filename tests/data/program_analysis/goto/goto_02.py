@@ -33,14 +33,18 @@ def factorial():
                 write_list_stream = [i[0], fact[0]]
                 write_line = format_10_obj.write_line(write_list_stream)
                 sys.stdout.write(write_line)
-                if (i[0] == n[0]):
-                    return
-                label_flag_2[0] = True
-        n[0] = 10
-        fact[0] = 1
-        i[0] = 0
-        goto_flag_1[0] = False
-        label_flag_3[0] = True
+                if (i[0] != n[0]):
+                    label_flag_2[0] = True
+                else:
+                    break
+        if ((not(i[0]) and not(n[0])) or (i[0] != n[0])):
+            n[0] = 10
+            fact[0] = 1
+            i[0] = 0
+            goto_flag_1[0] = False
+            label_flag_3[0] = True
+        else:
+            break
     
 
 factorial()
