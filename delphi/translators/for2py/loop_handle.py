@@ -24,14 +24,6 @@ class RefactorBreaks(object):
     """
 
     def __init__(self):
-        self.find_opp = {
-            ".eq.": ".ne.",
-            ".ne.": ".eq.",
-            ".lt.": ".ge.",
-            ".gt.": ".le.",
-            ".le.": ".gt.",
-            ".ge.": ".lt.",
-        }
         self.return_found = False
         self.potential_if = dict()
         self.shifted_body = list()
@@ -168,7 +160,7 @@ class RefactorBreaks(object):
                 for if_body in body["body"]:
                     if if_body["tag"] == 'stop':
                         body['header'][0]['operator'] = \
-                            self.find_opp[body['header'][0]['operator']]
+                            syntax.NEGATED_OP[body['header'][0]['operator']]
                         body["else"] = [
                             {"tag": "exit"}
                         ]
