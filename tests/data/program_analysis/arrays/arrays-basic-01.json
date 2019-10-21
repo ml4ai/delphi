@@ -1,0 +1,355 @@
+{
+   "ast": [
+      {
+         "tag": "program",
+         "name": "factorial",
+         "args": [],
+         "body": [
+            {
+               "type": "integer",
+               "is_derived_type": "false",
+               "keyword2": "none",
+               "name": "i",
+               "is_array": "false",
+               "tag": "variable"
+            },
+            {
+               "type": "integer",
+               "is_derived_type": "false",
+               "keyword2": "none",
+               "name": "n",
+               "is_array": "false",
+               "tag": "variable"
+            },
+            {
+               "type": "integer",
+               "is_derived_type": "false",
+               "keyword2": "none",
+               "name": "fact",
+               "is_array": "false",
+               "tag": "variable"
+            },
+            {
+               "tag": "assignment",
+               "target": [
+                  {
+                     "tag": "ref",
+                     "name": "n",
+                     "numPartRef": "1",
+                     "hasSubscripts": "false",
+                     "is_array": "false",
+                     "is_arg": "false",
+                     "is_parameter": "false",
+                     "is_derived_type_ref": "false"
+                  }
+               ],
+               "value": [
+                  {
+                     "tag": "literal",
+                     "type": "int",
+                     "value": "10"
+                  }
+               ]
+            },
+            {
+               "tag": "assignment",
+               "target": [
+                  {
+                     "tag": "ref",
+                     "name": "fact",
+                     "numPartRef": "1",
+                     "hasSubscripts": "false",
+                     "is_array": "false",
+                     "is_arg": "false",
+                     "is_parameter": "false",
+                     "is_derived_type_ref": "false"
+                  }
+               ],
+               "value": [
+                  {
+                     "tag": "literal",
+                     "type": "int",
+                     "value": "1"
+                  }
+               ]
+            },
+            {
+               "tag": "assignment",
+               "target": [
+                  {
+                     "tag": "ref",
+                     "name": "i",
+                     "numPartRef": "1",
+                     "hasSubscripts": "false",
+                     "is_array": "false",
+                     "is_arg": "false",
+                     "is_parameter": "false",
+                     "is_derived_type_ref": "false"
+                  }
+               ],
+               "value": [
+                  {
+                     "tag": "literal",
+                     "type": "int",
+                     "value": "0"
+                  }
+               ]
+            },
+            {
+               "type": "logical",
+               "is_derived_type": "false",
+               "keyword2": "none",
+               "name": "label_flag_1",
+               "is_array": "false",
+               "tag": "variable"
+            },
+            {
+               "tag": "assignment",
+               "target": [
+                  {
+                     "tag": "ref",
+                     "name": "label_flag_1",
+                     "numPartRef": "1",
+                     "hasSubscripts": "false",
+                     "is_array": "false",
+                     "is_arg": "false",
+                     "is_parameter": "false",
+                     "is_derived_type_ref": "false"
+                  }
+               ],
+               "value": [
+                  {
+                     "tag": "literal",
+                     "type": "bool",
+                     "value": "true"
+                  }
+               ]
+            },
+            {
+               "tag": "do-while",
+               "header": [
+                  {
+                     "tag": "ref",
+                     "name": "label_flag_1",
+                     "numPartRef": "1",
+                     "hasSubscripts": "false",
+                     "is_array": "false",
+                     "is_arg": "false",
+                     "is_parameter": "false",
+                     "is_derived_type_ref": "false"
+                  }
+               ],
+               "body": [
+                  {
+                     "tag": "assignment",
+                     "target": [
+                        {
+                           "tag": "ref",
+                           "name": "i",
+                           "numPartRef": "1",
+                           "hasSubscripts": "false",
+                           "is_array": "false",
+                           "is_arg": "false",
+                           "is_parameter": "false",
+                           "is_derived_type_ref": "false"
+                        }
+                     ],
+                     "value": [
+                        {
+                           "tag": "op",
+                           "left": [
+                              {
+                                 "tag": "ref",
+                                 "name": "i",
+                                 "numPartRef": "1",
+                                 "hasSubscripts": "false",
+                                 "is_array": "false",
+                                 "is_arg": "false",
+                                 "is_parameter": "false",
+                                 "is_derived_type_ref": "false"
+                              }
+                           ],
+                           "operator": "+",
+                           "right": [
+                              {
+                                 "tag": "literal",
+                                 "type": "int",
+                                 "value": "1"
+                              }
+                           ]
+                        }
+                     ]
+                  },
+                  {
+                     "tag": "assignment",
+                     "target": [
+                        {
+                           "tag": "ref",
+                           "name": "fact",
+                           "numPartRef": "1",
+                           "hasSubscripts": "false",
+                           "is_array": "false",
+                           "is_arg": "false",
+                           "is_parameter": "false",
+                           "is_derived_type_ref": "false"
+                        }
+                     ],
+                     "value": [
+                        {
+                           "tag": "op",
+                           "left": [
+                              {
+                                 "tag": "ref",
+                                 "name": "fact",
+                                 "numPartRef": "1",
+                                 "hasSubscripts": "false",
+                                 "is_array": "false",
+                                 "is_arg": "false",
+                                 "is_parameter": "false",
+                                 "is_derived_type_ref": "false"
+                              }
+                           ],
+                           "operator": "*",
+                           "right": [
+                              {
+                                 "tag": "ref",
+                                 "name": "i",
+                                 "numPartRef": "1",
+                                 "hasSubscripts": "false",
+                                 "is_array": "false",
+                                 "is_arg": "false",
+                                 "is_parameter": "false",
+                                 "is_derived_type_ref": "false"
+                              }
+                           ]
+                        }
+                     ]
+                  },
+                  {
+                     "tag": "write",
+                     "args": [
+                        {
+                           "tag": "literal",
+                           "type": "char",
+                           "value": "*"
+                        },
+                        {
+                           "tag": "literal",
+                           "type": "int",
+                           "value": "10"
+                        },
+                        {
+                           "tag": "ref",
+                           "name": "i",
+                           "numPartRef": "1",
+                           "hasSubscripts": "false",
+                           "is_array": "false",
+                           "is_arg": "false",
+                           "is_parameter": "false",
+                           "is_derived_type_ref": "false"
+                        },
+                        {
+                           "tag": "ref",
+                           "name": "fact",
+                           "numPartRef": "1",
+                           "hasSubscripts": "false",
+                           "is_array": "false",
+                           "is_arg": "false",
+                           "is_parameter": "false",
+                           "is_derived_type_ref": "false"
+                        }
+                     ]
+                  },
+                  {
+                     "tag": "if",
+                     "header": [
+                        {
+                           "tag": "op",
+                           "left": [
+                              {
+                                 "tag": "ref",
+                                 "name": "i",
+                                 "numPartRef": "1",
+                                 "hasSubscripts": "false",
+                                 "is_array": "false",
+                                 "is_arg": "false",
+                                 "is_parameter": "false",
+                                 "is_derived_type_ref": "false"
+                              }
+                           ],
+                           "operator": ".eq.",
+                           "right": [
+                              {
+                                 "tag": "ref",
+                                 "name": "n",
+                                 "numPartRef": "1",
+                                 "hasSubscripts": "false",
+                                 "is_array": "false",
+                                 "is_arg": "false",
+                                 "is_parameter": "false",
+                                 "is_derived_type_ref": "false"
+                              }
+                           ]
+                        }
+                     ],
+                     "body": [
+                        {
+                           "tag": "stop"
+                        }
+                     ]
+                  },
+                  {
+                     "tag": "assignment",
+                     "target": [
+                        {
+                           "tag": "ref",
+                           "name": "label_flag_1",
+                           "numPartRef": "1",
+                           "hasSubscripts": "false",
+                           "is_array": "false",
+                           "is_arg": "false",
+                           "is_parameter": "false",
+                           "is_derived_type_ref": "false"
+                        }
+                     ],
+                     "value": [
+                        {
+                           "tag": "literal",
+                           "type": "bool",
+                           "value": "true"
+                        }
+                     ]
+                  }
+               ]
+            },
+            {
+               "tag": "format",
+               "args": [
+                  {
+                     "tag": "literal",
+                     "type": "char",
+                     "value": "'i = '"
+                  },
+                  {
+                     "tag": "literal",
+                     "type": "char",
+                     "value": "I3"
+                  },
+                  {
+                     "tag": "literal",
+                     "type": "char",
+                     "value": "'; fact = '"
+                  },
+                  {
+                     "tag": "literal",
+                     "type": "char",
+                     "value": "I8"
+                  }
+               ],
+               "label": "10"
+            }
+         ]
+      }
+   ],
+   "functionList": []
+}
