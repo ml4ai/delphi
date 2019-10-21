@@ -27,6 +27,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict
 from collections import OrderedDict
 from delphi.translators.for2py.get_comments import get_comments
+from delphi.translators.for2py.loop_handle import RefactorBreaks
 
 
 class ParseState(object):
@@ -1025,6 +1026,9 @@ class XML_to_JSON_translator(object):
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
+        # Handle loop breaks and returns
+        # ast = loop_breaks(ast)
+
         """
         Find the entry point for the Fortran file.
         The entry point for a conventional Fortran file is always the PROGRAM
@@ -1067,6 +1071,10 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
 def xml_to_py(trees, fortran_file):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
+
+    refactor_breaks = RefactorBreaks()
+    output_dict = refactor_breaks.refactor(output_dict)
+
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments
 
@@ -1123,5 +1131,5 @@ if __name__ == "__main__":
     trees = get_trees(args.files)
 
     output_dict = xml_to_py(trees, fortran_file)
-    
+
     gen_pickle_file(output_dict, pickle_file)
